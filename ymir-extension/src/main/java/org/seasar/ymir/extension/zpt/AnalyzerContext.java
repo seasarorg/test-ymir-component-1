@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.zpt;
+package org.seasar.ymir.extension.zpt;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -7,20 +7,20 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.seasar.cms.ymir.Messages;
-import org.seasar.cms.ymir.Notes;
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.RequestProcessor;
-import org.seasar.cms.ymir.Token;
-import org.seasar.cms.ymir.YmirVariableResolver;
-import org.seasar.cms.ymir.extension.creator.ClassDesc;
-import org.seasar.cms.ymir.extension.creator.FormDesc;
-import org.seasar.cms.ymir.extension.creator.PropertyDesc;
-import org.seasar.cms.ymir.extension.creator.PropertyTypeHint;
-import org.seasar.cms.ymir.extension.creator.PropertyTypeHintBag;
-import org.seasar.cms.ymir.extension.creator.SourceCreator;
-import org.seasar.cms.ymir.extension.creator.TypeDesc;
-import org.seasar.cms.ymir.extension.creator.impl.ClassDescImpl;
+import org.seasar.ymir.Messages;
+import org.seasar.ymir.Notes;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.RequestProcessor;
+import org.seasar.ymir.Token;
+import org.seasar.ymir.YmirVariableResolver;
+import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.FormDesc;
+import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.PropertyTypeHint;
+import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
+import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.TypeDesc;
+import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 import org.seasar.framework.container.S2Container;
 
 import net.skirnir.freyja.VariableResolver;

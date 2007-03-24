@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.creator.impl;
+package org.seasar.ymir.extension.creator.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,16 +7,16 @@ import java.io.OutputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.extension.Globals;
-import org.seasar.cms.ymir.extension.creator.BodyDesc;
-import org.seasar.cms.ymir.extension.creator.ClassDesc;
-import org.seasar.cms.ymir.extension.creator.MethodDesc;
-import org.seasar.cms.ymir.extension.creator.ParameterDesc;
-import org.seasar.cms.ymir.extension.creator.PropertyDesc;
-import org.seasar.cms.ymir.extension.creator.PropertyTypeHint;
-import org.seasar.cms.ymir.extension.creator.PropertyTypeHintBag;
-import org.seasar.cms.ymir.extension.creator.TypeDesc;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.extension.Globals;
+import org.seasar.ymir.extension.creator.BodyDesc;
+import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.MethodDesc;
+import org.seasar.ymir.extension.creator.ParameterDesc;
+import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.PropertyTypeHint;
+import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
+import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.framework.util.ResourceUtil;
 import org.seasar.kvasir.util.io.IOUtils;
 
@@ -138,7 +138,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
     public void testMergeWithExistentClass() throws Exception {
 
         ClassDesc cd = new ClassDescImpl(
-                "org.seasar.cms.ymir.extension.creator.impl.Merge3");
+                "org.seasar.ymir.extension.creator.impl.Merge3");
         cd.setSuperclass(Merge3BaseBase.class);
         PropertyDesc pd = new PropertyDescImpl("hoe");
         pd.addMode(PropertyDesc.READ);
@@ -196,7 +196,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
     public void testMergeWithExistentClass2() throws Exception {
 
         ClassDesc cd = new ClassDescImpl(
-                "org.seasar.cms.ymir.extension.creator.impl.Merge2");
+                "org.seasar.ymir.extension.creator.impl.Merge2");
         cd.setSuperclass(Merge2BaseBase.class);
         MethodDesc md = new MethodDescImpl("_render");
         md.setReturnTypeDesc(new TypeDescImpl(Void.TYPE));
@@ -212,7 +212,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
             throws Exception {
 
         ClassDesc cd = target_.getClassDesc(Class1Base.class,
-                "org.seasar.cms.ymir.extension.creator.impl.Class1");
+                "org.seasar.ymir.extension.creator.impl.Class1");
         BodyDesc actual = cd.getMethodDescs()[0].getBodyDesc();
         assertEquals("return \"return value\";", ((Map) actual.getRoot())
                 .get("body"));
@@ -236,7 +236,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 Globals.APPKEY_SOURCECREATOR_SUPERCLASS);
 
         ClassDesc cd = new ClassDescImpl(
-                "org.seasar.cms.ymir.extension.creator.impl.Merge5");
+                "org.seasar.ymir.extension.creator.impl.Merge5");
 
         target_.mergeWithExistentClass(cd, true);
 

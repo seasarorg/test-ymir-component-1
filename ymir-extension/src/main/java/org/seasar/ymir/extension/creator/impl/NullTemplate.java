@@ -1,11 +1,11 @@
-package org.seasar.cms.ymir.extension.creator.impl;
+package org.seasar.ymir.extension.creator.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.seasar.cms.ymir.extension.creator.Template;
+import org.seasar.ymir.extension.creator.Template;
 
 public class NullTemplate implements Template {
 

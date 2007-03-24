@@ -1,14 +1,14 @@
-package org.seasar.cms.ymir.extension.constraint;
+package org.seasar.ymir.extension.constraint;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.seasar.cms.ymir.Constraint;
-import org.seasar.cms.ymir.ConstraintViolatedException;
-import org.seasar.cms.ymir.Note;
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.ValidationFailedException;
-import org.seasar.cms.ymir.YmirContext;
-import org.seasar.cms.ymir.util.TokenUtils;
+import org.seasar.ymir.Constraint;
+import org.seasar.ymir.ConstraintViolatedException;
+import org.seasar.ymir.Note;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.ValidationFailedException;
+import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.util.TokenUtils;
 
 public class TokenRequiredConstraint implements Constraint {
 

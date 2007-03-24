@@ -1,8 +1,8 @@
-package org.seasar.cms.ymir.extension.creator;
+package org.seasar.ymir.extension.creator;
 
 import junit.framework.TestCase;
 
-import org.seasar.cms.ymir.extension.creator.impl.TypeDescImpl;
+import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 
 public class DescValidatorTest extends TestCase {
 

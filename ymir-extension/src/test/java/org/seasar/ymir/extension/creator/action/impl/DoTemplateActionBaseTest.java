@@ -1,13 +1,13 @@
-package org.seasar.cms.ymir.extension.creator.action.impl;
+package org.seasar.ymir.extension.creator.action.impl;
 
 import junit.framework.TestCase;
 
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.extension.creator.PathMetaData;
-import org.seasar.cms.ymir.extension.creator.mock.MockSourceCreator;
-import org.seasar.cms.ymir.extension.mock.MockHttpServletRequest;
-import org.seasar.cms.ymir.mock.MockRequest;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.extension.creator.PathMetaData;
+import org.seasar.ymir.extension.creator.mock.MockSourceCreator;
+import org.seasar.ymir.extension.mock.MockHttpServletRequest;
+import org.seasar.ymir.mock.MockRequest;
 
 public class DoTemplateActionBaseTest extends TestCase {
 

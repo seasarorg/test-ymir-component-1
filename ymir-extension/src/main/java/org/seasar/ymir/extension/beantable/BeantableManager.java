@@ -1,6 +1,6 @@
-package org.seasar.cms.ymir.extension.beantable;
+package org.seasar.ymir.extension.beantable;
 
-import static org.seasar.cms.ymir.extension.Globals.APPKEY_BEANTABLE_ENABLE;
+import static org.seasar.ymir.extension.Globals.APPKEY_BEANTABLE_ENABLE;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -10,10 +10,10 @@ import org.seasar.cms.beantable.Beantable;
 import org.seasar.cms.pluggable.ClassTraverser;
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.cms.pluggable.hotdeploy.HotdeployListener;
-import org.seasar.cms.ymir.Application;
-import org.seasar.cms.ymir.ApplicationManager;
-import org.seasar.cms.ymir.LifecycleListener;
-import org.seasar.cms.ymir.extension.ClassTraverserBag;
+import org.seasar.ymir.Application;
+import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.LifecycleListener;
+import org.seasar.ymir.extension.ClassTraverserBag;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;

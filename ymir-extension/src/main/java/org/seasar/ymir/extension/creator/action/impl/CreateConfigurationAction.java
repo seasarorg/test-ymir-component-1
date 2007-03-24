@@ -1,6 +1,6 @@
-package org.seasar.cms.ymir.extension.creator.action.impl;
+package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.cms.ymir.impl.DefaultRequestProcessor.PARAM_METHOD;
+import static org.seasar.ymir.impl.DefaultRequestProcessor.PARAM_METHOD;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,13 +9,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.seasar.cms.ymir.Application;
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.extension.creator.PathMetaData;
-import org.seasar.cms.ymir.extension.creator.SourceCreator;
-import org.seasar.cms.ymir.extension.creator.action.UpdateAction;
-import org.seasar.cms.ymir.impl.SingleApplication;
+import org.seasar.ymir.Application;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.extension.creator.PathMetaData;
+import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.action.UpdateAction;
+import org.seasar.ymir.impl.SingleApplication;
 
 public class CreateConfigurationAction extends AbstractAction implements
         UpdateAction {

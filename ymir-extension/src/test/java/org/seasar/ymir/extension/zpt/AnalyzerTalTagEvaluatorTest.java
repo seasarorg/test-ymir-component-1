@@ -1,8 +1,8 @@
-package org.seasar.cms.ymir.extension.zpt;
+package org.seasar.ymir.extension.zpt;
 
 import junit.framework.TestCase;
 
-import org.seasar.cms.ymir.extension.zpt.AnalyzerTalTagEvaluator.AnnotationResult;
+import org.seasar.ymir.extension.zpt.AnalyzerTalTagEvaluator.AnnotationResult;
 
 import net.skirnir.freyja.Attribute;
 import net.skirnir.freyja.EvaluationRuntimeException;

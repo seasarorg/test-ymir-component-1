@@ -1,7 +1,7 @@
-package org.seasar.cms.ymir.extension;
+package org.seasar.ymir.extension;
 
 import org.seasar.cms.pluggable.ClassTraverser;
-import org.seasar.cms.ymir.Application;
+import org.seasar.ymir.Application;
 
 public class ClassTraverserBag {
 

@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.mock;
+package org.seasar.ymir.extension.mock;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;

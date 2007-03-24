@@ -1,6 +1,6 @@
-package org.seasar.cms.ymir.extension.impl;
+package org.seasar.ymir.extension.impl;
 
-import org.seasar.cms.ymir.Constraint;
+import org.seasar.ymir.Constraint;
 
 public interface NamedConstraint extends Constraint {
 

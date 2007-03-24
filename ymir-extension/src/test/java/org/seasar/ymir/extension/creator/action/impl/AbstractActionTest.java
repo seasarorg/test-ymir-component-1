@@ -1,12 +1,12 @@
-package org.seasar.cms.ymir.extension.creator.action.impl;
+package org.seasar.ymir.extension.creator.action.impl;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.seasar.cms.ymir.extension.creator.action.impl.AbstractAction.Parameter;
-import org.seasar.cms.ymir.impl.RequestImpl;
+import org.seasar.ymir.extension.creator.action.impl.AbstractAction.Parameter;
+import org.seasar.ymir.impl.RequestImpl;
 
 public class AbstractActionTest extends TestCase {
 

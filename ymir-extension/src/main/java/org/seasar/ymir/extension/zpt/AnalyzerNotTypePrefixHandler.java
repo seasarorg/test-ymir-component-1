@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.zpt;
+package org.seasar.ymir.extension.zpt;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;

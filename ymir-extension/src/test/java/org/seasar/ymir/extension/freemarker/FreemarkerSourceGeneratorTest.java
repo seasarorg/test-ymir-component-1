@@ -1,15 +1,15 @@
-package org.seasar.cms.ymir.extension.freemarker;
+package org.seasar.ymir.extension.freemarker;
 
-import org.seasar.cms.ymir.YmirTestCase;
-import org.seasar.cms.ymir.extension.creator.ClassDesc;
-import org.seasar.cms.ymir.extension.creator.MethodDesc;
-import org.seasar.cms.ymir.extension.creator.PropertyDesc;
-import org.seasar.cms.ymir.extension.creator.impl.BodyDescImpl;
-import org.seasar.cms.ymir.extension.creator.impl.ClassDescImpl;
-import org.seasar.cms.ymir.extension.creator.impl.MethodDescImpl;
-import org.seasar.cms.ymir.extension.creator.impl.PropertyDescImpl;
-import org.seasar.cms.ymir.extension.creator.impl.SourceCreatorImpl;
-import org.seasar.cms.ymir.extension.creator.mock.MockSourceCreator;
+import org.seasar.ymir.YmirTestCase;
+import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.MethodDesc;
+import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.impl.BodyDescImpl;
+import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
+import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
+import org.seasar.ymir.extension.creator.impl.PropertyDescImpl;
+import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
+import org.seasar.ymir.extension.creator.mock.MockSourceCreator;
 
 import com.example.page.TestPageBaseBase;
 
@@ -100,7 +100,7 @@ public class FreemarkerSourceGeneratorTest extends YmirTestCase {
                 return new ClassDescImpl(className);
             }
         }.getClassDesc(HoePageBase.class,
-                "org.seasar.cms.ymir.extension.freemarker.HoePage");
+                "org.seasar.ymir.extension.freemarker.HoePage");
 
         String actual = target_.generateBaseSource(classDesc);
 

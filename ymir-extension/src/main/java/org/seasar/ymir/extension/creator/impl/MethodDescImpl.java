@@ -1,12 +1,12 @@
-package org.seasar.cms.ymir.extension.creator.impl;
+package org.seasar.ymir.extension.creator.impl;
 
 import java.lang.reflect.Method;
 
-import org.seasar.cms.ymir.extension.creator.AbstractAnnotatedDesc;
-import org.seasar.cms.ymir.extension.creator.BodyDesc;
-import org.seasar.cms.ymir.extension.creator.MethodDesc;
-import org.seasar.cms.ymir.extension.creator.ParameterDesc;
-import org.seasar.cms.ymir.extension.creator.TypeDesc;
+import org.seasar.ymir.extension.creator.AbstractAnnotatedDesc;
+import org.seasar.ymir.extension.creator.BodyDesc;
+import org.seasar.ymir.extension.creator.MethodDesc;
+import org.seasar.ymir.extension.creator.ParameterDesc;
+import org.seasar.ymir.extension.creator.TypeDesc;
 
 public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc {
 

@@ -1,13 +1,13 @@
-package org.seasar.cms.ymir.extension.zpt;
+package org.seasar.ymir.extension.zpt;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.seasar.cms.ymir.extension.creator.SourceCreator;
-import org.seasar.cms.ymir.extension.creator.Template;
-import org.seasar.cms.ymir.extension.creator.impl.NullTemplate;
+import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.Template;
+import org.seasar.ymir.extension.creator.impl.NullTemplate;
 
 import net.skirnir.freyja.Element;
 import net.skirnir.freyja.Macro;

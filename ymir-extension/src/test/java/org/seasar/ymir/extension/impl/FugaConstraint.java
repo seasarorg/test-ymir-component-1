@@ -1,7 +1,7 @@
-package org.seasar.cms.ymir.extension.impl;
+package org.seasar.ymir.extension.impl;
 
-import org.seasar.cms.ymir.ConstraintViolatedException;
-import org.seasar.cms.ymir.Request;
+import org.seasar.ymir.ConstraintViolatedException;
+import org.seasar.ymir.Request;
 
 public class FugaConstraint implements NamedConstraint {
 

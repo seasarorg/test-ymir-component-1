@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.constraint;
+package org.seasar.ymir.extension.constraint;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;

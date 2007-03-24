@@ -1,8 +1,8 @@
-package org.seasar.cms.ymir.extension.zpt;
+package org.seasar.ymir.extension.zpt;
 
-import static org.seasar.cms.ymir.extension.creator.impl.SourceCreatorImpl.MOCK_REQUEST;
-import static org.seasar.cms.ymir.extension.creator.impl.SourceCreatorImpl.MOCK_RESPONSE;
-import static org.seasar.cms.ymir.extension.creator.impl.SourceCreatorImpl.MOCK_SERVLETCONTEXT;
+import static org.seasar.ymir.extension.creator.impl.SourceCreatorImpl.MOCK_REQUEST;
+import static org.seasar.ymir.extension.creator.impl.SourceCreatorImpl.MOCK_RESPONSE;
+import static org.seasar.ymir.extension.creator.impl.SourceCreatorImpl.MOCK_SERVLETCONTEXT;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,20 +14,20 @@ import java.util.Vector;
 
 import junit.framework.TestCase;
 
-import org.seasar.cms.ymir.FormFile;
-import org.seasar.cms.ymir.MatchedPathMapping;
-import org.seasar.cms.ymir.Note;
-import org.seasar.cms.ymir.PathMapping;
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.extension.creator.ClassDesc;
-import org.seasar.cms.ymir.extension.creator.MethodDesc;
-import org.seasar.cms.ymir.extension.creator.PropertyDesc;
-import org.seasar.cms.ymir.extension.creator.Template;
-import org.seasar.cms.ymir.extension.creator.impl.MethodDescImpl;
-import org.seasar.cms.ymir.extension.creator.impl.SourceCreatorImpl;
-import org.seasar.cms.ymir.impl.ApplicationManagerImpl;
-import org.seasar.cms.ymir.impl.PathMappingImpl;
-import org.seasar.cms.ymir.mock.MockApplication;
+import org.seasar.ymir.FormFile;
+import org.seasar.ymir.MatchedPathMapping;
+import org.seasar.ymir.Note;
+import org.seasar.ymir.PathMapping;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.MethodDesc;
+import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.Template;
+import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
+import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
+import org.seasar.ymir.impl.ApplicationManagerImpl;
+import org.seasar.ymir.impl.PathMappingImpl;
+import org.seasar.ymir.mock.MockApplication;
 import org.seasar.framework.convention.impl.NamingConventionImpl;
 import org.seasar.kvasir.util.el.VariableResolver;
 

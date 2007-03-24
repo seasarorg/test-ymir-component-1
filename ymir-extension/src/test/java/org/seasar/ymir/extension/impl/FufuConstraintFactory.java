@@ -1,10 +1,10 @@
-package org.seasar.cms.ymir.extension.impl;
+package org.seasar.ymir.extension.impl;
 
 import java.lang.reflect.AnnotatedElement;
 
-import org.seasar.cms.ymir.Constraint;
-import org.seasar.cms.ymir.extension.constraint.ConstraintFactory;
-import org.seasar.cms.ymir.extension.constraint.ConstraintFactoryBase;
+import org.seasar.ymir.Constraint;
+import org.seasar.ymir.extension.constraint.ConstraintFactory;
+import org.seasar.ymir.extension.constraint.ConstraintFactoryBase;
 
 public class FufuConstraintFactory extends ConstraintFactoryBase implements
         ConstraintFactory<Fufu> {

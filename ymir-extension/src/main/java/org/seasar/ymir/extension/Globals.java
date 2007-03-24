@@ -1,6 +1,6 @@
-package org.seasar.cms.ymir.extension;
+package org.seasar.ymir.extension;
 
-public interface Globals extends org.seasar.cms.ymir.Globals {
+public interface Globals extends org.seasar.ymir.Globals {
 
     String APPKEY_BEANTABLE_ENABLE = "extension.beantable.enable";
 

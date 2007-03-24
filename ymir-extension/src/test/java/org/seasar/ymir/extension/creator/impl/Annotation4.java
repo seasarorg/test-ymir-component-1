@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.creator.impl;
+package org.seasar.ymir.extension.creator.impl;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

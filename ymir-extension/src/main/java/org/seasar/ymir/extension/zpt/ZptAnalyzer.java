@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.zpt;
+package org.seasar.ymir.extension.zpt;
 
 import static net.skirnir.freyja.zpt.tales.TalesExpressionEvaluator.TYPE_NOT;
 import static net.skirnir.freyja.zpt.webapp.ServletTalesExpressionEvaluator.TYPE_PAGE;
@@ -13,12 +13,12 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.seasar.cms.ymir.extension.Globals;
-import org.seasar.cms.ymir.extension.creator.ClassDesc;
-import org.seasar.cms.ymir.extension.creator.PropertyTypeHintBag;
-import org.seasar.cms.ymir.extension.creator.SourceCreator;
-import org.seasar.cms.ymir.extension.creator.Template;
-import org.seasar.cms.ymir.extension.creator.TemplateAnalyzer;
+import org.seasar.ymir.extension.Globals;
+import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
+import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.Template;
+import org.seasar.ymir.extension.creator.TemplateAnalyzer;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 

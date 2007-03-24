@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.landmark;
+package org.seasar.ymir.landmark;
 
 public class Landmark {
 }

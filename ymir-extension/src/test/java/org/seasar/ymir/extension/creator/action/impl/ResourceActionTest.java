@@ -1,15 +1,15 @@
-package org.seasar.cms.ymir.extension.creator.action.impl;
+package org.seasar.ymir.extension.creator.action.impl;
 
 import java.io.InputStream;
 
 import junit.framework.TestCase;
 
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.extension.creator.impl.PathMetaDataImpl;
-import org.seasar.cms.ymir.extension.creator.mock.MockSourceCreator;
-import org.seasar.cms.ymir.extension.mock.MockServletContext;
-import org.seasar.cms.ymir.mock.MockRequest;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.extension.creator.impl.PathMetaDataImpl;
+import org.seasar.ymir.extension.creator.mock.MockSourceCreator;
+import org.seasar.ymir.extension.mock.MockServletContext;
+import org.seasar.ymir.mock.MockRequest;
 
 public class ResourceActionTest extends TestCase {
 

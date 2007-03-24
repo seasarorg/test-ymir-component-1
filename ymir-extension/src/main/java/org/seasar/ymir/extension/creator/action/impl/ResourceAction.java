@@ -1,18 +1,18 @@
-package org.seasar.cms.ymir.extension.creator.action.impl;
+package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.cms.ymir.extension.creator.SourceCreator.PATH_PREFIX;
+import static org.seasar.ymir.extension.creator.SourceCreator.PATH_PREFIX;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.extension.creator.PathMetaData;
-import org.seasar.cms.ymir.extension.creator.SourceCreator;
-import org.seasar.cms.ymir.extension.creator.action.UpdateAction;
-import org.seasar.cms.ymir.response.SelfContainedResponse;
-import org.seasar.cms.ymir.response.VoidResponse;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.extension.creator.PathMetaData;
+import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.action.UpdateAction;
+import org.seasar.ymir.response.SelfContainedResponse;
+import org.seasar.ymir.response.VoidResponse;
 import org.seasar.kvasir.util.io.IOUtils;
 
 public class ResourceAction implements UpdateAction {
@@ -20,7 +20,7 @@ public class ResourceAction implements UpdateAction {
     private static final String PATH_PREFIX_RESOURCE = PATH_PREFIX
             + "resource/";
 
-    private static final String PACKAGE_PREFIX_RESOURCE = "org/seasar/cms/ymir/extension/resource/";
+    private static final String PACKAGE_PREFIX_RESOURCE = "org/seasar/ymir/extension/resource/";
 
     private static final String DEFAULT_CONTENTTYPE = "application/octet-stream";
 

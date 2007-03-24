@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.creator;
+package org.seasar.ymir.extension.creator;
 
 import java.util.Map;
 import java.util.TreeMap;

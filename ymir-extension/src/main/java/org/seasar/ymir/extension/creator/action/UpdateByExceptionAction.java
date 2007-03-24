@@ -1,7 +1,7 @@
-package org.seasar.cms.ymir.extension.creator.action;
+package org.seasar.ymir.extension.creator.action;
 
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.Response;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
 
 public interface UpdateByExceptionAction {
 

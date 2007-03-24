@@ -4,16 +4,16 @@
 <components>
   <include path="global.dicon" />
   <component
-    class="org.seasar.cms.ymir.extension.creator.impl.SourceCreatorImpl" />
-  <component class="org.seasar.cms.ymir.extension.zpt.ZptAnalyzer" />
+    class="org.seasar.ymir.extension.creator.impl.SourceCreatorImpl" />
+  <component class="org.seasar.ymir.extension.zpt.ZptAnalyzer" />
   <component
-    class="org.seasar.cms.ymir.extension.freemarker.FreemarkerSourceGenerator" />
+    class="org.seasar.ymir.extension.freemarker.FreemarkerSourceGenerator" />
   <component
-    class="org.seasar.cms.ymir.extension.zpt.ZptResponseCreator" />
+    class="org.seasar.ymir.extension.zpt.ZptResponseCreator" />
   <component name="beantableManager"
-    class="org.seasar.cms.ymir.extension.beantable.BeantableManager" />
+    class="org.seasar.ymir.extension.beantable.BeantableManager" />
   <component name="beantableClassHandler"
-    class="org.seasar.cms.ymir.extension.beantable.BeantableClassHandler" />
+    class="org.seasar.ymir.extension.beantable.BeantableClassHandler" />
   <component
-    class="org.seasar.cms.ymir.extension.impl.TigerAnnotationHandler" />
+    class="org.seasar.ymir.extension.impl.TigerAnnotationHandler" />
 </components>

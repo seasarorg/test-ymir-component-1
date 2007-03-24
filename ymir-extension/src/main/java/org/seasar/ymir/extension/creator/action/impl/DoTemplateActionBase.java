@@ -1,11 +1,11 @@
-package org.seasar.cms.ymir.extension.creator.action.impl;
+package org.seasar.ymir.extension.creator.action.impl;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.extension.creator.SourceCreator;
-import org.seasar.cms.ymir.extension.creator.Template;
-import org.seasar.cms.ymir.extension.creator.action.UpdateAction;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.Template;
+import org.seasar.ymir.extension.creator.action.UpdateAction;
 
 abstract public class DoTemplateActionBase implements UpdateAction {
 

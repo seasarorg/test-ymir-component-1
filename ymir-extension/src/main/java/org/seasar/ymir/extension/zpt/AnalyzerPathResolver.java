@@ -1,12 +1,12 @@
-package org.seasar.cms.ymir.extension.zpt;
+package org.seasar.ymir.extension.zpt;
 
 import java.beans.PropertyDescriptor;
 
-import org.seasar.cms.ymir.extension.creator.ClassDesc;
-import org.seasar.cms.ymir.extension.creator.PropertyDesc;
-import org.seasar.cms.ymir.extension.creator.PropertyTypeHint;
-import org.seasar.cms.ymir.extension.creator.TypeDesc;
-import org.seasar.cms.ymir.extension.creator.impl.TypeDescImpl;
+import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.PropertyTypeHint;
+import org.seasar.ymir.extension.creator.TypeDesc;
+import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;

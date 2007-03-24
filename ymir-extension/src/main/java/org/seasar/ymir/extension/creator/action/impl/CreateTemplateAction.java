@@ -1,24 +1,24 @@
-package org.seasar.cms.ymir.extension.creator.action.impl;
+package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.cms.ymir.extension.creator.SourceCreator.PARAM_PREFIX;
-import static org.seasar.cms.ymir.impl.DefaultRequestProcessor.PARAM_METHOD;
+import static org.seasar.ymir.extension.creator.SourceCreator.PARAM_PREFIX;
+import static org.seasar.ymir.impl.DefaultRequestProcessor.PARAM_METHOD;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.extension.creator.ClassDesc;
-import org.seasar.cms.ymir.extension.creator.InvalidClassDescException;
-import org.seasar.cms.ymir.extension.creator.MethodDesc;
-import org.seasar.cms.ymir.extension.creator.PathMetaData;
-import org.seasar.cms.ymir.extension.creator.SourceCreator;
-import org.seasar.cms.ymir.extension.creator.Template;
-import org.seasar.cms.ymir.extension.creator.action.UpdateAction;
-import org.seasar.cms.ymir.extension.creator.impl.BodyDescImpl;
-import org.seasar.cms.ymir.extension.creator.impl.MethodDescImpl;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.InvalidClassDescException;
+import org.seasar.ymir.extension.creator.MethodDesc;
+import org.seasar.ymir.extension.creator.PathMetaData;
+import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.Template;
+import org.seasar.ymir.extension.creator.action.UpdateAction;
+import org.seasar.ymir.extension.creator.impl.BodyDescImpl;
+import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
 
 public class CreateTemplateAction extends AbstractAction implements
         UpdateAction {

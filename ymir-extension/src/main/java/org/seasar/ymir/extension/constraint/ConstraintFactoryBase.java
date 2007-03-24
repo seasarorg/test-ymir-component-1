@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.constraint;
+package org.seasar.ymir.extension.constraint;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;

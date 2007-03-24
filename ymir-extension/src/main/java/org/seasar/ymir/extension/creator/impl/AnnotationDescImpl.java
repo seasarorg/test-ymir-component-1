@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.creator.impl;
+package org.seasar.ymir.extension.creator.impl;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.seasar.cms.ymir.extension.creator.AnnotationDesc;
+import org.seasar.ymir.extension.creator.AnnotationDesc;
 
 public class AnnotationDescImpl implements AnnotationDesc {
 

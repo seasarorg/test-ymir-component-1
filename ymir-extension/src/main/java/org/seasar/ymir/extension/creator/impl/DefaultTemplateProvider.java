@@ -1,10 +1,10 @@
-package org.seasar.cms.ymir.extension.creator.impl;
+package org.seasar.ymir.extension.creator.impl;
 
 import java.io.File;
 
-import org.seasar.cms.ymir.extension.creator.SourceCreator;
-import org.seasar.cms.ymir.extension.creator.Template;
-import org.seasar.cms.ymir.extension.creator.TemplateProvider;
+import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.Template;
+import org.seasar.ymir.extension.creator.TemplateProvider;
 
 public class DefaultTemplateProvider implements TemplateProvider {
 

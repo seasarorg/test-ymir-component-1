@@ -1,6 +1,6 @@
-package org.seasar.cms.ymir.extension.creator.action.impl;
+package org.seasar.ymir.extension.creator.action.impl;
 
-import org.seasar.cms.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.PropertyDesc;
 
 public class PropertyDescDto {
 

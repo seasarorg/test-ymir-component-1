@@ -1,8 +1,8 @@
-package org.seasar.cms.ymir.extension.constraint;
+package org.seasar.ymir.extension.constraint;
 
 import java.lang.reflect.AnnotatedElement;
 
-import org.seasar.cms.ymir.Constraint;
+import org.seasar.ymir.Constraint;
 
 public class NumericConstraintFactory extends ConstraintFactoryBase implements
         ConstraintFactory<Numeric> {

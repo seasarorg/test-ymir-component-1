@@ -1,17 +1,17 @@
-package org.seasar.cms.ymir.extension.creator.action.impl;
+package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.cms.ymir.impl.DefaultRequestProcessor.PARAM_METHOD;
+import static org.seasar.ymir.impl.DefaultRequestProcessor.PARAM_METHOD;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.seasar.cms.ymir.MessagesNotFoundRuntimeException;
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.extension.creator.SourceCreator;
-import org.seasar.cms.ymir.extension.creator.action.UpdateByExceptionAction;
+import org.seasar.ymir.MessagesNotFoundRuntimeException;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.action.UpdateByExceptionAction;
 import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.kvasir.util.io.impl.FileResource;

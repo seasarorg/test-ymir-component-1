@@ -1,8 +1,8 @@
-package org.seasar.cms.ymir.extension.creator.impl;
+package org.seasar.ymir.extension.creator.impl;
 
-import org.seasar.cms.ymir.extension.creator.AbstractAnnotatedDesc;
-import org.seasar.cms.ymir.extension.creator.PropertyDesc;
-import org.seasar.cms.ymir.extension.creator.TypeDesc;
+import org.seasar.ymir.extension.creator.AbstractAnnotatedDesc;
+import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.TypeDesc;
 
 public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         PropertyDesc, Cloneable {

@@ -1,6 +1,6 @@
-package org.seasar.cms.ymir.extension.creator.action.impl;
+package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.cms.ymir.impl.DefaultRequestProcessor.PARAM_METHOD;
+import static org.seasar.ymir.impl.DefaultRequestProcessor.PARAM_METHOD;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,17 +13,17 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.extension.creator.ClassDesc;
-import org.seasar.cms.ymir.extension.creator.ClassDescBag;
-import org.seasar.cms.ymir.extension.creator.PathMetaData;
-import org.seasar.cms.ymir.extension.creator.PropertyTypeHint;
-import org.seasar.cms.ymir.extension.creator.PropertyTypeHintBag;
-import org.seasar.cms.ymir.extension.creator.SourceCreator;
-import org.seasar.cms.ymir.extension.creator.Template;
-import org.seasar.cms.ymir.extension.creator.action.UpdateAction;
-import org.seasar.cms.ymir.impl.DefaultRequestProcessor;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.ClassDescBag;
+import org.seasar.ymir.extension.creator.PathMetaData;
+import org.seasar.ymir.extension.creator.PropertyTypeHint;
+import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
+import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.Template;
+import org.seasar.ymir.extension.creator.action.UpdateAction;
+import org.seasar.ymir.impl.DefaultRequestProcessor;
 import org.seasar.kvasir.util.PropertyUtils;
 
 public class UpdateClassesAction extends AbstractAction implements UpdateAction {

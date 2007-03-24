@@ -1,13 +1,13 @@
-package org.seasar.cms.ymir.extension.creator.action.impl;
+package org.seasar.ymir.extension.creator.action.impl;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.extension.creator.SourceCreator;
-import org.seasar.cms.ymir.extension.creator.impl.SourceCreatorImpl;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 
 abstract public class AbstractAction {
 

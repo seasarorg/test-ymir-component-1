@@ -9,7 +9,7 @@
 サーブレットコンテナでこのWebアプリケーションをリロードしてから、以下の「OK」ボタンを押して下さい。</p>
 <pre>
   &lt;component name="<span tal:replace="messagesName">MESSAGES_NAME</span>"
-    class="org.seasar.cms.ymir.impl.MessagesImpl"&gt;
+    class="org.seasar.ymir.impl.MessagesImpl"&gt;
     &lt;arg&gt;"<span tal:replace="messagesName">MESSAGES_NAME</span>.xproperties"&lt;/arg&gt;
   &lt;/component&gt;
 </pre>

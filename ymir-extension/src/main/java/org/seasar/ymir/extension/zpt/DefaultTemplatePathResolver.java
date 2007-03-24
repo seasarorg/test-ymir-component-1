@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.zpt;
+package org.seasar.ymir.extension.zpt;
 
 import javax.servlet.http.HttpServletRequest;
 

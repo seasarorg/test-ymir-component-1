@@ -1,6 +1,6 @@
-package org.seasar.cms.ymir.extension.freemarker;
+package org.seasar.ymir.extension.freemarker;
 
-@org.seasar.cms.ymir.extension.constraint.Required("test")
+@org.seasar.ymir.extension.constraint.Required("test")
 public class HoePageBase
 {
     protected String hoe_;
@@ -11,14 +11,14 @@ public class HoePageBase
         return hoe_;
     }
 
-    @org.seasar.cms.ymir.extension.annotation.SuppressConstraints({org.seasar.cms.ymir.extension.ConstraintType.VALIDATION,org.seasar.cms.ymir.extension.ConstraintType.PERMISSION})
-    @org.seasar.cms.ymir.extension.constraint.Required("set")
+    @org.seasar.ymir.extension.annotation.SuppressConstraints({org.seasar.ymir.extension.ConstraintType.VALIDATION,org.seasar.ymir.extension.ConstraintType.PERMISSION})
+    @org.seasar.ymir.extension.constraint.Required("set")
     public void setHoe(String hoe)
     {
         hoe_ = hoe;
     }
 
-    @org.seasar.cms.ymir.extension.constraint.Required("method")
+    @org.seasar.ymir.extension.constraint.Required("method")
     public void _get()
     {
 

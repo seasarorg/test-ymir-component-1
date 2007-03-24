@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.zpt;
+package org.seasar.ymir.extension.zpt;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -6,9 +6,9 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.ResponseCreator;
-import org.seasar.cms.ymir.response.SelfContainedResponse;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseCreator;
+import org.seasar.ymir.response.SelfContainedResponse;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.TemplateEvaluator;

@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.zpt;
+package org.seasar.ymir.extension.zpt;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -8,16 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.seasar.cms.ymir.FormFile;
-import org.seasar.cms.ymir.Globals;
-import org.seasar.cms.ymir.MatchedPathMapping;
-import org.seasar.cms.ymir.Path;
-import org.seasar.cms.ymir.extension.creator.ClassDesc;
-import org.seasar.cms.ymir.extension.creator.FormDesc;
-import org.seasar.cms.ymir.extension.creator.PropertyDesc;
-import org.seasar.cms.ymir.extension.creator.SourceCreator;
-import org.seasar.cms.ymir.extension.creator.impl.FormDescImpl;
-import org.seasar.cms.ymir.extension.creator.impl.MethodDescImpl;
+import org.seasar.ymir.FormFile;
+import org.seasar.ymir.Globals;
+import org.seasar.ymir.MatchedPathMapping;
+import org.seasar.ymir.Path;
+import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.FormDesc;
+import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.impl.FormDescImpl;
+import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
 
 import net.skirnir.freyja.Attribute;
 import net.skirnir.freyja.Element;

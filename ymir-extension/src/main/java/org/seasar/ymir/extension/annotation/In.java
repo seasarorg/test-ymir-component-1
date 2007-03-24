@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.annotation;
+package org.seasar.ymir.extension.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

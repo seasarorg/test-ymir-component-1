@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.mock;
+package org.seasar.ymir.extension.mock;
 
 import java.io.BufferedReader;
 import java.io.IOException;

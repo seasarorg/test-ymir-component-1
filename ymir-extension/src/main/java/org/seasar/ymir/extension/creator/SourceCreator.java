@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.creator;
+package org.seasar.ymir.extension.creator;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
@@ -9,10 +9,10 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.seasar.cms.ymir.Application;
-import org.seasar.cms.ymir.MatchedPathMapping;
-import org.seasar.cms.ymir.ResponseCreator;
-import org.seasar.cms.ymir.Updater;
+import org.seasar.ymir.Application;
+import org.seasar.ymir.MatchedPathMapping;
+import org.seasar.ymir.ResponseCreator;
+import org.seasar.ymir.Updater;
 
 public interface SourceCreator extends Updater {
 

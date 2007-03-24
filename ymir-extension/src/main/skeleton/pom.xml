@@ -52,7 +52,7 @@
   </repositories>
   <dependencies>
     <dependency>
-      <groupId>org.seasar.cms.ymir</groupId>
+      <groupId>org.seasar.ymir</groupId>
       <artifactId>ymir-extension</artifactId>
       <version>0.0.2-SNAPSHOT</version>
     </dependency>

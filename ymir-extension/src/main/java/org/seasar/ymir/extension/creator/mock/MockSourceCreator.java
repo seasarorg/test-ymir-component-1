@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.extension.creator.mock;
+package org.seasar.ymir.extension.creator.mock;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
@@ -10,21 +10,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.cms.pluggable.Configuration;
-import org.seasar.cms.ymir.Application;
-import org.seasar.cms.ymir.MatchedPathMapping;
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.ResponseCreator;
-import org.seasar.cms.ymir.extension.creator.ClassDesc;
-import org.seasar.cms.ymir.extension.creator.ClassDescBag;
-import org.seasar.cms.ymir.extension.creator.ClassDescSet;
-import org.seasar.cms.ymir.extension.creator.InvalidClassDescException;
-import org.seasar.cms.ymir.extension.creator.PathMetaData;
-import org.seasar.cms.ymir.extension.creator.PropertyTypeHintBag;
-import org.seasar.cms.ymir.extension.creator.SourceCreator;
-import org.seasar.cms.ymir.extension.creator.SourceGenerator;
-import org.seasar.cms.ymir.extension.creator.Template;
-import org.seasar.cms.ymir.extension.creator.TemplateProvider;
+import org.seasar.ymir.Application;
+import org.seasar.ymir.MatchedPathMapping;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseCreator;
+import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.ClassDescBag;
+import org.seasar.ymir.extension.creator.ClassDescSet;
+import org.seasar.ymir.extension.creator.InvalidClassDescException;
+import org.seasar.ymir.extension.creator.PathMetaData;
+import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
+import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.SourceGenerator;
+import org.seasar.ymir.extension.creator.Template;
+import org.seasar.ymir.extension.creator.TemplateProvider;
 
 public class MockSourceCreator implements SourceCreator {
 
