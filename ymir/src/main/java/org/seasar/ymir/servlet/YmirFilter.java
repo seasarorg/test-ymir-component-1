@@ -20,10 +20,10 @@ import org.seasar.ymir.MultipartServletRequest;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.Ymir;
-import org.seasar.ymir.YmirVariableResolver;
 import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
 import org.seasar.ymir.util.LocaleUtils;
 import org.seasar.ymir.util.ServletUtils;
+import org.seasar.ymir.zpt.YmirVariableResolver;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 

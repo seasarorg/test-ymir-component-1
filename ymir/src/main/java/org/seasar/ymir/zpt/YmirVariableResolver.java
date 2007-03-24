@@ -1,4 +1,4 @@
-package org.seasar.ymir;
+package org.seasar.ymir.zpt;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -10,6 +10,10 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.seasar.ymir.Globals;
+import org.seasar.ymir.Messages;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.Token;
 import org.seasar.ymir.impl.DefaultRequestProcessor;
 import org.seasar.ymir.util.TokenUtils;
 import org.seasar.framework.container.S2Container;

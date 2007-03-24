@@ -11,7 +11,6 @@ import org.seasar.ymir.Note;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
-import org.seasar.ymir.YmirVariableResolver;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.kvasir.util.collection.AttributeReader;
 import org.seasar.kvasir.util.collection.I18NPropertyReader;
