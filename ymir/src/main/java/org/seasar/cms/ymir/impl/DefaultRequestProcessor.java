@@ -26,7 +26,6 @@ import org.seasar.cms.ymir.Notes;
 import org.seasar.cms.ymir.PageNotFoundException;
 import org.seasar.cms.ymir.PathMapping;
 import org.seasar.cms.ymir.PermissionDeniedException;
-import org.seasar.cms.ymir.RedirectionPathResolver;
 import org.seasar.cms.ymir.Request;
 import org.seasar.cms.ymir.RequestProcessor;
 import org.seasar.cms.ymir.Response;
@@ -60,8 +59,6 @@ public class DefaultRequestProcessor implements RequestProcessor {
     private Updater[] updaters_ = new Updater[0];
 
     private AnnotationHandler annotationHandler_ = new DefaultAnnotationHandler();
-
-    private RedirectionPathResolver redirectionPathResolver_ = new DefaultRedirectionPathResolver();
 
     private final PropertyUtilsBean propertyUtilsBean_ = new PropertyUtilsBean();
 
@@ -566,11 +563,5 @@ public class DefaultRequestProcessor implements RequestProcessor {
     public void setAnnotationHandler(AnnotationHandler annotationHandler) {
 
         annotationHandler_ = annotationHandler;
-    }
-
-    public void setRedirectionPathResolver(
-            RedirectionPathResolver redirectionPathResolver) {
-
-        redirectionPathResolver_ = redirectionPathResolver;
     }
 }

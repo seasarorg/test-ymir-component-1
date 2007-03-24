@@ -19,8 +19,6 @@ import org.seasar.kvasir.util.io.IOUtils;
 public class UpdaterResponseFilter extends HttpServletResponseWrapper implements
         HttpServletResponseFilter {
 
-    private HttpServletRequest request_;
-
     private Updater[] updaters_;
 
     private String type_;
@@ -37,7 +35,6 @@ public class UpdaterResponseFilter extends HttpServletResponseWrapper implements
             HttpServletResponse response, Updater[] updaters,
             boolean underDevelopment) {
         super(response);
-        request_ = request;
         updaters_ = updaters;
         underDevelopment_ = underDevelopment;
     }

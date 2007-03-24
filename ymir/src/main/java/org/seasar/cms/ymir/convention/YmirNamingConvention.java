@@ -6,8 +6,6 @@ import org.seasar.framework.util.StringUtil;
 
 public class YmirNamingConvention extends PluggableNamingConventionImpl {
 
-    private static final char PACKAGE_SEPARATOR = '_';
-
     public static final String SUFFIX_EXCEPTIONHANDLER = "Handler";
 
     public String fromClassNameToComponentName(final String className) {
