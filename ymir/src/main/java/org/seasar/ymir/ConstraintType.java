@@ -1,4 +1,4 @@
-package org.seasar.ymir.extension;
+package org.seasar.ymir;
 
 public enum ConstraintType {
     VALIDATION, PERMISSION;

@@ -1,12 +1,12 @@
-package org.seasar.ymir.extension.constraint;
+package org.seasar.ymir.constraint;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.seasar.ymir.extension.ConstraintType;
-import org.seasar.ymir.extension.annotation.ConstraintAnnotation;
+import org.seasar.ymir.ConstraintType;
+import org.seasar.ymir.annotation.ConstraintAnnotation;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.TYPE, ElementType.METHOD })

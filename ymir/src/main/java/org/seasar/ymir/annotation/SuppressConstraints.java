@@ -1,19 +1,15 @@
-package org.seasar.ymir.extension.annotation;
+package org.seasar.ymir.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.seasar.ymir.ConstraintType;
+
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface In {
-
-    Class value() default Object.class;
-
-    String name() default "";
-
-    Class scopeClass() default Object.class;
-
-    String scopeName() default "";
+public @interface SuppressConstraints {
+    ConstraintType[] value() default { ConstraintType.VALIDATION,
+        ConstraintType.PERMISSION };
 }

@@ -1,4 +1,4 @@
-package org.seasar.ymir.extension.constraint;
+package org.seasar.ymir.constraint;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
