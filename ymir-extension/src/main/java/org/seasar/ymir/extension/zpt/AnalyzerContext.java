@@ -12,7 +12,6 @@ import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Token;
-import org.seasar.ymir.YmirVariableResolver;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.FormDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -21,6 +20,7 @@ import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
+import org.seasar.ymir.zpt.YmirVariableResolver;
 import org.seasar.framework.container.S2Container;
 
 import net.skirnir.freyja.VariableResolver;
