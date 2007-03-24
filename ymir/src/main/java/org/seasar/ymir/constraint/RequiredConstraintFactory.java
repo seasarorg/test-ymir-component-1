@@ -1,10 +1,9 @@
-package org.seasar.ymir.extension.constraint;
+package org.seasar.ymir.constraint;
 
 import java.lang.reflect.AnnotatedElement;
 
-import org.seasar.ymir.Constraint;
-
-public class RequiredConstraintFactory extends ConstraintFactoryBase implements ConstraintFactory<Required> {
+public class RequiredConstraintFactory extends ConstraintFactoryBase implements
+        ConstraintFactory<Required> {
 
     public Constraint getConstraint(Required annotation,
             AnnotatedElement element) {

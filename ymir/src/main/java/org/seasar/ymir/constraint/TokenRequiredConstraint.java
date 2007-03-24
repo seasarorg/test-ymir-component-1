@@ -1,12 +1,9 @@
-package org.seasar.ymir.extension.constraint;
+package org.seasar.ymir.constraint;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.seasar.ymir.Constraint;
-import org.seasar.ymir.ConstraintViolatedException;
 import org.seasar.ymir.Note;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.ValidationFailedException;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.util.TokenUtils;
 

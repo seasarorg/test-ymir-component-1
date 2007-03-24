@@ -1,4 +1,4 @@
-package org.seasar.ymir;
+package org.seasar.ymir.constraint;
 
 public class PermissionDeniedException extends ConstraintViolatedException {
 

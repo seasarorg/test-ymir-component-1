@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.seasar.ymir.ConstraintType;
+import org.seasar.ymir.constraint.ConstraintType;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

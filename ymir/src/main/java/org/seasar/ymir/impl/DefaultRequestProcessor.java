@@ -15,31 +15,6 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.seasar.cms.pluggable.ThreadContext;
-import org.seasar.ymir.AnnotationHandler;
-import org.seasar.ymir.AttributeContainer;
-import org.seasar.ymir.Constraint;
-import org.seasar.ymir.ConstraintViolatedException;
-import org.seasar.ymir.FormFile;
-import org.seasar.ymir.MatchedPathMapping;
-import org.seasar.ymir.Note;
-import org.seasar.ymir.Notes;
-import org.seasar.ymir.PageNotFoundException;
-import org.seasar.ymir.PathMapping;
-import org.seasar.ymir.PermissionDeniedException;
-import org.seasar.ymir.Request;
-import org.seasar.ymir.RequestProcessor;
-import org.seasar.ymir.Response;
-import org.seasar.ymir.ScopeAttribute;
-import org.seasar.ymir.Updater;
-import org.seasar.ymir.ValidationFailedException;
-import org.seasar.ymir.WrappingRuntimeException;
-import org.seasar.ymir.Ymir;
-import org.seasar.ymir.beanutils.FormFileArrayConverter;
-import org.seasar.ymir.beanutils.FormFileConverter;
-import org.seasar.ymir.response.PassthroughResponse;
-import org.seasar.ymir.response.constructor.ResponseConstructor;
-import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
-import org.seasar.ymir.util.BeanUtils;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
@@ -47,6 +22,31 @@ import org.seasar.framework.log.Logger;
 import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
 import org.seasar.kvasir.util.el.VariableResolver;
+import org.seasar.ymir.AnnotationHandler;
+import org.seasar.ymir.AttributeContainer;
+import org.seasar.ymir.FormFile;
+import org.seasar.ymir.MatchedPathMapping;
+import org.seasar.ymir.Note;
+import org.seasar.ymir.Notes;
+import org.seasar.ymir.PageNotFoundException;
+import org.seasar.ymir.PathMapping;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.RequestProcessor;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.ScopeAttribute;
+import org.seasar.ymir.Updater;
+import org.seasar.ymir.WrappingRuntimeException;
+import org.seasar.ymir.Ymir;
+import org.seasar.ymir.beanutils.FormFileArrayConverter;
+import org.seasar.ymir.beanutils.FormFileConverter;
+import org.seasar.ymir.constraint.Constraint;
+import org.seasar.ymir.constraint.ConstraintViolatedException;
+import org.seasar.ymir.constraint.PermissionDeniedException;
+import org.seasar.ymir.constraint.ValidationFailedException;
+import org.seasar.ymir.response.PassthroughResponse;
+import org.seasar.ymir.response.constructor.ResponseConstructor;
+import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
+import org.seasar.ymir.util.BeanUtils;
 
 public class DefaultRequestProcessor implements RequestProcessor {
 
@@ -58,7 +58,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
     private Updater[] updaters_ = new Updater[0];
 
-    private AnnotationHandler annotationHandler_ = new DefaultAnnotationHandler();
+    private AnnotationHandler annotationHandler_ = new TigerAnnotationHandler();
 
     private final PropertyUtilsBean propertyUtilsBean_ = new PropertyUtilsBean();
 

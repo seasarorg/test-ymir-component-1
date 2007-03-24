@@ -1,4 +1,6 @@
-package org.seasar.ymir;
+package org.seasar.ymir.constraint;
+
+import org.seasar.ymir.Request;
 
 public interface Constraint {
 

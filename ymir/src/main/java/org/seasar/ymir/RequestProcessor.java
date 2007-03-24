@@ -3,6 +3,8 @@ package org.seasar.ymir;
 import java.util.Locale;
 import java.util.Map;
 
+import org.seasar.ymir.constraint.PermissionDeniedException;
+
 public interface RequestProcessor {
 
     String ACTION_DEFAULT = "_default";

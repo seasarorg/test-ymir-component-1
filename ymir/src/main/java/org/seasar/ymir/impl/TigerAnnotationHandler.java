@@ -1,4 +1,4 @@
-package org.seasar.ymir.extension.impl;
+package org.seasar.ymir.impl;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -13,18 +13,18 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.AnnotationHandler;
-import org.seasar.ymir.Constraint;
 import org.seasar.ymir.ScopeAttribute;
-import org.seasar.ymir.extension.ConstraintType;
-import org.seasar.ymir.extension.annotation.ConstraintAnnotation;
-import org.seasar.ymir.extension.annotation.In;
-import org.seasar.ymir.extension.annotation.Out;
-import org.seasar.ymir.extension.annotation.SuppressConstraints;
-import org.seasar.ymir.extension.constraint.ConstraintFactory;
+import org.seasar.ymir.annotation.ConstraintAnnotation;
+import org.seasar.ymir.annotation.In;
+import org.seasar.ymir.annotation.Out;
+import org.seasar.ymir.annotation.SuppressConstraints;
+import org.seasar.ymir.constraint.Constraint;
+import org.seasar.ymir.constraint.ConstraintFactory;
+import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.impl.RequestScope;
-import org.seasar.framework.container.S2Container;
 
 public class TigerAnnotationHandler implements AnnotationHandler {
 

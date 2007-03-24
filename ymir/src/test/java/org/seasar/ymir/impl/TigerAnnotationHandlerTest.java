@@ -1,6 +1,4 @@
-package org.seasar.ymir.extension.impl;
-
-import static org.seasar.ymir.extension.impl.TigerAnnotationHandler.EMPTY_SUPPRESSTYPESET;
+package org.seasar.ymir.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,7 +8,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.seasar.ymir.Constraint;
+import org.seasar.ymir.constraint.Constraint;
 
 public class TigerAnnotationHandlerTest extends TestCase {
 
@@ -38,7 +36,8 @@ public class TigerAnnotationHandlerTest extends TestCase {
     public void testGetConstraints() throws Exception {
 
         List<Constraint> actual = new ArrayList<Constraint>();
-        target_.getConstraint(Hoe.class, actual, EMPTY_SUPPRESSTYPESET);
+        target_.getConstraint(Hoe.class, actual,
+                TigerAnnotationHandler.EMPTY_SUPPRESSTYPESET);
         Collections.sort(actual, COMPARATOR);
 
         assertEquals(2, actual.size());

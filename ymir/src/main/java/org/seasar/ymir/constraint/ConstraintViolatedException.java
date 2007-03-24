@@ -1,8 +1,10 @@
-package org.seasar.ymir;
+package org.seasar.ymir.constraint;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.seasar.ymir.Note;
 
 abstract public class ConstraintViolatedException extends Exception {
 

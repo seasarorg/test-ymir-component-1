@@ -1,4 +1,4 @@
-package org.seasar.ymir.extension.constraint;
+package org.seasar.ymir.constraint;
 
 import junit.framework.TestCase;
 

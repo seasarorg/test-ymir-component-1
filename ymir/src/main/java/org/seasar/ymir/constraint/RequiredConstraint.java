@@ -1,14 +1,11 @@
-package org.seasar.ymir.extension.constraint;
+package org.seasar.ymir.constraint;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.seasar.ymir.Constraint;
-import org.seasar.ymir.ConstraintViolatedException;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.Note;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.ValidationFailedException;
 
 public class RequiredConstraint implements Constraint {
 

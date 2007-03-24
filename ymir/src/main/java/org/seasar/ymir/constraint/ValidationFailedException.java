@@ -1,4 +1,5 @@
-package org.seasar.ymir;
+package org.seasar.ymir.constraint;
+
 
 public class ValidationFailedException extends ConstraintViolatedException {
 
