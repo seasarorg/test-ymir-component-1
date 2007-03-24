@@ -3,15 +3,16 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
-    <groupId>org.seasar.cms</groupId>
-    <artifactId>cms-project</artifactId>
-    <version>0.0.2</version>
+    <relativePath>../ymir-project/pom.xml</relativePath>
+    <groupId>org.seasar.ymir</groupId>
+    <artifactId>ymir-project</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.seasar.cms.ymir</groupId>
   <artifactId>ymir-extension</artifactId>
   <name>Ymir Extension</name>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <description>
     Ymir Extension is an extension for Ymir. It includes source code
     generator, bean-table mechanism, etc.
@@ -20,14 +21,6 @@
     <defaultGoal>install</defaultGoal>
     <pluginManagement>
       <plugins>
-        <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <configuration>
-            <encoding>UTF-8</encoding>
-            <source>1.5</source>
-            <target>1.5</target>
-          </configuration>
-        </plugin>
         <plugin>
           <artifactId>maven-assembly-plugin</artifactId>
           <configuration>
@@ -101,9 +94,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.seasar.cms.ymir</groupId>
+      <groupId>org.seasar.ymir</groupId>
       <artifactId>ymir</artifactId>
-      <version>0.0.2-SNAPSHOT</version>
+      <version>1.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.seasar.cms.s2-classbuilder</groupId>

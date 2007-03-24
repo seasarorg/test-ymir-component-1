@@ -6,9 +6,9 @@ import java.util.List;
 import org.seasar.cms.ymir.Constraint;
 import org.seasar.cms.ymir.ConstraintViolatedException;
 import org.seasar.cms.ymir.FormFile;
+import org.seasar.cms.ymir.Note;
 import org.seasar.cms.ymir.Request;
 import org.seasar.cms.ymir.ValidationFailedException;
-import org.seasar.cms.ymir.ConstraintViolatedException.Message;
 
 public class RequiredConstraint implements Constraint {
 
@@ -20,16 +20,16 @@ public class RequiredConstraint implements Constraint {
 
     public void confirm(Object component, Request request)
             throws ConstraintViolatedException {
-        List<Message> messageList = new ArrayList<Message>();
+        List<Note> noteList = new ArrayList<Note>();
         for (int i = 0; i < names_.length; i++) {
             if (isEmpty(request, names_[i])) {
-                messageList.add(new Message(PREFIX_MESSAGEKEY + "required",
+                noteList.add(new Note(PREFIX_MESSAGEKEY + "required",
                         new Object[] { names_[i] }));
             }
         }
-        if (messageList.size() > 0) {
-            throw new ValidationFailedException().setMessages(messageList
-                    .toArray(new Message[0]));
+        if (noteList.size() > 0) {
+            throw new ValidationFailedException().setNotes(noteList
+                    .toArray(new Note[0]));
         }
     }
 

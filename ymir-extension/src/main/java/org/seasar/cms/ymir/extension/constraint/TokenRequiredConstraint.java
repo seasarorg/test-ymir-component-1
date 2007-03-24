@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.seasar.cms.ymir.Constraint;
 import org.seasar.cms.ymir.ConstraintViolatedException;
+import org.seasar.cms.ymir.Note;
 import org.seasar.cms.ymir.Request;
 import org.seasar.cms.ymir.ValidationFailedException;
 import org.seasar.cms.ymir.YmirContext;
@@ -21,9 +22,8 @@ public class TokenRequiredConstraint implements Constraint {
             throws ConstraintViolatedException {
 
         if (!TokenUtils.isTokenValid(getHttpServletRequest(), name_, true)) {
-            throw new ValidationFailedException()
-                    .addMessage(new ConstraintViolatedException.Message(
-                            PREFIX_MESSAGEKEY + "tokenRequired", new Object[0]));
+            throw new ValidationFailedException().addNote(new Note(
+                    PREFIX_MESSAGEKEY + "tokenRequired", new Object[0]));
         }
     }
 

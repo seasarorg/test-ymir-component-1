@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.seasar.cms.ymir.Constraint;
 import org.seasar.cms.ymir.ConstraintViolatedException;
+import org.seasar.cms.ymir.Note;
 import org.seasar.cms.ymir.Request;
 import org.seasar.cms.ymir.ValidationFailedException;
-import org.seasar.cms.ymir.ConstraintViolatedException.Message;
 
 public class NumericConstraint implements Constraint {
 
@@ -36,17 +36,17 @@ public class NumericConstraint implements Constraint {
 
     public void confirm(Object component, Request request)
             throws ConstraintViolatedException {
-        List<Message> messageList = new ArrayList<Message>();
+        List<Note> noteList = new ArrayList<Note>();
         for (int i = 0; i < names_.length; i++) {
-            confirm(request, names_[i], messageList);
+            confirm(request, names_[i], noteList);
         }
-        if (messageList.size() > 0) {
-            throw new ValidationFailedException().setMessages(messageList
-                    .toArray(new Message[0]));
+        if (noteList.size() > 0) {
+            throw new ValidationFailedException().setNotes(noteList
+                    .toArray(new Note[0]));
         }
     }
 
-    void confirm(Request request, String name, List<Message> messageList) {
+    void confirm(Request request, String name, List<Note> noteList) {
         String key = PREFIX_MESSAGEKEY + "numeric";
         String[] values = request.getParameterValues(name);
         if (values == null) {
@@ -57,24 +57,24 @@ public class NumericConstraint implements Constraint {
                 continue;
             }
             if (integer_ && values[i].indexOf('.') >= 0) {
-                messageList.add(new Message(key, new Object[] { name }));
+                noteList.add(new Note(key, new Object[] { name }));
             }
             double value;
             try {
                 value = Double.parseDouble(values[i]);
             } catch (NumberFormatException ex) {
-                messageList.add(new Message(key, new Object[] { name }));
+                noteList.add(new Note(key, new Object[] { name }));
                 continue;
             }
             if (greaterEdge_ != null) {
                 if (greaterIncludeEqual_) {
                     if (value < greaterEdge_.doubleValue()) {
-                        messageList.add(new Message(key + ".greaterEqual",
+                        noteList.add(new Note(key + ".greaterEqual",
                                 new Object[] { name, greaterEdge_ }));
                     }
                 } else {
                     if (value <= greaterEdge_.doubleValue()) {
-                        messageList.add(new Message(key + ".greaterThan",
+                        noteList.add(new Note(key + ".greaterThan",
                                 new Object[] { name, greaterEdge_ }));
                     }
                 }
@@ -82,13 +82,13 @@ public class NumericConstraint implements Constraint {
             if (lessEdge_ != null) {
                 if (lessIncludeEqual_) {
                     if (value > lessEdge_.doubleValue()) {
-                        messageList.add(new Message(key + ".lessEqual",
-                                new Object[] { name, lessEdge_ }));
+                        noteList.add(new Note(key + ".lessEqual", new Object[] {
+                            name, lessEdge_ }));
                     }
                 } else {
                     if (value >= lessEdge_.doubleValue()) {
-                        messageList.add(new Message(key + ".lessThan",
-                                new Object[] { name, lessEdge_ }));
+                        noteList.add(new Note(key + ".lessThan", new Object[] {
+                            name, lessEdge_ }));
                     }
                 }
             }
