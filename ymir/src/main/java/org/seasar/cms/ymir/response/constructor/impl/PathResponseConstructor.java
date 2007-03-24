@@ -6,20 +6,19 @@ import org.seasar.cms.ymir.response.RedirectResponse;
 import org.seasar.cms.ymir.response.VoidResponse;
 import org.seasar.cms.ymir.response.constructor.ResponseConstructor;
 
-public class PathResponseConstructor implements ResponseConstructor {
+public class PathResponseConstructor implements ResponseConstructor<Path> {
 
-    public Class getTargetClass() {
+    public Class<Path> getTargetClass() {
 
         return Path.class;
     }
 
-    public Response constructResponse(Object component, Object returnValue) {
+    public Response constructResponse(Object component, Path returnValue) {
 
-        Path path = (Path) returnValue;
-        if (path == null) {
+        if (returnValue == null) {
             return VoidResponse.INSTANCE;
         }
 
-        return new RedirectResponse(path.asString());
+        return new RedirectResponse(returnValue.asString());
     }
 }

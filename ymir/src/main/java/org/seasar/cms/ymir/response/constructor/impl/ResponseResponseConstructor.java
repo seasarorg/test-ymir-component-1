@@ -4,20 +4,20 @@ import org.seasar.cms.ymir.Response;
 import org.seasar.cms.ymir.response.VoidResponse;
 import org.seasar.cms.ymir.response.constructor.ResponseConstructor;
 
-public class ResponseResponseConstructor implements ResponseConstructor {
+public class ResponseResponseConstructor implements
+        ResponseConstructor<Response> {
 
-    public Class getTargetClass() {
+    public Class<Response> getTargetClass() {
 
         return Response.class;
     }
 
-    public Response constructResponse(Object component, Object returnValue) {
+    public Response constructResponse(Object component, Response returnValue) {
 
-        Response response = (Response) returnValue;
-        if (response == null) {
-            response = VoidResponse.INSTANCE;
+        if (returnValue == null) {
+            returnValue = VoidResponse.INSTANCE;
         }
 
-        return response;
+        return returnValue;
     }
 }

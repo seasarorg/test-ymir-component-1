@@ -7,36 +7,35 @@ import org.seasar.cms.ymir.response.scheme.Strategy;
 import org.seasar.cms.ymir.response.scheme.StrategySelector;
 import org.seasar.cms.ymir.response.scheme.impl.ForwardStrategy;
 
-public class StringResponseConstructor implements ResponseConstructor {
+public class StringResponseConstructor implements ResponseConstructor<String> {
 
     private StrategySelector strategySelector_;
 
-    public Class getTargetClass() {
+    public Class<String> getTargetClass() {
 
         return String.class;
     }
 
-    public Response constructResponse(Object component, Object returnValue) {
+    public Response constructResponse(Object component, String returnValue) {
 
-        String string = (String) returnValue;
-        if (string == null) {
+        if (returnValue == null) {
             return VoidResponse.INSTANCE;
         }
 
         String scheme;
         String path;
-        int colon = string.indexOf(':');
+        int colon = returnValue.indexOf(':');
         if (colon < 0) {
             scheme = ForwardStrategy.SCHEME;
-            path = string;
+            path = returnValue;
         } else {
-            scheme = string.substring(0, colon);
-            path = string.substring(colon + 1);
+            scheme = returnValue.substring(0, colon);
+            path = returnValue.substring(colon + 1);
         }
         Strategy strategy = strategySelector_.getStrategy(scheme);
         if (strategy == null) {
             throw new RuntimeException("Unknown scheme '" + scheme
-                    + "' is specified: " + string);
+                    + "' is specified: " + returnValue);
         }
         return strategy.constructResponse(path, component);
     }

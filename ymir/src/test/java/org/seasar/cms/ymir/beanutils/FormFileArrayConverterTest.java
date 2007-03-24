@@ -17,10 +17,10 @@ public class FormFileArrayConverterTest extends TestCase {
 
         ConvertUtilsBean convertUtilsBean = new ConvertUtilsBean();
         convertUtilsBean.register(new FormFileArrayConverter(),
-            FormFile[].class);
+                FormFile[].class);
         BeanUtilsBean bean = new BeanUtilsBean(convertUtilsBean,
-            new PropertyUtilsBean());
-        Map map = new HashMap();
+                new PropertyUtilsBean());
+        Map<String, FormFile[]> map = new HashMap<String, FormFile[]>();
         FormFile[] files = new FormFile[] { new FormFileImpl(null),
             new FormFileImpl(null) };
         map.put("files", files);

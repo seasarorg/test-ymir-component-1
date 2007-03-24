@@ -10,7 +10,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 
     private Application baseApplication_;
 
-    private ThreadLocal application_ = new ThreadLocal();
+    private ThreadLocal<Application> application_ = new ThreadLocal<Application>();
 
     public void addApplication(Application application) {
 

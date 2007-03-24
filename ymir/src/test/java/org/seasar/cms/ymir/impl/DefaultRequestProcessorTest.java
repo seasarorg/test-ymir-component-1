@@ -27,11 +27,11 @@ public class DefaultRequestProcessorTest extends S2TestCase {
 
             public Set getResourcePaths(String path) {
                 if ("/path/to/".equals(path)) {
-                    return new HashSet(Arrays.asList(new String[] {
+                    return new HashSet<String>(Arrays.asList(new String[] {
                         "/path/to/file", "/path/to/dir/" }));
                 } else if ("/".equals(path)) {
-                    return new HashSet(Arrays.asList(new String[] { "/file",
-                        "/dir/" }));
+                    return new HashSet<String>(Arrays.asList(new String[] {
+                        "/file", "/dir/" }));
                 } else {
                     return null;
                 }

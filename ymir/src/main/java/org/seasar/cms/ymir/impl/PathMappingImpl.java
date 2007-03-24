@@ -98,7 +98,7 @@ public class PathMappingImpl implements PathMapping {
 
         Matcher matcher = pattern_.matcher(path);
         if (matcher.find()) {
-            Map prop = new HashMap();
+            Map<String, String> prop = new HashMap<String, String>();
             int count = matcher.groupCount();
             for (int j = 0; j <= count; j++) {
                 String matched = matcher.group(j);

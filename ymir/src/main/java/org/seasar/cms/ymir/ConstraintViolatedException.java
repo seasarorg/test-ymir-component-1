@@ -10,14 +10,14 @@ abstract public class ConstraintViolatedException extends Exception {
 
     private String path_;
 
-    private List messageList_ = new ArrayList();
+    private List<Note> noteList_ = new ArrayList<Note>();
 
     public ConstraintViolatedException() {
     }
 
-    public ConstraintViolatedException(String message) {
+    public ConstraintViolatedException(String note) {
 
-        super(message);
+        super(note);
     }
 
     public ConstraintViolatedException(Throwable cause) {
@@ -26,9 +26,9 @@ abstract public class ConstraintViolatedException extends Exception {
 
     }
 
-    public ConstraintViolatedException(String message, Throwable cause) {
+    public ConstraintViolatedException(String note, Throwable cause) {
 
-        super(message, cause);
+        super(note, cause);
 
     }
 
@@ -43,62 +43,31 @@ abstract public class ConstraintViolatedException extends Exception {
         return this;
     }
 
-    public boolean hasMessage() {
+    public boolean hasNote() {
 
-        return (messageList_.size() > 0);
+        return (noteList_.size() > 0);
     }
 
-    public Message[] getMessages() {
+    public Note[] getNotes() {
 
-        return (Message[]) messageList_.toArray(new Message[0]);
+        return noteList_.toArray(new Note[0]);
     }
 
-    public ConstraintViolatedException setMessages(Message[] messages) {
+    public ConstraintViolatedException setNotes(Note[] notes) {
 
-        messageList_.clear();
-        messageList_.addAll(Arrays.asList(messages));
+        noteList_.clear();
+        noteList_.addAll(Arrays.asList(notes));
         return this;
     }
 
-    public ConstraintViolatedException addMessage(Message message) {
+    public ConstraintViolatedException addNote(Note note) {
 
-        messageList_.add(message);
+        noteList_.add(note);
         return this;
     }
 
-    public ConstraintViolatedException addMessage(String key,
-            Object[] parameters) {
+    public ConstraintViolatedException addNote(String value, Object[] parameters) {
 
-        return addMessage(new Message(key, parameters));
-    }
-
-    public static class Message {
-
-        private String key_;
-
-        private Object[] parameters_;
-
-        public Message(String key, Object[] parameters) {
-            key_ = key;
-            parameters_ = parameters;
-        }
-
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("key=").append(key_).append(", parameters={");
-            for (int i = 0; i < parameters_.length; i++) {
-                sb.append(parameters_[i]);
-            }
-            sb.append("}");
-            return sb.toString();
-        }
-
-        public String getKey() {
-            return key_;
-        }
-
-        public Object[] getParameters() {
-            return parameters_;
-        }
+        return addNote(new Note(value, parameters));
     }
 }

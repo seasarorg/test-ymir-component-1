@@ -32,27 +32,28 @@ import org.seasar.cms.ymir.impl.FormFileImpl;
 public class MultipartServletRequest extends HttpServletRequestWrapper {
 
     public static final String ATTR_FORMFILEMAP = MultipartServletRequest.class
-        .getName()
-        + ".formFileMap";
+            .getName()
+            + ".formFileMap";
 
     private HttpServletRequest request_;
 
-    private Map paramMap_;
+    private Map<String, String[]> paramMap_;
 
+    @SuppressWarnings("unchecked")
     public MultipartServletRequest(HttpServletRequest request) {
 
         super(request);
         request_ = request;
 
         if (ServletFileUpload.isMultipartContent(new ServletRequestContext(
-            request))) {
+                request))) {
             String encoding = request.getCharacterEncoding();
             FileItemFactory factory = new DiskFileItemFactory();
             ServletFileUpload upload = new ServletFileUpload(factory);
             upload.setHeaderEncoding(encoding);
             try {
                 paramMap_ = prepareParameters(upload.parseRequest(request),
-                    encoding);
+                        encoding);
             } catch (FileUploadException ex) {
                 paramMap_ = request.getParameterMap();
             }
@@ -89,11 +90,14 @@ public class MultipartServletRequest extends HttpServletRequestWrapper {
      * private scope methods
      */
 
-    private Map prepareParameters(List fileItemList, String encoding) {
-        Map paramMap = new HashMap(request_.getParameterMap());
-        Map fileMap = new HashMap();
-        for (Iterator itr = fileItemList.iterator(); itr.hasNext();) {
-            FileItem fileItem = (FileItem) itr.next();
+    private Map<String, String[]> prepareParameters(
+            List<FileItem> fileItemList, String encoding) {
+        @SuppressWarnings("unchecked")
+        Map<String, String[]> paramMap = new HashMap<String, String[]>(request_
+                .getParameterMap());
+        Map<String, FormFile[]> fileMap = new HashMap<String, FormFile[]>();
+        for (Iterator<FileItem> itr = fileItemList.iterator(); itr.hasNext();) {
+            FileItem fileItem = itr.next();
             String fieldName = fileItem.getFieldName();
             if (fileItem.isFormField()) {
                 String value;
@@ -103,28 +107,28 @@ public class MultipartServletRequest extends HttpServletRequestWrapper {
                     throw new RuntimeException("Can't happen!");
                 }
                 paramMap.put(fieldName, add(paramMap.get(fieldName), value,
-                    String.class));
+                        String.class));
             } else {
                 FormFile value = new FormFileImpl(fileItem);
                 fileMap.put(fieldName, add(fileMap.get(fieldName), value,
-                    FormFile.class));
+                        FormFile.class));
             }
         }
         request_.setAttribute(ATTR_FORMFILEMAP, Collections
-            .unmodifiableMap(fileMap));
+                .unmodifiableMap(fileMap));
 
         return Collections.unmodifiableMap(paramMap);
     }
 
-    private Object add(Object obj, Object value, Class clazz) {
-        Object[] newObjs;
-        if (obj == null) {
-            newObjs = (Object[]) Array.newInstance(clazz, 1);
+    @SuppressWarnings("unchecked")
+    private <T> T[] add(T[] objs, T value, Class<T> clazz) {
+        T[] newObjs;
+        if (objs == null) {
+            newObjs = (T[]) Array.newInstance(clazz, 1);
             newObjs[0] = value;
         } else {
-            Object[] objs = (Object[]) obj;
-            newObjs = (Object[]) Array.newInstance(obj.getClass()
-                .getComponentType(), objs.length + 1);
+            newObjs = (T[]) Array.newInstance(objs.getClass()
+                    .getComponentType(), objs.length + 1);
             System.arraycopy(objs, 0, newObjs, 0, objs.length);
             newObjs[objs.length] = value;
         }

@@ -21,26 +21,24 @@ public class ObjectResponseConstructorTest extends TestCase {
         ResponseConstructorSelectorImpl selector = new ResponseConstructorSelectorImpl();
         selector.add(new StringResponseConstructor() {
             public Response constructResponse(Object component,
-                    Object returnValue) {
+                    String returnValue) {
                 calledClass_ = getTargetClass();
                 return null;
             }
         });
         selector.add(new PathResponseConstructor() {
-            public Response constructResponse(Object component,
-                    Object returnValue) {
+            public Response constructResponse(Object component, Path returnValue) {
                 calledClass_ = getTargetClass();
                 return null;
             }
         });
         selector.add(new InputStreamResponseConstructor());
-        selector.add(new ResponseConstructor() {
-            public Response constructResponse(Object component,
-                    Object returnValue) {
+        selector.add(new ResponseConstructor<I>() {
+            public Response constructResponse(Object component, I returnValue) {
                 return null;
             }
 
-            public Class getTargetClass() {
+            public Class<I> getTargetClass() {
                 return I.class;
             }
         });

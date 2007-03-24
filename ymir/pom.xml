@@ -3,31 +3,22 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
-    <groupId>org.seasar.cms</groupId>
-    <artifactId>cms-project</artifactId>
-    <version>0.0.2</version>
+    <relativePath>../ymir-project/pom.xml</relativePath>
+    <groupId>org.seasar.ymir</groupId>
+    <artifactId>ymir-project</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.seasar.cms.ymir</groupId>
+  <groupId>org.seasar.ymir</groupId>
   <artifactId>ymir</artifactId>
   <name>Ymir</name>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <description>
     Ymir is a framework for developing light-weight web application.
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
     <plugins>
-      <plugin>
-        <artifactId>maven-source-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <executions>

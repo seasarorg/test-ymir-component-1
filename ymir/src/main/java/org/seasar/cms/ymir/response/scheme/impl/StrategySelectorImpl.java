@@ -8,16 +8,16 @@ import org.seasar.cms.ymir.response.scheme.StrategySelector;
 
 public class StrategySelectorImpl implements StrategySelector {
 
-    private Map strategies_ = new HashMap();
+    private Map<String, Strategy> strategies_ = new HashMap<String, Strategy>();
 
     public Strategy getStrategy(String scheme) {
 
-        Strategy strategy = (Strategy) strategies_.get(scheme);
+        Strategy strategy = strategies_.get(scheme);
         if (strategy != null) {
             return strategy;
         } else {
             throw new RuntimeException("Strategy does not exist for scheme: "
-                + scheme);
+                    + scheme);
         }
     }
 

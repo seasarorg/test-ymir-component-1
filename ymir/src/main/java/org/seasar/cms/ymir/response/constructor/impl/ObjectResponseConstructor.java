@@ -10,22 +10,23 @@ import org.seasar.cms.ymir.response.VoidResponse;
 import org.seasar.cms.ymir.response.constructor.ResponseConstructor;
 import org.seasar.cms.ymir.response.constructor.ResponseConstructorSelector;
 
-public class ObjectResponseConstructor implements ResponseConstructor {
+public class ObjectResponseConstructor implements ResponseConstructor<Object> {
 
     private ResponseConstructorSelector responseConstructorSelector_;
 
-    public Class getTargetClass() {
+    public Class<Object> getTargetClass() {
 
         return Object.class;
     }
 
+    @SuppressWarnings("unchecked")
     public Response constructResponse(Object component, Object returnValue) {
 
         if (returnValue == null) {
             return VoidResponse.INSTANCE;
         }
 
-        ResponseConstructor responseConstructor = findResponseConstructor(returnValue
+        ResponseConstructor<?> responseConstructor = findResponseConstructor(returnValue
                 .getClass());
         if (responseConstructor == null) {
             if (responseConstructorSelector_
@@ -41,16 +42,17 @@ public class ObjectResponseConstructor implements ResponseConstructor {
             }
         }
 
-        return responseConstructor.constructResponse(component, returnValue);
+        return ((ResponseConstructor<Object>) responseConstructor)
+                .constructResponse(component, returnValue);
     }
 
-    ResponseConstructor findResponseConstructor(Class clazz) {
+    ResponseConstructor<?> findResponseConstructor(Class<?> clazz) {
         if (clazz == Object.class) {
             // 無限ループを避けるため。
             return null;
         }
 
-        Set interfaceSet = new LinkedHashSet();
+        Set<Class> interfaceSet = new LinkedHashSet<Class>();
         if (clazz.isInterface()) {
             if (responseConstructorSelector_.hasResponseConstructor(clazz)) {
                 return responseConstructorSelector_
@@ -58,7 +60,7 @@ public class ObjectResponseConstructor implements ResponseConstructor {
             }
             interfaceSet.addAll(Arrays.asList(clazz.getInterfaces()));
         } else {
-            Class type = clazz;
+            Class<?> type = clazz;
             do {
                 if (responseConstructorSelector_.hasResponseConstructor(type)) {
                     return responseConstructorSelector_
@@ -68,9 +70,9 @@ public class ObjectResponseConstructor implements ResponseConstructor {
             } while ((type = type.getSuperclass()) != Object.class);
         }
 
-        for (Iterator itr = interfaceSet.iterator(); itr.hasNext();) {
-            Class interfaze = (Class) itr.next();
-            ResponseConstructor constructor = findResponseConstructor(interfaze);
+        for (Iterator<Class> itr = interfaceSet.iterator(); itr.hasNext();) {
+            Class interfaze = itr.next();
+            ResponseConstructor<?> constructor = findResponseConstructor(interfaze);
             if (constructor != null) {
                 return constructor;
             }

@@ -2,14 +2,14 @@ package org.seasar.cms.ymir.response.constructor;
 
 import org.seasar.cms.ymir.Response;
 
-public interface ResponseConstructor {
+public interface ResponseConstructor<T> {
 
     /**
      * このResponseConstructorが処理する対象のクラスを返します。
      * 
      * @return 処理対象のクラス。
      */
-    Class getTargetClass();
+    Class<T> getTargetClass();
 
     /**
      * 指定されたコンポーネントとアクションメソッドの返り値からResponseを構築して返します。
@@ -18,5 +18,5 @@ public interface ResponseConstructor {
      * @param returnValue 返り値。nullであることがあります。
      * @return 構築したResponseオブジェクト。
      */
-    Response constructResponse(Object component, Object returnValue);
+    Response constructResponse(Object component, T returnValue);
 }

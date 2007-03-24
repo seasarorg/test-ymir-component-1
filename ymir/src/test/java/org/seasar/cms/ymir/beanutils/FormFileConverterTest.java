@@ -19,7 +19,7 @@ public class FormFileConverterTest extends TestCase {
         convertUtilsBean.register(new FormFileConverter(), FormFile.class);
         BeanUtilsBean bean = new BeanUtilsBean(convertUtilsBean,
                 new PropertyUtilsBean());
-        Map map = new HashMap();
+        Map<String, FormFile[]> map = new HashMap<String, FormFile[]>();
         FormFile[] files = new FormFile[] {
             new FormFileImpl(new MockFileItem()),
             new FormFileImpl(new MockFileItem()) };

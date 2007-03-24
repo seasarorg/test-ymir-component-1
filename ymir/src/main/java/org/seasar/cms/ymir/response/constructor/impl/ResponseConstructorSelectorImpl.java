@@ -9,19 +9,19 @@ import org.seasar.cms.ymir.response.constructor.ResponseConstructorSelector;
 public class ResponseConstructorSelectorImpl implements
         ResponseConstructorSelector {
 
-    private Map constructorMap_ = new HashMap();
+    private Map<Class<?>, ResponseConstructor<?>> constructorMap_ = new HashMap<Class<?>, ResponseConstructor<?>>();
 
     public boolean hasResponseConstructor(Class type) {
 
         return constructorMap_.containsKey(type);
     }
 
-    public ResponseConstructor getResponseConstructor(Class type) {
+    @SuppressWarnings("unchecked")
+    public <T> ResponseConstructor<T> getResponseConstructor(Class<T> type) {
 
-        ResponseConstructor constructor = (ResponseConstructor) constructorMap_
-                .get(type);
+        ResponseConstructor<?> constructor = constructorMap_.get(type);
         if (constructor != null) {
-            return constructor;
+            return (ResponseConstructor<T>) constructor;
         } else {
             throw new RuntimeException(
                     "ResponseConstructor does not exist for class: " + type);

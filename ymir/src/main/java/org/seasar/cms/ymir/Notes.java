@@ -5,14 +5,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Notes {
 
     public static final String GLOBAL_NOTE = "org.seasar.cms.ymir.GLOBAL_NOTE";
 
-    private List list_ = new ArrayList();
+    private List<Note> list_ = new ArrayList<Note>();
 
-    private LinkedHashMap map_ = new LinkedHashMap();
+    private Map<String, List<Note>> map_ = new LinkedHashMap<String, List<Note>>();
 
     private boolean accessed_ = false;
 
@@ -28,13 +29,13 @@ public class Notes {
             return this;
         }
 
-        Iterator categories = notes.categories();
+        Iterator<String> categories = notes.categories();
         while (categories.hasNext()) {
-            String category = (String) categories.next();
+            String category = categories.next();
 
-            Iterator itr = notes.get(category);
+            Iterator<Note> itr = notes.get(category);
             while (itr.hasNext()) {
-                Note note = (Note) itr.next();
+                Note note = itr.next();
                 add(category, note);
             }
         }
@@ -47,9 +48,9 @@ public class Notes {
 
     public Notes add(String category, Note note) {
         list_.add(note);
-        List noteList = (List) map_.get(category);
+        List<Note> noteList = map_.get(category);
         if (noteList == null) {
-            noteList = new ArrayList();
+            noteList = new ArrayList<Note>();
             map_.put(category, noteList);
         }
         noteList.add(note);
@@ -63,36 +64,36 @@ public class Notes {
         return this;
     }
 
-    public Iterator get() {
+    public Iterator<Note> get() {
         accessed_ = true;
         return Collections.unmodifiableCollection(list_).iterator();
     }
 
     public Note[] getNotes() {
         accessed_ = true;
-        return (Note[]) list_.toArray(new Note[0]);
+        return list_.toArray(new Note[0]);
     }
 
     public boolean isAccessed() {
         return accessed_;
     }
 
-    public Iterator get(String category) {
+    public Iterator<Note> get(String category) {
         accessed_ = true;
-        List noteList = (List) map_.get(category);
+        List<Note> noteList = map_.get(category);
         if (noteList == null) {
-            noteList = new ArrayList();
+            noteList = new ArrayList<Note>();
         }
         return Collections.unmodifiableCollection(noteList).iterator();
     }
 
     public Note[] getNotes(String category) {
         accessed_ = true;
-        List noteList = (List) map_.get(category);
+        List<Note> noteList = map_.get(category);
         if (noteList == null) {
             return new Note[0];
         } else {
-            return (Note[]) noteList.toArray(new Note[0]);
+            return noteList.toArray(new Note[0]);
         }
     }
 
@@ -100,7 +101,7 @@ public class Notes {
         return list_.isEmpty();
     }
 
-    public Iterator categories() {
+    public Iterator<String> categories() {
         return Collections.unmodifiableSet(map_.keySet()).iterator();
     }
 
@@ -109,7 +110,7 @@ public class Notes {
     }
 
     public int size(String category) {
-        List noteList = (List) map_.get(category);
+        List<Note> noteList = map_.get(category);
         if (noteList == null) {
             return 0;
         } else {
@@ -120,7 +121,7 @@ public class Notes {
     public boolean containsValue(String value) {
         int n = list_.size();
         for (int i = 0; i < n; i++) {
-            Note note = (Note) list_.get(i);
+            Note note = list_.get(i);
             if (note.getValue().equals(value)) {
                 return true;
             }

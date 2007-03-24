@@ -11,7 +11,7 @@ public class SpikeTest extends TestCase {
 
     public void testConvert() throws Exception {
 
-        Map properties = new HashMap();
+        Map<String, String[]> properties = new HashMap<String, String[]>();
         properties.put("integer", new String[] { "1" });
         properties.put("int", new String[] { "1" });
         TestBean2 actual = new TestBean2();

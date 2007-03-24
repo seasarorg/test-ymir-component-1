@@ -90,7 +90,7 @@ public class YmirVariableResolver extends VariableResolverImpl {
     }
 
     public String[] getVariableNames() {
-        Set nameSet = new HashSet();
+        Set<String> nameSet = new HashSet<String>();
         nameSet.add(NAME_YMIRREQUEST);
         nameSet.add(NAME_CONTAINER);
         nameSet.add(NAME_MESSAGES);

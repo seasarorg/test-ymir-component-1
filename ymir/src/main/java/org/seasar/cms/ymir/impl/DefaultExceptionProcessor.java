@@ -94,7 +94,7 @@ public class DefaultExceptionProcessor implements ExceptionProcessor {
 
     Response constructResponse(String returnValue) {
 
-        ResponseConstructor constructor = responseConstructorSelector_
+        ResponseConstructor<String> constructor = responseConstructorSelector_
                 .getResponseConstructor(String.class);
         if (constructor == null) {
             throw new ComponentNotFoundRuntimeException(

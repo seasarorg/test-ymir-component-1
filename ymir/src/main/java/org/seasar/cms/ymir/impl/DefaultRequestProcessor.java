@@ -256,11 +256,9 @@ public class DefaultRequestProcessor implements RequestProcessor {
                 throw ex;
             } catch (ValidationFailedException ex) {
                 validationFailed = true;
-                ConstraintViolatedException.Message[] messages = ex
-                        .getMessages();
-                for (int j = 0; j < messages.length; j++) {
-                    notes.add(new Note(messages[j].getKey(), messages[j]
-                            .getParameters()));
+                Note[] excentionNotes = ex.getNotes();
+                for (int j = 0; j < excentionNotes.length; j++) {
+                    notes.add(excentionNotes[j]);
                 }
             } catch (ConstraintViolatedException ex) {
                 throw new RuntimeException("May logic error", ex);
@@ -405,7 +403,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
                                 + actionName
                                 + " method...");
             }
-            List list = new ArrayList();
+            List<Method> list = new ArrayList<Method>();
             for (int i = 0; i < methods.length; i++) {
                 if (methods[i].getParameterTypes().length > 0) {
                     continue;
@@ -523,9 +521,11 @@ public class DefaultRequestProcessor implements RequestProcessor {
         }
     }
 
-    Response constructResponse(Object component, Class type, Object returnValue) {
+    @SuppressWarnings("unchecked")
+    Response constructResponse(Object component, Class<?> type,
+            Object returnValue) {
 
-        ResponseConstructor constructor = responseConstructorSelector_
+        ResponseConstructor<?> constructor = responseConstructorSelector_
                 .getResponseConstructor(type);
         if (constructor == null) {
             throw new ComponentNotFoundRuntimeException(
@@ -539,7 +539,8 @@ public class DefaultRequestProcessor implements RequestProcessor {
                 Thread.currentThread().setContextClassLoader(
                         component.getClass().getClassLoader());
             }
-            return constructor.constructResponse(component, returnValue);
+            return ((ResponseConstructor<Object>) constructor)
+                    .constructResponse(component, returnValue);
         } finally {
             Thread.currentThread().setContextClassLoader(oldLoader);
         }

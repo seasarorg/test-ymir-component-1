@@ -10,7 +10,7 @@ import java.util.Map;
 public class Path {
     private String trunk_;
 
-    private Map parameterMap_;
+    private Map<String, String[]> parameterMap_;
 
     private String parameterEncoding_;
 
@@ -23,15 +23,16 @@ public class Path {
 
     public Path(String path) {
 
-        this(path, new LinkedHashMap());
+        this(path, new LinkedHashMap<String, String[]>());
     }
 
-    public Path(String path, Map parameterMap) {
+    public Path(String path, Map<String, String[]> parameterMap) {
 
         this(path, parameterMap, "UTF-8");
     }
 
-    public Path(String path, Map parameterMap, String parameterEncoding) {
+    public Path(String path, Map<String, String[]> parameterMap,
+            String parameterEncoding) {
 
         parameterMap_ = parameterMap;
         parameterEncoding_ = parameterEncoding;
@@ -134,12 +135,12 @@ public class Path {
         return this;
     }
 
-    public Map getParameterMap() {
+    public Map<String, String[]> getParameterMap() {
 
         return parameterMap_;
     }
 
-    public Path setParameterMap(Map parameterMap) {
+    public Path setParameterMap(Map<String, String[]> parameterMap) {
 
         parameterMap_ = parameterMap;
         return this;

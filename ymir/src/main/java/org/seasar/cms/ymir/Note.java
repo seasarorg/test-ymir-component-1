@@ -56,9 +56,15 @@ public class Note {
         }
     }
 
-    /*
-     * public scope methods
-     */
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("value=").append(value_).append(", parameters={");
+        for (int i = 0; i < parameters_.length; i++) {
+            sb.append(parameters_[i]);
+        }
+        sb.append("}");
+        return sb.toString();
+    }
 
     public String getValue() {
         return value_;
