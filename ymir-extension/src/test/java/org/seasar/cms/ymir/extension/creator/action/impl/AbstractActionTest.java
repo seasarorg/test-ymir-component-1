@@ -5,9 +5,6 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.extension.creator.PathMetaData;
 import org.seasar.cms.ymir.extension.creator.action.impl.AbstractAction.Parameter;
 import org.seasar.cms.ymir.impl.RequestImpl;
 
@@ -24,10 +21,6 @@ public class AbstractActionTest extends TestCase {
         request.setParameterMap(parameterMap);
 
         Parameter[] parameters = new AbstractAction(null) {
-
-            public Response act(Request request, PathMetaData pathMetaData) {
-                return null;
-            }
         }.getParameters(request);
 
         assertEquals(3, parameters.length);

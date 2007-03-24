@@ -32,10 +32,6 @@ public class LazyPathMetaData implements PathMetaData {
 
     private boolean actionNameLoaded_;
 
-    private String defaultPath_;
-
-    private boolean defaultPathLoaded_;
-
     private File sourceFile_;
 
     private boolean sourceFileLoaded_;
@@ -88,7 +84,7 @@ public class LazyPathMetaData implements PathMetaData {
 
         if (!deniedLoaded_) {
             denied_ = sourceCreator_.isDenied(path_, method_);
-            defaultPathLoaded_ = true;
+            deniedLoaded_ = true;
         }
         return denied_;
     }

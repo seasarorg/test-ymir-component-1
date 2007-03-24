@@ -48,8 +48,6 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private boolean usingFreyjaRenderClasses_;
 
-    private String rootPackageName_;
-
     private VariableResolver variableResolver_;
 
     private Set<String> usedAsVariableSet_ = new HashSet<String>();

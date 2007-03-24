@@ -3,7 +3,6 @@ package org.seasar.cms.ymir.extension.beantable;
 import java.sql.SQLException;
 
 import org.seasar.cms.beantable.Beantable;
-import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.log.Logger;
@@ -12,8 +11,6 @@ import org.seasar.framework.util.ClassTraversal.ClassHandler;
 public class BeantableClassHandler implements ClassHandler {
 
     private Logger logger_ = Logger.getLogger(getClass());
-
-    private S2Container container_;
 
     private BeantableManager manager_;
 
@@ -62,11 +59,6 @@ public class BeantableClassHandler implements ClassHandler {
         if (logger_.isInfoEnabled()) {
             logger_.info("TABLE UPDATED SUCCESSFULLY");
         }
-    }
-
-    public void setContainer(S2Container container) {
-
-        container_ = container;
     }
 
     @Binding(bindingType = BindingType.MUST, value = "beantableManager")

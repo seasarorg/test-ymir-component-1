@@ -25,14 +25,6 @@ public class CreateConfigurationAction extends AbstractAction implements
 
     private static final String POM_XML = "pom.xml";
 
-    private static final Object KEY_PROJECTROOT = "projectRoot";
-
-    private static final String KEY_ROOTPACKAGENAME = "rootPackageName";
-
-    private static final String KEY_WEBAPPROOT = "webappRoot";
-
-    private static final String KEY_WEBAPPSOURCEROOT = "webappSourceRoot";
-
     public CreateConfigurationAction(SourceCreator sourceCreator) {
         super(sourceCreator);
     }
