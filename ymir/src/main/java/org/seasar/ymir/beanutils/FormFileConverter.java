@@ -1,7 +1,7 @@
-package org.seasar.cms.ymir.beanutils;
+package org.seasar.ymir.beanutils;
 
 import org.apache.commons.beanutils.Converter;
-import org.seasar.cms.ymir.FormFile;
+import org.seasar.ymir.FormFile;
 
 public class FormFileConverter implements Converter {
 

@@ -1,11 +1,11 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.fileupload.FileItem;
-import org.seasar.cms.ymir.FormFile;
+import org.seasar.ymir.FormFile;
 
 /**
  * <p><b>同期化：</b>

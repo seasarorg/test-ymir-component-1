@@ -1,8 +1,8 @@
-package org.seasar.cms.ymir;
+package org.seasar.ymir;
 
 public interface Globals {
 
-    String IDPREFIX = "org.seasar.cms.ymir.";
+    String IDPREFIX = "org.seasar.ymir.";
 
     String LANDMARK_CLASSNAME = IDPREFIX + "landmark.Landmark";
 

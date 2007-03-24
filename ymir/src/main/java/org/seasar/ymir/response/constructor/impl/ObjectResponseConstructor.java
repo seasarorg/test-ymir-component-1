@@ -1,14 +1,14 @@
-package org.seasar.cms.ymir.response.constructor.impl;
+package org.seasar.ymir.response.constructor.impl;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.response.VoidResponse;
-import org.seasar.cms.ymir.response.constructor.ResponseConstructor;
-import org.seasar.cms.ymir.response.constructor.ResponseConstructorSelector;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.response.VoidResponse;
+import org.seasar.ymir.response.constructor.ResponseConstructor;
+import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
 
 public class ObjectResponseConstructor implements ResponseConstructor<Object> {
 

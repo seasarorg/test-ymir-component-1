@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.creator;
+package org.seasar.ymir.creator;
 
 import org.seasar.framework.convention.NamingConvention;
 

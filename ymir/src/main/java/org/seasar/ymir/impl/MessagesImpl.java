@@ -1,10 +1,10 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
 import java.util.Locale;
 
-import org.seasar.cms.ymir.Messages;
-import org.seasar.cms.ymir.Ymir;
-import org.seasar.cms.ymir.YmirContext;
+import org.seasar.ymir.Messages;
+import org.seasar.ymir.Ymir;
+import org.seasar.ymir.YmirContext;
 import org.seasar.kvasir.util.collection.I18NProperties;
 import org.seasar.kvasir.util.io.Resource;
 import org.seasar.kvasir.util.io.impl.JavaResource;

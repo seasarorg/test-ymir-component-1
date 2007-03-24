@@ -1,7 +1,7 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
-import org.seasar.cms.ymir.RedirectionPathResolver;
-import org.seasar.cms.ymir.Request;
+import org.seasar.ymir.RedirectionPathResolver;
+import org.seasar.ymir.Request;
 
 public class DefaultRedirectionPathResolver implements RedirectionPathResolver {
 

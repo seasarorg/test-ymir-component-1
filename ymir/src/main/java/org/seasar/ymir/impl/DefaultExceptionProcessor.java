@@ -1,15 +1,15 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
-import org.seasar.cms.ymir.ExceptionProcessor;
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.Updater;
-import org.seasar.cms.ymir.WrappingRuntimeException;
-import org.seasar.cms.ymir.Ymir;
-import org.seasar.cms.ymir.handler.ExceptionHandler;
-import org.seasar.cms.ymir.response.ForwardResponse;
-import org.seasar.cms.ymir.response.constructor.ResponseConstructor;
-import org.seasar.cms.ymir.response.constructor.ResponseConstructorSelector;
+import org.seasar.ymir.ExceptionProcessor;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.Updater;
+import org.seasar.ymir.WrappingRuntimeException;
+import org.seasar.ymir.Ymir;
+import org.seasar.ymir.handler.ExceptionHandler;
+import org.seasar.ymir.response.ForwardResponse;
+import org.seasar.ymir.response.constructor.ResponseConstructor;
+import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
 

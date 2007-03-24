@@ -1,14 +1,14 @@
-package org.seasar.cms.ymir.servlet;
+package org.seasar.ymir.servlet;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.seasar.cms.ymir.YmirBootstrap;
+import org.seasar.ymir.YmirBootstrap;
 
 public class YmirListener implements ServletContextListener {
 
-    public static final String ATTR_YMIR = "org.seasar.cms.ymir.ymir";
+    public static final String ATTR_YMIR = "org.seasar.ymir.ymir";
 
     private YmirBootstrap bootstrap_ = new YmirBootstrap();
 

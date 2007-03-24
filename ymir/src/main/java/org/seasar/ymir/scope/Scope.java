@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.scope;
+package org.seasar.ymir.scope;
 
 public interface Scope {
 

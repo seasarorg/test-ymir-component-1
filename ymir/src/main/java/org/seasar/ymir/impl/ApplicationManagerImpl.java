@@ -1,7 +1,7 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
-import org.seasar.cms.ymir.Application;
-import org.seasar.cms.ymir.ApplicationManager;
+import org.seasar.ymir.Application;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.framework.util.ArrayUtil;
 
 public class ApplicationManagerImpl implements ApplicationManager {

@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.response;
+package org.seasar.ymir.response;
 
 
 public class PassthroughResponse extends ResponseBase {

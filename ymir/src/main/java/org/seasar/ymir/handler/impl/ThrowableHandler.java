@@ -1,7 +1,7 @@
-package org.seasar.cms.ymir.handler.impl;
+package org.seasar.ymir.handler.impl;
 
-import org.seasar.cms.ymir.WrappingRuntimeException;
-import org.seasar.cms.ymir.handler.ExceptionHandler;
+import org.seasar.ymir.WrappingRuntimeException;
+import org.seasar.ymir.handler.ExceptionHandler;
 
 public class ThrowableHandler implements ExceptionHandler {
 

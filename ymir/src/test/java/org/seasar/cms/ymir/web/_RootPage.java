@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.web;
+package org.seasar.ymir.web;
 
 public class _RootPage {
 }

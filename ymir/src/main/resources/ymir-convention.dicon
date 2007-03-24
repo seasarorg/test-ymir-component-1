@@ -8,7 +8,7 @@
   <include path="ymir-dao.dicon" />
   <meta name="expand">"ymir-creator.dicon"</meta>
   <component
-    class="org.seasar.cms.ymir.convention.YmirNamingConvention">
+    class="org.seasar.ymir.convention.YmirNamingConvention">
     <initMethod name="addRootPackageName">
       <arg>config.getProperty("rootPackageName", "skeleton")</arg>
     </initMethod>
@@ -20,16 +20,16 @@
     </property>
   </component>
   <component name="messages"
-    class="org.seasar.cms.ymir.impl.MessagesImpl">
+    class="org.seasar.ymir.impl.MessagesImpl">
     <arg>"messages.xproperties"</arg>
   </component>
   <component name="default_pageNotFoundExceptionHandler"
-    class="org.seasar.cms.ymir.handler.impl.PageNotFoundExceptionHandler"
+    class="org.seasar.ymir.handler.impl.PageNotFoundExceptionHandler"
     instance="request" />
   <component name="default_permissionDeniedExceptionHandler"
-    class="org.seasar.cms.ymir.handler.impl.PermissionDeniedExceptionHandler"
+    class="org.seasar.ymir.handler.impl.PermissionDeniedExceptionHandler"
     instance="request" />
   <component name="default_throwableHandler"
-    class="org.seasar.cms.ymir.handler.impl.ThrowableHandler"
+    class="org.seasar.ymir.handler.impl.ThrowableHandler"
     instance="request" />
 </components>

@@ -1,11 +1,11 @@
-package org.seasar.cms.ymir.response.constructor.impl;
+package org.seasar.ymir.response.constructor.impl;
 
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.response.VoidResponse;
-import org.seasar.cms.ymir.response.constructor.ResponseConstructor;
-import org.seasar.cms.ymir.response.scheme.Strategy;
-import org.seasar.cms.ymir.response.scheme.StrategySelector;
-import org.seasar.cms.ymir.response.scheme.impl.ForwardStrategy;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.response.VoidResponse;
+import org.seasar.ymir.response.constructor.ResponseConstructor;
+import org.seasar.ymir.response.scheme.Strategy;
+import org.seasar.ymir.response.scheme.StrategySelector;
+import org.seasar.ymir.response.scheme.impl.ForwardStrategy;
 
 public class StringResponseConstructor implements ResponseConstructor<String> {
 

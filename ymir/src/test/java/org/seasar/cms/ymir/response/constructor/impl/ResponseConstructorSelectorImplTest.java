@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.response.constructor.impl;
+package org.seasar.ymir.response.constructor.impl;
 
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.S2ContainerFactory;

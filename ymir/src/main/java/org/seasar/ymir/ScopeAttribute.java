@@ -1,8 +1,8 @@
-package org.seasar.cms.ymir;
+package org.seasar.ymir;
 
 import java.lang.reflect.Method;
 
-import org.seasar.cms.ymir.scope.Scope;
+import org.seasar.ymir.scope.Scope;
 import org.seasar.framework.log.Logger;
 import org.seasar.kvasir.util.io.IORuntimeException;
 

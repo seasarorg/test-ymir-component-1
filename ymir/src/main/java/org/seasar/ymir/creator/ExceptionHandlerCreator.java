@@ -1,6 +1,6 @@
-package org.seasar.cms.ymir.creator;
+package org.seasar.ymir.creator;
 
-import org.seasar.cms.ymir.convention.YmirNamingConvention;
+import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.framework.container.ComponentCustomizer;
 import org.seasar.framework.container.creator.ComponentCreatorImpl;
 import org.seasar.framework.container.deployer.InstanceDefFactory;

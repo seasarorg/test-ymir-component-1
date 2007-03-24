@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.response.constructor.impl;
+package org.seasar.ymir.response.constructor.impl;
 
 public interface I {
 

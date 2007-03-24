@@ -1,8 +1,8 @@
-package org.seasar.cms.ymir.response;
+package org.seasar.ymir.response;
 
 import java.io.InputStream;
 
-import org.seasar.cms.ymir.Response;
+import org.seasar.ymir.Response;
 
 abstract public class ResponseBase implements Response {
 

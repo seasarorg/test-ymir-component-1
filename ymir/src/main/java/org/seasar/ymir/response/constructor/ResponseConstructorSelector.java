@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.response.constructor;
+package org.seasar.ymir.response.constructor;
 
 public interface ResponseConstructorSelector {
 

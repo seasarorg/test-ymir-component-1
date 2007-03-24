@@ -1,17 +1,17 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.seasar.cms.ymir.Application;
-import org.seasar.cms.ymir.ApplicationManager;
-import org.seasar.cms.ymir.PathMappingProvider;
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.mock.MockApplication;
-import org.seasar.cms.ymir.mock.MockRequest;
-import org.seasar.cms.ymir.response.ForwardResponse;
+import org.seasar.ymir.Application;
+import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.PathMappingProvider;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.mock.MockApplication;
+import org.seasar.ymir.mock.MockRequest;
+import org.seasar.ymir.response.ForwardResponse;
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
 

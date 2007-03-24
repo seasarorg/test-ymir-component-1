@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,8 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
-import org.seasar.cms.ymir.HttpServletResponseFilter;
-import org.seasar.cms.ymir.Updater;
+import org.seasar.ymir.HttpServletResponseFilter;
+import org.seasar.ymir.Updater;
 import org.seasar.kvasir.util.MimeUtils;
 import org.seasar.kvasir.util.io.IOUtils;
 

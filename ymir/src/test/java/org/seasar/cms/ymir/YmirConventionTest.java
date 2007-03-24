@@ -1,9 +1,9 @@
-package org.seasar.cms.ymir;
+package org.seasar.ymir;
 
 import junit.framework.TestCase;
 
-import org.seasar.cms.ymir.convention.YmirNamingConvention;
-import org.seasar.cms.ymir.web._RootPage;
+import org.seasar.ymir.convention.YmirNamingConvention;
+import org.seasar.ymir.web._RootPage;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.creator.PageCreator;
 import org.seasar.framework.container.factory.S2ContainerFactory;
@@ -46,7 +46,7 @@ public class YmirConventionTest extends TestCase {
     public void testFromComponentNameToClassName() throws Exception {
 
         YmirNamingConvention convention = new YmirNamingConvention();
-        convention.addRootPackageName("org.seasar.cms.ymir");
+        convention.addRootPackageName("org.seasar.ymir");
         PageCreator creator = new PageCreator(convention);
         assertEquals(_RootPage.class, creator.getNamingConvention()
                 .fromComponentNameToClass("_RootPage"));

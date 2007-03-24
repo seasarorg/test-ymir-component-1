@@ -1,8 +1,8 @@
-package org.seasar.cms.ymir.scope.impl;
+package org.seasar.ymir.scope.impl;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.seasar.cms.ymir.scope.Scope;
+import org.seasar.ymir.scope.Scope;
 import org.seasar.framework.container.S2Container;
 
 public class RequestScope implements Scope {

@@ -1,9 +1,9 @@
-package org.seasar.cms.ymir.scope.impl;
+package org.seasar.ymir.scope.impl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.seasar.cms.ymir.scope.Scope;
+import org.seasar.ymir.scope.Scope;
 import org.seasar.framework.container.S2Container;
 
 public class SessionScope implements Scope {

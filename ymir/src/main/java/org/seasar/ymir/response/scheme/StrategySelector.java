@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.seasar.cms.ymir.response.scheme;
+package org.seasar.ymir.response.scheme;
 
 
 public interface StrategySelector {

@@ -1,10 +1,10 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
 import java.lang.reflect.Method;
 
-import org.seasar.cms.ymir.AnnotationHandler;
-import org.seasar.cms.ymir.ScopeAttribute;
-import org.seasar.cms.ymir.Constraint;
+import org.seasar.ymir.AnnotationHandler;
+import org.seasar.ymir.ScopeAttribute;
+import org.seasar.ymir.Constraint;
 
 public class DefaultAnnotationHandler implements AnnotationHandler {
 

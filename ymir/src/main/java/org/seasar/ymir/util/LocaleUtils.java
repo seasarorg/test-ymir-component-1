@@ -1,11 +1,11 @@
-package org.seasar.cms.ymir.util;
+package org.seasar.ymir.util;
 
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.seasar.cms.ymir.Globals;
+import org.seasar.ymir.Globals;
 
 public class LocaleUtils {
 

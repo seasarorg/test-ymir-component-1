@@ -1,8 +1,8 @@
-package org.seasar.cms.ymir.mock;
+package org.seasar.ymir.mock;
 
 import java.io.InputStream;
 
-import org.seasar.cms.ymir.Response;
+import org.seasar.ymir.Response;
 
 public class MockResponse implements Response {
 

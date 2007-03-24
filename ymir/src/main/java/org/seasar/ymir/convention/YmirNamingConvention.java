@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.convention;
+package org.seasar.ymir.convention;
 
 import org.seasar.cms.pluggable.impl.PluggableNamingConventionImpl;
 import org.seasar.framework.exception.EmptyRuntimeException;

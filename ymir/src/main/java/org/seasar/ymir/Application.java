@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir;
+package org.seasar.ymir;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -64,7 +64,7 @@ public interface Application {
      * 仮にこのメソッドがtrueを返しても、Ymir自体が開発中でない場合はアプリケーションを開発中と
      * みなすべきではありません。
      * Ymirのステータスを含めてこのアプリケーションを開発中とみなしてよいかどうかを知るためには、
-     * {@link org.seasar.cms.ymir.Ymir#isUnderDevelopment()}を使用して下さい。
+     * {@link org.seasar.ymir.Ymir#isUnderDevelopment()}を使用して下さい。
      * </p>
      *
      * @return このアプリケーションが開発中のステータスであるかどうか。

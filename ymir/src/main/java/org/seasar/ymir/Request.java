@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir;
+package org.seasar.ymir;
 
 import java.util.Iterator;
 import java.util.Locale;

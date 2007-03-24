@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir;
+package org.seasar.ymir;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class Notes {
 
-    public static final String GLOBAL_NOTE = "org.seasar.cms.ymir.GLOBAL_NOTE";
+    public static final String GLOBAL_NOTE = "org.seasar.ymir.GLOBAL_NOTE";
 
     private List<Note> list_ = new ArrayList<Note>();
 

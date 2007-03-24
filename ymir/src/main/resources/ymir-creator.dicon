@@ -2,9 +2,9 @@
 <!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
-  <component class="org.seasar.cms.ymir.creator.PageCreator" />
+  <component class="org.seasar.ymir.creator.PageCreator" />
   <component
-    class="org.seasar.cms.ymir.creator.ExceptionHandlerCreator" />
+    class="org.seasar.ymir.creator.ExceptionHandlerCreator" />
   <component class="org.seasar.framework.container.creator.DtoCreator" />
   <component name="daoOndemandCreatorInterceptor"
     class="org.seasar.framework.aop.interceptors.InterceptorChain"

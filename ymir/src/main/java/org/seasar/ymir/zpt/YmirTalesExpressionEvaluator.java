@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.zpt;
+package org.seasar.ymir.zpt;
 
 import net.skirnir.freyja.zpt.webapp.ServletTalesExpressionEvaluator;
 

@@ -1,8 +1,8 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
 import javax.servlet.ServletContext;
 
-import org.seasar.cms.ymir.MimeTypeDetector;
+import org.seasar.ymir.MimeTypeDetector;
 import org.seasar.framework.container.S2Container;
 
 public class ServletMimeTypeDetector implements MimeTypeDetector {

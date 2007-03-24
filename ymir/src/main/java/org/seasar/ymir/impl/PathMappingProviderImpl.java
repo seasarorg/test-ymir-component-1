@@ -1,7 +1,7 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
-import org.seasar.cms.ymir.PathMapping;
-import org.seasar.cms.ymir.PathMappingProvider;
+import org.seasar.ymir.PathMapping;
+import org.seasar.ymir.PathMappingProvider;
 
 public class PathMappingProviderImpl implements PathMappingProvider {
 

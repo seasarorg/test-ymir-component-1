@@ -1,8 +1,8 @@
-package org.seasar.cms.ymir.container;
+package org.seasar.ymir.container;
 
 import org.seasar.cms.pluggable.ThreadContextComponentDef;
 import org.seasar.cms.pluggable.ThreadContextComponentDefFactory;
-import org.seasar.cms.ymir.Request;
+import org.seasar.ymir.Request;
 
 public class RequestComponentDefFactory implements
     ThreadContextComponentDefFactory {

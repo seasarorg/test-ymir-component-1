@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.beanutils;
+package org.seasar.ymir.beanutils;
 
 public class TestBean2 {
 

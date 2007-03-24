@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir;
+package org.seasar.ymir;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
@@ -18,7 +18,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.servlet.ServletRequestContext;
-import org.seasar.cms.ymir.impl.FormFileImpl;
+import org.seasar.ymir.impl.FormFileImpl;
 
 /**
  * Commons FileUploadを使ってマルチパートリクエストを扱うようにした

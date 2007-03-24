@@ -1,12 +1,12 @@
-package org.seasar.cms.ymir.mock;
+package org.seasar.ymir.mock;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Enumeration;
 
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
-import org.seasar.cms.ymir.Application;
-import org.seasar.cms.ymir.PathMappingProvider;
+import org.seasar.ymir.Application;
+import org.seasar.ymir.PathMappingProvider;
 import org.seasar.framework.container.S2Container;
 
 public class MockApplication implements Application {

@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.util;
+package org.seasar.ymir.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -6,7 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.seasar.cms.ymir.Globals;
+import org.seasar.ymir.Globals;
 
 public class TokenUtils {
     public static final String KEY_TOKEN = Globals.IDPREFIX + "token";

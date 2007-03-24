@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.handler;
+package org.seasar.ymir.handler;
 
 public interface ExceptionHandler {
 

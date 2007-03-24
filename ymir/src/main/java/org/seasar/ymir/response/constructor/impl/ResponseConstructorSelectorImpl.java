@@ -1,10 +1,10 @@
-package org.seasar.cms.ymir.response.constructor.impl;
+package org.seasar.ymir.response.constructor.impl;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.seasar.cms.ymir.response.constructor.ResponseConstructor;
-import org.seasar.cms.ymir.response.constructor.ResponseConstructorSelector;
+import org.seasar.ymir.response.constructor.ResponseConstructor;
+import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
 
 public class ResponseConstructorSelectorImpl implements
         ResponseConstructorSelector {

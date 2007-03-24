@@ -1,14 +1,14 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
-import org.seasar.cms.ymir.AttributeContainer;
-import org.seasar.cms.ymir.FormFile;
-import org.seasar.cms.ymir.MatchedPathMapping;
-import org.seasar.cms.ymir.Request;
+import org.seasar.ymir.AttributeContainer;
+import org.seasar.ymir.FormFile;
+import org.seasar.ymir.MatchedPathMapping;
+import org.seasar.ymir.Request;
 
 public class RequestImpl implements Request {
 

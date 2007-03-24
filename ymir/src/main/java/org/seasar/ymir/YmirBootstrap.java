@@ -1,10 +1,10 @@
-package org.seasar.cms.ymir;
+package org.seasar.ymir;
 
 import javax.servlet.ServletContext;
 
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
-import org.seasar.cms.ymir.impl.SingleApplication;
+import org.seasar.ymir.impl.SingleApplication;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;

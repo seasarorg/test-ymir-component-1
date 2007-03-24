@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.util;
+package org.seasar.ymir.util;
 
 import java.util.Iterator;
 import java.util.Map;

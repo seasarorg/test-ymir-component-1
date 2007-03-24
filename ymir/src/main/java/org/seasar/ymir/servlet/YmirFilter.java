@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.servlet;
+package org.seasar.ymir.servlet;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -14,16 +14,16 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.seasar.cms.ymir.AttributeContainer;
-import org.seasar.cms.ymir.HttpServletResponseFilter;
-import org.seasar.cms.ymir.MultipartServletRequest;
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.Ymir;
-import org.seasar.cms.ymir.YmirVariableResolver;
-import org.seasar.cms.ymir.impl.HttpServletRequestAttributeContainer;
-import org.seasar.cms.ymir.util.LocaleUtils;
-import org.seasar.cms.ymir.util.ServletUtils;
+import org.seasar.ymir.AttributeContainer;
+import org.seasar.ymir.HttpServletResponseFilter;
+import org.seasar.ymir.MultipartServletRequest;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.Ymir;
+import org.seasar.ymir.YmirVariableResolver;
+import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
+import org.seasar.ymir.util.LocaleUtils;
+import org.seasar.ymir.util.ServletUtils;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 

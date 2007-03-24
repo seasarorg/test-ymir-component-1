@@ -1,8 +1,8 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
 import junit.framework.TestCase;
 
-import org.seasar.cms.ymir.mock.MockRequest;
+import org.seasar.ymir.mock.MockRequest;
 
 public class DefaultRedirectionPathResolverTest extends TestCase {
 

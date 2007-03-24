@@ -1,8 +1,8 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
-import org.seasar.cms.ymir.Application;
-import org.seasar.cms.ymir.PathMappingProvider;
+import org.seasar.ymir.Application;
+import org.seasar.ymir.PathMappingProvider;
 
 abstract public class AbstractApplication implements Application {
 

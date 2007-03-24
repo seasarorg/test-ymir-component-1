@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
 public class ArticlePage {
 

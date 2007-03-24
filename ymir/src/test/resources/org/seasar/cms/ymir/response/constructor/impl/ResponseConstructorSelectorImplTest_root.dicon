@@ -5,18 +5,18 @@
   <component
     class="org.seasar.framework.container.autoregister.ComponentAutoRegister">
     <initMethod name="addReferenceClass">
-      <arg>@org.seasar.cms.ymir.Ymir@class</arg>
+      <arg>@org.seasar.ymir.Ymir@class</arg>
     </initMethod>
     <initMethod name="addClassPattern">
-      <arg>"org.seasar.cms.ymir.response.constructor.impl"</arg>
+      <arg>"org.seasar.ymir.response.constructor.impl"</arg>
       <arg>".*ResponseConstructor"</arg>
     </initMethod>
     <initMethod name="addIgnoreClassPattern">
-      <arg>"org.seasar.cms.ymir.response.constructor.impl"</arg>
+      <arg>"org.seasar.ymir.response.constructor.impl"</arg>
       <arg>"Abstract.*"</arg>
     </initMethod>
     <initMethod name="registerAll" />
   </component>
   <component
-    class="org.seasar.cms.ymir.response.constructor.impl.ResponseConstructorSelectorImpl" />
+    class="org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl" />
 </components>

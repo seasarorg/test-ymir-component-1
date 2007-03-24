@@ -1,17 +1,17 @@
-package org.seasar.cms.ymir.zpt;
+package org.seasar.ymir.zpt;
 
 import java.text.MessageFormat;
 import java.util.Locale;
 
-import org.seasar.cms.ymir.Globals;
-import org.seasar.cms.ymir.MessageNotFoundRuntimeException;
-import org.seasar.cms.ymir.Messages;
-import org.seasar.cms.ymir.MessagesNotFoundRuntimeException;
-import org.seasar.cms.ymir.Note;
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.Ymir;
-import org.seasar.cms.ymir.YmirContext;
-import org.seasar.cms.ymir.YmirVariableResolver;
+import org.seasar.ymir.Globals;
+import org.seasar.ymir.MessageNotFoundRuntimeException;
+import org.seasar.ymir.Messages;
+import org.seasar.ymir.MessagesNotFoundRuntimeException;
+import org.seasar.ymir.Note;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.Ymir;
+import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.YmirVariableResolver;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.kvasir.util.collection.AttributeReader;
 import org.seasar.kvasir.util.collection.I18NPropertyReader;

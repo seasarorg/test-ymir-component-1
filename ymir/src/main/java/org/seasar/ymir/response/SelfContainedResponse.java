@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.response;
+package org.seasar.ymir.response;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -11,19 +11,19 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.seasar.cms.pluggable.Configuration;
-import org.seasar.cms.ymir.Application;
-import org.seasar.cms.ymir.ApplicationManager;
-import org.seasar.cms.ymir.AttributeContainer;
-import org.seasar.cms.ymir.ExceptionProcessor;
-import org.seasar.cms.ymir.HttpServletResponseFilter;
-import org.seasar.cms.ymir.LifecycleListener;
-import org.seasar.cms.ymir.PageNotFoundException;
-import org.seasar.cms.ymir.PermissionDeniedException;
-import org.seasar.cms.ymir.Request;
-import org.seasar.cms.ymir.RequestProcessor;
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.ResponseProcessor;
-import org.seasar.cms.ymir.Ymir;
+import org.seasar.ymir.Application;
+import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.AttributeContainer;
+import org.seasar.ymir.ExceptionProcessor;
+import org.seasar.ymir.HttpServletResponseFilter;
+import org.seasar.ymir.LifecycleListener;
+import org.seasar.ymir.PageNotFoundException;
+import org.seasar.ymir.PermissionDeniedException;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.RequestProcessor;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseProcessor;
+import org.seasar.ymir.Ymir;
 import org.seasar.framework.log.Logger;
 import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;

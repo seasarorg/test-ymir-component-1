@@ -1,10 +1,10 @@
-package org.seasar.cms.ymir.impl;
+package org.seasar.ymir.impl;
 
 import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.seasar.cms.ymir.AttributeContainer;
+import org.seasar.ymir.AttributeContainer;
 
 public class HttpServletRequestAttributeContainer implements AttributeContainer {
 

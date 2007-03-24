@@ -1,7 +1,7 @@
-package org.seasar.cms.ymir.response.scheme.impl;
+package org.seasar.ymir.response.scheme.impl;
 
-import org.seasar.cms.ymir.Response;
-import org.seasar.cms.ymir.response.SelfContainedResponse;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.response.SelfContainedResponse;
 import org.seasar.kvasir.util.io.IOUtils;
 
 import junit.framework.TestCase;

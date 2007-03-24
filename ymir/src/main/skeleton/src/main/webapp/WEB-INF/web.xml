@@ -21,7 +21,7 @@
   <filter>
     <filter-name>multipartrequestfilter</filter-name>
     <filter-class>
-      org.seasar.cms.ymir.MultipartRequestFilter
+      org.seasar.ymir.MultipartRequestFilter
     </filter-class>
   </filter>
   <filter>
@@ -32,7 +32,7 @@
   </filter>
   <filter>
     <filter-name>ymir.request</filter-name>
-    <filter-class>org.seasar.cms.ymir.servlet.YmirFilter</filter-class>
+    <filter-class>org.seasar.ymir.servlet.YmirFilter</filter-class>
     <init-param>
       <param-name>dispatcher</param-name>
       <param-value>REQUEST</param-value>
@@ -40,7 +40,7 @@
   </filter>
   <filter>
     <filter-name>ymir.include</filter-name>
-    <filter-class>org.seasar.cms.ymir.servlet.YmirFilter</filter-class>
+    <filter-class>org.seasar.ymir.servlet.YmirFilter</filter-class>
     <init-param>
       <param-name>dispatcher</param-name>
       <param-value>INCLUDE</param-value>
@@ -73,7 +73,7 @@
       org.seasar.cms.pluggable.servlet.PluggableListener
     </listener-class>
     <listener-class>
-      org.seasar.cms.ymir.servlet.YmirListener
+      org.seasar.ymir.servlet.YmirListener
     </listener-class>
   </listener>
   <welcome-file-list>

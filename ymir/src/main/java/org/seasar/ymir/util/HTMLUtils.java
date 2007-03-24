@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir.util;
+package org.seasar.ymir.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;

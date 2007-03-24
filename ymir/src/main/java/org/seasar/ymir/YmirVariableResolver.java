@@ -1,4 +1,4 @@
-package org.seasar.cms.ymir;
+package org.seasar.ymir;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -10,8 +10,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.seasar.cms.ymir.impl.DefaultRequestProcessor;
-import org.seasar.cms.ymir.util.TokenUtils;
+import org.seasar.ymir.impl.DefaultRequestProcessor;
+import org.seasar.ymir.util.TokenUtils;
 import org.seasar.framework.container.S2Container;
 
 import net.skirnir.freyja.TemplateContext;
