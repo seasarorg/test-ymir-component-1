@@ -1,7 +1,7 @@
 package org.seasar.ymir.extension.freemarker;
 
 import org.seasar.ymir.annotation.SuppressConstraints;
-import org.seasar.ymir.constraint.Required;
+import org.seasar.ymir.constraint.annotation.Required;
 
 @Required("test")
 public class HoePageBase {

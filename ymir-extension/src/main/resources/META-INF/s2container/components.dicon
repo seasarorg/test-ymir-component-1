@@ -14,6 +14,4 @@
     class="org.seasar.ymir.extension.beantable.BeantableManager" />
   <component name="beantableClassHandler"
     class="org.seasar.ymir.extension.beantable.BeantableClassHandler" />
-  <component
-    class="org.seasar.ymir.extension.impl.TigerAnnotationHandler" />
 </components>
