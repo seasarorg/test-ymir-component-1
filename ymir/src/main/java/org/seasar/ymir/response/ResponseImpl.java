@@ -2,9 +2,10 @@ package org.seasar.ymir.response;
 
 import java.io.InputStream;
 
-public class ResponseImpl extends ResponseBase {
+import org.seasar.ymir.ResponseType;
 
-    private int type_ = TYPE_VOID;
+public class ResponseImpl extends ResponseBase {
+    private ResponseType type_ = ResponseType.VOID;
 
     private String path_;
 
@@ -42,12 +43,12 @@ public class ResponseImpl extends ResponseBase {
         path_ = path;
     }
 
-    public int getType() {
+    public ResponseType getType() {
 
         return type_;
     }
 
-    public void setType(int type) {
+    public void setType(ResponseType type) {
 
         type_ = type;
     }

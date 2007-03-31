@@ -3,6 +3,7 @@ package org.seasar.ymir.mock;
 import java.io.InputStream;
 
 import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseType;
 
 public class MockResponse implements Response {
 
@@ -14,7 +15,7 @@ public class MockResponse implements Response {
 
     private int status_;
 
-    private int type_;
+    private ResponseType type_;
 
     private String characterEncoding_;
 
@@ -38,7 +39,7 @@ public class MockResponse implements Response {
         return status_;
     }
 
-    public int getType() {
+    public ResponseType getType() {
         return type_;
     }
 
@@ -62,7 +63,7 @@ public class MockResponse implements Response {
         status_ = status;
     }
 
-    public void setType(int type) {
+    public void setType(ResponseType type) {
         type_ = type;
     }
 }

@@ -14,6 +14,7 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.PathMappingProvider;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.constraint.NamedConstraint;
 import org.seasar.ymir.constraint.impl.FufuConstraint;
 import org.seasar.ymir.constraint.impl.FugaConstraint;
@@ -91,7 +92,7 @@ public class DefaultRequestProcessorTest extends S2TestCase {
                 .normalizeResponse(response, request.getPath());
 
         assertEquals("リクエストパスと同じパスへのフォワードはPASSTHROUGHに正規化されること",
-                Response.TYPE_PASSTHROUGH, actual.getType());
+                ResponseType.PASSTHROUGH, actual.getType());
     }
 
     public void testFileResourceExists() throws Exception {

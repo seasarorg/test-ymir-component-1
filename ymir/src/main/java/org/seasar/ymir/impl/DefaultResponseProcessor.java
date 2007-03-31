@@ -52,15 +52,15 @@ public class DefaultResponseProcessor implements ResponseProcessor {
         }
 
         switch (response.getType()) {
-        case Response.TYPE_PASSTHROUGH:
+        case PASSTHROUGH:
             return constructResponseFilter(httpRequest, httpResponse);
 
-        case Response.TYPE_FORWARD:
+        case FORWARD:
             context.getRequestDispatcher(response.getPath()).forward(
                     httpRequest, httpResponse);
             return null;
 
-        case Response.TYPE_REDIRECT:
+        case REDIRECT:
             String resolved = redirectionPathResolver_.resolve(response
                     .getPath(), request);
             if (resolved == null) {
@@ -74,7 +74,7 @@ public class DefaultResponseProcessor implements ResponseProcessor {
             httpResponse.sendRedirect(resolved);
             return null;
 
-        case Response.TYPE_SELF_CONTAINED:
+        case SELF_CONTAINED:
             InputStream is = null;
             OutputStream os = null;
             try {
@@ -102,7 +102,7 @@ public class DefaultResponseProcessor implements ResponseProcessor {
             }
             return null;
 
-        case Response.TYPE_VOID:
+        case VOID:
             return null;
 
         default:

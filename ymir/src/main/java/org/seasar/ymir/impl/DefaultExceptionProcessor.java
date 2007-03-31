@@ -3,6 +3,7 @@ package org.seasar.ymir.impl;
 import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
@@ -84,7 +85,7 @@ public class DefaultExceptionProcessor implements ExceptionProcessor {
         }
 
         Response response = constructResponse(handler.handle(t));
-        if (response.getType() == Response.TYPE_PASSTHROUGH) {
+        if (response.getType() == ResponseType.PASSTHROUGH) {
             response = new ForwardResponse(PATH_EXCEPTION_TEMPLATE
                     + getClassShortName(exceptionClass)
                     + SUFFIX_EXCEPTION_TEMPLATE);

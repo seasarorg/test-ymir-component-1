@@ -5,8 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
-public class SelfContainedResponse extends ResponseBase {
+import org.seasar.ymir.ResponseType;
 
+public class SelfContainedResponse extends ResponseBase {
     public static final String DEFAULT_BINARY_CONTENTTYPE = "application/octet-stream";
 
     public static final String DEFAULT_ASCII_CONTENTTYPE = "text/html; charset=UTF-8";
@@ -21,29 +22,24 @@ public class SelfContainedResponse extends ResponseBase {
     }
 
     public SelfContainedResponse(InputStream inputStream) {
-
         this(inputStream, DEFAULT_BINARY_CONTENTTYPE);
     }
 
     public SelfContainedResponse(InputStream inputStream, String contentType) {
-
         setInputStream(inputStream);
         setContentType(contentType);
     }
 
     public SelfContainedResponse(String string) {
-
         this(string, DEFAULT_ASCII_CONTENTTYPE);
     }
 
     public SelfContainedResponse(String string, String contentType) {
-
         setString(string);
         setContentType(contentType);
     }
 
     public String toString() {
-
         StringBuffer sb = new StringBuffer();
         sb.append("Content-Type: ").append(contentType_).append(", Content: ");
         if (string_ != null) {
@@ -54,13 +50,11 @@ public class SelfContainedResponse extends ResponseBase {
         return sb.toString();
     }
 
-    public int getType() {
-
-        return TYPE_SELF_CONTAINED;
+    public ResponseType getType() {
+        return ResponseType.SELF_CONTAINED;
     }
 
     public InputStream getInputStream() {
-
         InputStream inputStream;
         if (inputStream_ != null) {
             inputStream = inputStream_;
@@ -83,13 +77,11 @@ public class SelfContainedResponse extends ResponseBase {
     }
 
     public void setInputStream(InputStream inputStream) {
-
         setInputStream0(inputStream);
         setString0(null);
     }
 
     void setInputStream0(InputStream inputStream) {
-
         if (inputStream_ != null) {
             try {
                 inputStream_.close();
@@ -100,28 +92,23 @@ public class SelfContainedResponse extends ResponseBase {
     }
 
     public String getString() {
-
         return string_;
     }
 
     public void setString(String string) {
-
         setInputStream0(null);
         setString0(string);
     }
 
     void setString0(String string) {
-
         string_ = string;
     }
 
     public String getContentType() {
-
         return contentType_;
     }
 
     public void setContentType(String contentType) {
-
         contentType_ = contentType;
     }
 }

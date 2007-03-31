@@ -1,23 +1,20 @@
 package org.seasar.ymir.response;
 
+import org.seasar.ymir.ResponseType;
 
 public class RedirectResponse extends TransitionResponse {
-
     public RedirectResponse() {
     }
 
     public RedirectResponse(String path) {
-
         super(path);
     }
 
     public String toString() {
-
         return "redirect:" + getPath();
     }
 
-    public int getType() {
-
-        return TYPE_REDIRECT;
+    public ResponseType getType() {
+        return ResponseType.REDIRECT;
     }
 }

@@ -40,6 +40,7 @@ import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.ScopeAttribute;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.WrappingRuntimeException;
@@ -222,9 +223,9 @@ public class DefaultRequestProcessor implements RequestProcessor {
                                 request.isDispatchingByParameter(), request),
                                 request, true), component), request.getPath());
 
-                int responseType = response.getType();
-                if (responseType == Response.TYPE_PASSTHROUGH
-                        || responseType == Response.TYPE_FORWARD) {
+                ResponseType responseType = response.getType();
+                if (responseType == ResponseType.PASSTHROUGH
+                        || responseType == ResponseType.FORWARD) {
                     // 画面描画のためのAction呼び出しを行なう。
                     // （画面描画のためのAction呼び出しの際にはAction付随の制約以外の
                     // 制約チェックを行なわない。）
@@ -264,7 +265,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
     }
 
     Response normalizeResponse(Response response, String path) {
-        if (response.getType() == Response.TYPE_FORWARD
+        if (response.getType() == ResponseType.FORWARD
                 && response.getPath().equals(path)) {
             return PassthroughResponse.INSTANCE;
         } else {
@@ -488,7 +489,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
     }
 
     Response adjustResponse(Request request, Response response, Object component) {
-        if (response.getType() == Response.TYPE_PASSTHROUGH) {
+        if (response.getType() == ResponseType.PASSTHROUGH) {
             response = constructDefaultResponse(request, component);
         }
 

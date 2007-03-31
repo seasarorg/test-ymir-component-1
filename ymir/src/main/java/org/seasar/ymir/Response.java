@@ -3,22 +3,11 @@ package org.seasar.ymir;
 import java.io.InputStream;
 
 public interface Response {
-
-    int TYPE_PASSTHROUGH = 0;
-
-    int TYPE_FORWARD = 1;
-
-    int TYPE_REDIRECT = 2;
-
-    int TYPE_SELF_CONTAINED = 3;
-
-    int TYPE_VOID = 4;
-
     int STATUS_UNDEFINED = -1;
 
-    int getType();
+    ResponseType getType();
 
-    void setType(int type);
+    void setType(ResponseType type);
 
     String getPath();
 
