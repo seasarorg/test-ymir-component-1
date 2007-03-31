@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.extension.creator.impl.PathMetaDataImpl;
 import org.seasar.ymir.extension.creator.mock.MockSourceCreator;
 import org.seasar.ymir.extension.mock.MockServletContext;
@@ -45,7 +46,7 @@ public class ResourceActionTest extends TestCase {
                 "/__ymir__/resource/js/prototype/prototype.js",
                 Request.METHOD_GET, false, null, null, null, null, null, null));
 
-        assertEquals(Response.TYPE_SELF_CONTAINED, actual.getType());
+        assertEquals(ResponseType.SELF_CONTAINED, actual.getType());
         assertEquals("text/javascript", actual.getContentType());
         InputStream actual2 = actual.getInputStream();
         assertNotNull(actual2);
@@ -58,6 +59,6 @@ public class ResourceActionTest extends TestCase {
                 "/js/prototype/prototype.js", Request.METHOD_GET, false, null,
                 null, null, null, null, null));
 
-        assertEquals(Response.TYPE_VOID, actual.getType());
+        assertEquals(ResponseType.VOID, actual.getType());
     }
 }

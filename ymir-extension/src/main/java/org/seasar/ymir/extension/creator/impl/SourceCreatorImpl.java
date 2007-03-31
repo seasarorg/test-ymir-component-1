@@ -48,6 +48,7 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseCreator;
+import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
@@ -199,17 +200,17 @@ public class SourceCreatorImpl implements SourceCreator {
                 return response;
             }
 
-            if (response.getType() != Response.TYPE_PASSTHROUGH
-                    && response.getType() != Response.TYPE_FORWARD) {
+            if (response.getType() != ResponseType.PASSTHROUGH
+                    && response.getType() != ResponseType.FORWARD) {
                 return response;
             }
         }
 
         String method = getOriginalMethod(request);
         String forwardPath = null;
-        if (response.getType() == Response.TYPE_FORWARD) {
+        if (response.getType() == ResponseType.FORWARD) {
             forwardPath = response.getPath();
-        } else if (response.getType() == Response.TYPE_PASSTHROUGH) {
+        } else if (response.getType() == ResponseType.PASSTHROUGH) {
             forwardPath = path;
         }
         PathMetaData pathMetaData = new LazyPathMetaData(this, path, method,
