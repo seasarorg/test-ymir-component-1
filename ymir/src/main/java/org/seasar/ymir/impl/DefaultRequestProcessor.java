@@ -1,8 +1,16 @@
 package org.seasar.ymir.impl;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -22,7 +30,6 @@ import org.seasar.framework.log.Logger;
 import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
 import org.seasar.kvasir.util.el.VariableResolver;
-import org.seasar.ymir.AnnotationHandler;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.MatchedPathMapping;
@@ -37,28 +44,36 @@ import org.seasar.ymir.ScopeAttribute;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
+import org.seasar.ymir.annotation.In;
+import org.seasar.ymir.annotation.Out;
+import org.seasar.ymir.annotation.SuppressConstraints;
 import org.seasar.ymir.beanutils.FormFileArrayConverter;
 import org.seasar.ymir.beanutils.FormFileConverter;
 import org.seasar.ymir.constraint.Constraint;
+import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
+import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
 import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
+import org.seasar.ymir.scope.Scope;
+import org.seasar.ymir.scope.impl.RequestScope;
 import org.seasar.ymir.util.BeanUtils;
 
 public class DefaultRequestProcessor implements RequestProcessor {
 
     public static final String PARAM_METHOD = "__ymir__method";
 
+    static final Set<ConstraintType> EMPTY_SUPPRESSTYPESET = EnumSet
+            .noneOf(ConstraintType.class);
+
     private Ymir ymir_;
 
     private ResponseConstructorSelector responseConstructorSelector_;
 
     private Updater[] updaters_ = new Updater[0];
-
-    private AnnotationHandler annotationHandler_ = new TigerAnnotationHandler();
 
     private final PropertyUtilsBean propertyUtilsBean_ = new PropertyUtilsBean();
 
@@ -80,6 +95,21 @@ public class DefaultRequestProcessor implements RequestProcessor {
                 propertyUtilsBean_.clearDescriptors();
             }
         });
+    }
+
+    public void setYmir(Ymir ymir) {
+        ymir_ = ymir;
+    }
+
+    public void setResponseConstructorSelector(
+            ResponseConstructorSelector responseConstructorSelector) {
+
+        responseConstructorSelector_ = responseConstructorSelector;
+    }
+
+    public void setUpdaters(Updater[] updaters) {
+
+        updaters_ = updaters;
     }
 
     public Request prepareForProcessing(String contextPath, String path,
@@ -247,11 +277,10 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
         boolean validationFailed = false;
         Notes notes = new Notes();
-        Constraint[] constraint = annotationHandler_.getConstraints(component,
-                action);
-        for (int i = 0; i < constraint.length; i++) {
+        ConstraintBag[] bag = getConstraintBags(component, action);
+        for (int i = 0; i < bag.length; i++) {
             try {
-                constraint[i].confirm(component, request);
+                bag[i].confirm(component, request);
             } catch (PermissionDeniedException ex) {
                 throw ex;
             } catch (ValidationFailedException ex) {
@@ -300,16 +329,14 @@ public class DefaultRequestProcessor implements RequestProcessor {
     }
 
     void injectContextAttributes(Object component) {
-        ScopeAttribute[] attributes = annotationHandler_
-                .getInjectedScopeAttributes(component);
+        ScopeAttribute[] attributes = getInjectedScopeAttributes(component);
         for (int i = 0; i < attributes.length; i++) {
             attributes[i].injectTo(component);
         }
     }
 
     void outjectContextAttributes(Object component) {
-        ScopeAttribute[] attributes = annotationHandler_
-                .getOutjectedScopeAttributes(component);
+        ScopeAttribute[] attributes = getOutjectedScopeAttributes(component);
         for (int i = 0; i < attributes.length; i++) {
             attributes[i].outjectFrom(component);
         }
@@ -546,23 +573,211 @@ public class DefaultRequestProcessor implements RequestProcessor {
         }
     }
 
-    public void setYmir(Ymir ymir) {
-        ymir_ = ymir;
+    protected ScopeAttribute[] getInjectedScopeAttributes(Object component) {
+        return getInjectedScopeAttributes(component.getClass());
     }
 
-    public void setResponseConstructorSelector(
-            ResponseConstructorSelector responseConstructorSelector) {
-
-        responseConstructorSelector_ = responseConstructorSelector;
+    protected ScopeAttribute[] getOutjectedScopeAttributes(Object component) {
+        return getOutjectedScopeAttributes(component.getClass());
     }
 
-    public void setUpdaters(Updater[] updaters) {
+    ScopeAttribute[] getInjectedScopeAttributes(Class clazz) {
+        Method[] methods = clazz.getMethods();
+        List<ScopeAttribute> handlerList = new ArrayList<ScopeAttribute>();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            In in = method.getAnnotation(In.class);
+            if (in == null) {
+                continue;
+            }
 
-        updaters_ = updaters;
+            int modifiers = method.getModifiers();
+            if (Modifier.isStatic(modifiers)) {
+                throw new RuntimeException(
+                        "Logic error: @In can't annotate static method: class="
+                                + clazz.getName() + ", method=" + method);
+            } else if (!Modifier.isPublic(modifiers)) {
+                throw new RuntimeException(
+                        "Logic error: @In can annotate only public method: class="
+                                + clazz.getName() + ", method=" + method);
+            } else if (method.getParameterTypes().length != 1) {
+                throw new RuntimeException(
+                        "Logic error: @In can't annotate this method: class="
+                                + clazz.getName() + ", method=" + method);
+            }
+
+            handlerList.add(new ScopeAttribute(toAttributeName(
+                    method.getName(), in.name()), getScope(in), method, null));
+        }
+
+        return handlerList.toArray(new ScopeAttribute[0]);
     }
 
-    public void setAnnotationHandler(AnnotationHandler annotationHandler) {
+    Scope getScope(In in) {
+        Object key;
+        if (in.scopeName().length() > 0) {
+            key = in.scopeName();
+        } else if (in.scopeClass() != Object.class) {
+            key = in.scopeClass();
+        } else if (in.value() != Object.class) {
+            key = in.value();
+        } else {
+            key = RequestScope.class;
+        }
+        return (Scope) getS2Container().getComponent(key);
+    }
 
-        annotationHandler_ = annotationHandler;
+    ScopeAttribute[] getOutjectedScopeAttributes(Class clazz) {
+        Method[] methods = clazz.getMethods();
+        List<ScopeAttribute> handlerList = new ArrayList<ScopeAttribute>();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            Out out = method.getAnnotation(Out.class);
+            if (out == null) {
+                continue;
+            }
+
+            int modifiers = method.getModifiers();
+            if (Modifier.isStatic(modifiers)) {
+                throw new RuntimeException(
+                        "Logic error: @Out can't annotate static method: class="
+                                + clazz.getName() + ", method=" + method);
+            } else if (!Modifier.isPublic(modifiers)) {
+                throw new RuntimeException(
+                        "Logic error: @Out can annotate only public method: class="
+                                + clazz.getName() + ", method=" + method);
+            } else if (method.getParameterTypes().length != 0
+                    || method.getReturnType() == Void.TYPE) {
+                throw new RuntimeException(
+                        "Logic error: @Out can't annotate this method: class="
+                                + clazz.getName() + ", method=" + method);
+            }
+
+            handlerList
+                    .add(new ScopeAttribute(toAttributeName(method.getName(),
+                            out.name()), getScope(out), null, method));
+        }
+
+        return handlerList.toArray(new ScopeAttribute[0]);
+    }
+
+    Scope getScope(Out out) {
+        Object key;
+        if (out.scopeName().length() > 0) {
+            key = out.scopeName();
+        } else if (out.scopeClass() != Object.class) {
+            key = out.scopeClass();
+        } else if (out.value() != Object.class) {
+            key = out.value();
+        } else {
+            key = RequestScope.class;
+        }
+        return (Scope) getS2Container().getComponent(key);
+    }
+
+    String toAttributeName(String implicitName, String explicitName) {
+        if (explicitName.length() > 0) {
+            return explicitName;
+        } else {
+            for (int i = 0; i < implicitName.length(); i++) {
+                char ch = implicitName.charAt(i);
+                if (Character.isUpperCase(ch)) {
+                    return String.valueOf(Character.toLowerCase(ch))
+                            + implicitName.substring(i + 1);
+                }
+            }
+            return implicitName;
+        }
+    }
+
+    protected ConstraintBag[] getConstraintBags(Object component, Method action) {
+        return getConstraints(component.getClass(), action);
+    }
+
+    // PropertyDescriptorのreadMethodは対象外。fieldも対象外。
+    ConstraintBag[] getConstraints(Class<?> clazz, Method action) {
+        List<ConstraintBag> list = new ArrayList<ConstraintBag>();
+
+        Set<ConstraintType> suppressTypeSet = EnumSet
+                .noneOf(ConstraintType.class);
+        if (action != null) {
+            SuppressConstraints suppress = action
+                    .getAnnotation(SuppressConstraints.class);
+            if (suppress != null) {
+                ConstraintType[] types = suppress.value();
+                for (int i = 0; i < types.length; i++) {
+                    suppressTypeSet.add(types[i]);
+                }
+            }
+        }
+        getConstraint(clazz, list, suppressTypeSet);
+        BeanInfo beanInfo;
+        try {
+            beanInfo = Introspector.getBeanInfo(clazz);
+        } catch (IntrospectionException ex) {
+            throw new RuntimeException(ex);
+        }
+        PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
+        for (int i = 0; i < pds.length; i++) {
+            getConstraint(pds[i].getWriteMethod(), list, suppressTypeSet);
+        }
+        getConstraint(action, list, EMPTY_SUPPRESSTYPESET);
+
+        return list.toArray(new ConstraintBag[0]);
+    }
+
+    @SuppressWarnings("unchecked")
+    void getConstraint(AnnotatedElement element, List<ConstraintBag> list,
+            Set<ConstraintType> suppressTypeSet) {
+        if (element == null) {
+            return;
+        }
+        Annotation[] annotations = element.getAnnotations();
+        for (int i = 0; i < annotations.length; i++) {
+            ConstraintAnnotation constraintAnnotation = annotations[i]
+                    .annotationType().getAnnotation(ConstraintAnnotation.class);
+            if (constraintAnnotation == null
+                    || suppressTypeSet.contains(constraintAnnotation.type())) {
+                continue;
+            }
+            list.add(new ConstraintBag(((Constraint) getS2Container()
+                    .getComponent(constraintAnnotation.component())),
+                    annotations[i], element));
+        }
+    }
+
+    Method getMethod(Class clazz, String name) {
+        try {
+            return clazz.getMethod(name, new Class[0]);
+        } catch (SecurityException ex) {
+            return null;
+        } catch (NoSuchMethodException ex) {
+            return null;
+        }
+    }
+
+    protected static class ConstraintBag<T extends Annotation> {
+        private Constraint<T> constraint_;
+
+        private T annotation_;
+
+        private AnnotatedElement element_;
+
+        public ConstraintBag(Constraint<T> constraint, T annotation,
+                AnnotatedElement element) {
+            constraint_ = constraint;
+            annotation_ = annotation;
+            element_ = element;
+        }
+
+        @SuppressWarnings("unchecked")
+        public void confirm(Object component, Request request)
+                throws ConstraintViolatedException {
+            constraint_.confirm(component, request, annotation_, element_);
+        }
+
+        public Constraint<T> getConstraint() {
+            return constraint_;
+        }
     }
 }

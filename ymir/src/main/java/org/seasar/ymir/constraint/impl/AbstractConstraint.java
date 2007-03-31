@@ -1,9 +1,13 @@
-package org.seasar.ymir.constraint;
+package org.seasar.ymir.constraint.impl;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 
-abstract public class ConstraintFactoryBase {
+import org.seasar.ymir.constraint.Constraint;
+
+abstract public class AbstractConstraint<T extends Annotation> implements
+        Constraint<T> {
 
     private static final String PREFIX_SET = "set";
 
@@ -19,7 +23,6 @@ abstract public class ConstraintFactoryBase {
     }
 
     protected String toPropertyName(String methodName) {
-
         String name;
         if (methodName == null) {
             return null;
@@ -42,7 +45,6 @@ abstract public class ConstraintFactoryBase {
     }
 
     protected String[] add(String[] strings, String string) {
-
         if (string != null) {
             String[] newStrings = new String[strings.length + 1];
             System.arraycopy(strings, 0, newStrings, 0, strings.length);
@@ -54,7 +56,6 @@ abstract public class ConstraintFactoryBase {
     }
 
     protected String[] add(String[] strings, String[] strings2, String string) {
-
         String[] newStrings = new String[strings.length + strings2.length
                 + (string != null ? 1 : 0)];
         System.arraycopy(strings, 0, newStrings, 0, strings.length);

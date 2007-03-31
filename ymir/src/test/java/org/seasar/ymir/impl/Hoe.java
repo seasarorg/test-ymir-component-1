@@ -2,6 +2,8 @@ package org.seasar.ymir.impl;
 
 import org.seasar.ymir.annotation.SuppressConstraints;
 import org.seasar.ymir.constraint.ConstraintType;
+import org.seasar.ymir.constraint.annotation.Fufu;
+import org.seasar.ymir.constraint.annotation.Fuga;
 
 @Fuga("saru")
 @Fufu("tora")

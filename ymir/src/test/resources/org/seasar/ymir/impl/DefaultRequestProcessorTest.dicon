@@ -91,7 +91,7 @@
     class="org.seasar.framework.container.autoregister.ComponentAutoRegister">
     <property name="instanceDef">@org.seasar.framework.container.deployer.InstanceDefFactory@PROTOTYPE</property>
     <initMethod name="addReferenceClass">
-      <arg>@org.seasar.ymir.impl.TigerAnnotationHandlerTest@class</arg>
+      <arg>@org.seasar.ymir.impl.DefaultRequestProcessorTest@class</arg>
     </initMethod>
     <initMethod name="addClassPattern">
       <arg>"org.seasar.ymir.constraint.impl"</arg>

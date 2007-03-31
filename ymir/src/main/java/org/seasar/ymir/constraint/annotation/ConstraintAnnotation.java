@@ -1,4 +1,4 @@
-package org.seasar.ymir.annotation;
+package org.seasar.ymir.constraint.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,8 +10,7 @@ import org.seasar.ymir.constraint.ConstraintType;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ConstraintAnnotation {
-
     ConstraintType type();
 
-    Class factory();
+    Class component();
 }
