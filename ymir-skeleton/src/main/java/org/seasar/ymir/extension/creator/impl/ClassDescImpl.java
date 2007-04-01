@@ -1,0 +1,194 @@
+package org.seasar.ymir.extension.creator.impl;
+
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.seasar.ymir.extension.creator.AbstractClassDesc;
+import org.seasar.ymir.extension.creator.AnnotationDesc;
+import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.MethodDesc;
+import org.seasar.ymir.extension.creator.MethodDescKey;
+import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.TypeDesc;
+
+public class ClassDescImpl extends AbstractClassDesc {
+
+    private String name_;
+
+    private Class superclass_;
+
+    private Map<String, PropertyDesc> propertyDescMap_ = new TreeMap<String, PropertyDesc>();
+
+    private Map<MethodDescKey, MethodDesc> methodDescMap_ = new TreeMap<MethodDescKey, MethodDesc>();
+
+    public ClassDescImpl(String name) {
+
+        setName(name);
+    }
+
+    public Object clone() {
+
+        ClassDescImpl cloned = (ClassDescImpl) super.clone();
+
+        cloned.propertyDescMap_ = new LinkedHashMap<String, PropertyDesc>();
+        for (Iterator<Map.Entry<String, PropertyDesc>> itr = propertyDescMap_
+                .entrySet().iterator(); itr.hasNext();) {
+            Map.Entry<String, PropertyDesc> entry = itr.next();
+            cloned.propertyDescMap_.put(entry.getKey(), (PropertyDesc) entry
+                    .getValue().clone());
+        }
+        cloned.methodDescMap_ = new LinkedHashMap<MethodDescKey, MethodDesc>();
+        for (Iterator<Map.Entry<MethodDescKey, MethodDesc>> itr = methodDescMap_
+                .entrySet().iterator(); itr.hasNext();) {
+            Map.Entry<MethodDescKey, MethodDesc> entry = itr.next();
+            cloned.methodDescMap_.put(entry.getKey(), (MethodDesc) entry
+                    .getValue().clone());
+        }
+        return cloned;
+    }
+
+    public String getName() {
+        return name_;
+    }
+
+    public void setName(String name) {
+        name_ = name;
+    }
+
+    public PropertyDesc addProperty(String name, int mode) {
+
+        PropertyDesc propertyDesc = getPropertyDesc(name);
+        if (propertyDesc == null) {
+            propertyDesc = new PropertyDescImpl(name);
+            propertyDescMap_.put(name, propertyDesc);
+        }
+        propertyDesc.addMode(mode);
+        return propertyDesc;
+    }
+
+    public PropertyDesc getPropertyDesc(String name) {
+
+        return propertyDescMap_.get(name);
+    }
+
+    public void setPropertyDesc(PropertyDesc propertyDesc) {
+
+        propertyDescMap_.put(propertyDesc.getName(), propertyDesc);
+    }
+
+    public void removePropertyDesc(String name) {
+
+        propertyDescMap_.remove(name);
+    }
+
+    public PropertyDesc[] getPropertyDescs() {
+
+        return propertyDescMap_.values().toArray(new PropertyDesc[0]);
+    }
+
+    public MethodDesc getMethodDesc(MethodDesc methodDesc) {
+
+        return methodDescMap_.get(new MethodDescKey(methodDesc));
+    }
+
+    public void setMethodDesc(MethodDesc methodDesc) {
+
+        methodDescMap_.put(new MethodDescKey(methodDesc), methodDesc);
+    }
+
+    public MethodDesc[] getMethodDescs() {
+
+        return methodDescMap_.values().toArray(new MethodDesc[0]);
+    }
+
+    public void removeMethodDesc(MethodDesc methodDesc) {
+
+        methodDescMap_.remove(new MethodDescKey(methodDesc));
+    }
+
+    public String getSuperclassName() {
+
+        if (superclass_ != null) {
+            return superclass_.getName();
+        } else {
+            return null;
+        }
+    }
+
+    public Class getSuperclass() {
+
+        return superclass_;
+    }
+
+    public void setSuperclass(Class superclass) {
+
+        superclass_ = superclass;
+    }
+
+    public void merge(ClassDesc classDesc) {
+
+        if (classDesc == null) {
+            return;
+        }
+
+        if (superclass_ == null) {
+            setSuperclass(classDesc.getSuperclass());
+        }
+
+        PropertyDesc[] propertyDescs = classDesc.getPropertyDescs();
+        for (int i = 0; i < propertyDescs.length; i++) {
+            PropertyDesc pd = getPropertyDesc(propertyDescs[i].getName());
+            if (pd == null) {
+                setPropertyDesc((PropertyDesc) propertyDescs[i].clone());
+            } else {
+                merge(pd.getTypeDesc(), propertyDescs[i].getTypeDesc());
+                pd.addMode(propertyDescs[i].getMode());
+            }
+        }
+
+        MethodDesc[] methodDescs = classDesc.getMethodDescs();
+        for (int i = 0; i < methodDescs.length; i++) {
+            MethodDesc md = getMethodDesc(methodDescs[i]);
+            if (md == null) {
+                setMethodDesc((MethodDesc) methodDescs[i].clone());
+            } else {
+                TypeDesc returnTd = md.getReturnTypeDesc();
+                TypeDesc returnTypeDesc = methodDescs[i].getReturnTypeDesc();
+                if (merge(returnTd, returnTypeDesc)) {
+                    md.setBodyDesc(methodDescs[i].getBodyDesc());
+                }
+            }
+        }
+
+        AnnotationDesc[] annotationDescs = classDesc.getAnnotationDescs();
+        for (int i = 0; i < annotationDescs.length; i++) {
+            AnnotationDesc ad = getAnnotationDesc(annotationDescs[i].getName());
+            if (ad == null) {
+                setAnnotationDesc((AnnotationDesc) annotationDescs[i].clone());
+            }
+        }
+    }
+
+    boolean merge(TypeDesc td, TypeDesc typeDesc) {
+        if (!td.equals(typeDesc) && !td.isExplicit() && typeDesc.isExplicit()) {
+            td.transcript(typeDesc);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isEmpty() {
+
+        return (propertyDescMap_.isEmpty() && methodDescMap_.isEmpty());
+    }
+
+    public void clear() {
+
+        superclass_ = null;
+        propertyDescMap_.clear();
+        methodDescMap_.clear();
+    }
+}

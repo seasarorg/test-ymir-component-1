@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
+  "http://www.seasar.org/dtd/components24.dtd">
+<components>
+  <include path="global.dicon" />
+  <component
+    class="org.seasar.ymir.extension.creator.impl.SourceCreatorImpl" />
+  <component class="org.seasar.ymir.extension.zpt.ZptAnalyzer" />
+  <component
+    class="org.seasar.ymir.extension.freemarker.FreemarkerSourceGenerator" />
+  <component
+    class="org.seasar.ymir.extension.zpt.ZptResponseCreator" />
+  <component name="beantableManager"
+    class="org.seasar.ymir.extension.beantable.BeantableManager" />
+  <component name="beantableClassHandler"
+    class="org.seasar.ymir.extension.beantable.BeantableClassHandler" />
+</components>
