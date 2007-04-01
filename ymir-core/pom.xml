@@ -103,7 +103,7 @@
     <dependency>
       <groupId>org.seasar.cms.s2-pluggable</groupId>
       <artifactId>s2-pluggable</artifactId>
-      <version>0.0.2-SNAPSHOT</version>
+      <version>0.0.2</version>
     </dependency>
     <dependency>
       <groupId>org.seasar.cms.s2-classbuilder</groupId>
