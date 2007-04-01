@@ -38,7 +38,7 @@
   </component>
   <component
     class="org.seasar.ymir.container.RequestComponentDefFactory" />
-  <component class="org.seasar.ymir.impl.YmirImpl">
+  <component name="ymir" class="org.seasar.ymir.impl.YmirImpl">
     <property name="lifecycleListeners" bindingType="none">
       <meta name="delayed">
         @org.seasar.cms.pluggable.util.PluggableUtils@findAscendantComponents(container,
@@ -46,7 +46,7 @@
       </meta>
     </property>
   </component>
-  <component class="org.seasar.ymir.impl.DefaultRequestProcessor">
+  <component name="requestProcessor" class="org.seasar.ymir.impl.DefaultRequestProcessor">
     <property name="updaters" bindingType="none">
       <meta name="delayed">
         @org.seasar.cms.pluggable.util.PluggableUtils@findAscendantComponents(container,
@@ -54,8 +54,8 @@
       </meta>
     </property>
   </component>
-  <component class="org.seasar.ymir.impl.DefaultResponseProcessor" />
-  <component class="org.seasar.ymir.impl.DefaultExceptionProcessor" />
+  <component name="responseProcessor" class="org.seasar.ymir.impl.DefaultResponseProcessor" />
+  <component name="exceptionProcessor" class="org.seasar.ymir.impl.DefaultExceptionProcessor" />
   <component
     class="org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl" />
   <component

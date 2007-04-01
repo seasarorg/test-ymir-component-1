@@ -29,7 +29,6 @@ import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
 
 public class YmirImpl implements Ymir {
-
     private LifecycleListener[] lifecycleListeners_;
 
     private Configuration configuration_;
@@ -45,37 +44,30 @@ public class YmirImpl implements Ymir {
     private Logger logger_ = Logger.getLogger(getClass());
 
     public void setLifecycleListeners(LifecycleListener[] lifecycleListeners) {
-
         lifecycleListeners_ = lifecycleListeners;
     }
 
     public void setRequestProcessor(RequestProcessor requestProcessor) {
-
         requestProcessor_ = requestProcessor;
     }
 
     public void setResponseProcessor(ResponseProcessor responseProcessor) {
-
         responseProcessor_ = responseProcessor;
     }
 
     public void setExceptionProcessor(ExceptionProcessor exceptionProcessor) {
-
         exceptionProcessor_ = exceptionProcessor;
     }
 
     public void setConfiguration(Configuration configuration) {
-
         configuration_ = configuration;
     }
 
     public void setApplicationManager(ApplicationManager applicationManager) {
-
         applicationManager_ = applicationManager;
     }
 
     public void init() {
-
         logger_.debug("Ymir initialize start");
 
         initializeListeners();
@@ -90,7 +82,6 @@ public class YmirImpl implements Ymir {
     }
 
     void initializeListeners() {
-
         for (int i = 0; i < lifecycleListeners_.length; i++) {
             lifecycleListeners_[i].init();
         }
@@ -100,7 +91,6 @@ public class YmirImpl implements Ymir {
             String method, String dispatcher, Map parameterMap,
             Map fileParameterMap, AttributeContainer attributeContainer,
             Locale locale) {
-
         return requestProcessor_.prepareForProcessing(contextPath, path, method
                 .toUpperCase(), dispatcher, parameterMap, fileParameterMap,
                 attributeContainer, locale);
@@ -108,7 +98,6 @@ public class YmirImpl implements Ymir {
 
     public Response processRequest(Request request)
             throws PageNotFoundException, PermissionDeniedException {
-
         return requestProcessor_.process(request);
     }
 
@@ -116,13 +105,11 @@ public class YmirImpl implements Ymir {
             ServletContext servletContext, HttpServletRequest httpRequest,
             HttpServletResponse httpResponse, Request request, Response response)
             throws IOException, ServletException {
-
         return responseProcessor_.process(servletContext, httpRequest,
                 httpResponse, request, response);
     }
 
     public void destroy() {
-
         logger_.debug("Ymir destroy start");
 
         destroyListeners();
@@ -132,7 +119,6 @@ public class YmirImpl implements Ymir {
     }
 
     void destroyListeners() {
-
         if (lifecycleListeners_ != null) {
             for (int i = 0; i < lifecycleListeners_.length; i++) {
                 try {
@@ -147,23 +133,23 @@ public class YmirImpl implements Ymir {
     }
 
     public Object backupForInclusion(AttributeContainer attributeContainer) {
-
         return requestProcessor_.backupForInclusion(attributeContainer);
     }
 
     public void restoreForInclusion(AttributeContainer attributeContainer,
             Object backupped) {
-
         requestProcessor_.restoreForInclusion(attributeContainer, backupped);
     }
 
-    public Application getApplication() {
+    public Response processException(Request request, Throwable t) {
+        return exceptionProcessor_.process(request, t);
+    }
 
+    public Application getApplication() {
         return applicationManager_.findContextApplication();
     }
 
     public String getProjectStatus() {
-
         if (configuration_ != null) {
             return configuration_.getProperty(Configuration.KEY_PROJECTSTATUS);
         } else {
@@ -172,13 +158,7 @@ public class YmirImpl implements Ymir {
     }
 
     public boolean isUnderDevelopment() {
-
         return Configuration.PROJECTSTATUS_DEVELOP.equals(getProjectStatus())
                 && getApplication().isUnderDevelopment();
-    }
-
-    public Response processException(Request request, Throwable t) {
-
-        return exceptionProcessor_.process(request, t);
     }
 }

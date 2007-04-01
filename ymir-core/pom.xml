@@ -10,8 +10,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.seasar.ymir</groupId>
-  <artifactId>ymir</artifactId>
-  <name>Ymir</name>
+  <artifactId>ymir-core</artifactId>
+  <name>Ymir Core</name>
   <version>1.0.0-SNAPSHOT</version>
   <description>
     Ymir is a framework for developing light-weight web application.
@@ -50,22 +50,6 @@
             <goals>
               <goal>jar</goal>
             </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <descriptors>
-                <descriptor>src/main/assembly/skeleton.xml</descriptor>
-              </descriptors>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -112,24 +96,24 @@
       <version>2.4.8</version>
     </dependency>
     <dependency>
+      <groupId>org.seasar.container</groupId>
+      <artifactId>s2-tiger</artifactId>
+      <version>2.4.8</version>
+    </dependency>
+    <dependency>
       <groupId>org.seasar.cms.s2-pluggable</groupId>
       <artifactId>s2-pluggable</artifactId>
       <version>0.0.2-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.seasar.dao</groupId>
-      <artifactId>s2-dao</artifactId>
-      <version>1.0.40</version>
+      <groupId>org.seasar.cms.s2-classbuilder</groupId>
+      <artifactId>s2-classbuilder</artifactId>
+      <version>0.0.1</version>
     </dependency>
     <dependency>
       <groupId>org.seasar.kvasir</groupId>
       <artifactId>kvasir-util</artifactId>
-      <version>3.0.0-EA4-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>net.skirnir.freyja</groupId>
-      <artifactId>freyja</artifactId>
-      <version>1.0.5-SNAPSHOT</version>
+      <version>3.0.0-RC1</version>
     </dependency>
     <dependency>
       <groupId>commons-fileupload</groupId>

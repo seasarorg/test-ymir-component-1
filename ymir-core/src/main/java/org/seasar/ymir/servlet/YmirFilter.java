@@ -23,11 +23,6 @@ import org.seasar.ymir.Ymir;
 import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
 import org.seasar.ymir.util.LocaleUtils;
 import org.seasar.ymir.util.ServletUtils;
-import org.seasar.ymir.zpt.YmirVariableResolver;
-import org.seasar.framework.container.S2Container;
-import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
-
-import net.skirnir.freyja.webapp.FreyjaServlet;
 
 public class YmirFilter implements Filter {
 
@@ -75,14 +70,8 @@ public class YmirFilter implements Filter {
                 httpRequest);
 
         Object backupped = null;
-        Object responseContentType = null;
-        Object variableResolver = null;
         if (Request.DISPATCHER_INCLUDE.equals(dispatcher_)) {
             backupped = ymir_.backupForInclusion(attributeContainer);
-            responseContentType = httpRequest
-                    .getAttribute(FreyjaServlet.ATTR_RESPONSECONTENTTYPE);
-            variableResolver = httpRequest
-                    .getAttribute(FreyjaServlet.ATTR_VARIABLERESOLVER);
         }
 
         Request request = ymir_.prepareForProcessing(ServletUtils
@@ -92,17 +81,6 @@ public class YmirFilter implements Filter {
                 attributeContainer, LocaleUtils.findLocale(httpRequest));
         try {
             Response response = ymir_.processRequest(request);
-
-            String contentType = response.getContentType();
-            if (contentType != null) {
-                httpRequest.setAttribute(
-                        FreyjaServlet.ATTR_RESPONSECONTENTTYPE, contentType);
-            }
-
-            httpRequest.setAttribute(FreyjaServlet.ATTR_VARIABLERESOLVER,
-                    new YmirVariableResolver(request, httpRequest,
-                            getContainer()));
-
             HttpServletResponseFilter responseFilter = ymir_.processResponse(
                     context_, httpRequest, httpResponse, request, response);
             if (responseFilter != null) {
@@ -114,18 +92,8 @@ public class YmirFilter implements Filter {
                     ymir_.processException(request, t));
         } finally {
             if (Request.DISPATCHER_INCLUDE.equals(dispatcher_)) {
-                httpRequest.setAttribute(FreyjaServlet.ATTR_VARIABLERESOLVER,
-                        variableResolver);
-                httpRequest.setAttribute(
-                        FreyjaServlet.ATTR_RESPONSECONTENTTYPE,
-                        responseContentType);
                 ymir_.restoreForInclusion(attributeContainer, backupped);
             }
         }
-    }
-
-    S2Container getContainer() {
-
-        return SingletonS2ContainerFactory.getContainer();
     }
 }

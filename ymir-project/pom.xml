@@ -216,7 +216,9 @@
     </snapshotRepository>
   </distributionManagement>
   <modules>
-    <module>../ymir</module>
+    <module>../ymir-core</module>
+    <module>../ymir-zpt</module>
     <module>../ymir-extension</module>
+    <module>../ymir-skeleton</module>
   </modules>
 </project>
