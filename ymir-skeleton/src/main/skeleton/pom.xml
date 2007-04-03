@@ -27,7 +27,9 @@
         <plugin>
           <artifactId>maven-war-plugin</artifactId>
           <configuration>
-            <warSourceDirectory>${basedir}/src/main/web-resource</warSourceDirectory>
+            <warSourceDirectory>
+              ${basedir}/src/main/web-resource
+            </warSourceDirectory>
             <webResources>
               <resource>
                 <directory>${basedir}/src/main/webapp</directory>
@@ -48,6 +50,14 @@
       <id>www.seasar.org</id>
       <name>The Seasar Foundation Maven2 Repository</name>
       <url>http://maven.seasar.org/maven2</url>
+    </repository>
+    <repository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>snapshot.maven.seasar.org</id>
+      <name>The Seasar Foundation Maven2 Snapshot Repository</name>
+      <url>http://maven.seasar.org/maven2-snapshot</url>
     </repository>
   </repositories>
   <dependencies>
