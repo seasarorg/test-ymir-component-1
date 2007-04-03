@@ -20,9 +20,7 @@
   </filter>
   <filter>
     <filter-name>multipartrequestfilter</filter-name>
-    <filter-class>
-      org.seasar.ymir.MultipartRequestFilter
-    </filter-class>
+    <filter-class>org.seasar.ymir.MultipartRequestFilter</filter-class>
   </filter>
   <filter>
     <filter-name>pluggablefilter</filter-name>
@@ -72,6 +70,8 @@
     <listener-class>
       org.seasar.cms.pluggable.servlet.PluggableListener
     </listener-class>
+  </listener>
+  <listener>
     <listener-class>
       org.seasar.ymir.servlet.YmirListener
     </listener-class>
