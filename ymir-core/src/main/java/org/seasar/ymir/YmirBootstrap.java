@@ -4,31 +4,26 @@ import javax.servlet.ServletContext;
 
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
-import org.seasar.ymir.impl.SingleApplication;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
+import org.seasar.ymir.impl.SingleApplication;
 
 public class YmirBootstrap {
-
     private Ymir ymir_;
 
-    public Ymir init() {
+    public void prepare(ServletContext servletContext) {
+        initializeApplication(servletContext);
+    }
 
+    public Ymir init() {
         ymir_ = (Ymir) getContainer().getComponent(Ymir.class);
         YmirContext.setYmir(ymir_);
-        initializeApplication(ymir_, getServletContext());
         ymir_.init();
         return ymir_;
     }
 
-    ServletContext getServletContext() {
-        return (ServletContext) getContainer().getComponent(
-                ServletContext.class);
-    }
-
-    void initializeApplication(Ymir ymir, ServletContext servletContext) {
-
+    void initializeApplication(ServletContext servletContext) {
         Class landmark = null;
         try {
             landmark = Class.forName(Globals.LANDMARK_CLASSNAME);
@@ -48,12 +43,10 @@ public class YmirBootstrap {
     }
 
     Configuration getConfiguration() {
-
         return (Configuration) getContainer().getComponent(Configuration.class);
     }
 
     public void destroy() {
-
         if (ymir_ != null) {
             ymir_.destroy();
         }
@@ -61,7 +54,6 @@ public class YmirBootstrap {
     }
 
     S2Container getContainer() {
-
         return SingletonS2ContainerFactory.getContainer();
     }
 }
