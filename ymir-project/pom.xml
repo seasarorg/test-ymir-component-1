@@ -228,5 +228,6 @@
     <module>../ymir-zpt</module>
     <module>../ymir-extension</module>
     <module>../ymir-skeleton</module>
+    <module>../ymir-example</module>
   </modules>
 </project>
