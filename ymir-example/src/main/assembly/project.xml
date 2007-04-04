@@ -9,24 +9,16 @@
   <fileSets>
     <fileSet>
       <directory>src/main/project</directory>
-      <outputDirectory>project</outputDirectory>
-    </fileSet>
-    <fileSet>
-      <directory>target</directory>
-      <outputDirectory>project/src/main/webapp/WEB-INF/lib</outputDirectory>
-      <includes>
-        <include>*.jar</include>
-      </includes>
-      <excludes>
-        <exclude>*-sources.jar</exclude>
-        <exclude>*-tests.jar</exclude>
-      </excludes>
+      <outputDirectory>ymir-example</outputDirectory>
     </fileSet>
   </fileSets>
   <dependencySets>
     <dependencySet>
-      <outputDirectory>project/src/main/webapp/WEB-INF/lib</outputDirectory>
+      <outputDirectory>ymir-example/src/main/webapp/WEB-INF/lib</outputDirectory>
       <scope>runtime</scope>
+      <excludes>
+        <exclude>org.seasar.ymir:ymir-example</exclude>
+      </excludes>
     </dependencySet>
   </dependencySets>
 </assembly>
