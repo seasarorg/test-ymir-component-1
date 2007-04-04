@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>Ymir Example</title>
+</head>
+<body>
+  <h1>足し算</h1>
+  <ul tal:condition="notes">
+    <li tal:repeat="note notes/notes" tal:content="note/%value">MESSAGE</li>
+  </ul>
+  <form action="" method="post">
+    <p><input tal:attributes="value request/parameter(left)" type="text" name="left" value="LEFT" /> + <input tal:attributes="value request/parameter(right)" type="text" name="right" value="RIGHT" /> = <span tal:replace="self/result | string:?">RESULT</span></p>
+    <p><input type="submit" value="計算する" /></p>
+  </form>
+</body>
+</html>
