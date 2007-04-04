@@ -33,7 +33,9 @@ public class SingleApplication extends AbstractApplication {
         config_ = config;
         referenceClass_ = referenceClass;
         container_ = container;
-        ondemandContainer.addReferenceClassName(referenceClass.getName());
+        if (referenceClass != null) {
+            ondemandContainer.addReferenceClassName(referenceClass.getName());
+        }
     }
 
     public S2Container getS2Container() {
