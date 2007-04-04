@@ -16,7 +16,11 @@
   <logger
     name="org.seasar.cms.pluggable.aop.interceptors.TraceS2Interceptor"
     additivity="false">
+    <!-- If you want to output detail of dependency injection by Seasar2,
+         uncomment this line and comment a line below it out.
     <appender-ref ref="CONSOLE" />
+    -->
+    <appender-ref ref="CONSOLE_INFO" />
   </logger>
   <logger name="org.seasar" additivity="false">
     <appender-ref ref="CONSOLE" />
