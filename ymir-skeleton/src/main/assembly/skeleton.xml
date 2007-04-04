@@ -9,24 +9,16 @@
   <fileSets>
     <fileSet>
       <directory>src/main/skeleton</directory>
-      <outputDirectory>skeleton</outputDirectory>
-    </fileSet>
-    <fileSet>
-      <directory>target</directory>
-      <outputDirectory>skeleton/src/main/webapp/WEB-INF/lib</outputDirectory>
-      <includes>
-        <include>*.jar</include>
-      </includes>
-      <excludes>
-        <exclude>*-sources.jar</exclude>
-        <exclude>*-tests.jar</exclude>
-      </excludes>
+      <outputDirectory>ymir-skeleton</outputDirectory>
     </fileSet>
   </fileSets>
   <dependencySets>
     <dependencySet>
-      <outputDirectory>skeleton/src/main/webapp/WEB-INF/lib</outputDirectory>
+      <outputDirectory>ymir-skeleton/src/main/webapp/WEB-INF/lib</outputDirectory>
       <scope>runtime</scope>
+      <excludes>
+        <exclude>org.seasar.ymir:ymir-skeleton</exclude>
+      </excludes>
     </dependencySet>
   </dependencySets>
 </assembly>
