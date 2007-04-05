@@ -10,13 +10,20 @@ public class ParameterDescImpl implements ParameterDesc {
     private String name_;
 
     public ParameterDescImpl(TypeDesc typeDesc) {
+        this(typeDesc, null);
+    }
 
+    public ParameterDescImpl(TypeDesc typeDesc, String name) {
         setTypeDesc(typeDesc);
+        name_ = name;
     }
 
     public ParameterDescImpl(Class type) {
+        this(type, null);
+    }
 
-        this(new TypeDescImpl(type));
+    public ParameterDescImpl(Class type, String name) {
+        this(new TypeDescImpl(type), name);
     }
 
     public Object clone() {

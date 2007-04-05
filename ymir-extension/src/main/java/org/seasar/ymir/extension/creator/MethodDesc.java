@@ -25,4 +25,8 @@ public interface MethodDesc extends AnnotatedDesc, Cloneable {
     String getEvaluatedBody();
 
     void setEvaluatedBody(String evaluatedBody);
+
+    ThrowsDesc getThrowsDesc();
+
+    void setThrowsDesc(ThrowsDesc throwsDesc);
 }

@@ -6,6 +6,7 @@ import org.seasar.ymir.extension.creator.AbstractAnnotatedDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
+import org.seasar.ymir.extension.creator.ThrowsDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 
 public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc {
@@ -15,6 +16,8 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
     private ParameterDesc[] parameterDescs_ = new ParameterDesc[0];
 
     private TypeDesc returnTypeDesc_ = new TypeDescImpl(TypeDesc.TYPE_VOID);
+
+    private ThrowsDesc throwsDesc_ = new ThrowsDescImpl();
 
     private BodyDesc bodyDesc_;
 
@@ -29,10 +32,14 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
 
         name_ = method.getName();
         returnTypeDesc_ = new TypeDescImpl(method.getReturnType());
-        Class[] types = method.getParameterTypes();
+        Class<?>[] types = method.getParameterTypes();
         parameterDescs_ = new ParameterDesc[types.length];
         for (int i = 0; i < types.length; i++) {
             parameterDescs_[i] = new ParameterDescImpl(types[i]);
+        }
+        types = method.getExceptionTypes();
+        for (int i = 0; i < types.length; i++) {
+            throwsDesc_.addThrowable(types[i]);
         }
     }
 
@@ -49,6 +56,13 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
             for (int i = 0; i < parameterDescs_.length; i++) {
                 cloned.parameterDescs_[i] = (ParameterDesc) parameterDescs_[i]
                         .clone();
+            }
+        }
+        if (throwsDesc_ != null) {
+            cloned.throwsDesc_ = new ThrowsDescImpl();
+            String[] classNames = throwsDesc_.getThrowableClassNames();
+            for (int i = 0; i < classNames.length; i++) {
+                cloned.throwsDesc_.addThrowable(classNames[i]);
             }
         }
         if (returnTypeDesc_ != null) {
@@ -71,6 +85,14 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
             delim = ", ";
         }
         sb.append(")");
+        if (!throwsDesc_.isEmpty()) {
+            String[] classNames = throwsDesc_.getThrowableClassNames();
+            delim = " throws ";
+            for (int i = 0; i < classNames.length; i++) {
+                sb.append(delim).append(classNames[i]);
+                delim = ", ";
+            }
+        }
         return sb.toString();
     }
 
@@ -127,5 +149,15 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
     public void setEvaluatedBody(String evaluatedBody) {
 
         evaluatedBody_ = evaluatedBody;
+    }
+
+    public ThrowsDesc getThrowsDesc() {
+
+        return throwsDesc_;
+    }
+
+    public void setThrowsDesc(ThrowsDesc throwsDesc) {
+
+        throwsDesc_ = throwsDesc;
     }
 }

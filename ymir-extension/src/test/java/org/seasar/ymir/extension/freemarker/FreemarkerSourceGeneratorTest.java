@@ -1,14 +1,21 @@
 package org.seasar.ymir.extension.freemarker;
 
+import java.util.HashMap;
+
+import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.YmirTestCase;
+import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
+import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.impl.BodyDescImpl;
 import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
+import org.seasar.ymir.extension.creator.impl.ParameterDescImpl;
 import org.seasar.ymir.extension.creator.impl.PropertyDescImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
+import org.seasar.ymir.extension.creator.impl.ThrowsDescImpl;
 import org.seasar.ymir.extension.creator.mock.MockSourceCreator;
 
 import com.example.page.TestPageBaseBase;
@@ -106,6 +113,73 @@ public class FreemarkerSourceGeneratorTest extends YmirTestCase {
 
         assertEquals(readResource(getClass(),
                 "testGenerateBaseSource_Page2.expected"), actual);
+    }
+
+    public void testGenerateBaseSource_Page3() throws Exception {
+
+        ClassDesc classDesc = new SourceCreatorImpl() {
+            @Override
+            public ClassDesc newClassDesc(String className) {
+                return new ClassDescImpl(className);
+            }
+        }.getClassDesc(Hoe3PageBase.class,
+                "org.seasar.ymir.extension.freemarker.Hoe3Page");
+
+        String actual = target_.generateBaseSource(classDesc);
+
+        assertEquals(readResource(getClass(),
+                "testGenerateBaseSource_Page3.expected"), actual);
+    }
+
+    public void testGenerateBaseSource_Page4() throws Exception {
+
+        ClassDesc classDesc = new ClassDescImpl("com.example.web.TestPage");
+        MethodDesc methodDesc = new MethodDescImpl("_permissionDenied");
+        methodDesc.setThrowsDesc(new ThrowsDescImpl()
+                .addThrowable(PermissionDeniedException.class));
+        methodDesc
+                .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                        PermissionDeniedException.class, "ex") });
+        methodDesc.setBodyDesc(new BodyDescImpl(
+                RequestProcessor.ACTION_PERMISSIONDENIED,
+                new HashMap<String, Object>()));
+        classDesc.setMethodDesc(methodDesc);
+
+        String actual = target_.generateBaseSource(classDesc);
+
+        assertEquals(readResource(getClass(),
+                "testGenerateBaseSource_Page4.expected"), actual);
+    }
+
+    public void testGenerateBaseSource_Page5() throws Exception {
+
+        ClassDesc classDesc = new SourceCreatorImpl() {
+            @Override
+            public ClassDesc newClassDesc(String className) {
+                return new ClassDescImpl(className);
+            }
+        }.getClassDesc(Hoe5PageBase.class,
+                "org.seasar.ymir.extension.freemarker.Hoe5Page");
+
+        ClassDesc generated = new ClassDescImpl(
+                "org.seasar.ymir.extension.freemarker.Hoe5Page");
+        MethodDesc methodDesc = new MethodDescImpl("_permissionDenied");
+        methodDesc.setThrowsDesc(new ThrowsDescImpl()
+                .addThrowable(PermissionDeniedException.class));
+        methodDesc
+                .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                        PermissionDeniedException.class, "ex") });
+        methodDesc.setBodyDesc(new BodyDescImpl(
+                RequestProcessor.ACTION_PERMISSIONDENIED,
+                new HashMap<String, Object>()));
+        generated.setMethodDesc(methodDesc);
+
+        classDesc.merge(generated);
+
+        String actual = target_.generateBaseSource(classDesc);
+
+        assertEquals(readResource(getClass(),
+                "testGenerateBaseSource_Page5.expected"), actual);
     }
 
     public void testGenerateBaseSource_Dto() throws Exception {

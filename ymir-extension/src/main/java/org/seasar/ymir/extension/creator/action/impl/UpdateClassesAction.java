@@ -13,7 +13,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
@@ -23,8 +25,6 @@ import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
-import org.seasar.ymir.impl.DefaultRequestProcessor;
-import org.seasar.kvasir.util.PropertyUtils;
 
 public class UpdateClassesAction extends AbstractAction implements UpdateAction {
 
@@ -194,8 +194,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                         .size() > 0));
         variableMap.put("pageClassDescs", classDescBag
                 .getClassDescs(ClassDesc.KIND_PAGE));
-        variableMap.put("renderActionName",
-                DefaultRequestProcessor.ACTION_RENDER);
+        variableMap.put("renderActionName", RequestProcessor.ACTION_RENDER);
         variableMap.put("createdBeanClassDescs", classDescBag
                 .getCreatedClassDescs(ClassDesc.KIND_BEAN));
         return getSourceCreator().getResponseCreator().createResponse(

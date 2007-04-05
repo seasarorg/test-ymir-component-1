@@ -39,17 +39,29 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
+import org.seasar.framework.container.ComponentNotFoundRuntimeException;
+import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
+import org.seasar.framework.convention.NamingConvention;
+import org.seasar.framework.log.Logger;
+import org.seasar.framework.mock.servlet.MockHttpServletRequestImpl;
+import org.seasar.framework.mock.servlet.MockHttpServletResponseImpl;
+import org.seasar.framework.mock.servlet.MockServletContextImpl;
+import org.seasar.kvasir.util.StringUtils;
+import org.seasar.kvasir.util.collection.MapProperties;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.MessageNotFoundRuntimeException;
 import org.seasar.ymir.MessagesNotFoundRuntimeException;
+import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.WrappingRuntimeException;
+import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -87,16 +99,6 @@ import org.seasar.ymir.extension.creator.action.impl.ResourceAction;
 import org.seasar.ymir.extension.creator.action.impl.SystemConsoleAction;
 import org.seasar.ymir.extension.creator.action.impl.UpdateClassesAction;
 import org.seasar.ymir.impl.DefaultRequestProcessor;
-import org.seasar.framework.container.ComponentNotFoundRuntimeException;
-import org.seasar.framework.container.S2Container;
-import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
-import org.seasar.framework.convention.NamingConvention;
-import org.seasar.framework.log.Logger;
-import org.seasar.framework.mock.servlet.MockHttpServletRequestImpl;
-import org.seasar.framework.mock.servlet.MockHttpServletResponseImpl;
-import org.seasar.framework.mock.servlet.MockServletContextImpl;
-import org.seasar.kvasir.util.StringUtils;
-import org.seasar.kvasir.util.collection.MapProperties;
 
 import net.skirnir.freyja.EvaluationRuntimeException;
 
@@ -364,7 +366,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
                 MethodDesc md = pageClassDescs[i]
                         .getMethodDesc(new MethodDescImpl(
-                                DefaultRequestProcessor.ACTION_RENDER));
+                                RequestProcessor.ACTION_RENDER));
                 if (md != null && td.isArray() && pds[j].isReadable()
                         && daoExists && dxoExists) {
                     addSelectStatement(md, pds[j], metaData);
@@ -380,25 +382,46 @@ public class SourceCreatorImpl implements SourceCreator {
 
         String path = pathMetaData.getPath();
         String method = pathMetaData.getMethod();
-        String className = pathMetaData.getClassName();
-        analyzer_
-                .analyze(getServletContext(), getHttpServletRequest(),
-                        getHttpServletResponse(), path, method, classDescMap,
-                        pathMetaData.getTemplate(), className, hintBag,
-                        ignoreVariables);
+        String pageClassName = pathMetaData.getClassName();
+        analyzer_.analyze(getServletContext(), getHttpServletRequest(),
+                getHttpServletResponse(), path, method, classDescMap,
+                pathMetaData.getTemplate(), pageClassName, hintBag,
+                ignoreVariables);
 
-        ClassDesc classDesc = classDescMap.get(className);
-        if (classDesc == null && method.equalsIgnoreCase(Request.METHOD_POST)) {
+        ClassDesc pageClassDesc = classDescMap.get(pageClassName);
+        if (pageClassDesc == null
+                && method.equalsIgnoreCase(Request.METHOD_POST)) {
             // テンプレートを解析した結果対応するPageクラスを作る必要があると
             // 見なされなかった場合でも、methodがPOSTならPageクラスを作る。
-            classDesc = newClassDesc(className);
-            classDescMap.put(className, classDesc);
+            pageClassDesc = newClassDesc(pageClassName);
+            classDescMap.put(pageClassName, pageClassDesc);
         }
-        if (classDesc != null) {
-            classDesc.setMethodDesc(new MethodDescImpl(getActionName(
+        if (pageClassDesc != null) {
+            // アクションメソッドを追加する。
+            pageClassDesc.setMethodDesc(new MethodDescImpl(getActionName(
                     pathMetaData.getPath(), method)));
-            classDesc.setMethodDesc(new MethodDescImpl(
-                    DefaultRequestProcessor.ACTION_RENDER));
+            // _render()を追加する。
+            pageClassDesc.setMethodDesc(new MethodDescImpl(
+                    RequestProcessor.ACTION_RENDER));
+            // _validationFailed(Notes)を追加する。
+            MethodDescImpl methodDesc = new MethodDescImpl(
+                    RequestProcessor.ACTION_VALIDATIONFAILED);
+            methodDesc
+                    .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                            Notes.class) });
+            pageClassDesc.setMethodDesc(methodDesc);
+            // _permissionDenied(PemissionDeniedException)を追加する。
+            methodDesc = new MethodDescImpl(
+                    RequestProcessor.ACTION_PERMISSIONDENIED);
+            methodDesc
+                    .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                            PermissionDeniedException.class, "ex") });
+            methodDesc.setThrowsDesc(new ThrowsDescImpl(
+                    PermissionDeniedException.class));
+            methodDesc.setBodyDesc(new BodyDescImpl(
+                    RequestProcessor.ACTION_PERMISSIONDENIED,
+                    new HashMap<String, Object>()));
+            pageClassDesc.setMethodDesc(methodDesc);
         }
     }
 
@@ -614,8 +637,7 @@ public class SourceCreatorImpl implements SourceCreator {
         Map<String, Object> root = new HashMap<String, Object>();
         root.put("entityMetaData", metaData);
         if (bodyDesc == null) {
-            bodyDesc = new BodyDescImpl(DefaultRequestProcessor.ACTION_RENDER,
-                    root);
+            bodyDesc = new BodyDescImpl(RequestProcessor.ACTION_RENDER, root);
         } else {
             bodyDesc.setRoot(root);
         }

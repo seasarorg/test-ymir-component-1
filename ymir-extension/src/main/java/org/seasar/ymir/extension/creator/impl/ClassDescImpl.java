@@ -154,6 +154,9 @@ public class ClassDescImpl extends AbstractClassDesc {
             if (md == null) {
                 setMethodDesc((MethodDesc) methodDescs[i].clone());
             } else {
+                // パラメータ名をコピーするためにこうしている。
+                md.setParameterDescs(methodDescs[i].getParameterDescs());
+
                 TypeDesc returnTd = md.getReturnTypeDesc();
                 TypeDesc returnTypeDesc = methodDescs[i].getReturnTypeDesc();
                 if (merge(returnTd, returnTypeDesc)) {
@@ -172,7 +175,9 @@ public class ClassDescImpl extends AbstractClassDesc {
     }
 
     boolean merge(TypeDesc td, TypeDesc typeDesc) {
-        if (!td.equals(typeDesc) && !td.isExplicit() && typeDesc.isExplicit()) {
+        if (td.equals(typeDesc)) {
+            return true;
+        } else if (!td.isExplicit() && typeDesc.isExplicit()) {
             td.transcript(typeDesc);
             return true;
         } else {
