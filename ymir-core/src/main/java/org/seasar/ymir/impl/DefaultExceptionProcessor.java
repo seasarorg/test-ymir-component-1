@@ -16,10 +16,6 @@ import org.seasar.framework.container.S2Container;
 
 public class DefaultExceptionProcessor implements ExceptionProcessor {
 
-    private static final String NAMEPREFIX_DEFAULT = "default_";
-
-    private static final String SUFFIX_HANDLER = "Handler";
-
     private Ymir ymir_;
 
     private ResponseConstructorSelector responseConstructorSelector_;
