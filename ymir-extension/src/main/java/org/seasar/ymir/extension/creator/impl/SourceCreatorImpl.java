@@ -180,6 +180,10 @@ public class SourceCreatorImpl implements SourceCreator {
     public Response update(Request request, Response response) {
 
         Application application = getApplication();
+        if (!shouldUpdate(application)) {
+            return response;
+        }
+
         String path = request.getPath();
         Object condition = null;
         if (request.getParameter(PARAM_TASK) != null) {
@@ -193,10 +197,6 @@ public class SourceCreatorImpl implements SourceCreator {
             }
         } else {
             if (!request.isMatched()) {
-                return response;
-            }
-
-            if (!shouldUpdate(application)) {
                 return response;
             }
 
@@ -248,6 +248,11 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public Response updateByException(Request request, Throwable t) {
+
+        Application application = getApplication();
+        if (!shouldUpdate(application)) {
+            return null;
+        }
 
         if ((t instanceof WrappingRuntimeException || t instanceof EvaluationRuntimeException)
                 && t.getCause() != null) {
@@ -1147,6 +1152,11 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public String filterResponse(String response) {
+
+        Application application = getApplication();
+        if (!shouldUpdate(application)) {
+            return response;
+        }
 
         String jsPrefix = "<script type=\"text/javascript\" src=\""
                 + getHttpServletRequest().getContextPath() + PATH_PREFIX
