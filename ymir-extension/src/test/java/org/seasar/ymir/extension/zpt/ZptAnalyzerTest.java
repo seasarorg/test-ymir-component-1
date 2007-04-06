@@ -162,7 +162,7 @@ public class ZptAnalyzerTest extends TestCase {
             String[] ignoreVariables) {
 
         target_.analyze(MOCK_SERVLETCONTEXT, MOCK_REQUEST, MOCK_RESPONSE,
-                "/hoe", Request.METHOD_GET, classDescMap_, new Template() {
+                "/hoe.html", Request.METHOD_GET, classDescMap_, new Template() {
                     public InputStream getInputStream() throws IOException {
                         return getClass().getResourceAsStream(
                                 "ZptAnalyzerTest_" + methodName + ".zpt");
@@ -181,7 +181,7 @@ public class ZptAnalyzerTest extends TestCase {
                     }
 
                     public String getPath() {
-                        return "/hoe";
+                        return "/hoe.html";
                     }
 
                     public long lastModified() {
@@ -539,5 +539,15 @@ public class ZptAnalyzerTest extends TestCase {
                 .getName());
         assertNull(getClassDesc(Note.class.getName()));
         assertNull(getClassDesc("com.example.dto.ResultDto"));
+    }
+
+    public void testAnalyze27_入力値を復元するタイプのinputタグがある場合にプロパティの型が配列になってしまわないこと()
+            throws Exception {
+
+        act("testAnalyze27", "com.example.web.HoePage");
+
+        ClassDesc cd = getClassDesc("com.example.web.HoePage");
+        PropertyDesc pd = cd.getPropertyDesc("value");
+        assertFalse(pd.getTypeDesc().isArray());
     }
 }

@@ -384,7 +384,7 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     PropertyDesc getSinglePropertyDesc(ClassDesc classDesc, String name,
-            int mode, boolean setAsArrayIfExists) {
+            int mode, boolean setAsArrayIfSetterExists) {
 
         boolean array = false;
         int lparen = name.indexOf(STR_ARRAY_LPAREN);
@@ -394,8 +394,9 @@ public class AnalyzerContext extends ZptTemplateContext {
             name = name.substring(0, lparen);
         } else {
             // 今のところ、添え字つきパラメータの型が配列というのはサポートできていない。
-            if (setAsArrayIfExists) {
-                array = (classDesc.getPropertyDesc(name) != null);
+            if (setAsArrayIfSetterExists) {
+                array = (classDesc.getPropertyDesc(name) != null && classDesc
+                        .getPropertyDesc(name).isWritable());
             }
         }
         PropertyDesc propertyDesc = classDesc.addProperty(name, mode);
