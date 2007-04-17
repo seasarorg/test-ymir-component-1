@@ -8,7 +8,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -45,8 +44,6 @@ import org.seasar.ymir.ScopeAttribute;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
-import org.seasar.ymir.annotation.In;
-import org.seasar.ymir.annotation.Out;
 import org.seasar.ymir.annotation.SuppressConstraints;
 import org.seasar.ymir.beanutils.FormFileArrayConverter;
 import org.seasar.ymir.beanutils.FormFileConverter;
@@ -59,9 +56,6 @@ import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
 import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
-import org.seasar.ymir.scope.Scope;
-import org.seasar.ymir.scope.impl.RequestScope;
-import org.seasar.ymir.util.BeanUtils;
 
 public class DefaultRequestProcessor implements RequestProcessor {
 
@@ -214,7 +208,10 @@ public class DefaultRequestProcessor implements RequestProcessor {
             }
 
             if (component != null) {
-                prepareForComponent(component, request);
+                PagePropertyBag bag = new PagePropertyBag(component.getClass(),
+                        getS2Container());
+
+                prepareForComponent(component, bag, request);
 
                 // リクエストに対応するアクションの呼び出しを行なう。
                 response = normalizeResponse(adjustResponse(request,
@@ -234,7 +231,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
                             false);
                 }
 
-                finishForComponent(component, request);
+                finishForComponent(component, bag, request);
             } else {
                 // componentがnullになるのは、component名が割り当てられているのにまだ
                 // 対応するcomponentクラスが作成されていない場合。
@@ -306,38 +303,75 @@ public class DefaultRequestProcessor implements RequestProcessor {
         return request.getAttribute(ATTR_SELF);
     }
 
-    void prepareForComponent(Object component, Request request) {
+    void prepareForComponent(Object component, PagePropertyBag bag,
+            Request request) {
         // リクエストパラメータをinjectする。
-        BeanUtils
-                .populate(beanUtilsBean_, component, request.getParameterMap());
+        injectRequestParameters(component, bag, request.getParameterMap());
 
         // FormFileのリクエストパラメータをinjectする。
-        BeanUtils.copyProperties(beanUtilsBean_, component, request
+        injectRequestFileParameters(component, bag, request
                 .getFileParameterMap());
 
         // 各コンテキストが持つ属性をinjectする。
-        // （リクエストパラメータによって予期せぬinjectがあった場合にそれを上書きできるように、
-        // リクエストパラメータのinjectよりも後に行なっている。）
-        injectContextAttributes(component);
+        injectContextAttributes(component, bag);
     }
 
-    void finishForComponent(Object component, Request request) {
-        // 各コンテキストに属性をoutjectする。
-        outjectContextAttributes(component);
-
-        // コンポーネント自体をattributeとしてバインドしておく。
-        request.setAttribute(ATTR_SELF, component);
+    void injectRequestParameters(Object component, PagePropertyBag bag,
+            Map properties) {
+        for (Iterator itr = properties.keySet().iterator(); itr.hasNext();) {
+            String name = (String) itr.next();
+            if (name == null || bag.isProtected(name)) {
+                continue;
+            }
+            try {
+                beanUtilsBean_.setProperty(component, name, properties
+                        .get(name));
+            } catch (Throwable t) {
+                if (logger_.isDebugEnabled()) {
+                    logger_.debug("Can't populate property '" + name + "'", t);
+                }
+            }
+        }
     }
 
-    void injectContextAttributes(Object component) {
-        ScopeAttribute[] attributes = getInjectedScopeAttributes(component);
+    void injectRequestFileParameters(Object component, PagePropertyBag bag,
+            Map properties) {
+        for (Iterator itr = properties.keySet().iterator(); itr.hasNext();) {
+            String name = (String) itr.next();
+            if (name == null || bag.isProtected(name)) {
+                continue;
+            }
+            if (beanUtilsBean_.getPropertyUtils().isWriteable(component, name)) {
+                try {
+                    beanUtilsBean_.copyProperty(component, name, properties
+                            .get(name));
+                } catch (Throwable t) {
+                    if (logger_.isDebugEnabled()) {
+                        logger_.debug("Can't copy property '" + name + "'", t);
+                    }
+                }
+            }
+        }
+    }
+
+    void injectContextAttributes(Object component, PagePropertyBag bag) {
+        ScopeAttribute[] attributes = bag.getInjectedScopeAttributes();
         for (int i = 0; i < attributes.length; i++) {
             attributes[i].injectTo(component);
         }
     }
 
-    void outjectContextAttributes(Object component) {
-        ScopeAttribute[] attributes = getOutjectedScopeAttributes(component);
+    void finishForComponent(Object component, PagePropertyBag bag,
+            Request request) {
+        // 各コンテキストに属性をoutjectする。
+        outjectContextAttributes(component, bag);
+
+        // コンポーネント自体をattributeとしてバインドしておく。
+        request.setAttribute(ATTR_SELF, component);
+    }
+
+    void outjectContextAttributes(Object component, PagePropertyBag bag) {
+        ScopeAttribute[] attributes = bag.getOutjectedScopeAttributes();
         for (int i = 0; i < attributes.length; i++) {
             attributes[i].outjectFrom(component);
         }
@@ -574,123 +608,6 @@ public class DefaultRequestProcessor implements RequestProcessor {
         }
     }
 
-    protected ScopeAttribute[] getInjectedScopeAttributes(Object component) {
-        return getInjectedScopeAttributes(component.getClass());
-    }
-
-    protected ScopeAttribute[] getOutjectedScopeAttributes(Object component) {
-        return getOutjectedScopeAttributes(component.getClass());
-    }
-
-    ScopeAttribute[] getInjectedScopeAttributes(Class clazz) {
-        Method[] methods = clazz.getMethods();
-        List<ScopeAttribute> handlerList = new ArrayList<ScopeAttribute>();
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
-            In in = method.getAnnotation(In.class);
-            if (in == null) {
-                continue;
-            }
-
-            int modifiers = method.getModifiers();
-            if (Modifier.isStatic(modifiers)) {
-                throw new RuntimeException(
-                        "Logic error: @In can't annotate static method: class="
-                                + clazz.getName() + ", method=" + method);
-            } else if (!Modifier.isPublic(modifiers)) {
-                throw new RuntimeException(
-                        "Logic error: @In can annotate only public method: class="
-                                + clazz.getName() + ", method=" + method);
-            } else if (method.getParameterTypes().length != 1) {
-                throw new RuntimeException(
-                        "Logic error: @In can't annotate this method: class="
-                                + clazz.getName() + ", method=" + method);
-            }
-
-            handlerList.add(new ScopeAttribute(toAttributeName(
-                    method.getName(), in.name()), getScope(in), method, null));
-        }
-
-        return handlerList.toArray(new ScopeAttribute[0]);
-    }
-
-    Scope getScope(In in) {
-        Object key;
-        if (in.scopeName().length() > 0) {
-            key = in.scopeName();
-        } else if (in.scopeClass() != Object.class) {
-            key = in.scopeClass();
-        } else if (in.value() != Object.class) {
-            key = in.value();
-        } else {
-            key = RequestScope.class;
-        }
-        return (Scope) getS2Container().getComponent(key);
-    }
-
-    ScopeAttribute[] getOutjectedScopeAttributes(Class clazz) {
-        Method[] methods = clazz.getMethods();
-        List<ScopeAttribute> handlerList = new ArrayList<ScopeAttribute>();
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
-            Out out = method.getAnnotation(Out.class);
-            if (out == null) {
-                continue;
-            }
-
-            int modifiers = method.getModifiers();
-            if (Modifier.isStatic(modifiers)) {
-                throw new RuntimeException(
-                        "Logic error: @Out can't annotate static method: class="
-                                + clazz.getName() + ", method=" + method);
-            } else if (!Modifier.isPublic(modifiers)) {
-                throw new RuntimeException(
-                        "Logic error: @Out can annotate only public method: class="
-                                + clazz.getName() + ", method=" + method);
-            } else if (method.getParameterTypes().length != 0
-                    || method.getReturnType() == Void.TYPE) {
-                throw new RuntimeException(
-                        "Logic error: @Out can't annotate this method: class="
-                                + clazz.getName() + ", method=" + method);
-            }
-
-            handlerList
-                    .add(new ScopeAttribute(toAttributeName(method.getName(),
-                            out.name()), getScope(out), null, method));
-        }
-
-        return handlerList.toArray(new ScopeAttribute[0]);
-    }
-
-    Scope getScope(Out out) {
-        Object key;
-        if (out.scopeName().length() > 0) {
-            key = out.scopeName();
-        } else if (out.scopeClass() != Object.class) {
-            key = out.scopeClass();
-        } else if (out.value() != Object.class) {
-            key = out.value();
-        } else {
-            key = RequestScope.class;
-        }
-        return (Scope) getS2Container().getComponent(key);
-    }
-
-    String toAttributeName(String implicitName, String explicitName) {
-        if (explicitName.length() > 0) {
-            return explicitName;
-        } else {
-            for (int i = 0; i < implicitName.length(); i++) {
-                char ch = implicitName.charAt(i);
-                if (Character.isUpperCase(ch)) {
-                    return String.valueOf(Character.toLowerCase(ch))
-                            + implicitName.substring(i + 1);
-                }
-            }
-            return implicitName;
-        }
-    }
-
     protected ConstraintBag[] getConstraintBags(Object component, Method action) {
         return getConstraints(component.getClass(), action);
     }
@@ -754,31 +671,6 @@ public class DefaultRequestProcessor implements RequestProcessor {
             return null;
         } catch (NoSuchMethodException ex) {
             return null;
-        }
-    }
-
-    protected static class ConstraintBag<T extends Annotation> {
-        private Constraint<T> constraint_;
-
-        private T annotation_;
-
-        private AnnotatedElement element_;
-
-        public ConstraintBag(Constraint<T> constraint, T annotation,
-                AnnotatedElement element) {
-            constraint_ = constraint;
-            annotation_ = annotation;
-            element_ = element;
-        }
-
-        @SuppressWarnings("unchecked")
-        public void confirm(Object component, Request request)
-                throws ConstraintViolatedException {
-            constraint_.confirm(component, request, annotation_, element_);
-        }
-
-        public Constraint<T> getConstraint() {
-            return constraint_;
         }
     }
 }

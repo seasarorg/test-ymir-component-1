@@ -9,6 +9,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.seasar.extension.unit.S2TestCase;
+import org.seasar.framework.container.S2Container;
+import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.PathMappingProvider;
@@ -18,13 +21,9 @@ import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.constraint.NamedConstraint;
 import org.seasar.ymir.constraint.impl.FufuConstraint;
 import org.seasar.ymir.constraint.impl.FugaConstraint;
-import org.seasar.ymir.impl.DefaultRequestProcessor.ConstraintBag;
 import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.mock.MockRequest;
 import org.seasar.ymir.response.ForwardResponse;
-import org.seasar.extension.unit.S2TestCase;
-import org.seasar.framework.container.S2Container;
-import org.seasar.framework.mock.servlet.MockServletContextImpl;
 
 public class DefaultRequestProcessorTest extends S2TestCase {
 
@@ -117,15 +116,6 @@ public class DefaultRequestProcessorTest extends S2TestCase {
                             ((NamedConstraint<?>) o2.getConstraint()).getName());
         }
     };
-
-    public void testToAttributeName() throws Exception {
-
-        assertEquals("attributeName", target_.toAttributeName(
-                "setAttributeName", ""));
-        assertEquals("attribute", target_.toAttributeName("attribute", ""));
-        assertEquals("hoe", target_.toAttributeName("setAttributeName", "hoe"));
-        assertEquals("hoeFuga", target_.toAttributeName("attribute", "hoeFuga"));
-    }
 
     public void testGetConstraint() throws Exception {
 

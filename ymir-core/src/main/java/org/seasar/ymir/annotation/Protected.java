@@ -7,12 +7,5 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Out {
-    Class value() default Object.class;
-
-    String name() default "";
-
-    Class scopeClass() default Object.class;
-
-    String scopeName() default "";
+public @interface Protected {
 }
