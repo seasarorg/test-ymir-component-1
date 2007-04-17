@@ -1,4 +1,4 @@
 <#list propertyDescs as propertyDesc>
 
-${propertyDesc.name}_ = ${entityMetaData.dxoClassDesc.instanceName}_.convert(${entityMetaData.daoClassDesc.instanceName}_.selectAll());
+${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix} = ${fieldSpecialPrefix}${fieldPrefix}${entityMetaData.dxoClassDesc.instanceName}${fieldSuffix}.convert(${fieldSpecialPrefix}${fieldPrefix}${entityMetaData.daoClassDesc.instanceName}${fieldSuffix}.selectAll());
 </#list>

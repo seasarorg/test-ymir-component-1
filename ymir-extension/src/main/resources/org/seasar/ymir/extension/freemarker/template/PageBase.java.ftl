@@ -4,7 +4,7 @@
 </#list>public class ${classDesc.shortName}Base<#if classDesc.superclassName?exists> extends ${classDesc.superclassName}</#if>
 {
 <#list classDesc.propertyDescs as propertyDesc>
-    protected ${propertyDesc.typeDesc.name} ${propertyDesc.name}_;
+    protected ${propertyDesc.typeDesc.name} ${fieldPrefix}${propertyDesc.name}${fieldSuffix};
 
 </#list>
 <#list classDesc.propertyDescs as propertyDesc>
@@ -12,7 +12,7 @@
 
     public ${propertyDesc.typeDesc.name} <#if propertyDesc.typeDesc.name == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}()
     {
-        return ${propertyDesc.name}_;
+        return ${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix};
     }
 </#if>
 <#if propertyDesc.writable>
@@ -20,7 +20,7 @@
 <#list propertyDesc.annotationDescs as annotationDesc>    ${annotationDesc.string}
 </#list>    public void set${propertyDesc.name?cap_first}(${propertyDesc.typeDesc.name} ${propertyDesc.name})
     {
-        ${propertyDesc.name}_ = ${propertyDesc.name};
+        ${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix} = ${propertyDesc.name};
     }
 </#if>
 </#list>

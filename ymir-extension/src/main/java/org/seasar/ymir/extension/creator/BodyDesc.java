@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.creator;
 
+import java.util.Map;
 
 public interface BodyDesc extends Cloneable {
 
@@ -9,7 +10,7 @@ public interface BodyDesc extends Cloneable {
 
     void setKey(String key);
 
-    Object getRoot();
+    Map<String, Object> getRoot();
 
-    void setRoot(Object root);
+    void setRoot(Map<String, Object> root);
 }

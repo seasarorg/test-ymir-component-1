@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.creator;
 
+import java.util.Map;
 
 public interface SourceGenerator {
 
@@ -7,7 +8,7 @@ public interface SourceGenerator {
 
     String generateBaseSource(ClassDesc classDesc);
 
-    String generateTemplateSource(String suffix, Object root);
+    String generateTemplateSource(String suffix, Map<String, Object> root);
 
     String generateSource(BodyDesc bodyDesc);
 }

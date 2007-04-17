@@ -2,6 +2,7 @@ package org.seasar.ymir.extension.freemarker;
 
 import java.util.HashMap;
 
+import org.seasar.ymir.Application;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.YmirTestCase;
 import org.seasar.ymir.constraint.PermissionDeniedException;
@@ -17,6 +18,7 @@ import org.seasar.ymir.extension.creator.impl.PropertyDescImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.extension.creator.impl.ThrowsDescImpl;
 import org.seasar.ymir.extension.creator.mock.MockSourceCreator;
+import org.seasar.ymir.mock.MockApplication;
 
 import com.example.page.TestPageBaseBase;
 
@@ -29,21 +31,34 @@ public class FreemarkerSourceGeneratorTest extends YmirTestCase {
         super.setUp();
         target_ = new FreemarkerSourceGenerator();
         target_.setSourceCreator(new MockSourceCreator() {
-
+            @Override
             public String getPagePackageName() {
                 return "com.example.web";
             }
 
+            @Override
             public String getDtoPackageName() {
                 return "com.example.dto";
             }
 
+            @Override
             public String getDaoPackageName() {
                 return "com.example.dao";
             }
 
+            @Override
             public String getDxoPackageName() {
                 return "com.example.dxo";
+            }
+
+            @Override
+            public Application getApplication() {
+                return new MockApplication() {
+                    @Override
+                    public String getProperty(String key, String defaultValue) {
+                        return defaultValue;
+                    }
+                };
             }
         });
     }

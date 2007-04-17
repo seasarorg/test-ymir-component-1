@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.EntityMetaData;
@@ -48,12 +49,12 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
         Map<String, Object> root = new HashMap<String, Object>();
         root.put("classDesc", classDesc);
         root.put("entityMetaData", new EntityMetaData(sourceCreator_, classDesc
-            .getName()));
+                .getName()));
 
         return generateSource(templateName, root);
     }
 
-    public String generateTemplateSource(String suffix, Object root) {
+    public String generateTemplateSource(String suffix, Map<String, Object> root) {
 
         return generateSource("Template" + suffix, root);
     }
@@ -66,12 +67,21 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
         return generateSource("Body." + bodyDesc.getKey(), bodyDesc.getRoot());
     }
 
-    String generateSource(String templateName, Object root) {
+    String generateSource(String templateName, Map<String, Object> root) {
 
         Configuration cfg = new Configuration();
         cfg.setEncoding(Locale.getDefault(), "UTF-8");
         cfg.setTemplateLoader(new ClassTemplateLoader(getClass(), "template"));
         cfg.setObjectWrapper(new DefaultObjectWrapper());
+
+        root = new HashMap<String, Object>(root);
+        root.put("fieldSpecialPrefix", sourceCreator_.getApplication()
+                .getProperty(Globals.APPKEY_SOURCECREATOR_FIELDSPECIALPREFIX,
+                        ""));
+        root.put("fieldPrefix", sourceCreator_.getApplication().getProperty(
+                Globals.APPKEY_SOURCECREATOR_FIELDPREFIX, ""));
+        root.put("fieldSuffix", sourceCreator_.getApplication().getProperty(
+                Globals.APPKEY_SOURCECREATOR_FIELDSUFFIX, "_"));
 
         StringWriter sw = new StringWriter();
         try {

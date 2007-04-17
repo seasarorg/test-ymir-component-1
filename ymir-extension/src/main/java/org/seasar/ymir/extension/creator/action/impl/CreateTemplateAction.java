@@ -60,7 +60,7 @@ public class CreateTemplateAction extends AbstractAction implements
         String template = getSourceCreator().getSourceGenerator()
                 .generateTemplateSource(
                         getSuffix(pathMetaData.getTemplate().getName()),
-                        new HashMap());
+                        new HashMap<String, Object>());
         if (template == null) {
             template = "";
         }

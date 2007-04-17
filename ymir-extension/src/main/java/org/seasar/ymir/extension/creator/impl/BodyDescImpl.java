@@ -13,9 +13,9 @@ public class BodyDescImpl implements BodyDesc {
 
     private String key_;
 
-    private Object root_;
+    private Map<String, Object> root_;
 
-    public BodyDescImpl(String key, Object root) {
+    public BodyDescImpl(String key, Map<String, Object> root) {
 
         key_ = key;
         root_ = root;
@@ -24,7 +24,7 @@ public class BodyDescImpl implements BodyDesc {
     public BodyDescImpl(String body) {
 
         key_ = KEY_ASIS;
-        Map<String, String> root = new HashMap<String, String>();
+        Map<String, Object> root = new HashMap<String, Object>();
         root.put(PROP_BODY, body);
         root_ = root;
     }
@@ -46,11 +46,11 @@ public class BodyDescImpl implements BodyDesc {
         key_ = key;
     }
 
-    public Object getRoot() {
+    public Map<String, Object> getRoot() {
         return root_;
     }
 
-    public void setRoot(Object root) {
+    public void setRoot(Map<String, Object> root) {
         root_ = root;
     }
 }
