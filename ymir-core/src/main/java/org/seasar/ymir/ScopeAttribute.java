@@ -3,11 +3,11 @@ package org.seasar.ymir;
 import java.lang.reflect.Method;
 
 import org.seasar.ymir.scope.Scope;
+import org.seasar.ymir.util.HotdeployUtils;
 import org.seasar.framework.log.Logger;
 import org.seasar.kvasir.util.io.IORuntimeException;
 
 public class ScopeAttribute {
-
     private String name_;
 
     private Scope scope_;
@@ -30,6 +30,13 @@ public class ScopeAttribute {
     public void injectTo(Object component) {
         Object value = scope_.getAttribute(name_);
         if (value != null) {
+            if (YmirContext.isUnderDevelopment()
+                    && !writeMethod_.getParameterTypes()[0]
+                            .isAssignableFrom(value.getClass())) {
+                // 開発時はHotdeployのせいで見かけ上型が合わないことがありうる。
+                // そのため開発時で見かけ上型が合わない場合はオブジェクトを再構築する。
+                value = HotdeployUtils.rebuildValue(value);
+            }
             try {
                 writeMethod_.invoke(component, new Object[] { value });
             } catch (IllegalArgumentException ex) {

@@ -7,7 +7,6 @@ import org.seasar.ymir.scope.Scope;
 import org.seasar.framework.container.S2Container;
 
 public class SessionScope implements Scope {
-
     private S2Container container_;
 
     public Object getAttribute(String name) {
