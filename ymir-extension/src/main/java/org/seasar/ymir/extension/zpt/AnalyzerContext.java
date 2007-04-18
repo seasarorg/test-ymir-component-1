@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.zpt;
 
+import java.beans.PropertyDescriptor;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -7,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.Messages;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
@@ -20,8 +22,8 @@ import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
+import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 import org.seasar.ymir.zpt.YmirVariableResolver;
-import org.seasar.framework.container.S2Container;
 
 import net.skirnir.freyja.VariableResolver;
 import net.skirnir.freyja.zpt.ZptTemplateContext;
@@ -400,22 +402,13 @@ public class AnalyzerContext extends ZptTemplateContext {
             }
         }
         PropertyDesc propertyDesc = classDesc.addProperty(name, mode);
-        PropertyTypeHint hint = getPropertyTypeHint(classDesc.getName(), name);
-        TypeDesc typeDesc = propertyDesc.getTypeDesc();
-        if (hint != null) {
-            typeDesc.setExplicit(true);
-            typeDesc.setClassDesc(getTemporaryClassDescFromClassName(hint
-                    .getTypeName()));
-            typeDesc.setArray(hint.isArray());
-        } else {
-            if (array) {
-                // なるべく元の状態を壊さないようにこうしている。
-                // （添字があるならば配列である、は真であるが、裏は真ではない。）
-                // つまり、arrayがtrueの時だけsetArray()している、ということ。
-                typeDesc.setArray(array);
-            }
+        if (array) {
+            // なるべく元の状態を壊さないようにこうしている。
+            // （添字があるならば配列である、は真であるが、裏は真ではない。）
+            // つまり、arrayがtrueの時だけsetArray()している、ということ。
+            propertyDesc.getTypeDesc().setArray(array);
         }
-        return propertyDesc;
+        return adjustPropertyType(classDesc.getName(), propertyDesc);
     }
 
     public ClassDesc preparePropertyTypeClassDesc(PropertyDesc propertyDesc) {
@@ -480,5 +473,37 @@ public class AnalyzerContext extends ZptTemplateContext {
         } else {
             return null;
         }
+    }
+
+    public PropertyDesc adjustPropertyType(String className, PropertyDesc pd) {
+        String propertyTypeName;
+        boolean array;
+        PropertyTypeHint hint = getPropertyTypeHint(className, pd.getName());
+        if (hint != null) {
+            propertyTypeName = hint.getTypeName();
+            array = hint.isArray();
+        } else {
+            PropertyDescriptor descriptor = getSourceCreator()
+                    .getPropertyDescriptor(className, pd.getName());
+            if (descriptor != null) {
+                Class<?> propertyType;
+                array = descriptor.getPropertyType().isArray();
+                if (array) {
+                    propertyType = descriptor.getPropertyType()
+                            .getComponentType();
+                } else {
+                    propertyType = descriptor.getPropertyType();
+                }
+                propertyTypeName = propertyType.getName();
+            } else {
+                // ヒントも既存クラスからの情報もなければ何もしない。
+                return pd;
+            }
+        }
+        TypeDesc td = new TypeDescImpl(
+                getTemporaryClassDescFromClassName(propertyTypeName), array,
+                true);
+        pd.setTypeDesc(td);
+        return pd;
     }
 }

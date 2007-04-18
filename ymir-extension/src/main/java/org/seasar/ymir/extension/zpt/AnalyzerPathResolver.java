@@ -1,12 +1,7 @@
 package org.seasar.ymir.extension.zpt;
 
-import java.beans.PropertyDescriptor;
-
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
-import org.seasar.ymir.extension.creator.PropertyTypeHint;
-import org.seasar.ymir.extension.creator.TypeDesc;
-import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;
@@ -31,45 +26,11 @@ public class AnalyzerPathResolver implements PathResolver {
             }
             int mode = (classDesc.isKindOf(ClassDesc.KIND_DTO) ? (PropertyDesc.READ | PropertyDesc.WRITE)
                     : PropertyDesc.READ);
-            return new DescWrapper(analyzerContext, adjustPropertyType(
-                    analyzerContext, classDesc.getName(), classDesc
+            return new DescWrapper(analyzerContext, analyzerContext
+                    .adjustPropertyType(classDesc.getName(), classDesc
                             .addProperty(child, mode)));
         } else {
             return null;
         }
-    }
-
-    PropertyDesc adjustPropertyType(AnalyzerContext analyzerContext,
-            String className, PropertyDesc pd) {
-        String propertyTypeName;
-        boolean array;
-        PropertyTypeHint hint = analyzerContext.getPropertyTypeHint(className,
-                pd.getName());
-        if (hint != null) {
-            propertyTypeName = hint.getTypeName();
-            array = hint.isArray();
-        } else {
-            PropertyDescriptor descriptor = analyzerContext.getSourceCreator()
-                    .getPropertyDescriptor(className, pd.getName());
-            if (descriptor != null) {
-                Class<?> propertyType;
-                array = descriptor.getPropertyType().isArray();
-                if (array) {
-                    propertyType = descriptor.getPropertyType()
-                            .getComponentType();
-                } else {
-                    propertyType = descriptor.getPropertyType();
-                }
-                propertyTypeName = propertyType.getName();
-            } else {
-                // ヒントも既存クラスからの情報もなければ何もしない。
-                return pd;
-            }
-        }
-        TypeDesc td = new TypeDescImpl(analyzerContext
-                .getTemporaryClassDescFromClassName(propertyTypeName), array,
-                true);
-        pd.setTypeDesc(td);
-        return pd;
     }
 }
