@@ -32,7 +32,6 @@ import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.MatchedPathMapping;
-import org.seasar.ymir.Note;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.PageNotFoundException;
 import org.seasar.ymir.PathMapping;
@@ -283,10 +282,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
                 throw ex;
             } catch (ValidationFailedException ex) {
                 validationFailed = true;
-                Note[] excentionNotes = ex.getNotes();
-                for (int j = 0; j < excentionNotes.length; j++) {
-                    notes.add(excentionNotes[j]);
-                }
+                notes.add(ex.getNotes());
             } catch (ConstraintViolatedException ex) {
                 throw new RuntimeException("May logic error", ex);
             }

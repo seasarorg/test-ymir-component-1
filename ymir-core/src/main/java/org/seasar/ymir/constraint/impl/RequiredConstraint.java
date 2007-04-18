@@ -1,11 +1,10 @@
 package org.seasar.ymir.constraint.impl;
 
 import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.Note;
+import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
@@ -20,16 +19,15 @@ public class RequiredConstraint extends AbstractConstraint<Required> {
                     "Please specify at least one property: " + element);
         }
 
-        List<Note> noteList = new ArrayList<Note>();
+        Notes notes = new Notes();
         for (int i = 0; i < names.length; i++) {
             if (isEmpty(request, names[i])) {
-                noteList.add(new Note(PREFIX_MESSAGEKEY + "required",
+                notes.add(names[i], new Note(PREFIX_MESSAGEKEY + "required",
                         new Object[] { names[i] }));
             }
         }
-        if (noteList.size() > 0) {
-            throw new ValidationFailedException().setNotes(noteList
-                    .toArray(new Note[0]));
+        if (notes.size() > 0) {
+            throw new ValidationFailedException().setNotes(notes);
         }
     }
 

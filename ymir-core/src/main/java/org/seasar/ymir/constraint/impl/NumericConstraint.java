@@ -1,10 +1,9 @@
 package org.seasar.ymir.constraint.impl;
 
 import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.seasar.ymir.Note;
+import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
@@ -42,20 +41,19 @@ public class NumericConstraint extends AbstractConstraint<Numeric> {
             }
         }
 
-        List<Note> noteList = new ArrayList<Note>();
+        Notes notes = new Notes();
         for (int i = 0; i < names.length; i++) {
             confirm(request, names[i], integer, greaterEdge,
-                    greaterIncludeEqual, lessEdge, lessIncludeEqual, noteList);
+                    greaterIncludeEqual, lessEdge, lessIncludeEqual, notes);
         }
-        if (noteList.size() > 0) {
-            throw new ValidationFailedException().setNotes(noteList
-                    .toArray(new Note[0]));
+        if (notes.size() > 0) {
+            throw new ValidationFailedException().setNotes(notes);
         }
     }
 
     void confirm(Request request, String name, boolean integer,
             Double greaterEdge, boolean greaterIncludeEqual, Double lessEdge,
-            boolean lessIncludeEqual, List<Note> noteList) {
+            boolean lessIncludeEqual, Notes notes) {
         String key = PREFIX_MESSAGEKEY + "numeric";
         String[] values = request.getParameterValues(name);
         if (values == null) {
@@ -69,21 +67,22 @@ public class NumericConstraint extends AbstractConstraint<Numeric> {
             try {
                 value = Double.parseDouble(values[i]);
             } catch (NumberFormatException ex) {
-                noteList.add(new Note(key, new Object[] { name }));
+                notes.add(name, new Note(key, new Object[] { name }));
                 continue;
             }
             if (integer && values[i].indexOf('.') >= 0) {
-                noteList.add(new Note(key + ".integer", new Object[] { name }));
+                notes.add(name, new Note(key + ".integer",
+                        new Object[] { name }));
             }
             if (greaterEdge != null) {
                 if (greaterIncludeEqual) {
                     if (value < greaterEdge.doubleValue()) {
-                        noteList.add(new Note(key + ".greaterEqual",
+                        notes.add(name, new Note(key + ".greaterEqual",
                                 new Object[] { name, greaterEdge }));
                     }
                 } else {
                     if (value <= greaterEdge.doubleValue()) {
-                        noteList.add(new Note(key + ".greaterThan",
+                        notes.add(name, new Note(key + ".greaterThan",
                                 new Object[] { name, greaterEdge }));
                     }
                 }
@@ -91,13 +90,13 @@ public class NumericConstraint extends AbstractConstraint<Numeric> {
             if (lessEdge != null) {
                 if (lessIncludeEqual) {
                     if (value > lessEdge.doubleValue()) {
-                        noteList.add(new Note(key + ".lessEqual", new Object[] {
-                            name, lessEdge }));
+                        notes.add(name, new Note(key + ".lessEqual",
+                                new Object[] { name, lessEdge }));
                     }
                 } else {
                     if (value >= lessEdge.doubleValue()) {
-                        noteList.add(new Note(key + ".lessThan", new Object[] {
-                            name, lessEdge }));
+                        notes.add(name, new Note(key + ".lessThan",
+                                new Object[] { name, lessEdge }));
                     }
                 }
             }
