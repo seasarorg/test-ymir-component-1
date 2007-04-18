@@ -1,20 +1,26 @@
 package org.seasar.ymir.zpt;
 
+import static net.skirnir.freyja.zpt.tales.UtilityPathResolver.NAMEPREFIX_SIZE;
+import static net.skirnir.freyja.zpt.tales.UtilityPathResolver.NAMESUFFIX_SIZE;
+import static net.skirnir.freyja.zpt.tales.UtilityPathResolver.NAME_CATEGORIES;
+import static net.skirnir.freyja.zpt.tales.UtilityPathResolver.NAME_SIZE;
+
 import java.text.MessageFormat;
 import java.util.Locale;
 
+import org.seasar.framework.container.ComponentNotFoundRuntimeException;
+import org.seasar.kvasir.util.collection.AttributeReader;
+import org.seasar.kvasir.util.collection.I18NPropertyReader;
+import org.seasar.kvasir.util.collection.PropertyReader;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.MessageNotFoundRuntimeException;
 import org.seasar.ymir.Messages;
 import org.seasar.ymir.MessagesNotFoundRuntimeException;
 import org.seasar.ymir.Note;
+import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
-import org.seasar.framework.container.ComponentNotFoundRuntimeException;
-import org.seasar.kvasir.util.collection.AttributeReader;
-import org.seasar.kvasir.util.collection.I18NPropertyReader;
-import org.seasar.kvasir.util.collection.PropertyReader;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;
@@ -29,7 +35,7 @@ public class YmirPathResolver implements PathResolver {
             VariableResolver varResolver, Object obj, String child) {
         return (obj instanceof Note
                 || obj instanceof net.skirnir.freyja.render.Note
-                || obj instanceof I18NPropertyReader
+                || obj instanceof Notes || obj instanceof I18NPropertyReader
                 || obj instanceof PropertyReader || obj instanceof AttributeReader);
     }
 
@@ -46,6 +52,19 @@ public class YmirPathResolver implements PathResolver {
             if (child.equals(NAME_VALUE)) {
                 return getMessageResourceValue(context, varResolver, note
                         .getValue(), note.getParameters());
+            }
+        } else if (obj instanceof Notes) {
+            Notes notes = (Notes) obj;
+            if (child.equals(NAME_SIZE)) {
+                return notes.size();
+            } else if (child.startsWith(NAMEPREFIX_SIZE)
+                    && child.endsWith(NAMESUFFIX_SIZE)) {
+                return notes.size(child.substring(NAMEPREFIX_SIZE.length(),
+                        child.length() - NAMESUFFIX_SIZE.length()));
+            } else if (child.equals(NAME_CATEGORIES)) {
+                return notes.categories();
+            } else if (notes.size(child) > 0) {
+                return notes.get(child);
             }
         } else if (obj instanceof I18NPropertyReader) {
             I18NPropertyReader reader = (I18NPropertyReader) obj;
