@@ -1,2 +1,10 @@
+error.constraint.length.min=The length must be longer than {1} or equal: {0}
+error.constraint.length.max=The length must be shorter than {1} or equal: {0}
+error.constraint.numeric=Specify numeric value: {0}
+error.constraint.numeric.greaterEqual=Specify value which is greater than {1} or equal: {0}
+error.constraint.numeric.greaterThan=Specify value which is greater than {1}: {0}
+error.constraint.numeric.integer=Specify integer value: {0}
+error.constraint.numeric.lessEqual=Specify value which is less than {1} or equal: {0}
+error.constraint.numeric.lessThan=Specify value which is less than {1}: {0}
 error.constraint.required=Specify non-empty value: {0}
 error.constraint.tokenRequired=Request has not been processed correctly because of invalid page transition.
