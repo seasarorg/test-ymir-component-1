@@ -65,15 +65,15 @@ public class NumericConstraint extends AbstractConstraint<Numeric> {
             if (values[i].length() == 0) {
                 continue;
             }
-            if (integer && values[i].indexOf('.') >= 0) {
-                noteList.add(new Note(key, new Object[] { name }));
-            }
             double value;
             try {
                 value = Double.parseDouble(values[i]);
             } catch (NumberFormatException ex) {
                 noteList.add(new Note(key, new Object[] { name }));
                 continue;
+            }
+            if (integer && values[i].indexOf('.') >= 0) {
+                noteList.add(new Note(key + ".integer", new Object[] { name }));
             }
             if (greaterEdge != null) {
                 if (greaterIncludeEqual) {

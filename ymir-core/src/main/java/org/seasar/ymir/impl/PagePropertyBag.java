@@ -54,7 +54,7 @@ public class PagePropertyBag {
         if (in != null) {
             registerForInjectionFromScope(in, method);
             protectedSetterNameSet_.add(BeanUtils.toPropertyName(method
-                    .getName()));
+                    .getName(), false));
             return;
         }
 
@@ -67,7 +67,7 @@ public class PagePropertyBag {
         if (method.isAnnotationPresent(Binding.class)
                 || method.isAnnotationPresent(Protected.class)) {
             protectedSetterNameSet_.add(BeanUtils.toPropertyName(method
-                    .getName()));
+                    .getName(), false));
             return;
         }
 
@@ -78,7 +78,7 @@ public class PagePropertyBag {
                         && types[0].getComponentType().isInterface())) {
             // S2Container用のsetterとみなしてプロテクトする。
             protectedSetterNameSet_.add(BeanUtils.toPropertyName(method
-                    .getName()));
+                    .getName(), false));
             return;
         }
     }
@@ -155,7 +155,7 @@ public class PagePropertyBag {
         if (explicitName != null && explicitName.length() > 0) {
             return explicitName;
         } else {
-            return BeanUtils.toPropertyName(methodName);
+            return BeanUtils.toPropertyName(methodName, false);
         }
     }
 
