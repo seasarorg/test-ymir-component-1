@@ -60,7 +60,7 @@
     <dependency>
       <groupId>net.skirnir.freyja</groupId>
       <artifactId>freyja</artifactId>
-      <version>1.0.7-SNAPSHOT</version>
+      <version>1.0.7</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
