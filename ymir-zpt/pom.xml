@@ -12,7 +12,6 @@
   <groupId>org.seasar.ymir</groupId>
   <artifactId>ymir-zpt</artifactId>
   <name>Ymir ZPT</name>
-  <version>1.0.0-SNAPSHOT</version>
   <description>
     This realizes to cooperate Ymir and ZPT engine.
   </description>
