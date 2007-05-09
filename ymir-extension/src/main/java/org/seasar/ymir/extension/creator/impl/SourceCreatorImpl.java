@@ -66,6 +66,7 @@ import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
+import org.seasar.ymir.extension.creator.ClassDescModifier;
 import org.seasar.ymir.extension.creator.ClassDescSet;
 import org.seasar.ymir.extension.creator.DescValidator;
 import org.seasar.ymir.extension.creator.EntityMetaData;
@@ -126,6 +127,8 @@ public class SourceCreatorImpl implements SourceCreator {
     private NamingConvention namingConvention_;
 
     private TemplateAnalyzer analyzer_;
+
+    private ClassDescModifier[] classDescModifiers_ = new ClassDescModifier[0];
 
     private String encoding_ = "UTF-8";
 
@@ -387,6 +390,10 @@ public class SourceCreatorImpl implements SourceCreator {
                 getHttpServletResponse(), path, method, classDescMap,
                 pathMetaData.getTemplate(), pageClassName, hintBag,
                 ignoreVariables);
+
+        for (int i = 0; i < classDescModifiers_.length; i++) {
+            classDescModifiers_[i].modify(classDescMap, pathMetaData);
+        }
 
         ClassDesc pageClassDesc = classDescMap.get(pageClassName);
         if (pageClassDesc == null
@@ -1021,6 +1028,11 @@ public class SourceCreatorImpl implements SourceCreator {
     public void setTemplateAnalyzer(TemplateAnalyzer analyzer) {
 
         analyzer_ = analyzer;
+    }
+
+    public void setClassDescModifiers(ClassDescModifier[] classDescModifiers) {
+
+        classDescModifiers_ = classDescModifiers;
     }
 
     public String getEncoding() {
