@@ -1,9 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.seasar.ymir</groupId>
   <artifactId>ymir-project</artifactId>
   <packaging>pom</packaging>
-  <version>0.9.1-SNAPSHOT</version>
+  <version>0.9.0-SNAPSHOT</version>
   <name>Ymir Project</name>
   <description>
     Ymir Project is a project to develop Ymir, which is a simple Web
@@ -158,9 +161,13 @@
     </pluginManagement>
   </build>
   <scm>
-    <connection>scm:svn:https://www.seasar.org/svn/sandbox/ymir/trunk/ymir-project</connection>
-    <developerConnection>scm:svn:https://www.seasar.org/svn/sandbox/ymir/trunk/ymir-project</developerConnection>
-    <url>http://svn.seasar.org/browse/trunk/ymir-project?root=sandbox.ymir</url>
+    <connection>
+      scm:svn:https://www.seasar.org/svn/sandbox/ymir/trunk/${project.artifactId}
+    </connection>
+    <developerConnection>
+      scm:svn:https://www.seasar.org/svn/sandbox/ymir/trunk/${project.artifactId}
+    </developerConnection>
+    <url>http://svn.seasar.org/browse/trunk/${project.artifactId}?root=sandbox.ymir</url>
   </scm>
   <repositories>
     <repository>
@@ -185,7 +192,7 @@
     </pluginRepository>
   </pluginRepositories>
   <dependencyManagement>
-    <dependencies />
+    <dependencies></dependencies>
   </dependencyManagement>
   <reporting>
     <plugins>
