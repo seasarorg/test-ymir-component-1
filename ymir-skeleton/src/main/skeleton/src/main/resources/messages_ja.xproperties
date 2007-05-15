@@ -1,0 +1,10 @@
+error.constraint.length.min={0}の長さは{1}以上である必要があります。
+error.constraint.length.max={0}の長さは{1}以下である必要があります。
+error.constraint.numeric={0}には数値を指定して下さい。
+error.constraint.numeric.greaterEqual={0}には{1}以上の値を指定して下さい。
+error.constraint.numeric.greaterThan={0}には{1}より大きい値を指定して下さい。
+error.constraint.numeric.integer={0}には整数を指定して下さい。
+error.constraint.numeric.lessEqual={0}には{1}以下の値を指定して下さい。
+error.constraint.numeric.lessThan={0}には{1}より小さい値を指定して下さい。
+error.constraint.required={0}の値を指定して下さい。
+error.constraint.tokenRequired=ページ遷移が想定どおり行なわれなかったため、リクエストが正しく処理されませんでした。
