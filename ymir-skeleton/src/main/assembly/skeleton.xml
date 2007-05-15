@@ -14,11 +14,10 @@
   </fileSets>
   <dependencySets>
     <dependencySet>
-      <outputDirectory>ymir-skeleton/src/main/webapp/WEB-INF/lib</outputDirectory>
+      <outputDirectory>
+        ymir-skeleton/src/main/webapp/WEB-INF/lib
+      </outputDirectory>
       <scope>runtime</scope>
-      <excludes>
-        <exclude>org.seasar.ymir:ymir-skeleton</exclude>
-      </excludes>
     </dependencySet>
   </dependencySets>
 </assembly>
