@@ -1,0 +1,34 @@
+<html>
+  <head>
+    <title>SYSTEM NOTIFICATION</title>
+  </head>
+  <body>
+<h1>SYSTEM NOTIFICATION</h1>
+<p>Ymirへようこそ！</p>
+<p>Webアプリケーションを構築する前に、プロジェクトの設定を行ないます。
+以下の項目を埋めて「OK」ボタンを押して下さい。</p>
+<form tal:attributes="action request/absolutePath" method="post">
+  <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
+  <input type="hidden" name="__ymir__task" value="createConfiguration" />
+  <input type="hidden" name="__ymir__subTask" value="create" />
+  <input type="hidden" name="__ymir__method" tal:attributes="value request/method" />
+  <dl>
+    <dt>projectRoot</dt>
+    <dd>このWebアプリケーションのためのEclipseプロジェクトのパスを入力して下さい。（例：<tt>C:\eclipse\workspace\skeleton</tt>）<br />
+      <input type="text" name="__ymir__key_projectRoot" size="64" tal:attributes="value application/projectRoot" />
+    </dd>
+    <dt>rootPackageName</dt>
+    <dd>このWebアプリケーションのJavaソースコードのルートパッケージ名を入力して下さい。（例：<tt>com.example</tt>）<br />
+      <input type="text" name="__ymir__key_rootPackageName" size="64" tal:attributes="value application/rootPackageName" />
+    </dd>
+    <dt>extension.beantable.enable</dt>
+    <dd>Bean定義からテーブルを自動生成するBeantable機能を利用するかどうかを指定して下さい。<br />
+      <input type="radio" name="__ymir__key_extension.beantable.enable" value="true" tal:attributes="checked beantableEnable" /> 利用する
+      <input type="radio" name="__ymir__key_extension.beantable.enable" value="false" checked="checked" tal:attributes="checked not:beantableEnable" /> 利用しない
+    </dd>
+  </dl>
+  <p><input type="submit" value=" OK " />
+  <input type="button" value="戻る" onclick="history.back()" /></p>
+</form>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+package com.example.web;
+
+public class TestPageBase
+{
+
+    public void _permissionDenied(org.seasar.ymir.constraint.PermissionDeniedException ex)
+        throws org.seasar.ymir.constraint.PermissionDeniedException
+    {
+        throw ex;
+    }
+}

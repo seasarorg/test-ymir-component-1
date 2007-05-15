@@ -1,0 +1,16 @@
+package org.seasar.ymir.extension.freemarker;
+
+public class Hoe3PageBase
+{
+
+    public void _permissionDenied(org.seasar.ymir.constraint.PermissionDeniedException permissionDeniedException)
+        throws org.seasar.ymir.constraint.PermissionDeniedException
+    {
+
+    }
+
+    public void _validationFailed(org.seasar.ymir.Notes notes)
+    {
+
+    }
+}
