@@ -8,7 +8,7 @@
   <artifactId>ymir-example</artifactId>
   <packaging>war</packaging>
   <name>Ymir Example Application</name>
-  <version>0.9.0-SNAPSHOT</version>
+  <version>0.9.0</version>
   <description>
     An example application based on Ymir.
   </description>
