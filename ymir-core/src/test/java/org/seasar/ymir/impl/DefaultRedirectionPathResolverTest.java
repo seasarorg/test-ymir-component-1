@@ -57,4 +57,27 @@ public class DefaultRedirectionPathResolverTest extends TestCase {
                         .setContextPath("/context")));
     }
 
+    public void testResolve9() throws Exception {
+
+        assertEquals("", target_.resolve(".", new MockRequest()
+                .setContextPath("/context")));
+    }
+
+    public void testResolve10() throws Exception {
+
+        assertEquals("?hoe=fuga", target_.resolve(".?hoe=fuga",
+                new MockRequest().setContextPath("/context")));
+    }
+
+    public void testResolve11() throws Exception {
+
+        assertEquals(";jsessionid=XXXX", target_.resolve(".;jsessionid=XXXX",
+                new MockRequest().setContextPath("/context")));
+    }
+
+    public void testResolve12() throws Exception {
+
+        assertEquals(".dummy", target_.resolve(".dummy", new MockRequest()
+                .setContextPath("/context")));
+    }
 }

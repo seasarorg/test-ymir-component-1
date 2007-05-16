@@ -18,7 +18,10 @@ public class DefaultRedirectionPathResolver implements RedirectionPathResolver {
                 || path.startsWith(";")) {
             // 空パスへのリダイレクトはYmirの世界ではルートパスへのリダイレクトとみなすのでこうしている。
             path = request.getContextPath() + "/" + path;
-        } else if (path.startsWith(SELF)) {
+        } else if (path.equals(SELF)
+                || path.startsWith(SELF)
+                && (path.charAt(SELF.length()) == '?' || path.charAt(SELF
+                        .length()) == ';')) {
             // 自分自身へのリダイレクト。
             path = path.substring(SELF.length());
         }
