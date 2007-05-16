@@ -29,5 +29,7 @@ public class PagePropertyBagTest extends TestCase {
         assertTrue(target.isProtected("component"));
         assertFalse("getterに@Outがついていてもsetterがプロテクトされないこと", target
                 .isProtected("out"));
+        assertFalse(target.isProtected("file"));
+        assertFalse(target.isProtected("files"));
     }
 }

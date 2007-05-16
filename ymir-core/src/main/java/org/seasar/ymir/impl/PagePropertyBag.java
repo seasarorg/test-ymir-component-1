@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.ymir.FormFile;
 import org.seasar.ymir.ScopeAttribute;
 import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Out;
@@ -74,7 +75,10 @@ public class PagePropertyBag {
         Class<?>[] types = method.getParameterTypes();
         if (method.getName().startsWith("set")
                 && types.length == 1
-                && (types[0].isInterface() || types[0].isArray()
+                && (!FormFile.class.isAssignableFrom(types[0])
+                        && types[0].isInterface() || types[0].isArray()
+                        && !FormFile.class.isAssignableFrom(types[0]
+                                .getComponentType())
                         && types[0].getComponentType().isInterface())) {
             // S2Container用のsetterとみなしてプロテクトする。
             protectedSetterNameSet_.add(BeanUtils.toPropertyName(method
