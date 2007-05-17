@@ -878,11 +878,15 @@ public class SourceCreatorImpl implements SourceCreator {
             return null;
         }
         try {
-            return Class.forName(className, true, getS2Container()
-                    .getClassLoader());
+            return Class.forName(className, true, getClassLoader());
         } catch (ClassNotFoundException ex) {
             return null;
         }
+    }
+
+    ClassLoader getClassLoader() {
+        return getApplication().getHotdeployS2Container().getContainer()
+                .getClassLoader();
     }
 
     public PropertyDescriptor getPropertyDescriptor(String className,
