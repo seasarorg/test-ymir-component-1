@@ -49,6 +49,8 @@ public class ZptAnalyzerTest extends TestCase {
 
     private Map<String, ClassDesc> classDescMap_ = new HashMap<String, ClassDesc>();
 
+    private String path_ = "/hoe.html";
+
     protected void setUp() throws Exception {
 
         target_ = new ZptAnalyzer() {
@@ -99,9 +101,20 @@ public class ZptAnalyzerTest extends TestCase {
             @Override
             public String getClassName(String componentName) {
                 if (componentName.endsWith("Page")) {
-                    return "com.example.web."
-                            + Character.toUpperCase(componentName.charAt(0))
-                            + componentName.substring(1);
+                    int underscore = componentName.indexOf('_');
+                    if (underscore < 0) {
+                        return "com.example.web."
+                                + Character
+                                        .toUpperCase(componentName.charAt(0))
+                                + componentName.substring(1);
+                    } else {
+                        return "com.example.web."
+                                + componentName.substring(0, underscore)
+                                + "."
+                                + Character.toUpperCase(componentName
+                                        .charAt(underscore + 1))
+                                + componentName.substring(underscore + 2);
+                    }
                 } else {
                     return null;
                 }
@@ -162,7 +175,7 @@ public class ZptAnalyzerTest extends TestCase {
             String[] ignoreVariables) {
 
         target_.analyze(MOCK_SERVLETCONTEXT, MOCK_REQUEST, MOCK_RESPONSE,
-                "/hoe.html", Request.METHOD_GET, classDescMap_, new Template() {
+                path_, Request.METHOD_GET, classDescMap_, new Template() {
                     public InputStream getInputStream() throws IOException {
                         return getClass().getResourceAsStream(
                                 "ZptAnalyzerTest_" + methodName + ".zpt");
@@ -181,7 +194,7 @@ public class ZptAnalyzerTest extends TestCase {
                     }
 
                     public String getPath() {
-                        return "/hoe.html";
+                        return path_;
                     }
 
                     public long lastModified() {
@@ -549,5 +562,26 @@ public class ZptAnalyzerTest extends TestCase {
         ClassDesc cd = getClassDesc("com.example.web.HoePage");
         PropertyDesc pd = cd.getPropertyDesc("value");
         assertFalse(pd.getTypeDesc().isArray());
+    }
+
+    public void testAnalyze28_既にクラスがある状態で再生成されるとプロパティの既存の型が保存されること()
+            throws Exception {
+
+        act("testAnalyze28");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        PropertyDesc pd = cd.getPropertyDesc("param2");
+        assertEquals("Integer[]", pd.getTypeDesc().getName());
+    }
+
+    public void testAnalyze29_サブアプリケーション以下のPageクラスについて既にクラスがある状態で再生成されるとプロパティの既存の型が保存されること()
+            throws Exception {
+
+        path_ = "/sub_index.html";
+        act("testAnalyze29", "com.example.web.sub.IndexPage");
+
+        ClassDesc cd = getClassDesc("com.example.web.sub.IndexPage");
+        PropertyDesc pd = cd.getPropertyDesc("param2");
+        assertEquals("Integer[]", pd.getTypeDesc().getName());
     }
 }
