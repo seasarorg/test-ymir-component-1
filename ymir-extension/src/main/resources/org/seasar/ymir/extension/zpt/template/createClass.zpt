@@ -8,7 +8,7 @@
 <p>生成されるクラスはリクエストを処理するための<span tal:replace="actionName">ACTIONNAME</span>()メソッドを持ちます。
 「処理後の遷移先」には<span tal:replace="actionName">ACTIONNAME</span>()メソッドの呼び出し後の遷移先のパスをコンテキスト相対で指定して下さい。
 遷移先がない場合は何も指定する必要はありません。</p>
-<p>よろしければ「作成」ボタンを押して下さい。作成しない場合は「戻る」ボタンを押して下さい。</p>
+<p>よろしければ「作成」ボタンを押して下さい。作成しない場合は「スキップ」ボタンを押して下さい。</p>
 <form tal:attributes="action request/absolutePath" method="post">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
   <input type="hidden" name="__ymir__task" value="createClass" />
@@ -23,7 +23,7 @@
   </div>
   <div style="clear: both"></div>
   <p><input type="submit" value="作成" />
-  <input type="button" value="戻る" onclick="history.back()" /></p>
+  <input type="button" value="スキップ" onclick="location.reload()" /></p>
 </form>
   </body>
 </html>

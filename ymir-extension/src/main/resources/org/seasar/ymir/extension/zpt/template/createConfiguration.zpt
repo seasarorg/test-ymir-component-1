@@ -28,7 +28,7 @@
     </dd>
   </dl>
   <p><input type="submit" value=" OK " />
-  <input type="button" value="戻る" onclick="history.back()" /></p>
+  <input type="button" value="スキップ" onclick="location.reload()" /></p>
 </form>
   </body>
 </html>
