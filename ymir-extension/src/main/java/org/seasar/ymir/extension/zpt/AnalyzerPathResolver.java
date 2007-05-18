@@ -19,11 +19,11 @@ public class AnalyzerPathResolver implements PathResolver {
         AnalyzerContext analyzerContext = (AnalyzerContext) context;
         if (obj instanceof DescWrapper) {
             DescWrapper wrapper = (DescWrapper) obj;
-            ClassDesc classDesc = wrapper.getClassDesc();
             if (wrapper.isArray()) {
                 // 配列にはプロパティを追加できないのでなにもしない。
                 return null;
             }
+            ClassDesc classDesc = wrapper.getClassDesc();
             int mode = (classDesc.isKindOf(ClassDesc.KIND_DTO) ? (PropertyDesc.READ | PropertyDesc.WRITE)
                     : PropertyDesc.READ);
             return new DescWrapper(analyzerContext, analyzerContext

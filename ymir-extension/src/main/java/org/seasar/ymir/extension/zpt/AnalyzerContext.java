@@ -401,10 +401,17 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     public ClassDesc preparePropertyTypeClassDesc(PropertyDesc propertyDesc) {
+        return preparePropertyTypeClassDesc(propertyDesc, false);
+    }
+
+    public ClassDesc preparePropertyTypeClassDesc(PropertyDesc propertyDesc,
+            boolean force) {
 
         ClassDesc cd = propertyDesc.getTypeDesc().getClassDesc();
         ClassDesc returned = null;
-        if (cd == TypeDesc.DEFAULT_CLASSDESC) {
+        if (cd instanceof ClassDescImpl) {
+            returned = cd;
+        } else if (cd == TypeDesc.DEFAULT_CLASSDESC || force) {
             String name = propertyDesc.getName();
             if (propertyDesc.getTypeDesc().isArray()
                     && name.endsWith(MULTIPLE_SUFFIX)) {
@@ -414,8 +421,6 @@ public class AnalyzerContext extends ZptTemplateContext {
             }
             returned = getTemporaryClassDescFromPropertyName(name);
             propertyDesc.getTypeDesc().setClassDesc(returned);
-        } else if (cd instanceof ClassDescImpl) {
-            returned = cd;
         }
         return returned;
     }

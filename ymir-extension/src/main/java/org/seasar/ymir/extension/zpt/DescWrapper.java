@@ -36,7 +36,8 @@ public class DescWrapper {
         if (classDesc_ != null) {
             return classDesc_;
         } else {
-            return analyzerContext_.preparePropertyTypeClassDesc(propertyDesc_);
+            return analyzerContext_.preparePropertyTypeClassDesc(propertyDesc_,
+                    true);
         }
     }
 

@@ -587,4 +587,17 @@ public class ZptAnalyzerTest extends TestCase {
         PropertyDesc pd = cd.getPropertyDesc("param2");
         assertEquals("Integer[]", pd.getTypeDesc().getName());
     }
+
+    public void testAnalyze30_condition系のプロパティが実はDtoだった時に正しくDtoと解釈されること()
+            throws Exception {
+
+        act("testAnalyze30");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        PropertyDesc pd = cd.getPropertyDesc("information");
+        assertEquals("com.example.dto.InformationDto", pd.getTypeDesc()
+                .getName());
+        pd = pd.getTypeDesc().getClassDesc().getPropertyDesc("entries");
+        assertEquals("com.example.dto.EntryDto[]", pd.getTypeDesc().getName());
+    }
 }
