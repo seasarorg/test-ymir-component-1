@@ -313,12 +313,15 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals("void", md.getReturnTypeDesc().getName());
     }
 
+    /*
+     * for [#YMIR-21]
+     */
     public void testAnalyze6() throws Exception {
 
         act("testAnalyze6");
 
-        ClassDesc cd = getClassDesc("com.example.web.TestPage");
-        assertNotNull("コンポーネント名が指定されている場合は対応するクラスのためのClassDescを生成すること", cd);
+        ClassDesc cd = getClassDesc("com.example.dto.TestPageDto");
+        assertNotNull("コンポーネント名っぽいものが指定されていてもDtoとみなしてClassDescを生成すること", cd);
         assertNotNull(cd.getPropertyDesc("body"));
     }
 

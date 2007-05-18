@@ -134,7 +134,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             return null;
         }
         String actionName = matched.getActionName();
-        ClassDesc classDesc = analyzerContext.getTemporaryClassDesc(className);
+        ClassDesc classDesc = analyzerContext
+                .getTemporaryClassDescFromClassName(className);
         boolean dispatchingByParameter = matched.isDispatchingByParameter();
         classDesc.setMethodDesc(new MethodDescImpl(actionName));
         for (Iterator itr = path.getParameterMap().keySet().iterator(); itr

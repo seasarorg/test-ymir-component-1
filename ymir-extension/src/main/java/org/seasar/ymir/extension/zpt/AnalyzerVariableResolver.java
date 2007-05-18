@@ -21,7 +21,7 @@ public class AnalyzerVariableResolver implements VariableResolver {
         AnalyzerContext analyzerContext = (AnalyzerContext) context;
 
         if (context != null && shouldGenerateClassOf(analyzerContext, name)) {
-            ClassDesc classDesc = analyzerContext.getTemporaryClassDesc(name);
+            ClassDesc classDesc = analyzerContext.getTemporaryClassDescFromPropertyName(name);
             analyzerContext.setUsedAsVariable(classDesc.getName());
             return new DescWrapper(classDesc);
         } else {

@@ -102,7 +102,8 @@ public class AnalyzerContext extends ZptTemplateContext {
             if (propertyDesc != null) {
                 TypeDesc typeDesc = propertyDesc.getTypeDesc();
                 if (!typeDesc.isExplicit()) {
-                    typeDesc.setClassDesc(getTemporaryClassDesc(name));
+                    typeDesc
+                            .setClassDesc(getTemporaryClassDescFromPropertyName(name));
                 }
             } else {
                 // self/entitiesのような形式ではなく、直接entitiesのように式が書かれている。
@@ -124,7 +125,8 @@ public class AnalyzerContext extends ZptTemplateContext {
                 TypeDesc typeDesc = propertyDesc.getTypeDesc();
                 if (!typeDesc.isExplicit()) {
                     typeDesc.setArray(true);
-                    typeDesc.setClassDesc(getTemporaryClassDesc(name));
+                    typeDesc
+                            .setClassDesc(getTemporaryClassDescFromPropertyName(name));
                 }
                 objs[0] = new DescWrapper(typeDesc.getClassDesc());
             } else {
@@ -157,32 +159,27 @@ public class AnalyzerContext extends ZptTemplateContext {
         classDescMap_ = classDescMap;
     }
 
-    public ClassDesc getTemporaryClassDesc(String name) {
+    public ClassDesc getTemporaryClassDescFromPropertyName(String propertyName) {
 
         String className;
-        int dot = name.lastIndexOf('.');
-        if (dot < 0) {
-            if (usingFreyjaRenderClasses_
-                    && !RequestProcessor.ATTR_NOTES.equals(name)) {
-                // NotesはFreyjaにもYmirにもあるが、Ymirのものを優先させたいため上のようにしている。
-                String renderClassName = "net.skirnir.freyja.render."
-                        + capFirst(name);
+        if (usingFreyjaRenderClasses_
+                && !RequestProcessor.ATTR_NOTES.equals(propertyName)) {
+            // NotesはFreyjaにもYmirにもあるが、Ymirのものを優先させたいため上のようにしている。
+            String renderClassName = "net.skirnir.freyja.render."
+                    + capFirst(propertyName);
+            if (isAvailable(renderClassName)) {
+                className = renderClassName;
+            } else {
+                renderClassName = "net.skirnir.freyja.render.html."
+                        + capFirst(propertyName) + "Tag";
                 if (isAvailable(renderClassName)) {
                     className = renderClassName;
                 } else {
-                    renderClassName = "net.skirnir.freyja.render.html."
-                            + capFirst(name) + "Tag";
-                    if (isAvailable(renderClassName)) {
-                        className = renderClassName;
-                    } else {
-                        className = toClassName(name);
-                    }
+                    className = fromPropertyNameToClassName(propertyName);
                 }
-            } else {
-                className = toClassName(name);
             }
         } else {
-            className = name;
+            className = fromPropertyNameToClassName(propertyName);
         }
         return getTemporaryClassDescFromClassName(className);
     }
@@ -202,28 +199,25 @@ public class AnalyzerContext extends ZptTemplateContext {
         return (sourceCreator_.getClass(className) != null);
     }
 
-    public String toClassName(String componentName) {
+    public String fromPropertyNameToClassName(String propertyName) {
 
         String className = null;
-        if (RequestProcessor.ATTR_SELF.equals(componentName)) {
+        if (RequestProcessor.ATTR_SELF.equals(propertyName)) {
             className = getPageClassName();
             // Kvasir/SoraのpopプラグインのexternalTemplate機能を使って自動生成
             // をしている場合、classNameはnullになり得ることに注意。
-        } else if (RequestProcessor.ATTR_NOTES.equals(componentName)) {
+        } else if (RequestProcessor.ATTR_NOTES.equals(propertyName)) {
             className = Notes.class.getName();
-        } else if (YmirVariableResolver.NAME_YMIRREQUEST.equals(componentName)) {
+        } else if (YmirVariableResolver.NAME_YMIRREQUEST.equals(propertyName)) {
             className = Request.class.getName();
-        } else if (YmirVariableResolver.NAME_CONTAINER.equals(componentName)) {
+        } else if (YmirVariableResolver.NAME_CONTAINER.equals(propertyName)) {
             className = S2Container.class.getName();
-        } else if (YmirVariableResolver.NAME_MESSAGES.equals(componentName)) {
+        } else if (YmirVariableResolver.NAME_MESSAGES.equals(propertyName)) {
             className = Messages.class.getName();
-        } else if (YmirVariableResolver.NAME_TOKEN.equals(componentName)) {
+        } else if (YmirVariableResolver.NAME_TOKEN.equals(propertyName)) {
             className = Token.class.getName();
         } else {
-            className = sourceCreator_.getClassName(componentName);
-        }
-        if (className == null) {
-            className = getDtoClassName(componentName);
+            className = getDtoClassName(propertyName);
         }
         return className;
     }
@@ -246,11 +240,6 @@ public class AnalyzerContext extends ZptTemplateContext {
     public void setSourceCreator(SourceCreator sourceCreator) {
 
         sourceCreator_ = sourceCreator;
-    }
-
-    public ClassDesc getPageClassDescriptor() {
-
-        return getTemporaryClassDesc(pageClassName_);
     }
 
     public FormDesc getFormDesc() {
@@ -423,7 +412,7 @@ public class AnalyzerContext extends ZptTemplateContext {
                 name = name.substring(0, name.length()
                         - MULTIPLE_SUFFIX.length());
             }
-            returned = getTemporaryClassDesc(name);
+            returned = getTemporaryClassDescFromPropertyName(name);
             propertyDesc.getTypeDesc().setClassDesc(returned);
         } else if (cd instanceof ClassDescImpl) {
             returned = cd;
