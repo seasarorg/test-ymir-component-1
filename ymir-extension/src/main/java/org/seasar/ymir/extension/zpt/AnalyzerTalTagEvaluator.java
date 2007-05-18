@@ -382,7 +382,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         if (evaluated instanceof DescWrapper) {
             DescWrapper wrapper = (DescWrapper) evaluated;
             PropertyDesc pd = wrapper.getPropertyDesc();
-            if (pd != null) {
+            if (pd != null && !pd.getTypeDesc().isExplicit()) {
                 pd.setTypeDesc("boolean");
             }
         }
