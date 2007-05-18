@@ -62,6 +62,7 @@ import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.constraint.PermissionDeniedException;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -1193,6 +1194,12 @@ public class SourceCreatorImpl implements SourceCreator {
 
         Application application = getApplication();
         if (!shouldUpdate(application)) {
+            return response;
+        }
+
+        if (!"true".equals(application.getProperty(
+                Globals.APPKEY_SOURCECREATOR_ENABLEINPLACEEDITOR, String
+                        .valueOf(true)))) {
             return response;
         }
 
