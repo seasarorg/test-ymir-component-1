@@ -152,7 +152,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
         attributeContainer.setAttribute(ATTR_SELF, backupped);
     }
 
-    PathMapping[] getPathMappings() {
+    protected PathMapping[] getPathMappings() {
         return ymir_.getApplication().getPathMappingProvider()
                 .getPathMappings();
     }
@@ -162,11 +162,11 @@ public class DefaultRequestProcessor implements RequestProcessor {
                 ServletContext.class);
     }
 
-    S2Container getS2Container() {
+    protected S2Container getS2Container() {
         return ymir_.getApplication().getS2Container();
     }
 
-    S2Container getRootS2Container() {
+    protected S2Container getRootS2Container() {
         return SingletonS2ContainerFactory.getContainer();
     }
 

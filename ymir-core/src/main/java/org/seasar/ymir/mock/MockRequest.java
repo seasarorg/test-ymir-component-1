@@ -106,6 +106,11 @@ public class MockRequest implements Request {
         return this;
     }
 
+    public MockRequest setParameterValues(String name, String[] values) {
+        getParameterMap().put(name, values);
+        return this;
+    }
+
     public String getPath() {
         return path_;
     }
@@ -173,6 +178,22 @@ public class MockRequest implements Request {
 
     public MockRequest setParameterMap(Map<String, String[]> parameterMap) {
         parameterMap_ = parameterMap;
+        return this;
+    }
+
+    public MockRequest setFileParameterMap(
+            Map<String, FormFile[]> fileParameterMap) {
+        fileParameterMap_ = fileParameterMap;
+        return this;
+    }
+
+    public MockRequest setFileParameter(String name, FormFile value) {
+        getFileParameterMap().put(name, new FormFile[] { value });
+        return this;
+    }
+
+    public MockRequest setFileParameterValues(String name, FormFile[] values) {
+        getFileParameterMap().put(name, values);
         return this;
     }
 
