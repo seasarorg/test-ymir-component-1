@@ -20,9 +20,10 @@ public interface RequestProcessor {
     String ATTR_NOTES = "notes";
 
     Request prepareForProcessing(String contextPath, String path,
-            String method, String dispatcher, Map parameterMap,
-            Map fileParameterMap, AttributeContainer attributeContainer,
-            Locale locale);
+            String method, String dispatcher,
+            Map<String, String[]> parameterMap,
+            Map<String, FormFile[]> fileParameterMap,
+            AttributeContainer attributeContainer, Locale locale);
 
     Response process(Request request) throws PageNotFoundException,
             PermissionDeniedException;

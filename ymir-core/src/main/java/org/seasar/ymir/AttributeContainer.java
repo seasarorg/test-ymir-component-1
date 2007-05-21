@@ -6,7 +6,7 @@ public interface AttributeContainer {
 
     Object getAttribute(String name);
 
-    Enumeration getAttributeNames();
+    Enumeration<String> getAttributeNames();
 
     void setAttribute(String name, Object value);
 

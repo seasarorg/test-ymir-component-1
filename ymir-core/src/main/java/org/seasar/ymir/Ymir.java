@@ -16,9 +16,10 @@ public interface Ymir {
     void init();
 
     Request prepareForProcessing(String contextPath, String path,
-            String method, String dispatcher, Map parameterMap,
-            Map fileParameterMap, AttributeContainer attributeContainer,
-            Locale locale);
+            String method, String dispatcher,
+            Map<String, String[]> parameterMap,
+            Map<String, FormFile[]> fileParameterMap,
+            AttributeContainer attributeContainer, Locale locale);
 
     Response processRequest(Request request) throws PageNotFoundException,
             PermissionDeniedException;

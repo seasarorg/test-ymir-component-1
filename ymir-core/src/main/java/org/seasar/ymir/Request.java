@@ -133,17 +133,15 @@ public interface Request extends AttributeContainer {
      *
      * @return Iteratorオブジェクト。
      */
-    Iterator getParameterNames();
+    Iterator<String> getParameterNames();
 
     /**
      * 全てのリクエストパラメータを格納しているMapを返します。
-     * <p>Mapのキーはパラメータ名（String）、値はパラメータの値（String[]）です。
-     * </p>
      * <p>ファイルパラメータは対象外です。</p>
      *
      * @return Mapオブジェクト。
      */
-    Map getParameterMap();
+    Map<String, String[]> getParameterMap();
 
     /**
      * &lt;input type="file" /&gt;タグで指定されたファイルパラメータのうち、
@@ -172,16 +170,14 @@ public interface Request extends AttributeContainer {
      *
      * @return Iteratorオブジェクト。
      */
-    Iterator getFileParameterNames();
+    Iterator<String> getFileParameterNames();
 
     /**
      * 全てのファイルパラメータを格納しているMapを返します。
-     * <p>Mapのキーはパラメータ名（String）、値はパラメータの値（FormFile[]）です。
-     * </p>
      *
      * @return Mapオブジェクト。
      */
-    Map getFileParameterMap();
+    Map<String, FormFile[]> getFileParameterMap();
 
     /**
      * リクエストスコープのオブジェクトを保持するためのAttributeContainerを返します。

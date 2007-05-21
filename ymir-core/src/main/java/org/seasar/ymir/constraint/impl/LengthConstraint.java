@@ -18,10 +18,14 @@ public class LengthConstraint extends AbstractConstraint<Length> {
                     "Please specify at least one property: " + element);
         }
 
+        int max = annotation.max();
+        if (max == Integer.MAX_VALUE) {
+            max = annotation.value();
+        }
+
         Notes notes = new Notes();
         for (int i = 0; i < names.length; i++) {
-            confirm(request, names[i], annotation.min(), annotation.max(),
-                    notes);
+            confirm(request, names[i], annotation.min(), max, notes);
         }
         if (notes.size() > 0) {
             throw new ValidationFailedException().setNotes(notes);

@@ -14,6 +14,8 @@ import org.seasar.ymir.constraint.impl.LengthConstraint;
 public @interface Length {
     String[] property() default {};
 
+    int value() default Integer.MAX_VALUE;
+
     int min() default 0;
 
     int max() default Integer.MAX_VALUE;

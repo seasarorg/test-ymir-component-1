@@ -20,9 +20,9 @@ public class RequestImpl implements Request {
 
     private String dispatcher_;
 
-    private Map parameterMap_;
+    private Map<String, String[]> parameterMap_;
 
-    private Map fileParameterMap_;
+    private Map<String, FormFile[]> fileParameterMap_;
 
     private AttributeContainer attributeContainer_;
 
@@ -34,7 +34,8 @@ public class RequestImpl implements Request {
     }
 
     public RequestImpl(String contextPath, String path, String method,
-            String dispatcher, Map parameterMap, Map fileParameterMap,
+            String dispatcher, Map<String, String[]> parameterMap,
+            Map<String, FormFile[]> fileParameterMap,
             AttributeContainer attributeContainer, Locale locale,
             MatchedPathMapping matched) {
 
@@ -128,17 +129,17 @@ public class RequestImpl implements Request {
         return getParameterValues(name, null);
     }
 
-    public Iterator getParameterNames() {
+    public Iterator<String> getParameterNames() {
 
         return parameterMap_.keySet().iterator();
     }
 
-    public Map getParameterMap() {
+    public Map<String, String[]> getParameterMap() {
 
         return parameterMap_;
     }
 
-    public void setParameterMap(Map parameterMap) {
+    public void setParameterMap(Map<String, String[]> parameterMap) {
 
         parameterMap_ = parameterMap;
     }
@@ -163,17 +164,17 @@ public class RequestImpl implements Request {
         }
     }
 
-    public Iterator getFileParameterNames() {
+    public Iterator<String> getFileParameterNames() {
 
         return fileParameterMap_.keySet().iterator();
     }
 
-    public Map getFileParameterMap() {
+    public Map<String, FormFile[]> getFileParameterMap() {
 
         return fileParameterMap_;
     }
 
-    public void setFileParameterMap(Map fileParameterMap) {
+    public void setFileParameterMap(Map<String, FormFile[]> fileParameterMap) {
 
         fileParameterMap_ = fileParameterMap;
     }
@@ -222,7 +223,7 @@ public class RequestImpl implements Request {
         return attributeContainer_.getAttribute(name);
     }
 
-    public Enumeration getAttributeNames() {
+    public Enumeration<String> getAttributeNames() {
         return attributeContainer_.getAttributeNames();
     }
 

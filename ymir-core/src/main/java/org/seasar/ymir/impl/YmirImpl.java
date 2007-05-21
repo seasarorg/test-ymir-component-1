@@ -15,6 +15,7 @@ import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.ExceptionProcessor;
+import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.LifecycleListener;
 import org.seasar.ymir.PageNotFoundException;
@@ -88,9 +89,10 @@ public class YmirImpl implements Ymir {
     }
 
     public Request prepareForProcessing(String contextPath, String path,
-            String method, String dispatcher, Map parameterMap,
-            Map fileParameterMap, AttributeContainer attributeContainer,
-            Locale locale) {
+            String method, String dispatcher,
+            Map<String, String[]> parameterMap,
+            Map<String, FormFile[]> fileParameterMap,
+            AttributeContainer attributeContainer, Locale locale) {
         return requestProcessor_.prepareForProcessing(contextPath, path, method
                 .toUpperCase(), dispatcher, parameterMap, fileParameterMap,
                 attributeContainer, locale);

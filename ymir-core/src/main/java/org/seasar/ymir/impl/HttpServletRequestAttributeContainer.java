@@ -18,7 +18,8 @@ public class HttpServletRequestAttributeContainer implements AttributeContainer 
         return request_.getAttribute(name);
     }
 
-    public Enumeration getAttributeNames() {
+    @SuppressWarnings("unchecked")
+    public Enumeration<String> getAttributeNames() {
         return request_.getAttributeNames();
     }
 

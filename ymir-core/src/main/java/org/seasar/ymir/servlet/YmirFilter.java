@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.ymir.AttributeContainer;
+import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.MultipartServletRequest;
 import org.seasar.ymir.Request;
@@ -52,13 +53,14 @@ public class YmirFilter implements Filter {
         dispatcher_ = null;
     }
 
+    @SuppressWarnings("unchecked")
     public void doFilter(ServletRequest req, ServletResponse res,
             FilterChain chain) throws IOException, ServletException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) req;
         HttpServletResponse httpResponse = (HttpServletResponse) res;
 
-        Map fileParameterMap = (Map) httpRequest
+        Map<String, FormFile[]> fileParameterMap = (Map<String, FormFile[]>) httpRequest
                 .getAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
         if (fileParameterMap != null) {
             httpRequest

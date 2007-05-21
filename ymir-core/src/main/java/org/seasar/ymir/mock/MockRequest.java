@@ -1,6 +1,8 @@
 package org.seasar.ymir.mock;
 
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
@@ -27,7 +29,9 @@ public class MockRequest implements Request {
 
     private String method_;
 
-    private Map parameterMap_;
+    private Map<String, String[]> parameterMap_ = new HashMap<String, String[]>();
+
+    private Map<String, FormFile[]> fileParameterMap_ = new HashMap<String, FormFile[]>();
 
     private String path_;
 
@@ -42,6 +46,8 @@ public class MockRequest implements Request {
     private boolean matched_;
 
     private boolean denied_;
+
+    private Map<String, Object> attributeMap_ = new HashMap<String, Object>();
 
     public String getAbsolutePath() {
         return absolutePath_;
@@ -91,8 +97,13 @@ public class MockRequest implements Request {
         return method_;
     }
 
-    public Map getParameterMap() {
+    public Map<String, String[]> getParameterMap() {
         return parameterMap_;
+    }
+
+    public MockRequest setParameter(String name, String value) {
+        getParameterMap().put(name, new String[] { value });
+        return this;
     }
 
     public String getPath() {
@@ -160,7 +171,7 @@ public class MockRequest implements Request {
         return this;
     }
 
-    public MockRequest setParameterMap(Map parameterMap) {
+    public MockRequest setParameterMap(Map<String, String[]> parameterMap) {
         parameterMap_ = parameterMap;
         return this;
     }
@@ -180,53 +191,75 @@ public class MockRequest implements Request {
     }
 
     public FormFile getFileParameter(String name) {
-        return null;
+        FormFile[] values = getFileParameterValues(name);
+        if (values != null && values.length > 0) {
+            return values[0];
+        } else {
+            return null;
+        }
     }
 
-    public Map getFileParameterMap() {
-        return null;
+    public Map<String, FormFile[]> getFileParameterMap() {
+        return fileParameterMap_;
     }
 
-    public Iterator getFileParameterNames() {
-        return null;
+    public Iterator<String> getFileParameterNames() {
+        return getFileParameterMap().keySet().iterator();
     }
 
     public FormFile[] getFileParameterValues(String name) {
-        return null;
+        return getFileParameterMap().get(name);
     }
 
     public String getParameter(String name) {
-        return null;
+        String[] values = getParameterValues(name);
+        if (values != null && values.length > 0) {
+            return values[0];
+        } else {
+            return null;
+        }
     }
 
     public String getParameter(String name, String defaultValue) {
-        return null;
+        String value = getParameter(name);
+        if (value != null) {
+            return value;
+        } else {
+            return defaultValue;
+        }
     }
 
-    public Iterator getParameterNames() {
-        return null;
+    public Iterator<String> getParameterNames() {
+        return getParameterMap().keySet().iterator();
     }
 
     public String[] getParameterValues(String name) {
-        return null;
+        return getParameterMap().get(name);
     }
 
     public String[] getParameterValues(String name, String[] defaultValues) {
-        return null;
+        String[] values = getParameterValues(name);
+        if (values != null) {
+            return values;
+        } else {
+            return defaultValues;
+        }
     }
 
     public Object getAttribute(String name) {
-        return null;
+        return attributeMap_.get(name);
     }
 
-    public Enumeration getAttributeNames() {
-        return null;
+    public Enumeration<String> getAttributeNames() {
+        return Collections.enumeration(attributeMap_.keySet());
     }
 
     public void removeAttribute(String name) {
+        attributeMap_.remove(name);
     }
 
     public void setAttribute(String name, Object value) {
+        attributeMap_.put(name, value);
     }
 
     public Locale getLocale() {
