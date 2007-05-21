@@ -103,7 +103,8 @@ public class AnalyzerContext extends ZptTemplateContext {
                 TypeDesc typeDesc = propertyDesc.getTypeDesc();
                 if (!typeDesc.isExplicit()) {
                     typeDesc
-                            .setClassDesc(getTemporaryClassDescFromPropertyName(name));
+                            .setClassDesc(getTemporaryClassDescFromPropertyName(
+                                    wrapper.getClassDesc(), name));
                 }
             } else {
                 // self/entitiesのような形式ではなく、直接entitiesのように式が書かれている。
@@ -126,7 +127,8 @@ public class AnalyzerContext extends ZptTemplateContext {
                 if (!typeDesc.isExplicit()) {
                     typeDesc.setArray(true);
                     typeDesc
-                            .setClassDesc(getTemporaryClassDescFromPropertyName(name));
+                            .setClassDesc(getTemporaryClassDescFromPropertyName(
+                                    wrapper.getClassDesc(), name));
                 }
                 objs[0] = new DescWrapper(typeDesc.getClassDesc());
             } else {
@@ -159,7 +161,8 @@ public class AnalyzerContext extends ZptTemplateContext {
         classDescMap_ = classDescMap;
     }
 
-    public ClassDesc getTemporaryClassDescFromPropertyName(String propertyName) {
+    public ClassDesc getTemporaryClassDescFromPropertyName(ClassDesc classDesc,
+            String propertyName) {
 
         String className;
         if (usingFreyjaRenderClasses_
@@ -175,11 +178,12 @@ public class AnalyzerContext extends ZptTemplateContext {
                 if (isAvailable(renderClassName)) {
                     className = renderClassName;
                 } else {
-                    className = fromPropertyNameToClassName(propertyName);
+                    className = fromPropertyNameToClassName(classDesc,
+                            propertyName);
                 }
             }
         } else {
-            className = fromPropertyNameToClassName(propertyName);
+            className = fromPropertyNameToClassName(classDesc, propertyName);
         }
         return getTemporaryClassDescFromClassName(className);
     }
@@ -199,7 +203,8 @@ public class AnalyzerContext extends ZptTemplateContext {
         return (sourceCreator_.getClass(className) != null);
     }
 
-    public String fromPropertyNameToClassName(String propertyName) {
+    public String fromPropertyNameToClassName(ClassDesc classDesc,
+            String propertyName) {
 
         String className = null;
         if (RequestProcessor.ATTR_SELF.equals(propertyName)) {
@@ -217,7 +222,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         } else if (YmirVariableResolver.NAME_TOKEN.equals(propertyName)) {
             className = Token.class.getName();
         } else {
-            className = getDtoClassName(propertyName);
+            className = getDtoClassName(classDesc, propertyName);
         }
         return className;
     }
@@ -230,6 +235,11 @@ public class AnalyzerContext extends ZptTemplateContext {
     public void setPageClassName(String pageClassName) {
 
         pageClassName_ = pageClassName;
+    }
+
+    public ClassDesc getPageClassDesc() {
+
+        return getTemporaryClassDescFromClassName(getPageClassName());
     }
 
     public SourceCreator getSourceCreator() {
@@ -338,10 +348,24 @@ public class AnalyzerContext extends ZptTemplateContext {
         return (isDto(classDesc) && classDesc.isEmpty());
     }
 
-    public String getDtoClassName(String baseName) {
+    public String getDtoClassName(ClassDesc classDesc, String baseName) {
 
-        return sourceCreator_.getDtoPackageName() + "." + capFirst(baseName)
-                + ClassDesc.KIND_DTO;
+        StringBuilder dtoClassName = new StringBuilder();
+        dtoClassName.append(sourceCreator_.getDtoPackageName());
+
+        String subPackageName = classDesc.getPackageName().substring(
+                sourceCreator_.getRootPackageName().length());
+        if (subPackageName.length() > 0) {
+            int dot = subPackageName.indexOf('.', 1);
+            if (dot >= 0) {
+                // com.example.web.sub ... subPackageName
+                // com.example         ... rootPackageName
+                //                ^    ... この「.」があればサブアプリケーション。
+                dtoClassName.append(subPackageName.substring(dot));
+            }
+        }
+        return dtoClassName.append('.').append(capFirst(baseName)).append(
+                ClassDesc.KIND_DTO).toString();
     }
 
     String capFirst(String string) {
@@ -364,7 +388,8 @@ public class AnalyzerContext extends ZptTemplateContext {
             String baseName = name.substring(0, dot);
             PropertyDesc propertyDesc = getSinglePropertyDesc(classDesc,
                     baseName, PropertyDesc.READ, false);
-            ClassDesc typeClassDesc = preparePropertyTypeClassDesc(propertyDesc);
+            ClassDesc typeClassDesc = preparePropertyTypeClassDesc(classDesc,
+                    propertyDesc);
             if (typeClassDesc != null) {
                 return getPropertyDesc(typeClassDesc, name.substring(dot + 1),
                         mode);
@@ -400,12 +425,13 @@ public class AnalyzerContext extends ZptTemplateContext {
         return adjustPropertyType(classDesc.getName(), propertyDesc);
     }
 
-    public ClassDesc preparePropertyTypeClassDesc(PropertyDesc propertyDesc) {
-        return preparePropertyTypeClassDesc(propertyDesc, false);
+    public ClassDesc preparePropertyTypeClassDesc(ClassDesc classDesc,
+            PropertyDesc propertyDesc) {
+        return preparePropertyTypeClassDesc(classDesc, propertyDesc, false);
     }
 
-    public ClassDesc preparePropertyTypeClassDesc(PropertyDesc propertyDesc,
-            boolean force) {
+    public ClassDesc preparePropertyTypeClassDesc(ClassDesc classDesc,
+            PropertyDesc propertyDesc, boolean force) {
 
         ClassDesc cd = propertyDesc.getTypeDesc().getClassDesc();
         ClassDesc returned = null;
@@ -419,7 +445,7 @@ public class AnalyzerContext extends ZptTemplateContext {
                 name = name.substring(0, name.length()
                         - MULTIPLE_SUFFIX.length());
             }
-            returned = getTemporaryClassDescFromPropertyName(name);
+            returned = getTemporaryClassDescFromPropertyName(classDesc, name);
             propertyDesc.getTypeDesc().setClassDesc(returned);
         }
         return returned;

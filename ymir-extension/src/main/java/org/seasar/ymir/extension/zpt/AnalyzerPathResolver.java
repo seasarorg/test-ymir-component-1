@@ -23,10 +23,10 @@ public class AnalyzerPathResolver implements PathResolver {
                 // 配列にはプロパティを追加できないのでなにもしない。
                 return null;
             }
-            ClassDesc classDesc = wrapper.getClassDesc();
+            ClassDesc classDesc = wrapper.getPropertyTypeClassDesc();
             int mode = (classDesc.isKindOf(ClassDesc.KIND_DTO) ? (PropertyDesc.READ | PropertyDesc.WRITE)
                     : PropertyDesc.READ);
-            return new DescWrapper(analyzerContext, analyzerContext
+            return new DescWrapper(analyzerContext, classDesc, analyzerContext
                     .adjustPropertyType(classDesc.getName(), classDesc
                             .addProperty(child, mode)));
         } else {

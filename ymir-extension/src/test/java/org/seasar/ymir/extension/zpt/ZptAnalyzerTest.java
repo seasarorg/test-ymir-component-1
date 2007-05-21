@@ -600,4 +600,25 @@ public class ZptAnalyzerTest extends TestCase {
         pd = pd.getTypeDesc().getClassDesc().getPropertyDesc("entries");
         assertEquals("com.example.dto.EntryDto[]", pd.getTypeDesc().getName());
     }
+
+    public void testAnalyze31_サブアプリケーションに属するPageについてはDTOもサブアプリケーションに生成されること()
+            throws Exception {
+
+        act("testAnalyze31", "com.example.web.sub.TestPage");
+
+        ClassDesc cd = getClassDesc("com.example.web.sub.TestPage");
+        PropertyDesc pd = cd.getPropertyDesc("entries");
+        assertEquals("com.example.dto.sub.EntryDto[]", pd.getTypeDesc()
+                .getName());
+    }
+
+    public void testAnalyze32_サブアプリケーションに属するPageについてはDTOもサブアプリケーションに生成されること()
+            throws Exception {
+
+        act("testAnalyze32");
+
+        ClassDesc cd = getClassDesc("com.example.web.sub.TestPage");
+        PropertyDesc pd = cd.getPropertyDesc("entry");
+        assertEquals("com.example.dto.sub.EntryDto", pd.getTypeDesc().getName());
+    }
 }

@@ -9,45 +9,46 @@ public class DescWrapper {
 
     private ClassDesc classDesc_;
 
+    private ClassDesc propertyTypeClassDesc_;
+
     private PropertyDesc propertyDesc_;
 
     private boolean array_;
 
-    public DescWrapper(ClassDesc classDesc) {
-
-        classDesc_ = classDesc;
+    public DescWrapper(ClassDesc propertyTypeClassDesc) {
+        propertyTypeClassDesc_ = propertyTypeClassDesc;
     }
 
-    public DescWrapper(AnalyzerContext analyzerContext,
+    public DescWrapper(AnalyzerContext analyzerContext, ClassDesc classDesc,
             PropertyDesc propertyDesc) {
-
         analyzerContext_ = analyzerContext;
+        classDesc_ = classDesc;
         propertyDesc_ = propertyDesc;
         array_ = propertyDesc.getTypeDesc().isArray();
     }
 
     public String toString() {
-
         return "0";
     }
 
     public ClassDesc getClassDesc() {
-
-        if (classDesc_ != null) {
-            return classDesc_;
-        } else {
-            return analyzerContext_.preparePropertyTypeClassDesc(propertyDesc_,
-                    true);
-        }
+        return classDesc_;
     }
 
     public PropertyDesc getPropertyDesc() {
-
         return propertyDesc_;
     }
 
-    public boolean isArray() {
+    public ClassDesc getPropertyTypeClassDesc() {
+        if (propertyTypeClassDesc_ != null) {
+            return propertyTypeClassDesc_;
+        } else {
+            return analyzerContext_.preparePropertyTypeClassDesc(classDesc_,
+                    propertyDesc_, true);
+        }
+    }
 
+    public boolean isArray() {
         return array_;
     }
 }

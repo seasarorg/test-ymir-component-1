@@ -1,0 +1,8 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <p tal:repeat="entry self/entries" tal:content="entry/value">VALUE</p>
+  </body>
+</html>

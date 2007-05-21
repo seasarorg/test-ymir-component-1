@@ -1,0 +1,10 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <form action="page:/sub_test.html">
+      <input type="text" name="entry.value" value="" />
+    </form>
+  </body>
+</html>
