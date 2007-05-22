@@ -194,19 +194,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
         Response response = PassthroughResponse.INSTANCE;
         if (request.isMatched()) {
-            Object component = null;
-            S2Container s2container = getS2Container();
-            if (s2container.hasComponentDef(request.getComponentName())) {
-                ThreadContext context = getThreadContext();
-                try {
-                    context.setComponent(Request.class, request);
-                    component = s2container.getComponent(request
-                            .getComponentName());
-                } finally {
-                    context.setComponent(Request.class, null);
-                }
-            }
-
+            Object component = getComponent(request);
             if (component != null) {
                 PagePropertyBag bag = new PagePropertyBag(component.getClass(),
                         getS2Container());
@@ -259,6 +247,22 @@ public class DefaultRequestProcessor implements RequestProcessor {
         }
 
         return response;
+    }
+
+    protected Object getComponent(Request request) {
+        Object component = null;
+        S2Container s2container = getS2Container();
+        if (s2container.hasComponentDef(request.getComponentName())) {
+            ThreadContext context = getThreadContext();
+            try {
+                context.setComponent(Request.class, request);
+                component = s2container
+                        .getComponent(request.getComponentName());
+            } finally {
+                context.setComponent(Request.class, null);
+            }
+        }
+        return component;
     }
 
     Response normalizeResponse(Response response, String path) {

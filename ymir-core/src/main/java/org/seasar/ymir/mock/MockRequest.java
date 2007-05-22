@@ -17,7 +17,7 @@ public class MockRequest implements Request {
 
     private String actionName_;
 
-    private AttributeContainer attributeContainer_;
+    private AttributeContainer attributeContainer_ = this;
 
     private String componentName_;
 
