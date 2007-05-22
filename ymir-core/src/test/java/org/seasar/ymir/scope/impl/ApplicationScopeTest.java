@@ -2,8 +2,6 @@ package org.seasar.ymir.scope.impl;
 
 import junit.framework.TestCase;
 
-import org.omg.PortableServer.RequestProcessingPolicy;
-import org.seasar.cms.pluggable.Configuration;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.external.servlet.HttpServletExternalContext;
 import org.seasar.framework.container.external.servlet.HttpServletExternalContextComponentDefRegister;

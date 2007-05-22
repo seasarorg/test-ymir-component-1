@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
+  "http://www.seasar.org/dtd/components24.dtd">
+<components>
+  <include path="global.dicon" />
+  <include path="dxo.dicon" />
+  <meta name="expand">"test-ymir-creator.dicon"</meta>
+  <component
+    class="org.seasar.ymir.convention.YmirNamingConvention">
+    <initMethod name="addRootPackageName">
+      <arg>config.getProperty("rootPackageName", "skeleton")</arg>
+    </initMethod>
+  </component>
+  <component
+    class="org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container">
+    <property name="creators">
+      container.findLocalComponents(@org.seasar.framework.container.ComponentCreator@class)
+    </property>
+  </component>
+  <component name="messages"
+    class="org.seasar.ymir.impl.MessagesImpl">
+    <arg>"messages.xproperties"</arg>
+  </component>
+  <component name="default_pageNotFoundExceptionHandler"
+    class="org.seasar.ymir.handler.impl.PageNotFoundExceptionHandler"
+    instance="request" />
+  <component name="default_permissionDeniedExceptionHandler"
+    class="org.seasar.ymir.handler.impl.PermissionDeniedExceptionHandler"
+    instance="request" />
+  <component name="default_throwableHandler"
+    class="org.seasar.ymir.handler.impl.ThrowableHandler"
+    instance="request" />
+</components>
