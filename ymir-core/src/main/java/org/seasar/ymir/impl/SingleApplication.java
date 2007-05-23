@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.Enumeration;
+import java.util.Properties;
 
 import javax.servlet.ServletContext;
 
@@ -63,7 +64,17 @@ public class SingleApplication extends AbstractApplication {
     }
 
     public void save(OutputStream out, String header) throws IOException {
-        config_.save(out, header);
+        Properties prop = new Properties();
+        synchronized (config_) {
+            for (Enumeration enm = config_.propertyNames(); enm
+                    .hasMoreElements();) {
+                String name = (String) enm.nextElement();
+                if (!Configuration.KEY_PROJECTSTATUS.equals(name)) {
+                    prop.setProperty(name, config_.getProperty(name));
+                }
+            }
+        }
+        prop.store(out, header);
     }
 
     public void setProperty(String key, String value) {
