@@ -8,3 +8,4 @@ error.constraint.numeric.lessEqual={0}には{1}以下の値を指定して下さ
 error.constraint.numeric.lessThan={0}には{1}より小さい値を指定して下さい。
 error.constraint.required={0}の値を指定して下さい。
 error.constraint.tokenRequired=ページ遷移が想定どおり行なわれなかったため、リクエストが正しく処理されませんでした。
+error.constraint.matched={0}の書式が違っています。
