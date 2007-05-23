@@ -127,7 +127,7 @@ abstract public class PageTestCase<P> extends TestCase {
     public void setUp() {
         application_ = new MockServletContextImpl(getContextPath());
         application_.setInitParameter(YmirListener.CONFIG_PATH_KEY,
-                "test-ymir.dicon");
+                "ymir.dicon");
 
         ymirListener_ = new YmirListener();
         ymirListener_.contextInitialized(new ServletContextEvent(application_));
