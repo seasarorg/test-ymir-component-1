@@ -8,6 +8,8 @@ public class YmirNamingConvention extends PluggableNamingConventionImpl {
 
     public static final String SUFFIX_EXCEPTIONHANDLER = "Handler";
 
+    public static final String SUFFIX_CONSTRAINT = "Constraint";
+
     public String fromClassNameToComponentName(final String className) {
         if (StringUtil.isEmpty(className)) {
             throw new EmptyRuntimeException("className");

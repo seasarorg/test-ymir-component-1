@@ -3,8 +3,8 @@
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
   <component class="org.seasar.ymir.creator.PageCreator" />
-  <component
-    class="org.seasar.ymir.creator.ExceptionHandlerCreator" />
+  <component class="org.seasar.ymir.creator.ExceptionHandlerCreator" />
+  <component class="org.seasar.ymir.creator.ConstraintCreator" />
   <component class="org.seasar.framework.container.creator.DtoCreator" />
   <component name="daoOndemandCreatorInterceptor"
     class="org.seasar.framework.aop.interceptors.InterceptorChain"
