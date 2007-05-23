@@ -2,6 +2,7 @@
 <!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
+  <include path="app.dicon" />
   <include path="global.dicon" />
   <include path="dxo.dicon" />
   <include path="ymir-dao.dicon" />
