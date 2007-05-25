@@ -45,18 +45,21 @@ public class ZptAnalyzerTest extends TestCase {
         new PathMappingImpl("^/[^/]+/(.+)\\.(.+)$", "${1}Page", "${METHOD}",
                 "", null, "_(.+)$"), };
 
-    private ZptAnalyzer target_ = new ZptAnalyzer();
+    private ZptAnalyzer target_;
 
     private Map<String, ClassDesc> classDescMap_ = new HashMap<String, ClassDesc>();
 
     private String path_ = "/hoe.html";
 
     protected void setUp() throws Exception {
+        prepareForTarget(false);
+    }
 
+    void prepareForTarget(final boolean usingFreyjaRenderClasses) {
         target_ = new ZptAnalyzer() {
             @Override
             boolean isUsingFreyjaRenderClasses() {
-                return false;
+                return usingFreyjaRenderClasses;
             }
 
             @Override
@@ -620,5 +623,17 @@ public class ZptAnalyzerTest extends TestCase {
         ClassDesc cd = getClassDesc("com.example.web.sub.TestPage");
         PropertyDesc pd = cd.getPropertyDesc("entry");
         assertEquals("com.example.dto.sub.EntryDto", pd.getTypeDesc().getName());
+    }
+
+    public void testAnalyze31_optionタグがrepeat指定されている場合でFreyjaのRenderClassを利用する設定の場合は対象プロパティの型がOptionTagの配列になること()
+            throws Exception {
+
+        prepareForTarget(true);
+        act("testAnalyze33", "com.example.web.sub.TestPage");
+
+        ClassDesc cd = getClassDesc("com.example.web.sub.TestPage");
+        PropertyDesc pd = cd.getPropertyDesc("entries");
+        assertEquals("net.skirnir.freyja.render.html.OptionTag[]", pd
+                .getTypeDesc().getName());
     }
 }

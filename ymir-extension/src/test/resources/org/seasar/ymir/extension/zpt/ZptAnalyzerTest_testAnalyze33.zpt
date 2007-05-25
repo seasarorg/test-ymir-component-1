@@ -1,0 +1,10 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <select name="select">
+      <option tal:repeat="entry self/entries" tal:attributes="value entry/value" tal:content="entry/content">CONTENT</option>
+    </select>
+  </body>
+</html>

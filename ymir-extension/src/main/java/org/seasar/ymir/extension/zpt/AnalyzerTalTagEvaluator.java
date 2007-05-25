@@ -89,6 +89,24 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             // nameの値が実行時に決まる場合は正しくプロパティやメソッドを生成できないので、
             // nameの値が定数である場合のみ処理を行なうようにしている。
             processParameterTag(analyzerContext, attrMap, annotation);
+        } else if ("option".equals(name)
+                && analyzerContext.isUsingFreyjaRenderClasses()) {
+            String returned = super.evaluate(context, name, attrs, body);
+            String statement = getAttributeValue(attrMap, "tal:repeat", null);
+            if (statement != null) {
+                Object evaluated = context.getExpressionEvaluator().evaluate(
+                        context, context.getVariableResolver(),
+                        statement.substring(statement.indexOf(' ')).trim());
+                if (evaluated instanceof DescWrapper) {
+                    PropertyDesc pd = ((DescWrapper) evaluated)
+                            .getPropertyDesc();
+                    if (pd != null && !pd.getTypeDesc().isExplicit()) {
+                        pd
+                                .setTypeDesc("net.skirnir.freyja.render.html.OptionTag[]");
+                    }
+                }
+            }
+            return returned;
         } else {
             registerTransitionClassDesc(analyzerContext, attrMap, "href", "GET");
             registerTransitionClassDesc(analyzerContext, attrMap, "src", "GET");

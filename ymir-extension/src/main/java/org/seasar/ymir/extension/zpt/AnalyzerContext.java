@@ -526,4 +526,8 @@ public class AnalyzerContext extends ZptTemplateContext {
         pd.setTypeDesc(td);
         return pd;
     }
+
+    public boolean isUsingFreyjaRenderClasses() {
+        return usingFreyjaRenderClasses_;
+    }
 }
