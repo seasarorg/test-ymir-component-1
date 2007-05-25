@@ -29,5 +29,7 @@
   <component name="class"
     class="org.seasar.cms.classbuilder.impl.ClassS2ContainerBuilder" />
   <component
-    class="org.seasar.cms.classbuilder.impl.PluggableAssemblerProvider" />
+    class="org.seasar.cms.classbuilder.impl.ClassAssemblerProvider" />
+  <component
+    class="org.seasar.cms.classbuilder.impl.RedefinableResourceResolver" />
 </components>
