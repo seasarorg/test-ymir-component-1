@@ -22,7 +22,7 @@ public class MatchedConstraint extends AbstractRegexConstraint<Matched> {
             throw new IllegalArgumentException(
                     "Please specify either 'pattern' or 'value' property");
         }
-        confirm(request, annotation.property(), pattern, annotation
-                .messageKey(), element);
+        confirm(request, annotation, element, annotation.property(), pattern,
+                annotation.messageKey());
     }
 }
