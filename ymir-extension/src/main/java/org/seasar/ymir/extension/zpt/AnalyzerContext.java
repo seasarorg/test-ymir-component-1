@@ -30,7 +30,13 @@ import net.skirnir.freyja.zpt.ZptTemplateContext;
 
 public class AnalyzerContext extends ZptTemplateContext {
 
-    private static final String MULTIPLE_SUFFIX = "s";
+    private static final String MULTIPLE_SUFFIX = "ies";
+
+    private static final String SINGULAR_SUFFIX = "y";
+
+    private static final String MULTIPLE_SUFFIX2 = "s";
+
+    private static final String SINGULAR_SUFFIX2 = "";
 
     private static final char STR_ARRAY_LPAREN = '[';
 
@@ -96,23 +102,6 @@ public class AnalyzerContext extends ZptTemplateContext {
     public void defineVariable(int scope, String name, Object value) {
 
         setUsedAsLocalVariable(name);
-        if (value != null && value instanceof DescWrapper) {
-            DescWrapper wrapper = (DescWrapper) value;
-            PropertyDesc propertyDesc = wrapper.getPropertyDesc();
-            if (propertyDesc != null) {
-                TypeDesc typeDesc = propertyDesc.getTypeDesc();
-                if (!typeDesc.isExplicit()) {
-                    typeDesc
-                            .setClassDesc(getTemporaryClassDescFromPropertyName(
-                                    wrapper.getClassDesc(), name));
-                }
-            } else {
-                // self/entitiesのような形式ではなく、直接entitiesのように式が書かれている。
-                // 自動生成ではそのようなプロパティは今のところ扱わない。
-                ;
-            }
-        }
-
         super.defineVariable(scope, name, value);
     }
 
@@ -121,21 +110,22 @@ public class AnalyzerContext extends ZptTemplateContext {
         setUsedAsLocalVariable(name);
         if (objs != null && objs.length == 1 && objs[0] instanceof DescWrapper) {
             DescWrapper wrapper = (DescWrapper) objs[0];
-            PropertyDesc propertyDesc = wrapper.getPropertyDesc();
-            if (propertyDesc != null) {
-                TypeDesc typeDesc = propertyDesc.getTypeDesc();
-                if (!typeDesc.isExplicit()) {
-                    typeDesc.setArray(true);
-                    typeDesc
-                            .setClassDesc(getTemporaryClassDescFromPropertyName(
-                                    wrapper.getClassDesc(), name));
+            ClassDesc valueClassDesc;
+            PropertyDesc pd = wrapper.getPropertyDesc();
+            if (pd != null) {
+                // 配列型に補正する。
+                TypeDesc td = pd.getTypeDesc();
+                if (!td.isExplicit()) {
+                    td.setArray(true);
+                    td.setClassDesc(getTemporaryClassDescFromPropertyName(null,
+                            name));
                 }
-                objs[0] = new DescWrapper(typeDesc.getClassDesc());
+
+                valueClassDesc = td.getClassDesc();
             } else {
-                // self/entitiesのような形式ではなく、直接entitiesのように式が書かれている。
-                // 自動生成ではそのようなプロパティは今のところ扱わない。
-                ;
+                valueClassDesc = wrapper.getValueClassDesc();
             }
+            objs[0] = new DescWrapper(this, valueClassDesc);
         }
 
         return super.pushRepeatInfo(name, objs);
@@ -225,6 +215,15 @@ public class AnalyzerContext extends ZptTemplateContext {
             className = getDtoClassName(classDesc, propertyName);
         }
         return className;
+    }
+
+    public boolean isSystemVariable(String name) {
+        return RequestProcessor.ATTR_SELF.equals(name)
+                || RequestProcessor.ATTR_NOTES.equals(name)
+                || YmirVariableResolver.NAME_YMIRREQUEST.equals(name)
+                || YmirVariableResolver.NAME_CONTAINER.equals(name)
+                || YmirVariableResolver.NAME_MESSAGES.equals(name)
+                || YmirVariableResolver.NAME_TOKEN.equals(name);
     }
 
     public String getPageClassName() {
@@ -353,15 +352,17 @@ public class AnalyzerContext extends ZptTemplateContext {
         StringBuilder dtoClassName = new StringBuilder();
         dtoClassName.append(sourceCreator_.getDtoPackageName());
 
-        String subPackageName = classDesc.getPackageName().substring(
-                sourceCreator_.getRootPackageName().length());
-        if (subPackageName.length() > 0) {
-            int dot = subPackageName.indexOf('.', 1);
-            if (dot >= 0) {
-                // com.example.web.sub ... subPackageName
-                // com.example         ... rootPackageName
-                //                ^    ... この「.」があればサブアプリケーション。
-                dtoClassName.append(subPackageName.substring(dot));
+        if (classDesc != null) {
+            String subPackageName = classDesc.getPackageName().substring(
+                    sourceCreator_.getRootPackageName().length());
+            if (subPackageName.length() > 0) {
+                int dot = subPackageName.indexOf('.', 1);
+                if (dot >= 0) {
+                    // com.example.web.sub ... subPackageName
+                    // com.example         ... rootPackageName
+                    //                ^    ... この「.」があればサブアプリケーション。
+                    dtoClassName.append(subPackageName.substring(dot));
+                }
             }
         }
         return dtoClassName.append('.').append(capFirst(baseName)).append(
@@ -439,16 +440,28 @@ public class AnalyzerContext extends ZptTemplateContext {
             returned = cd;
         } else if (cd == TypeDesc.DEFAULT_CLASSDESC || force) {
             String name = propertyDesc.getName();
-            if (propertyDesc.getTypeDesc().isArray()
-                    && name.endsWith(MULTIPLE_SUFFIX)) {
+            if (propertyDesc.getTypeDesc().isArray()) {
                 // 名前を単数形にする。
-                name = name.substring(0, name.length()
-                        - MULTIPLE_SUFFIX.length());
+                name = toSingular(name);
             }
             returned = getTemporaryClassDescFromPropertyName(classDesc, name);
             propertyDesc.getTypeDesc().setClassDesc(returned);
         }
         return returned;
+    }
+
+    String toSingular(String name) {
+        if (name == null) {
+            return null;
+        }
+        if (name.endsWith(MULTIPLE_SUFFIX)) {
+            return name.substring(0, name.length() - MULTIPLE_SUFFIX.length())
+                    + SINGULAR_SUFFIX;
+        } else if (name.endsWith(MULTIPLE_SUFFIX2)) {
+            return name.substring(0, name.length() - MULTIPLE_SUFFIX2.length())
+                    + SINGULAR_SUFFIX2;
+        }
+        return name;
     }
 
     public boolean isUsedAsVariable(String name) {

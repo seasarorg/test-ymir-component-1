@@ -3,7 +3,7 @@
     <title>TEST</title>
   </head>
   <body>
-    <img tal:attributes="src page:/action.html?id=${hoe}" />
+    <img tal:attributes="src page:/action.html?id=${self/hoe}" />
   </body>
 </html>
   

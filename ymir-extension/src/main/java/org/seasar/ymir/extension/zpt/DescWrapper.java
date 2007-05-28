@@ -4,51 +4,70 @@ import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 
 public class DescWrapper {
-
     private AnalyzerContext analyzerContext_;
 
-    private ClassDesc classDesc_;
+    private ClassDesc valueClassDesc_;
 
-    private ClassDesc propertyTypeClassDesc_;
+    private DescWrapper parent_;
 
     private PropertyDesc propertyDesc_;
 
-    private boolean array_;
-
-    public DescWrapper(ClassDesc propertyTypeClassDesc) {
-        propertyTypeClassDesc_ = propertyTypeClassDesc;
+    public DescWrapper(AnalyzerContext analyzerContext, ClassDesc valueClassDesc) {
+        analyzerContext_ = analyzerContext;
+        valueClassDesc_ = valueClassDesc;
     }
 
-    public DescWrapper(AnalyzerContext analyzerContext, ClassDesc classDesc,
-            PropertyDesc propertyDesc) {
-        analyzerContext_ = analyzerContext;
-        classDesc_ = classDesc;
+    public DescWrapper(DescWrapper parent, PropertyDesc propertyDesc) {
+        analyzerContext_ = parent.getAnalizerContext();
+        parent_ = parent;
         propertyDesc_ = propertyDesc;
-        array_ = propertyDesc.getTypeDesc().isArray();
     }
 
     public String toString() {
         return "0";
     }
 
-    public ClassDesc getClassDesc() {
-        return classDesc_;
+    public Object get(String name) {
+        // 実際にプロパティを参照したこの時点でクラス定義を遅延決定するようにしている。
+        if (propertyDesc_ != null) {
+            analyzerContext_.preparePropertyTypeClassDesc(parent_
+                    .getValueClassDesc(), propertyDesc_);
+        }
+
+        ClassDesc cd = getValueClassDesc();
+        PropertyDesc pd = cd.getPropertyDesc(name);
+        if (pd == null) {
+            int mode = (cd.isKindOf(ClassDesc.KIND_DTO) ? (PropertyDesc.READ | PropertyDesc.WRITE)
+                    : PropertyDesc.READ);
+            pd = analyzerContext_.adjustPropertyType(cd.getName(), cd
+                    .addProperty(name, mode));
+        }
+
+        DescWrapper returned = new DescWrapper(this, pd);
+        if (pd.getTypeDesc().isArray()) {
+            return new DescWrapper[] { returned };
+        } else {
+            return returned;
+        }
+    }
+
+    public AnalyzerContext getAnalizerContext() {
+        return analyzerContext_;
     }
 
     public PropertyDesc getPropertyDesc() {
         return propertyDesc_;
     }
 
-    public ClassDesc getPropertyTypeClassDesc() {
-        if (propertyTypeClassDesc_ != null) {
-            return propertyTypeClassDesc_;
+    public ClassDesc getValueClassDesc() {
+        if (valueClassDesc_ != null) {
+            return valueClassDesc_;
         } else {
-            return analyzerContext_.preparePropertyTypeClassDesc(classDesc_,
-                    propertyDesc_, true);
+            return propertyDesc_.getTypeDesc().getClassDesc();
         }
     }
 
-    public boolean isArray() {
-        return array_;
+    public DescWrapper getParent() {
+        return parent_;
     }
 }

@@ -3,7 +3,7 @@
     <title>TEST</title>
   </head>
   <body>
-    <p tal:content="testPage/body">BODY</p>
+    <p tal:repeat="hoeHoe self/hoeHoes" tal:content="hoeHoe/body">BODY</p>
   </body>
 </html>
   

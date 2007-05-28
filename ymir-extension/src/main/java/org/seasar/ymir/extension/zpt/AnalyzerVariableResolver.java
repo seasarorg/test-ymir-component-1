@@ -20,28 +20,17 @@ public class AnalyzerVariableResolver implements VariableResolver {
     public Object getVariable(TemplateContext context, String name) {
         AnalyzerContext analyzerContext = (AnalyzerContext) context;
 
-        if (context != null && shouldGenerateClassOf(analyzerContext, name)) {
+        if (analyzerContext != null
+                && !analyzerContext.shouldIgnoreVariable(name)
+                && analyzerContext.isSystemVariable(name)) {
             ClassDesc classDesc = analyzerContext
                     .getTemporaryClassDescFromPropertyName(analyzerContext
                             .getPageClassDesc(), name);
             analyzerContext.setUsedAsVariable(classDesc.getName());
-            return new DescWrapper(classDesc);
+            return new DescWrapper(analyzerContext, classDesc);
         } else {
             return delegated_.getVariable(context, name);
         }
-    }
-
-    boolean shouldGenerateClassOf(AnalyzerContext analyzerContext, String name) {
-        if (analyzerContext.shouldIgnoreVariable(name)) {
-            return false;
-        }
-        Class type = Object.class;
-        Entry entry = delegated_.getVariableEntry(analyzerContext, name);
-        if (entry != null) {
-            type = entry.getType();
-        }
-        return (type == Object.class || type.getName().startsWith(
-                analyzerContext.getSourceCreator().getRootPackageName() + "."));
     }
 
     public Entry getVariableEntry(TemplateContext context, String name) {

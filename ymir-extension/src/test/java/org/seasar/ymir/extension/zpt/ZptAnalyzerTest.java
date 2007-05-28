@@ -323,7 +323,7 @@ public class ZptAnalyzerTest extends TestCase {
 
         act("testAnalyze6");
 
-        ClassDesc cd = getClassDesc("com.example.dto.TestPageDto");
+        ClassDesc cd = getClassDesc("com.example.dto.HoeHoeDto");
         assertNotNull("コンポーネント名っぽいものが指定されていてもDtoとみなしてClassDescを生成すること", cd);
         assertNotNull(cd.getPropertyDesc("body"));
     }
@@ -428,15 +428,6 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull(
                 "組み込み変数など、VariableResolverから元々取得可能な変数に対応するClassDescは生成されないこと",
                 getClassDesc("com.example.dto.RepeatDto"));
-    }
-
-    public void testAnalyze16() throws Exception {
-
-        act("testAnalyze16");
-
-        assertNotNull(
-                "VariableResolverから取得可能であっても、クラスの属するパッケージが自動生成対象である場合はClassDescが生成されること",
-                getClassDesc("com.example.dto.SaruDto"));
     }
 
     public void testAnalyze17() throws Exception {
@@ -625,7 +616,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals("com.example.dto.sub.EntryDto", pd.getTypeDesc().getName());
     }
 
-    public void testAnalyze31_optionタグがrepeat指定されている場合でFreyjaのRenderClassを利用する設定の場合は対象プロパティの型がOptionTagの配列になること()
+    public void testAnalyze33_optionタグがrepeat指定されている場合でFreyjaのRenderClassを利用する設定の場合は対象プロパティの型がOptionTagの配列になること()
             throws Exception {
 
         prepareForTarget(true);
@@ -635,5 +626,28 @@ public class ZptAnalyzerTest extends TestCase {
         PropertyDesc pd = cd.getPropertyDesc("entries");
         assertEquals("net.skirnir.freyja.render.html.OptionTag[]", pd
                 .getTypeDesc().getName());
+    }
+
+    public void testAnalyze34_DTOのためのgetterが定義済みで返り値の型が決まっている場合は新たにDTOを生成しようとしないこと()
+            throws Exception {
+
+        act("testAnalyze34", "com.example.web.Test34Page");
+
+        ClassDesc cd = getClassDesc("com.example.web.Test34Page");
+        PropertyDesc pd = cd.getPropertyDesc("options");
+        assertEquals("net.skirnir.freyja.render.html.OptionTag[]", pd
+                .getTypeDesc().getName());
+        assertNull(getClassDesc("com.example.dto.OptionDto"));
+    }
+
+    public void testAnalyze35_repeatタグの一時変数に対して呼び出されたプロパティはクラスにも追加されること()
+            throws Exception {
+        act("testAnalyze35", "com.example.web.Test35Page");
+
+        ClassDesc cd = getClassDesc("com.example.web.Test35Page");
+        PropertyDesc pd = cd.getPropertyDesc("entries");
+        assertEquals("com.example.dto.Entry2Dto[]", pd.getTypeDesc().getName());
+        cd = pd.getTypeDesc().getClassDesc();
+        assertNotNull(cd.getPropertyDesc("value"));
     }
 }
