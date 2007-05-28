@@ -31,7 +31,7 @@ public class DescWrapper {
         // 実際にプロパティを参照したこの時点でクラス定義を遅延決定するようにしている。
         if (propertyDesc_ != null) {
             analyzerContext_.preparePropertyTypeClassDesc(parent_
-                    .getValueClassDesc(), propertyDesc_);
+                    .getValueClassDesc(), propertyDesc_, true);
         }
 
         ClassDesc cd = getValueClassDesc();

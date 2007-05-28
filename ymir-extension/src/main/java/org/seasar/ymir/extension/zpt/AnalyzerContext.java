@@ -117,8 +117,9 @@ public class AnalyzerContext extends ZptTemplateContext {
                 TypeDesc td = pd.getTypeDesc();
                 if (!td.isExplicit()) {
                     td.setArray(true);
-                    td.setClassDesc(getTemporaryClassDescFromPropertyName(null,
-                            name));
+                    td.setClassDesc(getTemporaryClassDescFromPropertyName(
+                            wrapper.getParent() != null ? wrapper.getParent()
+                                    .getValueClassDesc() : null, name));
                 }
 
                 valueClassDesc = td.getClassDesc();

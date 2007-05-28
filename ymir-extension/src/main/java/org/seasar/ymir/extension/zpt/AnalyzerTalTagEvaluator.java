@@ -97,8 +97,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 Object evaluated = context.getExpressionEvaluator().evaluate(
                         context, context.getVariableResolver(),
                         statement.substring(statement.indexOf(' ')).trim());
-                if (evaluated instanceof DescWrapper) {
-                    PropertyDesc pd = ((DescWrapper) evaluated)
+                if (evaluated instanceof DescWrapper[]) {
+                    PropertyDesc pd = ((DescWrapper[]) evaluated)[0]
                             .getPropertyDesc();
                     if (pd != null && !pd.getTypeDesc().isExplicit()) {
                         pd
