@@ -7,7 +7,11 @@ import java.io.OutputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.seasar.framework.util.ResourceUtil;
+import org.seasar.kvasir.util.io.IOUtils;
+import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -17,8 +21,8 @@ import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
 import org.seasar.ymir.extension.creator.TypeDesc;
-import org.seasar.framework.util.ResourceUtil;
-import org.seasar.kvasir.util.io.IOUtils;
+
+import com.example.page.SourceCreatorImplTestPageBaseBase;
 
 public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
@@ -241,5 +245,22 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         target_.mergeWithExistentClass(cd, true);
 
         assertNull(cd.getPropertyDesc("class"));
+    }
+
+    public void testMergeWithExistentClass2_validationFailedなどがスーパークラスにある時は自動生成されないこと()
+            throws Exception {
+
+        ClassDesc cd = new ClassDescImpl(
+                "com.example.page.SourceCreatorImplTestPage");
+        cd.setSuperclass(SourceCreatorImplTestPageBaseBase.class);
+        MethodDescImpl md = new MethodDescImpl(
+                RequestProcessor.ACTION_VALIDATIONFAILED);
+        md.setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                Notes.class) });
+        cd.setMethodDesc(md);
+
+        target_.mergeWithExistentClass(cd, true);
+
+        assertNull(cd.getMethodDesc(md));
     }
 }
