@@ -650,4 +650,14 @@ public class ZptAnalyzerTest extends TestCase {
         cd = pd.getTypeDesc().getClassDesc();
         assertNotNull(cd.getPropertyDesc("value"));
     }
+
+    public void testAnalyze36_名前に大文字小文字の違いしかない2つのプロパティを使った場合にExceptionがスローされてしまう問題を再現するためのテストケース()
+            throws Exception {
+        act("testAnalyze36", "com.example.web.Test36Page");
+
+        ClassDesc cd = getClassDesc("com.example.web.Test36Page");
+        PropertyDesc pd = cd.getPropertyDesc("comment").getTypeDesc()
+                .getClassDesc().getPropertyDesc("entries");
+        assertEquals("com.example.dto.EntryDto[]", pd.getTypeDesc().getName());
+    }
 }

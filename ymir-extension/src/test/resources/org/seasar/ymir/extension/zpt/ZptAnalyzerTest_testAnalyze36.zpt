@@ -1,0 +1,13 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <select tal:repeat="option self/options">
+      <option tal:attributes="selected option/selected"></option>
+    </select>
+    <div tal:condition="self/Comment">
+      <p tal:repeat="entry self/comment/entries" tal:content="entry/body">BODY</p>
+    </div>
+  </body>
+</html>

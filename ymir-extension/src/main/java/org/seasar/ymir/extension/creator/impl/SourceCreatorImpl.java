@@ -1144,6 +1144,11 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public ClassDesc newClassDesc(String className) {
 
+        // booleanとかのクラスについてはSimpleClassDescを返した方が都合が良いのでこうしている。
+        if (className.indexOf('.') < 0) {
+            return new SimpleClassDesc(className);
+        }
+
         ClassDescImpl classDescImpl = new ClassDescImpl(className);
 
         // スーパークラスをセットする。
