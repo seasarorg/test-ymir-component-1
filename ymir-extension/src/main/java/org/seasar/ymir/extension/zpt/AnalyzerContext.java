@@ -287,7 +287,6 @@ public class AnalyzerContext extends ZptTemplateContext {
             for (int i = 0; i < pds.length; i++) {
                 ClassDesc typeClassDesc = pds[i].getTypeDesc().getClassDesc();
                 if (isDto(typeClassDesc)
-                        && !isOuter(typeClassDesc)
                         && !temporaryClassDescMap_.containsKey(typeClassDesc
                                 .getName())) {
                     pds[i].getTypeDesc().setClassDesc(
@@ -336,12 +335,14 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     boolean isPage(ClassDesc classDesc) {
 
-        return ClassDesc.KIND_PAGE.equals(classDesc.getKind());
+        return ClassDesc.KIND_PAGE.equals(classDesc.getKind())
+                && !isOuter(classDesc);
     }
 
     boolean isDto(ClassDesc classDesc) {
 
-        return ClassDesc.KIND_DTO.equals(classDesc.getKind());
+        return ClassDesc.KIND_DTO.equals(classDesc.getKind())
+                && !isOuter(classDesc);
     }
 
     boolean isEmptyDto(ClassDesc classDesc) {

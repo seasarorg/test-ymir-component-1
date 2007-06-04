@@ -146,6 +146,22 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 "result").getTypeDesc().getName());
     }
 
+    public void testGatherClassDescs2_外部のDtoクラスは自動生成対象にならないこと()
+            throws Exception {
+
+        Map<String, ClassDesc> classDescMap = new LinkedHashMap<String, ClassDesc>();
+        PropertyTypeHintBag hintBag = new PropertyTypeHintBag(
+                new PropertyTypeHint[] { new PropertyTypeHint(
+                        "com.example.web.TestPage", "result",
+                        "com.outer.dto.EntryDto", false) });
+        target_.gatherClassDescs(classDescMap, new PathMetaDataImpl(
+                "/test.html", Request.METHOD_GET, false, "testPage",
+                "com.example.web.TestPage", null, null, null,
+                getSourceCreator().getTemplate("/test.html")), hintBag, null);
+
+        assertNull(classDescMap.get("com.outer.dto.EntryDto"));
+    }
+
     public void testNewClassDesc() throws Exception {
 
         assertEquals("マッチしたパターンに関連付けられているスーパークラス名がセットされていること",
