@@ -287,6 +287,7 @@ public class AnalyzerContext extends ZptTemplateContext {
             for (int i = 0; i < pds.length; i++) {
                 ClassDesc typeClassDesc = pds[i].getTypeDesc().getClassDesc();
                 if (isDto(typeClassDesc)
+                        && !isOuter(typeClassDesc)
                         && !temporaryClassDescMap_.containsKey(typeClassDesc
                                 .getName())) {
                     pds[i].getTypeDesc().setClassDesc(
