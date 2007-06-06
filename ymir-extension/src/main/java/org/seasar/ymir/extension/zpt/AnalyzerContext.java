@@ -313,7 +313,9 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     void registerAvailablePagesAndDtos(ClassDesc classDesc) {
 
-        register(classDesc);
+        if (!register(classDesc)) {
+            return;
+        }
         PropertyDesc[] pds = classDesc.getPropertyDescs();
         for (int i = 0; i < pds.length; i++) {
             ClassDesc typeClassDesc = pds[i].getTypeDesc().getClassDesc();
@@ -323,9 +325,12 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
     }
 
-    void register(ClassDesc classDesc) {
+    boolean register(ClassDesc classDesc) {
 
-        classDescMap_.put(classDesc.getName(), classDesc);
+        String key = classDesc.getName();
+        Object registered = classDescMap_.get(key);
+        classDescMap_.put(key, classDesc);
+        return registered != classDesc;
     }
 
     boolean isOuter(ClassDesc classDesc) {

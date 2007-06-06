@@ -660,4 +660,14 @@ public class ZptAnalyzerTest extends TestCase {
                 .getClassDesc().getPropertyDesc("entries");
         assertEquals("com.example.dto.EntryDto[]", pd.getTypeDesc().getName());
     }
+
+    public void testAnalyze37_パスの途中に同じ文字列が2度現れてもStackOverflowにならないこと()
+            throws Exception {
+
+        try {
+            act("testAnalyze37");
+        } catch (StackOverflowError e) {
+            fail();
+        }
+    }
 }
