@@ -28,6 +28,10 @@ public class DescWrapper {
     }
 
     public Object get(String name) {
+        if (!AnalyzerUtils.isValidAsSimplePropertyName(name)) {
+            return null;
+        }
+
         // 実際にプロパティを参照したこの時点でクラス定義を遅延決定するようにしている。
         if (propertyDesc_ != null) {
             analyzerContext_.preparePropertyTypeClassDesc(parent_

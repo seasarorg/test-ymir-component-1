@@ -670,4 +670,16 @@ public class ZptAnalyzerTest extends TestCase {
             fail();
         }
     }
+
+    public void testAnalyze38_括弧などを含むプロパティは自動生成の対象外になること_本当は引数つきgetterなどを生成して欲しいところだが()
+            throws Exception {
+
+        act("testAnalyze38");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        assertNull(cd.getPropertyDesc("arrayValue"));
+        assertNull(cd.getPropertyDesc("arrayValue[1]"));
+        assertNull(cd.getPropertyDesc("mapValue"));
+        assertNull(cd.getPropertyDesc("mapValue(1)"));
+    }
 }

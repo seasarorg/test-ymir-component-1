@@ -1,0 +1,9 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <p tal:content="self/mapValue(1)">CONTENT</p>
+    <p tal:content="self/arrayValue[1]">CONTENT</p>
+  </body>
+</html>
