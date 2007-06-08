@@ -93,6 +93,8 @@ public interface SourceCreator extends Updater {
 
     boolean shouldUpdate(Application application);
 
+    boolean shouldUpdate(String path);
+
     HttpServletRequest getHttpServletRequest();
 
     HttpServletResponse getHttpServletResponse();

@@ -188,6 +188,10 @@ public class MockSourceCreator implements SourceCreator {
         return false;
     }
 
+    public boolean shouldUpdate(String path) {
+        return true;
+    }
+
     public String filterResponse(String response) {
         return null;
     }

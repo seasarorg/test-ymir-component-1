@@ -10,6 +10,9 @@ public interface Globals extends org.seasar.ymir.Globals {
 
     String APPKEY_SOURCECREATOR_ENABLE = "extension.sourceCreator.enable";
 
+    String APPKEYPREFIX_SOURCECREATOR_ENABLE = APPKEY_SOURCECREATOR_ENABLE
+            + ".";
+
     String APPKEY_SOURCECREATOR_USEFREYJARENDERCLASSES = "extension.sourceCreator.useFreyjaRenderClasses";
 
     String APPKEY_SOURCECREATOR_SUPERCLASS = "extension.sourceCreator.superclass";

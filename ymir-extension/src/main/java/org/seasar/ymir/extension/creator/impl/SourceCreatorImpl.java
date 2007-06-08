@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import static org.seasar.ymir.extension.Globals.APPKEYPREFIX_SOURCECREATOR_ENABLE;
 import static org.seasar.ymir.extension.Globals.APPKEYPREFIX_SOURCECREATOR_SUPERCLASS;
 import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_ENABLE;
 import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_SUPERCLASS;
@@ -191,6 +192,10 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         String path = request.getPath();
+        if (!shouldUpdate(path)) {
+            return response;
+        }
+
         Object condition = null;
         if (request.getParameter(PARAM_TASK) != null) {
             condition = request.getParameter(PARAM_TASK);
@@ -300,8 +305,13 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public boolean shouldUpdate(Application application) {
 
-        return (!"false".equals(application
-                .getProperty(APPKEY_SOURCECREATOR_ENABLE)));
+        return !"false".equals(application
+                .getProperty(APPKEY_SOURCECREATOR_ENABLE));
+    }
+
+    public boolean shouldUpdate(String path) {
+        return !"false".equals(getApplication().getProperty(
+                APPKEYPREFIX_SOURCECREATOR_ENABLE + path));
     }
 
     boolean isAlreadyConfigured(Application application) {
