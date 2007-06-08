@@ -33,6 +33,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
 
     private static final String SEGMENT_PARENT = "..";
 
+    private static final String SEGMENT_CURRENT = ".";
+
     public String[] getSpecialTagPatternStrings() {
         return new String[] { "form", "input", "select", "textarea" };
     }
@@ -192,11 +194,6 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             }
         }
 
-        if (absolutePath.indexOf(SEGMENT_PARENT) < 0) {
-            // 効率化のため。
-            return absolutePath;
-        }
-
         int pre = 0;
         int idx;
         LinkedList<String> segmentList = new LinkedList<String>();
@@ -206,6 +203,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 if (!segmentList.isEmpty()) {
                     segmentList.removeLast();
                 }
+            } else if (segment.equals(SEGMENT_CURRENT)) {
+                ;
             } else {
                 segmentList.addLast(segment);
             }
@@ -216,6 +215,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             if (!segmentList.isEmpty()) {
                 segmentList.removeLast();
             }
+        } else if (segment.equals(SEGMENT_CURRENT)) {
+            ;
         } else {
             segmentList.addLast(segment);
         }
