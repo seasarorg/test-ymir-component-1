@@ -30,6 +30,8 @@ public class RequestImpl implements Request {
 
     private MatchedPathMapping matched_;
 
+    private String actionName_;
+
     public RequestImpl() {
     }
 
@@ -196,7 +198,16 @@ public class RequestImpl implements Request {
 
     public String getActionName() {
 
-        return matched_.getActionName();
+        if (actionName_ == null) {
+            return matched_.getActionName();
+        } else {
+            return actionName_;
+        }
+    }
+
+    public void setActionName(String actionName) {
+
+        actionName_ = actionName;
     }
 
     public String getPathInfo() {

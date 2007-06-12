@@ -204,6 +204,17 @@ public interface Request extends AttributeContainer {
     String getActionName();
 
     /**
+     * アクション名を設定します。
+     * <p>このメソッドは実際に呼び出されるアクション名が決定した段階でアクション名を
+     * Requestオブジェクトにセットするために用いられます。
+     * アプリケーションはこのメソッドを呼び出さないようにして下さい。
+     * </p>
+     * 
+     * @param actionName アクション名。
+     */
+    void setActionName(String actionName);
+
+    /**
      * リクエストパスに連結されているpathInfo情報を返します。
      *
      * @return pathInfo情報。PathMappingルールによってはnullが返されることもあります。

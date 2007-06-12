@@ -202,11 +202,15 @@ public class DefaultRequestProcessor implements RequestProcessor {
                 prepareForComponent(component, bag, request);
 
                 // リクエストに対応するアクションの呼び出しを行なう。
+                Method action = getActionMethod(component, request
+                        .getActionName(), ACTION_DEFAULT, request
+                        .isDispatchingByParameter(), request);
+                if (action != null) {
+                    request.setActionName(action.getName());
+                }
                 response = normalizeResponse(adjustResponse(request,
-                        invokeAction(component, getActionMethod(component,
-                                request.getActionName(), ACTION_DEFAULT,
-                                request.isDispatchingByParameter(), request),
-                                request, true), component), request.getPath());
+                        invokeAction(component, action, request, true),
+                        component), request.getPath());
 
                 ResponseType responseType = response.getType();
                 if (responseType == ResponseType.PASSTHROUGH

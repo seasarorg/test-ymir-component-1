@@ -66,8 +66,8 @@ public class ApplicationScopeTest extends TestCase {
     }
 
     public void test() throws Exception {
-        Request request = new MockRequest().setMatched(true).setPath(
-                "/test.html").setActionName("_get");
+        MockRequest request = new MockRequest();
+        request.setMatched(true).setPath("/test.html").setActionName("_get");
 
         servletContext_.setAttribute("injectedValue", "INJECTED_VALUE");
         requestProcessor_.process(request);

@@ -124,9 +124,8 @@ public class MockRequest implements Request {
         return this;
     }
 
-    public MockRequest setActionName(String actionName) {
+    public void setActionName(String actionName) {
         actionName_ = actionName;
-        return this;
     }
 
     public MockRequest setAttributeContainer(
