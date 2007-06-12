@@ -139,8 +139,13 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             Map attrMap, String attrName, String method) {
 
         SourceCreator creator = analyzerContext.getSourceCreator();
-        Path path = constructPath(analyzerContext.getPath(), getAttributeValue(
-                attrMap, attrName, null));
+        String url = getAttributeValue(attrMap, attrName, null);
+        if ("#".equals(url)) {
+            // "#"の時は自動生成の対象外とする。
+            return null;
+        }
+
+        Path path = constructPath(analyzerContext.getPath(), url);
         if (path == null) {
             return null;
         }
@@ -179,7 +184,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         if (path == null) {
             return null;
         } else if (path.length() == 0 || path.startsWith(";")
-                || path.startsWith("?")) {
+                || path.startsWith("?") || path.startsWith("#")) {
             return basePath + path;
         }
         String absolutePath;

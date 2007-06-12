@@ -694,4 +694,12 @@ public class ZptAnalyzerTest extends TestCase {
 
         assertNull(getClassDesc("org.seasar.ymir.dto.NameDto"));
     }
+
+    public void testAnalyze40_action属性がシャープである場合は自動生成の対象としないこと()
+            throws Exception {
+
+        act("testAnalyze40");
+
+        assertNull(getClassDesc("com.example.web.HoePage"));
+    }
 }

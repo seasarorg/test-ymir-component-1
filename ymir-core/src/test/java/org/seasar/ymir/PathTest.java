@@ -9,6 +9,15 @@ import junit.framework.TestCase;
 
 public class PathTest extends TestCase {
 
+    public void testPath() throws Exception {
+        Path target = new Path("http://hoehoe.com/fuga?param=a#fragment");
+
+        assertEquals("http://hoehoe.com/fuga", target.getTrunk());
+        assertEquals("#fragment", target.getFragment());
+        assertEquals("http://hoehoe.com/fuga?param=a#fragment", target
+                .asString());
+    }
+
     public void test_長さ2以上の配列をパラメタ値として持つmapを指定した場合でも正しくクエリ文字列が生成できること()
             throws Exception {
 

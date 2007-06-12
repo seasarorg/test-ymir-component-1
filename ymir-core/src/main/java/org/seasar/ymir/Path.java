@@ -14,6 +14,8 @@ public class Path {
 
     private String parameterEncoding_;
 
+    private String fragment_ = "";
+
     private boolean asNoCache_;
 
     public Path() {
@@ -43,6 +45,12 @@ public class Path {
 
         if (path == null) {
             return;
+        }
+
+        int sharp = path.lastIndexOf('#');
+        if (sharp >= 0) {
+            fragment_ = path.substring(sharp);
+            path = path.substring(0, sharp);
         }
 
         int question = path.indexOf('?');
@@ -117,6 +125,8 @@ public class Path {
                 delim = "&";
             }
         }
+        sb.append(fragment_);
+
         return sb.toString();
     }
 
@@ -206,5 +216,9 @@ public class Path {
     public Path setAsNoCache(boolean asNoCache) {
         asNoCache_ = asNoCache;
         return this;
+    }
+
+    public String getFragment() {
+        return fragment_;
     }
 }
