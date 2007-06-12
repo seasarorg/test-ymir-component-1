@@ -682,4 +682,16 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull(cd.getPropertyDesc("mapValue"));
         assertNull(cd.getPropertyDesc("mapValue(1)"));
     }
+
+    public void testAnalyze39_ルートパッケージ外のクラスのプロパティを指定してもExceptionがスローされないこと()
+            throws Exception {
+
+        try {
+            act("testAnalyze39");
+        } catch (Throwable t) {
+            fail();
+        }
+
+        assertNull(getClassDesc("org.seasar.ymir.dto.NameDto"));
+    }
 }

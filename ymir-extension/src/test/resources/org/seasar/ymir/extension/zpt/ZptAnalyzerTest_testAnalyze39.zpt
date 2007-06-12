@@ -1,0 +1,8 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <span tal:repeat="name notes/categories" tal:content="name">NAME</span>
+  </body>
+</html>

@@ -361,16 +361,25 @@ public class AnalyzerContext extends ZptTemplateContext {
         dtoClassName.append(sourceCreator_.getDtoPackageName());
 
         if (classDesc != null) {
-            String subPackageName = classDesc.getPackageName().substring(
-                    sourceCreator_.getRootPackageName().length());
-            if (subPackageName.length() > 0) {
-                int dot = subPackageName.indexOf('.', 1);
+            String packageName = classDesc.getPackageName();
+            String rootPackageName = sourceCreator_.getRootPackageName();
+            if (packageName.equals(rootPackageName)) {
+                ;
+            } else if (packageName.startsWith(rootPackageName + ".")) {
+                String subPackageName = packageName.substring(rootPackageName
+                        .length() + 1/*= ".".length() */);
+                int dot = subPackageName.indexOf('.');
                 if (dot >= 0) {
                     // com.example.web.sub ... subPackageName
                     // com.example         ... rootPackageName
                     //                ^    ... この「.」があればサブアプリケーション。
                     dtoClassName.append(subPackageName.substring(dot));
                 }
+            } else {
+                // パッケージがルートパッケージ外の場合はルートパッケージ外としてDTOクラス名を
+                // 生成しておく。（最終的にはルートパッケージ外なので無視されるはず）
+                dtoClassName.delete(0, dtoClassName.length());
+                dtoClassName.append(packageName + ".dto");
             }
         }
         return dtoClassName.append('.').append(capFirst(baseName)).append(
