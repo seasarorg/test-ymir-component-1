@@ -54,11 +54,17 @@ public class YmirNoteLocalizer implements NoteLocalizer {
             Locale locale = findLocale(context, varResolver);
             String v = messages.getProperty(noteValue, locale);
             if (v != null) {
+                String pageName = getPageName(context, varResolver);
                 for (int i = 0; i < noteParameters.length; i++) {
                     if (noteParameters[i] instanceof String) {
                         String localizedValue = messages.getProperty(
-                                PROPERTYPREFIX_LABEL + noteParameters[i],
-                                locale);
+                                PROPERTYPREFIX_LABEL + noteParameters[i] + "."
+                                        + pageName, locale);
+                        if (localizedValue == null) {
+                            localizedValue = messages.getProperty(
+                                    PROPERTYPREFIX_LABEL + noteParameters[i],
+                                    locale);
+                        }
                         if (localizedValue != null) {
                             noteParameters[i] = localizedValue;
                         }
@@ -82,6 +88,28 @@ public class YmirNoteLocalizer implements NoteLocalizer {
         }
 
         return noteValue;
+    }
+
+    String getPageName(TemplateContext context, VariableResolver varResolver) {
+        Request request = (Request) varResolver.getVariable(context,
+                YmirVariableResolver.NAME_YMIRREQUEST);
+        if (request == null) {
+            return null;
+        }
+
+        String path = request.getPath();
+        String name;
+        int slash = path.lastIndexOf('/');
+        if (slash < 0) {
+            name = path;
+        } else {
+            name = path.substring(slash + 1);
+        }
+        int dot = name.lastIndexOf('.');
+        if (dot >= 0) {
+            name = name.substring(0, dot);
+        }
+        return name;
     }
 
     Messages findMessages(String messagesName) {
