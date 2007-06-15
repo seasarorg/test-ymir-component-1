@@ -8,6 +8,7 @@
       <input type="image" name="image" src="image.jpg" />
       <input type="submit" name="submit" value="SUBMIT" />
       <input tal:attributes="name string:submit2" type="submit" name="submit2" value="SUBMIT" />
+      <input tal:attributes="name string:submitt${idx}" type="submit" name="submitt3" value="SUBMIT" />
     </form>
   </body>
 </html>

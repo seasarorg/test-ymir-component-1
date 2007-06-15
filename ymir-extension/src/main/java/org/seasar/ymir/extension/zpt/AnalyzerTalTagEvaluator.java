@@ -36,6 +36,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
 
     private static final String SEGMENT_CURRENT = ".";
 
+    private static final String PREFIX_STRING_EXPRESSION = "string:";
+
     @Override
     public String[] getSpecialTagPatternStrings() {
         return new String[] { "form", "input", "select", "textarea" };
@@ -135,13 +137,90 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         .defilter(attrs[i].getValue()));
                 for (int j = 0; j < statements.length; j++) {
                     String statement = statements[j];
-                    set.add(statement.substring(0, statement.indexOf(' '))
-                            .trim());
+                    int delim = statement.indexOf(' ');
+                    String name = statement.substring(0, delim).trim();
+                    String expression = statement.substring(delim).trim();
+                    // 添え字の中だけは実行時パラメータを含んでいて良い。
+                    if (!isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(expression)) {
+                        set.add(name);
+                    }
                 }
                 break;
             }
         }
         return set;
+    }
+
+    boolean isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
+            String expression) {
+
+        if (!expression.startsWith(PREFIX_STRING_EXPRESSION)) {
+            return false;
+        }
+        expression = expression.substring(PREFIX_STRING_EXPRESSION.length())
+                .trim();
+        // FIXME 結構適当。
+        int pre = 0;
+        int idx;
+        while ((idx = expression.indexOf('$', pre)) >= 0) {
+            if (idx == 0 || expression.charAt(idx - 1) != '[') {
+                return false;
+            }
+            if (idx + 1 < expression.length()
+                    && expression.charAt(idx + 1) == '{') {
+                // ${...}。
+                int rightParen = findEndEdge(expression, idx + 1);
+                if (rightParen + 1 >= expression.length()
+                        || expression.charAt(rightParen + 1) != ']') {
+                    return false;
+                }
+                pre = rightParen + 2;
+            } else {
+                // $...。
+                int rightEdge = expression.indexOf(']', idx + 1);
+                if (rightEdge < 0
+                        || !isValidVariableName(expression.substring(idx + 1,
+                                rightEdge))) {
+                    return false;
+                }
+                pre = rightEdge + 1;
+            }
+        }
+        return true;
+    }
+
+    boolean isValidVariableName(String name) {
+        if (name.length() == 0) {
+            return false;
+        }
+        char ch = name.charAt(0);
+        if (!(ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch == '_')) {
+            return false;
+        }
+        for (int i = 1; i < name.length(); i++) {
+            ch = name.charAt(i);
+            if (!(ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0'
+                    && ch <= '9' || ch == '_')) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    int findEndEdge(String expression, int idx) {
+        int depth = 0;
+        for (; idx < expression.length(); idx++) {
+            char ch = expression.charAt(idx);
+            if (ch == '{') {
+                depth++;
+            } else if (ch == '}') {
+                depth--;
+            }
+            if (depth == 0) {
+                break;
+            }
+        }
+        return idx;
     }
 
     FormDesc registerTransitionClassDesc(AnalyzerContext analyzerContext,

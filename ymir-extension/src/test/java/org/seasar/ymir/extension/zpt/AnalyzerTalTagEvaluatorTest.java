@@ -75,4 +75,44 @@ public class AnalyzerTalTagEvaluatorTest extends TestCase {
         assertEquals("/path/to/page2.html#", evaluator.toAbsolutePath(
                 "/path/to/page.html", "page2.html#"));
     }
+
+    public void testIsValidVariableName() throws Exception {
+        AnalyzerTalTagEvaluator target = new AnalyzerTalTagEvaluator();
+
+        assertFalse(target.isValidVariableName(""));
+        assertTrue(target.isValidVariableName("abC9"));
+        assertFalse(target.isValidVariableName("9ab"));
+        assertFalse(target.isValidVariableName("abc-d"));
+    }
+
+    public void testFindEndEdge() throws Exception {
+        AnalyzerTalTagEvaluator target = new AnalyzerTalTagEvaluator();
+
+        assertEquals(2, target.findEndEdge("abcde", 2));
+        assertEquals(6, target.findEndEdge("a{bcde", 1));
+        assertEquals(6, target.findEndEdge("a}bcde", 1));
+        assertEquals(7, target.findEndEdge("a{b{c}d}e", 1));
+    }
+
+    public void testIsStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex()
+            throws Exception {
+        AnalyzerTalTagEvaluator target = new AnalyzerTalTagEvaluator();
+
+        assertTrue(target
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("string:entries"));
+        assertTrue(target
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("string:entries[$idx].value"));
+        assertTrue(target
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("string:entries[${idx/hoehoe}].value"));
+        assertFalse(target
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("string:entries[${idx/hoehoe}$fuga].value"));
+        assertFalse(target
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("entries"));
+        assertFalse(target
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("string:entries[$idx.value"));
+        assertFalse(target
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("string:entries$idx.value"));
+        assertFalse(target
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("string:ent${hoe}ries[$idx].value"));
+    }
 }

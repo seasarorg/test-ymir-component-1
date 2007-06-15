@@ -457,8 +457,10 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(
                 "dispatchingByRequestParameterがtrueであるようなPathMappingにactionのパスがマッチする場合はsubmitのnameに対応するアクションメソッドが生成されること",
                 cd.getMethodDesc(new MethodDescImpl("POST_submit")));
-        assertNull("nameが実行時に決まるようなタグは無視されること", cd
+        assertNotNull("nameが実行時に決まるようなタグでもstring定数なら自動生成対象になること", cd
                 .getMethodDesc(new MethodDescImpl("POST_submit2")));
+        assertNull("nameが実行時に決まるようなタグでパラメータを持つものは無視されること", cd
+                .getMethodDesc(new MethodDescImpl("POST_submitt")));
     }
 
     public void testAnalyze18() throws Exception {
@@ -742,5 +744,19 @@ public class ZptAnalyzerTest extends TestCase {
 
         assertEquals("String", cd.getPropertyDesc("value").getTypeDesc()
                 .getName());
+    }
+
+    public void testAnalyze45_配列型のnameの添え字部分だけが実行時に決定されるinputタグが自動生成の対象になること()
+            throws Exception {
+
+        act("testAnalyze45");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        PropertyDesc pd = cd.getPropertyDesc("entries");
+        assertNotNull(pd);
+        assertEquals("com.example.dto.EntryDto[]", pd.getTypeDesc().getName());
+
+        assertNull("副作用で添え字部分以外の部分が実行時に決定されるinputタグが自走生成対象になったりしていないこと", cd
+                .getPropertyDesc("entry"));
     }
 }
