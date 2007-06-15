@@ -459,6 +459,12 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public ClassDesc getClassDesc(Class clazz, String className) {
 
+        return getClassDesc(clazz, className, true);
+    }
+
+    public ClassDesc getClassDesc(Class clazz, String className,
+            boolean onlyDeclared) {
+
         if (clazz == null) {
             return null;
         }
@@ -482,12 +488,26 @@ public class SourceCreatorImpl implements SourceCreator {
             String name = pds[i].getName();
             Method readMethod = pds[i].getReadMethod();
             Method writeMethod = pds[i].getWriteMethod();
-            // このクラスで定義されているプロパティだけを対象とする。
-            if (readMethod != null && readMethod.getDeclaringClass() != clazz) {
-                readMethod = null;
-            }
-            if (writeMethod != null && writeMethod.getDeclaringClass() != clazz) {
-                writeMethod = null;
+            if (onlyDeclared) {
+                // このクラスで定義されているプロパティだけを対象とする。
+                if (readMethod != null
+                        && readMethod.getDeclaringClass() != clazz) {
+                    readMethod = null;
+                }
+                if (writeMethod != null
+                        && writeMethod.getDeclaringClass() != clazz) {
+                    writeMethod = null;
+                }
+            } else {
+                // 祖先クラスにあるプロパティも対象とする。ただしObjectクラスのプロパティは対象外とする。
+                if (readMethod != null
+                        && readMethod.getDeclaringClass() == Object.class) {
+                    readMethod = null;
+                }
+                if (writeMethod != null
+                        && writeMethod.getDeclaringClass() == Object.class) {
+                    writeMethod = null;
+                }
             }
 
             PropertyDesc propertyDesc = new PropertyDescImpl(name);
@@ -532,8 +552,18 @@ public class SourceCreatorImpl implements SourceCreator {
             classDesc.setPropertyDesc(propertyDesc);
         }
 
-        // このクラスで定義されているメソッドだけを対象とする。
-        Method[] methods = clazz.getDeclaredMethods();
+        Method[] methods;
+        if (onlyDeclared) {
+            // このクラスで定義されているメソッドだけを対象とする。
+            methods = clazz.getDeclaredMethods();
+        } else {
+            // 祖先クラスにあるメソッドも対象とする。ただしObjectクラスのメソッドは対象外とする。
+            List<Method> methodList = new ArrayList<Method>();
+            for (Class c = clazz; c != Object.class; c = c.getSuperclass()) {
+                methodList.addAll(Arrays.asList(c.getDeclaredMethods()));
+            }
+            methods = methodList.toArray(new Method[0]);
+        }
         for (int i = 0; i < methods.length; i++) {
             String name = methods[i].getName();
             if (name.startsWith("get") || name.startsWith("is")
@@ -720,7 +750,7 @@ public class SourceCreatorImpl implements SourceCreator {
             baseDesc = newClassDesc(className);
         }
         ClassDesc superDesc = getClassDesc(getClass(desc.getSuperclassName()),
-                className);
+                className, false);
         if (superDesc == null) {
             superDesc = newClassDesc(className);
         }
