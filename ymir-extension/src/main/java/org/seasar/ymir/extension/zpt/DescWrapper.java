@@ -2,6 +2,7 @@ package org.seasar.ymir.extension.zpt;
 
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.TypeDesc;
 
 public class DescWrapper {
     private AnalyzerContext analyzerContext_;
@@ -45,6 +46,12 @@ public class DescWrapper {
                     : PropertyDesc.READ);
             pd = analyzerContext_.adjustPropertyType(cd.getName(), cd
                     .addProperty(name, mode));
+        }
+
+        TypeDesc td = pd.getTypeDesc();
+        if (!td.isExplicit() && td.getName().equals("boolean")) {
+            td.setClassDesc("String");
+            pd.notifyUpdatingType();
         }
 
         DescWrapper returned = new DescWrapper(this, pd);

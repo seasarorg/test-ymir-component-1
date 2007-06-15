@@ -1,0 +1,8 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <a tal:condition="self/value" tal:content="self/value">LINK</a>
+  </body>
+</html>

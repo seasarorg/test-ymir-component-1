@@ -732,4 +732,15 @@ public class ZptAnalyzerTest extends TestCase {
 
         assertNotNull(getClassDesc(CLASSNAME).getPropertyDesc("value"));
     }
+
+    public void testAnalyze44_talConditionに書いたものがtalContentにも出てくる時はbooleanにならないこと()
+            throws Exception {
+
+        act("testAnalyze44");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+
+        assertEquals("String", cd.getPropertyDesc("value").getTypeDesc()
+                .getName());
+    }
 }
