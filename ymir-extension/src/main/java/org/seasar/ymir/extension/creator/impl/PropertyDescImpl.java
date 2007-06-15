@@ -19,6 +19,8 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
 
     private int mode_;
 
+    private boolean typeAlreadySet_;
+
     public PropertyDescImpl(String name) {
 
         name_ = name;
@@ -101,5 +103,15 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
     public boolean isWritable() {
 
         return ((mode_ & WRITE) != 0);
+    }
+
+    public boolean isTypeAlreadySet() {
+
+        return typeAlreadySet_;
+    }
+
+    public void notifyUpdatingType() {
+
+        typeAlreadySet_ = true;
     }
 }

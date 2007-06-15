@@ -702,4 +702,34 @@ public class ZptAnalyzerTest extends TestCase {
 
         assertNull(getClassDesc("com.example.web.HoePage"));
     }
+
+    public void testAnalyze41_talConditionに書いたものがhrefにも出てくる時はbooleanにならないこと()
+            throws Exception {
+
+        act("testAnalyze41");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+
+        assertEquals("String", cd.getPropertyDesc("value").getTypeDesc()
+                .getName());
+    }
+
+    public void testAnalyze42_repeatについてDTO名は配列を返すプロパティ名からではなく一時変数名から名づけられること()
+            throws Exception {
+
+        act("testAnalyze42");
+
+        assertNotNull(getClassDesc("com.example.dto.RepeatEntryDto"));
+        assertEquals("com.example.dto.RepeatEntryDto", getClassDesc(CLASSNAME)
+                .getPropertyDesc("entryList").getTypeDesc().getClassDesc()
+                .getName());
+    }
+
+    public void testAnalyze43_hrefに書かれたリクエストパラメータのsetterが追加されること()
+            throws Exception {
+
+        act("testAnalyze43");
+
+        assertNotNull(getClassDesc(CLASSNAME).getPropertyDesc("value"));
+    }
 }

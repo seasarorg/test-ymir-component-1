@@ -29,4 +29,8 @@ public interface PropertyDesc extends AnnotatedDesc, Cloneable {
     boolean isReadable();
 
     boolean isWritable();
+
+    void notifyUpdatingType();
+
+    boolean isTypeAlreadySet();
 }

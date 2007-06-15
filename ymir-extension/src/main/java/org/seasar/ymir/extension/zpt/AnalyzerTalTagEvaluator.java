@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.MatchedPathMapping;
@@ -35,8 +36,16 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
 
     private static final String SEGMENT_CURRENT = ".";
 
+    @Override
     public String[] getSpecialTagPatternStrings() {
         return new String[] { "form", "input", "select", "textarea" };
+    }
+
+    @Override
+    public String[] getSpecialAttributePatternStrings() {
+        return (String[]) ArrayUtil.add(super
+                .getSpecialAttributePatternStrings(), new String[] { "href",
+            "src" });
     }
 
     public TemplateContext newContext() {
@@ -165,8 +174,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         classDesc.setMethodDesc(new MethodDescImpl(actionName));
         for (Iterator itr = path.getParameterMap().keySet().iterator(); itr
                 .hasNext();) {
-            classDesc.addProperty((String) itr.next(), PropertyDesc.WRITE
-                    | PropertyDesc.READ);
+            classDesc.addProperty((String) itr.next(),
+                    PropertyDesc.WRITE | PropertyDesc.READ)
+                    .notifyUpdatingType();
         }
         return new FormDescImpl(classDesc, actionName, dispatchingByParameter);
     }
@@ -389,7 +399,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         if (evaluated instanceof DescWrapper) {
             DescWrapper wrapper = (DescWrapper) evaluated;
             PropertyDesc pd = wrapper.getPropertyDesc();
-            if (pd != null && !pd.getTypeDesc().isExplicit()) {
+            if (pd != null && !pd.isTypeAlreadySet()) {
                 pd.setTypeDesc("boolean");
             }
         }

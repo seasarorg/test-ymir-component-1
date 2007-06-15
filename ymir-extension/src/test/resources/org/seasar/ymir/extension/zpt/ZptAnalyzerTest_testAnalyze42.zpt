@@ -1,0 +1,8 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <p tal:condition="self/entryList" tal:repeat="repeatEntry self/entryList" tal:content="repeatEntry/value">VALUE</p>
+  </body>
+</html>

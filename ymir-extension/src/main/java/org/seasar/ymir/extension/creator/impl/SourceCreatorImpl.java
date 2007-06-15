@@ -673,8 +673,10 @@ public class SourceCreatorImpl implements SourceCreator {
             int mode, ClassDescSet classDescSet) {
 
         if (DescValidator.validate(typeDesc, classDescSet).isValid()) {
-            classDesc.addProperty(typeDesc.getInstanceName(), mode)
-                    .setTypeDesc(typeDesc);
+            PropertyDesc propertyDesc = classDesc.addProperty(typeDesc
+                    .getInstanceName(), mode);
+            propertyDesc.setTypeDesc(typeDesc);
+            propertyDesc.notifyUpdatingType();
             return true;
         } else {
             return false;

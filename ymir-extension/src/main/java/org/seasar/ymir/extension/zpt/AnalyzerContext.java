@@ -463,6 +463,7 @@ public class AnalyzerContext extends ZptTemplateContext {
             }
             returned = getTemporaryClassDescFromPropertyName(classDesc, name);
             propertyDesc.getTypeDesc().setClassDesc(returned);
+            propertyDesc.notifyUpdatingType();
         }
         return returned;
     }
@@ -554,6 +555,7 @@ public class AnalyzerContext extends ZptTemplateContext {
                 getTemporaryClassDescFromClassName(propertyTypeName), array,
                 true);
         pd.setTypeDesc(td);
+        pd.notifyUpdatingType();
         return pd;
     }
 
