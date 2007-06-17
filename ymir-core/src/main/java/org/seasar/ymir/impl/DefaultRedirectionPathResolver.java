@@ -23,7 +23,8 @@ public class DefaultRedirectionPathResolver implements RedirectionPathResolver {
                 && (path.charAt(SELF.length()) == '?' || path.charAt(SELF
                         .length()) == ';')) {
             // 自分自身へのリダイレクト。
-            path = path.substring(SELF.length());
+            path = request.getContextPath() + request.getPath()
+                    + path.substring(SELF.length());
         }
 
         return path;

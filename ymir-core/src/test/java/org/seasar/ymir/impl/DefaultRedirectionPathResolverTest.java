@@ -59,20 +59,26 @@ public class DefaultRedirectionPathResolverTest extends TestCase {
 
     public void testResolve9() throws Exception {
 
-        assertEquals("", target_.resolve(".", new MockRequest()
-                .setContextPath("/context")));
+        // 以前は単に""となるようになっていたが、これだとリクエストURL相対のルート、
+        // すなわちリクエストされたファイルの親ディレクトリURL（例：リクエストURLが.../dir/file.html
+        // なら.../dir）と解釈されてしまうため、きちんとドメイン相対パスに変換するようにしている。
+        assertEquals("/context/index.html", target_.resolve(".",
+                new MockRequest().setContextPath("/context").setPath(
+                        "/index.html")));
     }
 
     public void testResolve10() throws Exception {
 
-        assertEquals("?hoe=fuga", target_.resolve(".?hoe=fuga",
-                new MockRequest().setContextPath("/context")));
+        assertEquals("/context/index.html?hoe=fuga", target_.resolve(
+                ".?hoe=fuga", new MockRequest().setContextPath("/context")
+                        .setPath("/index.html")));
     }
 
     public void testResolve11() throws Exception {
 
-        assertEquals(";jsessionid=XXXX", target_.resolve(".;jsessionid=XXXX",
-                new MockRequest().setContextPath("/context")));
+        assertEquals("/context/index.html;jsessionid=XXXX", target_.resolve(
+                ".;jsessionid=XXXX", new MockRequest().setContextPath(
+                        "/context").setPath("/index.html")));
     }
 
     public void testResolve12() throws Exception {
