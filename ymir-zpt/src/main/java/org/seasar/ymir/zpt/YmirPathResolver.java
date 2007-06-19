@@ -15,6 +15,10 @@ import net.skirnir.freyja.zpt.tales.NoteLocalizer;
 import net.skirnir.freyja.zpt.tales.PathResolver;
 
 public class YmirPathResolver implements PathResolver {
+    public static final String NAMEPREFIX_CONTAINS = "contains(";
+
+    public static final String NAMESUFFIX_CONTAINS = ")";
+
     private NoteLocalizer noteLocalizer_;
 
     public NoteLocalizer getNoteLocalizer() {
@@ -43,6 +47,11 @@ public class YmirPathResolver implements PathResolver {
                         child.length() - NAMESUFFIX_SIZE.length()));
             } else if (child.equals(NAME_CATEGORIES)) {
                 return notes.categories();
+            } else if (child.startsWith(NAMEPREFIX_CONTAINS)
+                    && child.endsWith(NAMESUFFIX_CONTAINS)) {
+                return notes.contains(child.substring(NAMEPREFIX_CONTAINS
+                        .length(), child.length()
+                        - NAMESUFFIX_CONTAINS.length()));
             } else if (notes.size(child) > 0) {
                 return notes.get(child);
             }

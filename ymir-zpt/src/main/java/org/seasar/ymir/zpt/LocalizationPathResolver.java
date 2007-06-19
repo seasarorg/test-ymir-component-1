@@ -34,8 +34,14 @@ public class LocalizationPathResolver extends NotePathResolver {
             String value;
             if (child.startsWith("%")) {
                 messageKey = child.substring(1);
-                value = reader.getProperty(messageKey, getNoteLocalizer()
+                String pageSpecificKey = createPageSpecificKey(messageKey,
+                        ZptUtils.getPageName(context, varResolver));
+                value = reader.getProperty(pageSpecificKey, getNoteLocalizer()
                         .findLocale(context, varResolver));
+                if (value == null) {
+                    value = reader.getProperty(messageKey, getNoteLocalizer()
+                            .findLocale(context, varResolver));
+                }
             } else {
                 messageKey = child;
                 value = reader.getProperty(messageKey);
@@ -57,5 +63,19 @@ public class LocalizationPathResolver extends NotePathResolver {
         }
 
         return null;
+    }
+
+    protected String createPageSpecificKey(String messageKey, String pageName) {
+        if (pageName == null) {
+            return messageKey;
+        }
+
+        int dot = messageKey.indexOf('.');
+        if (dot < 0) {
+            return pageName + "." + messageKey;
+        } else {
+            return messageKey.substring(0, dot) + "." + pageName
+                    + messageKey.substring(dot);
+        }
     }
 }

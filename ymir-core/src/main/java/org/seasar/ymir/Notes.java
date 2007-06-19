@@ -118,6 +118,10 @@ public class Notes {
         }
     }
 
+    public boolean contains(String category) {
+        return map_.containsKey(category);
+    }
+
     public boolean containsValue(String value) {
         int n = list_.size();
         for (int i = 0; i < n; i++) {
