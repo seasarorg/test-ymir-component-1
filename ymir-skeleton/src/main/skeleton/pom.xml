@@ -71,7 +71,7 @@
     <dependency>
       <groupId>org.seasar.ymir</groupId>
       <artifactId>ymir-extension</artifactId>
-      <version>0.9.1-SNAPSHOT</version>
+      <version>0.9.1</version>
     </dependency>
     <dependency>
       <groupId>org.seasar.dao</groupId>
