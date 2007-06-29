@@ -14,6 +14,7 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.Notes;
 import org.seasar.ymir.PathMappingProvider;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -219,5 +220,34 @@ public class DefaultRequestProcessorTest extends S2TestCase {
                 .getName());
         assertEquals("tora", ((FufuConstraint) actual[1].getConstraint())
                 .getName());
+    }
+
+    public void test_Validatorアノテーションがついているメソッドがバリデーション時に併せて呼ばれること()
+            throws Exception {
+
+        Object component = new TestPage();
+        Request request = new MockRequest().setPath("/test.html")
+                .setComponentName("TestPage");
+
+        Notes actual = target_.confirmConstraint(component, TestPage.class
+                .getMethod("_get", new Class[0]), request);
+
+        assertNull("バリデーションに成功した場合はNotesがセットされないこと", actual);
+    }
+
+    public void test2_Validatorアノテーションがついているメソッドがバリデーション時に併せて呼ばれること2()
+            throws Exception {
+
+        Object component = new Test2Page();
+        Request request = new MockRequest().setPath("/test2.html")
+                .setComponentName("Test2Page");
+
+        Notes actual = target_.confirmConstraint(component, Test2Page.class
+                .getMethod("_get", new Class[0]), request);
+
+        assertNotNull("バリデーションに失敗した場合はNotesに適切な情報がセットされること", actual);
+        assertEquals(2, actual.size());
+        assertEquals(1, actual.getNotes("validate").length);
+        assertEquals(1, actual.getNotes("validate2").length);
     }
 }

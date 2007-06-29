@@ -44,6 +44,7 @@ import org.seasar.ymir.Updater;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.SuppressConstraints;
+import org.seasar.ymir.annotation.Validator;
 import org.seasar.ymir.beanutils.FormFileArrayConverter;
 import org.seasar.ymir.beanutils.FormFileConverter;
 import org.seasar.ymir.constraint.Constraint;
@@ -296,11 +297,53 @@ public class DefaultRequestProcessor implements RequestProcessor {
                 throw new RuntimeException("May logic error", ex);
             }
         }
+
+        // Validatorアノテーションがついているメソッドを実行する。
+        Method[] validators = gatherValidators(component);
+        for (int i = 0; i < validators.length; i++) {
+            try {
+                Object invoked = validators[i].invoke(component, new Object[0]);
+                if (invoked instanceof Notes) {
+                    Notes ns = (Notes) invoked;
+                    if (!ns.isEmpty()) {
+                        validationFailed = true;
+                        notes.add(ns);
+                    }
+                }
+            } catch (IllegalArgumentException ex) {
+                throw new RuntimeException("May logic error", ex);
+            } catch (IllegalAccessException ex) {
+                throw new RuntimeException("May logic error", ex);
+            } catch (InvocationTargetException ex) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof ValidationFailedException) {
+                    validationFailed = true;
+                    notes.add(((ValidationFailedException) cause).getNotes());
+                }
+            }
+        }
+
         if (validationFailed) {
             return notes;
         } else {
             return null;
         }
+    }
+
+    Method[] gatherValidators(Object component) {
+        List<Method> validatorList = new ArrayList<Method>();
+        Method[] methods = component.getClass().getMethods();
+        for (int i = 0; i < methods.length; i++) {
+            if (methods[i].isAnnotationPresent(Validator.class)) {
+                if (methods[i].getParameterTypes().length > 0) {
+                    // 引数を持つメソッドにはValidatorアノテーションはつけられない。
+                    throw new RuntimeException(
+                            "@Validator must be annotated on a method that has no parameters");
+                }
+                validatorList.add(methods[i]);
+            }
+        }
+        return validatorList.toArray(new Method[0]);
     }
 
     Object getRequestComponent(Request request) {

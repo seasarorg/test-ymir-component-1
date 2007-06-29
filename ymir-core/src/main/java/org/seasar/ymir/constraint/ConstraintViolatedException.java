@@ -27,6 +27,10 @@ abstract public class ConstraintViolatedException extends Exception {
 
     }
 
+    public ConstraintViolatedException(Notes notes) {
+        notes_ = notes;
+    }
+
     public String getPath() {
         return path_;
     }

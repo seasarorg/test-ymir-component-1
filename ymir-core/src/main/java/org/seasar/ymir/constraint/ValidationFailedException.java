@@ -1,5 +1,6 @@
 package org.seasar.ymir.constraint;
 
+import org.seasar.ymir.Notes;
 
 public class ValidationFailedException extends ConstraintViolatedException {
 
@@ -21,5 +22,10 @@ public class ValidationFailedException extends ConstraintViolatedException {
     public ValidationFailedException(String message, Throwable cause) {
 
         super(message, cause);
+    }
+
+    public ValidationFailedException(Notes notes) {
+
+        super(notes);
     }
 }

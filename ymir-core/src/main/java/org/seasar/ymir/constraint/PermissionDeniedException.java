@@ -1,5 +1,7 @@
 package org.seasar.ymir.constraint;
 
+import org.seasar.ymir.Notes;
+
 public class PermissionDeniedException extends ConstraintViolatedException {
 
     private static final long serialVersionUID = -7495239316902981080L;
@@ -20,5 +22,10 @@ public class PermissionDeniedException extends ConstraintViolatedException {
     public PermissionDeniedException(String message, Throwable cause) {
 
         super(message, cause);
+    }
+
+    public PermissionDeniedException(Notes notes) {
+
+        super(notes);
     }
 }
