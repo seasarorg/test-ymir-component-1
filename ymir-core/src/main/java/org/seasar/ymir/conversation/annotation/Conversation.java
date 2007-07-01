@@ -12,7 +12,5 @@ public @interface Conversation {
 
     String phase() default "";
 
-    boolean alwaysCreateConversation() default true;
-
     String[] followAfter() default {};
 }

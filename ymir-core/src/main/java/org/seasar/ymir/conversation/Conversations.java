@@ -12,8 +12,7 @@ public interface Conversations {
 
     void setAttribute(String conversationName, String name, Object value);
 
-    void join(String conversationName, String phase,
-            boolean alwaysCreateConversation, String[] followAfter);
+    void join(String conversationName, String phase, String[] followAfter);
 
     void beginSubConversation(String conversationName, String reenterPath);
 

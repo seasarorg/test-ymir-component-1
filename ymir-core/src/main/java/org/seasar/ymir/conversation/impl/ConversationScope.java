@@ -5,6 +5,7 @@ import javax.servlet.http.HttpSession;
 
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.conversation.annotation.Conversation;
 import org.seasar.ymir.scope.Scope;
@@ -17,10 +18,8 @@ public class ConversationScope implements Scope {
     public static final String ATTR_CONVERSATIONS = ATTRPREFIX_CONVERSATION
             + "conversations";
 
-    private S2Container container_;
-
-    public void setS2Container(S2Container container) {
-        container_ = container.getRoot();
+    S2Container getS2Container() {
+        return YmirContext.getYmir().getApplication().getS2Container();
     }
 
     public Object getAttribute(String name) {
@@ -65,7 +64,8 @@ public class ConversationScope implements Scope {
     }
 
     Object getPage() {
-        return container_.getComponent(((Request) container_
+        S2Container container = getS2Container();
+        return container.getComponent(((Request) container
                 .getComponent(Request.class)).getComponentName());
     }
 
@@ -79,7 +79,7 @@ public class ConversationScope implements Scope {
     }
 
     HttpSession getSession(boolean create) {
-        return ((HttpServletRequest) container_.getRoot().getExternalContext()
+        return ((HttpServletRequest) getS2Container().getExternalContext()
                 .getRequest()).getSession(create);
     }
 }

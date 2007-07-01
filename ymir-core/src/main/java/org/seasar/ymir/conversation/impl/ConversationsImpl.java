@@ -62,7 +62,7 @@ public class ConversationsImpl implements Conversations {
     }
 
     public synchronized void join(String conversationName, String phase,
-            boolean alwaysCreateConversation, String[] followAfter) {
+            String[] followAfter) {
         if (followAfter.length > 0) {
             if (currentConversation_ == null
                     || !currentConversation_.getName().equals(conversationName)) {
@@ -95,14 +95,7 @@ public class ConversationsImpl implements Conversations {
             if (!conversationName.equals(subConversation_)) {
                 // 開始されたsub-conversationと一致しない、もしくはsub-conversationが
                 // 開始されていない場合は以前のconversationを破棄する。
-                // ただしalwaysCreateConversationがfalseでかつ現在のconversationが
-                // 指定されたconversationと同じ場合だけはconversationを破棄しない。
-                if (alwaysCreateConversation
-                        || currentConversation_ == null
-                        || !currentConversation_.getName().equals(
-                                conversationName)) {
-                    clear();
-                }
+                clear();
             }
 
             currentConversation_ = newConversation(conversationName);
