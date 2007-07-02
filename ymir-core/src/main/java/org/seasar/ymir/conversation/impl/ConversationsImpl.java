@@ -63,6 +63,14 @@ public class ConversationsImpl implements Conversations {
 
     public synchronized void join(String conversationName, String phase,
             String[] followAfter) {
+        if (currentConversation_ != null
+                && currentConversation_.getName().equals(conversationName)
+                && (phase == null && currentConversation_.getPhase() == null || phase != null
+                        && phase.equals(currentConversation_.getPhase()))) {
+            // フェーズが現在のフェーズと同じ場合は何もしない。
+            return;
+        }
+
         if (followAfter.length > 0) {
             if (currentConversation_ == null
                     || !currentConversation_.getName().equals(conversationName)) {
@@ -70,6 +78,7 @@ public class ConversationsImpl implements Conversations {
                 clear();
                 throw new IllegalTransitionRuntimeException();
             }
+
             String currentPhase = currentConversation_.getPhase();
             boolean matched = false;
             for (int i = 0; i < followAfter.length; i++) {
