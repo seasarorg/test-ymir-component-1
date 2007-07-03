@@ -12,8 +12,8 @@ import org.seasar.ymir.constraint.annotation.Numeric;
 public class NumericConstraint extends AbstractConstraint<Numeric> {
     public void confirm(Object component, Request request, Numeric annotation,
             AnnotatedElement element) throws ConstraintViolatedException {
-        String[] names = add(annotation.value(), annotation.property(),
-                getPropertyName(element));
+        String[] names = getParameterNames(request, annotation.value(),
+                annotation.property(), getPropertyName(element));
         if (names.length == 0) {
             throw new IllegalArgumentException(
                     "Please specify at least one property: " + element);

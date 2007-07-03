@@ -1,5 +1,7 @@
 package org.seasar.ymir.constraint.impl;
 
+import org.seasar.ymir.Notes;
+import org.seasar.ymir.constraint.Constraint;
 import org.seasar.ymir.constraint.ConstraintTestCase;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.Required;
@@ -22,6 +24,10 @@ public class RequiredConstraintTest extends
 
     @Required(completely = true)
     public void setValue2(String value2) {
+    }
+
+    @Required("#values\\[\\d+\\]\\.value")
+    public void setValue3(String value3) {
     }
 
     public void testValidate_パラメータが指定されていない場合() throws Exception {
@@ -73,6 +79,26 @@ public class RequiredConstraintTest extends
             confirm(getSetterMethod("value2"));
             fail();
         } catch (ValidationFailedException expected) {
+        }
+    }
+
+    public void testValidate_パラメータ名が正規表現で指定されている場合に正しく動作すること() throws Exception {
+        getRequest().getParameterMap().put("value3", new String[] { "a" });
+        getRequest().getParameterMap().put("values[0].value",
+                new String[] { "" });
+        getRequest().getParameterMap().put("values[1].value",
+                new String[] { "a" });
+
+        try {
+            confirm(getSetterMethod("value3"));
+        } catch (ValidationFailedException expected) {
+            Notes notes = expected.getNotes();
+            assertNotNull(notes);
+            assertEquals(1, notes.size());
+            assertEquals(Constraint.PREFIX_MESSAGEKEY + "required", notes
+                    .getNotes()[0].getValue());
+            assertEquals("values[0].value",
+                    notes.getNotes()[0].getParameters()[0]);
         }
     }
 }

@@ -12,7 +12,7 @@ import org.seasar.ymir.constraint.annotation.Length;
 public class LengthConstraint extends AbstractConstraint<Length> {
     public void confirm(Object component, Request request, Length annotation,
             AnnotatedElement element) throws ConstraintViolatedException {
-        String[] names = add(annotation.property(), getPropertyName(element));
+        String[] names = getParameterNames(request, annotation.property(), getPropertyName(element));
         if (names.length == 0) {
             throw new IllegalArgumentException(
                     "Please specify at least one property: " + element);

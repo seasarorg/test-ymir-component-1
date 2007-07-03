@@ -13,7 +13,7 @@ import org.seasar.ymir.constraint.annotation.Required;
 public class RequiredConstraint extends AbstractConstraint<Required> {
     public void confirm(Object component, Request request, Required annotation,
             AnnotatedElement element) throws ConstraintViolatedException {
-        String[] names = add(annotation.value(), getPropertyName(element));
+        String[] names = getParameterNames(request, annotation.value(), getPropertyName(element));
         if (names.length == 0) {
             throw new IllegalArgumentException(
                     "Please specify at least one property: " + element);
