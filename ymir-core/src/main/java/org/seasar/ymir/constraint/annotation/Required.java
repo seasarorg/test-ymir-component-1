@@ -13,4 +13,6 @@ import org.seasar.ymir.constraint.impl.RequiredConstraint;
 @ConstraintAnnotation(type = ConstraintType.VALIDATION, component = RequiredConstraint.class)
 public @interface Required {
     String[] value() default {};
+
+    boolean completely() default false;
 }

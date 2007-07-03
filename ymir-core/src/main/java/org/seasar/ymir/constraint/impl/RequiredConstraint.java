@@ -21,7 +21,7 @@ public class RequiredConstraint extends AbstractConstraint<Required> {
 
         Notes notes = new Notes();
         for (int i = 0; i < names.length; i++) {
-            if (isEmpty(request, names[i])) {
+            if (isEmpty(request, names[i], annotation.completely())) {
                 notes.add(names[i], new Note(PREFIX_MESSAGEKEY + "required",
                         new Object[] { names[i] }));
             }
@@ -31,14 +31,38 @@ public class RequiredConstraint extends AbstractConstraint<Required> {
         }
     }
 
-    boolean isEmpty(Request request, String name) {
-        String value = request.getParameter(name);
-        if (value != null && value.length() > 0) {
-            return false;
+    boolean isEmpty(Request request, String name, boolean completely) {
+        String[] values = request.getParameterValues(name);
+        if (values != null) {
+            if (completely) {
+                for (int i = 0; i < values.length; i++) {
+                    if (values[i].length() == 0) {
+                        return true;
+                    }
+                }
+            } else {
+                for (int i = 0; i < values.length; i++) {
+                    if (values[i].length() > 0) {
+                        return false;
+                    }
+                }
+            }
         }
-        FormFile file = request.getFileParameter(name);
-        if (file != null && file.getSize() > 0) {
-            return false;
+        FormFile[] files = request.getFileParameterValues(name);
+        if (files != null) {
+            if (completely) {
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].getSize() == 0) {
+                        return true;
+                    }
+                }
+            } else {
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].getSize() > 0) {
+                        return false;
+                    }
+                }
+            }
         }
         return true;
     }
