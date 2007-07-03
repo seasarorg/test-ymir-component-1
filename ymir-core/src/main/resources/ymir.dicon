@@ -33,6 +33,14 @@
       <arg>"org.seasar.ymir.constraint.impl"</arg>
       <arg>"Abstract.*"</arg>
     </initMethod>
+    <initMethod name="addClassPattern">
+      <arg>"org.seasar.ymir.interceptor.impl"</arg>
+      <arg>".*Interceptor"</arg>
+    </initMethod>
+    <initMethod name="addIgnoreClassPattern">
+      <arg>"org.seasar.ymir.interceptor.impl"</arg>
+      <arg>"Abstract.*"</arg>
+    </initMethod>
     <initMethod name="registerAll" />
   </component>
   <component
@@ -45,7 +53,8 @@
       </meta>
     </property>
   </component>
-  <component name="requestProcessor" class="org.seasar.ymir.impl.DefaultRequestProcessor">
+  <component name="requestProcessor"
+    class="org.seasar.ymir.impl.DefaultRequestProcessor">
     <property name="updaters" bindingType="none">
       <meta name="delayed">
         @org.seasar.cms.pluggable.util.PluggableUtils@findAscendantComponents(container,
@@ -53,8 +62,10 @@
       </meta>
     </property>
   </component>
-  <component name="responseProcessor" class="org.seasar.ymir.impl.DefaultResponseProcessor" />
-  <component name="exceptionProcessor" class="org.seasar.ymir.impl.DefaultExceptionProcessor" />
+  <component name="responseProcessor"
+    class="org.seasar.ymir.impl.DefaultResponseProcessor" />
+  <component name="exceptionProcessor"
+    class="org.seasar.ymir.impl.DefaultExceptionProcessor" />
   <component
     class="org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl" />
   <component

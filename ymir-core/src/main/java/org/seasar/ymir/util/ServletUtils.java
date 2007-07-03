@@ -18,6 +18,14 @@ public class ServletUtils {
 
     public static final String ATTR_INCLUDE_SERVLET_PATH = "javax.servlet.include.servlet_path";
 
+    private static final String PROTOCOL_HTTP = "http";
+
+    private static final String PROTOCOL_HTTPS = "https";
+
+    private static final int PORT_HTTP = 80;
+
+    private static final int PORT_HTTPS = 443;
+
     private ServletUtils() {
     }
 
@@ -140,5 +148,28 @@ public class ServletUtils {
                     "no-cache,no-store,must-revalidate");
             response.setDateHeader("Expires", 1);
         }
+    }
+
+    public static String constructRequestURL(HttpServletRequest request,
+            String protocol, int port) {
+        StringBuilder sb = new StringBuilder(256);
+        sb.append(protocol).append("://");
+        sb.append(request.getServerName());
+        if (!(PROTOCOL_HTTP.equals(protocol) && port == PORT_HTTP || PROTOCOL_HTTPS
+                .equals(protocol)
+                && port == PORT_HTTPS)) {
+            sb.append(':').append(port);
+        }
+        sb.append(request.getContextPath());
+        sb.append(request.getServletPath());
+        String pathInfo = request.getPathInfo();
+        if (pathInfo != null) {
+            sb.append(pathInfo);
+        }
+        String queryString = request.getQueryString();
+        if (queryString != null) {
+            sb.append('?').append(queryString);
+        }
+        return sb.toString();
     }
 }

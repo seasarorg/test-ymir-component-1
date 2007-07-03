@@ -1,12 +1,5 @@
 package org.seasar.ymir.impl;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -32,7 +25,7 @@ import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.MatchedPathMapping;
-import org.seasar.ymir.Notes;
+import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.PageNotFoundException;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
@@ -41,21 +34,16 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.ScopeAttribute;
 import org.seasar.ymir.Updater;
-import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
-import org.seasar.ymir.annotation.SuppressConstraints;
-import org.seasar.ymir.annotation.Validator;
 import org.seasar.ymir.beanutils.FormFileArrayConverter;
 import org.seasar.ymir.beanutils.FormFileConverter;
-import org.seasar.ymir.constraint.Constraint;
 import org.seasar.ymir.constraint.ConstraintType;
-import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.PermissionDeniedException;
-import org.seasar.ymir.constraint.ValidationFailedException;
-import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
+import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
+import org.seasar.ymir.util.MethodUtils;
 
 public class DefaultRequestProcessor implements RequestProcessor {
 
@@ -75,6 +63,8 @@ public class DefaultRequestProcessor implements RequestProcessor {
     private final BeanUtilsBean beanUtilsBean_;
 
     private ThreadContext threadContext_;
+
+    private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
 
     private final Logger logger_ = Logger.getLogger(getClass());
 
@@ -107,6 +97,12 @@ public class DefaultRequestProcessor implements RequestProcessor {
         updaters_ = updaters;
     }
 
+    public void setYmirProcessInterceptors(
+            YmirProcessInterceptor[] ymirProcessInterceptors) {
+
+        ymirProcessInterceptors_ = ymirProcessInterceptors;
+    }
+
     public Request prepareForProcessing(String contextPath, String path,
             String method, String dispatcher,
             Map<String, String[]> parameterMap,
@@ -119,9 +115,13 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
         MatchedPathMapping matched = findMatchedPathMapping(path, method);
 
-        return new RequestImpl(contextPath, path, method, dispatcher,
-                parameterMap, fileParameterMap, attributeContainer, locale,
-                matched);
+        Request request = new RequestImpl(contextPath, path, method,
+                dispatcher, parameterMap, fileParameterMap, attributeContainer,
+                locale, matched);
+        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+            request = ymirProcessInterceptors_[i].filterRequest(request);
+        }
+        return request;
     }
 
     String correctMethod(String method, Map parameterMap) {
@@ -193,10 +193,19 @@ public class DefaultRequestProcessor implements RequestProcessor {
             throw new PageNotFoundException(request.getPath());
         }
 
-        Response response = PassthroughResponse.INSTANCE;
+        Response response = null;
         if (request.isMatched()) {
             Object component = getComponent(request);
             if (component != null) {
+                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                    ymirProcessInterceptors_[i]
+                            .beginProcessingComponent(component);
+                }
+                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                    component = ymirProcessInterceptors_[i]
+                            .filterComponent(component);
+                }
+
                 PagePropertyBag bag = new PagePropertyBag(component.getClass(),
                         getS2Container());
 
@@ -209,9 +218,20 @@ public class DefaultRequestProcessor implements RequestProcessor {
                 if (action != null) {
                     request.setActionName(action.getName());
                 }
-                response = normalizeResponse(adjustResponse(request,
-                        invokeAction(component, action, request, true),
-                        component), request.getPath());
+
+                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                    response = ymirProcessInterceptors_[i].beginInvokingAction(
+                            component, action, request);
+                    if (response != null) {
+                        break;
+                    }
+                }
+
+                if (response == null) {
+                    response = normalizeResponse(adjustResponse(request,
+                            invokeMethod(component, action, request, true),
+                            component), request.getPath());
+                }
 
                 ResponseType responseType = response.getType();
                 if (responseType == ResponseType.PASSTHROUGH
@@ -219,8 +239,8 @@ public class DefaultRequestProcessor implements RequestProcessor {
                     // 画面描画のためのAction呼び出しを行なう。
                     // （画面描画のためのAction呼び出しの際にはAction付随の制約以外の
                     // 制約チェックを行なわない。）
-                    invokeAction(component, getActionMethod(component,
-                            ACTION_RENDER, null, false, request), request,
+                    invokeMethod(component, getActionMethod(component,
+                            METHOD_RENDER, null, false, request), request,
                             false);
                 }
 
@@ -236,6 +256,8 @@ public class DefaultRequestProcessor implements RequestProcessor {
                 response = normalizeResponse(constructDefaultResponse(request,
                         component), request.getPath());
             }
+        } else {
+            response = PassthroughResponse.INSTANCE;
         }
 
         if (logger_.isDebugEnabled()) {
@@ -277,73 +299,6 @@ public class DefaultRequestProcessor implements RequestProcessor {
         } else {
             return response;
         }
-    }
-
-    Notes confirmConstraint(Object component, Method action, Request request)
-            throws PermissionDeniedException {
-
-        boolean validationFailed = false;
-        Notes notes = new Notes();
-        ConstraintBag[] bag = getConstraintBags(component, action);
-        for (int i = 0; i < bag.length; i++) {
-            try {
-                bag[i].confirm(component, request);
-            } catch (PermissionDeniedException ex) {
-                throw ex;
-            } catch (ValidationFailedException ex) {
-                validationFailed = true;
-                notes.add(ex.getNotes());
-            } catch (ConstraintViolatedException ex) {
-                throw new RuntimeException("May logic error", ex);
-            }
-        }
-
-        // Validatorアノテーションがついているメソッドを実行する。
-        Method[] validators = gatherValidators(component);
-        for (int i = 0; i < validators.length; i++) {
-            try {
-                Object invoked = validators[i].invoke(component, new Object[0]);
-                if (invoked instanceof Notes) {
-                    Notes ns = (Notes) invoked;
-                    if (!ns.isEmpty()) {
-                        validationFailed = true;
-                        notes.add(ns);
-                    }
-                }
-            } catch (IllegalArgumentException ex) {
-                throw new RuntimeException("May logic error", ex);
-            } catch (IllegalAccessException ex) {
-                throw new RuntimeException("May logic error", ex);
-            } catch (InvocationTargetException ex) {
-                Throwable cause = ex.getCause();
-                if (cause instanceof ValidationFailedException) {
-                    validationFailed = true;
-                    notes.add(((ValidationFailedException) cause).getNotes());
-                }
-            }
-        }
-
-        if (validationFailed) {
-            return notes;
-        } else {
-            return null;
-        }
-    }
-
-    Method[] gatherValidators(Object component) {
-        List<Method> validatorList = new ArrayList<Method>();
-        Method[] methods = component.getClass().getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            if (methods[i].isAnnotationPresent(Validator.class)) {
-                if (methods[i].getParameterTypes().length > 0) {
-                    // 引数を持つメソッドにはValidatorアノテーションはつけられない。
-                    throw new RuntimeException(
-                            "@Validator must be annotated on a method that has no parameters");
-                }
-                validatorList.add(methods[i]);
-            }
-        }
-        return validatorList.toArray(new Method[0]);
     }
 
     Object getRequestComponent(Request request) {
@@ -433,65 +388,33 @@ public class DefaultRequestProcessor implements RequestProcessor {
         return threadContext_;
     }
 
-    Response invokeAction(Object component, Method action, Request request,
-            boolean confirmConstraints) throws PermissionDeniedException {
+    Response invokeMethod(Object component, Method action, Request request,
+            boolean invokeAsAction) throws PermissionDeniedException {
 
         Response response = PassthroughResponse.INSTANCE;
-        Object[] params = new Object[0];
+        MethodInvoker methodInvoker = null;
+        if (action != null) {
+            methodInvoker = new MethodInvokerImpl(action, new Object[0]);
+        }
 
-        if (confirmConstraints) {
-            // 制約チェックを行なう。
-            try {
-                Notes notes = confirmConstraint(component, action, request);
-                if (notes != null) {
-                    request.setAttribute(ATTR_NOTES, notes);
-
-                    // バリデーションエラーが発生した場合は、エラー処理メソッドが存在すればそれを呼び出す。
-                    // メソッドが存在しなければ何もしない（元のアクションメソッドの呼び出しをスキップする）。
-                    action = getActionMethod(component,
-                            ACTION_VALIDATIONFAILED,
-                            new Class[] { Notes.class });
-                    if (action != null) {
-                        params = new Object[] { notes };
-                    } else {
-                        action = getActionMethod(component,
-                                ACTION_VALIDATIONFAILED);
-                    }
-                }
-            } catch (PermissionDeniedException ex) {
-                // 権限エラーが発生した場合は、エラー処理メソッドが存在すればそれを呼び出す。
-                // メソッドが存在しなければPermissionDeniedExceptionを上に再スローする。
-                action = getActionMethod(component, ACTION_PERMISSIONDENIED,
-                        new Class[] { PermissionDeniedException.class });
-                if (action != null) {
-                    params = new Object[] { ex };
-                } else {
-                    action = getActionMethod(component, ACTION_PERMISSIONDENIED);
-                }
-                if (action == null) {
-                    throw ex;
+        if (invokeAsAction) {
+            for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                MethodInvoker result = ymirProcessInterceptors_[i]
+                        .aboutToInvokeAction(component, request, methodInvoker);
+                if (result != methodInvoker) {
+                    // 呼び出しメソッドが変えられていたら処理を中断する。
+                    break;
                 }
             }
         }
 
-        if (action != null) {
+        if (methodInvoker != null) {
             if (logger_.isDebugEnabled()) {
                 logger_.debug("INVOKE: " + component.getClass().getName() + "#"
                         + action);
             }
-            Object returnValue;
-            try {
-                returnValue = action.invoke(component, params);
-            } catch (IllegalArgumentException ex) {
-                throw new RuntimeException(ex);
-            } catch (IllegalAccessException ex) {
-                throw new RuntimeException(ex);
-            } catch (InvocationTargetException ex) {
-                throw new WrappingRuntimeException(ex.getCause() != null ? ex
-                        .getCause() : ex);
-            }
-            response = constructResponse(component, action.getReturnType(),
-                    returnValue);
+            response = constructResponse(component, methodInvoker.getMethod()
+                    .getReturnType(), methodInvoker.invoke(component));
             if (logger_.isDebugEnabled()) {
                 logger_.debug("RESPONSE: " + response);
             }
@@ -559,9 +482,9 @@ public class DefaultRequestProcessor implements RequestProcessor {
             }
         }
 
-        Method method = getActionMethod(component, actionName);
+        Method method = MethodUtils.getMethod(component, actionName);
         if (method == null && defaultActionName != null) {
-            method = getActionMethod(component, defaultActionName);
+            method = MethodUtils.getMethod(component, defaultActionName);
         }
 
         if (logger_.isDebugEnabled()) {
@@ -614,23 +537,6 @@ public class DefaultRequestProcessor implements RequestProcessor {
         return (resourceSet != null && resourceSet.contains(normalized));
     }
 
-    public Method getActionMethod(Object component, String actionName) {
-
-        return getActionMethod(component, actionName, new Class[0]);
-    }
-
-    public Method getActionMethod(Object component, String actionName,
-            Class[] paramTypes) {
-
-        try {
-            return component.getClass().getMethod(actionName, paramTypes);
-        } catch (SecurityException ex) {
-            return null;
-        } catch (NoSuchMethodException ex) {
-            return null;
-        }
-    }
-
     @SuppressWarnings("unchecked")
     Response constructResponse(Object component, Class<?> type,
             Object returnValue) {
@@ -653,72 +559,6 @@ public class DefaultRequestProcessor implements RequestProcessor {
                     .constructResponse(component, returnValue);
         } finally {
             Thread.currentThread().setContextClassLoader(oldLoader);
-        }
-    }
-
-    protected ConstraintBag[] getConstraintBags(Object component, Method action) {
-        return getConstraints(component.getClass(), action);
-    }
-
-    // PropertyDescriptorのreadMethodは対象外。fieldも対象外。
-    ConstraintBag[] getConstraints(Class<?> clazz, Method action) {
-        List<ConstraintBag> list = new ArrayList<ConstraintBag>();
-
-        Set<ConstraintType> suppressTypeSet = EnumSet
-                .noneOf(ConstraintType.class);
-        if (action != null) {
-            SuppressConstraints suppress = action
-                    .getAnnotation(SuppressConstraints.class);
-            if (suppress != null) {
-                ConstraintType[] types = suppress.value();
-                for (int i = 0; i < types.length; i++) {
-                    suppressTypeSet.add(types[i]);
-                }
-            }
-        }
-        getConstraint(clazz, list, suppressTypeSet);
-        BeanInfo beanInfo;
-        try {
-            beanInfo = Introspector.getBeanInfo(clazz);
-        } catch (IntrospectionException ex) {
-            throw new RuntimeException(ex);
-        }
-        PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
-        for (int i = 0; i < pds.length; i++) {
-            getConstraint(pds[i].getWriteMethod(), list, suppressTypeSet);
-        }
-        getConstraint(action, list, EMPTY_SUPPRESSTYPESET);
-
-        return list.toArray(new ConstraintBag[0]);
-    }
-
-    @SuppressWarnings("unchecked")
-    void getConstraint(AnnotatedElement element, List<ConstraintBag> list,
-            Set<ConstraintType> suppressTypeSet) {
-        if (element == null) {
-            return;
-        }
-        Annotation[] annotations = element.getAnnotations();
-        for (int i = 0; i < annotations.length; i++) {
-            ConstraintAnnotation constraintAnnotation = annotations[i]
-                    .annotationType().getAnnotation(ConstraintAnnotation.class);
-            if (constraintAnnotation == null
-                    || suppressTypeSet.contains(constraintAnnotation.type())) {
-                continue;
-            }
-            list.add(new ConstraintBag(((Constraint) getS2Container()
-                    .getComponent(constraintAnnotation.component())),
-                    annotations[i], element));
-        }
-    }
-
-    Method getMethod(Class clazz, String name) {
-        try {
-            return clazz.getMethod(name, new Class[0]);
-        } catch (SecurityException ex) {
-            return null;
-        } catch (NoSuchMethodException ex) {
-            return null;
         }
     }
 }

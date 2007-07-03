@@ -7,13 +7,21 @@ import org.seasar.ymir.constraint.PermissionDeniedException;
 
 public interface RequestProcessor {
 
-    String ACTION_DEFAULT = "_default";
-
-    String ACTION_RENDER = "_render";
-
+    /**
+     * 代わりにConstraintInterceptor#ACTION_VALIDATIONFAILEDを使って下さい。
+     */
+    @Deprecated
     String ACTION_VALIDATIONFAILED = "_validationFailed";
 
+    /**
+     * 代わりにConstraintInterceptor#ACTION_PERMISSIONDENIEDを使って下さい。
+     */
+    @Deprecated
     String ACTION_PERMISSIONDENIED = "_permissionDenied";
+
+    String ACTION_DEFAULT = "_default";
+
+    String METHOD_RENDER = "_render";
 
     String ATTR_SELF = "self";
 
