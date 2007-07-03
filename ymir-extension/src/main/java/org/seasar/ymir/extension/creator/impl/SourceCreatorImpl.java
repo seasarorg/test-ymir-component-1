@@ -380,7 +380,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
                 MethodDesc md = pageClassDescs[i]
                         .getMethodDesc(new MethodDescImpl(
-                                RequestProcessor.ACTION_RENDER));
+                                RequestProcessor.METHOD_RENDER));
                 if (md != null && td.isArray() && pds[j].isReadable()
                         && daoExists && dxoExists) {
                     addSelectStatement(md, pds[j], metaData);
@@ -420,7 +420,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     pathMetaData.getPath(), method)));
             // _render()を追加する。
             pageClassDesc.setMethodDesc(new MethodDescImpl(
-                    RequestProcessor.ACTION_RENDER));
+                    RequestProcessor.METHOD_RENDER));
             // _validationFailed(Notes)を追加する。
             MethodDescImpl methodDesc = new MethodDescImpl(
                     RequestProcessor.ACTION_VALIDATIONFAILED);
@@ -685,7 +685,7 @@ public class SourceCreatorImpl implements SourceCreator {
         Map<String, Object> root = new HashMap<String, Object>();
         root.put("entityMetaData", metaData);
         if (bodyDesc == null) {
-            bodyDesc = new BodyDescImpl(RequestProcessor.ACTION_RENDER, root);
+            bodyDesc = new BodyDescImpl(RequestProcessor.METHOD_RENDER, root);
         } else {
             bodyDesc.setRoot(root);
         }

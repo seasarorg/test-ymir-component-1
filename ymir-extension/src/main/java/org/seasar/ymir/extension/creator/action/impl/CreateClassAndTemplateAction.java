@@ -93,7 +93,7 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
                 + quote("redirect:" + redirectPath) + ";"));
         classDesc.setMethodDesc(methodDesc);
         classDesc.setMethodDesc(new MethodDescImpl(
-                DefaultRequestProcessor.ACTION_RENDER));
+                DefaultRequestProcessor.METHOD_RENDER));
 
         String[] lackingClassNames = null;
         try {
