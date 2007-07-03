@@ -15,6 +15,8 @@ public class ConversationImpl implements Conversation {
 
     private String phase_;
 
+    private String reenterPath_;
+
     public ConversationImpl(String name) {
         name_ = name;
     }
@@ -46,5 +48,13 @@ public class ConversationImpl implements Conversation {
 
     public synchronized void setPhase(String phase) {
         phase_ = phase;
+    }
+
+    public String getReenterPath() {
+        return reenterPath_;
+    }
+
+    public void setReenterPath(String reenterPath) {
+        reenterPath_ = reenterPath;
     }
 }

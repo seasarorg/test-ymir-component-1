@@ -1,10 +1,8 @@
 package org.seasar.ymir.conversation.impl;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Set;
 
 import org.seasar.ymir.conversation.Conversation;
@@ -15,117 +13,107 @@ import org.seasar.ymir.conversation.IllegalTransitionRuntimeException;
  * このクラスはスレッドセーフです。
  */
 public class ConversationsImpl implements Conversations {
-    private Map<String, Conversation> conversationMap_ = new HashMap<String, Conversation>();
-
     private LinkedList<Conversation> conversationStack_ = new LinkedList<Conversation>();
 
     private Set<String> stackedConversationNameSet_ = new HashSet<String>();
 
     private Conversation currentConversation_;
 
-    private String subConversation_;
+    private String subConversationName_;
 
-    public Conversation getConversation(String conversationName) {
-        return getConversation(conversationName, true);
-    }
-
-    public synchronized Conversation getConversation(String conversationName,
-            boolean create) {
-        Conversation conversation = conversationMap_.get(conversationName);
-        if (conversation == null && create) {
-            conversation = newConversation(conversationName);
-            conversationMap_.put(conversationName, conversation);
-        }
-        return conversation;
+    public Conversation getCurrentConversation() {
+        return currentConversation_;
     }
 
     Conversation newConversation(String conversationName) {
         return new ConversationImpl(conversationName);
     }
 
-    public Object getAttribute(String conversationName, String name) {
-        Conversation conversation = getConversation(conversationName, false);
-        if (conversation == null) {
-            return null;
+    public synchronized Object getAttribute(String name) {
+        if (currentConversation_ != null) {
+            return currentConversation_.getAttribute(name);
         } else {
-            return conversation.getAttribute(name);
+            return null;
         }
     }
 
-    public void setAttribute(String conversationName, String name, Object value) {
-        getConversation(conversationName).setAttribute(name, value);
+    public synchronized void setAttribute(String name, Object value) {
+        if (currentConversation_ != null) {
+            currentConversation_.setAttribute(name, value);
+        }
     }
 
-    public String finish() {
-        // TODO Auto-generated method stub 実装足りてない。
-        return null;
+    public synchronized void begin(String conversationName, String phase) {
+        if (stackedConversationNameSet_.contains(conversationName)) {
+            // 同一conversationが入れ子になっている場合は不正遷移。
+            clear();
+            throw new IllegalTransitionRuntimeException();
+        }
+
+        if (!conversationName.equals(subConversationName_)) {
+            // 開始されたsub-conversationと一致しない、もしくはsub-conversationが
+            // 開始されていない場合は以前のconversationを破棄する。
+            clear();
+        }
+
+        currentConversation_ = newConversation(conversationName);
+        currentConversation_.setPhase(phase);
+        subConversationName_ = null;
+    }
+
+    public synchronized String end() {
+        removeCurrentConversation();
+        if (conversationStack_.size() > 0) {
+            currentConversation_ = conversationStack_.removeLast();
+            updateStackedConversationNameSet();
+            return currentConversation_.getReenterPath();
+        } else {
+            return null;
+        }
     }
 
     public synchronized void join(String conversationName, String phase,
             String[] followAfter) {
-        if (currentConversation_ != null
-                && currentConversation_.getName().equals(conversationName)
-                && (phase == null && currentConversation_.getPhase() == null || phase != null
-                        && phase.equals(currentConversation_.getPhase()))) {
+        if (currentConversation_ == null
+                || !currentConversation_.getName().equals(conversationName)) {
+            // 現在のconversationが同一conversationではない。
+            clear();
+            throw new IllegalTransitionRuntimeException();
+        }
+
+        String currentPhase = currentConversation_.getPhase();
+        if (phase == null && currentPhase == null || phase != null
+                && phase.equals(currentPhase)) {
             // フェーズが現在のフェーズと同じ場合は何もしない。
             return;
         }
 
-        if (followAfter.length > 0) {
-            if (currentConversation_ == null
-                    || !currentConversation_.getName().equals(conversationName)) {
-                // 現在のconversationが同一conversationではない。
-                clear();
-                throw new IllegalTransitionRuntimeException();
+        boolean matched = false;
+        for (int i = 0; i < followAfter.length; i++) {
+            if (followAfter[i].equals(currentPhase)) {
+                matched = true;
+                break;
             }
-
-            String currentPhase = currentConversation_.getPhase();
-            boolean matched = false;
-            for (int i = 0; i < followAfter.length; i++) {
-                if (followAfter[i].equals(currentPhase)) {
-                    matched = true;
-                    break;
-                }
-            }
-            if (!matched) {
-                // 現在のconversationが指定されたフェーズでない。
-                clear();
-                throw new IllegalTransitionRuntimeException();
-            }
-
-            currentConversation_.setPhase(phase);
-        } else {
-            if (stackedConversationNameSet_.contains(conversationName)) {
-                // 同一conversationが入れ子になっている場合は不正遷移。
-                clear();
-                throw new IllegalTransitionRuntimeException();
-            }
-
-            if (!conversationName.equals(subConversation_)) {
-                // 開始されたsub-conversationと一致しない、もしくはsub-conversationが
-                // 開始されていない場合は以前のconversationを破棄する。
-                clear();
-            }
-
-            currentConversation_ = newConversation(conversationName);
-            currentConversation_.setPhase(phase);
-            conversationMap_.put(conversationName, currentConversation_);
-            subConversation_ = null;
         }
+        if (!matched) {
+            // 現在のconversationが指定されたフェーズでない。
+            clear();
+            throw new IllegalTransitionRuntimeException();
+        }
+
+        currentConversation_.setPhase(phase);
     }
 
-    public void removeCurrentConversation() {
+    void removeCurrentConversation() {
         if (currentConversation_ != null) {
             currentConversation_ = null;
-            conversationMap_.remove(currentConversation_);
         }
-        subConversation_ = null;
+        subConversationName_ = null;
     }
 
-    public void clear() {
+    void clear() {
         currentConversation_ = null;
-        subConversation_ = null;
-        conversationMap_.clear();
+        subConversationName_ = null;
         conversationStack_.clear();
         stackedConversationNameSet_.clear();
     }
@@ -138,9 +126,12 @@ public class ConversationsImpl implements Conversations {
         }
     }
 
-    public void beginSubConversation(String conversationName, String reenterPath) {
-        // TODO Auto-generated method stub 実装足りてない。
+    public synchronized void beginSubConversation(String conversationName,
+            String reenterPath) {
+        currentConversation_.setReenterPath(reenterPath);
         conversationStack_.addLast(currentConversation_);
-        stackedConversationNameSet_.add(conversationName);
+        stackedConversationNameSet_.add(currentConversation_.getName());
+        currentConversation_ = null;
+        subConversationName_ = conversationName;
     }
 }
