@@ -3,7 +3,6 @@ package org.seasar.ymir.extension.freemarker;
 import java.util.HashMap;
 
 import org.seasar.ymir.Application;
-import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.YmirTestCase;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -18,6 +17,7 @@ import org.seasar.ymir.extension.creator.impl.PropertyDescImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.extension.creator.impl.ThrowsDescImpl;
 import org.seasar.ymir.extension.creator.mock.MockSourceCreator;
+import org.seasar.ymir.interceptor.impl.CheckConstraintInterceptor;
 import org.seasar.ymir.mock.MockApplication;
 
 import com.example.page.TestPageBaseBase;
@@ -156,7 +156,7 @@ public class FreemarkerSourceGeneratorTest extends YmirTestCase {
                 .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
                         PermissionDeniedException.class, "ex") });
         methodDesc.setBodyDesc(new BodyDescImpl(
-                RequestProcessor.ACTION_PERMISSIONDENIED,
+                CheckConstraintInterceptor.ACTION_PERMISSIONDENIED,
                 new HashMap<String, Object>()));
         classDesc.setMethodDesc(methodDesc);
 
@@ -185,7 +185,7 @@ public class FreemarkerSourceGeneratorTest extends YmirTestCase {
                 .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
                         PermissionDeniedException.class, "ex") });
         methodDesc.setBodyDesc(new BodyDescImpl(
-                RequestProcessor.ACTION_PERMISSIONDENIED,
+                CheckConstraintInterceptor.ACTION_PERMISSIONDENIED,
                 new HashMap<String, Object>()));
         generated.setMethodDesc(methodDesc);
 

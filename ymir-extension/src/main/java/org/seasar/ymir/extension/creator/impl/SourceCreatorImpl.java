@@ -102,6 +102,7 @@ import org.seasar.ymir.extension.creator.action.impl.ResourceAction;
 import org.seasar.ymir.extension.creator.action.impl.SystemConsoleAction;
 import org.seasar.ymir.extension.creator.action.impl.UpdateClassesAction;
 import org.seasar.ymir.impl.DefaultRequestProcessor;
+import org.seasar.ymir.interceptor.impl.CheckConstraintInterceptor;
 
 import net.skirnir.freyja.EvaluationRuntimeException;
 
@@ -423,21 +424,21 @@ public class SourceCreatorImpl implements SourceCreator {
                     RequestProcessor.METHOD_RENDER));
             // _validationFailed(Notes)を追加する。
             MethodDescImpl methodDesc = new MethodDescImpl(
-                    RequestProcessor.ACTION_VALIDATIONFAILED);
+                    CheckConstraintInterceptor.ACTION_VALIDATIONFAILED);
             methodDesc
                     .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
                             Notes.class) });
             pageClassDesc.setMethodDesc(methodDesc);
             // _permissionDenied(PemissionDeniedException)を追加する。
             methodDesc = new MethodDescImpl(
-                    RequestProcessor.ACTION_PERMISSIONDENIED);
+                    CheckConstraintInterceptor.ACTION_PERMISSIONDENIED);
             methodDesc
                     .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
                             PermissionDeniedException.class, "ex") });
             methodDesc.setThrowsDesc(new ThrowsDescImpl(
                     PermissionDeniedException.class));
             methodDesc.setBodyDesc(new BodyDescImpl(
-                    RequestProcessor.ACTION_PERMISSIONDENIED,
+                    CheckConstraintInterceptor.ACTION_PERMISSIONDENIED,
                     new HashMap<String, Object>()));
             pageClassDesc.setMethodDesc(methodDesc);
         }
