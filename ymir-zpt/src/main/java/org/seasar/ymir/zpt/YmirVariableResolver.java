@@ -93,6 +93,7 @@ public class YmirVariableResolver extends VariableResolverImpl {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public String[] getVariableNames() {
         Set<String> nameSet = new HashSet<String>();
         nameSet.add(NAME_YMIRREQUEST);
@@ -103,9 +104,9 @@ public class YmirVariableResolver extends VariableResolverImpl {
         if (parent_ != null) {
             nameSet.addAll(Arrays.asList(parent_.getVariableNames()));
         }
-        for (Enumeration enm = request_.getParameterNames(); enm
+        for (Enumeration<String> enm = request_.getParameterNames(); enm
                 .hasMoreElements();) {
-            nameSet.add((String) enm.nextElement());
+            nameSet.add(enm.nextElement());
         }
         Object component = request_
                 .getAttribute(DefaultRequestProcessor.ATTR_SELF);
@@ -119,7 +120,7 @@ public class YmirVariableResolver extends VariableResolverImpl {
                 }
             }
         }
-        return (String[]) nameSet.toArray(new String[0]);
+        return nameSet.toArray(new String[0]);
     }
 
     public boolean containsVariable(String name) {
@@ -212,6 +213,7 @@ public class YmirVariableResolver extends VariableResolverImpl {
             return name_;
         }
 
+        @SuppressWarnings("unchecked")
         public Class getType() {
             return Token.class;
         }
