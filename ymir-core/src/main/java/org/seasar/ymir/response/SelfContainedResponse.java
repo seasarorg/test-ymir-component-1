@@ -5,14 +5,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
+import org.seasar.kvasir.util.io.InputStreamFactory;
 import org.seasar.ymir.ResponseType;
+import org.seasar.ymir.impl.AsIsInputStreamFactory;
 
 public class SelfContainedResponse extends ResponseBase {
     public static final String DEFAULT_BINARY_CONTENTTYPE = "application/octet-stream";
 
     public static final String DEFAULT_ASCII_CONTENTTYPE = "text/html; charset=UTF-8";
 
-    private InputStream inputStream_;
+    private InputStreamFactory inputStreamFactory_;
 
     private String string_;
 
@@ -21,12 +23,24 @@ public class SelfContainedResponse extends ResponseBase {
     public SelfContainedResponse() {
     }
 
+    @Deprecated
     public SelfContainedResponse(InputStream inputStream) {
         this(inputStream, DEFAULT_BINARY_CONTENTTYPE);
     }
 
+    @Deprecated
     public SelfContainedResponse(InputStream inputStream, String contentType) {
         setInputStream(inputStream);
+        setContentType(contentType);
+    }
+
+    public SelfContainedResponse(InputStreamFactory inputStreamFactory) {
+        this(inputStreamFactory, DEFAULT_BINARY_CONTENTTYPE);
+    }
+
+    public SelfContainedResponse(InputStreamFactory inputStreamFactory,
+            String contentType) {
+        setInputStreamFactory(inputStreamFactory);
         setContentType(contentType);
     }
 
@@ -45,7 +59,7 @@ public class SelfContainedResponse extends ResponseBase {
         if (string_ != null) {
             sb.append(string_);
         } else {
-            sb.append("(inputStream)");
+            sb.append("(inputStreamFactory)");
         }
         return sb.toString();
     }
@@ -56,9 +70,9 @@ public class SelfContainedResponse extends ResponseBase {
 
     public InputStream getInputStream() {
         InputStream inputStream;
-        if (inputStream_ != null) {
-            inputStream = inputStream_;
-            inputStream_ = null;
+        if (inputStreamFactory_ != null) {
+            inputStream = inputStreamFactory_.getInputStream();
+            inputStreamFactory_ = null;
         } else if (string_ != null) {
             String charset = getCharacterEncoding();
             if (charset == null) {
@@ -76,19 +90,38 @@ public class SelfContainedResponse extends ResponseBase {
         return inputStream;
     }
 
+    @Deprecated
     public void setInputStream(InputStream inputStream) {
-        setInputStream0(inputStream);
+        InputStreamFactory isf;
+        if (inputStream != null) {
+            isf = new AsIsInputStreamFactory(inputStream);
+        } else {
+            isf = null;
+        }
+        setInputStreamFactory0(isf);
         setString0(null);
     }
 
-    void setInputStream0(InputStream inputStream) {
-        if (inputStream_ != null) {
-            try {
-                inputStream_.close();
-            } catch (IOException ignore) {
+    public InputStreamFactory getInputStreamFactory() {
+        return inputStreamFactory_;
+    }
+
+    public void setInputStreamFactory(InputStreamFactory inputStreamFactory) {
+        setInputStreamFactory0(inputStreamFactory);
+        setString0(null);
+    }
+
+    void setInputStreamFactory0(InputStreamFactory inputStreamFactory) {
+        if (inputStreamFactory_ != null) {
+            InputStream is = inputStreamFactory_.getInputStream();
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException ignore) {
+                }
             }
         }
-        inputStream_ = inputStream;
+        inputStreamFactory_ = inputStreamFactory;
     }
 
     public String getString() {
@@ -96,7 +129,7 @@ public class SelfContainedResponse extends ResponseBase {
     }
 
     public void setString(String string) {
-        setInputStream0(null);
+        setInputStreamFactory0(null);
         setString0(string);
     }
 

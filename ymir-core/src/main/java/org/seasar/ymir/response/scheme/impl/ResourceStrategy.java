@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import org.seasar.ymir.MimeTypeDetector;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.impl.AsIsInputStreamFactory;
 import org.seasar.ymir.response.SelfContainedResponse;
 import org.seasar.ymir.response.scheme.Strategy;
 
@@ -44,6 +45,7 @@ public class ResourceStrategy implements Strategy {
                 }
             }
         }
-        return new SelfContainedResponse(in, contentType);
+        return new SelfContainedResponse(new AsIsInputStreamFactory(in),
+                contentType);
     }
 }

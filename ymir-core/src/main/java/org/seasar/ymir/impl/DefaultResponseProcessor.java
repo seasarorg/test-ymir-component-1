@@ -88,16 +88,18 @@ public class DefaultResponseProcessor implements ResponseProcessor {
             OutputStream os = null;
             try {
                 is = response.getInputStream();
-                os = httpResponse.getOutputStream();
-                BufferedInputStream bis = new BufferedInputStream(is);
-                BufferedOutputStream bos = new BufferedOutputStream(os);
+                if (is != null) {
+                    os = httpResponse.getOutputStream();
+                    BufferedInputStream bis = new BufferedInputStream(is);
+                    BufferedOutputStream bos = new BufferedOutputStream(os);
 
-                byte[] buf = new byte[BUF_SIZE];
-                int len;
-                while ((len = bis.read(buf)) >= 0) {
-                    bos.write(buf, 0, len);
+                    byte[] buf = new byte[BUF_SIZE];
+                    int len;
+                    while ((len = bis.read(buf)) >= 0) {
+                        bos.write(buf, 0, len);
+                    }
+                    bos.flush();
                 }
-                bos.flush();
             } finally {
                 if (is != null) {
                     try {
