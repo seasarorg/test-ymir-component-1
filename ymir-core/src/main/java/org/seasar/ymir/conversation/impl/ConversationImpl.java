@@ -15,7 +15,7 @@ public class ConversationImpl implements Conversation {
 
     private String phase_;
 
-    private String reenterPath_;
+    private Object reenterResponse_;
 
     public ConversationImpl(String name) {
         name_ = name;
@@ -50,11 +50,11 @@ public class ConversationImpl implements Conversation {
         phase_ = phase;
     }
 
-    public String getReenterPath() {
-        return reenterPath_;
+    public Object getReenterResponse() {
+        return reenterResponse_;
     }
 
-    public void setReenterPath(String reenterPath) {
-        reenterPath_ = reenterPath;
+    public void setReenterResponse(Object reenterResponse) {
+        reenterResponse_ = reenterResponse;
     }
 }

@@ -49,9 +49,9 @@ public class ConversationsImplTest extends TestCase {
         assertNotNull(conversation);
         assertEquals("complete", conversation.getPhase());
 
-        String reenterPath = target_.end();
+        Object reenterResponse = target_.end();
 
-        assertNull(reenterPath);
+        assertNull(reenterResponse);
         assertNull(target_.getCurrentConversation());
     }
 
@@ -84,12 +84,44 @@ public class ConversationsImplTest extends TestCase {
         target_.begin("loginUser", "input");
         target_.join("loginUser", "input", new String[0]);
         target_.join("loginUser", "complete", new String[] { "input" });
-        String reenterPath = target_.end();
+        Object reenterResponse = target_.end();
 
-        assertEquals("redirect:/completeRegister", reenterPath);
+        assertEquals("redirect:/completeRegister", reenterResponse);
         Conversation conversation = target_.getCurrentConversation();
         assertNotNull(conversation);
         assertEquals("register", conversation.getName());
         assertEquals("confirm", conversation.getPhase());
+    }
+
+    public void test_開始してから終了しなくても別のconversationを開始できること() throws Exception {
+        target_.begin("register", "input");
+        target_.join("register", "input", new String[0]);
+
+        try {
+            target_.begin("loginUser", "input");
+        } catch (IllegalTransitionRuntimeException ex) {
+            fail();
+        }
+
+        Conversation conversation = target_.getCurrentConversation();
+        assertNotNull(conversation);
+        assertEquals("loginUser", conversation.getName());
+        assertTrue(target_.getConversationStack().isEmpty());
+    }
+
+    public void test_開始してから同一conversationを開始しても何も起きないこと() throws Exception {
+        target_.begin("register", "input");
+        target_.join("register", "input", new String[0]);
+
+        try {
+            target_.begin("register", "input");
+        } catch (IllegalTransitionRuntimeException ex) {
+            fail();
+        }
+
+        Conversation conversation = target_.getCurrentConversation();
+        assertNotNull(conversation);
+        assertEquals("register", conversation.getName());
+        assertEquals("input", conversation.getPhase());
     }
 }

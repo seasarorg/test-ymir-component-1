@@ -14,7 +14,7 @@ public interface Conversation {
 
     void setPhase(String phase);
 
-    String getReenterPath();
+    Object getReenterResponse();
 
-    void setReenterPath(String reenterPath);
+    void setReenterResponse(Object reenterResponse);
 }

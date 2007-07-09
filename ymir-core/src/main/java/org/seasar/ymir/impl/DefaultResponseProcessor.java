@@ -18,6 +18,7 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseProcessor;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.Ymir;
+import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 
 public class DefaultResponseProcessor implements ResponseProcessor {
 
@@ -26,6 +27,8 @@ public class DefaultResponseProcessor implements ResponseProcessor {
     private Ymir ymir_;
 
     private Updater[] updaters_ = new Updater[0];
+
+    private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
 
     private RedirectionPathResolver redirectionPathResolver_ = new DefaultRedirectionPathResolver();
 
@@ -37,6 +40,12 @@ public class DefaultResponseProcessor implements ResponseProcessor {
     public void setUpdaters(Updater[] updaters) {
 
         updaters_ = updaters;
+    }
+
+    public void setYmirProcessInterceptors(
+            YmirProcessInterceptor[] ymirProcessInterceptors) {
+
+        ymirProcessInterceptors_ = ymirProcessInterceptors;
     }
 
     public HttpServletResponseFilter process(ServletContext context,

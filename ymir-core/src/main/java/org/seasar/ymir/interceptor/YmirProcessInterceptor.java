@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.Response;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 
 /**
@@ -22,15 +21,11 @@ public interface YmirProcessInterceptor {
      * @param request フレームワークによって作成されたRequestオブジェクト。
      * @return Requestオブジェクト。
      */
-    Request filterRequest(Request request);
+    Request requestCreated(Request request);
 
-    void beginProcessingComponent(Object component);
+    Object componentCreated(Object component);
 
-    Object filterComponent(Object component);
-
-    Response beginInvokingAction(Object component, Method action,
-            Request request);
-
-    MethodInvoker aboutToInvokeAction(Object component, Request request,
-            MethodInvoker methodInvoker) throws PermissionDeniedException;
+    MethodInvoker actionInvoking(Object component, Method action,
+            Request request, MethodInvoker methodInvoker)
+            throws PermissionDeniedException;
 }

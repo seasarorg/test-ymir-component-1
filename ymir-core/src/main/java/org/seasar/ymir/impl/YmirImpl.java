@@ -25,6 +25,7 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseProcessor;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.constraint.PermissionDeniedException;
+import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.framework.log.Logger;
 import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
@@ -42,6 +43,8 @@ public class YmirImpl implements Ymir {
 
     private ExceptionProcessor exceptionProcessor_;
 
+    private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
+
     private Logger logger_ = Logger.getLogger(getClass());
 
     public void setLifecycleListeners(LifecycleListener[] lifecycleListeners) {
@@ -58,6 +61,11 @@ public class YmirImpl implements Ymir {
 
     public void setExceptionProcessor(ExceptionProcessor exceptionProcessor) {
         exceptionProcessor_ = exceptionProcessor;
+    }
+
+    public void setYmirProcessInterceptors(
+            YmirProcessInterceptor[] ymirProcessInterceptors) {
+        ymirProcessInterceptors_ = ymirProcessInterceptors;
     }
 
     public void setConfiguration(Configuration configuration) {

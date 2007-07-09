@@ -119,7 +119,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
                 dispatcher, parameterMap, fileParameterMap, attributeContainer,
                 locale, matched);
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-            request = ymirProcessInterceptors_[i].filterRequest(request);
+            request = ymirProcessInterceptors_[i].requestCreated(request);
         }
         return request;
     }
@@ -198,12 +198,8 @@ public class DefaultRequestProcessor implements RequestProcessor {
             Object component = getComponent(request);
             if (component != null) {
                 for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                    ymirProcessInterceptors_[i]
-                            .beginProcessingComponent(component);
-                }
-                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
                     component = ymirProcessInterceptors_[i]
-                            .filterComponent(component);
+                            .componentCreated(component);
                 }
 
                 PagePropertyBag bag = new PagePropertyBag(component.getClass(),
@@ -219,19 +215,9 @@ public class DefaultRequestProcessor implements RequestProcessor {
                     request.setActionName(action.getName());
                 }
 
-                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                    response = ymirProcessInterceptors_[i].beginInvokingAction(
-                            component, action, request);
-                    if (response != null) {
-                        break;
-                    }
-                }
-
-                if (response == null) {
-                    response = normalizeResponse(adjustResponse(request,
-                            invokeMethod(component, action, request, true),
-                            component), request.getPath());
-                }
+                response = normalizeResponse(adjustResponse(request,
+                        invokeMethod(component, action, request, true),
+                        component), request.getPath());
 
                 ResponseType responseType = response.getType();
                 if (responseType == ResponseType.PASSTHROUGH
@@ -392,28 +378,22 @@ public class DefaultRequestProcessor implements RequestProcessor {
             boolean invokeAsAction) throws PermissionDeniedException {
 
         Response response = PassthroughResponse.INSTANCE;
-        MethodInvoker methodInvoker = null;
-        if (action != null) {
-            methodInvoker = new MethodInvokerImpl(action, new Object[0]);
-        }
+        MethodInvoker methodInvoker = new MethodInvokerImpl(action,
+                new Object[0]);
 
         if (invokeAsAction) {
             for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                MethodInvoker result = ymirProcessInterceptors_[i]
-                        .aboutToInvokeAction(component, request, methodInvoker);
-                if (result != methodInvoker) {
-                    // 呼び出しメソッドが変えられていたら処理を中断する。
-                    break;
-                }
+                methodInvoker = ymirProcessInterceptors_[i].actionInvoking(
+                        component, action, request, methodInvoker);
             }
         }
 
-        if (methodInvoker != null) {
+        if (methodInvoker.shouldInvoke()) {
             if (logger_.isDebugEnabled()) {
                 logger_.debug("INVOKE: " + component.getClass().getName() + "#"
-                        + action);
+                        + methodInvoker);
             }
-            response = constructResponse(component, methodInvoker.getMethod()
+            response = constructResponse(component, methodInvoker
                     .getReturnType(), methodInvoker.invoke(component));
             if (logger_.isDebugEnabled()) {
                 logger_.debug("RESPONSE: " + response);

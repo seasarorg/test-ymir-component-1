@@ -8,4 +8,8 @@ public interface MethodInvoker {
     Object[] getParameters();
 
     Object invoke(Object component);
+
+    Class<? extends Object> getReturnType();
+
+    boolean shouldInvoke();
 }

@@ -30,6 +30,7 @@ import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
 import org.seasar.ymir.impl.ConstraintBag;
 import org.seasar.ymir.impl.MethodInvokerImpl;
+import org.seasar.ymir.impl.VoidMethodInvoker;
 import org.seasar.ymir.util.MethodUtils;
 
 /**
@@ -50,9 +51,9 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public MethodInvoker aboutToInvokeAction(Object component, Request request,
-            MethodInvoker methodInvoker) throws PermissionDeniedException {
-        Method action = methodInvoker.getMethod();
+    public MethodInvoker actionInvoking(Object component, Method action,
+            Request request, MethodInvoker methodInvoker)
+            throws PermissionDeniedException {
         try {
             Notes notes = confirmConstraint(component, action, request);
             if (notes != null) {
@@ -72,7 +73,7 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
                         methodInvoker = new MethodInvokerImpl(method,
                                 new Object[0]);
                     } else {
-                        methodInvoker = null;
+                        methodInvoker = VoidMethodInvoker.INSTANCE;
                     }
                 }
             }

@@ -19,6 +19,21 @@ public class MethodInvokerImpl implements MethodInvoker {
         setParameters(parameters);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(method_ != null ? method_.getName() : "(null)").append('(');
+        if (parameters_ != null) {
+            String delim = "";
+            for (int i = 0; i < parameters_.length; i++) {
+                sb.append(delim).append(parameters_[i]);
+                delim = ", ";
+            }
+        }
+        sb.append(')');
+        return sb.toString();
+    }
+
     public Method getMethod() {
         return method_;
     }
@@ -46,5 +61,17 @@ public class MethodInvokerImpl implements MethodInvoker {
             throw new WrappingRuntimeException(ex.getCause() != null ? ex
                     .getCause() : ex);
         }
+    }
+
+    public Class<? extends Object> getReturnType() {
+        if (method_ != null) {
+            return method_.getReturnType();
+        } else {
+            return null;
+        }
+    }
+
+    public boolean shouldInvoke() {
+        return method_ != null;
     }
 }

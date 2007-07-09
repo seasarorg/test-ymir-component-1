@@ -44,6 +44,13 @@ public class ConversationsImpl implements Conversations {
     }
 
     public synchronized void begin(String conversationName, String phase) {
+        if (currentConversation_ != null
+                && currentConversation_.getName().equals(conversationName)
+                && equals(currentConversation_.getPhase(), phase)) {
+            // 既に同一名のConversationが始まっていてかつフェーズが同じなら何もしない。
+            return;
+        }
+
         if (stackedConversationNameSet_.contains(conversationName)) {
             // 同一conversationが入れ子になっている場合は不正遷移。
             clear();
@@ -61,12 +68,20 @@ public class ConversationsImpl implements Conversations {
         subConversationName_ = null;
     }
 
-    public synchronized String end() {
+    boolean equals(String s1, String s2) {
+        if (s1 == null) {
+            return s2 == null;
+        } else {
+            return s1.equals(s2);
+        }
+    }
+
+    public synchronized Object end() {
         removeCurrentConversation();
         if (conversationStack_.size() > 0) {
             currentConversation_ = conversationStack_.removeLast();
             updateStackedConversationNameSet();
-            return currentConversation_.getReenterPath();
+            return currentConversation_.getReenterResponse();
         } else {
             return null;
         }
@@ -82,8 +97,7 @@ public class ConversationsImpl implements Conversations {
         }
 
         String currentPhase = currentConversation_.getPhase();
-        if (phase == null && currentPhase == null || phase != null
-                && phase.equals(currentPhase)) {
+        if (equals(currentPhase, phase)) {
             // フェーズが現在のフェーズと同じ場合は何もしない。
             return;
         }
@@ -127,11 +141,15 @@ public class ConversationsImpl implements Conversations {
     }
 
     public synchronized void beginSubConversation(String conversationName,
-            String reenterPath) {
-        currentConversation_.setReenterPath(reenterPath);
+            Object reenterResponse) {
+        currentConversation_.setReenterResponse(reenterResponse);
         conversationStack_.addLast(currentConversation_);
         stackedConversationNameSet_.add(currentConversation_.getName());
         currentConversation_ = null;
         subConversationName_ = conversationName;
+    }
+
+    LinkedList<Conversation> getConversationStack() {
+        return conversationStack_;
     }
 }

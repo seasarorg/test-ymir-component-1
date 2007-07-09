@@ -14,7 +14,7 @@ public interface Conversations {
 
     void join(String conversationName, String phase, String[] followAfter);
 
-    String end();
+    Object end();
 
-    void beginSubConversation(String conversationName, String reenterPath);
+    void beginSubConversation(String conversationName, Object reenterResponse);
 }
