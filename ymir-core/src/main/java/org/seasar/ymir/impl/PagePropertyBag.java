@@ -60,7 +60,7 @@ public class PagePropertyBag {
         }
 
         Out out = method.getAnnotation(Out.class);
-        if (method.isAnnotationPresent(Out.class)) {
+        if (out != null) {
             registerForOutjectionToScope(out, method);
             return;
         }
