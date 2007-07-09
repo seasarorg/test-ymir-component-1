@@ -1,5 +1,6 @@
 package org.seasar.ymir.interceptor.impl;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -78,7 +79,8 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
     public void testGetConstraints2() throws Exception {
 
         Hoe hoe = new Hoe();
-        ConstraintBag[] actual = target_.getConstraintBags(hoe, null);
+        ConstraintBag[] actual = target_.getConstraintBags(hoe, null, target_
+                .getSuppressTypeSet(null));
         for (int i = 0; i < actual.length; i++) {
             actual[i].confirm(null, null);
         }
@@ -100,8 +102,9 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
     public void testGetConstraints4() throws Exception {
 
         Hoe hoe = new Hoe();
-        ConstraintBag[] actual = target_.getConstraintBags(hoe, Hoe.class
-                .getMethod("_render", new Class[0]));
+        Method action = Hoe.class.getMethod("_render", new Class[0]);
+        ConstraintBag[] actual = target_.getConstraintBags(hoe, action, target_
+                .getSuppressTypeSet(action));
         for (int i = 0; i < actual.length; i++) {
             actual[i].confirm(null, null);
         }
@@ -124,8 +127,9 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
     public void testGetConstraints5() throws Exception {
 
         Hoe hoe = new Hoe();
-        ConstraintBag[] actual = target_.getConstraintBags(hoe, Hoe.class
-                .getMethod("_get", new Class[0]));
+        Method action = Hoe.class.getMethod("_get", new Class[0]);
+        ConstraintBag[] actual = target_.getConstraintBags(hoe, action, target_
+                .getSuppressTypeSet(action));
         for (int i = 0; i < actual.length; i++) {
             actual[i].confirm(null, null);
         }
@@ -143,8 +147,9 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
     public void testGetConstraints6() throws Exception {
 
         Hoe hoe = new Hoe();
-        ConstraintBag[] actual = target_.getConstraintBags(hoe, Hoe.class
-                .getMethod("_head", new Class[0]));
+        Method action = Hoe.class.getMethod("_head", new Class[0]);
+        ConstraintBag[] actual = target_.getConstraintBags(hoe, action, target_
+                .getSuppressTypeSet(action));
         for (int i = 0; i < actual.length; i++) {
             actual[i].confirm(null, null);
         }

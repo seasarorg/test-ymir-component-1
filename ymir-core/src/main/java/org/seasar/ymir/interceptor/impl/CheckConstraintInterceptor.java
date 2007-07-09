@@ -103,9 +103,12 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
     Notes confirmConstraint(Object component, Method action, Request request)
             throws PermissionDeniedException {
 
+        Set<ConstraintType> suppressTypeSet = getSuppressTypeSet(action);
+
         boolean validationFailed = false;
         Notes notes = new Notes();
-        ConstraintBag[] bag = getConstraintBags(component, action);
+        ConstraintBag[] bag = getConstraintBags(component, action,
+                suppressTypeSet);
         for (int i = 0; i < bag.length; i++) {
             try {
                 bag[i].confirm(component, request);
@@ -120,7 +123,7 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
 
         // Validatorアノテーションがついているメソッドを実行する。
-        Method[] validators = gatherValidators(component);
+        Method[] validators = gatherValidators(component, suppressTypeSet);
         for (int i = 0; i < validators.length; i++) {
             try {
                 Object invoked = validators[i].invoke(component, new Object[0]);
@@ -151,14 +154,7 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
     }
 
-    protected ConstraintBag[] getConstraintBags(Object component, Method action) {
-        return getConstraints(component.getClass(), action);
-    }
-
-    // PropertyDescriptorのreadMethodは対象外。fieldも対象外。
-    ConstraintBag[] getConstraints(Class<?> clazz, Method action) {
-        List<ConstraintBag> list = new ArrayList<ConstraintBag>();
-
+    Set<ConstraintType> getSuppressTypeSet(Method action) {
         Set<ConstraintType> suppressTypeSet = EnumSet
                 .noneOf(ConstraintType.class);
         if (action != null) {
@@ -171,6 +167,19 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
                 }
             }
         }
+        return suppressTypeSet;
+    }
+
+    protected ConstraintBag[] getConstraintBags(Object component,
+            Method action, Set<ConstraintType> suppressTypeSet) {
+        return getConstraints(component.getClass(), action, suppressTypeSet);
+    }
+
+    // PropertyDescriptorのreadMethodは対象外。fieldも対象外。
+    ConstraintBag[] getConstraints(Class<?> clazz, Method action,
+            Set<ConstraintType> suppressTypeSet) {
+        List<ConstraintBag> list = new ArrayList<ConstraintBag>();
+
         getConstraint(clazz, list, suppressTypeSet);
         BeanInfo beanInfo;
         try {
@@ -207,17 +216,22 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
     }
 
-    Method[] gatherValidators(Object component) {
+    Method[] gatherValidators(Object component,
+            Set<ConstraintType> suppressTypeSet) {
         List<Method> validatorList = new ArrayList<Method>();
-        Method[] methods = component.getClass().getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            if (methods[i].isAnnotationPresent(Validator.class)) {
-                if (methods[i].getParameterTypes().length > 0) {
-                    // 引数を持つメソッドにはValidatorアノテーションはつけられない。
-                    throw new RuntimeException(
-                            "@Validator must be annotated on a method that has no parameters");
+
+        // バリデーションを抑制するように指定されている場合はカスタムバリデータを収集しない。
+        if (!suppressTypeSet.contains(ConstraintType.VALIDATION)) {
+            Method[] methods = component.getClass().getMethods();
+            for (int i = 0; i < methods.length; i++) {
+                if (methods[i].isAnnotationPresent(Validator.class)) {
+                    if (methods[i].getParameterTypes().length > 0) {
+                        // 引数を持つメソッドにはValidatorアノテーションはつけられない。
+                        throw new RuntimeException(
+                                "@Validator must be annotated on a method that has no parameters");
+                    }
+                    validatorList.add(methods[i]);
                 }
-                validatorList.add(methods[i]);
             }
         }
         return validatorList.toArray(new Method[0]);
