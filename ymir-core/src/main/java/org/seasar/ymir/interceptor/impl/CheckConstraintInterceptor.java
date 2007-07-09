@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -28,6 +29,7 @@ import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
+import org.seasar.ymir.constraint.annotation.ConstraintsAnnotation;
 import org.seasar.ymir.impl.ConstraintBag;
 import org.seasar.ymir.impl.MethodInvokerImpl;
 import org.seasar.ymir.impl.VoidMethodInvoker;
@@ -202,17 +204,67 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
         if (element == null) {
             return;
         }
+
         Annotation[] annotations = element.getAnnotations();
+        List<Annotation> constraintAnnotationList = new ArrayList<Annotation>();
         for (int i = 0; i < annotations.length; i++) {
-            ConstraintAnnotation constraintAnnotation = annotations[i]
-                    .annotationType().getAnnotation(ConstraintAnnotation.class);
-            if (constraintAnnotation == null
-                    || suppressTypeSet.contains(constraintAnnotation.type())) {
-                continue;
+            Class<? extends Annotation> annotationType = annotations[i]
+                    .annotationType();
+            if (annotationType.isAnnotationPresent(ConstraintAnnotation.class)) {
+                constraintAnnotationList.add(annotations[i]);
+            } else if (annotationType
+                    .isAnnotationPresent(ConstraintsAnnotation.class)) {
+                Method method;
+                try {
+                    method = annotations[i].getClass().getMethod("value",
+                            new Class[0]);
+                } catch (SecurityException ex) {
+                    throw new RuntimeException("Annotation " + annotationType
+                            + " can be accessed to 'value' property", ex);
+                } catch (NoSuchMethodException ex) {
+                    throw new RuntimeException("Annotation " + annotationType
+                            + " must have 'value' property", ex);
+                }
+                Annotation[] as;
+                try {
+                    as = (Annotation[]) method.invoke(annotations[i],
+                            new Object[0]);
+                } catch (IllegalArgumentException ex) {
+                    throw new RuntimeException("Logic error", ex);
+                } catch (IllegalAccessException ex) {
+                    throw new RuntimeException("Annotation " + annotationType
+                            + " can be accessed to 'value' property", ex);
+                } catch (InvocationTargetException ex) {
+                    throw new RuntimeException(ex);
+                }
+                for (int j = 0; j < as.length; j++) {
+                    if (as[j].annotationType().isAnnotationPresent(
+                            ConstraintAnnotation.class)) {
+                        constraintAnnotationList.add(as[j]);
+                    }
+                }
             }
+        }
+
+        for (Iterator<Annotation> itr = constraintAnnotationList.iterator(); itr
+                .hasNext();) {
+            Annotation annotation = itr.next();
+            addConstraintBagIfNecessary(element, annotation, suppressTypeSet,
+                    list);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    void addConstraintBagIfNecessary(AnnotatedElement element,
+            Annotation annotation, Set<ConstraintType> suppressTypeSet,
+            List<ConstraintBag> list) {
+        ConstraintAnnotation constraintAnnotation = annotation.annotationType()
+                .getAnnotation(ConstraintAnnotation.class);
+        if (constraintAnnotation != null
+                && !suppressTypeSet.contains(constraintAnnotation.type())) {
             list.add(new ConstraintBag(((Constraint) getS2Container()
                     .getComponent(constraintAnnotation.component())),
-                    annotations[i], element));
+                    annotation, element));
         }
     }
 

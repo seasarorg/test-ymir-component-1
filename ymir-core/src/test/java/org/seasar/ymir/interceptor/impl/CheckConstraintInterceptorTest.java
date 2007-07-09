@@ -19,6 +19,7 @@ import org.seasar.ymir.constraint.impl.FufuConstraint;
 import org.seasar.ymir.constraint.impl.FugaConstraint;
 import org.seasar.ymir.impl.ConstraintBag;
 import org.seasar.ymir.impl.Hoe;
+import org.seasar.ymir.impl.Hoe7;
 import org.seasar.ymir.impl.Test2Page;
 import org.seasar.ymir.impl.TestPage;
 import org.seasar.ymir.mock.MockApplication;
@@ -159,6 +160,29 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
         assertEquals("head", ((FugaConstraint) actual[0].getConstraint())
                 .getName());
         assertEquals("tora", ((FufuConstraint) actual[1].getConstraint())
+                .getName());
+    }
+
+    /*
+     * 複数Constraintの一括指定系Constraintアノテーションが正しく解釈されること。
+     */
+    public void testGetConstraints7() throws Exception {
+
+        Hoe7 hoe = new Hoe7();
+        Method action = Hoe7.class.getMethod("_get", new Class[0]);
+        ConstraintBag[] actual = target_.getConstraintBags(hoe, action, target_
+                .getSuppressTypeSet(action));
+        for (int i = 0; i < actual.length; i++) {
+            actual[i].confirm(null, null);
+        }
+        Arrays.sort(actual, COMPARATOR);
+
+        assertEquals(3, actual.length);
+        assertEquals("1", ((FugaConstraint) actual[0].getConstraint())
+                .getName());
+        assertEquals("2", ((FugaConstraint) actual[1].getConstraint())
+                .getName());
+        assertEquals("3", ((FugaConstraint) actual[2].getConstraint())
                 .getName());
     }
 
