@@ -28,6 +28,10 @@ public class LengthConstraintTest extends
     public void setValue3(String value) {
     }
 
+    @Length(min = 5, max = 10)
+    public void setValue4(String value) {
+    }
+
     public void testValidate_最大長が指定されている場合() throws Exception {
         getRequest().getParameterMap().put("value",
                 new String[] { "1234567890" });
@@ -87,17 +91,17 @@ public class LengthConstraintTest extends
 
     public void testValidate5_パラメータが指定されていない場合は何もしないこと() throws Exception {
         try {
-            confirm(getSetterMethod("value3"));
+            confirm(getSetterMethod("value4"));
         } catch (ValidationFailedException ex) {
             fail();
         }
     }
 
     public void testValidate4_パラメータが空文字列の場合は何もしないこと() throws Exception {
-        getRequest().getParameterMap().put("value3", new String[] { "" });
+        getRequest().getParameterMap().put("value4", new String[] { "" });
 
         try {
-            confirm(getSetterMethod("value3"));
+            confirm(getSetterMethod("value4"));
         } catch (ValidationFailedException ex) {
             fail();
         }
