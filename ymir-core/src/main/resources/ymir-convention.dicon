@@ -12,6 +12,9 @@
     <initMethod name="addRootPackageName">
       <arg>config.getProperty("rootPackageName", "skeleton")</arg>
     </initMethod>
+    <initMethod name="addIgnorePackageName">
+      <arg>config.getProperty("ignorePackageNames", "")</arg>
+    </initMethod>
   </component>
   <component
     class="org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container">
