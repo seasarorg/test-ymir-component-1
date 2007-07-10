@@ -21,9 +21,11 @@ import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
+import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
+import org.seasar.ymir.extension.creator.impl.ParameterDescImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.impl.ApplicationManagerImpl;
 import org.seasar.ymir.impl.PathMappingImpl;
@@ -758,5 +760,18 @@ public class ZptAnalyzerTest extends TestCase {
 
         assertNull("副作用で添え字部分以外の部分が実行時に決定されるinputタグが自走生成対象になったりしていないこと", cd
                 .getPropertyDesc("entry"));
+    }
+
+    public void testAnalyze46_配列型のnameの添え字部分だけが実行時に決定されるsubmitタイプのinputタグに対応するアクションが生成されること()
+            throws Exception {
+
+        act("testAnalyze46");
+
+        ClassDesc cd = getClassDesc("com.example.web.UpdatePage");
+        MethodDesc md = new MethodDescImpl("POST_action");
+        md.setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                Integer.TYPE, "index") });
+        md = cd.getMethodDesc(md);
+        assertNotNull(md);
     }
 }

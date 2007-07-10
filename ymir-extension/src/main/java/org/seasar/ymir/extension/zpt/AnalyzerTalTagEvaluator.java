@@ -179,29 +179,11 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 // $...。
                 int rightEdge = expression.indexOf(']', idx + 1);
                 if (rightEdge < 0
-                        || !isValidVariableName(expression.substring(idx + 1,
-                                rightEdge))) {
+                        || !AnalyzerUtils.isValidVariableName(expression
+                                .substring(idx + 1, rightEdge))) {
                     return false;
                 }
                 pre = rightEdge + 1;
-            }
-        }
-        return true;
-    }
-
-    boolean isValidVariableName(String name) {
-        if (name.length() == 0) {
-            return false;
-        }
-        char ch = name.charAt(0);
-        if (!(ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch == '_')) {
-            return false;
-        }
-        for (int i = 1; i < name.length(); i++) {
-            ch = name.charAt(i);
-            if (!(ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0'
-                    && ch <= '9' || ch == '_')) {
-                return false;
             }
         }
         return true;
@@ -402,7 +384,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             }
             name = name.substring(0, lbracket);
         }
-        return AnalyzerUtils.isValidAsSimplePropertyName(name);
+        return AnalyzerUtils.isValidVariableName(name);
     }
 
     Map evaluate(ZptTemplateContext context, Attribute[] attrs) {

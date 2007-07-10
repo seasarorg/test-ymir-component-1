@@ -76,15 +76,6 @@ public class AnalyzerTalTagEvaluatorTest extends TestCase {
                 "/path/to/page.html", "page2.html#"));
     }
 
-    public void testIsValidVariableName() throws Exception {
-        AnalyzerTalTagEvaluator target = new AnalyzerTalTagEvaluator();
-
-        assertFalse(target.isValidVariableName(""));
-        assertTrue(target.isValidVariableName("abC9"));
-        assertFalse(target.isValidVariableName("9ab"));
-        assertFalse(target.isValidVariableName("abc-d"));
-    }
-
     public void testFindEndEdge() throws Exception {
         AnalyzerTalTagEvaluator target = new AnalyzerTalTagEvaluator();
 

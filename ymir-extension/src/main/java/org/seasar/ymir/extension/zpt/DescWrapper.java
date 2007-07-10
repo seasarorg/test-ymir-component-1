@@ -29,7 +29,7 @@ public class DescWrapper {
     }
 
     public Object get(String name) {
-        if (!AnalyzerUtils.isValidAsSimplePropertyName(name)) {
+        if (!AnalyzerUtils.isValidVariableName(name)) {
             return null;
         }
 
