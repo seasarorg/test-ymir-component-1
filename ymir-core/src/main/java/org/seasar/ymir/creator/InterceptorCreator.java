@@ -1,24 +1,24 @@
 package org.seasar.ymir.creator;
 
-import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.framework.container.ComponentCustomizer;
 import org.seasar.framework.container.creator.ComponentCreatorImpl;
 import org.seasar.framework.container.deployer.InstanceDefFactory;
 import org.seasar.framework.convention.NamingConvention;
 
-public class ConstraintCreator extends ComponentCreatorImpl {
-    public ConstraintCreator(NamingConvention namingConvention) {
+public class InterceptorCreator extends ComponentCreatorImpl {
+    public static final String SUFFIX = "Interceptor";
+
+    public InterceptorCreator(NamingConvention namingConvention) {
         super(namingConvention);
-        setNameSuffix(YmirNamingConvention.SUFFIX_CONSTRAINT);
+        setNameSuffix(SUFFIX);
         setInstanceDef(InstanceDefFactory.SINGLETON);
-        setExternalBinding(false);
     }
 
-    public ComponentCustomizer getConstraintCustomizer() {
+    public ComponentCustomizer getInterceptorCustomizer() {
         return getCustomizer();
     }
 
-    public void setConstraintCustomizer(ComponentCustomizer customizer) {
+    public void setInterceptorCustomizer(ComponentCustomizer customizer) {
         setCustomizer(customizer);
     }
 }
