@@ -30,25 +30,33 @@ public class ScopeAttribute {
     public void injectTo(Object component) {
         Object value = scope_.getAttribute(name_);
         if (value != null) {
-            if (YmirContext.isUnderDevelopment()
-                    && !writeMethod_.getParameterTypes()[0]
-                            .isAssignableFrom(value.getClass())) {
-                // 開発時はHotdeployのせいで見かけ上型が合わないことがありうる。
-                // そのため開発時で見かけ上型が合わない場合はオブジェクトを再構築する。
-                value = HotdeployUtils.rebuildValue(value);
-            }
+            boolean removeValue = false;
             try {
+                if (YmirContext.isUnderDevelopment()
+                        && !writeMethod_.getParameterTypes()[0]
+                                .isAssignableFrom(value.getClass())) {
+                    // 開発時はHotdeployのせいで見かけ上型が合わないことがありうる。
+                    // そのため開発時で見かけ上型が合わない場合はオブジェクトを再構築する。
+                    value = HotdeployUtils.fit(value);
+                }
                 writeMethod_.invoke(component, new Object[] { value });
             } catch (IllegalArgumentException ex) {
-                // 型が合わなかった場合は単に無視する。
+                // 型が合わなかった場合は値を消すようにする。
+                removeValue = true;
                 logger_.warn("Can't inject scope attribute: scope=" + scope_
                         + ", attribute name=" + name_ + ", value=" + value
                         + ", write method=" + writeMethod_, ex);
             } catch (Throwable t) {
+                // Exceptionをスローしつつ値を消すようにする。
+                removeValue = true;
                 throw new IORuntimeException(
                         "Can't inject scope attribute: scope=" + scope_
                                 + ", attribute name=" + name_ + ", value="
                                 + value + ", write method=" + writeMethod_, t);
+            } finally {
+                if (removeValue) {
+                    scope_.setAttribute(name_, null);
+                }
             }
         }
     }
