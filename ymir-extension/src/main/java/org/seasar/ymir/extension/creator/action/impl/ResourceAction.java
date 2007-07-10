@@ -11,6 +11,7 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
+import org.seasar.ymir.impl.AsIsInputStreamFactory;
 import org.seasar.ymir.response.SelfContainedResponse;
 import org.seasar.ymir.response.VoidResponse;
 import org.seasar.kvasir.util.io.IOUtils;
@@ -59,7 +60,8 @@ public class ResourceAction implements UpdateAction {
             if (contentType == null) {
                 contentType = DEFAULT_CONTENTTYPE;
             }
-            return new SelfContainedResponse(in, contentType);
+            return new SelfContainedResponse(new AsIsInputStreamFactory(in),
+                    contentType);
         }
     }
 
