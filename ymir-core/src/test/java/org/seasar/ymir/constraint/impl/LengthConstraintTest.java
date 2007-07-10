@@ -84,4 +84,22 @@ public class LengthConstraintTest extends
         } catch (ValidationFailedException expected) {
         }
     }
+
+    public void testValidate5_パラメータが指定されていない場合は何もしないこと() throws Exception {
+        try {
+            confirm(getSetterMethod("value3"));
+        } catch (ValidationFailedException ex) {
+            fail();
+        }
+    }
+
+    public void testValidate4_パラメータが空文字列の場合は何もしないこと() throws Exception {
+        getRequest().getParameterMap().put("value3", new String[] { "" });
+
+        try {
+            confirm(getSetterMethod("value3"));
+        } catch (ValidationFailedException ex) {
+            fail();
+        }
+    }
 }
