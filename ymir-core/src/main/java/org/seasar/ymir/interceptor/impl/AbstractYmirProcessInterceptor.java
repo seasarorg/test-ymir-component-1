@@ -1,7 +1,5 @@
 package org.seasar.ymir.interceptor.impl;
 
-import java.lang.reflect.Method;
-
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.PermissionDeniedException;
@@ -16,7 +14,7 @@ public class AbstractYmirProcessInterceptor implements YmirProcessInterceptor {
         return component;
     }
 
-    public MethodInvoker actionInvoking(Object component, Method action,
+    public MethodInvoker actionInvoking(Object component, MethodInvoker action,
             Request request, MethodInvoker methodInvoker)
             throws PermissionDeniedException {
         return methodInvoker;

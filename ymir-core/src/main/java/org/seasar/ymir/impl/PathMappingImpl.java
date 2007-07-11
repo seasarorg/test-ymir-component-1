@@ -1,18 +1,31 @@
 package org.seasar.ymir.impl;
 
+import static org.seasar.ymir.RequestProcessor.ACTION_DEFAULT;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.seasar.ymir.PathMapping;
+import org.seasar.framework.log.Logger;
 import org.seasar.kvasir.util.el.EvaluationException;
 import org.seasar.kvasir.util.el.TextTemplateEvaluator;
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.kvasir.util.el.impl.MapVariableResolver;
 import org.seasar.kvasir.util.el.impl.SimpleTextTemplateEvaluator;
+import org.seasar.ymir.MethodInvoker;
+import org.seasar.ymir.PathMapping;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.util.MethodUtils;
 
 public class PathMappingImpl implements PathMapping {
+    private static final String INDEX_PREFIX = "[";
+
+    private static final String INDEX_SUFFIX = "]";
 
     private TextTemplateEvaluator evaluator_ = new SimpleTextTemplateEvaluator();
 
@@ -33,6 +46,8 @@ public class PathMappingImpl implements PathMapping {
     private String parameterNamePatternStringForDispatching_;
 
     private boolean denied_;
+
+    private final Logger logger_ = Logger.getLogger(getClass());
 
     public PathMappingImpl(String patternString, String componentTemplate,
             String actionNameTemplate, String pathInfoTemplate,
@@ -185,7 +200,7 @@ public class PathMappingImpl implements PathMapping {
         return denied_;
     }
 
-    public String extractParameterName(String name) {
+    protected String extractParameterName(String name) {
 
         if (parameterNamePatternForDispatching_ != null) {
             Matcher matcher = parameterNamePatternForDispatching_.matcher(name);
@@ -204,7 +219,118 @@ public class PathMappingImpl implements PathMapping {
     }
 
     public boolean isDispatchingByParameter() {
-
         return (parameterNamePatternForDispatching_ != null);
+    }
+
+    /**
+     * アクションメソッドを実行するためのMethodInvokerを構築して返します。
+     * <p>実行すべきアクションメソッドが見つからなかった場合は
+     * methodプロパティがnullであるようなMethodInvokerオブジェクトを返します。</p>
+     * 
+     * @param pageClass ページクラス。
+     * @param request Requestオブジェクト。
+     * @param resolver VariableResolver。
+     * @return 構築したMethodInvoker。
+     */
+    public MethodInvoker getActionMethodInvoker(Class pageClass,
+            Request request, VariableResolver resolver) {
+        String actionName = getActionName(resolver);
+        if (isDispatchingByParameter()) {
+            Method[] methods = pageClass.getMethods();
+            if (logger_.isDebugEnabled()) {
+                logger_
+                        .debug("getActionMethodInvoker: dispatchingByRequestParameter=true. search "
+                                + pageClass
+                                + " for "
+                                + actionName
+                                + " method...");
+            }
+            List<Method> list = new ArrayList<Method>();
+            for (int i = 0; i < methods.length; i++) {
+                list.add(methods[i]);
+                MethodInvoker mi = createMethodInvokerIfAction(methods[i],
+                        actionName, request);
+                if (mi != null) {
+                    if (logger_.isDebugEnabled()) {
+                        logger_.debug("getActionMethodInvoker: Found: "
+                                + methods[i]);
+                    }
+                    return mi;
+                }
+            }
+
+            if (logger_.isDebugEnabled()) {
+                logger_.debug("getActionMethodInvoker: search " + pageClass
+                        + " for " + ACTION_DEFAULT + " method...");
+            }
+            for (Iterator<Method> itr = list.iterator(); itr.hasNext();) {
+                Method method = itr.next();
+                MethodInvoker mi = createMethodInvokerIfAction(method,
+                        ACTION_DEFAULT, request);
+                if (mi != null) {
+                    if (logger_.isDebugEnabled()) {
+                        logger_.debug("getActionMethodInvoker: Found: "
+                                + method);
+                    }
+                    return mi;
+                }
+            }
+        }
+
+        Method method = MethodUtils.getMethod(pageClass, actionName);
+        if (method == null) {
+            method = MethodUtils.getMethod(pageClass, ACTION_DEFAULT);
+        }
+
+        if (logger_.isDebugEnabled()) {
+            logger_.debug("getActionMethodInvoker: Found: " + method);
+        }
+        return new MethodInvokerImpl(method, new Object[0]);
+    }
+
+    protected MethodInvoker createMethodInvokerIfAction(Method method,
+            String actionName, Request request) {
+        boolean hasIndex;
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        if (parameterTypes.length == 0) {
+            hasIndex = false;
+        } else if (parameterTypes.length == 1
+                && (parameterTypes[0] == Integer.TYPE || parameterTypes[0] == Integer.class)) {
+            hasIndex = true;
+        } else {
+            return null;
+        }
+
+        String name = method.getName();
+        if (name.startsWith(actionName)) {
+            String parameterName = extractParameterName(name
+                    .substring(actionName.length()));
+            if (parameterName != null) {
+                if (!hasIndex) {
+                    if (request.getParameter(parameterName) != null) {
+                        return new MethodInvokerImpl(method, new Object[0]);
+                    }
+                } else {
+                    String prefix = name + INDEX_PREFIX;
+                    for (Iterator<String> itr = request.getParameterNames(); itr
+                            .hasNext();) {
+                        String pname = itr.next();
+                        if (pname.startsWith(prefix)
+                                && pname.endsWith(INDEX_SUFFIX)) {
+                            try {
+                                int index = Integer.parseInt(pname.substring(
+                                        prefix.length(), pname.length()
+                                                - INDEX_SUFFIX.length()));
+                                return new MethodInvokerImpl(method,
+                                        new Object[] { Integer.valueOf(index) });
+                            } catch (NumberFormatException ignore) {
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }

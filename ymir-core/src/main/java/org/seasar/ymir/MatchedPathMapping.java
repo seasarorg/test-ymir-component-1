@@ -2,64 +2,22 @@ package org.seasar.ymir;
 
 import org.seasar.kvasir.util.el.VariableResolver;
 
-public class MatchedPathMapping {
+public interface MatchedPathMapping {
+    PathMapping getPathMapping();
 
-    private PathMapping pathMapping_;
+    VariableResolver getVariableResolver();
 
-    private VariableResolver variableResolver_;
+    String getComponentName();
 
-    public MatchedPathMapping() {
-    }
+    String getActionName();
 
-    public MatchedPathMapping(PathMapping pathMapping,
-            VariableResolver variableResolver) {
+    String getPathInfo();
 
-        setPathMapping(pathMapping);
-        setVariableResolver(variableResolver);
-    }
+    Object getDefaultReturnValue();
 
-    public PathMapping getPathMapping() {
-        return pathMapping_;
-    }
+    boolean isDenied();
 
-    public void setPathMapping(PathMapping pathMapping) {
-        pathMapping_ = pathMapping;
-    }
+    boolean isDispatchingByParameter();
 
-    public VariableResolver getVariableResolver() {
-        return variableResolver_;
-    }
-
-    public void setVariableResolver(VariableResolver variableResolver) {
-        variableResolver_ = variableResolver;
-    }
-
-    public String getComponentName() {
-        return pathMapping_.getComponentName(variableResolver_);
-    }
-
-    public String getActionName() {
-        return pathMapping_.getActionName(variableResolver_);
-    }
-
-    public String getPathInfo() {
-        return pathMapping_.getPathInfo(variableResolver_);
-
-    }
-
-    public Object getDefaultReturnValue() {
-        return pathMapping_.getDefaultReturnValue(variableResolver_);
-    }
-
-    public boolean isDenied() {
-        return pathMapping_.isDenied();
-    }
-
-    public String extractParameterName(String name) {
-        return pathMapping_.extractParameterName(name);
-    }
-
-    public boolean isDispatchingByParameter() {
-        return pathMapping_.isDispatchingByParameter();
-    }
+    MethodInvoker getActionMethodInvoker(Class pageClass, Request request);
 }

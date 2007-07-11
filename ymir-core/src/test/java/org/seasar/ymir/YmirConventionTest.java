@@ -2,12 +2,13 @@ package org.seasar.ymir;
 
 import junit.framework.TestCase;
 
-import org.seasar.ymir.convention.YmirNamingConvention;
-import org.seasar.ymir.web._RootPage;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.creator.PageCreator;
 import org.seasar.framework.container.factory.S2ContainerFactory;
 import org.seasar.kvasir.util.el.VariableResolver;
+import org.seasar.ymir.convention.YmirNamingConvention;
+import org.seasar.ymir.impl.MatchedPathMappingImpl;
+import org.seasar.ymir.web._RootPage;
 
 public class YmirConventionTest extends TestCase {
 
@@ -57,7 +58,7 @@ public class YmirConventionTest extends TestCase {
         for (int i = 0; i < mappings.length; i++) {
             VariableResolver resolver = mappings[i].match(path, method);
             if (resolver != null) {
-                return new MatchedPathMapping(mappings[i], resolver);
+                return new MatchedPathMappingImpl(mappings[i], resolver);
             }
         }
         return null;

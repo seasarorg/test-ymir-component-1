@@ -58,6 +58,11 @@ public class ApplicationScopeTest extends TestCase {
             }
 
             @Override
+            protected Class<?> getComponentClass(String componentName) {
+                return ApplicationScopeTestPage.class;
+            }
+
+            @Override
             protected S2Container getS2Container() {
                 return container_;
             }
@@ -67,7 +72,7 @@ public class ApplicationScopeTest extends TestCase {
 
     public void test() throws Exception {
         MockRequest request = new MockRequest();
-        request.setMatched(true).setPath("/test.html").setActionName("_get");
+        request.setPath("/test.html").setActionName("_get");
 
         servletContext_.setAttribute("injectedValue", "INJECTED_VALUE");
         requestProcessor_.process(request);

@@ -32,6 +32,8 @@ public class RequestImpl implements Request {
 
     private String actionName_;
 
+    private Class<?> componentClass_;
+
     public RequestImpl() {
     }
 
@@ -40,7 +42,6 @@ public class RequestImpl implements Request {
             Map<String, FormFile[]> fileParameterMap,
             AttributeContainer attributeContainer, Locale locale,
             MatchedPathMapping matched) {
-
         contextPath_ = contextPath;
         path_ = path;
         method_ = method;
@@ -53,47 +54,38 @@ public class RequestImpl implements Request {
     }
 
     public String getDispatcher() {
-
         return dispatcher_;
     }
 
     public void setDispatcher(String dispatcher) {
-
         dispatcher_ = dispatcher;
     }
 
     public String getMethod() {
-
         return method_;
     }
 
     public void setMethod(String method) {
-
         method_ = method;
     }
 
     public String getContextPath() {
-
         return contextPath_;
     }
 
     public void setContextPath(String contextPath) {
-
         contextPath_ = contextPath;
     }
 
     public String getPath() {
-
         return path_;
     }
 
     public void setPath(String path) {
-
         path_ = path;
     }
 
     public String getAbsolutePath() {
-
         if ("".equals(path_)) {
             return contextPath_ + "/";
         } else {
@@ -102,12 +94,10 @@ public class RequestImpl implements Request {
     }
 
     public String getParameter(String name) {
-
         return getParameter(name, null);
     }
 
     public String getParameter(String name, String defaultValue) {
-
         String[] values = (String[]) parameterMap_.get(name);
         if (values != null && values.length > 0) {
             return values[0];
@@ -117,7 +107,6 @@ public class RequestImpl implements Request {
     }
 
     public String[] getParameterValues(String name, String[] defaultValues) {
-
         String[] values = (String[]) parameterMap_.get(name);
         if (values != null) {
             return values;
@@ -127,27 +116,22 @@ public class RequestImpl implements Request {
     }
 
     public String[] getParameterValues(String name) {
-
         return getParameterValues(name, null);
     }
 
     public Iterator<String> getParameterNames() {
-
         return parameterMap_.keySet().iterator();
     }
 
     public Map<String, String[]> getParameterMap() {
-
         return parameterMap_;
     }
 
     public void setParameterMap(Map<String, String[]> parameterMap) {
-
         parameterMap_ = parameterMap;
     }
 
     public FormFile getFileParameter(String name) {
-
         FormFile[] values = (FormFile[]) fileParameterMap_.get(name);
         if (values != null && values.length > 0) {
             return values[0];
@@ -157,7 +141,6 @@ public class RequestImpl implements Request {
     }
 
     public FormFile[] getFileParameterValues(String name) {
-
         FormFile[] values = (FormFile[]) fileParameterMap_.get(name);
         if (values != null) {
             return values;
@@ -167,37 +150,38 @@ public class RequestImpl implements Request {
     }
 
     public Iterator<String> getFileParameterNames() {
-
         return fileParameterMap_.keySet().iterator();
     }
 
     public Map<String, FormFile[]> getFileParameterMap() {
-
         return fileParameterMap_;
     }
 
     public void setFileParameterMap(Map<String, FormFile[]> fileParameterMap) {
-
         fileParameterMap_ = fileParameterMap;
     }
 
     public AttributeContainer getAttributeContainer() {
-
         return attributeContainer_;
     }
 
     public void setAttributeContainer(AttributeContainer attributeContainer) {
-
         attributeContainer_ = attributeContainer;
     }
 
     public String getComponentName() {
-
         return matched_.getComponentName();
     }
 
-    public String getActionName() {
+    public Class<?> getComponentClass() {
+        return componentClass_;
+    }
 
+    public void setComponentClass(Class<?> componentClass) {
+        componentClass_ = componentClass;
+    }
+
+    public String getActionName() {
         if (actionName_ == null) {
             return matched_.getActionName();
         } else {
@@ -206,28 +190,15 @@ public class RequestImpl implements Request {
     }
 
     public void setActionName(String actionName) {
-
         actionName_ = actionName;
     }
 
     public String getPathInfo() {
-
         return matched_.getPathInfo();
     }
 
-    public Object getDefaultReturnValue() {
-
-        return matched_.getDefaultReturnValue();
-    }
-
-    public String extractParameterName(String name) {
-
-        return matched_.extractParameterName(name);
-    }
-
-    public boolean isDispatchingByParameter() {
-
-        return matched_.isDispatchingByParameter();
+    public MatchedPathMapping getMatchedPathMapping() {
+        return matched_;
     }
 
     public Object getAttribute(String name) {

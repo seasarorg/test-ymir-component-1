@@ -25,10 +25,10 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public MethodInvoker actionInvoking(Object component, Method action,
+    public MethodInvoker actionInvoking(Object component, MethodInvoker action,
             Request request, MethodInvoker methodInvoker)
             throws PermissionDeniedException {
-        Conversation annotation = component.getClass().getAnnotation(
+        Conversation annotation = request.getComponentClass().getAnnotation(
                 Conversation.class);
         if (annotation != null) {
             Conversations conversations = ConversationUtils.getConversations();

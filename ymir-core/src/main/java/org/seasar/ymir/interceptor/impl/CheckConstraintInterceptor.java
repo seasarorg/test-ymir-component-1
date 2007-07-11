@@ -53,11 +53,12 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public MethodInvoker actionInvoking(Object component, Method action,
+    public MethodInvoker actionInvoking(Object component, MethodInvoker action,
             Request request, MethodInvoker methodInvoker)
             throws PermissionDeniedException {
         try {
-            Notes notes = confirmConstraint(component, action, request);
+            Notes notes = confirmConstraint(component, action.getMethod(),
+                    request);
             if (notes != null) {
                 request.setAttribute(ATTR_NOTES, notes);
 
@@ -109,8 +110,8 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
         boolean validationFailed = false;
         Notes notes = new Notes();
-        ConstraintBag[] bag = getConstraintBags(component, action,
-                suppressTypeSet);
+        ConstraintBag[] bag = getConstraintBags(request.getComponentClass(),
+                action, suppressTypeSet);
         for (int i = 0; i < bag.length; i++) {
             try {
                 bag[i].confirm(component, request);
@@ -172,17 +173,12 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
         return suppressTypeSet;
     }
 
-    protected ConstraintBag[] getConstraintBags(Object component,
-            Method action, Set<ConstraintType> suppressTypeSet) {
-        return getConstraints(component.getClass(), action, suppressTypeSet);
-    }
-
     // PropertyDescriptorのreadMethodは対象外。fieldも対象外。
-    ConstraintBag[] getConstraints(Class<?> clazz, Method action,
+    ConstraintBag[] getConstraintBags(Class<?> clazz, Method action,
             Set<ConstraintType> suppressTypeSet) {
         List<ConstraintBag> list = new ArrayList<ConstraintBag>();
 
-        getConstraint(clazz, list, suppressTypeSet);
+        getConstraintBag(clazz, list, suppressTypeSet);
         BeanInfo beanInfo;
         try {
             beanInfo = Introspector.getBeanInfo(clazz);
@@ -191,15 +187,15 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
         PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
         for (int i = 0; i < pds.length; i++) {
-            getConstraint(pds[i].getWriteMethod(), list, suppressTypeSet);
+            getConstraintBag(pds[i].getWriteMethod(), list, suppressTypeSet);
         }
-        getConstraint(action, list, EMPTY_SUPPRESSTYPESET);
+        getConstraintBag(action, list, EMPTY_SUPPRESSTYPESET);
 
         return list.toArray(new ConstraintBag[0]);
     }
 
     @SuppressWarnings("unchecked")
-    void getConstraint(AnnotatedElement element, List<ConstraintBag> list,
+    void getConstraintBag(AnnotatedElement element, List<ConstraintBag> list,
             Set<ConstraintType> suppressTypeSet) {
         if (element == null) {
             return;

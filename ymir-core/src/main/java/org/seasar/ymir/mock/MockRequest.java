@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.FormFile;
+import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Request;
 
 public class MockRequest implements Request {
@@ -22,8 +23,6 @@ public class MockRequest implements Request {
     private String componentName_;
 
     private String contextPath_;
-
-    private Object defaultReturnValue_;
 
     private String dispatcher_;
 
@@ -43,11 +42,11 @@ public class MockRequest implements Request {
 
     private Locale locale_;
 
-    private boolean matched_;
-
-    private boolean denied_;
-
     private Map<String, Object> attributeMap_ = new HashMap<String, Object>();
+
+    private MatchedPathMapping matchedPathMapping_ = new MockMatchedPathMapping();
+
+    private Class<?> componentClass_;;
 
     public String getAbsolutePath() {
         return absolutePath_;
@@ -65,12 +64,16 @@ public class MockRequest implements Request {
         return componentName_;
     }
 
-    public String getContextPath() {
-        return contextPath_;
+    public Class<?> getComponentClass() {
+        return componentClass_;
     }
 
-    public Object getDefaultReturnValue() {
-        return defaultReturnValue_;
+    public void setComponentClass(Class<?> componentClass) {
+        componentClass_ = componentClass;
+    }
+
+    public String getContextPath() {
+        return contextPath_;
     }
 
     public String getDispatcher() {
@@ -86,11 +89,11 @@ public class MockRequest implements Request {
     }
 
     public boolean isMatched() {
-        return matched_;
+        return matchedPathMapping_ != null;
     }
 
     public boolean isDenied() {
-        return denied_;
+        return matchedPathMapping_ == null || matchedPathMapping_.isDenied();
     }
 
     public String getMethod() {
@@ -144,11 +147,6 @@ public class MockRequest implements Request {
         return this;
     }
 
-    public MockRequest setDefaultReturnValue(Object defaultReturnValue) {
-        defaultReturnValue_ = defaultReturnValue;
-        return this;
-    }
-
     public MockRequest setDispatcher(String dispatcher) {
         dispatcher_ = dispatcher;
         return this;
@@ -162,11 +160,6 @@ public class MockRequest implements Request {
     public MockRequest setDispatchingByRequestParameter(
             boolean dispatchingByRequestParameter) {
         dispatchingByRequestParameter_ = dispatchingByRequestParameter;
-        return this;
-    }
-
-    public MockRequest setMatched(boolean matched) {
-        matched_ = matched;
         return this;
     }
 
@@ -204,10 +197,6 @@ public class MockRequest implements Request {
     public MockRequest setPathInfo(String pathInfo) {
         pathInfo_ = pathInfo;
         return this;
-    }
-
-    public String extractParameterName(String name) {
-        return null;
     }
 
     public FormFile getFileParameter(String name) {
@@ -288,5 +277,15 @@ public class MockRequest implements Request {
 
     public void setLocale(Locale locale) {
         locale_ = locale;
+    }
+
+    public MatchedPathMapping getMatchedPathMapping() {
+        return matchedPathMapping_;
+    }
+
+    public MockRequest setMatchedPathMapping(
+            MatchedPathMapping matchedPathMapping) {
+        matchedPathMapping_ = matchedPathMapping;
+        return this;
     }
 }

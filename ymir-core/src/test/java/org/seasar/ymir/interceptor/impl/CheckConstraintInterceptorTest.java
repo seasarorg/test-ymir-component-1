@@ -58,7 +58,7 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
     public void testGetConstraint() throws Exception {
 
         List<ConstraintBag> actual = new ArrayList<ConstraintBag>();
-        target_.getConstraint(Hoe.class, actual,
+        target_.getConstraintBag(Hoe.class, actual,
                 CheckConstraintInterceptor.EMPTY_SUPPRESSTYPESET);
         for (Iterator<ConstraintBag> itr = actual.iterator(); itr.hasNext();) {
             ConstraintBag bag = itr.next();
@@ -79,9 +79,8 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
      */
     public void testGetConstraints2() throws Exception {
 
-        Hoe hoe = new Hoe();
-        ConstraintBag[] actual = target_.getConstraintBags(hoe, null, target_
-                .getSuppressTypeSet(null));
+        ConstraintBag[] actual = target_.getConstraintBags(Hoe.class, null,
+                target_.getSuppressTypeSet(null));
         for (int i = 0; i < actual.length; i++) {
             actual[i].confirm(null, null);
         }
@@ -102,10 +101,9 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
      */
     public void testGetConstraints4() throws Exception {
 
-        Hoe hoe = new Hoe();
         Method action = Hoe.class.getMethod("_render", new Class[0]);
-        ConstraintBag[] actual = target_.getConstraintBags(hoe, action, target_
-                .getSuppressTypeSet(action));
+        ConstraintBag[] actual = target_.getConstraintBags(Hoe.class, action,
+                target_.getSuppressTypeSet(action));
         for (int i = 0; i < actual.length; i++) {
             actual[i].confirm(null, null);
         }
@@ -127,10 +125,9 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
      */
     public void testGetConstraints5() throws Exception {
 
-        Hoe hoe = new Hoe();
         Method action = Hoe.class.getMethod("_get", new Class[0]);
-        ConstraintBag[] actual = target_.getConstraintBags(hoe, action, target_
-                .getSuppressTypeSet(action));
+        ConstraintBag[] actual = target_.getConstraintBags(Hoe.class, action,
+                target_.getSuppressTypeSet(action));
         for (int i = 0; i < actual.length; i++) {
             actual[i].confirm(null, null);
         }
@@ -147,10 +144,9 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
      */
     public void testGetConstraints6() throws Exception {
 
-        Hoe hoe = new Hoe();
         Method action = Hoe.class.getMethod("_head", new Class[0]);
-        ConstraintBag[] actual = target_.getConstraintBags(hoe, action, target_
-                .getSuppressTypeSet(action));
+        ConstraintBag[] actual = target_.getConstraintBags(Hoe.class, action,
+                target_.getSuppressTypeSet(action));
         for (int i = 0; i < actual.length; i++) {
             actual[i].confirm(null, null);
         }
@@ -168,10 +164,9 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
      */
     public void testGetConstraints7() throws Exception {
 
-        Hoe7 hoe = new Hoe7();
         Method action = Hoe7.class.getMethod("_get", new Class[0]);
-        ConstraintBag[] actual = target_.getConstraintBags(hoe, action, target_
-                .getSuppressTypeSet(action));
+        ConstraintBag[] actual = target_.getConstraintBags(Hoe7.class, action,
+                target_.getSuppressTypeSet(action));
         for (int i = 0; i < actual.length; i++) {
             actual[i].confirm(null, null);
         }
@@ -192,6 +187,7 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
         Object component = new TestPage();
         Request request = new MockRequest().setPath("/test.html")
                 .setComponentName("TestPage");
+        request.setComponentClass(TestPage.class);
 
         Notes actual = target_.confirmConstraint(component, TestPage.class
                 .getMethod("_get", new Class[0]), request);
@@ -205,6 +201,7 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
         Object component = new Test2Page();
         Request request = new MockRequest().setPath("/test2.html")
                 .setComponentName("Test2Page");
+        request.setComponentClass(Test2Page.class);
 
         Notes actual = target_.confirmConstraint(component, Test2Page.class
                 .getMethod("_get", new Class[0]), request);

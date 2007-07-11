@@ -1,10 +1,7 @@
 package org.seasar.ymir.impl;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +12,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.seasar.cms.pluggable.ThreadContext;
+import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
@@ -51,6 +49,10 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
     static final Set<ConstraintType> EMPTY_SUPPRESSTYPESET = EnumSet
             .noneOf(ConstraintType.class);
+
+    private static final String INDEX_PREFIX = "[";
+
+    private static final String INDEX_SUFFIX = "]";
 
     private Ymir ymir_;
 
@@ -179,7 +181,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
             for (int i = 0; i < pathMappings.length; i++) {
                 resolver = pathMappings[i].match(path, method);
                 if (resolver != null) {
-                    return new MatchedPathMapping(pathMappings[i], resolver);
+                    return new MatchedPathMappingImpl(pathMappings[i], resolver);
                 }
             }
         }
@@ -197,22 +199,25 @@ public class DefaultRequestProcessor implements RequestProcessor {
         if (request.isMatched()) {
             Object component = getComponent(request);
             if (component != null) {
+                Class<?> componentClass = getComponentClass(request
+                        .getComponentName());
+                request.setComponentClass(componentClass);
+
                 for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
                     component = ymirProcessInterceptors_[i]
                             .componentCreated(component);
                 }
 
-                PagePropertyBag bag = new PagePropertyBag(component.getClass(),
+                PagePropertyBag bag = new PagePropertyBag(componentClass,
                         getS2Container());
 
                 prepareForComponent(component, bag, request);
 
                 // リクエストに対応するアクションの呼び出しを行なう。
-                Method action = getActionMethod(component, request
-                        .getActionName(), ACTION_DEFAULT, request
-                        .isDispatchingByParameter(), request);
-                if (action != null) {
-                    request.setActionName(action.getName());
+                MethodInvoker action = request.getMatchedPathMapping()
+                        .getActionMethodInvoker(componentClass, request);
+                if (action.getMethod() != null) {
+                    request.setActionName(action.getMethod().getName());
                 }
 
                 response = normalizeResponse(adjustResponse(request,
@@ -225,9 +230,9 @@ public class DefaultRequestProcessor implements RequestProcessor {
                     // 画面描画のためのAction呼び出しを行なう。
                     // （画面描画のためのAction呼び出しの際にはAction付随の制約以外の
                     // 制約チェックを行なわない。）
-                    invokeMethod(component, getActionMethod(component,
-                            METHOD_RENDER, null, false, request), request,
-                            false);
+                    invokeMethod(component, new MethodInvokerImpl(MethodUtils
+                            .getMethod(componentClass, METHOD_RENDER),
+                            new Object[0]), request, false);
                 }
 
                 finishForComponent(component, bag, request);
@@ -276,6 +281,16 @@ public class DefaultRequestProcessor implements RequestProcessor {
             }
         }
         return component;
+    }
+
+    protected Class<?> getComponentClass(String componentName) {
+        ComponentDef componentDef = getS2Container().getComponentDef(
+                componentName);
+        if (componentDef != null) {
+            return componentDef.getComponentClass();
+        } else {
+            return null;
+        }
     }
 
     Response normalizeResponse(Response response, String path) {
@@ -374,103 +389,35 @@ public class DefaultRequestProcessor implements RequestProcessor {
         return threadContext_;
     }
 
-    Response invokeMethod(Object component, Method action, Request request,
-            boolean invokeAsAction) throws PermissionDeniedException {
+    Response invokeMethod(Object component, final MethodInvoker methodInvoker,
+            Request request, boolean invokeAsAction)
+            throws PermissionDeniedException {
 
         Response response = PassthroughResponse.INSTANCE;
-        MethodInvoker methodInvoker = new MethodInvokerImpl(action,
-                new Object[0]);
 
+        MethodInvoker actualMethodInvoker = methodInvoker;
         if (invokeAsAction) {
             for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                methodInvoker = ymirProcessInterceptors_[i].actionInvoking(
-                        component, action, request, methodInvoker);
+                actualMethodInvoker = ymirProcessInterceptors_[i]
+                        .actionInvoking(component, methodInvoker, request,
+                                actualMethodInvoker);
             }
         }
 
-        if (methodInvoker.shouldInvoke()) {
+        if (actualMethodInvoker.shouldInvoke()) {
             if (logger_.isDebugEnabled()) {
-                logger_.debug("INVOKE: " + component.getClass().getName() + "#"
-                        + methodInvoker);
+                logger_.debug("INVOKE: "
+                        + request.getComponentClass().getName() + "#"
+                        + actualMethodInvoker);
             }
             response = constructResponse(component, methodInvoker
-                    .getReturnType(), methodInvoker.invoke(component));
+                    .getReturnType(), actualMethodInvoker.invoke(component));
             if (logger_.isDebugEnabled()) {
                 logger_.debug("RESPONSE: " + response);
             }
         }
 
         return response;
-    }
-
-    Method getActionMethod(Object component, String actionName,
-            String defaultActionName, boolean dispatchingByParamter,
-            Request request) {
-        if (dispatchingByParamter) {
-            Method[] methods = component.getClass().getMethods();
-            if (logger_.isDebugEnabled()) {
-                logger_
-                        .debug("getActionMethod: dispatchingByRequestParameter=true. search "
-                                + component.getClass()
-                                + " for "
-                                + actionName
-                                + " method...");
-            }
-            List<Method> list = new ArrayList<Method>();
-            for (int i = 0; i < methods.length; i++) {
-                if (methods[i].getParameterTypes().length > 0) {
-                    continue;
-                }
-                String name = methods[i].getName();
-                if (name.startsWith(actionName)) {
-                    String parameterName = request.extractParameterName(name
-                            .substring(actionName.length()));
-                    if (parameterName != null
-                            && request.getParameter(parameterName) != null) {
-                        if (logger_.isDebugEnabled()) {
-                            logger_.debug("getActionMethod: Found: "
-                                    + methods[i]);
-                        }
-                        return methods[i];
-                    }
-                }
-                list.add(methods[i]);
-            }
-            if (defaultActionName != null) {
-                if (logger_.isDebugEnabled()) {
-                    logger_.debug("getActionMethod: search "
-                            + component.getClass() + " for "
-                            + defaultActionName + " method...");
-                }
-                for (Iterator itr = list.iterator(); itr.hasNext();) {
-                    Method method = (Method) itr.next();
-                    String name = method.getName();
-                    if (name.startsWith(defaultActionName)) {
-                        String parameterName = request
-                                .extractParameterName(name
-                                        .substring(defaultActionName.length()));
-                        if (parameterName != null
-                                && request.getParameter(parameterName) != null) {
-                            if (logger_.isDebugEnabled()) {
-                                logger_.debug("getActionMethod: Found: "
-                                        + method);
-                            }
-                            return method;
-                        }
-                    }
-                }
-            }
-        }
-
-        Method method = MethodUtils.getMethod(component, actionName);
-        if (method == null && defaultActionName != null) {
-            method = MethodUtils.getMethod(component, defaultActionName);
-        }
-
-        if (logger_.isDebugEnabled()) {
-            logger_.debug("getActionMethod: Found: " + method);
-        }
-        return method;
     }
 
     Response adjustResponse(Request request, Response response, Object component) {
@@ -486,12 +433,12 @@ public class DefaultRequestProcessor implements RequestProcessor {
     }
 
     Response constructDefaultResponse(Request request, Object component) {
-
         if (fileResourceExists(request.getPath())) {
             // パスに対応するテンプレートファイルが存在する場合はパススルーする。
             return PassthroughResponse.INSTANCE;
         } else {
-            Object returnValue = request.getDefaultReturnValue();
+            Object returnValue = request.getMatchedPathMapping()
+                    .getDefaultReturnValue();
             if (returnValue != null) {
                 return constructResponse(component, returnValue.getClass(),
                         returnValue);
@@ -502,7 +449,6 @@ public class DefaultRequestProcessor implements RequestProcessor {
     }
 
     boolean fileResourceExists(String path) {
-
         if (path.length() == 0 || path.equals("/")) {
             return false;
         }
@@ -532,6 +478,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
         ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
         try {
             if (component != null) {
+                // TODO request.getComponentClass().getClassLoader()にすべきか？
                 Thread.currentThread().setContextClassLoader(
                         component.getClass().getClassLoader());
             }
