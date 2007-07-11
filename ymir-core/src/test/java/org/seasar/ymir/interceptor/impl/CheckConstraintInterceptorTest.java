@@ -21,6 +21,7 @@ import org.seasar.ymir.impl.ConstraintBag;
 import org.seasar.ymir.impl.Hoe;
 import org.seasar.ymir.impl.Hoe7;
 import org.seasar.ymir.impl.Test2Page;
+import org.seasar.ymir.impl.Test3Page;
 import org.seasar.ymir.impl.TestPage;
 import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.mock.MockRequest;
@@ -210,5 +211,34 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
         assertEquals(2, actual.size());
         assertEquals(1, actual.getNotes("validate").length);
         assertEquals(1, actual.getNotes("validate2").length);
+    }
+
+    public void test3_Validatorアノテーションにアクション指定がついている時は指定されたアクションについてだけ呼び出されること()
+            throws Exception {
+
+        Object component = new Test3Page();
+        Request request = new MockRequest().setPath("/test3.html")
+                .setComponentName("Test3Page");
+        request.setComponentClass(Test3Page.class);
+
+        Notes actual = target_.confirmConstraint(component, Test3Page.class
+                .getMethod("_get", new Class[0]), request);
+
+        assertNull(actual);
+    }
+
+    public void test3_Validatorアノテーションにアクション指定がついている時は指定されたアクションについてだけ呼び出されること2()
+            throws Exception {
+
+        Object component = new Test3Page();
+        Request request = new MockRequest().setPath("/test3.html")
+                .setComponentName("Test3Page");
+        request.setComponentClass(Test3Page.class);
+
+        Notes actual = target_.confirmConstraint(component, Test3Page.class
+                .getMethod("_post", new Class[0]), request);
+
+        assertNotNull(actual);
+        assertEquals(1, actual.size());
     }
 }

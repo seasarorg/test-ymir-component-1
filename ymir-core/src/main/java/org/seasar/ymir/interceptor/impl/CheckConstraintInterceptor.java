@@ -127,7 +127,8 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
 
         // Validatorアノテーションがついているメソッドを実行する。
-        Method[] validators = gatherValidators(componentClass, suppressTypeSet);
+        Method[] validators = gatherValidators(componentClass, action,
+                suppressTypeSet);
         for (int i = 0; i < validators.length; i++) {
             try {
                 Object invoked = validators[i].invoke(component, new Object[0]);
@@ -265,15 +266,37 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
     }
 
-    Method[] gatherValidators(Class<?> componentClass,
+    Method[] gatherValidators(Class<?> componentClass, Method action,
             Set<ConstraintType> suppressTypeSet) {
         List<Method> validatorList = new ArrayList<Method>();
+
+        String actionName = null;
+        if (action != null) {
+            actionName = action.getName();
+        }
 
         // バリデーションを抑制するように指定されている場合はカスタムバリデータを収集しない。
         if (!suppressTypeSet.contains(ConstraintType.VALIDATION)) {
             Method[] methods = componentClass.getMethods();
             for (int i = 0; i < methods.length; i++) {
-                if (methods[i].isAnnotationPresent(Validator.class)) {
+                Validator validator = methods[i].getAnnotation(Validator.class);
+                if (validator != null) {
+                    String[] actionNames = validator.value();
+                    if (actionNames.length > 0) {
+                        // 対象アクションが限定されているので、アクションが対象アクションでない
+                        // 場合は無視するようにする。
+                        boolean matched = false;
+                        for (int j = 0; j < actionNames.length; j++) {
+                            if (actionNames[j].equals(actionName)) {
+                                matched = true;
+                                break;
+                            }
+                        }
+                        if (!matched) {
+                            continue;
+                        }
+                    }
+
                     if (methods[i].getParameterTypes().length > 0) {
                         // 引数を持つメソッドにはValidatorアノテーションはつけられない。
                         throw new RuntimeException(
