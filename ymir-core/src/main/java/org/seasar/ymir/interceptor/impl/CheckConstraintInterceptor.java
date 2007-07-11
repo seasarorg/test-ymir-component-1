@@ -110,8 +110,9 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
         boolean validationFailed = false;
         Notes notes = new Notes();
-        ConstraintBag[] bag = getConstraintBags(request.getComponentClass(),
-                action, suppressTypeSet);
+        Class<?> componentClass = request.getComponentClass();
+        ConstraintBag[] bag = getConstraintBags(componentClass, action,
+                suppressTypeSet);
         for (int i = 0; i < bag.length; i++) {
             try {
                 bag[i].confirm(component, request);
@@ -126,7 +127,7 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
 
         // Validatorアノテーションがついているメソッドを実行する。
-        Method[] validators = gatherValidators(component, suppressTypeSet);
+        Method[] validators = gatherValidators(componentClass, suppressTypeSet);
         for (int i = 0; i < validators.length; i++) {
             try {
                 Object invoked = validators[i].invoke(component, new Object[0]);
@@ -264,13 +265,13 @@ public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
     }
 
-    Method[] gatherValidators(Object component,
+    Method[] gatherValidators(Class<?> componentClass,
             Set<ConstraintType> suppressTypeSet) {
         List<Method> validatorList = new ArrayList<Method>();
 
         // バリデーションを抑制するように指定されている場合はカスタムバリデータを収集しない。
         if (!suppressTypeSet.contains(ConstraintType.VALIDATION)) {
-            Method[] methods = component.getClass().getMethods();
+            Method[] methods = componentClass.getMethods();
             for (int i = 0; i < methods.length; i++) {
                 if (methods[i].isAnnotationPresent(Validator.class)) {
                     if (methods[i].getParameterTypes().length > 0) {
