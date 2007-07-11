@@ -28,6 +28,7 @@ import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
 import org.seasar.ymir.extension.creator.impl.ParameterDescImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.impl.ApplicationManagerImpl;
+import org.seasar.ymir.impl.MatchedPathMappingImpl;
 import org.seasar.ymir.impl.PathMappingImpl;
 import org.seasar.ymir.mock.MockApplication;
 import org.seasar.framework.convention.impl.NamingConventionImpl;
@@ -86,7 +87,8 @@ public class ZptAnalyzerTest extends TestCase {
                     VariableResolver resolver = mappings_[i]
                             .match(path, method);
                     if (resolver != null) {
-                        return new MatchedPathMapping(mappings_[i], resolver);
+                        return new MatchedPathMappingImpl(mappings_[i],
+                                resolver);
                     }
                 }
                 return null;
