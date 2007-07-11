@@ -64,6 +64,7 @@ public class PathMappingImpl implements PathMapping {
             String pathInfoTemplate, Object defaultReturnValue,
             String parameterNamePatternStringForDispatching) {
 
+        denied_ = denied;
         pattern_ = Pattern.compile(patternString);
         componentNameTemplate_ = componentTemplate;
         actionNameTemplate_ = actionNameTemplate;
