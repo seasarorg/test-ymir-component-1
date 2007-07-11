@@ -191,7 +191,8 @@ public class DefaultRequestProcessor implements RequestProcessor {
     public Response process(Request request) throws PageNotFoundException,
             PermissionDeniedException {
 
-        if (request.isDenied()) {
+        if (Request.DISPATCHER_REQUEST.equals(request.getDispatcher())
+                && request.isDenied()) {
             throw new PageNotFoundException(request.getPath());
         }
 
