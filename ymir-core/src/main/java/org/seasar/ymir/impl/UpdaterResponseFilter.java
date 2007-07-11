@@ -23,8 +23,6 @@ public class UpdaterResponseFilter extends HttpServletResponseWrapper implements
 
     private String type_;
 
-    private boolean underDevelopment_;
-
     private ByteArrayOutputStream outputStream_;
 
     private StringWriter writer_;
@@ -32,11 +30,9 @@ public class UpdaterResponseFilter extends HttpServletResponseWrapper implements
     private PrintWriter printWriter_;
 
     public UpdaterResponseFilter(HttpServletRequest request,
-            HttpServletResponse response, Updater[] updaters,
-            boolean underDevelopment) {
+            HttpServletResponse response, Updater[] updaters) {
         super(response);
         updaters_ = updaters;
-        underDevelopment_ = underDevelopment;
     }
 
     public ServletOutputStream getOutputStream() throws IOException {
@@ -53,7 +49,7 @@ public class UpdaterResponseFilter extends HttpServletResponseWrapper implements
     }
 
     boolean shouldBuffering() {
-        return (underDevelopment_ && type_ != null && type_.startsWith("text/"));
+        return (type_ != null && type_.startsWith("text/"));
     }
 
     public PrintWriter getWriter() throws IOException {

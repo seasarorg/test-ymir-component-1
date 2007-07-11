@@ -191,13 +191,15 @@ public class DefaultRequestProcessor implements RequestProcessor {
     public Response process(Request request) throws PageNotFoundException,
             PermissionDeniedException {
 
-        if (Request.DISPATCHER_REQUEST.equals(request.getDispatcher())
-                && request.isDenied()) {
+        boolean isRequestDispatcher = Request.DISPATCHER_REQUEST.equals(request
+                .getDispatcher());
+
+        if (isRequestDispatcher && request.isDenied()) {
             throw new PageNotFoundException(request.getPath());
         }
 
         Response response = null;
-        if (request.isMatched()) {
+        if (request.isMatched() && !request.isDenied()) {
             Object component = getComponent(request);
             if (component != null) {
                 Class<?> componentClass = getComponentClass(request
@@ -256,7 +258,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
             logger_.debug("FINAL RESPONSE: " + response);
         }
 
-        if (ymir_.isUnderDevelopment()) {
+        if (isRequestDispatcher && ymir_.isUnderDevelopment()) {
             for (int i = 0; i < updaters_.length; i++) {
                 Response newResponse = updaters_[i].update(request, response);
                 if (newResponse != response) {

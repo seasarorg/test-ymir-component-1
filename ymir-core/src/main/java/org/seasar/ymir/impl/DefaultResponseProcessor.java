@@ -62,7 +62,7 @@ public class DefaultResponseProcessor implements ResponseProcessor {
 
         switch (response.getType()) {
         case PASSTHROUGH:
-            return constructResponseFilter(httpRequest, httpResponse);
+            return constructResponseFilter(httpRequest, httpResponse, request);
 
         case FORWARD:
             context.getRequestDispatcher(response.getPath()).forward(
@@ -123,9 +123,15 @@ public class DefaultResponseProcessor implements ResponseProcessor {
     }
 
     HttpServletResponseFilter constructResponseFilter(
-            HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
-        return new UpdaterResponseFilter(httpRequest, httpResponse, updaters_,
-                ymir_.isUnderDevelopment());
+            HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+            Request request) {
+        if (Request.DISPATCHER_REQUEST.equals(request.getDispatcher())
+                && ymir_.isUnderDevelopment()) {
+            return new UpdaterResponseFilter(httpRequest, httpResponse,
+                    updaters_);
+        } else {
+            return new AsIsResponseFilter(httpResponse);
+        }
     }
 
     public void setRedirectionPathResolver(
