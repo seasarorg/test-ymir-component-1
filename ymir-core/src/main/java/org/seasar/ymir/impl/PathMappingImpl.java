@@ -312,7 +312,7 @@ public class PathMappingImpl implements PathMapping {
                         return new MethodInvokerImpl(method, new Object[0]);
                     }
                 } else {
-                    String prefix = name + INDEX_PREFIX;
+                    String prefix = parameterName + INDEX_PREFIX;
                     for (Iterator<String> itr = request.getParameterNames(); itr
                             .hasNext();) {
                         String pname = itr.next();
