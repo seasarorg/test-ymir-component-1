@@ -198,8 +198,8 @@ public class DefaultRequestProcessor implements RequestProcessor {
             throw new PageNotFoundException(request.getPath());
         }
 
-        Response response = null;
-        if (request.isMatched() && !request.isDenied()) {
+        Response response = PassthroughResponse.INSTANCE;
+        if (request.isMatched()) {
             Object component = getComponent(request);
             if (component != null) {
                 Class<?> componentClass = getComponentClass(request
@@ -239,19 +239,17 @@ public class DefaultRequestProcessor implements RequestProcessor {
                 }
 
                 finishForComponent(component, bag, request);
-            } else {
+            } else if (request.getComponentName() != null) {
                 // componentがnullになるのは、component名が割り当てられているのにまだ
-                // 対応するcomponentクラスが作成されていない場合。
-                // その場合自動生成機能でクラスやテンプレートの自動生成が適切にできるように、
+                // 対応するcomponentクラスが作成されていない場合、またはDeniedPathMappingImpl
+                // に関して処理をしている場合。
+                // 前者の場合自動生成機能でクラスやテンプレートの自動生成が適切にできるように、
                 // デフォルト値からResponseを作るようにしている。
                 // （例えば、リクエストパス名がテンプレートパス名ではない場合に、リクエストパス名で
                 // テンプレートが作られてしまうとうれしくない。）
-
                 response = normalizeResponse(constructDefaultResponse(request,
                         component), request.getPath());
             }
-        } else {
-            response = PassthroughResponse.INSTANCE;
         }
 
         if (logger_.isDebugEnabled()) {
@@ -271,14 +269,19 @@ public class DefaultRequestProcessor implements RequestProcessor {
     }
 
     protected Object getComponent(Request request) {
+        String componentName = request.getComponentName();
+        if (componentName == null) {
+            // 主にDeniedPathMappingImplのため。
+            return null;
+        }
+
         Object component = null;
         S2Container s2container = getS2Container();
-        if (s2container.hasComponentDef(request.getComponentName())) {
+        if (s2container.hasComponentDef(componentName)) {
             ThreadContext context = getThreadContext();
             try {
                 context.setComponent(Request.class, request);
-                component = s2container
-                        .getComponent(request.getComponentName());
+                component = s2container.getComponent(componentName);
             } finally {
                 context.setComponent(Request.class, null);
             }

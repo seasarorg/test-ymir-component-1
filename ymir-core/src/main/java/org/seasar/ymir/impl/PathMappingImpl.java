@@ -91,27 +91,22 @@ public class PathMappingImpl implements PathMapping {
     }
 
     public String getPathInfoTemplate() {
-
         return pathInfoTemplate_;
     }
 
     public String getDefaultReturnValueTemplate() {
-
         return defaultReturnValueTemplate_;
     }
 
     public Object getDefaultReturnValue() {
-
         return defaultReturnValue_;
     }
 
     public Pattern getPattern() {
-
         return pattern_;
     }
 
     public VariableResolver match(String path, String method) {
-
         Matcher matcher = pattern_.matcher(path);
         if (matcher.find()) {
             Map<String, String> prop = new HashMap<String, String>();
@@ -137,7 +132,6 @@ public class PathMappingImpl implements PathMapping {
     }
 
     String upper(String str) {
-
         if (str == null) {
             return null;
         } else if (str.length() == 0) {
@@ -148,7 +142,6 @@ public class PathMappingImpl implements PathMapping {
     }
 
     String lower(String str) {
-
         if (str == null) {
             return null;
         } else if (str.length() == 0) {
@@ -159,22 +152,18 @@ public class PathMappingImpl implements PathMapping {
     }
 
     public String getComponentName(VariableResolver resolver) {
-
         return evaluate(componentNameTemplate_, resolver);
     }
 
     public String getActionName(VariableResolver resolver) {
-
         return evaluate(actionNameTemplate_, resolver);
     }
 
     public String getPathInfo(VariableResolver resolver) {
-
         return evaluate(pathInfoTemplate_, resolver);
     }
 
     public Object getDefaultReturnValue(VariableResolver resolver) {
-
         if (defaultReturnValueTemplate_ != null) {
             return evaluate(defaultReturnValueTemplate_, resolver);
         } else {
@@ -183,7 +172,6 @@ public class PathMappingImpl implements PathMapping {
     }
 
     String evaluate(String template, VariableResolver resolver) {
-
         if (resolver == null || template == null) {
             return null;
         } else {
@@ -197,12 +185,10 @@ public class PathMappingImpl implements PathMapping {
     }
 
     public boolean isDenied() {
-
         return denied_;
     }
 
     protected String extractParameterName(String name) {
-
         if (parameterNamePatternForDispatching_ != null) {
             Matcher matcher = parameterNamePatternForDispatching_.matcher(name);
             if (matcher.find()) {
