@@ -416,7 +416,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
                         + request.getComponentClass().getName() + "#"
                         + actualMethodInvoker);
             }
-            response = constructResponse(component, methodInvoker
+            response = constructResponse(component, actualMethodInvoker
                     .getReturnType(), actualMethodInvoker.invoke(component));
             if (logger_.isDebugEnabled()) {
                 logger_.debug("RESPONSE: " + response);
