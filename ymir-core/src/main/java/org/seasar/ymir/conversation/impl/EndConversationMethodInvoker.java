@@ -11,7 +11,7 @@ public class EndConversationMethodInvoker extends MethodInvokerWrapper {
 
     public Object invoke(Object component) {
         RuntimeException exception = null;
-        Object returned;
+        Object returned = null;
         try {
             returned = methodInvoker_.invoke(component);
         } catch (RuntimeException ex) {
@@ -24,7 +24,7 @@ public class EndConversationMethodInvoker extends MethodInvokerWrapper {
             Object reenterResponse = ConversationUtils.getConversations().end();
             if (exception != null) {
                 throw exception;
-            } else {
+            } else if (reenterResponse != null) {
                 returned = reenterResponse;
             }
         }
