@@ -9,9 +9,9 @@ import org.seasar.ymir.creator.PageCreator;
 
 public class YmirDiconTest extends TestCase {
     public void test_Creator定義を差し替えられること() throws Exception {
-        SingletonPluggableContainerFactory
-                .setConfigPath("org/seasar/ymir/ymir.dicon");
         SingletonPluggableContainerFactory.prepareForContainer();
+        SingletonPluggableContainerFactory.integrate(
+                "org/seasar/ymir/ymir.dicon", new S2Container[0]);
         SingletonPluggableContainerFactory.init();
         S2Container container = SingletonPluggableContainerFactory
                 .getRootContainer();
