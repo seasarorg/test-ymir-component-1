@@ -9,7 +9,7 @@
   <component name="constraintCreator"
     class="org.seasar.ymir.creator.ConstraintCreator" />
   <component name="interceptorCreator"
-    class="org.seasar.ymir.creator.InterceptorCreator" />
+    class="org.seasar.framework.container.creator.InterceptorCreator" />
   <component name="dtoCreator"
     class="org.seasar.framework.container.creator.DtoCreator" />
   <component name="daoCreator"
