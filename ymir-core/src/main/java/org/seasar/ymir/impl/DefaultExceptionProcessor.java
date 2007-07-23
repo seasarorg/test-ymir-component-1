@@ -1,5 +1,7 @@
 package org.seasar.ymir.impl;
 
+import org.seasar.framework.container.ComponentNotFoundRuntimeException;
+import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -11,8 +13,7 @@ import org.seasar.ymir.handler.ExceptionHandler;
 import org.seasar.ymir.response.ForwardResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
-import org.seasar.framework.container.ComponentNotFoundRuntimeException;
-import org.seasar.framework.container.S2Container;
+import org.seasar.ymir.util.BeanUtils;
 
 public class DefaultExceptionProcessor implements ExceptionProcessor {
 
@@ -104,11 +105,8 @@ public class DefaultExceptionProcessor implements ExceptionProcessor {
 
     String getComponentName(Class clazz) {
 
-        String name = getClassShortName(clazz);
-        if (name.length() > 0) {
-            name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
-        }
-        return name + SUFFIX_HANDLER;
+        return BeanUtils.changeWithPropertyNameRule(getClassShortName(clazz))
+                + SUFFIX_HANDLER;
     }
 
     String getClassShortName(Class clazz) {

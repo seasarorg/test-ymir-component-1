@@ -35,6 +35,10 @@ public class BeanUtils {
                 }
             }
         }
+        return changeWithPropertyNameRule(name);
+    }
+
+    public static String changeWithPropertyNameRule(String name) {
         if (name == null || name.length() == 0) {
             return null;
         } else if (name.length() > 1 && Character.isUpperCase(name.charAt(1))) {
