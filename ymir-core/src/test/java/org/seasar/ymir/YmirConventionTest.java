@@ -35,12 +35,12 @@ public class YmirConventionTest extends TestCase {
         assertEquals("articlePage", matched.getComponentName());
         assertEquals("_get", matched.getActionName());
 
-        matched = match("/article/update.html", "POST", mappings);
+        matched = match("/article/update.do", "POST", mappings);
         assertNotNull(matched);
         assertEquals("articlePage", matched.getComponentName());
-        assertEquals("_updateByPost", matched.getActionName());
+        assertEquals("_post_update", matched.getActionName());
 
-        matched = match("/article/_update.html", "POST", mappings);
+        matched = match("/article/_update.do", "POST", mappings);
         assertNull(matched);
     }
 

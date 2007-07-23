@@ -1,14 +1,19 @@
 package org.seasar.ymir.response;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseHeader;
 import org.seasar.ymir.ResponseType;
 
 abstract public class ResponseBase implements Response {
     private static final String PREFIX_CHARSET = "charset=";
 
     private int status_ = STATUS_UNDEFINED;
+
+    private List<ResponseHeader> headerList_ = new ArrayList<ResponseHeader>();
 
     public void setType(ResponseType type) {
         throw new UnsupportedOperationException();
@@ -58,5 +63,33 @@ abstract public class ResponseBase implements Response {
 
     public void setStatus(int status) {
         status_ = status;
+    }
+
+    public void addDateHeader(String name, long value) {
+        headerList_.add(new ResponseHeader(name, value, true));
+    }
+
+    public void addHeader(String name, String value) {
+        headerList_.add(new ResponseHeader(name, value, true));
+    }
+
+    public void addIntHeader(String name, int value) {
+        headerList_.add(new ResponseHeader(name, value, true));
+    }
+
+    public void setDateHeader(String name, long value) {
+        headerList_.add(new ResponseHeader(name, value));
+    }
+
+    public void setHeader(String name, String value) {
+        headerList_.add(new ResponseHeader(name, value));
+    }
+
+    public void setIntHeader(String name, int value) {
+        headerList_.add(new ResponseHeader(name, value));
+    }
+
+    public ResponseHeader[] getResponseHeaders() {
+        return headerList_.toArray(new ResponseHeader[0]);
     }
 }

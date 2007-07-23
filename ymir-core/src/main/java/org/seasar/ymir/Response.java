@@ -26,4 +26,18 @@ public interface Response {
     int getStatus();
 
     void setStatus(int status);
+
+    void setHeader(String name, String value);
+
+    void setDateHeader(String name, long value);
+
+    void setIntHeader(String name, int value);
+
+    void addHeader(String name, String value);
+
+    void addDateHeader(String name, long value);
+
+    void addIntHeader(String name, int value);
+
+    ResponseHeader[] getResponseHeaders();
 }

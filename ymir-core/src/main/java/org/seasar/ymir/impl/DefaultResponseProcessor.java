@@ -15,6 +15,7 @@ import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.RedirectionPathResolver;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseHeader;
 import org.seasar.ymir.ResponseProcessor;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.Ymir;
@@ -62,9 +63,11 @@ public class DefaultResponseProcessor implements ResponseProcessor {
 
         switch (response.getType()) {
         case PASSTHROUGH:
+            populateHeaders(response, httpResponse);
             return constructResponseFilter(httpRequest, httpResponse, request);
 
         case FORWARD:
+            populateHeaders(response, httpResponse);
             context.getRequestDispatcher(response.getPath()).forward(
                     httpRequest, httpResponse);
             return null;
@@ -84,6 +87,8 @@ public class DefaultResponseProcessor implements ResponseProcessor {
             return null;
 
         case SELF_CONTAINED:
+            populateHeaders(response, httpResponse);
+
             InputStream is = null;
             OutputStream os = null;
             try {
@@ -119,6 +124,39 @@ public class DefaultResponseProcessor implements ResponseProcessor {
         default:
             throw new RuntimeException("Unknown response type:"
                     + response.getType());
+        }
+    }
+
+    protected void populateHeaders(Response response,
+            HttpServletResponse httpResponse) {
+        ResponseHeader[] headers = response.getResponseHeaders();
+        for (int i = 0; i < headers.length; i++) {
+            String name = headers[i].getName();
+            Object value = headers[i].getValue();
+            boolean add = headers[i].isAdd();
+            if (value instanceof Integer) {
+                if (add) {
+                    httpResponse.addIntHeader(name, ((Integer) value)
+                            .intValue());
+                } else {
+                    httpResponse.setIntHeader(name, ((Integer) value)
+                            .intValue());
+                }
+            } else if (value instanceof Long) {
+                if (add) {
+                    httpResponse
+                            .addDateHeader(name, ((Long) value).longValue());
+                } else {
+                    httpResponse
+                            .setDateHeader(name, ((Long) value).longValue());
+                }
+            } else {
+                if (add) {
+                    httpResponse.addHeader(name, String.valueOf(value));
+                } else {
+                    httpResponse.setHeader(name, String.valueOf(value));
+                }
+            }
         }
     }
 

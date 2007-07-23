@@ -2,18 +2,15 @@ package org.seasar.ymir.mock;
 
 import java.io.InputStream;
 
-import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
+import org.seasar.ymir.response.ResponseBase;
 
-public class MockResponse implements Response {
-
+public class MockResponse extends ResponseBase {
     private String contentType_;
 
     private InputStream inputStream_;
 
     private String path_;
-
-    private int status_;
 
     private ResponseType type_;
 
@@ -35,10 +32,6 @@ public class MockResponse implements Response {
         return path_;
     }
 
-    public int getStatus() {
-        return status_;
-    }
-
     public ResponseType getType() {
         return type_;
     }
@@ -57,10 +50,6 @@ public class MockResponse implements Response {
 
     public void setPath(String path) {
         path_ = path;
-    }
-
-    public void setStatus(int status) {
-        status_ = status;
     }
 
     public void setType(ResponseType type) {
