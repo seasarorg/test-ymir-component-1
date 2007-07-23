@@ -16,7 +16,7 @@
     <arg>null</arg>
   </component>
   <component class="org.seasar.ymir.impl.PathMappingImpl">
-    <arg>"^/([a-zA-Z][a-zA-Z0-9]*)\\.(.+)$"</arg>
+    <arg>"^/([a-zA-Z][a-zA-Z0-9]*)\\.(html|do)$"</arg>
     <arg>"${1}Page"</arg>
     <arg>"_${method}"</arg>
     <arg>""</arg>
@@ -24,9 +24,9 @@
     <arg>"^_([a-zA-Z][a-zA-Z0-9]*)$"</arg>
   </component>
   <component class="org.seasar.ymir.impl.PathMappingImpl">
-    <arg>"^/([a-zA-Z][a-zA-Z0-9]*)/([a-zA-Z][a-zA-Z0-9]*)\\.(.+)$"</arg>
+    <arg>"^/([a-zA-Z][a-zA-Z0-9]*)/([a-zA-Z][a-zA-Z0-9]*)\\.do$"</arg>
     <arg>"${1}Page"</arg>
-    <arg>"_${2}By${Method}"</arg>
+    <arg>"_${method}_${2}"</arg>
     <arg>""</arg>
     <arg>"redirect:/${1}.html"</arg>
     <arg>null</arg>
