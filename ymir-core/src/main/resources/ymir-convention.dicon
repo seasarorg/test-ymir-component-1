@@ -7,7 +7,7 @@
   <include path="dxo.dicon" />
   <include path="ymir-dao.dicon" />
   <meta name="expand">"ymir-creator.dicon"</meta>
-  <component
+  <component name="ymirNamingConvention"
     class="org.seasar.ymir.convention.YmirNamingConvention">
     <initMethod name="addRootPackageName">
       <arg>config.getProperty("rootPackageName", "skeleton")</arg>

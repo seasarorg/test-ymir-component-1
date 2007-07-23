@@ -62,14 +62,14 @@ abstract public class PageTestCase<P> extends TestCase {
      * テスト対象であるPageクラスのクラスオブジェクトを返します。
      * <p>テスト作成者はこのメソッドをオーバライドして適切な値を返すようにして下さい。
      * </p>
-     * 
+     *
      * @return テスト対象であるPageクラスのクラスオブジェクト。
      */
     abstract protected Class<P> getPageClass();
 
     /**
      * テストに使用されるServletContextオブジェクトを返します。
-     * 
+     *
      * @return ServletContextオブジェクト。
      */
     protected ServletContext getServletContext() {
@@ -78,7 +78,7 @@ abstract public class PageTestCase<P> extends TestCase {
 
     /**
      * テストに使用されるS2Containerを返します。
-     * 
+     *
      * @return S2Containerオブジェクト。
      */
     protected S2Container getContainer() {
@@ -89,7 +89,7 @@ abstract public class PageTestCase<P> extends TestCase {
      * リクエストを処理するためのロケールを返します。
      * <p>デフォルトでは、返されるロケールはデフォルトロケールです。
      * </p>
-     * 
+     *
      * @return ロケール。
      */
     protected Locale getLocale() {
@@ -112,7 +112,7 @@ abstract public class PageTestCase<P> extends TestCase {
      * テスト時のコンテキストパスを返します。
      * <p>テスト時のコンテキストパスを変更したい場合はこのメソッドをオーバライドして下さい。
      * </p>
-     * 
+     *
      * @return コンテキストパス。
      */
     protected String getContextPath() {
@@ -143,13 +143,15 @@ abstract public class PageTestCase<P> extends TestCase {
      */
     public void tearDown() {
         ymirListener_.contextDestroyed(new ServletContextEvent(application_));
+        // TODO s2-pluggable-0.0.7以降は不要。
+        SingletonS2ContainerFactory.setContainer(null);
     }
 
     /**
      * Pageクラスのアクション呼び出しのための準備を行ないます。
      * <p>リクエストパラメータとfileタイプのリクエストパラメータの指定がないとみなされます。
-     * </p> 
-     * 
+     * </p>
+     *
      * @param path リクエストパス（コンテキストパス相対）。
      * @param httpMethod HTTPメソッド。Request.METHOD_XXXのいずれかを指定して下さい。
      * @return 構築されたRequestオブジェクト。
@@ -163,8 +165,8 @@ abstract public class PageTestCase<P> extends TestCase {
     /**
      * Pageクラスのアクション呼び出しのための準備を行ないます。
      * <p>fileタイプのリクエストパラメータの指定がないとみなされます。
-     * </p> 
-     * 
+     * </p>
+     *
      * @param path リクエストパス（コンテキストパス相対）。
      * @param queryString クエリ文字列。「<code>a=b&c=d</code>」のように記述して下さい。
      * @param httpMethod HTTPメソッド。Request.METHOD_XXXのいずれかを指定して下さい。
@@ -179,7 +181,7 @@ abstract public class PageTestCase<P> extends TestCase {
 
     /**
      * クエリ文字列からMapを構築して返します。
-     *  
+     *
      * @param queryString クエリ文字列。nullの場合は空のMapを返します。
      * @return 構築したMap。
      */
@@ -229,8 +231,8 @@ abstract public class PageTestCase<P> extends TestCase {
     /**
      * Pageクラスのアクション呼び出しのための準備を行ないます。
      * <p>fileタイプのリクエストパラメータの指定がないとみなされます。
-     * </p> 
-     * 
+     * </p>
+     *
      * @param path リクエストパス（コンテキストパス相対）。
      * @param parameterMap リクエストパラメータが格納されているMap。
      * @param httpMethod HTTPメソッド。Request.METHOD_XXXのいずれかを指定して下さい。
@@ -244,7 +246,7 @@ abstract public class PageTestCase<P> extends TestCase {
 
     /**
      * Pageクラスのアクション呼び出しのための準備を行ないます。
-     * 
+     *
      * @param path リクエストパス（コンテキストパス相対）。
      * @param parameterMap リクエストパラメータが格納されているMap。
      * @param fileParameterMap fileタイプのリクエストパラメータが格納されているMap。
@@ -289,7 +291,7 @@ abstract public class PageTestCase<P> extends TestCase {
      * <p>このメソッドを呼び出す前に必ず<code>prepareForProcessing</code>
      * メソッドを呼び出しておいて下さい。
      * </p>
-     * 
+     *
      * @param request Requestオブジェクト。
      * @return 処理結果を表すResponseオブジェクト。
      * @throws PermissionDeniedException 権限エラーが発生した場合。
@@ -309,7 +311,7 @@ abstract public class PageTestCase<P> extends TestCase {
      * <p>このメソッドは{@link #processRequest(Request)}メソッドの呼び出し後に
      * 呼び出して下さい。
      * </p>
-     * 
+     *
      * @param request Requestオブジェクト。
      * @return Notesオブジェクト。バリデーションエラーが発生しなかった場合はnullを返します。
      */

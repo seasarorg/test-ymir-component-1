@@ -1,11 +1,14 @@
 package org.seasar.ymir;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.seasar.ymir.scope.Scope;
-import org.seasar.ymir.util.HotdeployUtils;
 import org.seasar.framework.log.Logger;
 import org.seasar.kvasir.util.io.IORuntimeException;
+import org.seasar.ymir.scope.Scope;
+import org.seasar.ymir.util.HotdeployUtils;
 
 public class ScopeAttribute {
     private String name_;
@@ -16,15 +19,21 @@ public class ScopeAttribute {
 
     private Method readMethod_;
 
+    private Set<String> enableActionNameSet_;
+
     private static final Logger logger_ = Logger
             .getLogger(ScopeAttribute.class);
 
     public ScopeAttribute(String name, Scope scope, Method writeMethod,
-            Method readMethod) {
+            Method readMethod, String[] enableActionNames) {
         name_ = name;
         scope_ = scope;
         writeMethod_ = writeMethod;
         readMethod_ = readMethod;
+        if (enableActionNames.length > 0) {
+            enableActionNameSet_ = new HashSet<String>(Arrays
+                    .asList(enableActionNames));
+        }
     }
 
     public void injectTo(Object component) {
@@ -72,5 +81,13 @@ public class ScopeAttribute {
                             + readMethod_, t);
         }
         scope_.setAttribute(name_, value);
+    }
+
+    public boolean isEnable(String actionName) {
+        if (enableActionNameSet_ == null) {
+            return true;
+        } else {
+            return enableActionNameSet_.contains(actionName);
+        }
     }
 }

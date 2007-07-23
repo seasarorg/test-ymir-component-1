@@ -214,14 +214,16 @@ public class DefaultRequestProcessor implements RequestProcessor {
                 PagePropertyBag bag = new PagePropertyBag(componentClass,
                         getS2Container());
 
-                prepareForComponent(component, bag, request);
-
-                // リクエストに対応するアクションの呼び出しを行なう。
+                // リクエストに対応するアクションを決定する。
                 MethodInvoker action = request.getMatchedPathMapping()
                         .getActionMethodInvoker(componentClass, request);
+                String actionName = null;
                 if (action.getMethod() != null) {
-                    request.setActionName(action.getMethod().getName());
+                    actionName = action.getMethod().getName();
+                    request.setActionName(actionName);
                 }
+
+                prepareForComponent(component, actionName, bag, request);
 
                 response = normalizeResponse(adjustResponse(request,
                         invokeMethod(component, action, request, true),
@@ -238,7 +240,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
                             new Object[0]), request, false);
                 }
 
-                finishForComponent(component, bag, request);
+                finishForComponent(component, actionName, bag, request);
             } else if (request.getComponentName() != null) {
                 // componentがnullになるのは、component名が割り当てられているのにまだ
                 // 対応するcomponentクラスが作成されていない場合、またはDeniedPathMappingImpl
@@ -313,8 +315,8 @@ public class DefaultRequestProcessor implements RequestProcessor {
         return request.getAttribute(ATTR_SELF);
     }
 
-    void prepareForComponent(Object component, PagePropertyBag bag,
-            Request request) {
+    void prepareForComponent(Object component, String actionName,
+            PagePropertyBag bag, Request request) {
         // リクエストパラメータをinjectする。
         injectRequestParameters(component, bag, request.getParameterMap());
 
@@ -323,7 +325,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
                 .getFileParameterMap());
 
         // 各コンテキストが持つ属性をinjectする。
-        injectContextAttributes(component, bag);
+        injectContextAttributes(component, actionName, bag);
     }
 
     void injectRequestParameters(Object component, PagePropertyBag bag,
@@ -364,26 +366,32 @@ public class DefaultRequestProcessor implements RequestProcessor {
         }
     }
 
-    void injectContextAttributes(Object component, PagePropertyBag bag) {
+    void injectContextAttributes(Object component, String actionName,
+            PagePropertyBag bag) {
         ScopeAttribute[] attributes = bag.getInjectedScopeAttributes();
         for (int i = 0; i < attributes.length; i++) {
-            attributes[i].injectTo(component);
+            if (attributes[i].isEnable(actionName)) {
+                attributes[i].injectTo(component);
+            }
         }
     }
 
-    void finishForComponent(Object component, PagePropertyBag bag,
-            Request request) {
+    void finishForComponent(Object component, String actionName,
+            PagePropertyBag bag, Request request) {
         // 各コンテキストに属性をoutjectする。
-        outjectContextAttributes(component, bag);
+        outjectContextAttributes(component, actionName, bag);
 
         // コンポーネント自体をattributeとしてバインドしておく。
         request.setAttribute(ATTR_SELF, component);
     }
 
-    void outjectContextAttributes(Object component, PagePropertyBag bag) {
+    void outjectContextAttributes(Object component, String actionName,
+            PagePropertyBag bag) {
         ScopeAttribute[] attributes = bag.getOutjectedScopeAttributes();
         for (int i = 0; i < attributes.length; i++) {
-            attributes[i].outjectFrom(component);
+            if (attributes[i].isEnable(actionName)) {
+                attributes[i].outjectFrom(component);
+            }
         }
     }
 

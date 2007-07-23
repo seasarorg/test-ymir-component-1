@@ -27,6 +27,8 @@ public class ApplicationScopeTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
+        super.setUp();
+
         container_ = new S2ContainerImpl();
         container_
                 .setExternalContextComponentDefRegister(new HttpServletExternalContextComponentDefRegister());
@@ -70,6 +72,13 @@ public class ApplicationScopeTest extends TestCase {
         requestProcessor_.setYmir(ymir);
     }
 
+    @Override
+    protected void tearDown() throws Exception {
+        SingletonS2ContainerFactory.setContainer(null);
+
+        super.tearDown();
+    }
+
     public void test() throws Exception {
         MockRequest request = new MockRequest();
         request.setPath("/test.html").setActionName("_get");
@@ -82,5 +91,9 @@ public class ApplicationScopeTest extends TestCase {
         assertEquals("INJECTED_VALUE", page.getInjectedValue());
         assertEquals("OUTJECTED_VALUE", servletContext_
                 .getAttribute("outjectedValue"));
+    }
+
+    public void testname() throws Exception {
+
     }
 }

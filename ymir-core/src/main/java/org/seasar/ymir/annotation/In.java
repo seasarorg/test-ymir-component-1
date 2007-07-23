@@ -15,4 +15,6 @@ public @interface In {
     Class scopeClass() default Object.class;
 
     String scopeName() default "";
+
+    String[] actionName() default {};
 }
