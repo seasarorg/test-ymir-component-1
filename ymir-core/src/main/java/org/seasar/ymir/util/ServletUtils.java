@@ -141,8 +141,7 @@ public class ServletUtils {
     }
 
     public static void setNoCache(HttpServletResponse response) {
-
-        if (!response.containsHeader("Cache-Control")) {
+        if (response != null && !response.containsHeader("Cache-Control")) {
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control",
                     "no-cache,no-store,must-revalidate");
