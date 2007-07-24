@@ -211,17 +211,19 @@ public class DefaultRequestProcessor implements RequestProcessor {
                             .componentCreated(component);
                 }
 
-                PagePropertyBag bag = new PagePropertyBag(componentClass,
-                        getS2Container());
-
                 // リクエストに対応するアクションを決定する。
                 MethodInvoker action = request.getMatchedPathMapping()
                         .getActionMethodInvoker(componentClass, request);
-                String actionName = null;
-                if (action.getMethod() != null) {
-                    actionName = action.getMethod().getName();
-                    request.setActionName(actionName);
+                if (action.getMethod() == null) {
+                    // リクエストに対応するアクションが存在しない場合はリクエストを受け付けない。
+                    throw new PermissionDeniedException("Action not found");
                 }
+
+                String actionName = action.getMethod().getName();
+                request.setActionName(actionName);
+
+                PagePropertyBag bag = new PagePropertyBag(componentClass,
+                        getS2Container());
 
                 prepareForComponent(component, actionName, bag, request);
 

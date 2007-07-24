@@ -1,4 +1,4 @@
-package skeleton.web;
+package com.example.web;
 
 import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Out;

@@ -1,6 +1,6 @@
 package org.seasar.ymir;
 
-import skeleton.web.HoePage;
+import com.example.web.HoePage;
 
 public class AppDiconTest extends PageTestCase<HoePage> {
     @Override

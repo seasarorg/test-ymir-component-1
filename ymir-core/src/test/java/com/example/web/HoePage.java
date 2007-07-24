@@ -1,4 +1,4 @@
-package skeleton.web;
+package com.example.web;
 
 import org.seasar.ymir.AppDiconComponent;
 

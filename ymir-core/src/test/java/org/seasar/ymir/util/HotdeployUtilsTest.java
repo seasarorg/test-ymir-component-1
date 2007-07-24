@@ -21,8 +21,25 @@ public class HotdeployUtilsTest extends TestCase {
         NamingConventionImpl namingConverntion = new NamingConventionImpl();
         namingConverntion.addRootPackageName("com.example.hotdeploy");
 
-        HotdeployClassLoader cl = new HotdeployClassLoader(getClass()
-                .getClassLoader(), namingConverntion);
+        final ClassLoader delegated = getClass().getClassLoader();
+        HotdeployClassLoader cl = new HotdeployClassLoader(
+                new ClassLoader(null) {
+                    @Override
+                    protected synchronized Class<?> loadClass(String name,
+                            boolean resolve) throws ClassNotFoundException {
+                        if (name.startsWith("com.example.hotdeploy.")) {
+                            throw new ClassNotFoundException();
+                        }
+                        return new ClassLoader(delegated) {
+                            @Override
+                            public synchronized Class<?> loadClass(String name,
+                                    boolean resolve)
+                                    throws ClassNotFoundException {
+                                return super.loadClass(name, resolve);
+                            }
+                        }.loadClass(name, resolve);
+                    }
+                }, namingConverntion);
         hoe_ = (IHoe) cl.loadClass("com.example.hotdeploy.Hoe").newInstance();
         Class<?> fugaClass = cl.loadClass("com.example.hotdeploy.Fuga");
         Object fuga = fugaClass.newInstance();

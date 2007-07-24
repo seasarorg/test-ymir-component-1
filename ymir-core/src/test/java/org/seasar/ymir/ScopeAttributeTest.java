@@ -1,6 +1,6 @@
 package org.seasar.ymir;
 
-import skeleton.web.ScopePage;
+import com.example.web.ScopePage;
 
 public class ScopeAttributeTest extends PageTestCase<ScopePage> {
     @Override

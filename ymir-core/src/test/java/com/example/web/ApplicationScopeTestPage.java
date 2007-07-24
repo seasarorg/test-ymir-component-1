@@ -1,7 +1,8 @@
-package org.seasar.ymir.scope.impl;
+package com.example.web;
 
 import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Out;
+import org.seasar.ymir.scope.impl.ApplicationScope;
 
 public class ApplicationScopeTestPage {
     private String injectedValue_;
@@ -18,5 +19,8 @@ public class ApplicationScopeTestPage {
     @Out(ApplicationScope.class)
     public String getOutjectedValue() {
         return "OUTJECTED_VALUE";
+    }
+
+    public void _get() {
     }
 }
