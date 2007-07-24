@@ -258,6 +258,7 @@ abstract public class PageTestCase<P> extends TestCase {
             Map<String, FormFile[]> fileParameterMap) {
         MockHttpServletRequest httpRequest = new MockHttpServletRequestImpl(
                 application_, path);
+        httpRequest.setLocale(getLocale());
         MockHttpServletResponse httpResponse = new MockHttpServletResponseImpl(
                 httpRequest);
 
