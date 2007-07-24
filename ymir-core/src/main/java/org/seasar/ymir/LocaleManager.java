@@ -6,4 +6,6 @@ public interface LocaleManager {
     Locale getLocale();
 
     void setLocale(Locale locale);
+
+    void removeLocale();
 }

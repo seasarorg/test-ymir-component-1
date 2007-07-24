@@ -27,4 +27,8 @@ public class LocaleManagerImpl implements LocaleManager {
     public void setLocale(Locale locale) {
         LocaleUtils.setLocale(getHttpServletRequest(), locale);
     }
+
+    public void removeLocale() {
+        LocaleUtils.removeLocale(getHttpServletRequest());
+    }
 }
