@@ -26,14 +26,15 @@ import org.seasar.framework.container.ExternalContext;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.mock.servlet.MockHttpServletRequest;
-import org.seasar.framework.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.framework.mock.servlet.MockHttpServletResponse;
 import org.seasar.framework.mock.servlet.MockHttpServletResponseImpl;
+import org.seasar.framework.mock.servlet.MockHttpSession;
 import org.seasar.framework.mock.servlet.MockServletContext;
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
+import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.ymir.servlet.YmirListener;
 
 abstract public class PageTestCase<P> extends TestCase {
@@ -57,6 +58,10 @@ abstract public class PageTestCase<P> extends TestCase {
     private int status_;
 
     private Locale locale_ = new Locale("");
+
+    private MockHttpServletRequest httpRequest_;
+
+    private MockHttpServletResponse httpResponse_;
 
     /**
      * テスト対象であるPageクラスのクラスオブジェクトを返します。
@@ -117,6 +122,41 @@ abstract public class PageTestCase<P> extends TestCase {
      */
     protected String getContextPath() {
         return "/context";
+    }
+
+    /**
+     * 現在のHttpServletRequestオブジェクトを返します。
+     * <p>このメソッドは<code>prepareForProcessing</code>メソッドの呼び出し後に呼び出して下さい。
+     * </p>
+     * 
+     * @return 現在のHttpServletRequestオブジェクト。
+     */
+    protected MockHttpServletRequest getHttpServletRequest() {
+        return httpRequest_;
+    }
+
+    /**
+     * 現在のHttpSessionオブジェクトを返します。
+     * <p>セッションが作成されていない場合はnullを返します。
+     * </p>
+     * <p>このメソッドは<code>prepareForProcessing</code>メソッドの呼び出し後に呼び出して下さい。
+     * </p>
+     * 
+     * @return 現在のHttpSessionオブジェクト。
+     */
+    protected MockHttpSession getHttpSession() {
+        return (MockHttpSession) getHttpServletRequest().getSession(false);
+    }
+
+    /**
+     * 現在のHttpServletResponseオブジェクトを返します。
+     * <p>このメソッドは<code>prepareForProcessing</code>メソッドの呼び出し後に呼び出して下さい。
+     * </p>
+     * 
+     * @return 現在のHttpServletResponseオブジェクト。
+     */
+    protected MockHttpServletResponse getHttpServletResponse() {
+        return httpResponse_;
     }
 
     /**
@@ -256,21 +296,19 @@ abstract public class PageTestCase<P> extends TestCase {
     protected Request prepareForPrecessing(String path, String httpMethod,
             Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap) {
-        MockHttpServletRequest httpRequest = new MockHttpServletRequestImpl(
-                application_, path);
-        httpRequest.setLocale(getLocale());
-        MockHttpServletResponse httpResponse = new MockHttpServletResponseImpl(
-                httpRequest);
+        httpRequest_ = new MockHttpServletRequestImpl(application_, path);
+        httpRequest_.setLocale(getLocale());
+        httpResponse_ = new MockHttpServletResponseImpl(httpRequest_);
 
         ExternalContext externalContext = container_.getExternalContext();
-        externalContext.setRequest(httpRequest);
-        externalContext.setResponse(httpResponse);
+        externalContext.setRequest(httpRequest_);
+        externalContext.setResponse(httpResponse_);
 
         status_ = STATUS_PREPARED;
 
         return ymir_.prepareForProcessing(getContextPath(), path, httpMethod,
                 Request.DISPATCHER_REQUEST, parameterMap, fileParameterMap,
-                new HttpServletRequestAttributeContainer(httpRequest),
+                new HttpServletRequestAttributeContainer(httpRequest_),
                 getLocale());
     }
 

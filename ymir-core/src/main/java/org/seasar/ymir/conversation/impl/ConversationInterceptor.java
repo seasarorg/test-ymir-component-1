@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.SessionManager;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.conversation.ConversationUtils;
@@ -19,9 +20,18 @@ import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
  * Conversationスコープを実現するためのクラスです。
  */
 public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
+    private SessionManager sessionManager_;
 
-    S2Container getS2Container() {
-        return YmirContext.getYmir().getApplication().getS2Container();
+    public void setSessionManager(SessionManager sessionManager) {
+        sessionManager_ = sessionManager;
+    }
+
+    @Override
+    public void init() {
+        super.init();
+
+        sessionManager_
+                .addStraddlingAttributeName(ConversationUtils.ATTR_CONVERSATIONS);
     }
 
     @Override
@@ -59,5 +69,9 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
         }
 
         return methodInvoker;
+    }
+
+    S2Container getS2Container() {
+        return YmirContext.getYmir().getApplication().getS2Container();
     }
 }

@@ -9,6 +9,7 @@ import org.seasar.ymir.constraint.PermissionDeniedException;
  * <p>このインタフェースの実装クラスはスレッドセーフである必要があります。</p>
  */
 public interface YmirProcessInterceptor {
+    void init();
 
     /**
      * 現在のリクエストに関する情報を持つRequestオブジェクトをフレームワークが生成した後に、
@@ -26,4 +27,6 @@ public interface YmirProcessInterceptor {
     MethodInvoker actionInvoking(Object component,
             MethodInvoker originalMethodInvoker, Request request,
             MethodInvoker methodInvoker) throws PermissionDeniedException;
+
+    void destroy();
 }
