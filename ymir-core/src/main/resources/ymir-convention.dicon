@@ -4,6 +4,7 @@
 <components>
   <include path="app.dicon" />
   <include path="global.dicon" />
+  <include path="ymir-component.dicon" />
   <include path="dxo.dicon" />
   <include path="ymir-dao.dicon" />
   <meta name="expand">"ymir-creator.dicon"</meta>
@@ -21,10 +22,6 @@
     <property name="creators">
       container.findLocalComponents(@org.seasar.framework.container.ComponentCreator@class)
     </property>
-  </component>
-  <component name="messages"
-    class="org.seasar.ymir.impl.MessagesImpl">
-    <arg>"messages.xproperties"</arg>
   </component>
   <component name="default_pageNotFoundExceptionHandler"
     class="org.seasar.ymir.handler.impl.PageNotFoundExceptionHandler"

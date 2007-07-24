@@ -2,7 +2,8 @@
 <!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
-  <include path="ymir-component.dicon" />
-  <component class="org.seasar.ymir.impl.AppDiconComponentImpl"
-    instance="prototype" />
+  <component name="messages"
+    class="org.seasar.ymir.impl.MessagesImpl">
+    <arg>"messages.xproperties"</arg>
+  </component>
 </components>
