@@ -6,6 +6,6 @@
     class="org.seasar.ymir.impl.MessagesImpl">
     <arg>"messages.xproperties"</arg>
   </component>
-  <component name="localeResolver"
-    class="org.seasar.ymir.impl.LocaleResolverImpl" />
+  <component name="localeManager"
+    class="org.seasar.ymir.impl.LocaleManagerImpl" />
 </components>
