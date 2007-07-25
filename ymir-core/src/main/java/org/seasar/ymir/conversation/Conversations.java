@@ -6,6 +6,8 @@ package org.seasar.ymir.conversation;
 public interface Conversations {
     Conversation getCurrentConversation();
 
+    String getCurrentConversationName();
+
     Object getAttribute(String name);
 
     void setAttribute(String name, Object value);

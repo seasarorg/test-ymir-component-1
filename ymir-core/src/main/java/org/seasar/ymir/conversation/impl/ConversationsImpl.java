@@ -21,8 +21,16 @@ public class ConversationsImpl implements Conversations {
 
     private String subConversationName_;
 
-    public Conversation getCurrentConversation() {
+    public synchronized Conversation getCurrentConversation() {
         return currentConversation_;
+    }
+
+    public synchronized String getCurrentConversationName() {
+        if (currentConversation_ == null) {
+            return null;
+        } else {
+            return currentConversation_.getName();
+        }
     }
 
     Conversation newConversation(String conversationName) {

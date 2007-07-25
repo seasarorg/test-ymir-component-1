@@ -22,6 +22,7 @@ import javax.servlet.ServletContextEvent;
 
 import junit.framework.TestCase;
 
+import org.seasar.cms.pluggable.Configuration;
 import org.seasar.framework.container.ExternalContext;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
@@ -33,6 +34,7 @@ import org.seasar.framework.mock.servlet.MockServletContext;
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.constraint.PermissionDeniedException;
+import org.seasar.ymir.conversation.impl.ConversationInterceptor;
 import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
 import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.ymir.servlet.YmirListener;
@@ -111,6 +113,20 @@ abstract public class PageTestCase<P> extends TestCase {
      */
     protected void setLocale(Locale locale) {
         locale_ = locale;
+    }
+
+    /**
+     * 主に単一画面のテスト用に、一時的に@Beginアノテーションのチェックを無効にします。
+     * <p>conversationに参加している画面をテストする場合、その画面に@Beginがないと
+     * テスト時に不正遷移エラーとみなされてしまいます。
+     * これを避けるためにこのメソッドを呼び出して一時的に@Beginアノテーションのチェックを無効にして下さい。
+     * このメソッドが呼び出されてから呼び出したテストメソッドが終了するまで@Beginアノテーションは無効になります。
+     * </p>
+     */
+    protected void disableBeginCheck() {
+        ((Configuration) getContainer().getComponent(Configuration.class))
+                .setProperty(ConversationInterceptor.APPKEY_DISABLEBEGINCHECK,
+                        String.valueOf(true));
     }
 
     /**
