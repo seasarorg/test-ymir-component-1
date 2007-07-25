@@ -1,9 +1,6 @@
 package org.seasar.ymir.conversation.impl;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Set;
 
 import org.seasar.ymir.conversation.Conversation;
 import org.seasar.ymir.conversation.Conversations;
@@ -14,8 +11,6 @@ import org.seasar.ymir.conversation.IllegalTransitionRuntimeException;
  */
 public class ConversationsImpl implements Conversations {
     private LinkedList<Conversation> conversationStack_ = new LinkedList<Conversation>();
-
-    private Set<String> stackedConversationNameSet_ = new HashSet<String>();
 
     private Conversation currentConversation_;
 
@@ -59,12 +54,6 @@ public class ConversationsImpl implements Conversations {
             return;
         }
 
-        if (stackedConversationNameSet_.contains(conversationName)) {
-            // 同一conversationが入れ子になっている場合は不正遷移。
-            clear();
-            throw new IllegalTransitionRuntimeException();
-        }
-
         if (!conversationName.equals(subConversationName_)) {
             // 開始されたsub-conversationと一致しない、もしくはsub-conversationが
             // 開始されていない場合は以前のconversationを破棄する。
@@ -88,7 +77,6 @@ public class ConversationsImpl implements Conversations {
         removeCurrentConversation();
         if (conversationStack_.size() > 0) {
             currentConversation_ = conversationStack_.removeLast();
-            updateStackedConversationNameSet();
             return currentConversation_.getReenterResponse();
         } else {
             return null;
@@ -137,22 +125,12 @@ public class ConversationsImpl implements Conversations {
         currentConversation_ = null;
         subConversationName_ = null;
         conversationStack_.clear();
-        stackedConversationNameSet_.clear();
-    }
-
-    void updateStackedConversationNameSet() {
-        stackedConversationNameSet_.clear();
-        for (Iterator<Conversation> itr = conversationStack_.iterator(); itr
-                .hasNext();) {
-            stackedConversationNameSet_.add(itr.next().getName());
-        }
     }
 
     public synchronized void beginSubConversation(String conversationName,
             Object reenterResponse) {
         currentConversation_.setReenterResponse(reenterResponse);
         conversationStack_.addLast(currentConversation_);
-        stackedConversationNameSet_.add(currentConversation_.getName());
         currentConversation_ = null;
         subConversationName_ = conversationName;
     }
