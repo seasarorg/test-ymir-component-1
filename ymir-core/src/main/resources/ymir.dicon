@@ -40,7 +40,7 @@
   <component name="ymir" class="org.seasar.ymir.impl.YmirImpl">
     <property name="lifecycleListeners" bindingType="none">
       <meta name="delayed">
-        @org.seasar.cms.pluggable.util.PluggableUtils@findAscendantComponents(container,
+        @org.seasar.ymir.util.ContainerUtils@findAllAndAscendantComponents(container,
         @org.seasar.ymir.LifecycleListener@class)
       </meta>
     </property>
@@ -49,7 +49,7 @@
     class="org.seasar.ymir.impl.DefaultRequestProcessor">
     <property name="updaters" bindingType="none">
       <meta name="delayed">
-        @org.seasar.cms.pluggable.util.PluggableUtils@findAscendantComponents(container,
+        @org.seasar.ymir.util.ContainerUtils@findAllAndAscendantComponents(container,
         @org.seasar.ymir.Updater@class)
       </meta>
     </property>
