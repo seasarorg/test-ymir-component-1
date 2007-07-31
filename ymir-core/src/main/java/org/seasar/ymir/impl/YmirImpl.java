@@ -26,6 +26,7 @@ import org.seasar.ymir.ResponseProcessor;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
+import org.seasar.ymir.util.YmirUtils;
 import org.seasar.framework.log.Logger;
 import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
@@ -66,6 +67,7 @@ public class YmirImpl implements Ymir {
     public void setYmirProcessInterceptors(
             YmirProcessInterceptor[] ymirProcessInterceptors) {
         ymirProcessInterceptors_ = ymirProcessInterceptors;
+        YmirUtils.sortYmirProcessInterceptors(ymirProcessInterceptors_);
     }
 
     public void setConfiguration(Configuration configuration) {

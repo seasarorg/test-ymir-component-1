@@ -20,6 +20,7 @@ import org.seasar.ymir.ResponseProcessor;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
+import org.seasar.ymir.util.YmirUtils;
 
 public class DefaultResponseProcessor implements ResponseProcessor {
 
@@ -47,6 +48,7 @@ public class DefaultResponseProcessor implements ResponseProcessor {
             YmirProcessInterceptor[] ymirProcessInterceptors) {
 
         ymirProcessInterceptors_ = ymirProcessInterceptors;
+        YmirUtils.sortYmirProcessInterceptors(ymirProcessInterceptors_);
     }
 
     public HttpServletResponseFilter process(ServletContext context,

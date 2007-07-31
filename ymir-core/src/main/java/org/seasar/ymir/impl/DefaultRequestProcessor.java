@@ -42,6 +42,7 @@ import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
 import org.seasar.ymir.util.MethodUtils;
+import org.seasar.ymir.util.YmirUtils;
 
 public class DefaultRequestProcessor implements RequestProcessor {
 
@@ -103,6 +104,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
             YmirProcessInterceptor[] ymirProcessInterceptors) {
 
         ymirProcessInterceptors_ = ymirProcessInterceptors;
+        YmirUtils.sortYmirProcessInterceptors(ymirProcessInterceptors_);
     }
 
     public Request prepareForProcessing(String contextPath, String path,

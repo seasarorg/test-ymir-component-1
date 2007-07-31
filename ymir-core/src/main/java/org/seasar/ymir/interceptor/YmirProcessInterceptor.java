@@ -10,6 +10,16 @@ import org.seasar.ymir.constraint.PermissionDeniedException;
  */
 public interface YmirProcessInterceptor {
     /**
+     * このYmirProcessInterceptorの優先順位を返します。
+     * <p>YmirProcessInterceptorは優先順位の高い（＝数値の小さい）順に登録されて実行されます。
+     * 他のYmirProcessInterceptorよりも優先的に、または後に実行したい場合はこの数値を調整して下さい。
+     * </p>
+     * 
+     * @return 優先順位。
+     */
+    double getPriority();
+
+    /**
      * 現在のリクエストに関する情報を持つRequestオブジェクトをフレームワークが生成した後に、
      * Requestオブジェクトを加工できるように呼び出されるメソッドです。
      * <p>Requestオブジェクトを加工しない場合は引数で渡されたRequestオブジェクトをそのまま返すようにして下さい。
