@@ -1,4 +1,4 @@
-package org.seasar.ymir.interceptor.impl;
+package org.seasar.ymir.constraint.impl;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -15,8 +15,7 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.NamedConstraint;
-import org.seasar.ymir.constraint.impl.FufuConstraint;
-import org.seasar.ymir.constraint.impl.FugaConstraint;
+import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.impl.ConstraintBag;
 import org.seasar.ymir.impl.Hoe;
 import org.seasar.ymir.impl.Hoe7;
@@ -26,8 +25,8 @@ import org.seasar.ymir.impl.TestPage;
 import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.mock.MockRequest;
 
-public class CheckConstraintInterceptorTest extends S2TestCase {
-    private CheckConstraintInterceptor target_;
+public class ConstraintInterceptorTest extends S2TestCase {
+    private ConstraintInterceptor target_;
 
     private Comparator<ConstraintBag> COMPARATOR = new Comparator<ConstraintBag>() {
         public int compare(ConstraintBag o1, ConstraintBag o2) {
@@ -44,7 +43,7 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
         include(getClass().getName().replace('.', '/') + ".dicon");
         getContainer().init();
 
-        target_ = (CheckConstraintInterceptor) getComponent(CheckConstraintInterceptor.class);
+        target_ = (ConstraintInterceptor) getComponent(ConstraintInterceptor.class);
 
         ApplicationManager applicationManager = (ApplicationManager) getComponent(ApplicationManager.class);
         Application application = new MockApplication() {
@@ -60,7 +59,7 @@ public class CheckConstraintInterceptorTest extends S2TestCase {
 
         List<ConstraintBag> actual = new ArrayList<ConstraintBag>();
         target_.getConstraintBag(Hoe.class, actual,
-                CheckConstraintInterceptor.EMPTY_SUPPRESSTYPESET);
+                ConstraintInterceptor.EMPTY_SUPPRESSTYPESET);
         for (Iterator<ConstraintBag> itr = actual.iterator(); itr.hasNext();) {
             ConstraintBag bag = itr.next();
             bag.confirm(null, null);

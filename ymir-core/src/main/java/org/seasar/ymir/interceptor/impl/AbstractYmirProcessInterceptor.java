@@ -6,9 +6,6 @@ import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 
 public class AbstractYmirProcessInterceptor implements YmirProcessInterceptor {
-    public void init() {
-    }
-
     public Request requestCreated(Request request) {
         return request;
     }
@@ -21,8 +18,5 @@ public class AbstractYmirProcessInterceptor implements YmirProcessInterceptor {
             Request request, MethodInvoker methodInvoker)
             throws PermissionDeniedException {
         return methodInvoker;
-    }
-
-    public void destroy() {
     }
 }

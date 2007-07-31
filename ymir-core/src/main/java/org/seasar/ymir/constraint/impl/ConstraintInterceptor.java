@@ -1,4 +1,4 @@
-package org.seasar.ymir.interceptor.impl;
+package org.seasar.ymir.constraint.impl;
 
 import static org.seasar.ymir.RequestProcessor.ATTR_NOTES;
 
@@ -33,12 +33,13 @@ import org.seasar.ymir.constraint.annotation.ConstraintsAnnotation;
 import org.seasar.ymir.impl.ConstraintBag;
 import org.seasar.ymir.impl.MethodInvokerImpl;
 import org.seasar.ymir.impl.VoidMethodInvoker;
+import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.util.MethodUtils;
 
 /**
  * 制約チェックを行なうためのInterceptorです。
  */
-public class CheckConstraintInterceptor extends AbstractYmirProcessInterceptor {
+public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     public static final String ACTION_VALIDATIONFAILED = "_validationFailed";
 
     public static final String ACTION_PERMISSIONDENIED = "_permissionDenied";

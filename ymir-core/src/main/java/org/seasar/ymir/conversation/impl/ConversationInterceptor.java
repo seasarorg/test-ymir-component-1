@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.framework.container.S2Container;
 import org.seasar.kvasir.util.PropertyUtils;
+import org.seasar.ymir.LifecycleListener;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.SessionManager;
@@ -21,7 +22,8 @@ import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 /**
  * Conversationスコープを実現するためのクラスです。
  */
-public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
+public class ConversationInterceptor extends AbstractYmirProcessInterceptor
+        implements LifecycleListener {
     public static final String APPKEY_DISABLEBEGINCHECK = "core.conversation.disableBeginCheck";
 
     private Configuration configuration_;
@@ -36,12 +38,12 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
         sessionManager_ = sessionManager;
     }
 
-    @Override
     public void init() {
-        super.init();
-
         sessionManager_
                 .addStraddlingAttributeName(ConversationUtils.ATTR_CONVERSATIONS);
+    }
+
+    public void destroy() {
     }
 
     @Override

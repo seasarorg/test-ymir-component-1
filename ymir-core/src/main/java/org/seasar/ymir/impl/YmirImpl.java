@@ -80,7 +80,6 @@ public class YmirImpl implements Ymir {
         logger_.debug("Ymir initialize start");
 
         initializeListeners();
-        initializeYmirProcessInterceptors();
 
         DisposableUtil.add(new Disposable() {
             public void dispose() {
@@ -94,12 +93,6 @@ public class YmirImpl implements Ymir {
     void initializeListeners() {
         for (int i = 0; i < lifecycleListeners_.length; i++) {
             lifecycleListeners_[i].init();
-        }
-    }
-
-    void initializeYmirProcessInterceptors() {
-        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-            ymirProcessInterceptors_[i].init();
         }
     }
 
@@ -129,23 +122,11 @@ public class YmirImpl implements Ymir {
     public void destroy() {
         logger_.debug("Ymir destroy start");
 
-        destroyYmiProcessInterceptors();
         destroyListeners();
         requestProcessor_ = null;
+        ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
 
         logger_.debug("Ymir destroy end");
-    }
-
-    void destroyYmiProcessInterceptors() {
-        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-            try {
-                ymirProcessInterceptors_[i].destroy();
-            } catch (Throwable t) {
-                logger_.error("Can't destroy ymirProcessInterceptor: "
-                        + ymirProcessInterceptors_[i], t);
-            }
-        }
-        ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
     }
 
     void destroyListeners() {

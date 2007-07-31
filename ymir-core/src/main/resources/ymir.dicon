@@ -73,9 +73,4 @@
     class="org.seasar.ymir.scope.impl.RequestScope" />
   <component name="conversationScope"
     class="org.seasar.ymir.conversation.impl.ConversationScope" />
-  <!-- YMIR PROCESS INTERCEPTOR -->
-  <component name="checkConstraintInterceptor"
-    class="org.seasar.ymir.interceptor.impl.CheckConstraintInterceptor" />
-  <component name="conversationInterceptor"
-    class="org.seasar.ymir.conversation.impl.ConversationInterceptor" />
 </components>
