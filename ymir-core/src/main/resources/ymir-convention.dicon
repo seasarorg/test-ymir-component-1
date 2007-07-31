@@ -5,6 +5,7 @@
   <include path="app.dicon" />
   <include path="global.dicon" />
   <include path="ymir-interceptor.dicon" />
+  <include path="ymir-scope.dicon" />
   <include path="ymir-component.dicon" />
   <include path="dxo.dicon" />
   <include path="ymir-dao.dicon" />

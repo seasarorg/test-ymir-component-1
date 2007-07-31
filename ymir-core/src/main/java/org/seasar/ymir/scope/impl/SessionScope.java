@@ -3,12 +3,7 @@ package org.seasar.ymir.scope.impl;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.seasar.ymir.scope.Scope;
-import org.seasar.framework.container.S2Container;
-
-public class SessionScope implements Scope {
-    private S2Container container_;
-
+public class SessionScope extends AbstractServletScope {
     public Object getAttribute(String name) {
         HttpSession session = getSession(false);
         if (session == null) {
@@ -27,11 +22,7 @@ public class SessionScope implements Scope {
     }
 
     HttpSession getSession(boolean create) {
-        return ((HttpServletRequest) container_.getRoot().getExternalContext()
-                .getRequest()).getSession(create);
-    }
-
-    public void setS2Container(S2Container container) {
-        container_ = container;
+        return ((HttpServletRequest) getExternalContext().getRequest())
+                .getSession(create);
     }
 }

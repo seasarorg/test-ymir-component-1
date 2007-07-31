@@ -17,10 +17,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.SuppressConstraints;
 import org.seasar.ymir.annotation.Validator;
 import org.seasar.ymir.constraint.Constraint;
@@ -47,10 +49,11 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     static final Set<ConstraintType> EMPTY_SUPPRESSTYPESET = EnumSet
             .noneOf(ConstraintType.class);
 
-    private Ymir ymir_;
+    private ApplicationManager applicationManager_;
 
-    public void setYmir(Ymir ymir) {
-        ymir_ = ymir;
+    @Binding(bindingType = BindingType.MUST)
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
     }
 
     @Override
@@ -311,6 +314,6 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     protected S2Container getS2Container() {
-        return ymir_.getApplication().getS2Container();
+        return applicationManager_.findContextApplication().getS2Container();
     }
 }

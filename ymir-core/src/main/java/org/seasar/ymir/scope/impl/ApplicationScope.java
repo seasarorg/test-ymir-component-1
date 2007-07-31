@@ -2,12 +2,7 @@ package org.seasar.ymir.scope.impl;
 
 import javax.servlet.ServletContext;
 
-import org.seasar.framework.container.S2Container;
-import org.seasar.ymir.scope.Scope;
-
-public class ApplicationScope implements Scope {
-    private S2Container container_;
-
+public class ApplicationScope extends AbstractServletScope {
     public Object getAttribute(String name) {
         return getServletContext().getAttribute(name);
     }
@@ -17,11 +12,6 @@ public class ApplicationScope implements Scope {
     }
 
     ServletContext getServletContext() {
-        return (ServletContext) (container_.getRoot().getExternalContext()
-                .getApplication());
-    }
-
-    public void setS2Container(S2Container container) {
-        container_ = container;
+        return (ServletContext) getExternalContext().getApplication();
     }
 }

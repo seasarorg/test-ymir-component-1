@@ -2,13 +2,7 @@ package org.seasar.ymir.scope.impl;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.seasar.ymir.scope.Scope;
-import org.seasar.framework.container.S2Container;
-
-public class RequestScope implements Scope {
-
-    private S2Container container_;
-
+public class RequestScope extends AbstractServletScope {
     public Object getAttribute(String name) {
         return getRequest().getAttribute(name);
     }
@@ -18,11 +12,6 @@ public class RequestScope implements Scope {
     }
 
     HttpServletRequest getRequest() {
-        return (HttpServletRequest) container_.getRoot().getExternalContext()
-                .getRequest();
-    }
-
-    public void setS2Container(S2Container container) {
-        container_ = container;
+        return (HttpServletRequest) getExternalContext().getRequest();
     }
 }
