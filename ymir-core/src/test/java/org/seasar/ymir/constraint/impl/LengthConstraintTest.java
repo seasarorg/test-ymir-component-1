@@ -32,6 +32,10 @@ public class LengthConstraintTest extends
     public void setValue4(String value) {
     }
 
+    @Length(property = "#hoge1", max = 1)
+    public void _get_testValidate6() {
+    }
+
     public void testValidate_最大長が指定されている場合() throws Exception {
         getRequest().getParameterMap().put("value",
                 new String[] { "1234567890" });
@@ -102,6 +106,17 @@ public class LengthConstraintTest extends
 
         try {
             confirm(getSetterMethod("value4"));
+        } catch (ValidationFailedException ex) {
+            fail();
+        }
+    }
+
+    public void testValidate6_パラメータ名が正規表現で与えられていてマッチするパラメータがなかった場合には何もしないこと()
+            throws Exception {
+        getRequest().getParameterMap().put("hoge", new String[] { "123" });
+
+        try {
+            confirm(getActionMethod("_get_testValidate6"));
         } catch (ValidationFailedException ex) {
             fail();
         }

@@ -15,8 +15,7 @@ public class NumericConstraint extends AbstractConstraint<Numeric> {
         String[] names = getParameterNames(request, annotation.value(),
                 annotation.property(), getPropertyName(element));
         if (names.length == 0) {
-            throw new IllegalArgumentException(
-                    "Please specify at least one property: " + element);
+            return;
         }
 
         boolean integer = annotation.integer();

@@ -56,6 +56,22 @@ abstract public class ConstraintTestCase<A extends Annotation, C extends Constra
 
     /**
      * このテストケースが持つメソッドのうち、
+     * 指定された名前を持ち、引数を持たないメソッドのMethodオブジェクトを返します。
+     * <p>このメソッドは、テスト対象の制約を表すアノテーションが付与されているメソッドの
+     * Methodオブジェクトを取得するためのユーティリティメソッドです。
+     * </p>
+     * 
+     * @param methodName メソッド名。
+     * @return Methodオブジェクト。
+     * @throws NoSuchMethodException 指定されたメソッド名を持つメソッドが存在しない場合
+     */
+    protected Method getActionMethod(String methodName)
+            throws NoSuchMethodException {
+        return getClass().getMethod(methodName, new Class[0]);
+    }
+
+    /**
+     * このテストケースが持つメソッドのうち、
      * 指定されたプロパティ名に対応するsetterメソッドオブジェクトを返します。
      * <p>このメソッドは、テスト対象の制約を表すアノテーションが付与されているメソッドの
      * Methodオブジェクトを取得するためのユーティリティメソッドです。
