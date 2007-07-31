@@ -2,6 +2,8 @@
 <!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
+  <component name="mimeTypeDetector"
+    class="org.seasar.ymir.impl.ServletMimeTypeDetector" />
   <component name="messages"
     class="org.seasar.ymir.impl.MessagesImpl">
     <arg>"messages.xproperties"</arg>
