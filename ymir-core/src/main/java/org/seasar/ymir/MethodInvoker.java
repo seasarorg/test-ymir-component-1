@@ -7,7 +7,7 @@ public interface MethodInvoker {
 
     Object[] getParameters();
 
-    Object invoke(Object component);
+    Object invoke(Object component) throws WrappingRuntimeException;
 
     Class<? extends Object> getReturnType();
 

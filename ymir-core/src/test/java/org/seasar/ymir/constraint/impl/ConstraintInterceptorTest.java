@@ -15,12 +15,13 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.NamedConstraint;
-import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.impl.ConstraintBag;
 import org.seasar.ymir.impl.Hoe;
 import org.seasar.ymir.impl.Hoe7;
+import org.seasar.ymir.impl.MethodInvokerImpl;
 import org.seasar.ymir.impl.Test2Page;
 import org.seasar.ymir.impl.Test3Page;
+import org.seasar.ymir.impl.Test4Page;
 import org.seasar.ymir.impl.TestPage;
 import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.mock.MockRequest;
@@ -189,8 +190,9 @@ public class ConstraintInterceptorTest extends S2TestCase {
                 .setComponentName("TestPage");
         request.setComponentClass(TestPage.class);
 
-        Notes actual = target_.confirmConstraint(component, TestPage.class
-                .getMethod("_get", new Class[0]), request);
+        Notes actual = target_.confirmConstraint(component,
+                new MethodInvokerImpl(TestPage.class.getMethod("_get",
+                        new Class[0]), new Object[0]), request);
 
         assertNull("バリデーションに成功した場合はNotesがセットされないこと", actual);
     }
@@ -203,8 +205,9 @@ public class ConstraintInterceptorTest extends S2TestCase {
                 .setComponentName("Test2Page");
         request.setComponentClass(Test2Page.class);
 
-        Notes actual = target_.confirmConstraint(component, Test2Page.class
-                .getMethod("_get", new Class[0]), request);
+        Notes actual = target_.confirmConstraint(component,
+                new MethodInvokerImpl(Test2Page.class.getMethod("_get",
+                        new Class[0]), new Object[0]), request);
 
         assertNotNull("バリデーションに失敗した場合はNotesに適切な情報がセットされること", actual);
         assertEquals(2, actual.size());
@@ -220,8 +223,9 @@ public class ConstraintInterceptorTest extends S2TestCase {
                 .setComponentName("Test3Page");
         request.setComponentClass(Test3Page.class);
 
-        Notes actual = target_.confirmConstraint(component, Test3Page.class
-                .getMethod("_get", new Class[0]), request);
+        Notes actual = target_.confirmConstraint(component,
+                new MethodInvokerImpl(Test3Page.class.getMethod("_get",
+                        new Class[0]), new Object[0]), request);
 
         assertNull(actual);
     }
@@ -234,10 +238,27 @@ public class ConstraintInterceptorTest extends S2TestCase {
                 .setComponentName("Test3Page");
         request.setComponentClass(Test3Page.class);
 
-        Notes actual = target_.confirmConstraint(component, Test3Page.class
-                .getMethod("_post", new Class[0]), request);
+        Notes actual = target_.confirmConstraint(component,
+                new MethodInvokerImpl(Test3Page.class.getMethod("_post",
+                        new Class[0]), new Object[0]), request);
 
         assertNotNull(actual);
         assertEquals(1, actual.size());
+    }
+
+    public void test4_添え字つきでアクションが呼ばれる時はValidatorアノテーションがついているアクションが引数を取るものであれば添え字が渡されること()
+            throws Exception {
+
+        Test4Page component = new Test4Page();
+        Request request = new MockRequest().setPath("/test4.html")
+                .setComponentName("Test4Page");
+        request.setComponentClass(Test4Page.class);
+
+        target_.confirmConstraint(component, new MethodInvokerImpl(
+                Test4Page.class.getMethod("_post_button",
+                        new Class[] { Integer.TYPE }), new Object[] { Integer
+                        .valueOf(1) }), request);
+
+        assertEquals(1, component.getIdx());
     }
 }

@@ -23,6 +23,7 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.annotation.SuppressConstraints;
 import org.seasar.ymir.annotation.Validator;
 import org.seasar.ymir.constraint.Constraint;
@@ -61,8 +62,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             Request request, MethodInvoker methodInvoker)
             throws PermissionDeniedException {
         try {
-            Notes notes = confirmConstraint(component, action.getMethod(),
-                    request);
+            Notes notes = confirmConstraint(component, action, request);
             if (notes != null) {
                 request.setAttribute(ATTR_NOTES, notes);
 
@@ -107,15 +107,16 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         return methodInvoker;
     }
 
-    Notes confirmConstraint(Object component, Method action, Request request)
-            throws PermissionDeniedException {
+    Notes confirmConstraint(Object component, MethodInvoker action,
+            Request request) throws PermissionDeniedException {
 
-        Set<ConstraintType> suppressTypeSet = getSuppressTypeSet(action);
+        Method actionMethod = action.getMethod();
+        Set<ConstraintType> suppressTypeSet = getSuppressTypeSet(actionMethod);
 
         boolean validationFailed = false;
         Notes notes = new Notes();
         Class<?> componentClass = request.getComponentClass();
-        ConstraintBag[] bag = getConstraintBags(componentClass, action,
+        ConstraintBag[] bag = getConstraintBags(componentClass, actionMethod,
                 suppressTypeSet);
         for (int i = 0; i < bag.length; i++) {
             try {
@@ -131,11 +132,11 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
 
         // Validatorアノテーションがついているメソッドを実行する。
-        Method[] validators = gatherValidators(componentClass, action,
+        MethodInvoker[] validators = gatherValidators(componentClass, action,
                 suppressTypeSet);
         for (int i = 0; i < validators.length; i++) {
             try {
-                Object invoked = validators[i].invoke(component, new Object[0]);
+                Object invoked = validators[i].invoke(component);
                 if (invoked instanceof Notes) {
                     Notes ns = (Notes) invoked;
                     if (!ns.isEmpty()) {
@@ -145,9 +146,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
                 }
             } catch (IllegalArgumentException ex) {
                 throw new RuntimeException("May logic error", ex);
-            } catch (IllegalAccessException ex) {
-                throw new RuntimeException("May logic error", ex);
-            } catch (InvocationTargetException ex) {
+            } catch (WrappingRuntimeException ex) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof ValidationFailedException) {
                     validationFailed = true;
@@ -270,14 +269,13 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
     }
 
-    Method[] gatherValidators(Class<?> componentClass, Method action,
-            Set<ConstraintType> suppressTypeSet) {
-        List<Method> validatorList = new ArrayList<Method>();
+    MethodInvoker[] gatherValidators(Class<?> componentClass,
+            MethodInvoker action, Set<ConstraintType> suppressTypeSet) {
+        List<MethodInvoker> validatorList = new ArrayList<MethodInvoker>();
 
-        String actionName = null;
-        if (action != null) {
-            actionName = action.getName();
-        }
+        Method actionMethod = action.getMethod();
+        String actionName = actionMethod.getName();
+        Object[] actionParameters = action.getParameters();
 
         // バリデーションを抑制するように指定されている場合はカスタムバリデータを収集しない。
         if (!suppressTypeSet.contains(ConstraintType.VALIDATION)) {
@@ -301,16 +299,31 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
                         }
                     }
 
-                    if (methods[i].getParameterTypes().length > 0) {
-                        // 引数を持つメソッドにはValidatorアノテーションはつけられない。
+                    MethodInvoker mi;
+                    Class<?>[] parameterTypes = methods[i].getParameterTypes();
+                    if (parameterTypes.length == 1
+                            && (parameterTypes[0] == Integer.TYPE || parameterTypes[0] == Integer.class)) {
+                        if (actionParameters.length == 1) {
+                            // intの引数が1つあるメソッドについては、アクションに添え字がある場合は添え字を引数としてメソッドが呼び出されるようにする。
+                            mi = new MethodInvokerImpl(methods[i],
+                                    actionParameters);
+                        } else {
+                            mi = new MethodInvokerImpl(methods[i],
+                                    new Object[] { Integer.valueOf(0) });
+                        }
+                    } else if (parameterTypes.length == 0) {
+                        mi = new MethodInvokerImpl(methods[i], new Object[0]);
+                    } else {
+                        // @Validatorが付与されているメソッドの引数が不正。
                         throw new RuntimeException(
-                                "@Validator must be annotated on a method that has no parameters");
+                                "@Validator must be annotated on a method that has no parameters or has only one int parameter");
                     }
-                    validatorList.add(methods[i]);
+
+                    validatorList.add(mi);
                 }
             }
         }
-        return validatorList.toArray(new Method[0]);
+        return validatorList.toArray(new MethodInvoker[0]);
     }
 
     protected S2Container getS2Container() {
