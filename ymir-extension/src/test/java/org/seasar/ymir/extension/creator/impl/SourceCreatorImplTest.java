@@ -11,6 +11,7 @@ import org.seasar.framework.util.ResourceUtil;
 import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -20,7 +21,6 @@ import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
 import org.seasar.ymir.extension.creator.TypeDesc;
-import org.seasar.ymir.interceptor.impl.CheckConstraintInterceptor;
 
 import com.example.page.SourceCreatorImplTestPageBaseBase;
 
@@ -289,7 +289,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 "com.example.page.SourceCreatorImplTestPage");
         cd.setSuperclass(SourceCreatorImplTestPageBaseBase.class);
         MethodDescImpl md = new MethodDescImpl(
-                CheckConstraintInterceptor.ACTION_VALIDATIONFAILED);
+                ConstraintInterceptor.ACTION_VALIDATIONFAILED);
         md.setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
                 Notes.class) });
         cd.setMethodDesc(md);
