@@ -28,6 +28,23 @@ public class ConversationsImpl implements Conversations {
         }
     }
 
+    public synchronized Conversation getSuperConversation() {
+        if (conversationStack_.size() > 0) {
+            return conversationStack_.getLast();
+        } else {
+            return null;
+        }
+    }
+
+    public synchronized String getSuperConversationName() {
+        Conversation superConversation = getSuperConversation();
+        if (superConversation == null) {
+            return null;
+        } else {
+            return superConversation.getName();
+        }
+    }
+
     Conversation newConversation(String conversationName) {
         return new ConversationImpl(conversationName);
     }

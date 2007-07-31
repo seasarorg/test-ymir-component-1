@@ -76,7 +76,8 @@ public class ConversationsImplTest extends TestCase {
         }
     }
 
-    public void test_サブアプリケーションに遷移して終わったら元のconversationに戻ること() throws Exception {
+    public void test_subConversationに遷移して終わったら元のconversationに戻ること()
+            throws Exception {
         target_.begin("register", "input");
         target_.join("register", "input", new String[0]);
         target_.join("register", "confirm", new String[] { "input" });
@@ -124,4 +125,40 @@ public class ConversationsImplTest extends TestCase {
         assertEquals("register", conversation.getName());
         assertEquals("input", conversation.getPhase());
     }
+
+    public void test_getSuperConversation() throws Exception {
+        assertNull("conversationに参加していない場合はnullが返されること", target_
+                .getSuperConversation());
+        assertNull("conversationに参加していない場合はnullが返されること", target_
+                .getSuperConversationName());
+
+        target_.begin("register", "input");
+        target_.join("register", "input", new String[0]);
+        target_.join("register", "confirm", new String[] { "input" });
+
+        assertNull("sub-conversationに参加していない場合はnullが返されること", target_
+                .getSuperConversation());
+        assertNull("sub-conversationに参加していない場合はnullが返されること", target_
+                .getSuperConversationName());
+
+        Conversation superConvresation = target_.getCurrentConversation();
+        target_.beginSubConversation("loginUser", "redirect:/completeRegister");
+
+        assertSame("sub-conversationに参加している場合は元のconversationが返されること",
+                superConvresation, target_.getSuperConversation());
+        assertEquals("sub-conversationに参加していない場合は元のconversationの名前が返されること",
+                "register", target_.getSuperConversationName());
+
+        target_.begin("loginUser", "input");
+        target_.join("loginUser", "input", new String[0]);
+        target_.join("loginUser", "complete", new String[] { "input" });
+        Object reenterResponse = target_.end();
+
+        assertEquals("redirect:/completeRegister", reenterResponse);
+        Conversation conversation = target_.getCurrentConversation();
+        assertNotNull(conversation);
+        assertEquals("register", conversation.getName());
+        assertEquals("confirm", conversation.getPhase());
+    }
+
 }
