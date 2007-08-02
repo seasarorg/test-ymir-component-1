@@ -224,7 +224,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         if (matched == null || matched.isDenied()) {
             return null;
         }
-        String className = creator.getClassName(matched.getComponentName());
+        String className = creator.getClassName(matched.getPageComponentName());
         if (className == null) {
             return null;
         }

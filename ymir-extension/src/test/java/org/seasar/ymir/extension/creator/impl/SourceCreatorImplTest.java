@@ -298,4 +298,29 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
         assertNull(cd.getMethodDesc(md));
     }
+
+    public void testMergeWithExistentClass3_Baseクラスの親クラス情報は維持されること()
+            throws Exception {
+
+        ClassDesc cd = new ClassDescImpl(
+                "org.seasar.ymir.extension.creator.impl.Merge3");
+
+        target_.mergeWithExistentClass(cd, true);
+
+        assertEquals("Ymirが親クラスを指定するようになっている場合でも、親クラスが指定されているのであればそれが維持されること",
+                "org.seasar.ymir.extension.creator.impl.Merge3BaseBase", cd
+                        .getSuperclassName());
+    }
+
+    public void testMergeWithExistentClass4_Baseクラスの親クラス情報は維持されること2()
+            throws Exception {
+
+        ClassDesc cd = new ClassDescImpl(
+                "org.seasar.ymir.extension.creator.impl.Merge6");
+
+        target_.mergeWithExistentClass(cd, true);
+
+        assertNull("Ymirが親クラスを指定するようになっている場合でも、親クラスが指定されていないならばそれが維持されること", cd
+                .getSuperclassName());
+    }
 }

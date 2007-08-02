@@ -750,6 +750,14 @@ public class SourceCreatorImpl implements SourceCreator {
         if (baseDesc == null) {
             baseDesc = newClassDesc(className);
         }
+        if (baseClass != null) {
+            // baseクラスが既に存在するならば再生成ということなので、親クラス情報を維持するようにする。
+            if (baseClass.getSuperclass() != Object.class) {
+                baseDesc.setSuperclass(baseClass.getSuperclass());
+            } else {
+                baseDesc.setSuperclass(null);
+            }
+        }
         ClassDesc superDesc = getClassDesc(getClass(desc.getSuperclassName()),
                 className, false);
         if (superDesc == null) {
@@ -882,7 +890,7 @@ public class SourceCreatorImpl implements SourceCreator {
         if (matched == null) {
             return null;
         } else {
-            return matched.getPathMapping().getComponentName(
+            return matched.getPathMapping().getPageComponentName(
                     matched.getVariableResolver());
         }
     }

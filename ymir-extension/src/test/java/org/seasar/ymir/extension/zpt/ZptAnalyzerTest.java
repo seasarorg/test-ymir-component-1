@@ -101,7 +101,7 @@ public class ZptAnalyzerTest extends TestCase {
                 if (matched == null) {
                     return null;
                 } else {
-                    return matched.getComponentName();
+                    return matched.getPageComponentName();
                 }
             }
 
