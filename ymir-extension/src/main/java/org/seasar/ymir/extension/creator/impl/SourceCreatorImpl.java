@@ -750,18 +750,19 @@ public class SourceCreatorImpl implements SourceCreator {
         if (baseDesc == null) {
             baseDesc = newClassDesc(className);
         }
+        ClassDesc superDesc = getClassDesc(getClass(desc.getSuperclassName()),
+                className, false);
+        if (superDesc == null) {
+            superDesc = newClassDesc(className);
+        }
         if (baseClass != null) {
             // baseクラスが既に存在するならば再生成ということなので、親クラス情報を維持するようにする。
+            desc.setSuperclass(null);
             if (baseClass.getSuperclass() != Object.class) {
                 baseDesc.setSuperclass(baseClass.getSuperclass());
             } else {
                 baseDesc.setSuperclass(null);
             }
-        }
-        ClassDesc superDesc = getClassDesc(getClass(desc.getSuperclassName()),
-                className, false);
-        if (superDesc == null) {
-            superDesc = newClassDesc(className);
         }
 
         // baseにあるものは必ず残す。baseになくてsuperやgapにあるものは除去する。

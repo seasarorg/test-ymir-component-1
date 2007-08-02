@@ -23,6 +23,7 @@ import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
 import org.seasar.ymir.extension.creator.TypeDesc;
 
 import com.example.page.SourceCreatorImplTestPageBaseBase;
+import com.example.page.TestPageBase;
 
 public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
@@ -304,6 +305,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
         ClassDesc cd = new ClassDescImpl(
                 "org.seasar.ymir.extension.creator.impl.Merge3");
+        cd.setSuperclass(TestPageBase.class);
 
         target_.mergeWithExistentClass(cd, true);
 
@@ -317,6 +319,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
         ClassDesc cd = new ClassDescImpl(
                 "org.seasar.ymir.extension.creator.impl.Merge6");
+        cd.setSuperclass(TestPageBase.class);
 
         target_.mergeWithExistentClass(cd, true);
 
