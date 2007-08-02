@@ -12,7 +12,7 @@ public class AppDiconTest extends PageTestCase<HoePage> {
             throws Exception {
         Request request = prepareForPrecessing("/hoe.html", Request.METHOD_GET);
         processRequest(request);
-        HoePage page = getPageComponent();
+        HoePage page = getPage();
         AppDiconComponent component = page.getAppDiconComponent();
         assertNotNull(component.getYmirRequest());
         assertNotNull("app.diconからインクルードしたYmirコンポーネントもDIされること", component

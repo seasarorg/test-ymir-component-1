@@ -13,7 +13,7 @@ public class PathResponseConstructor implements ResponseConstructor<Path> {
         return Path.class;
     }
 
-    public Response constructResponse(Object component, Path returnValue) {
+    public Response constructResponse(Object page, Path returnValue) {
 
         if (returnValue == null) {
             return VoidResponse.INSTANCE;

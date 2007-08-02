@@ -13,12 +13,15 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Notes;
+import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.NamedConstraint;
+import org.seasar.ymir.impl.ActionImpl;
 import org.seasar.ymir.impl.ConstraintBag;
 import org.seasar.ymir.impl.Hoe;
 import org.seasar.ymir.impl.Hoe7;
 import org.seasar.ymir.impl.MethodInvokerImpl;
+import org.seasar.ymir.impl.PageComponentImpl;
 import org.seasar.ymir.impl.Test2Page;
 import org.seasar.ymir.impl.Test3Page;
 import org.seasar.ymir.impl.Test4Page;
@@ -81,7 +84,7 @@ public class ConstraintInterceptorTest extends S2TestCase {
     public void testGetConstraints2() throws Exception {
 
         ConstraintBag[] actual = target_.getConstraintBags(Hoe.class, null,
-                target_.getSuppressTypeSet(null));
+                target_.getSuppressTypeSet(null), true);
         for (int i = 0; i < actual.length; i++) {
             actual[i].confirm(null, null);
         }
@@ -103,8 +106,9 @@ public class ConstraintInterceptorTest extends S2TestCase {
     public void testGetConstraints4() throws Exception {
 
         Method action = Hoe.class.getMethod("_render", new Class[0]);
-        ConstraintBag[] actual = target_.getConstraintBags(Hoe.class, action,
-                target_.getSuppressTypeSet(action));
+        ConstraintBag[] actual = target_.getConstraintBags(Hoe.class,
+                new MethodInvokerImpl(action, new Object[0]), target_
+                        .getSuppressTypeSet(action), true);
         for (int i = 0; i < actual.length; i++) {
             actual[i].confirm(null, null);
         }
@@ -127,8 +131,9 @@ public class ConstraintInterceptorTest extends S2TestCase {
     public void testGetConstraints5() throws Exception {
 
         Method action = Hoe.class.getMethod("_get", new Class[0]);
-        ConstraintBag[] actual = target_.getConstraintBags(Hoe.class, action,
-                target_.getSuppressTypeSet(action));
+        ConstraintBag[] actual = target_.getConstraintBags(Hoe.class,
+                new MethodInvokerImpl(action, new Object[0]), target_
+                        .getSuppressTypeSet(action), true);
         for (int i = 0; i < actual.length; i++) {
             actual[i].confirm(null, null);
         }
@@ -146,8 +151,9 @@ public class ConstraintInterceptorTest extends S2TestCase {
     public void testGetConstraints6() throws Exception {
 
         Method action = Hoe.class.getMethod("_head", new Class[0]);
-        ConstraintBag[] actual = target_.getConstraintBags(Hoe.class, action,
-                target_.getSuppressTypeSet(action));
+        ConstraintBag[] actual = target_.getConstraintBags(Hoe.class,
+                new MethodInvokerImpl(action, new Object[0]), target_
+                        .getSuppressTypeSet(action), true);
         for (int i = 0; i < actual.length; i++) {
             actual[i].confirm(null, null);
         }
@@ -166,8 +172,9 @@ public class ConstraintInterceptorTest extends S2TestCase {
     public void testGetConstraints7() throws Exception {
 
         Method action = Hoe7.class.getMethod("_get", new Class[0]);
-        ConstraintBag[] actual = target_.getConstraintBags(Hoe7.class, action,
-                target_.getSuppressTypeSet(action));
+        ConstraintBag[] actual = target_.getConstraintBags(Hoe7.class,
+                new MethodInvokerImpl(action, new Object[0]), target_
+                        .getSuppressTypeSet(action), true);
         for (int i = 0; i < actual.length; i++) {
             actual[i].confirm(null, null);
         }
@@ -188,11 +195,13 @@ public class ConstraintInterceptorTest extends S2TestCase {
         Object component = new TestPage();
         Request request = new MockRequest().setPath("/test.html")
                 .setComponentName("TestPage");
-        request.setComponentClass(TestPage.class);
+        PageComponent pageComponent = new PageComponentImpl(component,
+                TestPage.class);
+        request.setPageComponent(pageComponent);
 
-        Notes actual = target_.confirmConstraint(component,
-                new MethodInvokerImpl(TestPage.class.getMethod("_get",
-                        new Class[0]), new Object[0]), request);
+        Notes actual = target_.confirmConstraint(pageComponent, new ActionImpl(
+                component, new MethodInvokerImpl(TestPage.class.getMethod(
+                        "_get", new Class[0]), new Object[0])), request);
 
         assertNull("バリデーションに成功した場合はNotesがセットされないこと", actual);
     }
@@ -203,11 +212,13 @@ public class ConstraintInterceptorTest extends S2TestCase {
         Object component = new Test2Page();
         Request request = new MockRequest().setPath("/test2.html")
                 .setComponentName("Test2Page");
-        request.setComponentClass(Test2Page.class);
+        PageComponent pageComponent = new PageComponentImpl(component,
+                Test2Page.class);
+        request.setPageComponent(pageComponent);
 
-        Notes actual = target_.confirmConstraint(component,
-                new MethodInvokerImpl(Test2Page.class.getMethod("_get",
-                        new Class[0]), new Object[0]), request);
+        Notes actual = target_.confirmConstraint(pageComponent, new ActionImpl(
+                component, new MethodInvokerImpl(Test2Page.class.getMethod(
+                        "_get", new Class[0]), new Object[0])), request);
 
         assertNotNull("バリデーションに失敗した場合はNotesに適切な情報がセットされること", actual);
         assertEquals(2, actual.size());
@@ -221,11 +232,13 @@ public class ConstraintInterceptorTest extends S2TestCase {
         Object component = new Test3Page();
         Request request = new MockRequest().setPath("/test3.html")
                 .setComponentName("Test3Page");
-        request.setComponentClass(Test3Page.class);
+        PageComponent pageComponent = new PageComponentImpl(component,
+                Test3Page.class);
+        request.setPageComponent(pageComponent);
 
-        Notes actual = target_.confirmConstraint(component,
-                new MethodInvokerImpl(Test3Page.class.getMethod("_get",
-                        new Class[0]), new Object[0]), request);
+        Notes actual = target_.confirmConstraint(pageComponent, new ActionImpl(
+                component, new MethodInvokerImpl(Test3Page.class.getMethod(
+                        "_get", new Class[0]), new Object[0])), request);
 
         assertNull(actual);
     }
@@ -236,11 +249,13 @@ public class ConstraintInterceptorTest extends S2TestCase {
         Object component = new Test3Page();
         Request request = new MockRequest().setPath("/test3.html")
                 .setComponentName("Test3Page");
-        request.setComponentClass(Test3Page.class);
+        PageComponent pageComponent = new PageComponentImpl(component,
+                Test3Page.class);
+        request.setPageComponent(pageComponent);
 
-        Notes actual = target_.confirmConstraint(component,
-                new MethodInvokerImpl(Test3Page.class.getMethod("_post",
-                        new Class[0]), new Object[0]), request);
+        Notes actual = target_.confirmConstraint(pageComponent, new ActionImpl(
+                component, new MethodInvokerImpl(Test3Page.class.getMethod(
+                        "_post", new Class[0]), new Object[0])), request);
 
         assertNotNull(actual);
         assertEquals(1, actual.size());
@@ -252,12 +267,14 @@ public class ConstraintInterceptorTest extends S2TestCase {
         Test4Page component = new Test4Page();
         Request request = new MockRequest().setPath("/test4.html")
                 .setComponentName("Test4Page");
-        request.setComponentClass(Test4Page.class);
+        PageComponent pageComponent = new PageComponentImpl(component,
+                Test4Page.class);
+        request.setPageComponent(pageComponent);
 
-        target_.confirmConstraint(component, new MethodInvokerImpl(
-                Test4Page.class.getMethod("_post_button",
+        target_.confirmConstraint(pageComponent, new ActionImpl(component,
+                new MethodInvokerImpl(Test4Page.class.getMethod("_post_button",
                         new Class[] { Integer.TYPE }), new Object[] { Integer
-                        .valueOf(1) }), request);
+                        .valueOf(1) })), request);
 
         assertEquals(1, component.getIdx());
     }

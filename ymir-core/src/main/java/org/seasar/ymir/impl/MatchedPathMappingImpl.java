@@ -1,8 +1,9 @@
 package org.seasar.ymir.impl;
 
 import org.seasar.kvasir.util.el.VariableResolver;
+import org.seasar.ymir.Action;
 import org.seasar.ymir.MatchedPathMapping;
-import org.seasar.ymir.MethodInvoker;
+import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 
@@ -37,8 +38,8 @@ public class MatchedPathMappingImpl implements MatchedPathMapping {
         variableResolver_ = variableResolver;
     }
 
-    public String getComponentName() {
-        return pathMapping_.getComponentName(variableResolver_);
+    public String getPageComponentName() {
+        return pathMapping_.getPageComponentName(variableResolver_);
     }
 
     public String getActionName() {
@@ -62,8 +63,8 @@ public class MatchedPathMappingImpl implements MatchedPathMapping {
         return pathMapping_.isDispatchingByParameter();
     }
 
-    public MethodInvoker getActionMethodInvoker(Class pageClass, Request request) {
-        return pathMapping_.getActionMethodInvoker(pageClass, request,
-                variableResolver_);
+    public Action getAction(PageComponent pageComponent, Request request) {
+        return pathMapping_
+                .getAction(pageComponent, request, variableResolver_);
     }
 }

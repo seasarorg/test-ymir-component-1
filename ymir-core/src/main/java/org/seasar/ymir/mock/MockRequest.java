@@ -7,16 +7,16 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
+import org.seasar.ymir.Action;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.MatchedPathMapping;
+import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 
 public class MockRequest implements Request {
 
     private String absolutePath_;
-
-    private String actionName_;
 
     private AttributeContainer attributeContainer_ = this;
 
@@ -46,30 +46,40 @@ public class MockRequest implements Request {
 
     private MatchedPathMapping matchedPathMapping_ = new MockMatchedPathMapping();
 
-    private Class<?> componentClass_;;
+    private Action action_;
+
+    private PageComponent pageComponent_;;
 
     public String getAbsolutePath() {
         return absolutePath_;
     }
 
+    public Action getAction() {
+        return action_;
+    }
+
     public String getActionName() {
-        return actionName_;
+        if (action_ != null) {
+            return action_.getName();
+        } else {
+            return null;
+        }
     }
 
     public AttributeContainer getAttributeContainer() {
         return attributeContainer_;
     }
 
-    public String getComponentName() {
+    public String getPageComponentName() {
         return componentName_;
     }
 
-    public Class<?> getComponentClass() {
-        return componentClass_;
+    public PageComponent getPageComponent() {
+        return pageComponent_;
     }
 
-    public void setComponentClass(Class<?> componentClass) {
-        componentClass_ = componentClass;
+    public void setPageComponent(PageComponent pageComponent) {
+        pageComponent_ = pageComponent;
     }
 
     public String getContextPath() {
@@ -127,8 +137,8 @@ public class MockRequest implements Request {
         return this;
     }
 
-    public void setActionName(String actionName) {
-        actionName_ = actionName;
+    public void setAction(Action action) {
+        action_ = action;
     }
 
     public MockRequest setAttributeContainer(

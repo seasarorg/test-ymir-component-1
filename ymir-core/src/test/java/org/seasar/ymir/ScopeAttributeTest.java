@@ -15,13 +15,13 @@ public class ScopeAttributeTest extends PageTestCase<ScopePage> {
         Request request = prepareForPrecessing("/scope.html",
                 Request.METHOD_GET);
         processRequest(request);
-        ScopePage page = getPageComponent();
+        ScopePage page = getPage();
         assertNull(page.getParam1());
         assertEquals("value2", page.getParam2());
 
         request = prepareForPrecessing("/scope.html", Request.METHOD_POST);
         processRequest(request);
-        page = getPageComponent();
+        page = getPage();
         assertEquals("value1", page.getParam1());
         assertEquals("value2", page.getParam2());
     }
@@ -29,7 +29,7 @@ public class ScopeAttributeTest extends PageTestCase<ScopePage> {
     public void test_Outアノテーションが指定されたアクションでだけ有効であること() throws Exception {
         Request request = prepareForPrecessing("/scope.html",
                 Request.METHOD_GET);
-        ScopePage page = getPageComponent();
+        ScopePage page = getPage();
         page.setParam1("value1");
         page.setParam2("value2");
         processRequest(request);
@@ -37,7 +37,7 @@ public class ScopeAttributeTest extends PageTestCase<ScopePage> {
         assertEquals("value2", getServletContext().getAttribute("param2"));
 
         request = prepareForPrecessing("/scope.html", Request.METHOD_POST);
-        page = getPageComponent();
+        page = getPage();
         page.setParam1("value1");
         page.setParam2("value2");
         processRequest(request);

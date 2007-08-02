@@ -12,7 +12,7 @@ public class ResponseResponseConstructor implements
         return Response.class;
     }
 
-    public Response constructResponse(Object component, Response returnValue) {
+    public Response constructResponse(Object page, Response returnValue) {
 
         if (returnValue == null) {
             returnValue = VoidResponse.INSTANCE;

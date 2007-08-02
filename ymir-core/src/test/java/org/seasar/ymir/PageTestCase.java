@@ -23,6 +23,7 @@ import javax.servlet.ServletContextEvent;
 import junit.framework.TestCase;
 
 import org.seasar.cms.pluggable.Configuration;
+import org.seasar.cms.pluggable.ThreadContext;
 import org.seasar.framework.container.ExternalContext;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
@@ -329,7 +330,7 @@ abstract public class PageTestCase<P> extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    protected P getPageComponent() {
+    protected P getPage() {
         checkStatus(STATUS_PREPARED);
         return (P) container_.getComponent(getPageClass());
     }
@@ -358,7 +359,15 @@ abstract public class PageTestCase<P> extends TestCase {
 
         status_ = STATUS_PROCESSED;
 
-        return ymir_.processRequest(request);
+        ThreadContext threadContext = (ThreadContext) container_
+                .getComponent(ThreadContext.class);
+        try {
+            threadContext.setComponent(Request.class, request);
+
+            return ymir_.processRequest(request);
+        } finally {
+            threadContext.setComponent(Request.class, null);
+        }
     }
 
     /**

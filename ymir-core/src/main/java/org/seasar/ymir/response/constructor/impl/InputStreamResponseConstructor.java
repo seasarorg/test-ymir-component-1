@@ -16,7 +16,7 @@ public class InputStreamResponseConstructor implements
         return InputStream.class;
     }
 
-    public Response constructResponse(Object component, InputStream returnValue) {
+    public Response constructResponse(Object page, InputStream returnValue) {
 
         if (returnValue == null) {
             return VoidResponse.INSTANCE;

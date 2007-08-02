@@ -16,7 +16,7 @@ public class StringResponseConstructor implements ResponseConstructor<String> {
         return String.class;
     }
 
-    public Response constructResponse(Object component, String returnValue) {
+    public Response constructResponse(Object page, String returnValue) {
 
         if (returnValue == null) {
             return VoidResponse.INSTANCE;
@@ -37,7 +37,7 @@ public class StringResponseConstructor implements ResponseConstructor<String> {
             throw new RuntimeException("Unknown scheme '" + scheme
                     + "' is specified: " + returnValue);
         }
-        return strategy.constructResponse(path, component);
+        return strategy.constructResponse(path, page);
     }
 
     public void setStrategySelector(StrategySelector strategySelector) {

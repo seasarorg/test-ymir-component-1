@@ -8,7 +8,7 @@ public interface PathMapping {
 
     String getActionNameTemplate();
 
-    String getComponentNameTemplate();
+    String getPageComponentNameTemplate();
 
     String getPathInfoTemplate();
 
@@ -20,7 +20,7 @@ public interface PathMapping {
 
     VariableResolver match(String path, String method);
 
-    String getComponentName(VariableResolver resolver);
+    String getPageComponentName(VariableResolver resolver);
 
     String getActionName(VariableResolver resolver);
 
@@ -63,6 +63,6 @@ public interface PathMapping {
      */
     boolean isDispatchingByParameter();
 
-    MethodInvoker getActionMethodInvoker(Class pageClass, Request request,
+    Action getAction(PageComponent pageComponent, Request request,
             VariableResolver resolver);
 }

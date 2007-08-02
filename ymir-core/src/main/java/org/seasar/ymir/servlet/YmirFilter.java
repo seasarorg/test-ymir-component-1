@@ -14,6 +14,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.seasar.cms.pluggable.ThreadContext;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpServletResponseFilter;
@@ -81,7 +82,11 @@ public class YmirFilter implements Filter {
                 ServletUtils.getPath(httpRequest), httpRequest.getMethod(),
                 dispatcher_, httpRequest.getParameterMap(), fileParameterMap,
                 attributeContainer, LocaleUtils.findLocale(httpRequest));
+
+        ThreadContext context = getThreadContext();
         try {
+            context.setComponent(Request.class, request);
+
             Response response = ymir_.processRequest(request);
             HttpServletResponseFilter responseFilter = ymir_.processResponse(
                     context_, httpRequest, httpResponse, request, response);
@@ -93,9 +98,16 @@ public class YmirFilter implements Filter {
             ymir_.processResponse(context_, httpRequest, httpResponse, request,
                     ymir_.processException(request, t));
         } finally {
+            context.setComponent(Request.class, null);
+
             if (Request.DISPATCHER_INCLUDE.equals(dispatcher_)) {
                 ymir_.restoreForInclusion(attributeContainer, backupped);
             }
         }
+    }
+
+    protected ThreadContext getThreadContext() {
+        return (ThreadContext) ymir_.getApplication().getS2Container()
+                .getRoot().getComponent(ThreadContext.class);
     }
 }

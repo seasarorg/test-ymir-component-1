@@ -7,7 +7,7 @@ public interface MatchedPathMapping {
 
     VariableResolver getVariableResolver();
 
-    String getComponentName();
+    String getPageComponentName();
 
     String getActionName();
 
@@ -19,5 +19,5 @@ public interface MatchedPathMapping {
 
     boolean isDispatchingByParameter();
 
-    MethodInvoker getActionMethodInvoker(Class pageClass, Request request);
+    Action getAction(PageComponent pageComponent, Request request);
 }

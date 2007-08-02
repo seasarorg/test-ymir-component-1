@@ -9,6 +9,7 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PathMappingProvider;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -72,10 +73,6 @@ public class DefaultRequestProcessorTest extends S2TestCase {
             public String getPath() {
                 return "/article/update.zpt";
             }
-
-            public String getComponentName() {
-                return "articlePage";
-            }
         };
         Response response = new ForwardResponse("/article/update.zpt");
 
@@ -98,5 +95,33 @@ public class DefaultRequestProcessorTest extends S2TestCase {
 
         assertFalse("親ディレクトリが存在しない場合もfalseを返すこと", target_
                 .fileResourceExists("/nonexistentdir/file"));
+    }
+
+    public void testCreatePageComponent() throws Exception {
+        PageComponent pageComponent = target_.createPageComponent("parentPage");
+
+        assertNotNull(pageComponent);
+        assertSame(target_.getS2Container().getComponent("parentPage"),
+                pageComponent.getPage());
+        assertEquals(ParentPage.class, pageComponent.getPageClass());
+        assertEquals(2, pageComponent.getChildren().length);
+
+        PageComponent pageComponent1 = pageComponent.getChildren()[0];
+        assertSame(target_.getS2Container().getComponent("child1Page"),
+                pageComponent1.getPage());
+        assertEquals(Child1Page.class, pageComponent1.getPageClass());
+        assertEquals(0, pageComponent1.getChildren().length);
+
+        PageComponent pageComponent2 = pageComponent.getChildren()[1];
+        assertSame(target_.getS2Container().getComponent("child2Page"),
+                pageComponent2.getPage());
+        assertEquals(Child2Page.class, pageComponent2.getPageClass());
+        assertEquals(1, pageComponent2.getChildren().length);
+
+        PageComponent pageComponent3 = pageComponent2.getChildren()[0];
+        assertSame(target_.getS2Container().getComponent("child3Page"),
+                pageComponent3.getPage());
+        assertEquals(Child3Page.class, pageComponent3.getPageClass());
+        assertEquals(0, pageComponent3.getChildren().length);
     }
 }

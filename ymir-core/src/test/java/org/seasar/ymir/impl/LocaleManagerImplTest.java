@@ -19,8 +19,7 @@ public class LocaleManagerImplTest extends PageTestCase<LocaleManagerImplPage> {
         Request request = prepareForPrecessing("/localeManagerImpl.html",
                 Request.METHOD_GET);
         processRequest(request);
-        LocaleManagerImplPage page = getPageComponent();
 
-        assertSame(locale, page.getLocale());
+        assertSame(locale, getPage().getLocale());
     }
 }

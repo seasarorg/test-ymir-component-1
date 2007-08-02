@@ -1,6 +1,7 @@
 package org.seasar.ymir.interceptor;
 
-import org.seasar.ymir.MethodInvoker;
+import org.seasar.ymir.Action;
+import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 
@@ -30,9 +31,8 @@ public interface YmirProcessInterceptor {
      */
     Request requestCreated(Request request);
 
-    Object componentCreated(Object component);
+    PageComponent pageComponentCreated(PageComponent pageComponent);
 
-    MethodInvoker actionInvoking(Object component,
-            MethodInvoker originalMethodInvoker, Request request,
-            MethodInvoker methodInvoker) throws PermissionDeniedException;
+    Action actionInvoking(Action originalAction, Request request, Action action)
+            throws PermissionDeniedException;
 }

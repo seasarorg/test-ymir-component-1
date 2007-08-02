@@ -5,8 +5,8 @@ import java.lang.reflect.Method;
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.framework.container.S2Container;
 import org.seasar.kvasir.util.PropertyUtils;
+import org.seasar.ymir.Action;
 import org.seasar.ymir.LifecycleListener;
-import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.SessionManager;
 import org.seasar.ymir.YmirContext;
@@ -17,6 +17,7 @@ import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.conversation.annotation.BeginSubConversation;
 import org.seasar.ymir.conversation.annotation.Conversation;
 import org.seasar.ymir.conversation.annotation.End;
+import org.seasar.ymir.impl.ActionImpl;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 
 /**
@@ -47,15 +48,14 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor
     }
 
     @Override
-    public MethodInvoker actionInvoking(Object component, MethodInvoker action,
-            Request request, MethodInvoker methodInvoker)
-            throws PermissionDeniedException {
-        Conversation annotation = request.getComponentClass().getAnnotation(
-                Conversation.class);
+    public Action actionInvoking(Action originalAction, Request request,
+            Action action) throws PermissionDeniedException {
+        Conversation annotation = request.getPageComponent().getPageClass()
+                .getAnnotation(Conversation.class);
         if (annotation != null) {
             Conversations conversations = ConversationUtils.getConversations();
 
-            Method actualAction = methodInvoker.getMethod();
+            Method actualAction = action.getMethodInvoker().getMethod();
             if (actualAction.isAnnotationPresent(Begin.class)
                     || isDisableBeginCheck()
                     && !annotation.name().equals(
@@ -77,16 +77,19 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor
                             "Can't specify both @End and @BeginSubConversation: "
                                     + actualAction.getName());
                 }
-                methodInvoker = new EndConversationMethodInvoker(methodInvoker);
+                action = new ActionImpl(action.getTarget(),
+                        new EndConversationMethodInvoker(action
+                                .getMethodInvoker()));
             } else {
                 if (beginSubConversation != null) {
-                    methodInvoker = new BeginSubConversationMethodInvoker(
-                            methodInvoker, beginSubConversation);
+                    action = new ActionImpl(action.getTarget(),
+                            new BeginSubConversationMethodInvoker(action
+                                    .getMethodInvoker(), beginSubConversation));
                 }
             }
         }
 
-        return methodInvoker;
+        return action;
     }
 
     S2Container getS2Container() {

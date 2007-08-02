@@ -20,7 +20,7 @@ public class ObjectResponseConstructor implements ResponseConstructor<Object> {
     }
 
     @SuppressWarnings("unchecked")
-    public Response constructResponse(Object component, Object returnValue) {
+    public Response constructResponse(Object page, Object returnValue) {
 
         if (returnValue == null) {
             return VoidResponse.INSTANCE;
@@ -43,7 +43,7 @@ public class ObjectResponseConstructor implements ResponseConstructor<Object> {
         }
 
         return ((ResponseConstructor<Object>) responseConstructor)
-                .constructResponse(component, returnValue);
+                .constructResponse(page, returnValue);
     }
 
     ResponseConstructor<?> findResponseConstructor(Class<?> clazz) {

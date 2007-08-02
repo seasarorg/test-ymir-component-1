@@ -5,9 +5,11 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
+import org.seasar.ymir.Action;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.MatchedPathMapping;
+import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 
 public class RequestImpl implements Request {
@@ -30,9 +32,9 @@ public class RequestImpl implements Request {
 
     private MatchedPathMapping matched_;
 
-    private String actionName_;
+    private Action action_;
 
-    private Class<?> componentClass_;
+    private PageComponent pageComponent_;
 
     public RequestImpl() {
     }
@@ -169,28 +171,24 @@ public class RequestImpl implements Request {
         attributeContainer_ = attributeContainer;
     }
 
-    public String getComponentName() {
-        return matched_.getComponentName();
+    public String getPageComponentName() {
+        return matched_.getPageComponentName();
     }
 
-    public Class<?> getComponentClass() {
-        return componentClass_;
-    }
-
-    public void setComponentClass(Class<?> componentClass) {
-        componentClass_ = componentClass;
+    public Action getAction() {
+        return action_;
     }
 
     public String getActionName() {
-        if (actionName_ == null) {
-            return matched_.getActionName();
+        if (action_ != null) {
+            return action_.getName();
         } else {
-            return actionName_;
+            return null;
         }
     }
 
-    public void setActionName(String actionName) {
-        actionName_ = actionName;
+    public void setAction(Action action) {
+        action_ = action;
     }
 
     public String getPathInfo() {
@@ -227,5 +225,13 @@ public class RequestImpl implements Request {
 
     public boolean isDenied() {
         return (matched_ != null && matched_.isDenied());
+    }
+
+    public PageComponent getPageComponent() {
+        return pageComponent_;
+    }
+
+    public void setPageComponent(PageComponent pageComponent) {
+        pageComponent_ = pageComponent;
     }
 }

@@ -17,7 +17,9 @@ import org.seasar.kvasir.util.el.TextTemplateEvaluator;
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.kvasir.util.el.impl.MapVariableResolver;
 import org.seasar.kvasir.util.el.impl.SimpleTextTemplateEvaluator;
-import org.seasar.ymir.MethodInvoker;
+import org.seasar.ymir.Action;
+import org.seasar.ymir.PageComponent;
+import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.util.MethodUtils;
@@ -31,7 +33,7 @@ public class PathMappingImpl implements PathMapping {
 
     private Pattern pattern_;
 
-    private String componentNameTemplate_;
+    private String pageComponentNameTemplate_;
 
     private String actionNameTemplate_;
 
@@ -60,13 +62,13 @@ public class PathMappingImpl implements PathMapping {
     }
 
     public PathMappingImpl(boolean denied, String patternString,
-            String componentTemplate, String actionNameTemplate,
+            String pageComponentTemplate, String actionNameTemplate,
             String pathInfoTemplate, Object defaultReturnValue,
             String parameterNamePatternStringForDispatching) {
 
         denied_ = denied;
         pattern_ = Pattern.compile(patternString);
-        componentNameTemplate_ = componentTemplate;
+        pageComponentNameTemplate_ = pageComponentTemplate;
         actionNameTemplate_ = actionNameTemplate;
         pathInfoTemplate_ = pathInfoTemplate;
         if (defaultReturnValue instanceof String) {
@@ -86,8 +88,8 @@ public class PathMappingImpl implements PathMapping {
         return actionNameTemplate_;
     }
 
-    public String getComponentNameTemplate() {
-        return componentNameTemplate_;
+    public String getPageComponentNameTemplate() {
+        return pageComponentNameTemplate_;
     }
 
     public String getPathInfoTemplate() {
@@ -151,8 +153,8 @@ public class PathMappingImpl implements PathMapping {
         }
     }
 
-    public String getComponentName(VariableResolver resolver) {
-        return evaluate(componentNameTemplate_, resolver);
+    public String getPageComponentName(VariableResolver resolver) {
+        return evaluate(pageComponentNameTemplate_, resolver);
     }
 
     public String getActionName(VariableResolver resolver) {
@@ -210,23 +212,34 @@ public class PathMappingImpl implements PathMapping {
     }
 
     /**
-     * アクションメソッドを実行するためのMethodInvokerを構築して返します。
-     * <p>実行すべきアクションメソッドが見つからなかった場合は
-     * methodプロパティがnullであるようなMethodInvokerオブジェクトを返します。</p>
+     * アクションメソッドを実行するためのActionを構築して返します。
+     * <p>実行すべきアクションメソッドが見つからなかった場合はnullを返します。</p>
      * 
      * @param pageClass ページクラス。
      * @param request Requestオブジェクト。
      * @param resolver VariableResolver。
-     * @return 構築したMethodInvoker。
+     * @return 構築したAction。
      */
-    public MethodInvoker getActionMethodInvoker(Class pageClass,
-            Request request, VariableResolver resolver) {
-        String actionName = getActionName(resolver);
+    public Action getAction(PageComponent pageComponent, final Request request,
+            VariableResolver resolver) {
+        final String actionName = getActionName(resolver);
+
+        return (Action) pageComponent.accept(new PageComponentVisitor() {
+            @Override
+            public Object process(PageComponent pageComponent) {
+                return getAction(pageComponent.getPage(), pageComponent
+                        .getPageClass(), actionName, request);
+            }
+        });
+    }
+
+    protected Action getAction(Object page, Class<?> pageClass,
+            String actionName, Request request) {
         if (isDispatchingByParameter()) {
             Method[] methods = pageClass.getMethods();
             if (logger_.isDebugEnabled()) {
                 logger_
-                        .debug("getActionMethodInvoker: dispatchingByRequestParameter=true. search "
+                        .debug("getAction: dispatchingByRequestParameter=true. search "
                                 + pageClass
                                 + " for "
                                 + actionName
@@ -235,14 +248,13 @@ public class PathMappingImpl implements PathMapping {
             List<Method> list = new ArrayList<Method>();
             for (int i = 0; i < methods.length; i++) {
                 list.add(methods[i]);
-                MethodInvoker mi = createMethodInvokerIfAction(methods[i],
-                        actionName, request);
-                if (mi != null) {
+                Action action = createAction(methods[i], actionName, request,
+                        page);
+                if (action != null) {
                     if (logger_.isDebugEnabled()) {
-                        logger_.debug("getActionMethodInvoker: Found: "
-                                + methods[i]);
+                        logger_.debug("getAction: Found: " + methods[i]);
                     }
-                    return mi;
+                    return action;
                 }
             }
 
@@ -252,14 +264,14 @@ public class PathMappingImpl implements PathMapping {
             }
             for (Iterator<Method> itr = list.iterator(); itr.hasNext();) {
                 Method method = itr.next();
-                MethodInvoker mi = createMethodInvokerIfAction(method,
-                        ACTION_DEFAULT, request);
-                if (mi != null) {
+                Action action = createAction(method, ACTION_DEFAULT, request,
+                        page);
+                if (action != null) {
                     if (logger_.isDebugEnabled()) {
                         logger_.debug("getActionMethodInvoker: Found: "
                                 + method);
                     }
-                    return mi;
+                    return action;
                 }
             }
         }
@@ -267,16 +279,23 @@ public class PathMappingImpl implements PathMapping {
         Method method = MethodUtils.getMethod(pageClass, actionName);
         if (method == null) {
             method = MethodUtils.getMethod(pageClass, ACTION_DEFAULT);
+            if (method == null) {
+                if (logger_.isDebugEnabled()) {
+                    logger_.debug("getAction: Not found");
+                }
+                return null;
+            }
         }
 
         if (logger_.isDebugEnabled()) {
-            logger_.debug("getActionMethodInvoker: Found: " + method);
+            logger_.debug("getAction: Found: " + method);
         }
-        return new MethodInvokerImpl(method, new Object[0]);
+        return new ActionImpl(page,
+                new MethodInvokerImpl(method, new Object[0]));
     }
 
-    protected MethodInvoker createMethodInvokerIfAction(Method method,
-            String actionName, Request request) {
+    protected Action createAction(Method method, String actionName,
+            Request request, Object page) {
         boolean hasIndex;
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length == 0) {
@@ -295,7 +314,8 @@ public class PathMappingImpl implements PathMapping {
             if (parameterName != null) {
                 if (!hasIndex) {
                     if (request.getParameter(parameterName) != null) {
-                        return new MethodInvokerImpl(method, new Object[0]);
+                        return new ActionImpl(page, new MethodInvokerImpl(
+                                method, new Object[0]));
                     }
                 } else {
                     String prefix = parameterName + INDEX_PREFIX;
@@ -308,8 +328,10 @@ public class PathMappingImpl implements PathMapping {
                                 int index = Integer.parseInt(pname.substring(
                                         prefix.length(), pname.length()
                                                 - INDEX_SUFFIX.length()));
-                                return new MethodInvokerImpl(method,
-                                        new Object[] { Integer.valueOf(index) });
+                                return new ActionImpl(page,
+                                        new MethodInvokerImpl(method,
+                                                new Object[] { Integer
+                                                        .valueOf(index) }));
                             } catch (NumberFormatException ignore) {
                             }
                         }

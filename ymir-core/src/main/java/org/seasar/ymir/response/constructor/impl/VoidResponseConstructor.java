@@ -11,7 +11,7 @@ public class VoidResponseConstructor implements ResponseConstructor<Void> {
         return Void.TYPE;
     }
 
-    public Response constructResponse(Object component, Void returnValue) {
+    public Response constructResponse(Object page, Void returnValue) {
 
         return PassthroughResponse.INSTANCE;
     }

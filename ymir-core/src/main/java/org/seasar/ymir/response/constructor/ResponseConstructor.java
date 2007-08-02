@@ -14,9 +14,9 @@ public interface ResponseConstructor<T> {
     /**
      * 指定されたコンポーネントとアクションメソッドの返り値からResponseを構築して返します。
      * 
-     * @param component コンポーネント。nullであることがあります。
+     * @param page Pageコンポーネント。nullであることがあります。
      * @param returnValue 返り値。nullであることがあります。
      * @return 構築したResponseオブジェクト。
      */
-    Response constructResponse(Object component, T returnValue);
+    Response constructResponse(Object page, T returnValue);
 }

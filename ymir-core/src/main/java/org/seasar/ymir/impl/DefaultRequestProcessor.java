@@ -1,7 +1,9 @@
 package org.seasar.ymir.impl;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -11,19 +13,18 @@ import javax.servlet.ServletContext;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.seasar.cms.pluggable.ThreadContext;
-import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
-import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.log.Logger;
 import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
 import org.seasar.kvasir.util.el.VariableResolver;
+import org.seasar.ymir.Action;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.MatchedPathMapping;
-import org.seasar.ymir.MethodInvoker;
+import org.seasar.ymir.PageComponent;
+import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.PageNotFoundException;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
@@ -32,7 +33,9 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.ScopeAttribute;
 import org.seasar.ymir.Updater;
+import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
+import org.seasar.ymir.annotation.Children;
 import org.seasar.ymir.beanutils.FormFileArrayConverter;
 import org.seasar.ymir.beanutils.FormFileConverter;
 import org.seasar.ymir.constraint.ConstraintType;
@@ -65,14 +68,13 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
     private final BeanUtilsBean beanUtilsBean_;
 
-    private ThreadContext threadContext_;
-
     private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
 
     private final Logger logger_ = Logger.getLogger(getClass());
 
-    public DefaultRequestProcessor() {
+    private PageComponentVisitor visitorForRendering_ = new VisitorForRendering();
 
+    public DefaultRequestProcessor() {
         ConvertUtilsBean convertUtilsBean = new ConvertUtilsBean();
         convertUtilsBean.register(new FormFileConverter(), FormFile.class);
         convertUtilsBean.register(new FormFileArrayConverter(),
@@ -91,18 +93,15 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
     public void setResponseConstructorSelector(
             ResponseConstructorSelector responseConstructorSelector) {
-
         responseConstructorSelector_ = responseConstructorSelector;
     }
 
     public void setUpdaters(Updater[] updaters) {
-
         updaters_ = updaters;
     }
 
     public void setYmirProcessInterceptors(
             YmirProcessInterceptor[] ymirProcessInterceptors) {
-
         ymirProcessInterceptors_ = ymirProcessInterceptors;
         YmirUtils.sortYmirProcessInterceptors(ymirProcessInterceptors_);
     }
@@ -112,7 +111,6 @@ public class DefaultRequestProcessor implements RequestProcessor {
             Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap,
             AttributeContainer attributeContainer, Locale locale) {
-
         if (ymir_.isUnderDevelopment()) {
             method = correctMethod(method, parameterMap);
         }
@@ -163,7 +161,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
     }
 
     ServletContext getServletContext() {
-        return (ServletContext) getRootS2Container().getComponent(
+        return (ServletContext) getS2Container().getRoot().getComponent(
                 ServletContext.class);
     }
 
@@ -171,12 +169,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
         return ymir_.getApplication().getS2Container();
     }
 
-    protected S2Container getRootS2Container() {
-        return SingletonS2ContainerFactory.getContainer();
-    }
-
     public MatchedPathMapping findMatchedPathMapping(String path, String method) {
-
         VariableResolver resolver = null;
         PathMapping[] pathMappings = getPathMappings();
         if (pathMappings != null) {
@@ -190,116 +183,146 @@ public class DefaultRequestProcessor implements RequestProcessor {
         return null;
     }
 
-    public Response process(Request request) throws PageNotFoundException,
-            PermissionDeniedException {
-
-        boolean isRequestDispatcher = Request.DISPATCHER_REQUEST.equals(request
-                .getDispatcher());
-
-        if (isRequestDispatcher && request.isDenied()) {
-            throw new PageNotFoundException(request.getPath());
-        }
-
-        Response response = PassthroughResponse.INSTANCE;
-        if (request.isMatched()) {
-            Object component = getComponent(request);
-            if (component != null) {
-                Class<?> componentClass = getComponentClass(request
-                        .getComponentName());
-                request.setComponentClass(componentClass);
-
-                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                    component = ymirProcessInterceptors_[i]
-                            .componentCreated(component);
-                }
-
-                // リクエストに対応するアクションを決定する。
-                MethodInvoker action = request.getMatchedPathMapping()
-                        .getActionMethodInvoker(componentClass, request);
-                if (action.getMethod() == null) {
-                    // リクエストに対応するアクションが存在しない場合はリクエストを受け付けない。
-                    throw new PermissionDeniedException("Action not found");
-                }
-
-                String actionName = action.getMethod().getName();
-                request.setActionName(actionName);
-
-                PagePropertyBag bag = new PagePropertyBag(componentClass,
-                        getS2Container());
-
-                prepareForComponent(component, actionName, bag, request);
-
-                response = normalizeResponse(adjustResponse(request,
-                        invokeMethod(component, action, request, true),
-                        component), request.getPath());
-
-                ResponseType responseType = response.getType();
-                if (responseType == ResponseType.PASSTHROUGH
-                        || responseType == ResponseType.FORWARD) {
-                    // 画面描画のためのAction呼び出しを行なう。
-                    // （画面描画のためのAction呼び出しの際にはAction付随の制約以外の
-                    // 制約チェックを行なわない。）
-                    invokeMethod(component, new MethodInvokerImpl(MethodUtils
-                            .getMethod(componentClass, METHOD_RENDER),
-                            new Object[0]), request, false);
-                }
-
-                finishForComponent(component, actionName, bag, request);
-            } else if (request.getComponentName() != null) {
-                // componentがnullになるのは、component名が割り当てられているのにまだ
-                // 対応するcomponentクラスが作成されていない場合、またはDeniedPathMappingImpl
-                // に関して処理をしている場合。
-                // 前者の場合自動生成機能でクラスやテンプレートの自動生成が適切にできるように、
-                // デフォルト値からResponseを作るようにしている。
-                // （例えば、リクエストパス名がテンプレートパス名ではない場合に、リクエストパス名で
-                // テンプレートが作られてしまうとうれしくない。）
-                response = normalizeResponse(constructDefaultResponse(request,
-                        component), request.getPath());
+    public Response process(final Request request)
+            throws PageNotFoundException, PermissionDeniedException {
+        if (Request.DISPATCHER_REQUEST.equals(request.getDispatcher())) {
+            if (request.isDenied()) {
+                throw new PageNotFoundException(request.getPath());
             }
-        }
 
-        if (logger_.isDebugEnabled()) {
-            logger_.debug("FINAL RESPONSE: " + response);
-        }
+            Response response = PassthroughResponse.INSTANCE;
+            if (request.isMatched()) {
+                PageComponent pageComponent = createPageComponent(request
+                        .getPageComponentName());
+                if (pageComponent != null) {
+                    request.setPageComponent(pageComponent);
 
-        if (isRequestDispatcher && ymir_.isUnderDevelopment()) {
-            for (int i = 0; i < updaters_.length; i++) {
-                Response newResponse = updaters_[i].update(request, response);
-                if (newResponse != response) {
-                    return newResponse;
+                    for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                        pageComponent = ymirProcessInterceptors_[i]
+                                .pageComponentCreated(pageComponent);
+                    }
+
+                    // リクエストに対応するアクションを決定する。
+                    Action action = request.getMatchedPathMapping().getAction(
+                            pageComponent, request);
+                    if (action == null) {
+                        // リクエストに対応するアクションが存在しない場合はリクエストを受け付けない。
+                        throw new PermissionDeniedException("Action not found");
+                    }
+                    request.setAction(action);
+
+                    pageComponent.accept(new VisitorForPreparing(request));
+
+                    Action actualAction = action;
+                    for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                        actualAction = ymirProcessInterceptors_[i]
+                                .actionInvoking(action, request, actualAction);
+                    }
+
+                    response = normalizeResponse(adjustResponse(request,
+                            invokeAction(actualAction), pageComponent), request
+                            .getPath());
+
+                    ResponseType responseType = response.getType();
+                    if (responseType == ResponseType.PASSTHROUGH
+                            || responseType == ResponseType.FORWARD) {
+                        // 画面描画のためのAction呼び出しを行なう。
+                        pageComponent.accept(visitorForRendering_);
+                    }
+
+                    pageComponent.accept(new VisitorForFinishing(request));
+
+                    // Pageコンポーネントをattributeとしてバインドしておく。
+                    request.setAttribute(ATTR_PAGECOMPONENT, pageComponent);
+                    request.setAttribute(ATTR_SELF, pageComponent.getPage());
+                } else if (request.getPageComponentName() != null) {
+                    // pageComponentがnullになるのは、page名が割り当てられているのにまだ
+                    // 対応するPageクラスが作成されていない場合、またはDeniedPathMappingImpl
+                    // に関して処理をしている場合。
+                    // 前者の場合自動生成機能でクラスやテンプレートの自動生成が適切にできるように、
+                    // デフォルト値からResponseを作るようにしている。
+                    // （例えば、リクエストパス名がテンプレートパス名ではない場合に、リクエストパス名で
+                    // テンプレートが作られてしまうとうれしくない。）
+                    response = normalizeResponse(constructDefaultResponse(
+                            request, null), request.getPath());
                 }
             }
-        }
 
-        return response;
+            if (logger_.isDebugEnabled()) {
+                logger_.debug("FINAL RESPONSE: " + response);
+            }
+
+            if (ymir_.isUnderDevelopment()) {
+                for (int i = 0; i < updaters_.length; i++) {
+                    Response newResponse = updaters_[i].update(request,
+                            response);
+                    if (newResponse != response) {
+                        return newResponse;
+                    }
+                }
+            }
+
+            return response;
+        } else {
+            // includeの場合はselfを設定するだけ。
+            Object page = getPage(request.getPageComponentName());
+            if (page != null) {
+                request.setAttribute(ATTR_SELF, page);
+            }
+
+            return PassthroughResponse.INSTANCE;
+        }
     }
 
-    protected Object getComponent(Request request) {
-        String componentName = request.getComponentName();
-        if (componentName == null) {
+    protected PageComponent createPageComponent(Object pageComponentKey) {
+        return createPageComponent(getPage(pageComponentKey),
+                getComponentClass(pageComponentKey));
+    }
+
+    protected PageComponent createPageComponent(Object page, Class<?> pageClass) {
+        if (page == null) {
+            return null;
+        }
+
+        PageComponent pageComponent;
+        Children children = pageClass.getAnnotation(Children.class);
+        if (children != null) {
+            Class<?>[] childrenClasses = children.value();
+            List<PageComponent> childPageList = new ArrayList<PageComponent>();
+            for (int i = 0; i < childrenClasses.length; i++) {
+                PageComponent pc = createPageComponent(childrenClasses[i]);
+                if (pc != null) {
+                    childPageList.add(pc);
+                }
+            }
+            pageComponent = new PageComponentImpl(page, pageClass,
+                    childPageList.toArray(new PageComponent[0]));
+        } else {
+            pageComponent = new PageComponentImpl(page, pageClass);
+        }
+
+        return pageComponent;
+    }
+
+    protected Object getPage(Object pageComponentKey) {
+        if (pageComponentKey == null) {
             // 主にDeniedPathMappingImplのため。
             return null;
         }
 
-        Object component = null;
         S2Container s2container = getS2Container();
-        if (s2container.hasComponentDef(componentName)) {
-            ThreadContext context = getThreadContext();
-            try {
-                context.setComponent(Request.class, request);
-                component = s2container.getComponent(componentName);
-            } finally {
-                context.setComponent(Request.class, null);
-            }
+        if (s2container.hasComponentDef(pageComponentKey)) {
+            return s2container.getComponent(pageComponentKey);
+        } else {
+            return null;
         }
-        return component;
     }
 
-    protected Class<?> getComponentClass(String componentName) {
-        ComponentDef componentDef = getS2Container().getComponentDef(
-                componentName);
-        if (componentDef != null) {
-            return componentDef.getComponentClass();
+    protected Class<?> getComponentClass(Object componentKey) {
+        S2Container s2container = getS2Container();
+        if (s2container.hasComponentDef(componentKey)) {
+            return s2container.getComponentDef(componentKey)
+                    .getComponentClass();
         } else {
             return null;
         }
@@ -315,24 +338,10 @@ public class DefaultRequestProcessor implements RequestProcessor {
     }
 
     Object getRequestComponent(Request request) {
-
         return request.getAttribute(ATTR_SELF);
     }
 
-    void prepareForComponent(Object component, String actionName,
-            PagePropertyBag bag, Request request) {
-        // リクエストパラメータをinjectする。
-        injectRequestParameters(component, bag, request.getParameterMap());
-
-        // FormFileのリクエストパラメータをinjectする。
-        injectRequestFileParameters(component, bag, request
-                .getFileParameterMap());
-
-        // 各コンテキストが持つ属性をinjectする。
-        injectContextAttributes(component, actionName, bag);
-    }
-
-    void injectRequestParameters(Object component, PagePropertyBag bag,
+    void injectRequestParameters(Object page, PagePropertyBag bag,
             Map properties) {
         for (Iterator itr = properties.keySet().iterator(); itr.hasNext();) {
             String name = (String) itr.next();
@@ -340,8 +349,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
                 continue;
             }
             try {
-                beanUtilsBean_.setProperty(component, name, properties
-                        .get(name));
+                beanUtilsBean_.setProperty(page, name, properties.get(name));
             } catch (Throwable t) {
                 if (logger_.isDebugEnabled()) {
                     logger_.debug("Can't populate property '" + name + "'", t);
@@ -350,16 +358,16 @@ public class DefaultRequestProcessor implements RequestProcessor {
         }
     }
 
-    void injectRequestFileParameters(Object component, PagePropertyBag bag,
+    void injectRequestFileParameters(Object page, PagePropertyBag bag,
             Map properties) {
         for (Iterator itr = properties.keySet().iterator(); itr.hasNext();) {
             String name = (String) itr.next();
             if (name == null || bag.isProtected(name)) {
                 continue;
             }
-            if (beanUtilsBean_.getPropertyUtils().isWriteable(component, name)) {
+            if (beanUtilsBean_.getPropertyUtils().isWriteable(page, name)) {
                 try {
-                    beanUtilsBean_.copyProperty(component, name, properties
+                    beanUtilsBean_.copyProperty(page, name, properties
                             .get(name));
                 } catch (Throwable t) {
                     if (logger_.isDebugEnabled()) {
@@ -370,66 +378,36 @@ public class DefaultRequestProcessor implements RequestProcessor {
         }
     }
 
-    void injectContextAttributes(Object component, String actionName,
+    void injectContextAttributes(Object page, String actionName,
             PagePropertyBag bag) {
         ScopeAttribute[] attributes = bag.getInjectedScopeAttributes();
         for (int i = 0; i < attributes.length; i++) {
             if (attributes[i].isEnable(actionName)) {
-                attributes[i].injectTo(component);
+                attributes[i].injectTo(page);
             }
         }
     }
 
-    void finishForComponent(Object component, String actionName,
-            PagePropertyBag bag, Request request) {
-        // 各コンテキストに属性をoutjectする。
-        outjectContextAttributes(component, actionName, bag);
-
-        // コンポーネント自体をattributeとしてバインドしておく。
-        request.setAttribute(ATTR_SELF, component);
-    }
-
-    void outjectContextAttributes(Object component, String actionName,
+    void outjectContextAttributes(Object page, String actionName,
             PagePropertyBag bag) {
         ScopeAttribute[] attributes = bag.getOutjectedScopeAttributes();
         for (int i = 0; i < attributes.length; i++) {
             if (attributes[i].isEnable(actionName)) {
-                attributes[i].outjectFrom(component);
+                attributes[i].outjectFrom(page);
             }
         }
     }
 
-    ThreadContext getThreadContext() {
-        if (threadContext_ == null) {
-            threadContext_ = (ThreadContext) getRootS2Container().getComponent(
-                    ThreadContext.class);
-        }
-        return threadContext_;
-    }
-
-    Response invokeMethod(Object component, final MethodInvoker methodInvoker,
-            Request request, boolean invokeAsAction)
-            throws PermissionDeniedException {
-
+    Response invokeAction(final Action action) throws PermissionDeniedException {
         Response response = PassthroughResponse.INSTANCE;
 
-        MethodInvoker actualMethodInvoker = methodInvoker;
-        if (invokeAsAction) {
-            for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                actualMethodInvoker = ymirProcessInterceptors_[i]
-                        .actionInvoking(component, methodInvoker, request,
-                                actualMethodInvoker);
-            }
-        }
-
-        if (actualMethodInvoker.shouldInvoke()) {
+        if (action.shouldInvoke()) {
             if (logger_.isDebugEnabled()) {
-                logger_.debug("INVOKE: "
-                        + request.getComponentClass().getName() + "#"
-                        + actualMethodInvoker);
+                logger_.debug("INVOKE: " + action.getTarget().getClass() + "#"
+                        + action.getMethodInvoker());
             }
-            response = constructResponse(component, actualMethodInvoker
-                    .getReturnType(), actualMethodInvoker.invoke(component));
+            response = constructResponse(action.getTarget(), action
+                    .getMethodInvoker().getReturnType(), action.invoke());
             if (logger_.isDebugEnabled()) {
                 logger_.debug("RESPONSE: " + response);
             }
@@ -438,9 +416,9 @@ public class DefaultRequestProcessor implements RequestProcessor {
         return response;
     }
 
-    Response adjustResponse(Request request, Response response, Object component) {
+    Response adjustResponse(Request request, Response response, Object page) {
         if (response.getType() == ResponseType.PASSTHROUGH) {
-            response = constructDefaultResponse(request, component);
+            response = constructDefaultResponse(request, page);
         }
 
         if (logger_.isDebugEnabled()) {
@@ -450,7 +428,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
         return response;
     }
 
-    Response constructDefaultResponse(Request request, Object component) {
+    Response constructDefaultResponse(Request request, Object page) {
         if (fileResourceExists(request.getPath())) {
             // パスに対応するテンプレートファイルが存在する場合はパススルーする。
             return PassthroughResponse.INSTANCE;
@@ -458,7 +436,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
             Object returnValue = request.getMatchedPathMapping()
                     .getDefaultReturnValue();
             if (returnValue != null) {
-                return constructResponse(component, returnValue.getClass(),
+                return constructResponse(page, returnValue.getClass(),
                         returnValue);
             } else {
                 return PassthroughResponse.INSTANCE;
@@ -482,9 +460,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    Response constructResponse(Object component, Class<?> type,
-            Object returnValue) {
-
+    Response constructResponse(Object page, Class<?> type, Object returnValue) {
         ResponseConstructor<?> constructor = responseConstructorSelector_
                 .getResponseConstructor(type);
         if (constructor == null) {
@@ -495,15 +471,74 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
         ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
         try {
-            if (component != null) {
+            if (page != null) {
                 // TODO request.getComponentClass().getClassLoader()にすべきか？
                 Thread.currentThread().setContextClassLoader(
-                        component.getClass().getClassLoader());
+                        page.getClass().getClassLoader());
             }
             return ((ResponseConstructor<Object>) constructor)
-                    .constructResponse(component, returnValue);
+                    .constructResponse(page, returnValue);
         } finally {
             Thread.currentThread().setContextClassLoader(oldLoader);
+        }
+    }
+
+    protected class VisitorForPreparing extends PageComponentVisitor {
+        private Request request_;
+
+        public VisitorForPreparing(Request request) {
+            request_ = request;
+        }
+
+        public Object process(PageComponent pageComponent) {
+            Object page = pageComponent.getPage();
+            PagePropertyBag bag = new PagePropertyBag(pageComponent
+                    .getPageClass(), getS2Container());
+            pageComponent.setRelatedObject(PagePropertyBag.class, bag);
+
+            // リクエストパラメータをinjectする。
+            injectRequestParameters(page, bag, request_.getParameterMap());
+
+            // FormFileのリクエストパラメータをinjectする。
+            injectRequestFileParameters(page, bag, request_
+                    .getFileParameterMap());
+
+            // 各コンテキストが持つ属性をinjectする。
+            injectContextAttributes(page, request_.getAction().getName(), bag);
+
+            return null;
+        }
+    }
+
+    protected class VisitorForRendering extends PageComponentVisitor {
+        public Object process(PageComponent pageComponent) {
+            try {
+                invokeAction(new ActionImpl(pageComponent.getPage(),
+                        new MethodInvokerImpl(MethodUtils.getMethod(
+                                pageComponent.getPageClass(), METHOD_RENDER),
+                                new Object[0])));
+
+                return null;
+            } catch (PermissionDeniedException ex) {
+                throw new WrappingRuntimeException(ex);
+            }
+        }
+    }
+
+    protected class VisitorForFinishing extends PageComponentVisitor {
+        private Request request_;
+
+        public VisitorForFinishing(Request request) {
+            request_ = request;
+        }
+
+        public Object process(PageComponent pageComponent) {
+            // 各コンテキストに属性をoutjectする。
+            outjectContextAttributes(pageComponent.getPage(), request_
+                    .getAction().getName(), pageComponent
+                    .getRelatedObject(PagePropertyBag.class));
+
+            return null;
         }
     }
 }

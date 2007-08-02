@@ -27,6 +27,8 @@ public interface RequestProcessor {
 
     String ATTR_NOTES = "notes";
 
+    String ATTR_PAGECOMPONENT = "pageComponent";
+
     Request prepareForProcessing(String contextPath, String path,
             String method, String dispatcher,
             Map<String, String[]> parameterMap,

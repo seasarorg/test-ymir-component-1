@@ -24,7 +24,7 @@ public class YmirConventionTest extends TestCase {
 
         MatchedPathMapping matched = match("", "GET", mappings);
         assertNotNull(matched);
-        assertEquals("_RootPage", matched.getComponentName());
+        assertEquals("_RootPage", matched.getPageComponentName());
         assertEquals("_get", matched.getActionName());
 
         matched = match("/_Root", "GET", mappings);
@@ -32,12 +32,12 @@ public class YmirConventionTest extends TestCase {
 
         matched = match("/article.html", "GET", mappings);
         assertNotNull(matched);
-        assertEquals("articlePage", matched.getComponentName());
+        assertEquals("articlePage", matched.getPageComponentName());
         assertEquals("_get", matched.getActionName());
 
         matched = match("/article/update.do", "POST", mappings);
         assertNotNull(matched);
-        assertEquals("articlePage", matched.getComponentName());
+        assertEquals("articlePage", matched.getPageComponentName());
         assertEquals("_post_update", matched.getActionName());
 
         matched = match("/article/_update.do", "POST", mappings);

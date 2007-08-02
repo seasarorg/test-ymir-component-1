@@ -187,51 +187,58 @@ public interface Request extends AttributeContainer {
     AttributeContainer getAttributeContainer();
 
     /**
-     * リクエストパスに対応するコンポーネントの名前を返します。
-     * <p>パスに対応するコンポーネントが存在しない場合はnullを返します。</p>
+     * リクエストパスに対応するPageコンポーネントの名前を返します。
+     * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
      *
-     * @return コンポーネント名。
+     * @return Pageコンポーネント名。
      */
-    String getComponentName();
+    String getPageComponentName();
 
     /**
-     * リクエストパスに対応するコンポーネントのクラスを返します。
-     * <p>パスに対応するコンポーネントが存在しない場合はnullを返します。</p>
+     * リクエストパスに対応するPageコンポーネントを返します。
+     * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
      * 
-     * @return コンポーネントのクラス。
+     * @return Pageコンポーネント。
      */
-    Class<?> getComponentClass();
+    PageComponent getPageComponent();
 
     /**
-     * リクエストパスに対応するコンポーネントのクラスを設定します。
-     * <p>このメソッドはリクエストパスに対応するコンポーネントを生成した段階でコンポーネントクラスを
+     * リクエストパスに対応するPageコンポーネントを設定します。
+     * <p>このメソッドはリクエストパスに対応するPageコンポーネントを生成した段階でPageコンポーネントを
      * Requestオブジェクトにセットするために用いられます。
      * アプリケーションはこのメソッドを呼び出さないようにして下さい。
      * </p>
      * 
-     * @param componentClass コンポーネントのクラス。
+     * @param componentClass Pageコンポーネント。
      */
-    void setComponentClass(Class<?> componentClass);
+    void setPageComponent(PageComponent pageComponent);
+
+    /**
+     * リクエストを処理するアクションを返します。
+     * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
+     *
+     * @return アクション。
+     */
+    Action getAction();
 
     /**
      * リクエストパスとHTTPメソッドに対応するアクションの名前を返します。
-     * <p>パスに対応するコンポーネントが存在しない場合や、
-     * リクエストパスとHTTPメソッドに対応するアクションが存在しない場合はnullを返します。</p>
+     * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
      *
      * @return アクション名。
      */
     String getActionName();
 
     /**
-     * アクション名を設定します。
-     * <p>このメソッドは実際に呼び出されるアクション名が決定した段階でアクション名を
+     * アクションを設定します。
+     * <p>このメソッドは実際に呼び出されるアクションが決定した段階でアクションを
      * Requestオブジェクトにセットするために用いられます。
      * アプリケーションはこのメソッドを呼び出さないようにして下さい。
      * </p>
      * 
-     * @param actionName アクション名。
+     * @param action アクション。
      */
-    void setActionName(String actionName);
+    void setAction(Action action);
 
     /**
      * リクエストパスに連結されているpathInfo情報を返します。

@@ -19,9 +19,12 @@ import java.util.Set;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.Action;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.Notes;
+import org.seasar.ymir.PageComponent;
+import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.annotation.SuppressConstraints;
@@ -33,6 +36,7 @@ import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
 import org.seasar.ymir.constraint.annotation.ConstraintsAnnotation;
+import org.seasar.ymir.impl.ActionImpl;
 import org.seasar.ymir.impl.ConstraintBag;
 import org.seasar.ymir.impl.MethodInvokerImpl;
 import org.seasar.ymir.impl.VoidMethodInvoker;
@@ -58,73 +62,73 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public MethodInvoker actionInvoking(Object component, MethodInvoker action,
-            Request request, MethodInvoker methodInvoker)
-            throws PermissionDeniedException {
+    public Action actionInvoking(Action originalAction, Request request,
+            Action action) throws PermissionDeniedException {
+        PageComponent pageComponent = request.getPageComponent();
+
+        Action finalAction;
         try {
-            Notes notes = confirmConstraint(component, action, request);
+            Notes notes = confirmConstraint(pageComponent, originalAction,
+                    request);
             if (notes != null) {
                 request.setAttribute(ATTR_NOTES, notes);
 
                 // バリデーションエラーが発生した場合は、エラー処理メソッドが存在すればそれを呼び出す。
                 // メソッドが存在しなければ何もしない（元のアクションメソッドの呼び出しをスキップする）。
-                Method method = MethodUtils.getMethod(component,
-                        ACTION_VALIDATIONFAILED, new Class[] { Notes.class });
-                if (method != null) {
-                    methodInvoker = new MethodInvokerImpl(method,
-                            new Object[] { notes });
-                } else {
-                    method = MethodUtils.getMethod(component,
-                            ACTION_VALIDATIONFAILED);
-                    if (method != null) {
-                        methodInvoker = new MethodInvokerImpl(method,
-                                new Object[0]);
-                    } else {
-                        methodInvoker = VoidMethodInvoker.INSTANCE;
-                    }
+                finalAction = (Action) pageComponent
+                        .accept(new VisitorForFindingValidationFailedMethod(
+                                notes));
+                if (finalAction == null) {
+                    finalAction = new ActionImpl(pageComponent.getPage(),
+                            VoidMethodInvoker.INSTANCE);
+
                 }
+            } else {
+                finalAction = action;
             }
         } catch (PermissionDeniedException ex) {
             // 権限エラーが発生した場合は、エラー処理メソッドが存在すればそれを呼び出す。
             // メソッドが存在しなければPermissionDeniedExceptionを上に再スローする。
-            Method method = MethodUtils.getMethod(component,
-                    ACTION_PERMISSIONDENIED,
-                    new Class[] { PermissionDeniedException.class });
-            if (method != null) {
-                methodInvoker = new MethodInvokerImpl(method,
-                        new Object[] { ex });
-            } else {
-                method = MethodUtils.getMethod(component,
-                        ACTION_PERMISSIONDENIED);
-                if (method != null) {
-                    methodInvoker = new MethodInvokerImpl(method, new Object[0]);
-                } else {
-                    throw ex;
-                }
+            finalAction = (Action) pageComponent
+                    .accept(new VisitorForFindingPermissionDeniedMethod(ex));
+            if (finalAction == null) {
+                throw ex;
             }
         }
 
-        return methodInvoker;
+        return finalAction;
     }
 
-    Notes confirmConstraint(Object component, MethodInvoker action,
+    Notes confirmConstraint(PageComponent pageComponent, Action action,
             Request request) throws PermissionDeniedException {
+        try {
+            VisitorForConfirmingConstraint visitor = new VisitorForConfirmingConstraint(
+                    action, request, getSuppressTypeSet(action
+                            .getMethodInvoker().getMethod()));
+            pageComponent.accept(visitor);
 
-        Method actionMethod = action.getMethod();
-        Set<ConstraintType> suppressTypeSet = getSuppressTypeSet(actionMethod);
+            return visitor.getNotes();
+        } catch (WrappingRuntimeException ex) {
+            if (ex.getCause() instanceof PermissionDeniedException) {
+                throw (PermissionDeniedException) ex.getCause();
+            } else {
+                throw ex;
+            }
+        }
+    }
 
-        boolean validationFailed = false;
-        Notes notes = new Notes();
-        Class<?> componentClass = request.getComponentClass();
-        ConstraintBag[] bag = getConstraintBags(componentClass, actionMethod,
-                suppressTypeSet);
+    void confirmConstraint(Object page, Class<?> pageClass, Action action,
+            Request request, Set<ConstraintType> suppressTypeSet, Notes notes)
+            throws PermissionDeniedException {
+        ConstraintBag[] bag = getConstraintBags(pageClass, action
+                .getMethodInvoker(), suppressTypeSet, page == action
+                .getTarget());
         for (int i = 0; i < bag.length; i++) {
             try {
-                bag[i].confirm(component, request);
+                bag[i].confirm(page, request);
             } catch (PermissionDeniedException ex) {
                 throw ex;
             } catch (ValidationFailedException ex) {
-                validationFailed = true;
                 notes.add(ex.getNotes());
             } catch (ConstraintViolatedException ex) {
                 throw new RuntimeException("May logic error", ex);
@@ -132,41 +136,30 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
 
         // Validatorアノテーションがついているメソッドを実行する。
-        MethodInvoker[] validators = gatherValidators(componentClass, action,
-                suppressTypeSet);
+        MethodInvoker[] validators = gatherValidators(pageClass, action
+                .getMethodInvoker(), suppressTypeSet);
         for (int i = 0; i < validators.length; i++) {
             try {
-                Object invoked = validators[i].invoke(component);
+                Object invoked = validators[i].invoke(page);
                 if (invoked instanceof Notes) {
-                    Notes ns = (Notes) invoked;
-                    if (!ns.isEmpty()) {
-                        validationFailed = true;
-                        notes.add(ns);
-                    }
+                    notes.add((Notes) invoked);
                 }
             } catch (IllegalArgumentException ex) {
                 throw new RuntimeException("May logic error", ex);
             } catch (WrappingRuntimeException ex) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof ValidationFailedException) {
-                    validationFailed = true;
                     notes.add(((ValidationFailedException) cause).getNotes());
                 }
             }
         }
-
-        if (validationFailed) {
-            return notes;
-        } else {
-            return null;
-        }
     }
 
-    Set<ConstraintType> getSuppressTypeSet(Method action) {
+    Set<ConstraintType> getSuppressTypeSet(Method actionMethod) {
         Set<ConstraintType> suppressTypeSet = EnumSet
                 .noneOf(ConstraintType.class);
-        if (action != null) {
-            SuppressConstraints suppress = action
+        if (actionMethod != null) {
+            SuppressConstraints suppress = actionMethod
                     .getAnnotation(SuppressConstraints.class);
             if (suppress != null) {
                 ConstraintType[] types = suppress.value();
@@ -179,14 +172,16 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     // PropertyDescriptorのreadMethodは対象外。fieldも対象外。
-    ConstraintBag[] getConstraintBags(Class<?> clazz, Method action,
-            Set<ConstraintType> suppressTypeSet) {
+    ConstraintBag[] getConstraintBags(Class<?> pageClass,
+            MethodInvoker actionMethodInvoker,
+            Set<ConstraintType> suppressTypeSet,
+            boolean getConstraintBagFromActionMethod) {
         List<ConstraintBag> list = new ArrayList<ConstraintBag>();
 
-        getConstraintBag(clazz, list, suppressTypeSet);
+        getConstraintBag(pageClass, list, suppressTypeSet);
         BeanInfo beanInfo;
         try {
-            beanInfo = Introspector.getBeanInfo(clazz);
+            beanInfo = Introspector.getBeanInfo(pageClass);
         } catch (IntrospectionException ex) {
             throw new RuntimeException(ex);
         }
@@ -194,7 +189,10 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         for (int i = 0; i < pds.length; i++) {
             getConstraintBag(pds[i].getWriteMethod(), list, suppressTypeSet);
         }
-        getConstraintBag(action, list, EMPTY_SUPPRESSTYPESET);
+        if (getConstraintBagFromActionMethod && actionMethodInvoker != null) {
+            getConstraintBag(actionMethodInvoker.getMethod(), list,
+                    EMPTY_SUPPRESSTYPESET);
+        }
 
         return list.toArray(new ConstraintBag[0]);
     }
@@ -269,17 +267,18 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
     }
 
-    MethodInvoker[] gatherValidators(Class<?> componentClass,
-            MethodInvoker action, Set<ConstraintType> suppressTypeSet) {
+    MethodInvoker[] gatherValidators(Class<?> pageClass,
+            MethodInvoker actionMethodInvoker,
+            Set<ConstraintType> suppressTypeSet) {
         List<MethodInvoker> validatorList = new ArrayList<MethodInvoker>();
 
-        Method actionMethod = action.getMethod();
+        Method actionMethod = actionMethodInvoker.getMethod();
         String actionName = actionMethod.getName();
-        Object[] actionParameters = action.getParameters();
+        Object[] actionParameters = actionMethodInvoker.getParameters();
 
         // バリデーションを抑制するように指定されている場合はカスタムバリデータを収集しない。
         if (!suppressTypeSet.contains(ConstraintType.VALIDATION)) {
-            Method[] methods = componentClass.getMethods();
+            Method[] methods = pageClass.getMethods();
             for (int i = 0; i < methods.length; i++) {
                 Validator validator = methods[i].getAnnotation(Validator.class);
                 if (validator != null) {
@@ -328,5 +327,98 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
     protected S2Container getS2Container() {
         return applicationManager_.findContextApplication().getS2Container();
+    }
+
+    protected class VisitorForFindingValidationFailedMethod extends
+            PageComponentVisitor {
+        private Notes notes_;
+
+        public VisitorForFindingValidationFailedMethod(Notes notes) {
+            notes_ = notes;
+        }
+
+        public Object process(PageComponent pageComponent) {
+            Object page = pageComponent.getPage();
+            Method method = MethodUtils.getMethod(page,
+                    ACTION_VALIDATIONFAILED, new Class[] { Notes.class });
+            if (method != null) {
+                return new ActionImpl(page, new MethodInvokerImpl(method,
+                        new Object[] { notes_ }));
+            } else {
+                method = MethodUtils.getMethod(page, ACTION_VALIDATIONFAILED);
+                if (method != null) {
+                    return new ActionImpl(page, new MethodInvokerImpl(method,
+                            new Object[0]));
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
+
+    protected class VisitorForFindingPermissionDeniedMethod extends
+            PageComponentVisitor {
+        private PermissionDeniedException ex_;
+
+        public VisitorForFindingPermissionDeniedMethod(
+                PermissionDeniedException ex) {
+            ex_ = ex;
+        }
+
+        public Object process(PageComponent pageComponent) {
+            Object page = pageComponent.getPage();
+            Method method = MethodUtils.getMethod(page,
+                    ACTION_PERMISSIONDENIED,
+                    new Class[] { PermissionDeniedException.class });
+            if (method != null) {
+                return new ActionImpl(page, new MethodInvokerImpl(method,
+                        new Object[] { ex_ }));
+            } else {
+                method = MethodUtils.getMethod(page, ACTION_PERMISSIONDENIED);
+                if (method != null) {
+                    return new ActionImpl(page, new MethodInvokerImpl(method,
+                            new Object[0]));
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
+
+    protected class VisitorForConfirmingConstraint extends PageComponentVisitor {
+        private Action action_;
+
+        private Request request_;
+
+        private Set<ConstraintType> suppressTypeSet_;
+
+        private Notes notes_ = new Notes();
+
+        public VisitorForConfirmingConstraint(Action action, Request request,
+                Set<ConstraintType> supperssTypeSet) {
+            action_ = action;
+            request_ = request;
+            suppressTypeSet_ = supperssTypeSet;
+        }
+
+        public Object process(PageComponent pageComponent) {
+            Object page = pageComponent.getPage();
+            try {
+                confirmConstraint(page, pageComponent.getPageClass(), action_,
+                        request_, suppressTypeSet_, notes_);
+            } catch (PermissionDeniedException ex) {
+                throw new WrappingRuntimeException(ex);
+            }
+
+            return null;
+        }
+
+        public Notes getNotes() {
+            if (!notes_.isEmpty()) {
+                return notes_;
+            } else {
+                return null;
+            }
+        }
     }
 }

@@ -32,7 +32,8 @@
     <arg>"/article.html"</arg>
     <arg>null</arg>
   </component>
-  <component name="articlePage" class="org.seasar.ymir.impl.ArticlePage" />
+  <component name="articlePage"
+    class="org.seasar.ymir.impl.ArticlePage" />
 
   <!-- ymir.dicon -->
   <component
@@ -86,4 +87,9 @@
     class="org.seasar.ymir.scope.impl.SessionScope" />
   <component name="requestScope"
     class="org.seasar.ymir.scope.impl.RequestScope" />
+  <!-- FOR TEST -->
+  <component name="parentPage" class="org.seasar.ymir.impl.ParentPage" />
+  <component name="child1Page" class="org.seasar.ymir.impl.Child1Page" />
+  <component name="child2Page" class="org.seasar.ymir.impl.Child2Page" />
+  <component name="child3Page" class="org.seasar.ymir.impl.Child3Page" />
 </components>

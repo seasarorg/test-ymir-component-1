@@ -33,6 +33,10 @@
       <arg>"org.seasar.ymir.constraint.impl"</arg>
       <arg>"Abstract.*"</arg>
     </initMethod>
+    <initMethod name="addIgnoreClassPattern">
+      <arg>"org.seasar.ymir.constraint.impl"</arg>
+      <arg>".*\\$.*"</arg>
+    </initMethod>
     <initMethod name="registerAll" />
   </component>
   <component

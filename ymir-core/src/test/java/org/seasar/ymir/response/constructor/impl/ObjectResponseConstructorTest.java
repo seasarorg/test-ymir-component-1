@@ -20,21 +20,20 @@ public class ObjectResponseConstructorTest extends TestCase {
         super.setUp();
         ResponseConstructorSelectorImpl selector = new ResponseConstructorSelectorImpl();
         selector.add(new StringResponseConstructor() {
-            public Response constructResponse(Object component,
-                    String returnValue) {
+            public Response constructResponse(Object page, String returnValue) {
                 calledClass_ = getTargetClass();
                 return null;
             }
         });
         selector.add(new PathResponseConstructor() {
-            public Response constructResponse(Object component, Path returnValue) {
+            public Response constructResponse(Object page, Path returnValue) {
                 calledClass_ = getTargetClass();
                 return null;
             }
         });
         selector.add(new InputStreamResponseConstructor());
         selector.add(new ResponseConstructor<I>() {
-            public Response constructResponse(Object component, I returnValue) {
+            public Response constructResponse(Object page, I returnValue) {
                 return null;
             }
 

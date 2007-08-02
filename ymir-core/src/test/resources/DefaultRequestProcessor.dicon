@@ -32,7 +32,8 @@
     <arg>"/article.html"</arg>
     <arg>null</arg>
   </component>
-  <component name="articlePage" class="org.seasar.ymir.impl.ArticlePage" />
+  <component name="articlePage"
+    class="org.seasar.ymir.impl.ArticlePage" />
 
   <!-- ymir.dicon -->
   <component
@@ -89,7 +90,9 @@
   <!-- FOR TEST -->
   <component
     class="org.seasar.framework.container.autoregister.ComponentAutoRegister">
-    <property name="instanceDef">@org.seasar.framework.container.deployer.InstanceDefFactory@PROTOTYPE</property>
+    <property name="instanceDef">
+      @org.seasar.framework.container.deployer.InstanceDefFactory@PROTOTYPE
+    </property>
     <initMethod name="addReferenceClass">
       <arg>@org.seasar.ymir.impl.TigerAnnotationHandlerTest@class</arg>
     </initMethod>

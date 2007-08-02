@@ -1,15 +1,14 @@
 package org.seasar.ymir.mock;
 
 import org.seasar.kvasir.util.el.VariableResolver;
+import org.seasar.ymir.Action;
 import org.seasar.ymir.MatchedPathMapping;
-import org.seasar.ymir.MethodInvoker;
+import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.impl.MethodInvokerImpl;
 
 public class MockMatchedPathMapping implements MatchedPathMapping {
-    private MethodInvoker methodInvoker_ = new MethodInvokerImpl(null,
-            new Object[0]);
+    private Action action_ = null;
 
     private String actionName_;
 
@@ -27,13 +26,12 @@ public class MockMatchedPathMapping implements MatchedPathMapping {
 
     private boolean dispatchingByParameter_;
 
-    public MethodInvoker getActionMethodInvoker(Class pageClass, Request request) {
-        return methodInvoker_;
+    public Action getAction(PageComponent pageComponent, Request request) {
+        return action_;
     }
 
-    public MockMatchedPathMapping setActionMethodInvoker(
-            MethodInvoker methodInvoker) {
-        methodInvoker_ = methodInvoker;
+    public MockMatchedPathMapping setAction(Action action) {
+        action_ = action;
         return this;
     }
 
@@ -46,7 +44,7 @@ public class MockMatchedPathMapping implements MatchedPathMapping {
         return this;
     }
 
-    public String getComponentName() {
+    public String getPageComponentName() {
         return componentName_;
     }
 
