@@ -35,6 +35,7 @@ import org.seasar.framework.convention.impl.NamingConventionImpl;
 import org.seasar.kvasir.util.el.VariableResolver;
 
 import com.example.dto.SaruDto;
+import com.example.web.Test47Page;
 
 import net.skirnir.freyja.TemplateContext;
 
@@ -775,5 +776,15 @@ public class ZptAnalyzerTest extends TestCase {
                 Integer.TYPE, "index") });
         md = cd.getMethodDesc(md);
         assertNotNull(md);
+    }
+
+    public void testAnalyze47_インナークラスをプロパティなどの型として持つクラスの自動生成が正しく行なえること()
+            throws Exception {
+
+        act("testAnalyze47", Test47Page.class.getName());
+
+        ClassDesc cd = getClassDesc(Test47Page.class.getName());
+        assertEquals(Test47Page.class.getName() + ".Internal", cd
+                .getPropertyDesc("property").getTypeDesc().getName());
     }
 }
