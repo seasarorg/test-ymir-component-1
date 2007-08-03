@@ -35,7 +35,7 @@ import org.seasar.ymir.ScopeAttribute;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
-import org.seasar.ymir.annotation.Children;
+import org.seasar.ymir.annotation.Include;
 import org.seasar.ymir.beanutils.FormFileArrayConverter;
 import org.seasar.ymir.beanutils.FormFileConverter;
 import org.seasar.ymir.constraint.ConstraintType;
@@ -285,7 +285,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
         }
 
         PageComponent pageComponent;
-        Children children = pageClass.getAnnotation(Children.class);
+        Include children = pageClass.getAnnotation(Include.class);
         if (children != null) {
             Class<?>[] childrenClasses = children.value();
             List<PageComponent> childPageList = new ArrayList<PageComponent>();

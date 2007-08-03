@@ -1,7 +1,7 @@
 package org.seasar.ymir.impl;
 
-import org.seasar.ymir.annotation.Children;
+import org.seasar.ymir.annotation.Include;
 
-@Children( { Child1Page.class, Child2Page.class })
+@Include( { Child1Page.class, Child2Page.class })
 public class ParentPage {
 }
