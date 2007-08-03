@@ -79,6 +79,16 @@ public class SimpleClassDesc extends AbstractClassDesc {
         throw new UnsupportedOperationException();
     }
 
+    public boolean isBaseClassAbstract() {
+
+        return false;
+    }
+
+    public void setBaseClassAbstract(boolean baseClassAbstract) {
+
+        throw new UnsupportedOperationException();
+    }
+
     public boolean isEmpty() {
 
         return true;

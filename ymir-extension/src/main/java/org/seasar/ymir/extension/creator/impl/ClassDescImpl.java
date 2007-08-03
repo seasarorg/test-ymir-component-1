@@ -23,6 +23,8 @@ public class ClassDescImpl extends AbstractClassDesc {
 
     private Map<MethodDescKey, MethodDesc> methodDescMap_ = new TreeMap<MethodDescKey, MethodDesc>();
 
+    private boolean baseClassAbstract_;
+
     public ClassDescImpl(String name) {
 
         setName(name);
@@ -125,6 +127,16 @@ public class ClassDescImpl extends AbstractClassDesc {
     public void setSuperclass(Class superclass) {
 
         superclass_ = superclass;
+    }
+
+    public boolean isBaseClassAbstract() {
+
+        return baseClassAbstract_;
+    }
+
+    public void setBaseClassAbstract(boolean baseClassAbstract) {
+
+        baseClassAbstract_ = baseClassAbstract;
     }
 
     public void merge(ClassDesc classDesc) {

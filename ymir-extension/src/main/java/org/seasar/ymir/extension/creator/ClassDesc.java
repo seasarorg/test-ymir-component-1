@@ -61,6 +61,10 @@ public interface ClassDesc extends AnnotatedDesc, Cloneable {
 
     Class getSuperclass();
 
+    boolean isBaseClassAbstract();
+
+    void setBaseClassAbstract(boolean baseClassAbstract);
+
     boolean isEmpty();
 
     void clear();

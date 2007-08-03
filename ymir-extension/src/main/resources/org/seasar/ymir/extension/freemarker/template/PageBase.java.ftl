@@ -1,7 +1,7 @@
 <#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
 
 <#list classDesc.annotationDescs as annotationDesc>${annotationDesc.string}
-</#list>public class ${classDesc.shortName}Base<#if classDesc.superclassName?exists> extends ${classDesc.superclassName}</#if>
+</#list>public <#if classDesc.baseClassAbstract>abstract </#if>class ${classDesc.shortName}Base<#if classDesc.superclassName?exists> extends ${classDesc.superclassName}</#if>
 {
 <#list classDesc.propertyDescs as propertyDesc>
     protected ${propertyDesc.typeDesc.name} ${fieldPrefix}${propertyDesc.name}${fieldSuffix};

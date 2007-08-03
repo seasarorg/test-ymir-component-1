@@ -23,6 +23,7 @@ import java.io.OutputStreamWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -763,6 +764,10 @@ public class SourceCreatorImpl implements SourceCreator {
             } else {
                 baseDesc.setSuperclass(null);
             }
+
+            // abstractかどうかを保持するようにする。
+            desc.setBaseClassAbstract(Modifier.isAbstract(baseClass
+                    .getModifiers()));
         }
 
         // baseにあるものは必ず残す。baseになくてsuperやgapにあるものは除去する。

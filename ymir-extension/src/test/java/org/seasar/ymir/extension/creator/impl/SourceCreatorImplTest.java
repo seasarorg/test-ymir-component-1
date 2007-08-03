@@ -326,4 +326,16 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertNull("Ymirが親クラスを指定するようになっている場合でも、親クラスが指定されていないならばそれが維持されること", cd
                 .getSuperclassName());
     }
+
+    public void testMergeWithExistentClass5_Baseクラスのabstract状態が維持されること()
+            throws Exception {
+
+        ClassDesc cd = new ClassDescImpl(
+                "org.seasar.ymir.extension.creator.impl.Merge7");
+        cd.setSuperclass(TestPageBase.class);
+
+        target_.mergeWithExistentClass(cd, true);
+
+        assertTrue(cd.isBaseClassAbstract());
+    }
 }
