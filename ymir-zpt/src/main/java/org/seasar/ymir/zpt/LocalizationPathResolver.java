@@ -8,6 +8,8 @@ import org.seasar.kvasir.util.collection.PropertyReader;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.MessageNotFoundRuntimeException;
 import org.seasar.ymir.Messages;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.util.MessagesUtils;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;
@@ -30,30 +32,31 @@ public class LocalizationPathResolver extends NotePathResolver {
 
         if (obj instanceof I18NPropertyReader) {
             I18NPropertyReader reader = (I18NPropertyReader) obj;
-            String messageKey;
+            Locale locale = getNoteLocalizer().findLocale(context, varResolver);
+            String messageName;
             String value;
             if (child.startsWith("%")) {
-                messageKey = child.substring(1);
-                String pageSpecificKey = createPageSpecificKey(messageKey,
-                        ZptUtils.getPageName(context, varResolver));
-                value = reader.getProperty(pageSpecificKey, getNoteLocalizer()
-                        .findLocale(context, varResolver));
+                messageName = child.substring(1);
+                String pageSpecificMessageName = MessagesUtils
+                        .getPageSpecificName(messageName, MessagesUtils
+                                .getPageName((Request) varResolver.getVariable(
+                                        context,
+                                        YmirVariableResolver.NAME_YMIRREQUEST)));
+                value = reader.getProperty(pageSpecificMessageName, locale);
                 if (value == null) {
-                    value = reader.getProperty(messageKey, getNoteLocalizer()
-                            .findLocale(context, varResolver));
+                    value = reader.getProperty(messageName, locale);
                 }
             } else {
-                messageKey = child;
-                value = reader.getProperty(messageKey);
+                messageName = child;
+                value = reader.getProperty(messageName);
             }
             if (value == null && obj instanceof Messages) {
                 throw new MessageNotFoundRuntimeException(
-                        "Message corresponding key ('" + messageKey
+                        "Message corresponding key ('" + messageName
                                 + "') does not exist in default Messages ("
                                 + Globals.MESSAGES + ")").setMessageKey(
-                        messageKey).setLocale(
-                        child.startsWith("%") ? getNoteLocalizer().findLocale(
-                                context, varResolver) : new Locale(""));
+                        messageName).setLocale(
+                        child.startsWith("%") ? locale : new Locale(""));
             }
             return value;
         } else if (obj instanceof PropertyReader) {
@@ -63,19 +66,5 @@ public class LocalizationPathResolver extends NotePathResolver {
         }
 
         return null;
-    }
-
-    protected String createPageSpecificKey(String messageKey, String pageName) {
-        if (pageName == null) {
-            return messageKey;
-        }
-
-        int dot = messageKey.indexOf('.');
-        if (dot < 0) {
-            return pageName + "." + messageKey;
-        } else {
-            return messageKey.substring(0, dot) + "." + pageName
-                    + messageKey.substring(dot);
-        }
     }
 }

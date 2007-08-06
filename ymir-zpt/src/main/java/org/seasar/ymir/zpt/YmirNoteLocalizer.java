@@ -51,20 +51,13 @@ public class YmirNoteLocalizer implements NoteLocalizer {
         }
 
         if (messages != null) {
-            Locale locale = findLocale(context, varResolver);
-            String v = messages.getProperty(noteValue, locale);
+            String v = messages.getMessage(noteValue);
             if (v != null) {
-                String pageName = ZptUtils.getPageName(context, varResolver);
                 for (int i = 0; i < noteParameters.length; i++) {
                     if (noteParameters[i] instanceof String) {
-                        String localizedValue = messages.getProperty(
-                                PROPERTYPREFIX_LABEL + pageName + "."
-                                        + noteParameters[i], locale);
-                        if (localizedValue == null) {
-                            localizedValue = messages.getProperty(
-                                    PROPERTYPREFIX_LABEL + noteParameters[i],
-                                    locale);
-                        }
+                        String localizedValue = messages
+                                .getMessage(PROPERTYPREFIX_LABEL
+                                        + noteParameters[i]);
                         if (localizedValue != null) {
                             noteParameters[i] = localizedValue;
                         }
@@ -83,7 +76,7 @@ public class YmirNoteLocalizer implements NoteLocalizer {
                 }
                 throw new MessageNotFoundRuntimeException(sb.toString())
                         .setMessagesName(messagesName).setMessageKey(noteValue)
-                        .setLocale(locale);
+                        .setLocale(findLocale(context, varResolver));
             }
         }
 
