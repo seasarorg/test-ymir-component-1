@@ -1,5 +1,8 @@
 package org.seasar.ymir.scope.impl;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.seasar.framework.container.ExternalContext;
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.scope.Scope;
@@ -13,5 +16,14 @@ abstract public class AbstractServletScope implements Scope {
 
     protected ExternalContext getExternalContext() {
         return container_.getRoot().getExternalContext();
+    }
+
+    protected HttpSession getSession() {
+        return getSession(true);
+    }
+
+    protected HttpSession getSession(boolean create) {
+        return ((HttpServletRequest) getExternalContext().getRequest())
+                .getSession(create);
     }
 }

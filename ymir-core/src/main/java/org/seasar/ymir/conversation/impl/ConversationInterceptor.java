@@ -13,6 +13,7 @@ import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.conversation.ConversationUtils;
 import org.seasar.ymir.conversation.Conversations;
+import org.seasar.ymir.conversation.Globals;
 import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.conversation.annotation.BeginSubConversation;
 import org.seasar.ymir.conversation.annotation.Conversation;
@@ -25,8 +26,6 @@ import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
  */
 public class ConversationInterceptor extends AbstractYmirProcessInterceptor
         implements LifecycleListener {
-    public static final String APPKEY_DISABLEBEGINCHECK = "core.conversation.disableBeginCheck";
-
     private Configuration configuration_;
 
     private SessionManager sessionManager_;
@@ -98,6 +97,6 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor
 
     boolean isDisableBeginCheck() {
         return PropertyUtils.valueOf(configuration_
-                .getProperty(APPKEY_DISABLEBEGINCHECK), false);
+                .getProperty(Globals.APPKEY_DISABLEBEGINCHECK), false);
     }
 }

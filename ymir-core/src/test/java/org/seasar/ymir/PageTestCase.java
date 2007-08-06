@@ -35,7 +35,6 @@ import org.seasar.framework.mock.servlet.MockServletContext;
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.constraint.PermissionDeniedException;
-import org.seasar.ymir.conversation.impl.ConversationInterceptor;
 import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
 import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.ymir.servlet.YmirListener;
@@ -126,7 +125,24 @@ abstract public class PageTestCase<P> extends TestCase {
      */
     protected void disableBeginCheck() {
         ((Configuration) getContainer().getComponent(Configuration.class))
-                .setProperty(ConversationInterceptor.APPKEY_DISABLEBEGINCHECK,
+                .setProperty(
+                        org.seasar.ymir.conversation.Globals.APPKEY_DISABLEBEGINCHECK,
+                        String.valueOf(true));
+    }
+
+    /**
+     * 主に単一画面のテスト用に、ConversationScopeの代わりにSessionScopeを使用するようにします。
+     * <p>conversationに参加している画面をテストする場合、その画面がconversationの途中だと
+     * テスト時にconversation scopeが存在せずオブジェクトの保存や取り出しがうまくいかないことがあります。
+     * これを避けるためにこのメソッドを呼び出して一時的にconversation scopeの代わりにsession scopeを使うようにして下さい。
+     * このメソッドが呼び出されてから呼び出したテストメソッドが終了するまでは、
+     * conversation scopeへのアクセスは全てsession scopeにスルーされるようになります。
+     * </p>
+     */
+    protected void useSessionScopeAsConversationScope() {
+        ((Configuration) getContainer().getComponent(Configuration.class))
+                .setProperty(
+                        org.seasar.ymir.conversation.Globals.APPKEY_USESESSIONSCOPEASCONVERSATIONSCOPE,
                         String.valueOf(true));
     }
 
