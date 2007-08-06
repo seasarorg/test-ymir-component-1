@@ -13,6 +13,7 @@ import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.extension.Globals;
+import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
@@ -351,5 +352,12 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         target_.mergeWithExistentClass(cd, true);
 
         assertNull(cd.getPropertyDesc("value"));
+    }
+
+    @SuppressWarnings("deprecation")
+    public void testCreateAnnotationDesc() throws Exception {
+        AnnotationDesc[] ads = target_.createAnnotationDescs(Hoe2.class);
+        assertEquals(1, ads.length);
+        assertEquals(Deprecated.class.getName(), ads[0].getName());
     }
 }
