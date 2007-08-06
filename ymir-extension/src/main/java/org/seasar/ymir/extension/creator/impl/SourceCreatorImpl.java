@@ -750,11 +750,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 : null);
         if (baseDesc == null) {
             baseDesc = newClassDesc(className);
-        }
-        ClassDesc superDesc = getClassDesc(getClass(desc.getSuperclassName()),
-                className, false);
-        if (superDesc == null) {
-            superDesc = newClassDesc(className);
+            baseDesc.setSuperclass(desc.getSuperclass());
         }
         if (baseClass != null) {
             // baseクラスが既に存在するならば再生成ということなので、親クラス情報を維持するようにする。
@@ -774,6 +770,13 @@ public class SourceCreatorImpl implements SourceCreator {
         ClassDesc generated = (ClassDesc) desc.clone();
         desc.clear();
         desc.merge(baseDesc);
+
+        ClassDesc superDesc = getClassDesc(getClass(desc.getSuperclassName()),
+                className, false);
+        if (superDesc == null) {
+            superDesc = newClassDesc(Object.class.getName());
+        }
+
         PropertyDesc[] pds = generated.getPropertyDescs();
         for (int i = 0; i < pds.length; i++) {
             PropertyDesc basePd = baseDesc.getPropertyDesc(pds[i].getName());

@@ -338,4 +338,18 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
         assertTrue(cd.isBaseClassAbstract());
     }
+
+    public void testMergeWithExistentClass6_プロパティのGetterやSetterがスーパークラスにある時は自動生成されないこと()
+            throws Exception {
+
+        ClassDesc cd = new ClassDescImpl(
+                "org.seasar.ymir.extension.creator.impl.Merge8");
+        PropertyDescImpl pd = new PropertyDescImpl("value");
+        pd.setMode(PropertyDesc.READ);
+        cd.setPropertyDesc(pd);
+
+        target_.mergeWithExistentClass(cd, true);
+
+        assertNull(cd.getPropertyDesc("value"));
+    }
 }
