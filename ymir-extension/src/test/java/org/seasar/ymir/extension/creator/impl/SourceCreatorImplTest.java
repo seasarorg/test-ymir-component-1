@@ -11,6 +11,8 @@ import org.seasar.framework.util.ResourceUtil;
 import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.annotation.In;
+import org.seasar.ymir.annotation.Out;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
@@ -257,6 +259,22 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         BodyDesc actual = cd.getMethodDescs()[0].getBodyDesc();
         assertEquals("return \"return value\";", ((Map) actual.getRoot())
                 .get("body"));
+    }
+
+    public void testGetClassDesc_プロパティのGetterとSetterに付与したAnnotationが保持されること()
+            throws Exception {
+
+        ClassDesc cd = target_.getClassDesc(Class2Base.class,
+                "org.seasar.ymir.extension.creator.impl.Class2");
+
+        AnnotationDesc[] ads = cd.getPropertyDesc("value")
+                .getAnnotationDescsForGetter();
+        assertEquals(1, ads.length);
+        assertEquals(Out.class.getName(), ads[0].getName());
+
+        ads = cd.getPropertyDesc("value").getAnnotationDescsForSetter();
+        assertEquals(1, ads.length);
+        assertEquals(In.class.getName(), ads[0].getName());
     }
 
     public void testFilterResponse() throws Exception {

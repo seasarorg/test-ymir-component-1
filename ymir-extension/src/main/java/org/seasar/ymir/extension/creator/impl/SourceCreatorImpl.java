@@ -544,11 +544,11 @@ public class SourceCreatorImpl implements SourceCreator {
 
             ads = createAnnotationDescs(readMethod);
             for (int j = 0; j < ads.length; j++) {
-                propertyDesc.setAnnotationDesc(ads[j]);
+                propertyDesc.setAnnotationDescForGetter(ads[j]);
             }
             ads = createAnnotationDescs(writeMethod);
             for (int j = 0; j < ads.length; j++) {
-                propertyDesc.setAnnotationDesc(ads[j]);
+                propertyDesc.setAnnotationDescForSetter(ads[j]);
             }
 
             classDesc.setPropertyDesc(propertyDesc);

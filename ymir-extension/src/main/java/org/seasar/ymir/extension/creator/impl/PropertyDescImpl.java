@@ -1,11 +1,13 @@
 package org.seasar.ymir.extension.creator.impl;
 
-import org.seasar.ymir.extension.creator.AbstractAnnotatedDesc;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 
-public class PropertyDescImpl extends AbstractAnnotatedDesc implements
-        PropertyDesc, Cloneable {
+public class PropertyDescImpl implements PropertyDesc, Cloneable {
 
     public static final int NONE = 0;
 
@@ -20,6 +22,10 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
     private int mode_;
 
     private boolean typeAlreadySet_;
+
+    private Map<String, AnnotationDesc> annotationDescForGetterMap_ = new TreeMap<String, AnnotationDesc>();
+
+    private Map<String, AnnotationDesc> annotationDescForSetterMap_ = new TreeMap<String, AnnotationDesc>();
 
     public PropertyDescImpl(String name) {
 
@@ -37,6 +43,10 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         if (typeDesc_ != null) {
             cloned.typeDesc_ = (TypeDesc) typeDesc_.clone();
         }
+        cloned.annotationDescForGetterMap_ = new TreeMap<String, AnnotationDesc>(
+                annotationDescForGetterMap_);
+        cloned.annotationDescForSetterMap_ = new TreeMap<String, AnnotationDesc>(
+                annotationDescForSetterMap_);
 
         return cloned;
     }
@@ -113,5 +123,33 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
     public void notifyUpdatingType() {
 
         typeAlreadySet_ = true;
+    }
+
+    public AnnotationDesc getAnnotationDescForGetter(String name) {
+        return annotationDescForGetterMap_.get(name);
+    }
+
+    public AnnotationDesc[] getAnnotationDescsForGetter() {
+        return annotationDescForGetterMap_.values().toArray(
+                new AnnotationDesc[0]);
+    }
+
+    public void setAnnotationDescForGetter(AnnotationDesc annotationDesc) {
+        annotationDescForGetterMap_.put(annotationDesc.getName(),
+                annotationDesc);
+    }
+
+    public AnnotationDesc getAnnotationDescForSetter(String name) {
+        return annotationDescForSetterMap_.get(name);
+    }
+
+    public AnnotationDesc[] getAnnotationDescsForSetter() {
+        return annotationDescForSetterMap_.values().toArray(
+                new AnnotationDesc[0]);
+    }
+
+    public void setAnnotationDescForSetter(AnnotationDesc annotationDesc) {
+        annotationDescForSetterMap_.put(annotationDesc.getName(),
+                annotationDesc);
     }
 }

@@ -1,6 +1,6 @@
 package org.seasar.ymir.extension.creator;
 
-public interface PropertyDesc extends AnnotatedDesc, Cloneable {
+public interface PropertyDesc extends Cloneable {
 
     int NONE = 0;
 
@@ -33,4 +33,16 @@ public interface PropertyDesc extends AnnotatedDesc, Cloneable {
     void notifyUpdatingType();
 
     boolean isTypeAlreadySet();
+
+    AnnotationDesc getAnnotationDescForGetter(String name);
+
+    AnnotationDesc[] getAnnotationDescsForGetter();
+
+    void setAnnotationDescForGetter(AnnotationDesc annotationDesc);
+
+    AnnotationDesc getAnnotationDescForSetter(String name);
+
+    AnnotationDesc[] getAnnotationDescsForSetter();
+
+    void setAnnotationDescForSetter(AnnotationDesc annotationDesc);
 }

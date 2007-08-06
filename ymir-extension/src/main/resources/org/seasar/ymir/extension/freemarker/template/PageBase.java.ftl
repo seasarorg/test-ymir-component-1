@@ -10,14 +10,15 @@
 <#list classDesc.propertyDescs as propertyDesc>
 <#if propertyDesc.readable>
 
-    public ${propertyDesc.typeDesc.name} <#if propertyDesc.typeDesc.name == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}()
+<#list propertyDesc.annotationDescsForGetter as annotationDesc>    ${annotationDesc.string}
+</#list>    public ${propertyDesc.typeDesc.name} <#if propertyDesc.typeDesc.name == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}()
     {
         return ${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix};
     }
 </#if>
 <#if propertyDesc.writable>
 
-<#list propertyDesc.annotationDescs as annotationDesc>    ${annotationDesc.string}
+<#list propertyDesc.annotationDescsForSetter as annotationDesc>    ${annotationDesc.string}
 </#list>    public void set${propertyDesc.name?cap_first}(${propertyDesc.typeDesc.name} ${propertyDesc.name})
     {
         ${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix} = ${propertyDesc.name};

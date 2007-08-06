@@ -6,12 +6,13 @@ public class HoePageBase
     protected String hoe_;
 
 
+    @org.seasar.ymir.annotation.SuppressConstraints({org.seasar.ymir.constraint.ConstraintType.VALIDATION,org.seasar.ymir.constraint.ConstraintType.PERMISSION})
+    @org.seasar.ymir.constraint.annotation.Required(completely=false,value="get")
     public String getHoe()
     {
         return hoe_;
     }
 
-    @org.seasar.ymir.annotation.SuppressConstraints({org.seasar.ymir.constraint.ConstraintType.VALIDATION,org.seasar.ymir.constraint.ConstraintType.PERMISSION})
     @org.seasar.ymir.constraint.annotation.Required(completely=false,value="set")
     public void setHoe(String hoe)
     {
