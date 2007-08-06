@@ -48,7 +48,15 @@ public class LocalizationPathResolver extends NotePathResolver {
                 }
             } else {
                 messageName = child;
-                value = reader.getProperty(messageName);
+                String pageSpecificMessageName = MessagesUtils
+                        .getPageSpecificName(messageName, MessagesUtils
+                                .getPageName((Request) varResolver.getVariable(
+                                        context,
+                                        YmirVariableResolver.NAME_YMIRREQUEST)));
+                value = reader.getProperty(pageSpecificMessageName);
+                if (value == null) {
+                    value = reader.getProperty(messageName);
+                }
             }
             if (value == null && obj instanceof Messages) {
                 throw new MessageNotFoundRuntimeException(
