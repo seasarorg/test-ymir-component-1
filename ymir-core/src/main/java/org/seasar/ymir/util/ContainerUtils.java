@@ -1,11 +1,13 @@
 package org.seasar.ymir.util;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.seasar.cms.pluggable.util.PluggableUtils;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
-import org.seasar.framework.util.ArrayUtil;
 
 public class ContainerUtils {
     protected ContainerUtils() {
@@ -33,10 +35,12 @@ public class ContainerUtils {
     public static ComponentDef[] findAllAndAscendantComponentDefs(
             S2Container container, Object componentKey) {
         synchronized (container.getRoot()) {
-            ComponentDef[] componentDefs = container
-                    .findAllComponentDefs(componentKey);
-            return (ComponentDef[]) ArrayUtil.add(componentDefs, PluggableUtils
-                    .findAscendantComponentDefs(container, componentKey));
+            Set<ComponentDef> componentDefSet = new LinkedHashSet<ComponentDef>();
+            componentDefSet.addAll(Arrays.asList(container
+                    .findAllComponentDefs(componentKey)));
+            componentDefSet.addAll(Arrays.asList(PluggableUtils
+                    .findAscendantComponentDefs(container, componentKey)));
+            return componentDefSet.toArray(new ComponentDef[0]);
         }
     }
 }
