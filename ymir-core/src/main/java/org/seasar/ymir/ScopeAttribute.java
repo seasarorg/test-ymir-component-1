@@ -21,15 +21,22 @@ public class ScopeAttribute {
 
     private Set<String> enableActionNameSet_;
 
+    private boolean injectWhereNull_;
+
+    private boolean outjectWhereNull_;
+
     private static final Logger logger_ = Logger
             .getLogger(ScopeAttribute.class);
 
     public ScopeAttribute(String name, Scope scope, Method writeMethod,
-            Method readMethod, String[] enableActionNames) {
+            boolean injectWhereNull, Method readMethod,
+            boolean outjectWhereNull, String[] enableActionNames) {
         name_ = name;
         scope_ = scope;
         writeMethod_ = writeMethod;
+        injectWhereNull_ = injectWhereNull;
         readMethod_ = readMethod;
+        outjectWhereNull_ = outjectWhereNull;
         if (enableActionNames.length > 0) {
             enableActionNameSet_ = new HashSet<String>(Arrays
                     .asList(enableActionNames));
@@ -38,10 +45,11 @@ public class ScopeAttribute {
 
     public void injectTo(Object component) {
         Object value = scope_.getAttribute(name_);
-        if (value != null) {
+        if (value != null || injectWhereNull_) {
             boolean removeValue = false;
             try {
-                if (YmirContext.isUnderDevelopment()
+                if (value != null
+                        && YmirContext.isUnderDevelopment()
                         && !writeMethod_.getParameterTypes()[0]
                                 .isAssignableFrom(value.getClass())) {
                     // 開発時はHotdeployのせいで見かけ上型が合わないことがありうる。
@@ -80,7 +88,9 @@ public class ScopeAttribute {
                             + ", attribute name=" + name_ + ", read method="
                             + readMethod_, t);
         }
-        scope_.setAttribute(name_, value);
+        if (value != null || outjectWhereNull_) {
+            scope_.setAttribute(name_, value);
+        }
     }
 
     public boolean isEnable(String actionName) {

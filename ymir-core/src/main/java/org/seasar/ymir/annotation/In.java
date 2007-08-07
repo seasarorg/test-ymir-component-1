@@ -17,4 +17,6 @@ public @interface In {
     String scopeName() default "";
 
     String[] actionName() default {};
+
+    boolean injectWhereNull() default false;
 }

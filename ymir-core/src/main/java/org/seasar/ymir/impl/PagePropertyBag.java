@@ -104,8 +104,8 @@ public class PagePropertyBag {
         }
 
         injectedScopeAttributeList_.add(new ScopeAttribute(toAttributeName(
-                method.getName(), in.name()), getScope(in), method, null, in
-                .actionName()));
+                method.getName(), in.name()), getScope(in), method, in
+                .injectWhereNull(), null, false, in.actionName()));
     }
 
     Scope getScope(In in) {
@@ -139,8 +139,8 @@ public class PagePropertyBag {
         }
 
         outjectedScopeAttributeList_.add(new ScopeAttribute(toAttributeName(
-                method.getName(), out.name()), getScope(out), null, method, out
-                .actionName()));
+                method.getName(), out.name()), getScope(out), null, false,
+                method, out.outjectWhereNull(), out.actionName()));
     }
 
     Scope getScope(Out out) {

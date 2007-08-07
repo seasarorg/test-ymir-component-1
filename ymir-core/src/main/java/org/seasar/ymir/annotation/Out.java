@@ -17,4 +17,6 @@ public @interface Out {
     String scopeName() default "";
 
     String[] actionName() default {};
+
+    boolean outjectWhereNull() default true;
 }
