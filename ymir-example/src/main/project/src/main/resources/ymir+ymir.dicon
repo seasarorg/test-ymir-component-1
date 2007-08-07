@@ -5,7 +5,7 @@
   <component name="ymir" class="org.seasar.ymir.zpt.ZptYmir">
     <property name="lifecycleListeners" bindingType="none">
       <meta name="delayed">
-        @org.seasar.cms.pluggable.util.PluggableUtils@findAscendantComponents(container,
+        @org.seasar.ymir.util.ContainerUtils@findAllAndAscendantComponents(container,
         @org.seasar.ymir.LifecycleListener@class)
       </meta>
     </property>
