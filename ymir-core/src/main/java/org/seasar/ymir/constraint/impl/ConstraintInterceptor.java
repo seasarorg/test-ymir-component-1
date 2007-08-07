@@ -66,7 +66,8 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             Action action) throws PermissionDeniedException {
         PageComponent pageComponent = request.getPageComponent();
 
-        Action finalAction;
+        Action finalAction = null;
+        PermissionDeniedException pde = null;
         try {
             Notes notes = confirmConstraint(pageComponent, originalAction,
                     request);
@@ -86,13 +87,23 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             } else {
                 finalAction = action;
             }
-        } catch (PermissionDeniedException ex) {
-            // 権限エラーが発生した場合は、エラー処理メソッドが存在すればそれを呼び出す。
-            // メソッドが存在しなければPermissionDeniedExceptionを上に再スローする。
-            finalAction = (Action) pageComponent
-                    .accept(new VisitorForFindingPermissionDeniedMethod(ex));
-            if (finalAction == null) {
+        } catch (WrappingRuntimeException ex) {
+            if (ex.getCause() instanceof PermissionDeniedException) {
+                pde = (PermissionDeniedException) ex.getCause();
+            } else {
                 throw ex;
+            }
+        } catch (PermissionDeniedException ex) {
+            pde = ex;
+        }
+
+        // 権限エラーが発生した場合は、エラー処理メソッドが存在すればそれを呼び出す。
+        // メソッドが存在しなければPermissionDeniedExceptionを上に再スローする。
+        if (pde != null) {
+            finalAction = (Action) pageComponent
+                    .accept(new VisitorForFindingPermissionDeniedMethod(pde));
+            if (finalAction == null) {
+                throw pde;
             }
         }
 
@@ -150,6 +161,8 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
                 Throwable cause = ex.getCause();
                 if (cause instanceof ValidationFailedException) {
                     notes.add(((ValidationFailedException) cause).getNotes());
+                } else {
+                    throw ex;
                 }
             }
         }
