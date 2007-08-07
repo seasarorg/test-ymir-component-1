@@ -11,7 +11,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.seasar.ymir</groupId>
   <artifactId>ymir-zpt</artifactId>
-  <name>Ymir ZPT</name>
+  <name>Ymir ZPT Extension</name>
   <description>
     This realizes to cooperate Ymir and ZPT engine.
   </description>
