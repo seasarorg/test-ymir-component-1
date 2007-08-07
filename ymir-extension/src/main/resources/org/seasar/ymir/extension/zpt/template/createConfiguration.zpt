@@ -25,10 +25,10 @@
     <dd>Hotdeployクラスローダに読み込ませたくないパッケージ名を入力して下さい。（例：<tt>com.example.ignore1, com.example.ignore2</tt>）<br />
       <input type="text" name="__ymir__key_ignorePackageNames" size="64" tal:attributes="value application/ignorePackageNames" />
     </dd>
-    <dt>extension.beantable.enable</dt>
+    <dt>beantable.enable</dt>
     <dd>Bean定義からテーブルを自動生成するBeantable機能を利用するかどうかを指定して下さい。<br />
-      <input type="radio" name="__ymir__key_extension.beantable.enable" value="true" tal:attributes="checked beantableEnable" /> 利用する
-      <input type="radio" name="__ymir__key_extension.beantable.enable" value="false" checked="checked" tal:attributes="checked not:beantableEnable" /> 利用しない
+      <input type="radio" name="__ymir__key_beantable.enable" value="true" tal:attributes="checked beantableEnable" /> 利用する
+      <input type="radio" name="__ymir__key_beantable.enable" value="false" checked="checked" tal:attributes="checked not:beantableEnable" /> 利用しない
     </dd>
   </dl>
   <p><input type="submit" value=" OK " />

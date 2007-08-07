@@ -4,7 +4,6 @@ import org.seasar.cms.pluggable.ClassTraverser;
 import org.seasar.ymir.Application;
 
 public class ClassTraverserBag {
-
     private ClassTraverser classTraverser_;
 
     private Application application_;

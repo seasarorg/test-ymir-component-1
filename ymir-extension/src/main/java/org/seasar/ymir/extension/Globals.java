@@ -1,9 +1,6 @@
 package org.seasar.ymir.extension;
 
 public interface Globals extends org.seasar.ymir.Globals {
-
-    String APPKEY_BEANTABLE_ENABLE = "extension.beantable.enable";
-
     String APPKEY_SOURCEDIRECTORY = "extension.sourceDirectory";
 
     String APPKEY_RESOURCESDIRECTORY = "extension.resourcesDirectory";

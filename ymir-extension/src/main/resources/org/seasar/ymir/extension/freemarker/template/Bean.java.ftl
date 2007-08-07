@@ -1,6 +1,6 @@
 <#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
 
-import org.seasar.ymir.extension.beantable.Managed;
+import org.seasar.ymir.beantable.annotation.Managed;
 
 @Managed
 public class ${classDesc.shortName} extends ${classDesc.shortName}Base

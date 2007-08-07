@@ -10,8 +10,4 @@
     class="org.seasar.ymir.extension.freemarker.FreemarkerSourceGenerator" />
   <component
     class="org.seasar.ymir.extension.zpt.ZptResponseCreator" />
-  <component name="beantableManager"
-    class="org.seasar.ymir.extension.beantable.BeantableManager" />
-  <component name="beantableClassHandler"
-    class="org.seasar.ymir.extension.beantable.BeantableClassHandler" />
 </components>
