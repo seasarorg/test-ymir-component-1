@@ -1,10 +1,13 @@
 package org.seasar.ymir.constraint.impl;
 
+import org.seasar.ymir.FormFile;
 import org.seasar.ymir.Notes;
+import org.seasar.ymir.beanutils.MockFileItem;
 import org.seasar.ymir.constraint.Constraint;
 import org.seasar.ymir.constraint.ConstraintTestCase;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.Required;
+import org.seasar.ymir.impl.FormFileImpl;
 
 public class RequiredConstraintTest extends
         ConstraintTestCase<Required, RequiredConstraint> {
@@ -28,6 +31,10 @@ public class RequiredConstraintTest extends
 
     @Required("#values\\[\\d+\\]\\.value")
     public void setValue3(String value3) {
+    }
+
+    @Required("file")
+    public void setFile(FormFile file) {
     }
 
     public void testValidate_パラメータが指定されていない場合() throws Exception {
@@ -99,6 +106,19 @@ public class RequiredConstraintTest extends
                     .getNotes()[0].getValue());
             assertEquals("values[0].value",
                     notes.getNotes()[0].getParameters()[0]);
+        }
+    }
+
+    public void testValidate_fileタイプのパラメータ名についても正しく動作すること() throws Exception {
+        getRequest().getFileParameterMap()
+                .put(
+                        "file",
+                        new FormFile[] { new FormFileImpl(new MockFileItem()
+                                .setSize(1)) });
+        try {
+            confirm(getSetterMethod("file", new Class[] { FormFile.class }));
+        } catch (ValidationFailedException ex) {
+            fail();
         }
     }
 }

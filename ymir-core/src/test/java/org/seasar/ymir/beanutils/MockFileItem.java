@@ -12,6 +12,8 @@ public class MockFileItem implements FileItem {
 
     private static final long serialVersionUID = -728161807594247921L;
 
+    private long size_;
+
     public InputStream getInputStream() throws IOException {
         return null;
     }
@@ -29,7 +31,12 @@ public class MockFileItem implements FileItem {
     }
 
     public long getSize() {
-        return 0;
+        return size_;
+    }
+
+    public MockFileItem setSize(long size) {
+        size_ = size;
+        return this;
     }
 
     public byte[] get() {

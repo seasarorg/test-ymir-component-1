@@ -83,8 +83,13 @@ abstract public class ConstraintTestCase<A extends Annotation, C extends Constra
      */
     protected Method getSetterMethod(String propertyName)
             throws NoSuchMethodException {
+        return getSetterMethod(propertyName, new Class[] { String.class });
+    }
+
+    protected Method getSetterMethod(String propertyName, Class[] paramTypes)
+            throws NoSuchMethodException {
         return getClass().getMethod(toMethodName("set", propertyName),
-                new Class[] { String.class });
+                paramTypes);
     }
 
     String toMethodName(String prefix, String propertyName) {
