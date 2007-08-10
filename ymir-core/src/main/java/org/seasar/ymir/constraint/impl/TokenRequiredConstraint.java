@@ -4,15 +4,21 @@ import java.lang.reflect.AnnotatedElement;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Note;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.TokenRequired;
 import org.seasar.ymir.util.TokenUtils;
 
 public class TokenRequiredConstraint extends AbstractConstraint<TokenRequired> {
+    private ApplicationManager applicationManager_;
+
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
+    }
+
     public void confirm(Object component, Request request,
             TokenRequired annotation, AnnotatedElement element)
             throws ConstraintViolatedException {
@@ -24,7 +30,8 @@ public class TokenRequiredConstraint extends AbstractConstraint<TokenRequired> {
     }
 
     HttpServletRequest getHttpServletRequest() {
-        return (HttpServletRequest) YmirContext.getYmir().getApplication()
-                .getS2Container().getComponent(HttpServletRequest.class);
+        return (HttpServletRequest) applicationManager_
+                .findContextApplication().getS2Container().getComponent(
+                        HttpServletRequest.class);
     }
 }
