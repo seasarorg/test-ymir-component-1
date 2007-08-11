@@ -4,7 +4,7 @@ import static org.seasar.ymir.extension.Globals.APPKEYPREFIX_SOURCECREATOR_ENABL
 import static org.seasar.ymir.extension.Globals.APPKEYPREFIX_SOURCECREATOR_SUPERCLASS;
 import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_ENABLE;
 import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_SUPERCLASS;
-import static org.seasar.ymir.impl.DefaultRequestProcessor.PARAM_METHOD;
+import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -63,6 +63,7 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.WrappingRuntimeException;
+import org.seasar.ymir.Ymir;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.extension.Globals;
@@ -103,7 +104,7 @@ import org.seasar.ymir.extension.creator.action.impl.DoUpdateTemplateAction;
 import org.seasar.ymir.extension.creator.action.impl.ResourceAction;
 import org.seasar.ymir.extension.creator.action.impl.SystemConsoleAction;
 import org.seasar.ymir.extension.creator.action.impl.UpdateClassesAction;
-import org.seasar.ymir.impl.DefaultRequestProcessor;
+import org.seasar.ymir.impl.YmirImpl;
 
 import net.skirnir.freyja.EvaluationRuntimeException;
 
@@ -126,7 +127,7 @@ public class SourceCreatorImpl implements SourceCreator {
     public static final HttpServletResponse MOCK_RESPONSE = new MockHttpServletResponseImpl(
             MOCK_REQUEST);
 
-    private DefaultRequestProcessor defaultRequestProcessor_;
+    private YmirImpl ymir_;
 
     private NamingConvention namingConvention_;
 
@@ -872,7 +873,7 @@ public class SourceCreatorImpl implements SourceCreator {
         if (path == null) {
             return null;
         }
-        return defaultRequestProcessor_.findMatchedPathMapping(path, method);
+        return ymir_.findMatchedPathMapping(path, method);
     }
 
     public boolean isDenied(String path, String method) {
@@ -880,8 +881,7 @@ public class SourceCreatorImpl implements SourceCreator {
         if (path == null) {
             return true;
         }
-        MatchedPathMapping matched = defaultRequestProcessor_
-                .findMatchedPathMapping(path, method);
+        MatchedPathMapping matched = ymir_.findMatchedPathMapping(path, method);
         if (matched == null) {
             return true;
         } else {
@@ -894,8 +894,7 @@ public class SourceCreatorImpl implements SourceCreator {
         if (path == null) {
             return null;
         }
-        MatchedPathMapping matched = defaultRequestProcessor_
-                .findMatchedPathMapping(path, method);
+        MatchedPathMapping matched = ymir_.findMatchedPathMapping(path, method);
         if (matched == null) {
             return null;
         } else {
@@ -909,8 +908,7 @@ public class SourceCreatorImpl implements SourceCreator {
         if (path == null) {
             return null;
         }
-        MatchedPathMapping matched = defaultRequestProcessor_
-                .findMatchedPathMapping(path, method);
+        MatchedPathMapping matched = ymir_.findMatchedPathMapping(path, method);
         if (matched == null) {
             return null;
         } else {
@@ -1050,13 +1048,12 @@ public class SourceCreatorImpl implements SourceCreator {
         namingConvention_ = namingConvention;
     }
 
-    public void setRequestProcessor(RequestProcessor requestProcessor) {
+    public void setYmir(Ymir ymir) {
 
-        if (requestProcessor instanceof DefaultRequestProcessor) {
-            defaultRequestProcessor_ = (DefaultRequestProcessor) requestProcessor;
+        if (ymir instanceof YmirImpl) {
+            ymir_ = (YmirImpl) ymir;
         } else {
-            throw new ComponentNotFoundRuntimeException(
-                    "DefaultRequestProcessor");
+            throw new ComponentNotFoundRuntimeException("YmirImpl");
         }
     }
 

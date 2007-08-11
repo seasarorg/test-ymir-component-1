@@ -1,6 +1,6 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.ymir.impl.DefaultRequestProcessor.PARAM_METHOD;
+import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.util.ArrayList;
 import java.util.Arrays;

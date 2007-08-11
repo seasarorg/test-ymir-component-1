@@ -1,7 +1,7 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
+import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 import static org.seasar.ymir.beantable.Globals.APPKEY_BEANTABLE_ENABLE;
-import static org.seasar.ymir.impl.DefaultRequestProcessor.PARAM_METHOD;
 
 import java.io.File;
 import java.io.FileOutputStream;
