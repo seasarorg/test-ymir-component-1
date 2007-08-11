@@ -2,25 +2,22 @@ package org.seasar.ymir.impl;
 
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 
 import org.seasar.ymir.Action;
 import org.seasar.ymir.AttributeContainer;
+import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 
 public class RequestImpl implements Request {
-
     private String contextPath_;
 
-    private String path_;
-
     private String method_;
-
-    private String dispatcher_;
 
     private Map<String, String[]> parameterMap_;
 
@@ -30,37 +27,33 @@ public class RequestImpl implements Request {
 
     private Locale locale_;
 
-    private MatchedPathMapping matched_;
+    private Dispatch requestDispatch_;
 
-    private Action action_;
+    private Dispatch dispatch_;
+
+    private LinkedList<Dispatch> dispatchStack_ = new LinkedList<Dispatch>();
 
     private PageComponent pageComponent_;
+
+    private Action action_;
 
     public RequestImpl() {
     }
 
-    public RequestImpl(String contextPath, String path, String method,
-            String dispatcher, Map<String, String[]> parameterMap,
+    public RequestImpl(String contextPath, String method,
+            Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap,
-            AttributeContainer attributeContainer, Locale locale,
-            MatchedPathMapping matched) {
+            AttributeContainer attributeContainer, Locale locale) {
         contextPath_ = contextPath;
-        path_ = path;
         method_ = method;
-        dispatcher_ = dispatcher;
         parameterMap_ = parameterMap;
         fileParameterMap_ = fileParameterMap;
         attributeContainer_ = attributeContainer;
         locale_ = locale;
-        matched_ = matched;
     }
 
     public String getDispatcher() {
-        return dispatcher_;
-    }
-
-    public void setDispatcher(String dispatcher) {
-        dispatcher_ = dispatcher;
+        return requestDispatch_.getDispatcher();
     }
 
     public String getMethod() {
@@ -80,19 +73,11 @@ public class RequestImpl implements Request {
     }
 
     public String getPath() {
-        return path_;
-    }
-
-    public void setPath(String path) {
-        path_ = path;
+        return requestDispatch_.getPath();
     }
 
     public String getAbsolutePath() {
-        if ("".equals(path_)) {
-            return contextPath_ + "/";
-        } else {
-            return contextPath_ + path_;
-        }
+        return requestDispatch_.getAbsolutePath();
     }
 
     public String getParameter(String name) {
@@ -172,7 +157,7 @@ public class RequestImpl implements Request {
     }
 
     public String getPageComponentName() {
-        return matched_.getPageComponentName();
+        return requestDispatch_.getMatchedPathMapping().getPageComponentName();
     }
 
     public Action getAction() {
@@ -192,11 +177,11 @@ public class RequestImpl implements Request {
     }
 
     public String getPathInfo() {
-        return matched_.getPathInfo();
+        return requestDispatch_.getMatchedPathMapping().getPathInfo();
     }
 
     public MatchedPathMapping getMatchedPathMapping() {
-        return matched_;
+        return requestDispatch_.getMatchedPathMapping();
     }
 
     public Object getAttribute(String name) {
@@ -220,11 +205,11 @@ public class RequestImpl implements Request {
     }
 
     public boolean isMatched() {
-        return (matched_ != null);
+        return requestDispatch_.isMatched();
     }
 
     public boolean isDenied() {
-        return (matched_ != null && matched_.isDenied());
+        return requestDispatch_.isDenied();
     }
 
     public PageComponent getPageComponent() {
@@ -233,5 +218,27 @@ public class RequestImpl implements Request {
 
     public void setPageComponent(PageComponent pageComponent) {
         pageComponent_ = pageComponent;
+    }
+
+    public Dispatch getCurrentDispatch() {
+        return dispatch_;
+    }
+
+    public void enterDispatch(Dispatch dispatch) {
+        if (requestDispatch_ == null) {
+            requestDispatch_ = dispatch;
+        }
+        dispatchStack_.addFirst(dispatch);
+        dispatch_ = dispatch;
+    }
+
+    public void leaveDispatch() {
+        dispatchStack_.removeFirst();
+        if (!dispatchStack_.isEmpty()) {
+            dispatch_ = dispatchStack_.peek();
+        } else {
+            dispatch_ = null;
+            requestDispatch_ = null;
+        }
     }
 }

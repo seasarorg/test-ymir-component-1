@@ -11,6 +11,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.seasar.cms.pluggable.Configuration;
+import org.seasar.framework.log.Logger;
+import org.seasar.framework.util.Disposable;
+import org.seasar.framework.util.DisposableUtil;
+import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.AttributeContainer;
@@ -18,7 +22,9 @@ import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.LifecycleListener;
+import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageNotFoundException;
+import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
@@ -27,11 +33,10 @@ import org.seasar.ymir.Ymir;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.util.YmirUtils;
-import org.seasar.framework.log.Logger;
-import org.seasar.framework.util.Disposable;
-import org.seasar.framework.util.DisposableUtil;
 
 public class YmirImpl implements Ymir {
+    public static final String PARAM_METHOD = "__ymir__method";
+
     private LifecycleListener[] lifecycleListeners_ = new LifecycleListener[0];
 
     private Configuration configuration_;
@@ -98,14 +103,57 @@ public class YmirImpl implements Ymir {
         }
     }
 
-    public Request prepareForProcessing(String contextPath, String path,
-            String method, String dispatcher,
+    public Request prepareForProcessing(String contextPath, String method,
             Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap,
             AttributeContainer attributeContainer, Locale locale) {
-        return requestProcessor_.prepareForProcessing(contextPath, path, method
-                .toUpperCase(), dispatcher, parameterMap, fileParameterMap,
-                attributeContainer, locale);
+        if (isUnderDevelopment()) {
+            method = correctMethod(method, parameterMap);
+        }
+
+        Request request = new RequestImpl(contextPath, method, parameterMap,
+                fileParameterMap, attributeContainer, locale);
+        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+            request = ymirProcessInterceptors_[i].requestCreated(request);
+        }
+        return request;
+    }
+
+    String correctMethod(String method, Map parameterMap) {
+        String[] values = (String[]) parameterMap.get(PARAM_METHOD);
+        if (values != null && values.length > 0) {
+            return values[0];
+        } else {
+            return method;
+        }
+    }
+
+    public void enterDispatch(Request request, String path, String dispatcher) {
+        request.enterDispatch(new DispatchImpl(request.getContextPath(), path,
+                dispatcher, findMatchedPathMapping(path, request.getMethod())));
+
+    }
+
+    public MatchedPathMapping findMatchedPathMapping(String path, String method) {
+        VariableResolver resolver = null;
+        PathMapping[] pathMappings = getPathMappings();
+        if (pathMappings != null) {
+            for (int i = 0; i < pathMappings.length; i++) {
+                resolver = pathMappings[i].match(path, method);
+                if (resolver != null) {
+                    return new MatchedPathMappingImpl(pathMappings[i], resolver);
+                }
+            }
+        }
+        return null;
+    }
+
+    protected PathMapping[] getPathMappings() {
+        return getApplication().getPathMappingProvider().getPathMappings();
+    }
+
+    public void leaveDispatch(Request request) {
+        request.leaveDispatch();
     }
 
     public Response processRequest(Request request)

@@ -57,12 +57,20 @@ public class MockYmir implements Ymir {
         return Configuration.PROJECTSTATUS_DEVELOP.equals(getProjectStatus());
     }
 
-    public Request prepareForProcessing(String contextPath, String path,
-            String method, String dispatcher,
+    public Request prepareForProcessing(String contextPath, String method,
             Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap,
             AttributeContainer attributeContainer, Locale locale) {
         return null;
+    }
+
+    public void enterDispatch(Request request, String path, String dispatcher) {
+        request.enterDispatch(new MockDispatch().setPath(path).setDispatcher(
+                dispatcher));
+    }
+
+    public void leaveDispatch(Request request) {
+        request.leaveDispatch();
     }
 
     public Response processException(Request request, Throwable t) {

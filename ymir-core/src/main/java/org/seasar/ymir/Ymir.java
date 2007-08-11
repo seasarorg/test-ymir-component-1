@@ -15,11 +15,12 @@ public interface Ymir {
 
     void init();
 
-    Request prepareForProcessing(String contextPath, String path,
-            String method, String dispatcher,
+    Request prepareForProcessing(String contextPath, String method,
             Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap,
             AttributeContainer attributeContainer, Locale locale);
+
+    void enterDispatch(Request request, String path, String dispatcher);
 
     Response processRequest(Request request) throws PageNotFoundException,
             PermissionDeniedException;
@@ -28,6 +29,8 @@ public interface Ymir {
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             Request request, Response response) throws IOException,
             ServletException;
+
+    void leaveDispatch(Request request);
 
     void destroy();
 

@@ -4,8 +4,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
-public interface Request extends AttributeContainer {
-
+public interface Request extends Dispatch, AttributeContainer {
     String METHOD_CONNECT = "CONNECT";
 
     String METHOD_DELETE = "DELETE";
@@ -44,40 +43,12 @@ public interface Request extends AttributeContainer {
     String getContextPath();
 
     /**
-     * パスを返します。
-     * <p>返されるパスはコンテキストパス相対です。</p>
-     *
-     * @return パス。
-     */
-    String getPath();
-
-    /**
-     * 絶対パスを返します。
-     * <p>返されるパスはコンテキストパスとパスを連結したものです。</p>
-     *
-     * @return
-     */
-    String getAbsolutePath();
-
-    /**
      * HTTPメソッドを返します。
      * <p>返されるメソッド名は全て大文字です。</p>
      *
      * @return メソッド名。
      */
     String getMethod();
-
-    /**
-     * ディスパッチャ名を返します。
-     * <p>返されるディスパッチャ名は{@link Request#DISPATCHER_REQUEST}、
-     * {@link Request#DISPATCHER_FORWARD}、
-     * {@link Request#DISPATCHER_INCLUDE}、
-     * {@link Request#DISPATCHER_ERROR}のいずれかです。
-     * </p>
-     *
-     * @return ディスパッチャ名。
-     */
-    String getDispatcher();
 
     /**
      * 指定された名前のリクエストパラメータの値を返します。
@@ -187,14 +158,6 @@ public interface Request extends AttributeContainer {
     AttributeContainer getAttributeContainer();
 
     /**
-     * リクエストパスに対応するPageコンポーネントの名前を返します。
-     * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
-     *
-     * @return Pageコンポーネント名。
-     */
-    String getPageComponentName();
-
-    /**
      * リクエストパスに対応するPageコンポーネントを返します。
      * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
      * 
@@ -241,13 +204,6 @@ public interface Request extends AttributeContainer {
     void setAction(Action action);
 
     /**
-     * リクエストパスに連結されているpathInfo情報を返します。
-     *
-     * @return pathInfo情報。PathMappingルールによってはnullが返されることもあります。
-     */
-    String getPathInfo();
-
-    /**
      * 現在のリクエストがどのロケールに基づいて処理されているかを返します。
      *
      * @return ロケール。nullを返すことはありません。
@@ -255,18 +211,31 @@ public interface Request extends AttributeContainer {
     Locale getLocale();
 
     /**
-     * リクエストパスがパスマッピングにマッチしたかどうかを返します。
-     *
-     * @return リクエストパスがパスマッピングにマッチしたかどうか。
+     * 現在のdispatchの処理を開始します。
+     * <p>このメソッドはフレームワークが現在のdispatchを表すDispatchオブジェクトを
+     * Requestオブジェクトにセットするために用いられます。
+     * アプリケーションはこのメソッドを呼び出さないようにして下さい。
+     * </p>
+     * 
+     * @param dispatch Dispatchオブジェクト。
      */
-    boolean isMatched();
+    void enterDispatch(Dispatch dispatch);
 
     /**
-     * リクエストパスへのリクエストを拒否すべきかどうかを返します。
+     * 現在処理中のdispatchを表すDispatchオブジェクトを返します。
+     * <p>1つのリクエストは1つまたは複数のdispatchによって構成されています。
+     * このメソッドは現在処理中のdispatchを表すDispatchオブジェクトを返します。
+     * </p>
      *
-     * @return リクエストパスへのリクエストを拒否すべきかどうか。
+     * @return Dispatchオブジェクト。
      */
-    boolean isDenied();
+    Dispatch getCurrentDispatch();
 
-    MatchedPathMapping getMatchedPathMapping();
+    /**
+     * 現在のdispatchの処理を終了します。
+     * <p>このメソッドはフレームワークによって用いられます。
+     * アプリケーションはこのメソッドを呼び出さないようにして下さい。
+     * </p>
+     */
+    void leaveDispatch();
 }

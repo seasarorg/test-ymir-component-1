@@ -60,33 +60,39 @@ public class YmirFilter implements Filter {
 
         HttpServletRequest httpRequest = (HttpServletRequest) req;
         HttpServletResponse httpResponse = (HttpServletResponse) res;
-
-        Map<String, FormFile[]> fileParameterMap = (Map<String, FormFile[]>) httpRequest
-                .getAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
-        if (fileParameterMap != null) {
-            httpRequest
-                    .removeAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
-        } else {
-            fileParameterMap = new HashMap();
-        }
         AttributeContainer attributeContainer = new HttpServletRequestAttributeContainer(
                 httpRequest);
+
+        ThreadContext context = getThreadContext();
 
         Object backupped = null;
         if (Request.DISPATCHER_INCLUDE.equals(dispatcher_)) {
             backupped = ymir_.backupForInclusion(attributeContainer);
         }
 
-        Request request = ymir_.prepareForProcessing(ServletUtils
-                .getContextPath(httpRequest),
-                ServletUtils.getPath(httpRequest), httpRequest.getMethod(),
-                dispatcher_, httpRequest.getParameterMap(), fileParameterMap,
-                attributeContainer, LocaleUtils.findLocale(httpRequest));
+        Request request;
+        if (Request.DISPATCHER_REQUEST.equals(dispatcher_)) {
+            Map<String, FormFile[]> fileParameterMap = (Map<String, FormFile[]>) httpRequest
+                    .getAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
+            if (fileParameterMap != null) {
+                httpRequest
+                        .removeAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
+            } else {
+                fileParameterMap = new HashMap<String, FormFile[]>();
+            }
 
-        ThreadContext context = getThreadContext();
-        try {
+            request = ymir_.prepareForProcessing(ServletUtils
+                    .getContextPath(httpRequest), httpRequest.getMethod(),
+                    httpRequest.getParameterMap(), fileParameterMap,
+                    attributeContainer, LocaleUtils.findLocale(httpRequest));
             context.setComponent(Request.class, request);
+        } else {
+            request = (Request) context.getComponent(Request.class);
+        }
 
+        ymir_.enterDispatch(request, ServletUtils.getPath(httpRequest),
+                dispatcher_);
+        try {
             Response response = ymir_.processRequest(request);
             HttpServletResponseFilter responseFilter = ymir_.processResponse(
                     context_, httpRequest, httpResponse, request, response);
@@ -98,9 +104,11 @@ public class YmirFilter implements Filter {
             ymir_.processResponse(context_, httpRequest, httpResponse, request,
                     ymir_.processException(request, t));
         } finally {
-            context.setComponent(Request.class, null);
+            ymir_.leaveDispatch(request);
 
-            if (Request.DISPATCHER_INCLUDE.equals(dispatcher_)) {
+            if (Request.DISPATCHER_REQUEST.equals(dispatcher_)) {
+                context.setComponent(Request.class, null);
+            } else if (Request.DISPATCHER_INCLUDE.equals(dispatcher_)) {
                 ymir_.restoreForInclusion(attributeContainer, backupped);
             }
         }

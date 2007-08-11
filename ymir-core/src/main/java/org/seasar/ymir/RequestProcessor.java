@@ -1,8 +1,5 @@
 package org.seasar.ymir;
 
-import java.util.Locale;
-import java.util.Map;
-
 import org.seasar.ymir.constraint.PermissionDeniedException;
 
 public interface RequestProcessor {
@@ -28,12 +25,6 @@ public interface RequestProcessor {
     String ATTR_NOTES = "notes";
 
     String ATTR_PAGECOMPONENT = "pageComponent";
-
-    Request prepareForProcessing(String contextPath, String path,
-            String method, String dispatcher,
-            Map<String, String[]> parameterMap,
-            Map<String, FormFile[]> fileParameterMap,
-            AttributeContainer attributeContainer, Locale locale);
 
     Response process(Request request) throws PageNotFoundException,
             PermissionDeniedException;

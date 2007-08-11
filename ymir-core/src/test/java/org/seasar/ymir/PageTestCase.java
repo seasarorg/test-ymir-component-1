@@ -339,10 +339,12 @@ abstract public class PageTestCase<P> extends TestCase {
 
         status_ = STATUS_PREPARED;
 
-        return ymir_.prepareForProcessing(getContextPath(), path, httpMethod,
-                Request.DISPATCHER_REQUEST, parameterMap, fileParameterMap,
+        Request request = ymir_.prepareForProcessing(getContextPath(),
+                httpMethod, parameterMap, fileParameterMap,
                 new HttpServletRequestAttributeContainer(httpRequest_),
                 getLocale());
+        ymir_.enterDispatch(request, path, Request.DISPATCHER_REQUEST);
+        return request;
     }
 
     @SuppressWarnings("unchecked")

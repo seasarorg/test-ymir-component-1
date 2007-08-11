@@ -4,37 +4,28 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 
 import org.seasar.ymir.Action;
 import org.seasar.ymir.AttributeContainer;
+import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 
 public class MockRequest implements Request {
-
-    private String absolutePath_;
-
     private AttributeContainer attributeContainer_ = this;
 
-    private String componentName_;
-
     private String contextPath_;
-
-    private String dispatcher_;
 
     private String method_;
 
     private Map<String, String[]> parameterMap_ = new HashMap<String, String[]>();
 
     private Map<String, FormFile[]> fileParameterMap_ = new HashMap<String, FormFile[]>();
-
-    private String path_;
-
-    private String pathInfo_;
 
     private boolean dispatchingByRequestParameter_;
 
@@ -48,10 +39,20 @@ public class MockRequest implements Request {
 
     private Action action_;
 
-    private PageComponent pageComponent_;;
+    private PageComponent pageComponent_;
+
+    private Dispatch requestDispatch_;
+
+    private Dispatch dispatch_;
+
+    private LinkedList<Dispatch> dispatchStack_ = new LinkedList<Dispatch>();
 
     public String getAbsolutePath() {
-        return absolutePath_;
+        if (requestDispatch_ != null) {
+            return requestDispatch_.getAbsolutePath();
+        } else {
+            return null;
+        }
     }
 
     public Action getAction() {
@@ -71,7 +72,11 @@ public class MockRequest implements Request {
     }
 
     public String getPageComponentName() {
-        return componentName_;
+        if (requestDispatch_ != null) {
+            return requestDispatch_.getPageComponentName();
+        } else {
+            return null;
+        }
     }
 
     public PageComponent getPageComponent() {
@@ -87,7 +92,11 @@ public class MockRequest implements Request {
     }
 
     public String getDispatcher() {
-        return dispatcher_;
+        if (requestDispatch_ != null) {
+            return requestDispatch_.getDispatcher();
+        } else {
+            return null;
+        }
     }
 
     public boolean isDispatchingByParameter() {
@@ -125,16 +134,19 @@ public class MockRequest implements Request {
     }
 
     public String getPath() {
-        return path_;
+        if (requestDispatch_ != null) {
+            return requestDispatch_.getPath();
+        } else {
+            return null;
+        }
     }
 
     public String getPathInfo() {
-        return pathInfo_;
-    }
-
-    public MockRequest setAbsolutePath(String absolutePath) {
-        absolutePath_ = absolutePath;
-        return this;
+        if (requestDispatch_ != null) {
+            return requestDispatch_.getPathInfo();
+        } else {
+            return null;
+        }
     }
 
     public void setAction(Action action) {
@@ -147,18 +159,8 @@ public class MockRequest implements Request {
         return this;
     }
 
-    public MockRequest setComponentName(String componentName) {
-        componentName_ = componentName;
-        return this;
-    }
-
     public MockRequest setContextPath(String contextPath) {
         contextPath_ = contextPath;
-        return this;
-    }
-
-    public MockRequest setDispatcher(String dispatcher) {
-        dispatcher_ = dispatcher;
         return this;
     }
 
@@ -196,16 +198,6 @@ public class MockRequest implements Request {
 
     public MockRequest setFileParameterValues(String name, FormFile[] values) {
         getFileParameterMap().put(name, values);
-        return this;
-    }
-
-    public MockRequest setPath(String path) {
-        path_ = path;
-        return this;
-    }
-
-    public MockRequest setPathInfo(String pathInfo) {
-        pathInfo_ = pathInfo;
         return this;
     }
 
@@ -297,5 +289,27 @@ public class MockRequest implements Request {
             MatchedPathMapping matchedPathMapping) {
         matchedPathMapping_ = matchedPathMapping;
         return this;
+    }
+
+    public Dispatch getCurrentDispatch() {
+        return dispatch_;
+    }
+
+    public void enterDispatch(Dispatch dispatch) {
+        if (requestDispatch_ == null) {
+            requestDispatch_ = dispatch;
+        }
+        dispatchStack_.addFirst(dispatch);
+        dispatch_ = dispatch;
+    }
+
+    public void leaveDispatch() {
+        dispatchStack_.removeFirst();
+        if (!dispatchStack_.isEmpty()) {
+            dispatch_ = dispatchStack_.peek();
+        } else {
+            dispatch_ = null;
+            requestDispatch_ = null;
+        }
     }
 }

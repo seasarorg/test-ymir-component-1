@@ -2,6 +2,7 @@ package org.seasar.ymir.impl;
 
 import junit.framework.TestCase;
 
+import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
 
 public class DefaultRedirectionPathResolverTest extends TestCase {
@@ -62,23 +63,25 @@ public class DefaultRedirectionPathResolverTest extends TestCase {
         // 以前は単に""となるようになっていたが、これだとリクエストURL相対のルート、
         // すなわちリクエストされたファイルの親ディレクトリURL（例：リクエストURLが.../dir/file.html
         // なら.../dir）と解釈されてしまうため、きちんとドメイン相対パスに変換するようにしている。
-        assertEquals("/context/index.html", target_.resolve(".",
-                new MockRequest().setContextPath("/context").setPath(
-                        "/index.html")));
+        MockRequest request = new MockRequest().setContextPath("/context");
+        request.enterDispatch(new MockDispatch().setPath("/index.html"));
+        assertEquals("/context/index.html", target_.resolve(".", request));
     }
 
     public void testResolve10() throws Exception {
 
+        MockRequest request = new MockRequest().setContextPath("/context");
+        request.enterDispatch(new MockDispatch().setPath("/index.html"));
         assertEquals("/context/index.html?hoe=fuga", target_.resolve(
-                ".?hoe=fuga", new MockRequest().setContextPath("/context")
-                        .setPath("/index.html")));
+                ".?hoe=fuga", request));
     }
 
     public void testResolve11() throws Exception {
 
+        MockRequest request = new MockRequest().setContextPath("/context");
+        request.enterDispatch(new MockDispatch().setPath("/index.html"));
         assertEquals("/context/index.html;jsessionid=XXXX", target_.resolve(
-                ".;jsessionid=XXXX", new MockRequest().setContextPath(
-                        "/context").setPath("/index.html")));
+                ".;jsessionid=XXXX", request));
     }
 
     public void testResolve12() throws Exception {

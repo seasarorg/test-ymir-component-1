@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,15 +17,12 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.log.Logger;
 import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
-import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.FormFile;
-import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.PageNotFoundException;
-import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
@@ -48,9 +44,6 @@ import org.seasar.ymir.util.MethodUtils;
 import org.seasar.ymir.util.YmirUtils;
 
 public class DefaultRequestProcessor implements RequestProcessor {
-
-    public static final String PARAM_METHOD = "__ymir__method";
-
     static final Set<ConstraintType> EMPTY_SUPPRESSTYPESET = EnumSet
             .noneOf(ConstraintType.class);
 
@@ -106,35 +99,6 @@ public class DefaultRequestProcessor implements RequestProcessor {
         YmirUtils.sortYmirProcessInterceptors(ymirProcessInterceptors_);
     }
 
-    public Request prepareForProcessing(String contextPath, String path,
-            String method, String dispatcher,
-            Map<String, String[]> parameterMap,
-            Map<String, FormFile[]> fileParameterMap,
-            AttributeContainer attributeContainer, Locale locale) {
-        if (ymir_.isUnderDevelopment()) {
-            method = correctMethod(method, parameterMap);
-        }
-
-        MatchedPathMapping matched = findMatchedPathMapping(path, method);
-
-        Request request = new RequestImpl(contextPath, path, method,
-                dispatcher, parameterMap, fileParameterMap, attributeContainer,
-                locale, matched);
-        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-            request = ymirProcessInterceptors_[i].requestCreated(request);
-        }
-        return request;
-    }
-
-    String correctMethod(String method, Map parameterMap) {
-        String[] values = (String[]) parameterMap.get(PARAM_METHOD);
-        if (values != null && values.length > 0) {
-            return values[0];
-        } else {
-            return method;
-        }
-    }
-
     String strip(String path) {
         int question = path.indexOf('?');
         if (question >= 0) {
@@ -155,11 +119,6 @@ public class DefaultRequestProcessor implements RequestProcessor {
         attributeContainer.setAttribute(ATTR_SELF, backupped);
     }
 
-    protected PathMapping[] getPathMappings() {
-        return ymir_.getApplication().getPathMappingProvider()
-                .getPathMappings();
-    }
-
     ServletContext getServletContext() {
         return (ServletContext) getS2Container().getRoot().getComponent(
                 ServletContext.class);
@@ -169,23 +128,10 @@ public class DefaultRequestProcessor implements RequestProcessor {
         return ymir_.getApplication().getS2Container();
     }
 
-    public MatchedPathMapping findMatchedPathMapping(String path, String method) {
-        VariableResolver resolver = null;
-        PathMapping[] pathMappings = getPathMappings();
-        if (pathMappings != null) {
-            for (int i = 0; i < pathMappings.length; i++) {
-                resolver = pathMappings[i].match(path, method);
-                if (resolver != null) {
-                    return new MatchedPathMappingImpl(pathMappings[i], resolver);
-                }
-            }
-        }
-        return null;
-    }
-
     public Response process(final Request request)
             throws PageNotFoundException, PermissionDeniedException {
-        if (Request.DISPATCHER_REQUEST.equals(request.getDispatcher())) {
+        if (Request.DISPATCHER_REQUEST.equals(request.getCurrentDispatch()
+                .getDispatcher())) {
             if (request.isDenied()) {
                 throw new PageNotFoundException(request.getPath());
             }
@@ -265,7 +211,8 @@ public class DefaultRequestProcessor implements RequestProcessor {
             return response;
         } else {
             // includeの場合はselfを設定するだけ。
-            Object page = getPage(request.getPageComponentName());
+            Object page = getPage(request.getCurrentDispatch()
+                    .getPageComponentName());
             if (page != null) {
                 request.setAttribute(ATTR_SELF, page);
             }

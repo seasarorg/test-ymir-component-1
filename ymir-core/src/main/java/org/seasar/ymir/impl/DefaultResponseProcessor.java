@@ -165,7 +165,8 @@ public class DefaultResponseProcessor implements ResponseProcessor {
     HttpServletResponseFilter constructResponseFilter(
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             Request request) {
-        if (Request.DISPATCHER_REQUEST.equals(request.getDispatcher())
+        if (Request.DISPATCHER_REQUEST.equals(request.getCurrentDispatch()
+                .getDispatcher())
                 && ymir_.isUnderDevelopment()) {
             return new UpdaterResponseFilter(httpRequest, httpResponse,
                     updaters_);

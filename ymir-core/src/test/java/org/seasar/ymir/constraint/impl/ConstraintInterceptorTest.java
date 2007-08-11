@@ -27,6 +27,7 @@ import org.seasar.ymir.impl.Test3Page;
 import org.seasar.ymir.impl.Test4Page;
 import org.seasar.ymir.impl.TestPage;
 import org.seasar.ymir.mock.MockApplication;
+import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
 
 public class ConstraintInterceptorTest extends S2TestCase {
@@ -193,8 +194,9 @@ public class ConstraintInterceptorTest extends S2TestCase {
             throws Exception {
 
         Object component = new TestPage();
-        Request request = new MockRequest().setPath("/test.html")
-                .setComponentName("TestPage");
+        Request request = new MockRequest();
+        request.enterDispatch(new MockDispatch().setPath("/test.html")
+                .setPageComponentName("TestPage"));
         PageComponent pageComponent = new PageComponentImpl(component,
                 TestPage.class);
         request.setPageComponent(pageComponent);
@@ -210,8 +212,9 @@ public class ConstraintInterceptorTest extends S2TestCase {
             throws Exception {
 
         Object component = new Test2Page();
-        Request request = new MockRequest().setPath("/test2.html")
-                .setComponentName("Test2Page");
+        Request request = new MockRequest();
+        request.enterDispatch(new MockDispatch().setPath("/test2.html")
+                .setPageComponentName("Test2Page"));
         PageComponent pageComponent = new PageComponentImpl(component,
                 Test2Page.class);
         request.setPageComponent(pageComponent);
@@ -230,8 +233,9 @@ public class ConstraintInterceptorTest extends S2TestCase {
             throws Exception {
 
         Object component = new Test3Page();
-        Request request = new MockRequest().setPath("/test3.html")
-                .setComponentName("Test3Page");
+        Request request = new MockRequest();
+        request.enterDispatch(new MockDispatch().setPath("/test3.html")
+                .setPageComponentName("Test3Page"));
         PageComponent pageComponent = new PageComponentImpl(component,
                 Test3Page.class);
         request.setPageComponent(pageComponent);
@@ -247,8 +251,9 @@ public class ConstraintInterceptorTest extends S2TestCase {
             throws Exception {
 
         Object component = new Test3Page();
-        Request request = new MockRequest().setPath("/test3.html")
-                .setComponentName("Test3Page");
+        Request request = new MockRequest();
+        request.enterDispatch(new MockDispatch().setPath("/test3.html")
+                .setPageComponentName("Test3Page"));
         PageComponent pageComponent = new PageComponentImpl(component,
                 Test3Page.class);
         request.setPageComponent(pageComponent);
@@ -265,8 +270,9 @@ public class ConstraintInterceptorTest extends S2TestCase {
             throws Exception {
 
         Test4Page component = new Test4Page();
-        Request request = new MockRequest().setPath("/test4.html")
-                .setComponentName("Test4Page");
+        Request request = new MockRequest();
+        request.enterDispatch(new MockDispatch().setPath("/test4.html")
+                .setPageComponentName("Test4Page"));
         PageComponent pageComponent = new PageComponentImpl(component,
                 Test4Page.class);
         request.setPageComponent(pageComponent);
