@@ -6,7 +6,8 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 
-public class AbstractYmirProcessInterceptor implements YmirProcessInterceptor {
+abstract public class AbstractYmirProcessInterceptor implements
+        YmirProcessInterceptor {
     public static final double PRIORITY_DEFAULT = 100.;
 
     private double priority_ = PRIORITY_DEFAULT;
@@ -30,5 +31,12 @@ public class AbstractYmirProcessInterceptor implements YmirProcessInterceptor {
     public Action actionInvoking(Action originalAction, Request request,
             Action action) throws PermissionDeniedException {
         return action;
+    }
+
+    public String encodingRedirectURL(String url) {
+        return url;
+    }
+
+    public void leavingRequest(Request request) {
     }
 }

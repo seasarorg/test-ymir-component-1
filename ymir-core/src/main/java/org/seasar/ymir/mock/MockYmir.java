@@ -19,6 +19,7 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.constraint.PermissionDeniedException;
+import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 
 public class MockYmir implements Ymir {
     private Application application_;
@@ -91,5 +92,9 @@ public class MockYmir implements Ymir {
 
     public void restoreForInclusion(AttributeContainer attributeContainer,
             Object backupped) {
+    }
+
+    public YmirProcessInterceptor[] getYmirProcessInterceptors() {
+        return new YmirProcessInterceptor[0];
     }
 }

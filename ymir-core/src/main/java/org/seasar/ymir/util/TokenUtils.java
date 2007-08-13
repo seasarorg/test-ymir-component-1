@@ -1,8 +1,5 @@
 package org.seasar.ymir.util;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -17,16 +14,8 @@ public class TokenUtils {
     public static String generateToken(HttpServletRequest request) {
         HttpSession session = request.getSession();
         try {
-            byte[] id = session.getId().getBytes();
-            byte[] now = new Long(System.currentTimeMillis()).toString()
-                    .getBytes();
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(id);
-            md.update(now);
-            return toHex(md.digest());
+            return StringUtils.getScopeKey(session.getId());
         } catch (IllegalStateException ex) {
-            return null;
-        } catch (NoSuchAlgorithmException ex) {
             return null;
         }
     }
@@ -120,18 +109,5 @@ public class TokenUtils {
         if (token != null) {
             session.setAttribute(tokenKey, token);
         }
-    }
-
-    static String toHex(byte[] buffer) {
-        StringBuffer sb = new StringBuffer();
-        String s = null;
-        for (int i = 0; i < buffer.length; i++) {
-            s = Integer.toHexString((int) buffer[i] & 0xff);
-            if (s.length() < 2) {
-                sb.append('0');
-            }
-            sb.append(s);
-        }
-        return sb.toString();
     }
 }

@@ -8,9 +8,25 @@ import java.util.Set;
 import org.seasar.cms.pluggable.util.PluggableUtils;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
+import org.seasar.ymir.YmirContext;
 
 public class ContainerUtils {
+    private static S2Container container_;
+
     protected ContainerUtils() {
+    }
+
+    // for test
+    static void setS2Container(S2Container container) {
+        container_ = container;
+    }
+
+    public static S2Container getS2Container() {
+        if (container_ != null) {
+            return container_;
+        } else {
+            return YmirContext.getYmir().getApplication().getS2Container();
+        }
     }
 
     public static Object[] findAllAndAscendantComponents(S2Container container,

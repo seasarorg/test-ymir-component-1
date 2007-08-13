@@ -230,4 +230,8 @@ public class YmirImpl implements Ymir {
         return Configuration.PROJECTSTATUS_DEVELOP.equals(getProjectStatus())
                 && getApplication().isUnderDevelopment();
     }
+
+    public YmirProcessInterceptor[] getYmirProcessInterceptors() {
+        return ymirProcessInterceptors_;
+    }
 }

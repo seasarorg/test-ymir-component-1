@@ -22,8 +22,11 @@ abstract public class AbstractServletScope implements Scope {
         return getSession(true);
     }
 
+    protected HttpServletRequest getRequest() {
+        return (HttpServletRequest) getExternalContext().getRequest();
+    }
+
     protected HttpSession getSession(boolean create) {
-        return ((HttpServletRequest) getExternalContext().getRequest())
-                .getSession(create);
+        return getRequest().getSession(create);
     }
 }

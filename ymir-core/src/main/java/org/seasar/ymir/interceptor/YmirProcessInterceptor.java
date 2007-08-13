@@ -35,4 +35,19 @@ public interface YmirProcessInterceptor {
 
     Action actionInvoking(Action originalAction, Request request, Action action)
             throws PermissionDeniedException;
+
+    /**
+     * リダイレクト先のURLを加工できるように呼び出されるメソッドです。
+     * <p>URLを加工しない場合は引数で渡されたURLをそのまま返すようにして下さい。
+     * </p>
+     * <p>このメソッドに渡されるURLは内部URLだけです。
+     * また、URLはドメイン相対のURL（コンテキストパスで開始されるURL）です。
+     * </p>
+     *
+     * @param url URL。
+     * @return 加工後のURL。
+     */
+    String encodingRedirectURL(String url);
+
+    void leavingRequest(Request request);
 }

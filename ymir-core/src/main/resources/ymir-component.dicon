@@ -16,4 +16,6 @@
     class="org.seasar.ymir.impl.SessionManagerImpl" />
   <component name="dateManager"
     class="org.seasar.ymir.impl.DateManagerImpl" />
+  <component name="redirectionManager"
+    class="org.seasar.ymir.redirection.impl.RedirectionManagerImpl" />
 </components>

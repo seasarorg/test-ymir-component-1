@@ -13,12 +13,14 @@
  */
 package org.seasar.ymir;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletException;
 
 import junit.framework.TestCase;
 
@@ -28,8 +30,6 @@ import org.seasar.framework.container.ExternalContext;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.mock.servlet.MockHttpServletRequest;
-import org.seasar.framework.mock.servlet.MockHttpServletResponse;
-import org.seasar.framework.mock.servlet.MockHttpServletResponseImpl;
 import org.seasar.framework.mock.servlet.MockHttpSession;
 import org.seasar.framework.mock.servlet.MockServletContext;
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
@@ -37,6 +37,8 @@ import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
 import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
+import org.seasar.ymir.mock.servlet.MockHttpServletResponse;
+import org.seasar.ymir.mock.servlet.MockHttpServletResponseImpl;
 import org.seasar.ymir.servlet.YmirListener;
 
 abstract public class PageTestCase<P> extends TestCase {
@@ -329,7 +331,12 @@ abstract public class PageTestCase<P> extends TestCase {
     protected Request prepareForPrecessing(String path, String httpMethod,
             Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap) {
-        httpRequest_ = new MockHttpServletRequestImpl(application_, path);
+        MockHttpSession session = null;
+        if (httpRequest_ != null) {
+            session = (MockHttpSession) httpRequest_.getSession(false);
+        }
+        httpRequest_ = new MockHttpServletRequestImpl(application_, path,
+                session);
         httpRequest_.setLocale(getLocale());
         httpResponse_ = new MockHttpServletResponseImpl(httpRequest_);
 
@@ -382,7 +389,14 @@ abstract public class PageTestCase<P> extends TestCase {
         try {
             threadContext.setComponent(Request.class, request);
 
-            return ymir_.processRequest(request);
+            Response response = ymir_.processRequest(request);
+            ymir_.processResponse(application_, httpRequest_, httpResponse_,
+                    request, response);
+            return response;
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        } catch (ServletException ex) {
+            throw new RuntimeException(ex);
         } finally {
             threadContext.setComponent(Request.class, null);
         }

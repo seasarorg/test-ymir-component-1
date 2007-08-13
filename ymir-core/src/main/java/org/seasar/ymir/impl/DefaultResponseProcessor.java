@@ -83,7 +83,7 @@ public class DefaultResponseProcessor implements ResponseProcessor {
             }
             if (resolved.startsWith("/")) {
                 // 内部パスの場合はエンコードする。
-                resolved = httpResponse.encodeRedirectURL(resolved);
+                resolved = encodeRedirectURL(httpResponse, resolved);
             }
             httpResponse.sendRedirect(resolved);
             return null;
@@ -127,6 +127,18 @@ public class DefaultResponseProcessor implements ResponseProcessor {
             throw new RuntimeException("Unknown response type:"
                     + response.getType());
         }
+    }
+
+    protected String encodeRedirectURL(HttpServletResponse httpResponse,
+            String url) {
+        if (url == null) {
+            return null;
+        }
+
+        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+            url = ymirProcessInterceptors_[i].encodingRedirectURL(url);
+        }
+        return httpResponse.encodeRedirectURL(url);
     }
 
     protected void populateHeaders(Response response,

@@ -7,6 +7,10 @@
     class="org.seasar.ymir.constraint.impl.ConstraintInterceptor">
     <property name="priority">50.0</property>
   </component>
+  <component name="redirectionInterceptor"
+    class="org.seasar.ymir.impl.RedirectionInterceptor">
+    <property name="priority">100.0</property>
+  </component>
   <component name="conversationInterceptor"
     class="org.seasar.ymir.conversation.impl.ConversationInterceptor">
     <property name="priority">100.0</property>

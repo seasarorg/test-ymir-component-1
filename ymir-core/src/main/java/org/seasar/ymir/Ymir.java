@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.ymir.constraint.PermissionDeniedException;
+import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 
 public interface Ymir {
 
@@ -54,4 +55,6 @@ public interface Ymir {
     boolean isUnderDevelopment();
 
     Response processException(Request request, Throwable t);
+
+    YmirProcessInterceptor[] getYmirProcessInterceptors();
 }

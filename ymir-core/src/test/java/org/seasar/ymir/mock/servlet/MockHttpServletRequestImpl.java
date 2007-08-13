@@ -13,8 +13,14 @@ public class MockHttpServletRequestImpl extends
 
     public MockHttpServletRequestImpl(ServletContext servletContext,
             String servletPath) {
+        this(servletContext, servletPath, null);
+    }
+
+    public MockHttpServletRequestImpl(ServletContext servletContext,
+            String servletPath, MockHttpSession session) {
         super(servletContext, servletPath);
         servletContext_ = servletContext;
+        session_ = session;
     }
 
     @Override

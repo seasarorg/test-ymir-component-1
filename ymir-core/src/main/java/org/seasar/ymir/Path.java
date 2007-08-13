@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.seasar.ymir.util.StringUtils;
+
 public class Path {
     private String trunk_;
 
@@ -131,7 +133,7 @@ public class Path {
     }
 
     String getUniqueKey() {
-        return String.valueOf(System.currentTimeMillis());
+        return StringUtils.generateLocalKey(this);
     }
 
     public String getTrunk() {

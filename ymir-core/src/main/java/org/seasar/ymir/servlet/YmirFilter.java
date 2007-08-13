@@ -23,6 +23,7 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
+import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.util.LocaleUtils;
 import org.seasar.ymir.util.ServletUtils;
 
@@ -34,10 +35,13 @@ public class YmirFilter implements Filter {
 
     private Ymir ymir_;
 
+    private YmirProcessInterceptor[] ymirProcessInterceptors_;
+
     public void init(FilterConfig config) throws ServletException {
 
         context_ = config.getServletContext();
         ymir_ = (Ymir) context_.getAttribute(YmirListener.ATTR_YMIR);
+        ymirProcessInterceptors_ = ymir_.getYmirProcessInterceptors();
 
         String dispatcher = config.getInitParameter("dispatcher");
         if (dispatcher == null) {
@@ -51,6 +55,7 @@ public class YmirFilter implements Filter {
 
         context_ = null;
         ymir_ = null;
+        ymirProcessInterceptors_ = null;
         dispatcher_ = null;
     }
 
@@ -107,6 +112,9 @@ public class YmirFilter implements Filter {
             ymir_.leaveDispatch(request);
 
             if (Request.DISPATCHER_REQUEST.equals(dispatcher_)) {
+                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                    ymirProcessInterceptors_[i].leavingRequest(request);
+                }
                 context.setComponent(Request.class, null);
             } else if (Request.DISPATCHER_INCLUDE.equals(dispatcher_)) {
                 ymir_.restoreForInclusion(attributeContainer, backupped);
