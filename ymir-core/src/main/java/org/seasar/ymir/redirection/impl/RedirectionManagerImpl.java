@@ -9,6 +9,7 @@ import javax.servlet.http.HttpSession;
 import org.seasar.framework.container.ExternalContext;
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.Globals;
+import org.seasar.ymir.Request;
 import org.seasar.ymir.redirection.RedirectionManager;
 import org.seasar.ymir.util.StringUtils;
 
@@ -84,5 +85,25 @@ public class RedirectionManagerImpl implements RedirectionManager {
 
     HttpSession getSession(boolean create) {
         return getRequest().getSession(create);
+    }
+
+    public Object get(String name) {
+        HttpSession session = getSession(false);
+        if (session == null) {
+            return null;
+        }
+
+        String scopeKey = ((Request) container_.getComponent(Request.class))
+                .getParameter(KEY_SCOPE);
+        if (scopeKey == null) {
+            return null;
+        }
+
+        Map<String, Object> scopeMap = getScopeMap(scopeKey, false);
+        if (scopeMap == null) {
+            return null;
+        }
+
+        return scopeMap.get(name);
     }
 }

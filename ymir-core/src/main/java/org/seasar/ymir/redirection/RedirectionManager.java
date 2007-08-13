@@ -20,4 +20,6 @@ public interface RedirectionManager {
     void removeScopeMap(String scopeKey);
 
     String getScopeKey();
+
+    Object get(String name);
 }
