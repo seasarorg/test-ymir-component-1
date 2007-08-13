@@ -142,6 +142,7 @@ public class ZptAnalyzer implements TemplateAnalyzer {
         return new AnalyzerTalTagEvaluator();
     }
 
+    @Binding(bindingType = BindingType.MAY)
     public void setZpt(Zpt zpt) {
         zpt_ = zpt;
         setTemplateEvaluator(zpt_.getTemplateEvaluator());
