@@ -11,6 +11,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.RedirectionPathResolver;
 import org.seasar.ymir.Request;
@@ -187,6 +189,7 @@ public class DefaultResponseProcessor implements ResponseProcessor {
         }
     }
 
+    @Binding(bindingType = BindingType.MAY)
     public void setRedirectionPathResolver(
             RedirectionPathResolver responsePathNormalizer) {
         redirectionPathResolver_ = responsePathNormalizer;

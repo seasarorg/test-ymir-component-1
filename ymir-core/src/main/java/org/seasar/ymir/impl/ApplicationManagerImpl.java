@@ -2,6 +2,8 @@ package org.seasar.ymir.impl;
 
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.util.ArrayUtil;
 
 public class ApplicationManagerImpl implements ApplicationManager {
@@ -32,10 +34,12 @@ public class ApplicationManagerImpl implements ApplicationManager {
         return application;
     }
 
+    @Binding(bindingType = BindingType.NONE)
     public void setContextApplication(Application application) {
         application_.set(application);
     }
 
+    @Binding(bindingType = BindingType.NONE)
     public void setBaseApplication(Application application) {
         baseApplication_ = application;
         if (application != null) {
