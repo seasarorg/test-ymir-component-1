@@ -51,35 +51,38 @@ public class YmirImpl implements Ymir {
 
     private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
 
-    private Logger logger_ = Logger.getLogger(getClass());
+    private final Logger logger_ = Logger.getLogger(getClass());
 
-    public void setLifecycleListeners(LifecycleListener[] lifecycleListeners) {
+    public void setLifecycleListeners(
+            final LifecycleListener[] lifecycleListeners) {
         lifecycleListeners_ = lifecycleListeners;
     }
 
-    public void setRequestProcessor(RequestProcessor requestProcessor) {
+    public void setRequestProcessor(final RequestProcessor requestProcessor) {
         requestProcessor_ = requestProcessor;
     }
 
-    public void setResponseProcessor(ResponseProcessor responseProcessor) {
+    public void setResponseProcessor(final ResponseProcessor responseProcessor) {
         responseProcessor_ = responseProcessor;
     }
 
-    public void setExceptionProcessor(ExceptionProcessor exceptionProcessor) {
+    public void setExceptionProcessor(
+            final ExceptionProcessor exceptionProcessor) {
         exceptionProcessor_ = exceptionProcessor;
     }
 
     public void setYmirProcessInterceptors(
-            YmirProcessInterceptor[] ymirProcessInterceptors) {
+            final YmirProcessInterceptor[] ymirProcessInterceptors) {
         ymirProcessInterceptors_ = ymirProcessInterceptors;
         YmirUtils.sortYmirProcessInterceptors(ymirProcessInterceptors_);
     }
 
-    public void setConfiguration(Configuration configuration) {
+    public void setConfiguration(final Configuration configuration) {
         configuration_ = configuration;
     }
 
-    public void setApplicationManager(ApplicationManager applicationManager) {
+    public void setApplicationManager(
+            final ApplicationManager applicationManager) {
         applicationManager_ = applicationManager;
     }
 
@@ -103,10 +106,10 @@ public class YmirImpl implements Ymir {
         }
     }
 
-    public Request prepareForProcessing(String contextPath, String method,
-            Map<String, String[]> parameterMap,
-            Map<String, FormFile[]> fileParameterMap,
-            AttributeContainer attributeContainer, Locale locale) {
+    public Request prepareForProcessing(final String contextPath,
+            String method, final Map<String, String[]> parameterMap,
+            final Map<String, FormFile[]> fileParameterMap,
+            final AttributeContainer attributeContainer, final Locale locale) {
         if (isUnderDevelopment()) {
             method = correctMethod(method, parameterMap);
         }
@@ -119,8 +122,8 @@ public class YmirImpl implements Ymir {
         return request;
     }
 
-    String correctMethod(String method, Map parameterMap) {
-        String[] values = (String[]) parameterMap.get(PARAM_METHOD);
+    String correctMethod(final String method, final Map parameterMap) {
+        final String[] values = (String[]) parameterMap.get(PARAM_METHOD);
         if (values != null && values.length > 0) {
             return values[0];
         } else {
@@ -128,15 +131,21 @@ public class YmirImpl implements Ymir {
         }
     }
 
-    public void enterDispatch(Request request, String path, String dispatcher) {
+    /*
+     * includeされているページで、リクエストパスを取得することもinclude対象のテンプレートのパスを取得することも両方できるようにするためです。
+     * includeされているページで自分自身のパスを取るのは、servletAPI的にはrequestにあるキーでバインドされているパス情報を取ればいいのだけど、
+     * それだとservletAPIを意識しないといけなくなるので、オブジェクトからその情報を取れるようにしました。
+     */
+    public void enterDispatch(final Request request, final String path,
+            final String dispatcher) {
         request.enterDispatch(new DispatchImpl(request.getContextPath(), path,
                 dispatcher, findMatchedPathMapping(path, request.getMethod())));
-
     }
 
-    public MatchedPathMapping findMatchedPathMapping(String path, String method) {
+    public MatchedPathMapping findMatchedPathMapping(final String path,
+            final String method) {
         VariableResolver resolver = null;
-        PathMapping[] pathMappings = getPathMappings();
+        final PathMapping[] pathMappings = getPathMappings();
         if (pathMappings != null) {
             for (int i = 0; i < pathMappings.length; i++) {
                 resolver = pathMappings[i].match(path, method);
@@ -152,19 +161,20 @@ public class YmirImpl implements Ymir {
         return getApplication().getPathMappingProvider().getPathMappings();
     }
 
-    public void leaveDispatch(Request request) {
+    public void leaveDispatch(final Request request) {
         request.leaveDispatch();
     }
 
-    public Response processRequest(Request request)
+    public Response processRequest(final Request request)
             throws PageNotFoundException, PermissionDeniedException {
         return requestProcessor_.process(request);
     }
 
     public HttpServletResponseFilter processResponse(
-            ServletContext servletContext, HttpServletRequest httpRequest,
-            HttpServletResponse httpResponse, Request request, Response response)
-            throws IOException, ServletException {
+            final ServletContext servletContext,
+            final HttpServletRequest httpRequest,
+            final HttpServletResponse httpResponse, final Request request,
+            final Response response) throws IOException, ServletException {
         return responseProcessor_.process(servletContext, httpRequest,
                 httpResponse, request, response);
     }
@@ -183,7 +193,7 @@ public class YmirImpl implements Ymir {
         for (int i = 0; i < lifecycleListeners_.length; i++) {
             try {
                 lifecycleListeners_[i].destroy();
-            } catch (Throwable t) {
+            } catch (final Throwable t) {
                 logger_.error("Can't destroy lifecycleListener: "
                         + lifecycleListeners_[i], t);
             }
@@ -191,16 +201,16 @@ public class YmirImpl implements Ymir {
         lifecycleListeners_ = new LifecycleListener[0];
     }
 
-    public Object backupForInclusion(AttributeContainer attributeContainer) {
+    public Object backupForInclusion(final AttributeContainer attributeContainer) {
         return requestProcessor_.backupForInclusion(attributeContainer);
     }
 
-    public void restoreForInclusion(AttributeContainer attributeContainer,
-            Object backupped) {
+    public void restoreForInclusion(
+            final AttributeContainer attributeContainer, final Object backupped) {
         requestProcessor_.restoreForInclusion(attributeContainer, backupped);
     }
 
-    public Response processException(Request request, Throwable t) {
+    public Response processException(final Request request, final Throwable t) {
         return exceptionProcessor_.process(request, t);
     }
 
