@@ -4,6 +4,7 @@
 <components>
   <include path="ymir-convention.dicon" />
   <include path="mapping.dicon" />
+  <meta name="expand">"ymir-app.dicon"</meta>
   <component
     class="org.seasar.framework.container.autoregister.ComponentAutoRegister">
     <initMethod name="addReferenceClass">

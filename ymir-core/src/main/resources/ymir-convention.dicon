@@ -9,7 +9,6 @@
   <include path="ymir-component.dicon" />
   <include path="dxo.dicon" />
   <include path="ymir-dao.dicon" />
-  <meta name="expand">"ymir-creator.dicon"</meta>
   <component name="ymirNamingConvention"
     class="org.seasar.ymir.convention.YmirNamingConvention">
     <initMethod name="addRootPackageName">
@@ -18,12 +17,6 @@
     <initMethod name="addIgnorePackageName">
       <arg>config.getProperty("ignorePackageNames", "")</arg>
     </initMethod>
-  </component>
-  <component
-    class="org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container">
-    <property name="creators">
-      container.findLocalComponents(@org.seasar.framework.container.ComponentCreator@class)
-    </property>
   </component>
   <component name="default_pageNotFoundExceptionHandler"
     class="org.seasar.ymir.handler.impl.PageNotFoundExceptionHandler"
