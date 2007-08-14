@@ -17,7 +17,7 @@ public class RedirectionScopeTest extends
     public void test() throws Exception {
         Request request = prepareForPrecessing("/redirectionScopeTest.html",
                 Request.METHOD_GET);
-        processRequest(request);
+        process(request);
 
         RedirectionScopeTestPage page = (RedirectionScopeTestPage) request
                 .getAttribute(RequestProcessor.ATTR_SELF);
@@ -30,7 +30,7 @@ public class RedirectionScopeTest extends
         request = prepareForPrecessing("/redirectionScopeTest.html",
                 Request.METHOD_GET, RedirectionManager.KEY_SCOPE + "="
                         + redirectPath.substring(pathPrefix.length()));
-        processRequest(request);
+        process(request);
 
         page = (RedirectionScopeTestPage) request
                 .getAttribute(RequestProcessor.ATTR_SELF);

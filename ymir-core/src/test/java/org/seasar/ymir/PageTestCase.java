@@ -389,17 +389,32 @@ abstract public class PageTestCase<P> extends TestCase {
         try {
             threadContext.setComponent(Request.class, request);
 
-            Response response = ymir_.processRequest(request);
-            ymir_.processResponse(application_, httpRequest_, httpResponse_,
-                    request, response);
-            return response;
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        } catch (ServletException ex) {
-            throw new RuntimeException(ex);
+            return ymir_.processRequest(request);
         } finally {
             threadContext.setComponent(Request.class, null);
         }
+    }
+
+    /**
+     * 実際にリクエストを処理します。
+     * <p>リクエストを処理してレスポンスを生成し、生成したレスポンスを処理してHttpServletResponseFilterを生成して返します。
+     * </p>
+     * <p>このメソッドを呼び出す前に必ず<code>prepareForProcessing</code>
+     * メソッドを呼び出しておいて下さい。
+     * </p>
+     *
+     * @param request Requestオブジェクト。
+     * @return 処理結果を表すHttpServletResponseFilterオブジェクト。
+     * @throws PermissionDeniedException 権限エラーが発生した場合。
+     * @throws PageNotFoundException 指定されたリクエストパスに直接アクセスすることが禁止されている場合。
+     * @throws ServletException レスポンスの処理中にスローされることがあります。
+     * @throws IOException レスポンスの処理中にスローされることがあります。
+     */
+    protected HttpServletResponseFilter process(Request request)
+            throws PermissionDeniedException, PageNotFoundException,
+            IOException, ServletException {
+        return ymir_.processResponse(application_, httpRequest_, httpResponse_,
+                request, processRequest(request));
     }
 
     /**
