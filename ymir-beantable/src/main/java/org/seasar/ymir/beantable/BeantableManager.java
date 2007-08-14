@@ -9,16 +9,19 @@ import java.util.List;
 import org.seasar.cms.beantable.Beantable;
 import org.seasar.cms.pluggable.ClassTraverser;
 import org.seasar.cms.pluggable.Configuration;
+import org.seasar.cms.pluggable.hotdeploy.DistributedHotdeployBehavior;
 import org.seasar.cms.pluggable.hotdeploy.HotdeployListener;
+import org.seasar.cms.pluggable.util.PluggableUtils;
+import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.framework.container.impl.S2ContainerBehavior;
+import org.seasar.framework.log.Logger;
+import org.seasar.framework.util.ClassTraversal.ClassHandler;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.LifecycleListener;
 import org.seasar.ymir.beantable.annotation.Managed;
-import org.seasar.framework.container.S2Container;
-import org.seasar.framework.container.annotation.tiger.Binding;
-import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.framework.log.Logger;
-import org.seasar.framework.util.ClassTraversal.ClassHandler;
 
 public class BeantableManager implements LifecycleListener, HotdeployListener {
     private Configuration configuration_;
@@ -74,16 +77,21 @@ public class BeantableManager implements LifecycleListener, HotdeployListener {
     }
 
     void traserse() {
-        for (int i = 0; i < traverserBags_.length; i++) {
-            ClassLoader old = Thread.currentThread().getContextClassLoader();
-            try {
-                Thread.currentThread().setContextClassLoader(
-                        traverserBags_[i].getApplication().getS2Container()
-                                .getClassLoader());
+        DistributedHotdeployBehavior behavior = (DistributedHotdeployBehavior) S2ContainerBehavior
+                .getProvider();
+        ClassLoader classLoader = Thread.currentThread()
+                .getContextClassLoader();
+        behavior.start();
+        try {
+            Thread.currentThread().setContextClassLoader(
+                    PluggableUtils.adjustClassLoader(behavior, classLoader));
+
+            for (int i = 0; i < traverserBags_.length; i++) {
                 traverserBags_[i].getClassTraverser().traverse();
-            } finally {
-                Thread.currentThread().setContextClassLoader(old);
             }
+        } finally {
+            Thread.currentThread().setContextClassLoader(classLoader);
+            behavior.stop();
         }
     }
 

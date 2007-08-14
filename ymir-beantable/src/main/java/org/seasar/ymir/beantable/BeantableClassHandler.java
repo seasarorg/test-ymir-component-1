@@ -26,6 +26,9 @@ public class BeantableClassHandler implements ClassHandler {
         }
         String className = packageName + "." + shortClassName;
         try {
+            // hotdeployClassloaderでclassを読み込むようにしているため、
+            // テーブルの更新処理自体はhotdeployListenerであるBeantableManagerが
+            // やってくれる。
             beanClass = Class.forName(className, true, cl);
         } catch (ClassNotFoundException ex) {
             if (logger_.isDebugEnabled()) {
@@ -33,34 +36,34 @@ public class BeantableClassHandler implements ClassHandler {
             }
             return;
         }
-
-        if (!manager_.isManaged(beanClass)) {
-            return;
-        }
-
-        if (logger_.isInfoEnabled()) {
-            logger_.info("UPDATE TABLE FOR class: " + className);
-        }
-
-        Beantable beanTable = manager_.newBeantable(beanClass);
-        try {
-            beanTable.activate();
-        } catch (SQLException ex) {
-            logger_.error("[SKIP] Can't activate Beantable for: " + className,
-                    ex);
-            return;
-        }
-        try {
-            beanTable.update(false);
-        } catch (SQLException ex) {
-            logger_
-                    .error("[SKIP] Can't update Beantable for: " + className,
-                            ex);
-            return;
-        }
-
-        if (logger_.isInfoEnabled()) {
-            logger_.info("TABLE UPDATED SUCCESSFULLY");
-        }
+//
+//        if (!manager_.isManaged(beanClass)) {
+//            return;
+//        }
+//
+//        if (logger_.isInfoEnabled()) {
+//            logger_.info("UPDATE TABLE FOR class: " + className);
+//        }
+//
+//        Beantable beanTable = manager_.newBeantable(beanClass);
+//        try {
+//            beanTable.activate();
+//        } catch (SQLException ex) {
+//            logger_.error("[SKIP] Can't activate Beantable for: " + className,
+//                    ex);
+//            return;
+//        }
+//        try {
+//            beanTable.update(false);
+//        } catch (SQLException ex) {
+//            logger_
+//                    .error("[SKIP] Can't update Beantable for: " + className,
+//                            ex);
+//            return;
+//        }
+//
+//        if (logger_.isInfoEnabled()) {
+//            logger_.info("TABLE UPDATED SUCCESSFULLY");
+//        }
     }
 }
