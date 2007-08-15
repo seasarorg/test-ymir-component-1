@@ -21,6 +21,7 @@ import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.MultipartServletRequest;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
@@ -106,8 +107,12 @@ public class YmirFilter implements Filter {
                 responseFilter.commit();
             }
         } catch (Throwable t) {
-            ymir_.processResponse(context_, httpRequest, httpResponse, request,
-                    ymir_.processException(request, t));
+            if (Request.DISPATCHER_REQUEST.equals(dispatcher_)) {
+                ymir_.processResponse(context_, httpRequest, httpResponse,
+                        request, ymir_.processException(request, t));
+            } else {
+                rethrow(t);
+            }
         } finally {
             ymir_.leaveDispatch(request);
 
@@ -119,6 +124,18 @@ public class YmirFilter implements Filter {
             } else if (Request.DISPATCHER_INCLUDE.equals(dispatcher_)) {
                 ymir_.restoreForInclusion(attributeContainer, backupped);
             }
+        }
+    }
+
+    void rethrow(Throwable t) throws IOException, ServletException {
+        if (t instanceof ServletException) {
+            throw (ServletException) t;
+        } else if (t instanceof IOException) {
+            throw (IOException) t;
+        } else if (t instanceof RuntimeException) {
+            throw (RuntimeException) t;
+        } else {
+            throw new WrappingRuntimeException(t);
         }
     }
 
