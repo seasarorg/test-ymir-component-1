@@ -16,7 +16,6 @@ import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
 import org.seasar.ymir.util.BeanUtils;
 
 public class DefaultExceptionProcessor implements ExceptionProcessor {
-
     private Ymir ymir_;
 
     private ResponseConstructorSelector responseConstructorSelector_;
@@ -24,23 +23,19 @@ public class DefaultExceptionProcessor implements ExceptionProcessor {
     private Updater[] updaters_ = new Updater[0];
 
     public void setYmir(Ymir ymir) {
-
         ymir_ = ymir;
     }
 
     public void setResponseConstructorSelector(
             ResponseConstructorSelector responseConstructorSelector) {
-
         responseConstructorSelector_ = responseConstructorSelector;
     }
 
     public void setUpdaters(Updater[] updaters) {
-
         updaters_ = updaters;
     }
 
     public Response process(Request request, Throwable t) {
-
         if (t instanceof WrappingRuntimeException) {
             t = ((WrappingRuntimeException) t).getCause();
         }
@@ -87,11 +82,14 @@ public class DefaultExceptionProcessor implements ExceptionProcessor {
                     + getClassShortName(exceptionClass)
                     + SUFFIX_EXCEPTION_TEMPLATE);
         }
+
+        // ExceptionHandlerコンポーネントをattributeとしてバインドしておく。
+        request.setAttribute(ATTR_HANDLER, handler);
+
         return response;
     }
 
     Response constructResponse(String returnValue) {
-
         ResponseConstructor<String> constructor = responseConstructorSelector_
                 .getResponseConstructor(String.class);
         if (constructor == null) {
@@ -104,13 +102,11 @@ public class DefaultExceptionProcessor implements ExceptionProcessor {
     }
 
     String getComponentName(Class clazz) {
-
         return BeanUtils.changeWithPropertyNameRule(getClassShortName(clazz))
                 + SUFFIX_HANDLER;
     }
 
     String getClassShortName(Class clazz) {
-
         String name = clazz.getName();
         int dot = name.lastIndexOf('.');
         if (dot >= 0) {

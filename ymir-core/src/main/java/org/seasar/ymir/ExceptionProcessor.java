@@ -9,5 +9,7 @@ public interface ExceptionProcessor {
 
     String SUFFIX_HANDLER = "Handler";
 
+    String ATTR_HANDLER = "handler";
+
     Response process(Request request, Throwable t);
 }
