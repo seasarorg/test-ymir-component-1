@@ -2,9 +2,7 @@ package org.seasar.ymir.impl;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -14,6 +12,8 @@ import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.log.Logger;
 import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
@@ -23,11 +23,12 @@ import org.seasar.ymir.FormFile;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.PageNotFoundException;
+import org.seasar.ymir.PageProcessor;
+import org.seasar.ymir.PagePropertyMetaData;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
-import org.seasar.ymir.ScopeAttribute;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
@@ -52,6 +53,8 @@ public class DefaultRequestProcessor implements RequestProcessor {
     private static final String INDEX_SUFFIX = "]";
 
     private Ymir ymir_;
+
+    private PageProcessor pageProcessor_;
 
     private ResponseConstructorSelector responseConstructorSelector_;
 
@@ -80,10 +83,17 @@ public class DefaultRequestProcessor implements RequestProcessor {
         });
     }
 
+    @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
         ymir_ = ymir;
     }
 
+    @Binding(bindingType = BindingType.MUST)
+    public void setPageProcessor(PageProcessor pageProcessor) {
+        pageProcessor_ = pageProcessor;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
     public void setResponseConstructorSelector(
             ResponseConstructorSelector responseConstructorSelector) {
         responseConstructorSelector_ = responseConstructorSelector;
@@ -288,63 +298,6 @@ public class DefaultRequestProcessor implements RequestProcessor {
         return request.getAttribute(ATTR_SELF);
     }
 
-    void injectRequestParameters(Object page, PagePropertyBag bag,
-            Map properties) {
-        for (Iterator itr = properties.keySet().iterator(); itr.hasNext();) {
-            String name = (String) itr.next();
-            if (name == null || bag.isProtected(name)) {
-                continue;
-            }
-            try {
-                beanUtilsBean_.setProperty(page, name, properties.get(name));
-            } catch (Throwable t) {
-                if (logger_.isDebugEnabled()) {
-                    logger_.debug("Can't populate property '" + name + "'", t);
-                }
-            }
-        }
-    }
-
-    void injectRequestFileParameters(Object page, PagePropertyBag bag,
-            Map properties) {
-        for (Iterator itr = properties.keySet().iterator(); itr.hasNext();) {
-            String name = (String) itr.next();
-            if (name == null || bag.isProtected(name)) {
-                continue;
-            }
-            if (beanUtilsBean_.getPropertyUtils().isWriteable(page, name)) {
-                try {
-                    beanUtilsBean_.copyProperty(page, name, properties
-                            .get(name));
-                } catch (Throwable t) {
-                    if (logger_.isDebugEnabled()) {
-                        logger_.debug("Can't copy property '" + name + "'", t);
-                    }
-                }
-            }
-        }
-    }
-
-    void injectContextAttributes(Object page, String actionName,
-            PagePropertyBag bag) {
-        ScopeAttribute[] attributes = bag.getInjectedScopeAttributes();
-        for (int i = 0; i < attributes.length; i++) {
-            if (attributes[i].isEnable(actionName)) {
-                attributes[i].injectTo(page);
-            }
-        }
-    }
-
-    void outjectContextAttributes(Object page, String actionName,
-            PagePropertyBag bag) {
-        ScopeAttribute[] attributes = bag.getOutjectedScopeAttributes();
-        for (int i = 0; i < attributes.length; i++) {
-            if (attributes[i].isEnable(actionName)) {
-                attributes[i].outjectFrom(page);
-            }
-        }
-    }
-
     Response invokeAction(final Action action) throws PermissionDeniedException {
         Response response = PassthroughResponse.INSTANCE;
 
@@ -439,19 +392,21 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
         public Object process(PageComponent pageComponent) {
             Object page = pageComponent.getPage();
-            PagePropertyBag bag = new PagePropertyBag(pageComponent
-                    .getPageClass(), getS2Container());
-            pageComponent.setRelatedObject(PagePropertyBag.class, bag);
+            PagePropertyMetaData bag = new PagePropertyMetaDataImpl(
+                    pageComponent.getPageClass(), getS2Container());
+            pageComponent.setRelatedObject(PagePropertyMetaData.class, bag);
 
             // リクエストパラメータをinjectする。
-            injectRequestParameters(page, bag, request_.getParameterMap());
+            pageProcessor_.injectRequestParameters(page, bag, request_
+                    .getParameterMap());
 
             // FormFileのリクエストパラメータをinjectする。
-            injectRequestFileParameters(page, bag, request_
+            pageProcessor_.injectRequestFileParameters(page, bag, request_
                     .getFileParameterMap());
 
             // 各コンテキストが持つ属性をinjectする。
-            injectContextAttributes(page, request_.getAction().getName(), bag);
+            pageProcessor_.injectContextAttributes(page, request_.getAction()
+                    .getName(), bag);
 
             return null;
         }
@@ -481,9 +436,9 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
         public Object process(PageComponent pageComponent) {
             // 各コンテキストに属性をoutjectする。
-            outjectContextAttributes(pageComponent.getPage(), request_
-                    .getAction().getName(), pageComponent
-                    .getRelatedObject(PagePropertyBag.class));
+            pageProcessor_.outjectContextAttributes(pageComponent.getPage(),
+                    request_.getAction().getName(), pageComponent
+                            .getRelatedObject(PagePropertyMetaData.class));
 
             return null;
         }

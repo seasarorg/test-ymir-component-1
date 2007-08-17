@@ -77,6 +77,7 @@
       </meta>
     </property>
   </component>
+  <component class="org.seasar.ymir.impl.PageProcessorImpl" />
   <component class="org.seasar.ymir.impl.DefaultResponseProcessor" />
   <component
     class="org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl" />

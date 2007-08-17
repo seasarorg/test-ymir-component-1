@@ -59,6 +59,8 @@
       </meta>
     </property>
   </component>
+  <component name="pageProcessor"
+    class="org.seasar.ymir.impl.PageProcessorImpl" />
   <component name="responseProcessor"
     class="org.seasar.ymir.impl.DefaultResponseProcessor" />
   <component name="exceptionProcessor"

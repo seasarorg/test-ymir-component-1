@@ -10,6 +10,7 @@ import java.util.Set;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.ymir.FormFile;
+import org.seasar.ymir.PagePropertyMetaData;
 import org.seasar.ymir.ScopeAttribute;
 import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Out;
@@ -18,7 +19,7 @@ import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.impl.RequestScope;
 import org.seasar.ymir.util.BeanUtils;
 
-public class PagePropertyBag {
+public class PagePropertyMetaDataImpl implements PagePropertyMetaData {
     private Class<?> class_;
 
     private S2Container container_;
@@ -29,7 +30,7 @@ public class PagePropertyBag {
 
     private List<ScopeAttribute> outjectedScopeAttributeList_ = new ArrayList<ScopeAttribute>();
 
-    public PagePropertyBag(Class<?> clazz, S2Container container) {
+    public PagePropertyMetaDataImpl(Class<?> clazz, S2Container container) {
         class_ = clazz;
         container_ = container;
         Method[] methods = clazz.getMethods();

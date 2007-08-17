@@ -36,28 +36,31 @@ public class DefaultResponseProcessor implements ResponseProcessor {
 
     private RedirectionPathResolver redirectionPathResolver_ = new DefaultRedirectionPathResolver();
 
+    @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
-
         ymir_ = ymir;
     }
 
     public void setUpdaters(Updater[] updaters) {
-
         updaters_ = updaters;
     }
 
     public void setYmirProcessInterceptors(
             YmirProcessInterceptor[] ymirProcessInterceptors) {
-
         ymirProcessInterceptors_ = ymirProcessInterceptors;
         YmirUtils.sortYmirProcessInterceptors(ymirProcessInterceptors_);
+    }
+
+    @Binding(bindingType = BindingType.MAY)
+    public void setRedirectionPathResolver(
+            RedirectionPathResolver responsePathNormalizer) {
+        redirectionPathResolver_ = responsePathNormalizer;
     }
 
     public HttpServletResponseFilter process(ServletContext context,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             Request request, Response response) throws IOException,
             ServletException {
-
         if (response.getStatus() != Response.STATUS_UNDEFINED) {
             httpResponse.setStatus(response.getStatus());
         }
@@ -187,11 +190,5 @@ public class DefaultResponseProcessor implements ResponseProcessor {
         } else {
             return new AsIsResponseFilter(httpResponse);
         }
-    }
-
-    @Binding(bindingType = BindingType.MAY)
-    public void setRedirectionPathResolver(
-            RedirectionPathResolver responsePathNormalizer) {
-        redirectionPathResolver_ = responsePathNormalizer;
     }
 }

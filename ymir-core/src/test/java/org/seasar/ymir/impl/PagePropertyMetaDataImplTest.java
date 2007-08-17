@@ -2,8 +2,9 @@ package org.seasar.ymir.impl;
 
 import junit.framework.TestCase;
 
-public class PagePropertyBagTest extends TestCase {
-    private PagePropertyBag target_ = new PagePropertyBag(Object.class, null);
+public class PagePropertyMetaDataImplTest extends TestCase {
+    private PagePropertyMetaDataImpl target_ = new PagePropertyMetaDataImpl(
+            Object.class, null);
 
     public void testToAttributeName() throws Exception {
         assertEquals("a", target_.toAttributeName("getA", null));
@@ -18,7 +19,8 @@ public class PagePropertyBagTest extends TestCase {
     }
 
     public void testIsProtected() throws Exception {
-        PagePropertyBag target = new PagePropertyBag(HoePage.class, null);
+        PagePropertyMetaDataImpl target = new PagePropertyMetaDataImpl(
+                HoePage.class, null);
 
         assertTrue(target.isProtected("map"));
         assertTrue(target.isProtected("maps"));

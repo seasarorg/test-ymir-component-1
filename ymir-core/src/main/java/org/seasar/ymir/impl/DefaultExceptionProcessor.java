@@ -1,8 +1,13 @@
 package org.seasar.ymir.impl;
 
+import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ExceptionProcessor;
+import org.seasar.ymir.PageProcessor;
+import org.seasar.ymir.PagePropertyMetaData;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
@@ -18,14 +23,23 @@ import org.seasar.ymir.util.BeanUtils;
 public class DefaultExceptionProcessor implements ExceptionProcessor {
     private Ymir ymir_;
 
+    private PageProcessor pageProcessor_;
+
     private ResponseConstructorSelector responseConstructorSelector_;
 
     private Updater[] updaters_ = new Updater[0];
 
+    @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
         ymir_ = ymir;
     }
 
+    @Binding(bindingType = BindingType.MUST)
+    public void setPageProcessor(PageProcessor pageProcessor) {
+        pageProcessor_ = pageProcessor;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
     public void setResponseConstructorSelector(
             ResponseConstructorSelector responseConstructorSelector) {
         responseConstructorSelector_ = responseConstructorSelector;
@@ -49,32 +63,42 @@ public class DefaultExceptionProcessor implements ExceptionProcessor {
             }
         }
 
-        ExceptionHandler handler = null;
-        Class exceptionClass = t.getClass();
+        S2Container container = getS2Container();
+        ComponentDef handlerCd = null;
+        Class<?> exceptionClass = t.getClass();
         do {
-            try {
-                handler = (ExceptionHandler) getS2Container().getComponent(
-                        getComponentName(exceptionClass));
+            String componentName = getComponentName(exceptionClass);
+            if (container.hasComponentDef(componentName)) {
+                handlerCd = container.getComponentDef(componentName);
                 break;
-            } catch (ComponentNotFoundRuntimeException ignore) {
             }
         } while ((exceptionClass = exceptionClass.getSuperclass()) != Object.class);
 
-        if (handler == null) {
+        if (handlerCd == null) {
             // 見つからなかった場合はデフォルトのハンドラを探す。
             // こうしているのは、(ExceptionHandler)Creatorで定義したコンポーネントは
             // あらゆるコンポーネント定義よりも優先順位が低くなってしまうため。
             exceptionClass = t.getClass();
             do {
-                try {
-                    handler = (ExceptionHandler) getS2Container().getComponent(
-                            NAMEPREFIX_DEFAULT
-                                    + getComponentName(exceptionClass));
+                String componentName = NAMEPREFIX_DEFAULT
+                        + getComponentName(exceptionClass);
+                if (container.hasComponentDef(componentName)) {
+                    handlerCd = container.getComponentDef(componentName);
                     break;
-                } catch (ComponentNotFoundRuntimeException ignore) {
                 }
             } while ((exceptionClass = exceptionClass.getSuperclass()) != Object.class);
         }
+        // この時点でhandlerCdがnullならymir-convention.diconの記述ミス。
+
+        ExceptionHandler handler = (ExceptionHandler) handlerCd.getComponent();
+
+        // 各コンテキストが持つ属性をinjectする。
+        PagePropertyMetaData propertyMetaData = new PagePropertyMetaDataImpl(
+                handlerCd.getComponentClass(), container);
+        String actionName = request.getAction() != null ? request.getAction()
+                .getName() : null;
+        pageProcessor_.injectContextAttributes(handler, actionName,
+                propertyMetaData);
 
         Response response = constructResponse(handler.handle(t));
         if (response.getType() == ResponseType.PASSTHROUGH) {
@@ -82,6 +106,10 @@ public class DefaultExceptionProcessor implements ExceptionProcessor {
                     + getClassShortName(exceptionClass)
                     + SUFFIX_EXCEPTION_TEMPLATE);
         }
+
+        // 各コンテキストに属性をoutjectする。
+        pageProcessor_.outjectContextAttributes(handler, actionName,
+                propertyMetaData);
 
         // ExceptionHandlerコンポーネントをattributeとしてバインドしておく。
         request.setAttribute(ATTR_HANDLER, handler);
