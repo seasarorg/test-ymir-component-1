@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.RedirectionPathResolver;
 import org.seasar.ymir.Request;
@@ -182,8 +183,7 @@ public class DefaultResponseProcessor implements ResponseProcessor {
     HttpServletResponseFilter constructResponseFilter(
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             Request request) {
-        if (Request.DISPATCHER_REQUEST.equals(request.getCurrentDispatch()
-                .getDispatcher())
+        if (request.getCurrentDispatch().getDispatcher() == Dispatcher.REQUEST
                 && ymir_.isUnderDevelopment()) {
             return new UpdaterResponseFilter(httpRequest, httpResponse,
                     updaters_);

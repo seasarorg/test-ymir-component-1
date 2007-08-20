@@ -27,14 +27,6 @@ public interface Request extends Dispatch, AttributeContainer {
 
     String METHOD_UNLINK = "UNLINK";
 
-    String DISPATCHER_REQUEST = "REQUEST";
-
-    String DISPATCHER_FORWARD = "FORWARD";
-
-    String DISPATCHER_INCLUDE = "INCLUDE";
-
-    String DISPATCHER_ERROR = "ERROR";
-
     /**
      * コンテキストパスを返します。
      *

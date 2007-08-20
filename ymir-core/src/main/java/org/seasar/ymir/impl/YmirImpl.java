@@ -18,6 +18,7 @@ import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.AttributeContainer;
+import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpServletResponseFilter;
@@ -137,7 +138,7 @@ public class YmirImpl implements Ymir {
      * それだとservletAPIを意識しないといけなくなるので、オブジェクトからその情報を取れるようにしました。
      */
     public void enterDispatch(final Request request, final String path,
-            final String dispatcher) {
+            final Dispatcher dispatcher) {
         request.enterDispatch(new DispatchImpl(request.getContextPath(), path,
                 dispatcher, findMatchedPathMapping(path, request.getMethod())));
     }

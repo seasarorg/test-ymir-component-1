@@ -1,12 +1,13 @@
 package org.seasar.ymir.mock;
 
 import org.seasar.ymir.Dispatch;
+import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.MatchedPathMapping;
 
 public class MockDispatch implements Dispatch {
     private String path_;
 
-    private String dispatcher_;
+    private Dispatcher dispatcher_;
 
     private MatchedPathMapping matched_;
 
@@ -19,11 +20,11 @@ public class MockDispatch implements Dispatch {
     public MockDispatch() {
     }
 
-    public String getDispatcher() {
+    public Dispatcher getDispatcher() {
         return dispatcher_;
     }
 
-    public MockDispatch setDispatcher(String dispatcher) {
+    public MockDispatch setDispatcher(Dispatcher dispatcher) {
         dispatcher_ = dispatcher;
         return this;
     }

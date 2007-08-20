@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.AttributeContainer;
+import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.PageNotFoundException;
@@ -65,7 +66,7 @@ public class MockYmir implements Ymir {
         return null;
     }
 
-    public void enterDispatch(Request request, String path, String dispatcher) {
+    public void enterDispatch(Request request, String path, Dispatcher dispatcher) {
         request.enterDispatch(new MockDispatch().setPath(path).setDispatcher(
                 dispatcher));
     }

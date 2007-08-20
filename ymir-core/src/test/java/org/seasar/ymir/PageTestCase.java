@@ -350,7 +350,7 @@ abstract public class PageTestCase<P> extends TestCase {
                 httpMethod, parameterMap, fileParameterMap,
                 new HttpServletRequestAttributeContainer(httpRequest_),
                 getLocale());
-        ymir_.enterDispatch(request, path, Request.DISPATCHER_REQUEST);
+        ymir_.enterDispatch(request, path, Dispatcher.REQUEST);
         return request;
     }
 

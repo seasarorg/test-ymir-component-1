@@ -19,15 +19,10 @@ public interface Dispatch {
 
     /**
      * ディスパッチャ名を返します。
-     * <p>返されるディスパッチャ名は{@link Dispatch#DISPATCHER_REQUEST}、
-     * {@link Dispatch#DISPATCHER_FORWARD}、
-     * {@link Dispatch#DISPATCHER_INCLUDE}、
-     * {@link Dispatch#DISPATCHER_ERROR}のいずれかです。
-     * </p>
      *
      * @return ディスパッチャ名。
      */
-    String getDispatcher();
+    Dispatcher getDispatcher();
 
     /**
      * リクエストパスに対応するPageコンポーネントの名前を返します。

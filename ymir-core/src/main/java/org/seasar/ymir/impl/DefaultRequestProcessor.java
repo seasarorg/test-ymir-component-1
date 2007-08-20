@@ -19,6 +19,7 @@ import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.AttributeContainer;
+import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
@@ -140,8 +141,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
     public Response process(final Request request)
             throws PageNotFoundException, PermissionDeniedException {
-        if (Request.DISPATCHER_REQUEST.equals(request.getCurrentDispatch()
-                .getDispatcher())) {
+        if (request.getCurrentDispatch().getDispatcher() == Dispatcher.REQUEST) {
             if (request.isDenied()) {
                 throw new PageNotFoundException(request.getPath());
             }

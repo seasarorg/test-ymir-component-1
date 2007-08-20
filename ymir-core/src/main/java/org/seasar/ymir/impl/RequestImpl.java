@@ -9,6 +9,7 @@ import java.util.Map;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatch;
+import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
@@ -52,7 +53,7 @@ public class RequestImpl implements Request {
         locale_ = locale;
     }
 
-    public String getDispatcher() {
+    public Dispatcher getDispatcher() {
         return requestDispatch_.getDispatcher();
     }
 

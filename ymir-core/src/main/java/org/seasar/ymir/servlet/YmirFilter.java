@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.cms.pluggable.ThreadContext;
 import org.seasar.ymir.AttributeContainer;
+import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.MultipartServletRequest;
@@ -29,8 +30,7 @@ import org.seasar.ymir.util.LocaleUtils;
 import org.seasar.ymir.util.ServletUtils;
 
 public class YmirFilter implements Filter {
-
-    private String dispatcher_;
+    private Dispatcher dispatcher_;
 
     private ServletContext context_;
 
@@ -49,7 +49,7 @@ public class YmirFilter implements Filter {
             throw new ServletException(
                     "Init-param 'dispatcher' must be specified");
         }
-        dispatcher_ = dispatcher.toUpperCase();
+        dispatcher_ = Dispatcher.valueOf(dispatcher.toUpperCase());
     }
 
     public void destroy() {
@@ -72,12 +72,12 @@ public class YmirFilter implements Filter {
         ThreadContext context = getThreadContext();
 
         Object backupped = null;
-        if (Request.DISPATCHER_INCLUDE.equals(dispatcher_)) {
+        if (dispatcher_ == Dispatcher.INCLUDE) {
             backupped = ymir_.backupForInclusion(attributeContainer);
         }
 
         Request request;
-        if (Request.DISPATCHER_REQUEST.equals(dispatcher_)) {
+        if (dispatcher_ == Dispatcher.REQUEST) {
             Map<String, FormFile[]> fileParameterMap = (Map<String, FormFile[]>) httpRequest
                     .getAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
             if (fileParameterMap != null) {
@@ -107,7 +107,7 @@ public class YmirFilter implements Filter {
                 responseFilter.commit();
             }
         } catch (Throwable t) {
-            if (Request.DISPATCHER_REQUEST.equals(dispatcher_)) {
+            if (dispatcher_ == Dispatcher.REQUEST) {
                 ymir_.processResponse(context_, httpRequest, httpResponse,
                         request, ymir_.processException(request, t));
             } else {
@@ -116,12 +116,12 @@ public class YmirFilter implements Filter {
         } finally {
             ymir_.leaveDispatch(request);
 
-            if (Request.DISPATCHER_REQUEST.equals(dispatcher_)) {
+            if (dispatcher_ == Dispatcher.REQUEST) {
                 for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
                     ymirProcessInterceptors_[i].leavingRequest(request);
                 }
                 context.setComponent(Request.class, null);
-            } else if (Request.DISPATCHER_INCLUDE.equals(dispatcher_)) {
+            } else if (dispatcher_ == Dispatcher.INCLUDE) {
                 ymir_.restoreForInclusion(attributeContainer, backupped);
             }
         }

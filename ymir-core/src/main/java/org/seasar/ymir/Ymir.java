@@ -21,7 +21,7 @@ public interface Ymir {
             Map<String, FormFile[]> fileParameterMap,
             AttributeContainer attributeContainer, Locale locale);
 
-    void enterDispatch(Request request, String path, String dispatcher);
+    void enterDispatch(Request request, String path, Dispatcher dispatcher);
 
     Response processRequest(Request request) throws PageNotFoundException,
             PermissionDeniedException;

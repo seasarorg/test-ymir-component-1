@@ -1,6 +1,7 @@
 package org.seasar.ymir.impl;
 
 import org.seasar.ymir.Dispatch;
+import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.MatchedPathMapping;
 
 public class DispatchImpl implements Dispatch {
@@ -8,14 +9,14 @@ public class DispatchImpl implements Dispatch {
 
     private String path_;
 
-    private String dispatcher_;
+    private Dispatcher dispatcher_;
 
     private MatchedPathMapping matched_;
 
     public DispatchImpl() {
     }
 
-    public DispatchImpl(String contextPath, String path, String dispatcher,
+    public DispatchImpl(String contextPath, String path, Dispatcher dispatcher,
             MatchedPathMapping matched) {
         contextPath_ = contextPath;
         path_ = path;
@@ -23,11 +24,11 @@ public class DispatchImpl implements Dispatch {
         matched_ = matched;
     }
 
-    public String getDispatcher() {
+    public Dispatcher getDispatcher() {
         return dispatcher_;
     }
 
-    public void setDispatcher(String dispatcher) {
+    public void setDispatcher(Dispatcher dispatcher) {
         dispatcher_ = dispatcher;
     }
 

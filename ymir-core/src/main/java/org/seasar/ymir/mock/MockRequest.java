@@ -11,6 +11,7 @@ import java.util.Map;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatch;
+import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
@@ -91,7 +92,7 @@ public class MockRequest implements Request {
         return contextPath_;
     }
 
-    public String getDispatcher() {
+    public Dispatcher getDispatcher() {
         if (requestDispatch_ != null) {
             return requestDispatch_.getDispatcher();
         } else {
