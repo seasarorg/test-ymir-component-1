@@ -3,10 +3,8 @@ package org.seasar.ymir.impl;
 import static org.seasar.ymir.RequestProcessor.ACTION_DEFAULT;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -224,78 +222,95 @@ public class PathMappingImpl implements PathMapping {
             VariableResolver resolver) {
         final String actionName = getActionName(resolver);
 
-        return (Action) pageComponent.accept(new PageComponentVisitor() {
-            @Override
-            public Object process(PageComponent pageComponent) {
-                return getAction(pageComponent.getPage(), pageComponent
-                        .getPageClass(), actionName, request);
+        Action action = null;
+        if (isDispatchingByParameter()) {
+            // ボタンに対応するアクションを探索する。
+            action = (Action) pageComponent.accept(new PageComponentVisitor() {
+                @Override
+                public Object process(PageComponent pageComponent) {
+                    return getActionByParameter(pageComponent.getPage(),
+                            pageComponent.getPageClass(), actionName, request);
+                }
+            });
+            if (action == null) {
+                // ボタンに対応するデフォルトアクションを探索する。
+                action = (Action) pageComponent
+                        .accept(new PageComponentVisitor() {
+                            @Override
+                            public Object process(PageComponent pageComponent) {
+                                return getActionByParameter(pageComponent
+                                        .getPage(), pageComponent
+                                        .getPageClass(), ACTION_DEFAULT,
+                                        request);
+                            }
+                        });
             }
-        });
+        }
+        if (action == null) {
+            // 通常のアクションを探索する。
+            action = (Action) pageComponent.accept(new PageComponentVisitor() {
+                @Override
+                public Object process(PageComponent pageComponent) {
+                    return getAction(pageComponent.getPage(), pageComponent
+                            .getPageClass(), actionName, request);
+                }
+            });
+        }
+        if (action == null) {
+            // デフォルトアクションを探索する。
+            action = (Action) pageComponent.accept(new PageComponentVisitor() {
+                @Override
+                public Object process(PageComponent pageComponent) {
+                    return getAction(pageComponent.getPage(), pageComponent
+                            .getPageClass(), ACTION_DEFAULT, request);
+                }
+            });
+        }
+        return action;
+    }
+
+    protected Action getActionByParameter(Object page, Class<?> pageClass,
+            String actionName, Request request) {
+        Method[] methods = pageClass.getMethods();
+        if (logger_.isDebugEnabled()) {
+            logger_.debug("getActionByParameter: search " + pageClass + " for "
+                    + actionName + " method...");
+        }
+        for (int i = 0; i < methods.length; i++) {
+            Action action = createActionByParameter(methods[i], actionName,
+                    request, page);
+            if (action != null) {
+                if (logger_.isDebugEnabled()) {
+                    logger_.debug("getActionByParameter: Found: " + methods[i]);
+                }
+                return action;
+            }
+        }
+
+        return null;
     }
 
     protected Action getAction(Object page, Class<?> pageClass,
             String actionName, Request request) {
-        if (isDispatchingByParameter()) {
-            Method[] methods = pageClass.getMethods();
-            if (logger_.isDebugEnabled()) {
-                logger_
-                        .debug("getAction: dispatchingByRequestParameter=true. search "
-                                + pageClass
-                                + " for "
-                                + actionName
-                                + " method...");
-            }
-            List<Method> list = new ArrayList<Method>();
-            for (int i = 0; i < methods.length; i++) {
-                list.add(methods[i]);
-                Action action = createAction(methods[i], actionName, request,
-                        page);
-                if (action != null) {
-                    if (logger_.isDebugEnabled()) {
-                        logger_.debug("getAction: Found: " + methods[i]);
-                    }
-                    return action;
-                }
-            }
-
-            if (logger_.isDebugEnabled()) {
-                logger_.debug("getActionMethodInvoker: search " + pageClass
-                        + " for " + ACTION_DEFAULT + " method...");
-            }
-            for (Iterator<Method> itr = list.iterator(); itr.hasNext();) {
-                Method method = itr.next();
-                Action action = createAction(method, ACTION_DEFAULT, request,
-                        page);
-                if (action != null) {
-                    if (logger_.isDebugEnabled()) {
-                        logger_.debug("getActionMethodInvoker: Found: "
-                                + method);
-                    }
-                    return action;
-                }
-            }
-        }
-
         Method method = MethodUtils.getMethod(pageClass, actionName);
-        if (method == null) {
-            method = MethodUtils.getMethod(pageClass, ACTION_DEFAULT);
-            if (method == null) {
-                if (logger_.isDebugEnabled()) {
-                    logger_.debug("getAction: Not found");
-                }
-                return null;
+        if (method != null) {
+            if (logger_.isDebugEnabled()) {
+                logger_.debug("getAction: Found: " + method);
             }
+            return new ActionImpl(page, new MethodInvokerImpl(method,
+                    new Object[0]));
+        } else {
+            return null;
         }
-
-        if (logger_.isDebugEnabled()) {
-            logger_.debug("getAction: Found: " + method);
-        }
-        return new ActionImpl(page,
-                new MethodInvokerImpl(method, new Object[0]));
     }
 
-    protected Action createAction(Method method, String actionName,
+    protected Action createActionByParameter(Method method, String actionName,
             Request request, Object page) {
+        String name = method.getName();
+        if (!name.startsWith(actionName)) {
+            return null;
+        }
+
         boolean hasIndex;
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length == 0) {
@@ -307,33 +322,29 @@ public class PathMappingImpl implements PathMapping {
             return null;
         }
 
-        String name = method.getName();
-        if (name.startsWith(actionName)) {
-            String parameterName = extractParameterName(name
-                    .substring(actionName.length()));
-            if (parameterName != null) {
-                if (!hasIndex) {
-                    if (request.getParameter(parameterName) != null) {
-                        return new ActionImpl(page, new MethodInvokerImpl(
-                                method, new Object[0]));
-                    }
-                } else {
-                    String prefix = parameterName + INDEX_PREFIX;
-                    for (Iterator<String> itr = request.getParameterNames(); itr
-                            .hasNext();) {
-                        String pname = itr.next();
-                        if (pname.startsWith(prefix)
-                                && pname.endsWith(INDEX_SUFFIX)) {
-                            try {
-                                int index = Integer.parseInt(pname.substring(
-                                        prefix.length(), pname.length()
-                                                - INDEX_SUFFIX.length()));
-                                return new ActionImpl(page,
-                                        new MethodInvokerImpl(method,
-                                                new Object[] { Integer
-                                                        .valueOf(index) }));
-                            } catch (NumberFormatException ignore) {
-                            }
+        String parameterName = extractParameterName(name.substring(actionName
+                .length()));
+        if (parameterName != null) {
+            if (!hasIndex) {
+                if (request.getParameter(parameterName) != null) {
+                    return new ActionImpl(page, new MethodInvokerImpl(method,
+                            new Object[0]));
+                }
+            } else {
+                String prefix = parameterName + INDEX_PREFIX;
+                for (Iterator<String> itr = request.getParameterNames(); itr
+                        .hasNext();) {
+                    String pname = itr.next();
+                    if (pname.startsWith(prefix)
+                            && pname.endsWith(INDEX_SUFFIX)) {
+                        try {
+                            int index = Integer.parseInt(pname.substring(prefix
+                                    .length(), pname.length()
+                                    - INDEX_SUFFIX.length()));
+                            return new ActionImpl(page, new MethodInvokerImpl(
+                                    method, new Object[] { Integer
+                                            .valueOf(index) }));
+                        } catch (NumberFormatException ignore) {
                         }
                     }
                 }
