@@ -194,8 +194,15 @@ public class SourceCreatorImpl implements SourceCreator {
             return response;
         }
 
-        String path = request.getPath();
-        if (!shouldUpdate(path)) {
+        String path = request.getCurrentDispatch().getPath();
+        String forwardPath = null;
+        if (response.getType() == ResponseType.FORWARD) {
+            forwardPath = response.getPath();
+        } else if (response.getType() == ResponseType.PASSTHROUGH) {
+            forwardPath = path;
+        }
+
+        if (!shouldUpdate(forwardPath)) {
             return response;
         }
 
@@ -210,7 +217,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 condition = path.substring(PATH_PREFIX.length());
             }
         } else {
-            if (!request.isMatched()) {
+            if (!request.getCurrentDispatch().isMatched()) {
                 return response;
             }
 
@@ -221,12 +228,6 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         String method = getOriginalMethod(request);
-        String forwardPath = null;
-        if (response.getType() == ResponseType.FORWARD) {
-            forwardPath = response.getPath();
-        } else if (response.getType() == ResponseType.PASSTHROUGH) {
-            forwardPath = path;
-        }
         PathMetaData pathMetaData = new LazyPathMetaData(this, path, method,
                 forwardPath);
 
@@ -272,7 +273,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 && t.getCause() != null) {
             t = t.getCause();
         }
-        String path = request.getPath();
+        String path = request.getCurrentDispatch().getPath();
         Object condition = null;
         if (request.getParameter(PARAM_TASK) != null) {
             condition = request.getParameter(PARAM_TASK);

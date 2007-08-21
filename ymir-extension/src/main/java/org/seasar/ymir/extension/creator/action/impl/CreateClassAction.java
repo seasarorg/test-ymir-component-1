@@ -40,8 +40,8 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
 
     Response actDefault(Request request, PathMetaData pathMetaData) {
 
-        String actionName = getSourceCreator().getActionName(request.getPath(),
-                request.getMethod());
+        String actionName = getSourceCreator().getActionName(
+                request.getCurrentDispatch().getPath(), request.getMethod());
 
         Map<String, Object> variableMap = new HashMap<String, Object>();
         variableMap.put("request", request);
@@ -66,7 +66,7 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
         ClassDesc classDesc = getSourceCreator().newClassDesc(
                 pathMetaData.getClassName());
         MethodDesc methodDesc = new MethodDescImpl(getSourceCreator()
-                .getActionName(request.getPath(), method));
+                .getActionName(request.getCurrentDispatch().getPath(), method));
         methodDesc.setReturnTypeDesc(String.class.getName(), true);
         if (transition != null && transition.trim().length() > 0) {
             if (redirect) {

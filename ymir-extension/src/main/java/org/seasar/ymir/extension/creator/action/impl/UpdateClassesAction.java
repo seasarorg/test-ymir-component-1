@@ -187,7 +187,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         variableMap.put("pathMetaData", pathMetaData);
         variableMap.put("classDescBag", classDescBag);
         variableMap.put("actionName", getSourceCreator().getActionName(
-                request.getPath(), method));
+                request.getCurrentDispatch().getPath(), method));
         variableMap.put("suggestionExists", Boolean.valueOf(classDescBag
                 .getClassDescMap(ClassDesc.KIND_PAGE).size()
                 + classDescBag.getCreatedClassDescMap(ClassDesc.KIND_BEAN)

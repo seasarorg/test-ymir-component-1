@@ -91,8 +91,24 @@ public class LazyPathMetaData implements PathMetaData {
 
     public String getComponentName() {
 
+        // forward先のパスに対応するクラスがあればforward先のパスからコンポーネント名を
+        // 組み立てる。そうでなければリクエストパスからコンポーネント名を組み立てる。
+        // 基本的にYmirではforward先のテンプレート中の動的要素のレンダリングのための準備を
+        // forward元のPageクラスで行なうように考えており、自動生成でもforward先のテンプレート中の
+        // 動的要素に対応するプロパティはforward元のPageクラスに生成するようにしているが、
+        // forward先テンプレートのレンダリングをforward元から独立させたい場合のことも考えて、
+        // forward先パスに対応するPageを手動で作っておいた場合はそちらにforward先のテンプレート中
+        // の動的要素に対応するプロパティを生成するようにしている。そのための仕組み。
         if (!componentNameLoaded_) {
-            componentName_ = sourceCreator_.getComponentName(path_, method_);
+            String componentName = sourceCreator_.getComponentName(
+                    forwardPath_, method_);
+            if (sourceCreator_.getClass(sourceCreator_
+                    .getClassName(componentName)) != null) {
+                componentName_ = componentName;
+            } else {
+                componentName_ = sourceCreator_
+                        .getComponentName(path_, method_);
+            }
             componentNameLoaded_ = true;
         }
         return componentName_;

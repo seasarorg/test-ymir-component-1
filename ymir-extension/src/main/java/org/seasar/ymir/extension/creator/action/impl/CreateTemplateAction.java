@@ -108,7 +108,8 @@ public class CreateTemplateAction extends AbstractAction implements
             ClassDesc classDesc = getSourceCreator().newClassDesc(
                     pathMetaData.getClassName());
             MethodDesc methodDesc = new MethodDescImpl(getSourceCreator()
-                    .getActionName(request.getPath(), method));
+                    .getActionName(request.getCurrentDispatch().getPath(),
+                            method));
             methodDesc.setReturnTypeDesc(String.class.getName(), true);
             if (redirect) {
                 transition = "redirect:" + transition;
