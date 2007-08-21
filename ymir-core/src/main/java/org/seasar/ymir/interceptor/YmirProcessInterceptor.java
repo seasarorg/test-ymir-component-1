@@ -1,8 +1,13 @@
 package org.seasar.ymir.interceptor;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.seasar.ymir.Action;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 
 /**
@@ -36,6 +41,12 @@ public interface YmirProcessInterceptor {
 
     Action actionInvoking(Request request, Action originalAction, Action action)
             throws PermissionDeniedException;
+
+    Response responseCreated(Response response);
+
+    void responseProcessingStarted(ServletContext context,
+            HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+            Request request, Response response);
 
     /**
      * リダイレクト先のURLを加工できるように呼び出されるメソッドです。

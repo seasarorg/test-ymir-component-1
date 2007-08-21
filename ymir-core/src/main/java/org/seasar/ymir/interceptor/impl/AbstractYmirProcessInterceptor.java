@@ -1,8 +1,13 @@
 package org.seasar.ymir.interceptor.impl;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.seasar.ymir.Action;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 
@@ -32,6 +37,15 @@ abstract public class AbstractYmirProcessInterceptor implements
     public Action actionInvoking(Request request, Action originalAction,
             Action action) throws PermissionDeniedException {
         return action;
+    }
+
+    public Response responseCreated(Response response) {
+        return response;
+    }
+
+    public void responseProcessingStarted(ServletContext context,
+            HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+            Request request, Response response) {
     }
 
     public String encodingRedirectURL(String url) {

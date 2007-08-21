@@ -391,6 +391,11 @@ abstract public class PageTestCase<P> extends TestCase {
 
             return ymir_.processRequest(request);
         } finally {
+            ymir_.leaveDispatch(request);
+
+            for (int i = 0; i < ymir_.getYmirProcessInterceptors().length; i++) {
+                ymir_.getYmirProcessInterceptors()[i].leavingRequest(request);
+            }
             threadContext.setComponent(Request.class, null);
         }
     }
@@ -413,8 +418,25 @@ abstract public class PageTestCase<P> extends TestCase {
     protected HttpServletResponseFilter process(Request request)
             throws PermissionDeniedException, PageNotFoundException,
             IOException, ServletException {
-        return ymir_.processResponse(application_, httpRequest_, httpResponse_,
-                request, processRequest(request));
+        checkStatus(STATUS_PREPARED);
+
+        status_ = STATUS_PROCESSED;
+
+        ThreadContext threadContext = (ThreadContext) container_
+                .getComponent(ThreadContext.class);
+        try {
+            threadContext.setComponent(Request.class, request);
+
+            return ymir_.processResponse(application_, httpRequest_,
+                    httpResponse_, request, ymir_.processRequest(request));
+        } finally {
+            ymir_.leaveDispatch(request);
+
+            for (int i = 0; i < ymir_.getYmirProcessInterceptors().length; i++) {
+                ymir_.getYmirProcessInterceptors()[i].leavingRequest(request);
+            }
+            threadContext.setComponent(Request.class, null);
+        }
     }
 
     /**

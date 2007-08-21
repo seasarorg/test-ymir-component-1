@@ -2,24 +2,26 @@ package org.seasar.ymir.redirection;
 
 import java.util.Map;
 
-import org.seasar.ymir.Globals;
-
 public interface RedirectionManager {
-    String KEY_SCOPE = Globals.IDPREFIX + "redirection";
+    boolean isAddScopeIdAsRequestParameter();
+
+    String getScopeIdKey();
 
     Map<String, Object> getScopeMap();
 
     Map<String, Object> getScopeMap(boolean create);
 
-    Map<String, Object> getScopeMap(String scopeKey);
+    Map<String, Object> getScopeMap(String scopeId);
 
-    Map<String, Object> getScopeMap(String scopeKey, boolean create);
+    Map<String, Object> getScopeMap(String scopeId, boolean create);
 
     void removeScopeMap();
 
-    void removeScopeMap(String scopeKey);
+    void removeScopeMap(String scopeId);
 
-    String getScopeKey();
+    String getScopeId();
+
+    String getScopeIdFromRequest();
 
     Object get(String name);
 }

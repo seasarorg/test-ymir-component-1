@@ -27,4 +27,7 @@ public class RedirectionScopeTestPage {
         value_ = "INJECTED_VALUE";
         return "redirect:.";
     }
+
+    public void _get_redirect() {
+    }
 }

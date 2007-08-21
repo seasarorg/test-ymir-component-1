@@ -62,6 +62,11 @@ public class DefaultResponseProcessor implements ResponseProcessor {
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             Request request, Response response) throws IOException,
             ServletException {
+        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+            ymirProcessInterceptors_[i].responseProcessingStarted(context,
+                    httpRequest, httpResponse, request, response);
+        }
+
         if (response.getStatus() != Response.STATUS_UNDEFINED) {
             httpResponse.setStatus(response.getStatus());
         }
