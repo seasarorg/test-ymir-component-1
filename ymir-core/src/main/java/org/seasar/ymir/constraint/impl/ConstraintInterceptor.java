@@ -62,9 +62,10 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public Action actionInvoking(Action originalAction, Request request,
+    public Action actionInvoking(Request request, Action originalAction,
             Action action) throws PermissionDeniedException {
-        PageComponent pageComponent = request.getPageComponent();
+        PageComponent pageComponent = request.getCurrentDispatch()
+                .getPageComponent();
 
         Action finalAction = null;
         PermissionDeniedException pde = null;
@@ -113,9 +114,10 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     Notes confirmConstraint(PageComponent pageComponent, Action action,
             Request request) throws PermissionDeniedException {
         try {
+            Method actionMethod = action != null ? action.getMethodInvoker()
+                    .getMethod() : null;
             VisitorForConfirmingConstraint visitor = new VisitorForConfirmingConstraint(
-                    action, request, getSuppressTypeSet(action
-                            .getMethodInvoker().getMethod()));
+                    action, request, getSuppressTypeSet(actionMethod));
             pageComponent.accept(visitor);
 
             return visitor.getNotes();
@@ -131,9 +133,11 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     void confirmConstraint(Object page, Class<?> pageClass, Action action,
             Request request, Set<ConstraintType> suppressTypeSet, Notes notes)
             throws PermissionDeniedException {
-        ConstraintBag[] bag = getConstraintBags(pageClass, action
-                .getMethodInvoker(), suppressTypeSet, page == action
-                .getTarget());
+        MethodInvoker actionMethodInvoker = action != null ? action
+                .getMethodInvoker() : null;
+        ConstraintBag[] bag = getConstraintBags(pageClass, actionMethodInvoker,
+                suppressTypeSet, action != null ? page == action.getTarget()
+                        : false);
         for (int i = 0; i < bag.length; i++) {
             try {
                 bag[i].confirm(page, request);
@@ -147,8 +151,8 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
 
         // Validatorアノテーションがついているメソッドを実行する。
-        MethodInvoker[] validators = gatherValidators(pageClass, action
-                .getMethodInvoker(), suppressTypeSet);
+        MethodInvoker[] validators = gatherValidators(pageClass,
+                actionMethodInvoker, suppressTypeSet);
         for (int i = 0; i < validators.length; i++) {
             try {
                 Object invoked = validators[i].invoke(page);
@@ -285,9 +289,15 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             Set<ConstraintType> suppressTypeSet) {
         List<MethodInvoker> validatorList = new ArrayList<MethodInvoker>();
 
-        Method actionMethod = actionMethodInvoker.getMethod();
-        String actionName = actionMethod.getName();
-        Object[] actionParameters = actionMethodInvoker.getParameters();
+        String actionName;
+        Object[] actionParameters;
+        if (actionMethodInvoker != null) {
+            actionName = actionMethodInvoker.getMethod().getName();
+            actionParameters = actionMethodInvoker.getParameters();
+        } else {
+            actionName = null;
+            actionParameters = new Object[0];
+        }
 
         // バリデーションを抑制するように指定されている場合はカスタムバリデータを収集しない。
         if (!suppressTypeSet.contains(ConstraintType.VALIDATION)) {

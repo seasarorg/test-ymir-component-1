@@ -1,8 +1,10 @@
 package org.seasar.ymir.mock;
 
+import org.seasar.ymir.Action;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.MatchedPathMapping;
+import org.seasar.ymir.PageComponent;
 
 public class MockDispatch implements Dispatch {
     private String path_;
@@ -16,6 +18,10 @@ public class MockDispatch implements Dispatch {
     private String pathInfo_;
 
     private String pageComponentName_;
+
+    private PageComponent pageComponent_;
+
+    private Action action_;
 
     public MockDispatch() {
     }
@@ -83,5 +89,29 @@ public class MockDispatch implements Dispatch {
 
     public boolean isDenied() {
         return (matched_ != null && matched_.isDenied());
+    }
+
+    public Action getAction() {
+        return action_;
+    }
+
+    public String getActionName() {
+        if (action_ != null) {
+            return action_.getName();
+        } else {
+            return null;
+        }
+    }
+
+    public void setAction(Action action) {
+        action_ = action;
+    }
+
+    public PageComponent getPageComponent() {
+        return pageComponent_;
+    }
+
+    public void setPageComponent(PageComponent pageComponent) {
+        pageComponent_ = pageComponent;
     }
 }

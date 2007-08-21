@@ -10,7 +10,7 @@ public class MessagesUtils {
         if (request == null) {
             return null;
         } else {
-            return request.getPageComponentName();
+            return request.getCurrentDispatch().getPageComponentName();
         }
     }
 

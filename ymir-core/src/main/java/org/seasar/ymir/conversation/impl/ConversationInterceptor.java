@@ -1,5 +1,7 @@
 package org.seasar.ymir.conversation.impl;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 
 import org.seasar.cms.pluggable.Configuration;
@@ -47,15 +49,17 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor
     }
 
     @Override
-    public Action actionInvoking(Action originalAction, Request request,
+    public Action actionInvoking(Request request, Action originalAction,
             Action action) throws PermissionDeniedException {
-        Conversation annotation = request.getPageComponent().getPageClass()
-                .getAnnotation(Conversation.class);
+        Conversation annotation = request.getCurrentDispatch()
+                .getPageComponent().getPageClass().getAnnotation(
+                        Conversation.class);
         if (annotation != null) {
             Conversations conversations = ConversationUtils.getConversations();
 
-            Method actualAction = action.getMethodInvoker().getMethod();
-            if (actualAction.isAnnotationPresent(Begin.class)
+            Method actionMethod = action != null ? action.getMethodInvoker()
+                    .getMethod() : null;
+            if (isAnnotationPresent(actionMethod, Begin.class)
                     || isDisableBeginCheck()
                     && !annotation.name().equals(
                             conversations.getCurrentConversationName())) {
@@ -68,13 +72,13 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor
             conversations.join(annotation.name(), annotation.phase(),
                     annotation.followAfter());
 
-            BeginSubConversation beginSubConversation = actualAction
-                    .getAnnotation(BeginSubConversation.class);
-            if (actualAction.isAnnotationPresent(End.class)) {
+            BeginSubConversation beginSubConversation = getAnnotation(
+                    actionMethod, BeginSubConversation.class);
+            if (isAnnotationPresent(actionMethod, End.class)) {
                 if (beginSubConversation != null) {
                     throw new RuntimeException(
                             "Can't specify both @End and @BeginSubConversation: "
-                                    + actualAction.getName());
+                                    + actionMethod.getName());
                 }
                 action = new ActionImpl(action.getTarget(),
                         new EndConversationMethodInvoker(action
@@ -89,6 +93,24 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor
         }
 
         return action;
+    }
+
+    <T extends Annotation> T getAnnotation(AnnotatedElement element,
+            Class<T> annotationClass) {
+        if (element != null) {
+            return element.getAnnotation(annotationClass);
+        } else {
+            return null;
+        }
+    }
+
+    boolean isAnnotationPresent(AnnotatedElement element,
+            Class<? extends Annotation> annotationType) {
+        if (element != null) {
+            return element.isAnnotationPresent(annotationType);
+        } else {
+            return false;
+        }
     }
 
     S2Container getS2Container() {

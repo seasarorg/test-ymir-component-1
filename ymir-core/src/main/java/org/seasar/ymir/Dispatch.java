@@ -13,7 +13,7 @@ public interface Dispatch {
      * 絶対パスを返します。
      * <p>返されるパスはコンテキストパスとパスを連結したものです。</p>
      *
-     * @return
+     * @return 絶対パス。
      */
     String getAbsolutePath();
 
@@ -25,7 +25,7 @@ public interface Dispatch {
     Dispatcher getDispatcher();
 
     /**
-     * リクエストパスに対応するPageコンポーネントの名前を返します。
+     * パスに対応するPageコンポーネントの名前を返します。
      * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
      *
      * @return Pageコンポーネント名。
@@ -33,23 +33,69 @@ public interface Dispatch {
     String getPageComponentName();
 
     /**
-     * リクエストパスに連結されているpathInfo情報を返します。
+     * パスに対応するPageコンポーネントを返します。
+     * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
+     * 
+     * @return Pageコンポーネント。
+     */
+    PageComponent getPageComponent();
+
+    /**
+     * パスに対応するPageコンポーネントを設定します。
+     * <p>このメソッドはパスに対応するPageコンポーネントを生成した段階でPageコンポーネントを
+     * Requestオブジェクトにセットするために用いられます。
+     * アプリケーションはこのメソッドを呼び出さないようにして下さい。
+     * </p>
+     * 
+     * @param componentClass Pageコンポーネント。
+     */
+    void setPageComponent(PageComponent pageComponent);
+
+    /**
+     * リクエストを処理するアクションを返します。
+     * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
+     *
+     * @return アクション。
+     */
+    Action getAction();
+
+    /**
+     * パスとHTTPメソッドに対応するアクションの名前を返します。
+     * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
+     *
+     * @return アクション名。
+     */
+    String getActionName();
+
+    /**
+     * アクションを設定します。
+     * <p>このメソッドは実際に呼び出されるアクションが決定した段階でアクションを
+     * Requestオブジェクトにセットするために用いられます。
+     * アプリケーションはこのメソッドを呼び出さないようにして下さい。
+     * </p>
+     * 
+     * @param action アクション。
+     */
+    void setAction(Action action);
+
+    /**
+     * パスに連結されているpathInfo情報を返します。
      *
      * @return pathInfo情報。PathMappingルールによってはnullが返されることもあります。
      */
     String getPathInfo();
 
     /**
-     * リクエストパスがパスマッピングにマッチしたかどうかを返します。
+     * パスがパスマッピングにマッチしたかどうかを返します。
      *
-     * @return リクエストパスがパスマッピングにマッチしたかどうか。
+     * @return パスがパスマッピングにマッチしたかどうか。
      */
     boolean isMatched();
 
     /**
-     * リクエストパスへのリクエストを拒否すべきかどうかを返します。
+     * パスへのリクエストを拒否すべきかどうかを返します。
      *
-     * @return リクエストパスへのリクエストを拒否すべきかどうか。
+     * @return パスへのリクエストを拒否すべきかどうか。
      */
     boolean isDenied();
 

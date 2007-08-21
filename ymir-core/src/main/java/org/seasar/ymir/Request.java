@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
-public interface Request extends Dispatch, AttributeContainer {
+public interface Request extends AttributeContainer {
     String METHOD_CONNECT = "CONNECT";
 
     String METHOD_DELETE = "DELETE";
@@ -33,6 +33,22 @@ public interface Request extends Dispatch, AttributeContainer {
      * @return コンテキストパス。
      */
     String getContextPath();
+
+    /**
+     * リクエストパスを返します。
+     * <p>返されるパスはコンテキストパス相対です。</p>
+     *
+     * @return リクエストパス。
+     */
+    String getPath();
+
+    /**
+     * リクエストパスの絶対パスを返します。
+     * <p>返されるパスはコンテキストパスとパスを連結したものです。</p>
+     *
+     * @return リクエストパスの絶対パス。
+     */
+    String getAbsolutePath();
 
     /**
      * HTTPメソッドを返します。
@@ -150,52 +166,6 @@ public interface Request extends Dispatch, AttributeContainer {
     AttributeContainer getAttributeContainer();
 
     /**
-     * リクエストパスに対応するPageコンポーネントを返します。
-     * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
-     * 
-     * @return Pageコンポーネント。
-     */
-    PageComponent getPageComponent();
-
-    /**
-     * リクエストパスに対応するPageコンポーネントを設定します。
-     * <p>このメソッドはリクエストパスに対応するPageコンポーネントを生成した段階でPageコンポーネントを
-     * Requestオブジェクトにセットするために用いられます。
-     * アプリケーションはこのメソッドを呼び出さないようにして下さい。
-     * </p>
-     * 
-     * @param componentClass Pageコンポーネント。
-     */
-    void setPageComponent(PageComponent pageComponent);
-
-    /**
-     * リクエストを処理するアクションを返します。
-     * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
-     *
-     * @return アクション。
-     */
-    Action getAction();
-
-    /**
-     * リクエストパスとHTTPメソッドに対応するアクションの名前を返します。
-     * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
-     *
-     * @return アクション名。
-     */
-    String getActionName();
-
-    /**
-     * アクションを設定します。
-     * <p>このメソッドは実際に呼び出されるアクションが決定した段階でアクションを
-     * Requestオブジェクトにセットするために用いられます。
-     * アプリケーションはこのメソッドを呼び出さないようにして下さい。
-     * </p>
-     * 
-     * @param action アクション。
-     */
-    void setAction(Action action);
-
-    /**
      * 現在のリクエストがどのロケールに基づいて処理されているかを返します。
      *
      * @return ロケール。nullを返すことはありません。
@@ -212,6 +182,8 @@ public interface Request extends Dispatch, AttributeContainer {
      * @param dispatch Dispatchオブジェクト。
      */
     void enterDispatch(Dispatch dispatch);
+
+    Dispatch getRequestDispatch();
 
     /**
      * 現在処理中のdispatchを表すDispatchオブジェクトを返します。

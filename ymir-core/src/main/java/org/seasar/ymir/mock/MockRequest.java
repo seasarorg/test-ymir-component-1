@@ -8,13 +8,11 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 
-import org.seasar.ymir.Action;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.MatchedPathMapping;
-import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 
 public class MockRequest implements Request {
@@ -38,10 +36,6 @@ public class MockRequest implements Request {
 
     private MatchedPathMapping matchedPathMapping_ = new MockMatchedPathMapping();
 
-    private Action action_;
-
-    private PageComponent pageComponent_;
-
     private Dispatch requestDispatch_;
 
     private Dispatch dispatch_;
@@ -56,36 +50,8 @@ public class MockRequest implements Request {
         }
     }
 
-    public Action getAction() {
-        return action_;
-    }
-
-    public String getActionName() {
-        if (action_ != null) {
-            return action_.getName();
-        } else {
-            return null;
-        }
-    }
-
     public AttributeContainer getAttributeContainer() {
         return attributeContainer_;
-    }
-
-    public String getPageComponentName() {
-        if (requestDispatch_ != null) {
-            return requestDispatch_.getPageComponentName();
-        } else {
-            return null;
-        }
-    }
-
-    public PageComponent getPageComponent() {
-        return pageComponent_;
-    }
-
-    public void setPageComponent(PageComponent pageComponent) {
-        pageComponent_ = pageComponent;
     }
 
     public String getContextPath() {
@@ -148,10 +114,6 @@ public class MockRequest implements Request {
         } else {
             return null;
         }
-    }
-
-    public void setAction(Action action) {
-        action_ = action;
     }
 
     public MockRequest setAttributeContainer(
@@ -294,6 +256,10 @@ public class MockRequest implements Request {
 
     public Dispatch getCurrentDispatch() {
         return dispatch_;
+    }
+
+    public Dispatch getRequestDispatch() {
+        return requestDispatch_;
     }
 
     public void enterDispatch(Dispatch dispatch) {

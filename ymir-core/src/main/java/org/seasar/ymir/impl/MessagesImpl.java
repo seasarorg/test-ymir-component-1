@@ -82,8 +82,9 @@ public class MessagesImpl implements Messages {
 
     String getPageName() {
         try {
-            return ((Request) getYmir().getApplication().getS2Container()
-                    .getComponent(Request.class)).getPageComponentName();
+            return MessagesUtils.getPageName((Request) getYmir()
+                    .getApplication().getS2Container().getComponent(
+                            Request.class));
         } catch (ComponentNotFoundRuntimeException ex) {
             return null;
         }

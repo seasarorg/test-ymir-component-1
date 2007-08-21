@@ -6,13 +6,9 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 
-import org.seasar.ymir.Action;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatch;
-import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
-import org.seasar.ymir.MatchedPathMapping;
-import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 
 public class RequestImpl implements Request {
@@ -34,10 +30,6 @@ public class RequestImpl implements Request {
 
     private LinkedList<Dispatch> dispatchStack_ = new LinkedList<Dispatch>();
 
-    private PageComponent pageComponent_;
-
-    private Action action_;
-
     public RequestImpl() {
     }
 
@@ -51,10 +43,6 @@ public class RequestImpl implements Request {
         fileParameterMap_ = fileParameterMap;
         attributeContainer_ = attributeContainer;
         locale_ = locale;
-    }
-
-    public Dispatcher getDispatcher() {
-        return requestDispatch_.getDispatcher();
     }
 
     public String getMethod() {
@@ -157,34 +145,6 @@ public class RequestImpl implements Request {
         attributeContainer_ = attributeContainer;
     }
 
-    public String getPageComponentName() {
-        return requestDispatch_.getMatchedPathMapping().getPageComponentName();
-    }
-
-    public Action getAction() {
-        return action_;
-    }
-
-    public String getActionName() {
-        if (action_ != null) {
-            return action_.getName();
-        } else {
-            return null;
-        }
-    }
-
-    public void setAction(Action action) {
-        action_ = action;
-    }
-
-    public String getPathInfo() {
-        return requestDispatch_.getMatchedPathMapping().getPathInfo();
-    }
-
-    public MatchedPathMapping getMatchedPathMapping() {
-        return requestDispatch_.getMatchedPathMapping();
-    }
-
     public Object getAttribute(String name) {
         return attributeContainer_.getAttribute(name);
     }
@@ -205,20 +165,8 @@ public class RequestImpl implements Request {
         return locale_;
     }
 
-    public boolean isMatched() {
-        return requestDispatch_.isMatched();
-    }
-
-    public boolean isDenied() {
-        return requestDispatch_.isDenied();
-    }
-
-    public PageComponent getPageComponent() {
-        return pageComponent_;
-    }
-
-    public void setPageComponent(PageComponent pageComponent) {
-        pageComponent_ = pageComponent;
+    public Dispatch getRequestDispatch() {
+        return requestDispatch_;
     }
 
     public Dispatch getCurrentDispatch() {

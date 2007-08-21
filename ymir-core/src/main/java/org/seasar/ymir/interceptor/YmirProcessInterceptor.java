@@ -31,9 +31,10 @@ public interface YmirProcessInterceptor {
      */
     Request requestCreated(Request request);
 
-    PageComponent pageComponentCreated(PageComponent pageComponent);
+    PageComponent pageComponentCreated(Request request,
+            PageComponent pageComponent);
 
-    Action actionInvoking(Action originalAction, Request request, Action action)
+    Action actionInvoking(Request request, Action originalAction, Action action)
             throws PermissionDeniedException;
 
     /**

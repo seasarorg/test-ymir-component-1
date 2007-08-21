@@ -24,11 +24,12 @@ abstract public class AbstractYmirProcessInterceptor implements
         return request;
     }
 
-    public PageComponent pageComponentCreated(PageComponent pageComponent) {
+    public PageComponent pageComponentCreated(Request request,
+            PageComponent pageComponent) {
         return pageComponent;
     }
 
-    public Action actionInvoking(Action originalAction, Request request,
+    public Action actionInvoking(Request request, Action originalAction,
             Action action) throws PermissionDeniedException {
         return action;
     }

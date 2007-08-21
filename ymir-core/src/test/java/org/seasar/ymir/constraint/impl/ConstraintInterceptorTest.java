@@ -199,7 +199,7 @@ public class ConstraintInterceptorTest extends S2TestCase {
                 .setPageComponentName("TestPage"));
         PageComponent pageComponent = new PageComponentImpl(component,
                 TestPage.class);
-        request.setPageComponent(pageComponent);
+        request.getCurrentDispatch().setPageComponent(pageComponent);
 
         Notes actual = target_.confirmConstraint(pageComponent, new ActionImpl(
                 component, new MethodInvokerImpl(TestPage.class.getMethod(
@@ -217,7 +217,7 @@ public class ConstraintInterceptorTest extends S2TestCase {
                 .setPageComponentName("Test2Page"));
         PageComponent pageComponent = new PageComponentImpl(component,
                 Test2Page.class);
-        request.setPageComponent(pageComponent);
+        request.getCurrentDispatch().setPageComponent(pageComponent);
 
         Notes actual = target_.confirmConstraint(pageComponent, new ActionImpl(
                 component, new MethodInvokerImpl(Test2Page.class.getMethod(
@@ -238,7 +238,7 @@ public class ConstraintInterceptorTest extends S2TestCase {
                 .setPageComponentName("Test3Page"));
         PageComponent pageComponent = new PageComponentImpl(component,
                 Test3Page.class);
-        request.setPageComponent(pageComponent);
+        request.getCurrentDispatch().setPageComponent(pageComponent);
 
         Notes actual = target_.confirmConstraint(pageComponent, new ActionImpl(
                 component, new MethodInvokerImpl(Test3Page.class.getMethod(
@@ -256,7 +256,7 @@ public class ConstraintInterceptorTest extends S2TestCase {
                 .setPageComponentName("Test3Page"));
         PageComponent pageComponent = new PageComponentImpl(component,
                 Test3Page.class);
-        request.setPageComponent(pageComponent);
+        request.getCurrentDispatch().setPageComponent(pageComponent);
 
         Notes actual = target_.confirmConstraint(pageComponent, new ActionImpl(
                 component, new MethodInvokerImpl(Test3Page.class.getMethod(
@@ -275,7 +275,7 @@ public class ConstraintInterceptorTest extends S2TestCase {
                 .setPageComponentName("Test4Page"));
         PageComponent pageComponent = new PageComponentImpl(component,
                 Test4Page.class);
-        request.setPageComponent(pageComponent);
+        request.getCurrentDispatch().setPageComponent(pageComponent);
 
         target_.confirmConstraint(pageComponent, new ActionImpl(component,
                 new MethodInvokerImpl(Test4Page.class.getMethod("_post_button",

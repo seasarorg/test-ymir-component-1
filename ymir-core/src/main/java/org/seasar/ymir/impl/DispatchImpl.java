@@ -1,8 +1,10 @@
 package org.seasar.ymir.impl;
 
+import org.seasar.ymir.Action;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.MatchedPathMapping;
+import org.seasar.ymir.PageComponent;
 
 public class DispatchImpl implements Dispatch {
     private String contextPath_;
@@ -12,6 +14,10 @@ public class DispatchImpl implements Dispatch {
     private Dispatcher dispatcher_;
 
     private MatchedPathMapping matched_;
+
+    private PageComponent pageComponent_;
+
+    private Action action_;
 
     public DispatchImpl() {
     }
@@ -32,6 +38,22 @@ public class DispatchImpl implements Dispatch {
         dispatcher_ = dispatcher;
     }
 
+    public Action getAction() {
+        return action_;
+    }
+
+    public String getActionName() {
+        if (action_ != null) {
+            return action_.getName();
+        } else {
+            return null;
+        }
+    }
+
+    public void setAction(Action action) {
+        action_ = action;
+    }
+
     public String getPath() {
         return path_;
     }
@@ -50,6 +72,14 @@ public class DispatchImpl implements Dispatch {
 
     public String getPageComponentName() {
         return matched_.getPageComponentName();
+    }
+
+    public PageComponent getPageComponent() {
+        return pageComponent_;
+    }
+
+    public void setPageComponent(PageComponent pageComponent) {
+        pageComponent_ = pageComponent;
     }
 
     public String getPathInfo() {
