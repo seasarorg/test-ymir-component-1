@@ -173,8 +173,8 @@ public interface Request extends AttributeContainer {
     Locale getLocale();
 
     /**
-     * 現在のdispatchの処理を開始します。
-     * <p>このメソッドはフレームワークが現在のdispatchを表すDispatchオブジェクトを
+     * 現在のディスパッチの処理を開始します。
+     * <p>このメソッドはフレームワークが現在のディスパッチを表すDispatchオブジェクトを
      * Requestオブジェクトにセットするために用いられます。
      * アプリケーションはこのメソッドを呼び出さないようにして下さい。
      * </p>
@@ -183,23 +183,39 @@ public interface Request extends AttributeContainer {
      */
     void enterDispatch(Dispatch dispatch);
 
+    /**
+     * requestディスパッチを表すDispatchオブジェクトを返します。
+     * <p>元々のリクエストパスなどを取得したい場合は、
+     * このメソッドが返すDispatchオブジェクトから取得することができます。
+     * </p>
+     * 
+     * @return requestディスパッチを表すDispatchオブジェクト。
+     */
     Dispatch getRequestDispatch();
 
     /**
-     * 現在処理中のdispatchを表すDispatchオブジェクトを返します。
-     * <p>1つのリクエストは1つまたは複数のdispatchによって構成されています。
-     * このメソッドは現在処理中のdispatchを表すDispatchオブジェクトを返します。
+     * 現在処理中のディスパッチを表すDispatchオブジェクトを返します。
+     * <p>1つのリクエストは1つまたは複数のディスパッチによって構成されています。
+     * このメソッドは現在処理中のディスパッチを表すDispatchオブジェクトを返します。
      * </p>
      *
-     * @return Dispatchオブジェクト。
+     * @return 現在処理中のディスパッチを表すDispatchオブジェクト。
      */
     Dispatch getCurrentDispatch();
 
     /**
-     * 現在のdispatchの処理を終了します。
+     * 現在のディスパッチの処理を終了します。
      * <p>このメソッドはフレームワークによって用いられます。
      * アプリケーションはこのメソッドを呼び出さないようにして下さい。
      * </p>
      */
     void leaveDispatch();
+
+    /**
+     * 現在のディスパッチにおける、パスとHTTPメソッドに対応するアクションの名前を返します。
+     * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
+     *
+     * @return アクション名。
+     */
+    String getActionName();
 }

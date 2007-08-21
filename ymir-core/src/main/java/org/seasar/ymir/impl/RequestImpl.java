@@ -190,4 +190,8 @@ public class RequestImpl implements Request {
             requestDispatch_ = null;
         }
     }
+
+    public String getActionName() {
+        return dispatch_.getActionName();
+    }
 }
