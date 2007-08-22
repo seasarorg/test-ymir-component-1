@@ -107,15 +107,17 @@
     </servlet-class>
     <init-param>
       <param-name>tagEvaluator</param-name>
-      <param-value>
-        net.skirnir.freyja.zpt.MetalTagEvaluator
-      </param-value>
+      <param-value>org.seasar.ymir.zpt.YmirTagEvaluator</param-value>
     </init-param>
     <init-param>
       <param-name>expressionEvaluator</param-name>
       <param-value>
         org.seasar.ymir.zpt.YmirTalesExpressionEvaluator
       </param-value>
+    </init-param>
+    <init-param>
+      <param-name>tagRenderer</param-name>
+      <param-value>org.seasar.ymir.zpt.YmirTagRenderer</param-value>
     </init-param>
     <init-param>
       <param-name>templateRoot</param-name>
