@@ -38,6 +38,10 @@ public interface TagRenderingInterceptor {
 
     /**
      * タグをレンダリングします。
+     * <p>このメソッドは、{@link #getSpecialTagPatternStrings()}または
+     * {@link #getSpecialAttributePatternStrings()}で指定した条件にマッチしたタグを
+     * レンダリングする際に呼ばれます。
+     * </p>
      * <p>特に何もしない場合や一部のレンダリングだけを変更したい場合は、
      * レンダリングインターセプタチェインに渡す引数を変更して
      * レンダリングインターセプタチェインのrenderメソッドを呼び出すようにして下さい。

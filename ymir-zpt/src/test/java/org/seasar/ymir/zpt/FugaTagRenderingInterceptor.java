@@ -9,7 +9,7 @@ public class FugaTagRenderingInterceptor implements TagRenderingInterceptor {
     }
 
     public String[] getSpecialTagPatternStrings() {
-        return null;
+        return new String[] { ".*" };
     }
 
     public String render(TemplateContext context, String name,
