@@ -18,4 +18,6 @@
     class="org.seasar.ymir.impl.DateManagerImpl" />
   <component name="redirectionManager"
     class="org.seasar.ymir.redirection.impl.RedirectionManagerImpl" />
+  <component name="tokenManager"
+    class="org.seasar.ymir.impl.TokenManagerImpl" />
 </components>

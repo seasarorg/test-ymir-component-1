@@ -3,11 +3,7 @@ package org.seasar.ymir.util;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.seasar.ymir.Globals;
-
 public class TokenUtils {
-    public static final String KEY_TOKEN = Globals.IDPREFIX + "token";
-
     protected TokenUtils() {
     }
 
@@ -20,10 +16,6 @@ public class TokenUtils {
         }
     }
 
-    public static String getToken(HttpServletRequest request) {
-        return getToken(request, KEY_TOKEN);
-    }
-
     public static String getToken(HttpServletRequest request, String tokenKey) {
         HttpSession session = request.getSession(false);
         if (session == null) {
@@ -33,17 +25,9 @@ public class TokenUtils {
         }
     }
 
-    public static boolean isTokenValid(HttpServletRequest request) {
-        return isTokenValid(request, KEY_TOKEN);
-    }
-
     public static boolean isTokenValid(HttpServletRequest request,
             String tokenKey) {
         return isTokenValid(request, tokenKey, false);
-    }
-
-    public static boolean isTokenValid(HttpServletRequest request, boolean reset) {
-        return isTokenValid(request, KEY_TOKEN, reset);
     }
 
     public static boolean isTokenValid(HttpServletRequest request,
@@ -71,10 +55,6 @@ public class TokenUtils {
         }
     }
 
-    public static void resetToken(HttpServletRequest request) {
-        resetToken(request, KEY_TOKEN);
-    }
-
     public static void resetToken(HttpServletRequest request, String tokenKey) {
         HttpSession session = request.getSession(false);
         if (session != null) {
@@ -82,16 +62,8 @@ public class TokenUtils {
         }
     }
 
-    public static void saveToken(HttpServletRequest request) {
-        saveToken(request, KEY_TOKEN);
-    }
-
     public static void saveToken(HttpServletRequest request, String tokenKey) {
         saveToken(request, tokenKey, true);
-    }
-
-    public static void saveToken(HttpServletRequest request, boolean force) {
-        saveToken(request, KEY_TOKEN, force);
     }
 
     public static void saveToken(HttpServletRequest request, String tokenKey,
