@@ -10,13 +10,13 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.Messages;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Token;
+import org.seasar.ymir.TokenManager;
 import org.seasar.ymir.impl.DefaultRequestProcessor;
-import org.seasar.ymir.util.TokenUtils;
-import org.seasar.framework.container.S2Container;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;
@@ -41,6 +41,8 @@ public class YmirVariableResolver extends VariableResolverImpl {
 
     private Messages messages_;
 
+    private TokenManager tokenManager_;
+
     private Token token_;
 
     public YmirVariableResolver(Request ymirRequest,
@@ -55,6 +57,8 @@ public class YmirVariableResolver extends VariableResolverImpl {
         request_ = request;
         container_ = container;
         messages_ = (Messages) container.getComponent(Globals.NAME_MESSAGES);
+        tokenManager_ = (TokenManager) container
+                .getComponent(TokenManager.class);
         parent_ = parent;
     }
 
@@ -197,7 +201,7 @@ public class YmirVariableResolver extends VariableResolverImpl {
 
     Token getToken() {
         if (token_ == null) {
-            token_ = new TokenImpl();
+            token_ = tokenManager_.newToken();
         }
         return token_;
     }
@@ -220,22 +224,6 @@ public class YmirVariableResolver extends VariableResolverImpl {
 
         public Object getValue() {
             return getToken();
-        }
-    }
-
-    class TokenImpl implements Token {
-
-        public boolean exists() {
-            return (TokenUtils.getToken(request_) != null);
-        };
-
-        public String getName() {
-            return TokenUtils.KEY_TOKEN;
-        }
-
-        public String getValue() {
-            TokenUtils.saveToken(request_, false);
-            return TokenUtils.getToken(request_);
         }
     }
 }
