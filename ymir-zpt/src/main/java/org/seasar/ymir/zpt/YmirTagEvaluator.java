@@ -21,8 +21,7 @@ public class YmirTagEvaluator extends MetalTagEvaluator {
     public void setProperties(Properties properties) {
         super.setProperties(properties);
 
-        tagRenderingInterceptors_ = (TagRenderingInterceptor[]) getS2Container()
-                .findAllComponents(TagRenderingInterceptor.class);
+        tagRenderingInterceptors_ = gatherTagRenderingInterceptors();
 
         Set<String> specialTagPatternStringSet = new HashSet<String>();
         Set<String> specialAttributePatternStringSet = new HashSet<String>();
@@ -51,6 +50,11 @@ public class YmirTagEvaluator extends MetalTagEvaluator {
                 .toArray(new String[0]);
         specialAttributePatternStrings_ = specialAttributePatternStringSet
                 .toArray(new String[0]);
+    }
+
+    TagRenderingInterceptor[] gatherTagRenderingInterceptors() {
+        return (TagRenderingInterceptor[]) getS2Container().findAllComponents(
+                TagRenderingInterceptor.class);
     }
 
     S2Container getS2Container() {

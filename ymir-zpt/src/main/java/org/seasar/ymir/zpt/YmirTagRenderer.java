@@ -11,7 +11,7 @@ import net.skirnir.freyja.impl.XHTMLTagRenderer;
 public class YmirTagRenderer implements TagRenderer {
     private TagRenderer tagRenderer_;
 
-    private TagRenderingInterceptorChain tagRendererChain_;
+    private TagRenderingInterceptorChain chain_;
 
     public YmirTagRenderer() {
         this(new XHTMLTagRenderer());
@@ -20,8 +20,7 @@ public class YmirTagRenderer implements TagRenderer {
     public YmirTagRenderer(XHTMLTagRenderer tagRenderer) {
         tagRenderer_ = tagRenderer;
 
-        tagRendererChain_ = newChain(gatherTagRenderingInterceptors(), 0,
-                tagRenderer_);
+        chain_ = newChain(gatherTagRenderingInterceptors(), 0, tagRenderer_);
     }
 
     TagRenderingInterceptor[] gatherTagRenderingInterceptors() {
@@ -47,7 +46,7 @@ public class YmirTagRenderer implements TagRenderer {
 
     public String render(TemplateContext context, String name,
             Attribute[] attributes, String body) {
-        return tagRendererChain_.render(context, name, attributes, body);
+        return chain_.render(context, name, attributes, body);
     }
 
     class TagRendererAdapter implements TagRenderingInterceptorChain {
