@@ -13,34 +13,42 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateAnalyzer;
-import org.seasar.framework.container.annotation.tiger.Binding;
-import org.seasar.framework.container.annotation.tiger.BindingType;
 
 import net.skirnir.freyja.ExpressionEvaluator;
 import net.skirnir.freyja.IllegalSyntaxException;
 import net.skirnir.freyja.TagEvaluator;
 import net.skirnir.freyja.TagEvaluatorWrapper;
 import net.skirnir.freyja.TemplateEvaluator;
+import net.skirnir.freyja.impl.TemplateEvaluatorImpl;
 import net.skirnir.freyja.zpt.tales.TalesExpressionEvaluator;
 import net.skirnir.freyja.zpt.webapp.PageTypePrefixHandler;
 
 public class ZptAnalyzer implements TemplateAnalyzer {
-
     private TemplateEvaluator evaluator_;
 
     private SourceCreator sourceCreator_;
 
     private Zpt zpt_;
 
-    public ZptAnalyzer() {
+    @Binding(bindingType = BindingType.MAY)
+    public void setZpt(Zpt zpt) {
+        zpt_ = zpt;
+        setTemplateEvaluator(zpt_.getTemplateEvaluator());
+    }
 
-        setZpt(new DefaultZpt());
+    synchronized Zpt getZpt() {
+        if (zpt_ == null) {
+            setZpt(new DefaultZpt());
+        }
+        return zpt_;
     }
 
     public void analyze(ServletContext servletContext,
@@ -48,15 +56,16 @@ public class ZptAnalyzer implements TemplateAnalyzer {
             String path, String method, Map<String, ClassDesc> classDescMap,
             Template template, String className, PropertyTypeHintBag hintBag,
             String[] ignoreVariables) {
+        Zpt zpt = getZpt();
 
-        path = zpt_.getTemplatePathResolver().resolve(path, request);
+        path = zpt.getTemplatePathResolver().resolve(path, request);
         AnalyzerContext context = (AnalyzerContext) evaluator_.newContext();
         context.setPath(path);
         context.setIgnoreVariables(ignoreVariables);
-        zpt_.buildTemplateContext(context, servletContext, request, response,
+        zpt.buildTemplateContext(context, servletContext, request, response,
                 Locale.getDefault(), path);
         context.setTemplateSet(new AnalyzerTemplateSet(evaluator_, context
-                .getTemplateSet(), sourceCreator_, zpt_
+                .getTemplateSet(), sourceCreator_, zpt
                 .getTemplatePathResolver()));
         context.setSourceCreator(sourceCreator_);
         context.setMethod(method);
@@ -92,29 +101,22 @@ public class ZptAnalyzer implements TemplateAnalyzer {
     }
 
     boolean isUsingFreyjaRenderClasses() {
-
         return "true".equals(sourceCreator_.getApplication().getProperty(
                 Globals.APPKEY_SOURCECREATOR_USEFREYJARENDERCLASSES));
     }
 
     public void setSourceCreator(SourceCreator sourceCreator) {
-
         sourceCreator_ = sourceCreator;
     }
 
     /**
      * テンプレートの解析に用いるTemplateEvaluatorを設定します。
-     * <p>指定されたTemplateEvaluatorオブジェクトは状態を変更されますので、
-     * 外部で共用することは避けるべきです。
-     * 必ず実際に使うTemplateEvaluatorオブジェクトの複製を渡すようにして下さい。
-     * </p>
      *
      * @param templateEvaluator TemplateEvaluatorオブジェクト。
      * nullを指定することはできません。
      */
     @Binding(bindingType = BindingType.NONE)
     public void setTemplateEvaluator(TemplateEvaluator templateEvaluator) {
-
         TagEvaluator tagEvaluator = templateEvaluator.getTagEvaluator();
         if (tagEvaluator instanceof TagEvaluatorWrapper) {
             ((TagEvaluatorWrapper) tagEvaluator)
@@ -134,17 +136,12 @@ public class ZptAnalyzer implements TemplateAnalyzer {
                                     .getTypePrefixHandler(TYPE_PAGE)));
             evaluator.addPathResolver(new AnalyzerPathResolver());
         }
-        evaluator_ = new TemplateEvaluator(tagEvaluator, expressionEvaluator);
+        evaluator_ = new TemplateEvaluatorImpl(templateEvaluator
+                .getTemplateParser(), tagEvaluator, expressionEvaluator,
+                templateEvaluator.getTagRenderer());
     }
 
     AnalyzerTalTagEvaluator newAnalyzerTalTagEvaluator() {
-
         return new AnalyzerTalTagEvaluator();
-    }
-
-    @Binding(bindingType = BindingType.MAY)
-    public void setZpt(Zpt zpt) {
-        zpt_ = zpt;
-        setTemplateEvaluator(zpt_.getTemplateEvaluator());
     }
 }

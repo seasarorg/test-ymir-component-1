@@ -13,6 +13,8 @@ import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
 import org.seasar.cms.pluggable.impl.ConfigurationImpl;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.PathMapping;
+import org.seasar.ymir.Ymir;
+import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.YmirTestCase;
 import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.creator.PageCreator;
@@ -149,6 +151,7 @@ abstract public class SourceCreatorImplTestBase extends YmirTestCase {
         sourceGenerator.setSourceCreator(target_);
         target_.setSourceGenerator(sourceGenerator);
 
+        YmirContext.setYmir((Ymir) container_.getComponent(Ymir.class));
         SingletonPluggableContainerFactory.init();
     }
 

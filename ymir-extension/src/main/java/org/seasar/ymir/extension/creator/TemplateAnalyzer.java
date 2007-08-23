@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public interface TemplateAnalyzer {
-
     void analyze(ServletContext servletContext, HttpServletRequest request,
             HttpServletResponse response, String path, String method,
             Map<String, ClassDesc> classDescriptorMap, Template template,

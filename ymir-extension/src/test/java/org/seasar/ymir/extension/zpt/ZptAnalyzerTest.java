@@ -14,11 +14,15 @@ import java.util.Vector;
 
 import junit.framework.TestCase;
 
+import org.seasar.framework.container.factory.S2ContainerFactory;
+import org.seasar.framework.convention.impl.NamingConventionImpl;
+import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Note;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
@@ -30,9 +34,8 @@ import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.impl.ApplicationManagerImpl;
 import org.seasar.ymir.impl.MatchedPathMappingImpl;
 import org.seasar.ymir.impl.PathMappingImpl;
+import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.mock.MockApplication;
-import org.seasar.framework.convention.impl.NamingConventionImpl;
-import org.seasar.kvasir.util.el.VariableResolver;
 
 import com.example.dto.SaruDto;
 import com.example.web.Test47Page;
@@ -158,13 +161,20 @@ public class ZptAnalyzerTest extends TestCase {
         };
         creator.setNamingConvention(new NamingConventionImpl());
         ApplicationManagerImpl applicationManager = new ApplicationManagerImpl();
-        applicationManager.setBaseApplication(new MockApplication() {
+        MockApplication mockApplication = new MockApplication() {
+            @Override
             public Enumeration propertyNames() {
                 return new Vector().elements();
             }
-        });
+        }.setS2Container(S2ContainerFactory
+                .create("org/seasar/ymir/extension/zpt/ZptAnalyzerTest.dicon"));
+        applicationManager.setBaseApplication(mockApplication);
         creator.setApplicationManager(applicationManager);
         target_.setSourceCreator(creator);
+
+        YmirImpl ymir = new YmirImpl();
+        ymir.setApplicationManager(applicationManager);
+        YmirContext.setYmir(ymir);
     }
 
     private void act(String methodName) {
