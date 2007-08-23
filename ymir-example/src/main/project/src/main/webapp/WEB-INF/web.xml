@@ -106,6 +106,10 @@
       net.skirnir.freyja.webapp.FreyjaServlet
     </servlet-class>
     <init-param>
+      <param-name>templateParser</param-name>
+      <param-value>org.seasar.ymir.zpt.YmirTemplateParser</param-value>
+    </init-param>
+    <init-param>
       <param-name>tagEvaluator</param-name>
       <param-value>org.seasar.ymir.zpt.YmirTagEvaluator</param-value>
     </init-param>
