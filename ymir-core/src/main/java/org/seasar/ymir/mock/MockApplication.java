@@ -10,6 +10,7 @@ import org.seasar.ymir.PathMappingProvider;
 import org.seasar.framework.container.S2Container;
 
 public class MockApplication implements Application {
+    private S2Container s2container_;
 
     public String getId() {
         return null;
@@ -52,7 +53,12 @@ public class MockApplication implements Application {
     }
 
     public S2Container getS2Container() {
-        return null;
+        return s2container_;
+    }
+
+    public MockApplication setS2Container(S2Container s2container) {
+        s2container_ = s2container;
+        return this;
     }
 
     public String getSourceDirectory() {
