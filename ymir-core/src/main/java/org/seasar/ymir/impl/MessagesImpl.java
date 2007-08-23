@@ -14,60 +14,69 @@ import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.util.MessagesUtils;
 
 public class MessagesImpl implements Messages {
-    private String path_;
+
+    private final String[] path_;
 
     private I18NProperties messages_;
 
     private LocaleManager localeManager_;
 
-    public void setLocaleManager(LocaleManager localeManager) {
+    public void setLocaleManager(final LocaleManager localeManager) {
         localeManager_ = localeManager;
     }
 
-    public MessagesImpl(String path) {
+    public MessagesImpl(final String path) {
+        this(new String[] { path });
+    }
+
+    public MessagesImpl(final String... path) {
         path_ = path;
         init();
     }
 
     void init() {
-        Resource resource = new JavaResource(path_, Thread.currentThread()
-                .getContextClassLoader());
+        for (final String path : path_) {
+            final Resource resource = new JavaResource(path, Thread
+                    .currentThread().getContextClassLoader());
 
-        String name;
-        int slash = path_.lastIndexOf('/');
-        if (slash >= 0) {
-            name = path_.substring(slash + 1);
-        } else {
-            name = path_;
-        }
-        String baseName;
-        String suffix;
-        int dot = name.lastIndexOf('.');
-        if (dot >= 0) {
-            baseName = name.substring(0, dot);
-            suffix = name.substring(dot);
-        } else {
-            baseName = name;
-            suffix = "";
+            String name;
+            final int slash = path.lastIndexOf('/');
+            if (slash >= 0) {
+                name = path.substring(slash + 1);
+            } else {
+                name = path;
+            }
+            String baseName;
+            String suffix;
+            final int dot = name.lastIndexOf('.');
+            if (dot >= 0) {
+                baseName = name.substring(0, dot);
+                suffix = name.substring(dot);
+            } else {
+                baseName = name;
+                suffix = "";
+            }
+
+            final I18NProperties properties = new I18NProperties(resource
+                    .getParentResource(), baseName, suffix, messages_);
+            messages_ = properties;
         }
 
-        messages_ = new I18NProperties(resource.getParentResource(), baseName,
-                suffix);
     }
 
-    public String getProperty(String name) {
+    public String getProperty(final String name) {
         updateMessages();
         return messages_.getProperty(name);
     }
 
-    public String getProperty(String name, Locale locale) {
+    public String getProperty(final String name, final Locale locale) {
         updateMessages();
         return messages_.getProperty(name, locale);
     }
 
-    public String getMessage(String name) {
-        Locale locale = localeManager_.getLocale();
-        String pageSpecificName = MessagesUtils.getPageSpecificName(name,
+    public String getMessage(final String name) {
+        final Locale locale = localeManager_.getLocale();
+        final String pageSpecificName = MessagesUtils.getPageSpecificName(name,
                 getPageName());
 
         String message = null;
@@ -85,7 +94,7 @@ public class MessagesImpl implements Messages {
             return MessagesUtils.getPageName((Request) getYmir()
                     .getApplication().getS2Container().getComponent(
                             Request.class));
-        } catch (ComponentNotFoundRuntimeException ex) {
+        } catch (final ComponentNotFoundRuntimeException ex) {
             return null;
         }
     }
