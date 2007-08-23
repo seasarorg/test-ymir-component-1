@@ -1,22 +1,37 @@
-package org.seasar.ymir.util;
+package org.seasar.ymir.hotdeploy.impl;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.seasar.framework.container.hotdeploy.HotdeployClassLoader;
 import org.seasar.framework.convention.impl.NamingConventionImpl;
+import org.seasar.ymir.hotdeploy.fitter.HotdeployFitter;
+import org.seasar.ymir.hotdeploy.fitter.impl.CollectionFitter;
+import org.seasar.ymir.hotdeploy.fitter.impl.MapFitter;
 
 import com.example.IHoe;
 
-public class HotdeployUtilsTest extends TestCase {
+public class HotdeployManagerImplTest extends TestCase {
+    private HotdeployManagerImpl target_;
+
     private IHoe hoe_;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+
+        target_ = new HotdeployManagerImpl();
+        CollectionFitter collectionFitter = new CollectionFitter();
+        collectionFitter.setHotdeployManager(target_);
+        MapFitter mapFitter = new MapFitter();
+        mapFitter.setHotdeployManager(target_);
+        target_.setHotdeployFitters(new HotdeployFitter<?>[] {
+            collectionFitter, mapFitter });
 
         NamingConventionImpl namingConverntion = new NamingConventionImpl();
         namingConverntion.addRootPackageName("com.example.hotdeploy");
@@ -48,6 +63,9 @@ public class HotdeployUtilsTest extends TestCase {
         List<Object> list = new ArrayList<Object>();
         list.add(fuga);
         hoe_.setList(list);
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("key", fuga);
+        hoe_.setMap(map);
         Object[] fugas = (Object[]) Array.newInstance(fugaClass, 1);
         fugas[0] = fuga;
         hoe_.setFugas(fugas);
@@ -59,20 +77,20 @@ public class HotdeployUtilsTest extends TestCase {
     }
 
     public void testFit1() throws Exception {
-        Object actual = HotdeployUtils.fit(null);
+        Object actual = target_.fit(null);
 
         assertNull(actual);
     }
 
     public void testFit2() throws Exception {
         Integer expected = Integer.valueOf(1);
-        Object actual = HotdeployUtils.fit(expected);
+        Object actual = target_.fit(expected);
 
         assertSame(expected, actual);
     }
 
     public void testFit3() throws Exception {
-        Object actual = HotdeployUtils.fit(hoe_);
+        Object actual = target_.fit(hoe_);
 
         assertNotSame(hoe_, actual);
         assertTrue(actual instanceof IHoe);
@@ -80,7 +98,11 @@ public class HotdeployUtilsTest extends TestCase {
         assertEquals(10, hoe.getInt());
         assertNotNull(hoe.getList());
         assertEquals(1, hoe.getList().size());
+        assertNotNull(hoe.getList().get(0));
         assertNotSame(hoe_.getList().get(0), hoe.getList().get(0));
+        assertNotNull(hoe.getMap());
+        assertNotNull(hoe.getMap().get("key"));
+        assertNotSame(hoe_.getMap().get("key"), hoe.getMap().get("key"));
         assertNotNull(hoe.getFuga());
         assertNotSame(hoe_.getFuga(), hoe.getFuga());
         assertEquals(1, hoe.getFugas().length);

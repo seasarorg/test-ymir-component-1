@@ -95,6 +95,25 @@ abstract public class PageTestCase<P> extends TestCase {
     }
 
     /**
+     * テストに使用されるS2Containerからコンポーネントを取り出して返します。
+     *
+     * @return コンポーネント。
+     */
+    protected Object getComponent(Object componentKey) {
+        return getContainer().getComponent(componentKey);
+    }
+
+    /**
+     * テストに使用されるS2Containerからコンポーネントを取り出して返します。
+     *
+     * @return コンポーネント。
+     */
+    @SuppressWarnings("unchecked")
+    protected <T> T getComponent(Class<T> componentClass) {
+        return (T) getContainer().getComponent(componentClass);
+    }
+
+    /**
      * リクエストを処理するためのロケールを返します。
      * <p>デフォルトでは、返されるロケールはデフォルトロケールです。
      * </p>

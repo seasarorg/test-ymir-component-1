@@ -1,6 +1,7 @@
 package com.example;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IHoe {
     int getInt();
@@ -18,4 +19,8 @@ public interface IHoe {
     Object[] getFugas();
 
     void setFugas(Object[] fugas);
+
+    Map<String, Object> getMap();
+
+    void setMap(Map<String, Object> map);
 }

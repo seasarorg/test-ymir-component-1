@@ -104,9 +104,9 @@ public class PagePropertyMetaDataImpl implements PagePropertyMetaData {
                             + class_.getName() + ", method=" + method);
         }
 
-        injectedScopeAttributeList_.add(new ScopeAttribute(toAttributeName(
-                method.getName(), in.name()), getScope(in), method, in
-                .injectWhereNull(), null, false, in.actionName()));
+        injectedScopeAttributeList_.add(new ScopeAttribute(container_,
+                toAttributeName(method.getName(), in.name()), getScope(in),
+                method, in.injectWhereNull(), null, false, in.actionName()));
     }
 
     Scope getScope(In in) {
@@ -139,9 +139,9 @@ public class PagePropertyMetaDataImpl implements PagePropertyMetaData {
                             + class_.getName() + ", method=" + method);
         }
 
-        outjectedScopeAttributeList_.add(new ScopeAttribute(toAttributeName(
-                method.getName(), out.name()), getScope(out), null, false,
-                method, out.outjectWhereNull(), out.actionName()));
+        outjectedScopeAttributeList_.add(new ScopeAttribute(container_,
+                toAttributeName(method.getName(), out.name()), getScope(out),
+                null, false, method, out.outjectWhereNull(), out.actionName()));
     }
 
     Scope getScope(Out out) {
@@ -167,10 +167,6 @@ public class PagePropertyMetaDataImpl implements PagePropertyMetaData {
     }
 
     Object getComponent(Object key) {
-        if (container_ != null) {
-            return container_.getComponent(key);
-        } else {
-            return null;
-        }
+        return container_.getComponent(key);
     }
 }

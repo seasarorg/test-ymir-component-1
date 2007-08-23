@@ -20,4 +20,23 @@
     class="org.seasar.ymir.redirection.impl.RedirectionManagerImpl" />
   <component name="tokenManager"
     class="org.seasar.ymir.impl.TokenManagerImpl" />
+  <component
+    class="org.seasar.framework.container.autoregister.ComponentAutoRegister">
+    <initMethod name="addReferenceClass">
+      <arg>
+        @org.seasar.ymir.hotdeploy.fitter.impl.AbstractFitter@class
+      </arg>
+    </initMethod>
+    <initMethod name="addClassPattern">
+      <arg>"org.seasar.ymir.hotdeploy.fitter.impl"</arg>
+      <arg>".*Fitter"</arg>
+    </initMethod>
+    <initMethod name="addIgnoreClassPattern">
+      <arg>"org.seasar.ymir.hotdeploy.fitter.impl"</arg>
+      <arg>"Abstract.*"</arg>
+    </initMethod>
+    <initMethod name="registerAll" />
+  </component>
+  <component name="hotdeployManager"
+    class="org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl" />
 </components>

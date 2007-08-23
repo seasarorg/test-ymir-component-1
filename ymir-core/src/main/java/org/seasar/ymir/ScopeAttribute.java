@@ -5,12 +5,15 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.seasar.framework.container.S2Container;
 import org.seasar.framework.log.Logger;
 import org.seasar.kvasir.util.io.IORuntimeException;
+import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.scope.Scope;
-import org.seasar.ymir.util.HotdeployUtils;
 
 public class ScopeAttribute {
+    private S2Container container_;
+
     private String name_;
 
     private Scope scope_;
@@ -25,12 +28,15 @@ public class ScopeAttribute {
 
     private boolean outjectWhereNull_;
 
+    private HotdeployManager hotdeployManager_;
+
     private static final Logger logger_ = Logger
             .getLogger(ScopeAttribute.class);
 
-    public ScopeAttribute(String name, Scope scope, Method writeMethod,
-            boolean injectWhereNull, Method readMethod,
+    public ScopeAttribute(S2Container container, String name, Scope scope,
+            Method writeMethod, boolean injectWhereNull, Method readMethod,
             boolean outjectWhereNull, String[] enableActionNames) {
+        container_ = container;
         name_ = name;
         scope_ = scope;
         writeMethod_ = writeMethod;
@@ -41,6 +47,8 @@ public class ScopeAttribute {
             enableActionNameSet_ = new HashSet<String>(Arrays
                     .asList(enableActionNames));
         }
+        hotdeployManager_ = (HotdeployManager) container_
+                .getComponent(HotdeployManager.class);
     }
 
     public void injectTo(Object component) {
@@ -54,7 +62,7 @@ public class ScopeAttribute {
                                 .isAssignableFrom(value.getClass())) {
                     // 開発時はHotdeployのせいで見かけ上型が合わないことがありうる。
                     // そのため開発時で見かけ上型が合わない場合はオブジェクトを再構築する。
-                    value = HotdeployUtils.fit(value);
+                    value = hotdeployManager_.fit(value);
                 }
                 writeMethod_.invoke(component, new Object[] { value });
             } catch (IllegalArgumentException ex) {

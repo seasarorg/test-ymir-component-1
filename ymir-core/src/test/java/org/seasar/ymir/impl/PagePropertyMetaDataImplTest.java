@@ -1,5 +1,7 @@
 package org.seasar.ymir.impl;
 
+import org.seasar.framework.container.factory.S2ContainerFactory;
+
 import junit.framework.TestCase;
 
 public class PagePropertyMetaDataImplTest extends TestCase {
@@ -20,7 +22,8 @@ public class PagePropertyMetaDataImplTest extends TestCase {
 
     public void testIsProtected() throws Exception {
         PagePropertyMetaDataImpl target = new PagePropertyMetaDataImpl(
-                HoePage.class, null);
+                HoePage.class, S2ContainerFactory.create(getClass().getName()
+                        .replace('.', '/').concat(".dicon")));
 
         assertTrue(target.isProtected("map"));
         assertTrue(target.isProtected("maps"));
