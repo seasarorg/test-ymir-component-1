@@ -10,7 +10,7 @@ public class HotdeployManagerITest extends PageTestCase<Object> {
         return Object.class;
     }
 
-    public void test() throws Exception {
+    public void test_コンポーネントが正しく登録されていること() throws Exception {
         HotdeployManagerImpl actual = null;
         try {
             actual = getComponent(HotdeployManagerImpl.class);
@@ -18,6 +18,6 @@ public class HotdeployManagerITest extends PageTestCase<Object> {
             fail();
         }
 
-        assertEquals(2, actual.getHotdeployFitters().length);
+        assertEquals(3, actual.getHotdeployFitters().length);
     }
 }

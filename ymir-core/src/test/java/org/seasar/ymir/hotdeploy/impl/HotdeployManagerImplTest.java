@@ -12,6 +12,7 @@ import org.seasar.framework.container.hotdeploy.HotdeployClassLoader;
 import org.seasar.framework.convention.impl.NamingConventionImpl;
 import org.seasar.ymir.hotdeploy.fitter.HotdeployFitter;
 import org.seasar.ymir.hotdeploy.fitter.impl.CollectionFitter;
+import org.seasar.ymir.hotdeploy.fitter.impl.ListFitter;
 import org.seasar.ymir.hotdeploy.fitter.impl.MapFitter;
 
 import com.example.IHoe;
@@ -26,12 +27,21 @@ public class HotdeployManagerImplTest extends TestCase {
         super.setUp();
 
         target_ = new HotdeployManagerImpl();
-        CollectionFitter collectionFitter = new CollectionFitter();
-        collectionFitter.setHotdeployManager(target_);
+        ListFitter listFitter = new ListFitter();
+        listFitter.setHotdeployManager(target_);
         MapFitter mapFitter = new MapFitter();
         mapFitter.setHotdeployManager(target_);
+        CollectionFitter collectionFitter = new CollectionFitter();
+        collectionFitter.setHotdeployManager(target_);
+        HotdeployFitter<ArrayList> arrayListFitter = new HotdeployFitter<ArrayList>(){
+            public Class<ArrayList> getTargetClass() {
+                return ArrayList.class;
+            }
+            public ArrayList copy(ArrayList value) {
+                return value;
+            }};
         target_.setHotdeployFitters(new HotdeployFitter<?>[] {
-            collectionFitter, mapFitter });
+            listFitter, mapFitter, collectionFitter, arrayListFitter });
 
         NamingConventionImpl namingConverntion = new NamingConventionImpl();
         namingConverntion.addRootPackageName("com.example.hotdeploy");
@@ -107,5 +117,10 @@ public class HotdeployManagerImplTest extends TestCase {
         assertNotSame(hoe_.getFuga(), hoe.getFuga());
         assertEquals(1, hoe.getFugas().length);
         assertNotSame(hoe_.getFugas()[0], hoe.getFugas()[0]);
+    }
+    
+    public void testFindFitter() throws Exception {
+        assertTrue("Fitterの検索は完全一致→アサイン可能（登録順）のように行なわれること",target_.findFitter(ArrayList.class).getTargetClass() == ArrayList.class);
+        assertTrue("Fitterの検索は完全一致→アサイン可能（登録順）のように行なわれること",target_.findFitter(List.class).getTargetClass() == List.class);
     }
 }
