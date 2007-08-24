@@ -17,9 +17,15 @@ import org.seasar.ymir.util.HotdeployUtils;
 public class HotdeployManagerImpl implements HotdeployManager {
     private HotdeployFitter<?>[] hotdeployFitters_ = new HotdeployFitter<?>[0];
 
+    private Map<Class<?>, HotdeployFitter<?>> hotdeployFitterMap_ = new HashMap<Class<?>, HotdeployFitter<?>>();
+
     @Binding(bindingType = BindingType.MAY)
     public void setHotdeployFitters(HotdeployFitter<?>[] hotdeployFitters) {
         hotdeployFitters_ = hotdeployFitters;
+        for (int i = 0; i < hotdeployFitters.length; i++) {
+            hotdeployFitterMap_.put(hotdeployFitters[i].getTargetClass(),
+                    hotdeployFitters[i]);
+        }
     }
 
     public HotdeployFitter<?>[] getHotdeployFitters() {
@@ -49,12 +55,9 @@ public class HotdeployManagerImpl implements HotdeployManager {
         }
 
         Class<?> sourceClass = value.getClass();
-        for (int i = 0; i < hotdeployFitters_.length; i++) {
-            if (hotdeployFitters_[i].getTargetClass().isAssignableFrom(
-                    sourceClass)) {
-                return ((HotdeployFitter<Object>) hotdeployFitters_[i])
-                        .copy(value);
-            }
+        HotdeployFitter<?> fitter = findFitter(sourceClass);
+        if (fitter != null) {
+            return ((HotdeployFitter<Object>) fitter).copy(value);
         }
 
         Class<?> destinationClass = HotdeployUtils.getContextClass(sourceClass);
@@ -85,6 +88,21 @@ public class HotdeployManagerImpl implements HotdeployManager {
         copy(value, destination);
 
         return destination;
+    }
+
+    HotdeployFitter<?> findFitter(Class<?> clazz) {
+        HotdeployFitter<?> fitter = hotdeployFitterMap_.get(clazz);
+        if (fitter != null) {
+            return fitter;
+        }
+
+        for (int i = 0; i < hotdeployFitters_.length; i++) {
+            if (hotdeployFitters_[i].getTargetClass().isAssignableFrom(clazz)) {
+                return hotdeployFitters_[i];
+            }
+        }
+
+        return null;
     }
 
     @SuppressWarnings("unchecked")
