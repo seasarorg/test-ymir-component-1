@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -22,6 +23,8 @@ public class HotdeployManagerImplTest extends TestCase {
 
     private IHoe hoe_;
 
+    private Object fuga_;
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -33,15 +36,21 @@ public class HotdeployManagerImplTest extends TestCase {
         mapFitter.setHotdeployManager(target_);
         CollectionFitter collectionFitter = new CollectionFitter();
         collectionFitter.setHotdeployManager(target_);
-        HotdeployFitter<ArrayList> arrayListFitter = new HotdeployFitter<ArrayList>(){
+        HotdeployFitter<ArrayList> arrayListFitter = new HotdeployFitter<ArrayList>() {
             public Class<ArrayList> getTargetClass() {
                 return ArrayList.class;
             }
+
+            @SuppressWarnings("unchecked")
             public ArrayList copy(ArrayList value) {
+                for (ListIterator itr = value.listIterator(); itr.hasNext();) {
+                    itr.set(target_.fit(itr.next()));
+                }
                 return value;
-            }};
-        target_.setHotdeployFitters(new HotdeployFitter<?>[] {
-            listFitter, mapFitter, collectionFitter, arrayListFitter });
+            }
+        };
+        target_.setHotdeployFitters(new HotdeployFitter<?>[] { listFitter,
+            mapFitter, collectionFitter, arrayListFitter });
 
         NamingConventionImpl namingConverntion = new NamingConventionImpl();
         namingConverntion.addRootPackageName("com.example.hotdeploy");
@@ -67,17 +76,17 @@ public class HotdeployManagerImplTest extends TestCase {
                 }, namingConverntion);
         hoe_ = (IHoe) cl.loadClass("com.example.hotdeploy.Hoe").newInstance();
         Class<?> fugaClass = cl.loadClass("com.example.hotdeploy.Fuga");
-        Object fuga = fugaClass.newInstance();
+        fuga_ = fugaClass.newInstance();
         hoe_.setInt(10);
-        hoe_.setFuga(fuga);
+        hoe_.setFuga(fuga_);
         List<Object> list = new ArrayList<Object>();
-        list.add(fuga);
+        list.add(fuga_);
         hoe_.setList(list);
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("key", fuga);
+        map.put("key", fuga_);
         hoe_.setMap(map);
         Object[] fugas = (Object[]) Array.newInstance(fugaClass, 1);
-        fugas[0] = fuga;
+        fugas[0] = fuga_;
         hoe_.setFugas(fugas);
     }
 
@@ -109,7 +118,7 @@ public class HotdeployManagerImplTest extends TestCase {
         assertNotNull(hoe.getList());
         assertEquals(1, hoe.getList().size());
         assertNotNull(hoe.getList().get(0));
-        assertNotSame(hoe_.getList().get(0), hoe.getList().get(0));
+        assertNotSame(hoe_.getList().get(0), fuga_);
         assertNotNull(hoe.getMap());
         assertNotNull(hoe.getMap().get("key"));
         assertNotSame(hoe_.getMap().get("key"), hoe.getMap().get("key"));
@@ -118,9 +127,11 @@ public class HotdeployManagerImplTest extends TestCase {
         assertEquals(1, hoe.getFugas().length);
         assertNotSame(hoe_.getFugas()[0], hoe.getFugas()[0]);
     }
-    
+
     public void testFindFitter() throws Exception {
-        assertTrue("Fitterの検索は完全一致→アサイン可能（登録順）のように行なわれること",target_.findFitter(ArrayList.class).getTargetClass() == ArrayList.class);
-        assertTrue("Fitterの検索は完全一致→アサイン可能（登録順）のように行なわれること",target_.findFitter(List.class).getTargetClass() == List.class);
+        assertTrue("Fitterの検索は完全一致→アサイン可能（登録順）のように行なわれること", target_.findFitter(
+                ArrayList.class).getTargetClass() == ArrayList.class);
+        assertTrue("Fitterの検索は完全一致→アサイン可能（登録順）のように行なわれること", target_.findFitter(
+                List.class).getTargetClass() == List.class);
     }
 }
