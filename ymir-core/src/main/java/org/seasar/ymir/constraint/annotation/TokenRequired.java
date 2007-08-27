@@ -7,11 +7,10 @@ import java.lang.annotation.Target;
 
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.impl.TokenRequiredConstraint;
-import org.seasar.ymir.impl.TokenManagerImpl;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.TYPE, ElementType.METHOD })
 @ConstraintAnnotation(type = ConstraintType.VALIDATION, component = TokenRequiredConstraint.class)
 public @interface TokenRequired {
-    String value() default TokenManagerImpl.KEY_TOKEN;
+    String value() default "";
 }

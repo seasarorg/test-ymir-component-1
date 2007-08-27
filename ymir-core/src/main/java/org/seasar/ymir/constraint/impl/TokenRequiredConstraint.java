@@ -19,7 +19,12 @@ public class TokenRequiredConstraint extends AbstractConstraint<TokenRequired> {
     public void confirm(Object component, Request request,
             TokenRequired annotation, AnnotatedElement element)
             throws ConstraintViolatedException {
-        if (!tokenManager_.isTokenValid(annotation.value(), true)) {
+        String tokenKey = annotation.value();
+        if (tokenKey.length() == 0) {
+            // デフォルトのキーを使うようにする。
+            tokenKey = tokenManager_.getTokenKey();
+        }
+        if (!tokenManager_.isTokenValid(tokenKey, true)) {
             throw new ValidationFailedException().addNote(new Note(
                     PREFIX_MESSAGEKEY + "tokenRequired", new Object[0]));
         }
