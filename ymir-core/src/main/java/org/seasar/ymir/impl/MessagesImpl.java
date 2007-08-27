@@ -1,8 +1,14 @@
 package org.seasar.ymir.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.framework.container.annotation.tiger.InitMethod;
+import org.seasar.framework.log.Logger;
 import org.seasar.kvasir.util.collection.I18NProperties;
 import org.seasar.kvasir.util.io.Resource;
 import org.seasar.kvasir.util.io.impl.JavaResource;
@@ -15,26 +21,28 @@ import org.seasar.ymir.util.MessagesUtils;
 
 public class MessagesImpl implements Messages {
 
-    private final String[] path_;
+    private final Logger logger_ = Logger.getLogger(getClass());
+
+    private final List<String> path_ = new ArrayList<String>();
 
     private I18NProperties messages_;
 
     private LocaleManager localeManager_;
 
+    @Binding(bindingType = BindingType.MUST)
     public void setLocaleManager(final LocaleManager localeManager) {
         localeManager_ = localeManager;
     }
 
-    public MessagesImpl(final String path) {
-        this(new String[] { path });
+    public void addPath(final String path) {
+        path_.add(path);
     }
 
-    public MessagesImpl(final String... path) {
-        path_ = path;
-        init();
-    }
-
-    void init() {
+    @InitMethod
+    public void init() {
+        if (path_.isEmpty()) {
+            logger_.warn("no message path specified");
+        }
         for (final String path : path_) {
             final Resource resource = new JavaResource(path, Thread
                     .currentThread().getContextClassLoader());
@@ -61,7 +69,6 @@ public class MessagesImpl implements Messages {
                     .getParentResource(), baseName, suffix, messages_);
             messages_ = properties;
         }
-
     }
 
     public String getProperty(final String name) {
@@ -108,4 +115,5 @@ public class MessagesImpl implements Messages {
     protected Ymir getYmir() {
         return YmirContext.getYmir();
     }
+
 }

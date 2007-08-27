@@ -2,10 +2,10 @@ package org.seasar.ymir.impl;
 
 import java.util.Locale;
 
+import junit.framework.TestCase;
+
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.mock.MockYmir;
-
-import junit.framework.TestCase;
 
 public class MessagesImplTest extends TestCase {
 
@@ -17,7 +17,7 @@ public class MessagesImplTest extends TestCase {
         final MockLocaleManager localeManager = new MockLocaleManager();
         localeManager.setLocale(Locale.JAPAN);
 
-        final MessagesImpl message = new MessagesImpl(path) {
+        final MessagesImpl message = new MessagesImpl() {
             @Override
             String getPageName() {
                 return "no_page";
@@ -29,11 +29,45 @@ public class MessagesImplTest extends TestCase {
             }
         };
         message.setLocaleManager(localeManager);
+        message.addPath(path);
+        message.init();
 
         // ## Act ##
         // ## Assert ##
         assertEquals("1a", message.getMessage("a"));
         assertEquals("1b", message.getMessage("b"));
+    }
+
+    public void testNoResource() throws Exception {
+        // ## Arrange ##
+        final String path = MessagesImplTest.class.getName().replace('.', '/')
+                + "-testNoResource.xproperties";
+
+        final MockLocaleManager localeManager = new MockLocaleManager();
+        localeManager.setLocale(Locale.JAPAN);
+
+        final MessagesImpl message = new MessagesImpl() {
+            @Override
+            String getPageName() {
+                return "no_page";
+            }
+
+            @Override
+            protected Ymir getYmir() {
+                return new MockYmir();
+            }
+        };
+        message.setLocaleManager(localeManager);
+        message.addPath(path);
+
+        // ## Act ##
+        // ## Assert ##
+        try {
+            message.init();
+            fail();
+        } catch (final IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public void testMultiLocale() throws Exception {
@@ -43,7 +77,7 @@ public class MessagesImplTest extends TestCase {
 
         final MockLocaleManager localeManager = new MockLocaleManager();
 
-        final MessagesImpl message = new MessagesImpl(path) {
+        final MessagesImpl message = new MessagesImpl() {
             @Override
             String getPageName() {
                 return "no_page";
@@ -55,6 +89,8 @@ public class MessagesImplTest extends TestCase {
             }
         };
         message.setLocaleManager(localeManager);
+        message.addPath(path);
+        message.init();
 
         // ## Act ##
         // ## Assert ##
@@ -87,7 +123,7 @@ public class MessagesImplTest extends TestCase {
         /*
          * path1の方が親になる
          */
-        final MessagesImpl message = new MessagesImpl(path1, path2, path3) {
+        final MessagesImpl message = new MessagesImpl() {
             @Override
             String getPageName() {
                 return "no_page";
@@ -99,6 +135,10 @@ public class MessagesImplTest extends TestCase {
             }
         };
         message.setLocaleManager(localeManager);
+        message.addPath(path1);
+        message.addPath(path2);
+        message.addPath(path3);
+        message.init();
 
         // ## Act ##
         // ## Assert ##

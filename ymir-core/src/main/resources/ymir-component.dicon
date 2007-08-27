@@ -8,7 +8,7 @@
     class="org.seasar.ymir.impl.ServletMimeTypeDetector" />
   <component name="messages"
     class="org.seasar.ymir.impl.MessagesImpl">
-    <arg>"messages.xproperties"</arg>
+    <initMethod name="addPath"><arg>"messages.xproperties"</arg></initMethod>
   </component>
   <component name="localeManager"
     class="org.seasar.ymir.impl.LocaleManagerImpl" />
