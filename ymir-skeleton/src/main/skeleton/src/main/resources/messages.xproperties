@@ -9,3 +9,4 @@ error.constraint.numeric.lessThan=Specify value which is less than {1}: {0}
 error.constraint.required=Specify non-empty value: {0}
 error.constraint.tokenRequired=Request has not been processed correctly because of invalid page transition.
 error.constraint.matched=Format is illegal: {0}
+error.constraint.confirmed=Not the same as {1}: {0}
