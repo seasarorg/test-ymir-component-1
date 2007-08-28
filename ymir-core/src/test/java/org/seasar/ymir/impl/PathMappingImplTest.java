@@ -10,6 +10,7 @@ import org.seasar.ymir.Action;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.constraint.annotation.Required;
 import org.seasar.ymir.mock.MockRequest;
 
 public class PathMappingImplTest extends TestCase {
@@ -83,5 +84,9 @@ public class PathMappingImplTest extends TestCase {
         assertEquals(Integer.valueOf(0), params[idx++]);
         assertEquals(Integer.valueOf(0), params[idx++]);
         assertNull(params[idx++]);
+    }
+
+    @Required
+    public void testname() throws Exception {
     }
 }
