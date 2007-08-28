@@ -1,19 +1,21 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
+import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_FEATURE_CREATEMESSAGE_ENABLE;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.seasar.kvasir.util.PropertyUtils;
+import org.seasar.kvasir.util.collection.I18NProperties;
+import org.seasar.kvasir.util.io.IORuntimeException;
+import org.seasar.kvasir.util.io.impl.FileResource;
 import org.seasar.ymir.MessageNotFoundRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.action.UpdateByExceptionAction;
-import org.seasar.kvasir.util.collection.I18NProperties;
-import org.seasar.kvasir.util.io.IORuntimeException;
-import org.seasar.kvasir.util.io.impl.FileResource;
 
 public class CreateMessageAction extends AbstractAction implements
         UpdateByExceptionAction {
@@ -28,6 +30,12 @@ public class CreateMessageAction extends AbstractAction implements
     }
 
     public Response act(Request request, Throwable t) {
+        if (!PropertyUtils.valueOf(
+                getSourceCreator().getApplication().getProperty(
+                        APPKEY_SOURCECREATOR_FEATURE_CREATEMESSAGE_ENABLE),
+                true)) {
+            return null;
+        }
 
         String subTask = request.getParameter(PARAM_SUBTASK);
         if ("create".equals(subTask)) {
@@ -38,7 +46,6 @@ public class CreateMessageAction extends AbstractAction implements
     }
 
     Response actDefault(Request request, Throwable t) {
-
         MessageNotFoundRuntimeException mnfre = (MessageNotFoundRuntimeException) t;
 
         Map<String, Object> variableMap = new HashMap<String, Object>();
@@ -51,7 +58,6 @@ public class CreateMessageAction extends AbstractAction implements
     }
 
     Response actCreate(Request request, Throwable t) {
-
         MessageNotFoundRuntimeException mnfre = (MessageNotFoundRuntimeException) t;
 
         String method = request.getParameter(PARAM_METHOD);
@@ -77,7 +83,6 @@ public class CreateMessageAction extends AbstractAction implements
     }
 
     void createMessage(String messagesName, String messageKey, String value) {
-
         I18NProperties properties = new I18NProperties(new FileResource(
                 getSourceCreator().getResourcesDirectory()), messagesName,
                 SUFFIX_XPROPERTIES);
