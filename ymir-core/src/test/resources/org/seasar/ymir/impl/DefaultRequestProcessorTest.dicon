@@ -88,6 +88,7 @@
     class="org.seasar.ymir.scope.impl.SessionScope" />
   <component name="requestScope"
     class="org.seasar.ymir.scope.impl.RequestScope" />
+  <component class="org.seasar.ymir.impl.TypeConversionManagerImpl" />
   <!-- FOR TEST -->
   <component name="parentPage" class="org.seasar.ymir.impl.ParentPage" />
   <component name="child1Page" class="org.seasar.ymir.impl.Child1Page" />

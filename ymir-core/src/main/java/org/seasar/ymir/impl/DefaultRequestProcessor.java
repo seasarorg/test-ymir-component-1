@@ -7,21 +7,15 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
-import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.beanutils.ConvertUtilsBean;
-import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.log.Logger;
-import org.seasar.framework.util.Disposable;
-import org.seasar.framework.util.DisposableUtil;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
-import org.seasar.ymir.FormFile;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.PageNotFoundException;
@@ -35,8 +29,6 @@ import org.seasar.ymir.Updater;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.Include;
-import org.seasar.ymir.beanutils.FormFileArrayConverter;
-import org.seasar.ymir.beanutils.FormFileConverter;
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
@@ -50,10 +42,6 @@ public class DefaultRequestProcessor implements RequestProcessor {
     static final Set<ConstraintType> EMPTY_SUPPRESSTYPESET = EnumSet
             .noneOf(ConstraintType.class);
 
-    private static final String INDEX_PREFIX = "[";
-
-    private static final String INDEX_SUFFIX = "]";
-
     private Ymir ymir_;
 
     private PageProcessor pageProcessor_;
@@ -62,28 +50,11 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
     private Updater[] updaters_ = new Updater[0];
 
-    private final PropertyUtilsBean propertyUtilsBean_ = new PropertyUtilsBean();
-
-    private final BeanUtilsBean beanUtilsBean_;
-
     private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
 
     private final Logger logger_ = Logger.getLogger(getClass());
 
     private PageComponentVisitor visitorForRendering_ = new VisitorForRendering();
-
-    public DefaultRequestProcessor() {
-        ConvertUtilsBean convertUtilsBean = new ConvertUtilsBean();
-        convertUtilsBean.register(new FormFileConverter(), FormFile.class);
-        convertUtilsBean.register(new FormFileArrayConverter(),
-                FormFile[].class);
-        beanUtilsBean_ = new BeanUtilsBean(convertUtilsBean, propertyUtilsBean_);
-        DisposableUtil.add(new Disposable() {
-            public void dispose() {
-                propertyUtilsBean_.clearDescriptors();
-            }
-        });
-    }
 
     @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {

@@ -60,7 +60,7 @@ public class MatchedPathMappingImpl implements MatchedPathMapping {
     }
 
     public boolean isDispatchingByParameter() {
-        return pathMapping_.isDispatchingByParameter();
+        return pathMapping_.isDispatchingByButton();
     }
 
     public Action getAction(PageComponent pageComponent, Request request) {

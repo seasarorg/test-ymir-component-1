@@ -8,7 +8,9 @@
     class="org.seasar.ymir.impl.ServletMimeTypeDetector" />
   <component name="messages"
     class="org.seasar.ymir.impl.MessagesImpl">
-    <initMethod name="addPath"><arg>"messages.xproperties"</arg></initMethod>
+    <initMethod name="addPath">
+      <arg>"messages.xproperties"</arg>
+    </initMethod>
   </component>
   <component name="localeManager"
     class="org.seasar.ymir.impl.LocaleManagerImpl" />
@@ -28,4 +30,6 @@
     class="org.seasar.ymir.hotdeploy.fitter.impl.MapFitter" />
   <component name="collectionFitter"
     class="org.seasar.ymir.hotdeploy.fitter.impl.CollectionFitter" />
+  <component name="typeConversionManager"
+    class="org.seasar.ymir.impl.TypeConversionManagerImpl" />
 </components>

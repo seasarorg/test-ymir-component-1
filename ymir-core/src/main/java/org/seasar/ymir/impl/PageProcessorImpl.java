@@ -3,37 +3,24 @@ package org.seasar.ymir.impl;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.beanutils.ConvertUtilsBean;
-import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.log.Logger;
-import org.seasar.framework.util.Disposable;
-import org.seasar.framework.util.DisposableUtil;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.PageProcessor;
 import org.seasar.ymir.PagePropertyMetaData;
 import org.seasar.ymir.ScopeAttribute;
-import org.seasar.ymir.beanutils.FormFileArrayConverter;
-import org.seasar.ymir.beanutils.FormFileConverter;
+import org.seasar.ymir.TypeConversionManager;
 
 public class PageProcessorImpl implements PageProcessor {
-    private final PropertyUtilsBean propertyUtilsBean_ = new PropertyUtilsBean();
-
-    private final BeanUtilsBean beanUtilsBean_;
+    private TypeConversionManager typeConversionManager_;
 
     private final Logger logger_ = Logger.getLogger(getClass());
 
-    public PageProcessorImpl() {
-        ConvertUtilsBean convertUtilsBean = new ConvertUtilsBean();
-        convertUtilsBean.register(new FormFileConverter(), FormFile.class);
-        convertUtilsBean.register(new FormFileArrayConverter(),
-                FormFile[].class);
-        beanUtilsBean_ = new BeanUtilsBean(convertUtilsBean, propertyUtilsBean_);
-        DisposableUtil.add(new Disposable() {
-            public void dispose() {
-                propertyUtilsBean_.clearDescriptors();
-            }
-        });
+    @Binding(bindingType = BindingType.MUST)
+    public void setTypeConversionManager(
+            TypeConversionManager typeConversionManager) {
+        typeConversionManager_ = typeConversionManager;
     }
 
     public void injectRequestParameters(Object page,
@@ -44,10 +31,11 @@ public class PageProcessorImpl implements PageProcessor {
                 continue;
             }
             try {
-                beanUtilsBean_.setProperty(page, name, properties.get(name));
+                typeConversionManager_.setProperty(page, name, properties
+                        .get(name));
             } catch (Throwable t) {
                 if (logger_.isDebugEnabled()) {
-                    logger_.debug("Can't populate property '" + name + "'", t);
+                    logger_.debug("Can't set property '" + name + "'", t);
                 }
             }
         }
@@ -60,14 +48,12 @@ public class PageProcessorImpl implements PageProcessor {
             if (name == null || metaData.isProtected(name)) {
                 continue;
             }
-            if (beanUtilsBean_.getPropertyUtils().isWriteable(page, name)) {
-                try {
-                    beanUtilsBean_.copyProperty(page, name, properties
-                            .get(name));
-                } catch (Throwable t) {
-                    if (logger_.isDebugEnabled()) {
-                        logger_.debug("Can't copy property '" + name + "'", t);
-                    }
+            try {
+                typeConversionManager_.copyProperty(page, name, properties
+                        .get(name));
+            } catch (Throwable t) {
+                if (logger_.isDebugEnabled()) {
+                    logger_.debug("Can't copy property '" + name + "'", t);
                 }
             }
         }

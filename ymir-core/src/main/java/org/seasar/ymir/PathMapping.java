@@ -61,7 +61,7 @@ public interface PathMapping {
      *
      * @return リクエストパラメータによるディスパッチを行なうかどうか。
      */
-    boolean isDispatchingByParameter();
+    boolean isDispatchingByButton();
 
     Action getAction(PageComponent pageComponent, Request request,
             VariableResolver resolver);
