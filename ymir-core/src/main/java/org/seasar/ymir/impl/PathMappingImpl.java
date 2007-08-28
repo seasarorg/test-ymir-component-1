@@ -290,20 +290,6 @@ public class PathMappingImpl implements PathMapping {
         return null;
     }
 
-    protected Action getAction(Object page, Class<?> pageClass,
-            String actionName, Request request) {
-        Method method = MethodUtils.getMethod(pageClass, actionName);
-        if (method != null) {
-            if (logger_.isDebugEnabled()) {
-                logger_.debug("getAction: Found: " + method);
-            }
-            return new ActionImpl(page, new MethodInvokerImpl(method,
-                    new Object[0]));
-        } else {
-            return null;
-        }
-    }
-
     protected Action createActionByParameter(Method method, String actionName,
             Request request, Object page) {
         String name = method.getName();
@@ -352,5 +338,19 @@ public class PathMappingImpl implements PathMapping {
         }
 
         return null;
+    }
+
+    protected Action getAction(Object page, Class<?> pageClass,
+            String actionName, Request request) {
+        Method method = MethodUtils.getMethod(pageClass, actionName);
+        if (method != null) {
+            if (logger_.isDebugEnabled()) {
+                logger_.debug("getAction: Found: " + method);
+            }
+            return new ActionImpl(page, new MethodInvokerImpl(method,
+                    new Object[0]));
+        } else {
+            return null;
+        }
     }
 }
