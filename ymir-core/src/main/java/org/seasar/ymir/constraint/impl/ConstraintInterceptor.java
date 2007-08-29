@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
@@ -57,9 +58,8 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
     static final ConfirmationDecider DECIDER_DEPENDS_ON_SUPPRESSTYPE = new ConfirmationDecider() {
         public boolean isConfirmed(Object page, Request request,
-                ConstraintType constraintType,
-                Set<ConstraintType> suppressConstraintTypeSet) {
-            return !suppressConstraintTypeSet.contains(constraintType);
+                ConstraintType type, Set<ConstraintType> suppressTypeSet) {
+            return !suppressTypeSet.contains(type);
         }
     };
 
@@ -230,11 +230,12 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         ConstraintBag<?>[] bags = application
                 .getRelatedObject(ConstraintBag[].class);
         if (bags == null) {
-            ConstraintBundle[] bundles = (ConstraintBundle[]) application
-                    .getS2Container().findAllComponents(ConstraintBundle.class);
+            ComponentDef[] bundleCds = application.getS2Container()
+                    .findAllComponentDefs(ConstraintBundle.class);
             List<ConstraintBag<?>> list = new ArrayList<ConstraintBag<?>>();
-            for (int i = 0; i < bundles.length; i++) {
-                createConstraintBags(bundles[i].getClass(), bundles[i], list);
+            for (int i = 0; i < bundleCds.length; i++) {
+                createConstraintBags(bundleCds[i].getComponentClass(),
+                        (ConstraintBundle) bundleCds[i].getComponent(), list);
             }
             bags = list.toArray(new ConstraintBag[0]);
             application.setRelatedObject(ConstraintBag[].class, bags);
