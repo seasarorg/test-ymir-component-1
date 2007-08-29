@@ -11,10 +11,13 @@ import junit.framework.TestCase;
 
 import org.seasar.framework.container.hotdeploy.HotdeployClassLoader;
 import org.seasar.framework.convention.impl.NamingConventionImpl;
+import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.hotdeploy.fitter.HotdeployFitter;
 import org.seasar.ymir.hotdeploy.fitter.impl.CollectionFitter;
 import org.seasar.ymir.hotdeploy.fitter.impl.ListFitter;
 import org.seasar.ymir.hotdeploy.fitter.impl.MapFitter;
+import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl.HotdeployFitterBag;
+import org.seasar.ymir.mock.MockApplicationManager;
 
 import com.example.IHoe;
 
@@ -30,27 +33,8 @@ public class HotdeployManagerImplTest extends TestCase {
         super.setUp();
 
         target_ = new HotdeployManagerImpl();
-        ListFitter listFitter = new ListFitter();
-        listFitter.setHotdeployManager(target_);
-        MapFitter mapFitter = new MapFitter();
-        mapFitter.setHotdeployManager(target_);
-        CollectionFitter collectionFitter = new CollectionFitter();
-        collectionFitter.setHotdeployManager(target_);
-        HotdeployFitter<ArrayList> arrayListFitter = new HotdeployFitter<ArrayList>() {
-            public Class<ArrayList> getTargetClass() {
-                return ArrayList.class;
-            }
-
-            @SuppressWarnings("unchecked")
-            public ArrayList copy(ArrayList value) {
-                for (ListIterator itr = value.listIterator(); itr.hasNext();) {
-                    itr.set(target_.fit(itr.next()));
-                }
-                return value;
-            }
-        };
-        target_.setHotdeployFitters(new HotdeployFitter<?>[] { listFitter,
-            mapFitter, collectionFitter, arrayListFitter });
+        target_.setApplicationManager(new MockApplicationManager());
+        target_.setHotdeployFitters(getHotdeployFitters(target_));
 
         NamingConventionImpl namingConverntion = new NamingConventionImpl();
         namingConverntion.addRootPackageName("com.example.hotdeploy");
@@ -88,6 +72,31 @@ public class HotdeployManagerImplTest extends TestCase {
         Object[] fugas = (Object[]) Array.newInstance(fugaClass, 1);
         fugas[0] = fuga_;
         hoe_.setFugas(fugas);
+    }
+
+    private HotdeployFitter<?>[] getHotdeployFitters(
+            final HotdeployManager hotdeployManager) {
+        ListFitter listFitter = new ListFitter();
+        listFitter.setHotdeployManager(hotdeployManager);
+        MapFitter mapFitter = new MapFitter();
+        mapFitter.setHotdeployManager(hotdeployManager);
+        CollectionFitter collectionFitter = new CollectionFitter();
+        collectionFitter.setHotdeployManager(hotdeployManager);
+        HotdeployFitter<ArrayList> arrayListFitter = new HotdeployFitter<ArrayList>() {
+            public Class<ArrayList> getTargetClass() {
+                return ArrayList.class;
+            }
+
+            @SuppressWarnings("unchecked")
+            public ArrayList copy(ArrayList value) {
+                for (ListIterator itr = value.listIterator(); itr.hasNext();) {
+                    itr.set(hotdeployManager.fit(itr.next()));
+                }
+                return value;
+            }
+        };
+        return new HotdeployFitter<?>[] { listFitter, mapFitter, collectionFitter,
+            arrayListFitter };
     }
 
     @Override
@@ -129,9 +138,12 @@ public class HotdeployManagerImplTest extends TestCase {
     }
 
     public void testFindFitter() throws Exception {
-        assertTrue("Fitterの検索は完全一致→アサイン可能（登録順）のように行なわれること", target_.findFitter(
+        HotdeployFitterBag target = new HotdeployManagerImpl.HotdeployFitterBag(
+                getHotdeployFitters(target_));
+
+        assertTrue("Fitterの検索は完全一致→アサイン可能（登録順）のように行なわれること", target.findFitter(
                 ArrayList.class).getTargetClass() == ArrayList.class);
-        assertTrue("Fitterの検索は完全一致→アサイン可能（登録順）のように行なわれること", target_.findFitter(
+        assertTrue("Fitterの検索は完全一致→アサイン可能（登録順）のように行なわれること", target.findFitter(
                 List.class).getTargetClass() == List.class);
     }
 }

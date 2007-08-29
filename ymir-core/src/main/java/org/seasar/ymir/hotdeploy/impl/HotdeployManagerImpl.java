@@ -10,26 +10,26 @@ import java.util.Map;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.Application;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.hotdeploy.fitter.HotdeployFitter;
+import org.seasar.ymir.util.ContainerUtils;
 import org.seasar.ymir.util.HotdeployUtils;
 
 public class HotdeployManagerImpl implements HotdeployManager {
     private HotdeployFitter<?>[] hotdeployFitters_ = new HotdeployFitter<?>[0];
 
-    private Map<Class<?>, HotdeployFitter<?>> hotdeployFitterMap_ = new HashMap<Class<?>, HotdeployFitter<?>>();
+    private ApplicationManager applicationManager_;
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
+    }
 
     @Binding(bindingType = BindingType.MAY)
     public void setHotdeployFitters(HotdeployFitter<?>[] hotdeployFitters) {
         hotdeployFitters_ = hotdeployFitters;
-        for (int i = 0; i < hotdeployFitters.length; i++) {
-            hotdeployFitterMap_.put(hotdeployFitters[i].getTargetClass(),
-                    hotdeployFitters[i]);
-        }
-    }
-
-    public HotdeployFitter<?>[] getHotdeployFitters() {
-        return hotdeployFitters_;
     }
 
     /**
@@ -55,7 +55,8 @@ public class HotdeployManagerImpl implements HotdeployManager {
         }
 
         Class<?> sourceClass = value.getClass();
-        HotdeployFitter<?> fitter = findFitter(sourceClass);
+        HotdeployFitter<?> fitter = getHotdeployFitterBag().findFitter(
+                sourceClass);
         if (fitter != null) {
             return ((HotdeployFitter<Object>) fitter).copy(value);
         }
@@ -90,19 +91,20 @@ public class HotdeployManagerImpl implements HotdeployManager {
         return destination;
     }
 
-    HotdeployFitter<?> findFitter(Class<?> clazz) {
-        HotdeployFitter<?> fitter = hotdeployFitterMap_.get(clazz);
-        if (fitter != null) {
-            return fitter;
-        }
+    HotdeployFitterBag getHotdeployFitterBag() {
+        // synchronizedしていないのは、たまたま同時に呼ばれて2回HotdeployFitterBagが生成されてしまっても実害がないから。
 
-        for (int i = 0; i < hotdeployFitters_.length; i++) {
-            if (hotdeployFitters_[i].getTargetClass().isAssignableFrom(clazz)) {
-                return hotdeployFitters_[i];
-            }
+        Application application = applicationManager_.findContextApplication();
+        HotdeployFitterBag fitterBag = application
+                .getRelatedObject(HotdeployFitterBag.class);
+        if (fitterBag == null) {
+            fitterBag = new HotdeployFitterBag(ContainerUtils.merge(
+                    hotdeployFitters_, (HotdeployFitter[]) application
+                            .getS2Container().findAllComponents(
+                                    HotdeployFitter.class)));
+            application.setRelatedObject(HotdeployFitterBag.class, fitterBag);
         }
-
-        return null;
+        return fitterBag;
     }
 
     @SuppressWarnings("unchecked")
@@ -155,5 +157,38 @@ public class HotdeployManagerImpl implements HotdeployManager {
             clazz = clazz.getSuperclass();
         }
         return list.toArray(new Field[0]);
+    }
+
+    static class HotdeployFitterBag {
+        private HotdeployFitter<?>[] fitters_;
+
+        private Map<Class<?>, HotdeployFitter<?>> fitterMap_;
+
+        public HotdeployFitterBag(HotdeployFitter<?>[] fitters) {
+            fitters_ = fitters;
+            fitterMap_ = new HashMap<Class<?>, HotdeployFitter<?>>();
+            for (int i = 0; i < fitters.length; i++) {
+                fitterMap_.put(fitters[i].getTargetClass(), fitters[i]);
+            }
+        }
+
+        HotdeployFitter<?> findFitter(Class<?> clazz) {
+            HotdeployFitter<?> fitter = fitterMap_.get(clazz);
+            if (fitter != null) {
+                return fitter;
+            }
+
+            for (int i = 0; i < fitters_.length; i++) {
+                if (fitters_[i].getTargetClass().isAssignableFrom(clazz)) {
+                    return fitters_[i];
+                }
+            }
+
+            return null;
+        }
+
+        public HotdeployFitter<?>[] getFitters() {
+            return fitters_;
+        }
     }
 }

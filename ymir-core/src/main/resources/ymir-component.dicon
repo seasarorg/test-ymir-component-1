@@ -24,12 +24,13 @@
     class="org.seasar.ymir.impl.TokenManagerImpl" />
   <component name="hotdeployManager"
     class="org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl" />
+  <component name="typeConversionManager"
+    class="org.seasar.ymir.impl.TypeConversionManagerImpl" />
+  <!-- HotdeployFitter -->
   <component name="listFitter"
     class="org.seasar.ymir.hotdeploy.fitter.impl.ListFitter" />
   <component name="mapFitter"
     class="org.seasar.ymir.hotdeploy.fitter.impl.MapFitter" />
   <component name="collectionFitter"
     class="org.seasar.ymir.hotdeploy.fitter.impl.CollectionFitter" />
-  <component name="typeConversionManager"
-    class="org.seasar.ymir.impl.TypeConversionManagerImpl" />
 </components>

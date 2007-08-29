@@ -9,11 +9,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.framework.log.Logger;
-import org.seasar.framework.util.Disposable;
-import org.seasar.framework.util.DisposableUtil;
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
@@ -91,12 +88,6 @@ public class YmirImpl implements Ymir {
         logger_.debug("Ymir initialize start");
 
         initializeListeners();
-
-        DisposableUtil.add(new Disposable() {
-            public void dispose() {
-                PropertyUtils.clearDescriptors();
-            }
-        });
 
         logger_.debug("Ymir initialize end");
     }

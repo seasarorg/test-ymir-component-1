@@ -59,4 +59,23 @@ public class ContainerUtils {
             return componentDefSet.toArray(new ComponentDef[0]);
         }
     }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T[] merge(T[] a, T[] b) {
+        if (b == null || b.length == 0) {
+            return a;
+        } else if (a == null || a.length == 0) {
+            return b;
+        }
+
+        Set<T> set = new LinkedHashSet<T>();
+        for (int i = 0; i < a.length; i++) {
+            set.add(a[i]);
+        }
+        for (int i = 0; i < b.length; i++) {
+            set.add(b[i]);
+        }
+        return set.toArray((T[]) Array.newInstance(a.getClass()
+                .getComponentType(), 0));
+    }
 }

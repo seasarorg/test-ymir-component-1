@@ -70,4 +70,10 @@ public interface Application {
      * @return このアプリケーションが開発中のステータスであるかどうか。
      */
     boolean isUnderDevelopment();
+
+    <T> T getRelatedObject(Class<T> clazz);
+
+    <T> void setRelatedObject(Class<T> clazz, T object);
+
+    void clear();
 }

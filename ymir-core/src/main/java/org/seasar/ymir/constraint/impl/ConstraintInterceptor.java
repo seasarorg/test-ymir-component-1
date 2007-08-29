@@ -11,6 +11,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
@@ -20,16 +21,20 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Action;
+import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.annotation.SuppressConstraints;
 import org.seasar.ymir.annotation.Validator;
+import org.seasar.ymir.constraint.ConfirmationDecider;
 import org.seasar.ymir.constraint.Constraint;
+import org.seasar.ymir.constraint.ConstraintBundle;
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.PermissionDeniedException;
@@ -37,7 +42,6 @@ import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
 import org.seasar.ymir.constraint.annotation.ConstraintsAnnotation;
 import org.seasar.ymir.impl.ActionImpl;
-import org.seasar.ymir.impl.ConstraintBag;
 import org.seasar.ymir.impl.MethodInvokerImpl;
 import org.seasar.ymir.impl.VoidMethodInvoker;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
@@ -51,14 +55,30 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
     public static final String ACTION_PERMISSIONDENIED = "_permissionDenied";
 
+    static final ConfirmationDecider DECIDER_DEPENDS_ON_SUPPRESSTYPE = new ConfirmationDecider() {
+        public boolean isConfirmed(Object page, Request request,
+                ConstraintType constraintType,
+                Set<ConstraintType> suppressConstraintTypeSet) {
+            return !suppressConstraintTypeSet.contains(constraintType);
+        }
+    };
+
     static final Set<ConstraintType> EMPTY_SUPPRESSTYPESET = EnumSet
             .noneOf(ConstraintType.class);
 
     private ApplicationManager applicationManager_;
 
+    private TypeConversionManager typeConversionManager_;
+
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
         applicationManager_ = applicationManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setTypeConversionManager(
+            TypeConversionManager typeConversionManager) {
+        typeConversionManager_ = typeConversionManager;
     }
 
     @Override
@@ -70,8 +90,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         Action finalAction = null;
         PermissionDeniedException pde = null;
         try {
-            Notes notes = confirmConstraint(pageComponent, originalAction,
-                    request);
+            Notes notes = confirmConstraint(pageComponent, request);
             if (notes != null) {
                 request.setAttribute(ATTR_NOTES, notes);
 
@@ -111,13 +130,14 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         return finalAction;
     }
 
-    Notes confirmConstraint(PageComponent pageComponent, Action action,
-            Request request) throws PermissionDeniedException {
+    Notes confirmConstraint(PageComponent pageComponent, Request request)
+            throws PermissionDeniedException {
         try {
-            Method actionMethod = action != null ? action.getMethodInvoker()
+            Action action = request.getCurrentDispatch().getAction();
+            Method actionMethod = (action != null) ? action.getMethodInvoker()
                     .getMethod() : null;
             VisitorForConfirmingConstraint visitor = new VisitorForConfirmingConstraint(
-                    action, request, getSuppressTypeSet(actionMethod));
+                    request, getSuppressTypeSet(actionMethod));
             pageComponent.accept(visitor);
 
             return visitor.getNotes();
@@ -130,17 +150,32 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
     }
 
-    void confirmConstraint(Object page, Class<?> pageClass, Action action,
-            Request request, Set<ConstraintType> suppressTypeSet, Notes notes)
+    void confirmConstraint(Object page, Class<?> pageClass, Request request,
+            Set<ConstraintType> suppressTypeSet, Notes notes)
             throws PermissionDeniedException {
-        MethodInvoker actionMethodInvoker = action != null ? action
-                .getMethodInvoker() : null;
-        ConstraintBag[] bag = getConstraintBags(pageClass, actionMethodInvoker,
-                suppressTypeSet, action != null ? page == action.getTarget()
-                        : false);
-        for (int i = 0; i < bag.length; i++) {
+        List<ConstraintBag<?>> list = new ArrayList<ConstraintBag<?>>();
+
+        // 共通の制約を収集する。
+        list.addAll(Arrays.asList(getConstraintBagsFromConstraintBundles()));
+
+        // クラスとプロパティに関連付けられている制約を収集する。
+        getConstraintBagsFromPageClass(pageClass, list);
+
+        // アクションに関連付けられている制約を収集する。
+        Action action = request.getCurrentDispatch().getAction();
+        MethodInvoker actionMethodInvoker = null;
+        if (action != null) {
+            actionMethodInvoker = action.getMethodInvoker();
+            if (actionMethodInvoker != null && page == action.getTarget()) {
+                createConstraintBags(actionMethodInvoker.getMethod(),
+                        ConstraintBag.DECIDER_ALWAYS, list);
+            }
+        }
+
+        for (Iterator<ConstraintBag<?>> itr = list.iterator(); itr.hasNext();) {
+            ConstraintBag<?> bag = itr.next();
             try {
-                bag[i].confirm(page, request);
+                bag.confirm(page, request, suppressTypeSet);
             } catch (PermissionDeniedException ex) {
                 throw ex;
             } catch (ValidationFailedException ex) {
@@ -188,14 +223,29 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         return suppressTypeSet;
     }
 
-    // PropertyDescriptorのreadMethodは対象外。fieldも対象外。
-    ConstraintBag[] getConstraintBags(Class<?> pageClass,
-            MethodInvoker actionMethodInvoker,
-            Set<ConstraintType> suppressTypeSet,
-            boolean getConstraintBagFromActionMethod) {
-        List<ConstraintBag> list = new ArrayList<ConstraintBag>();
+    ConstraintBag<?>[] getConstraintBagsFromConstraintBundles() {
+        // synchronizedしていないのは、たまたま同時に呼ばれて2回ConstraintBagが生成されてしまっても実害がないから。
 
-        getConstraintBag(pageClass, list, suppressTypeSet);
+        Application application = applicationManager_.findContextApplication();
+        ConstraintBag<?>[] bags = application
+                .getRelatedObject(ConstraintBag[].class);
+        if (bags == null) {
+            ConstraintBundle[] bundles = (ConstraintBundle[]) application
+                    .getS2Container().findAllComponents(ConstraintBundle.class);
+            List<ConstraintBag<?>> list = new ArrayList<ConstraintBag<?>>();
+            for (int i = 0; i < bundles.length; i++) {
+                createConstraintBags(bundles[i].getClass(), bundles[i], list);
+            }
+            bags = list.toArray(new ConstraintBag[0]);
+            application.setRelatedObject(ConstraintBag[].class, bags);
+        }
+        return bags;
+    }
+
+    // PropertyDescriptorのreadMethodは対象外。fieldも対象外。
+    void getConstraintBagsFromPageClass(Class<?> pageClass,
+            List<ConstraintBag<?>> list) {
+        createConstraintBags(pageClass, DECIDER_DEPENDS_ON_SUPPRESSTYPE, list);
         BeanInfo beanInfo;
         try {
             beanInfo = Introspector.getBeanInfo(pageClass);
@@ -204,19 +254,14 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
         PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
         for (int i = 0; i < pds.length; i++) {
-            getConstraintBag(pds[i].getWriteMethod(), list, suppressTypeSet);
+            createConstraintBags(pds[i].getWriteMethod(),
+                    DECIDER_DEPENDS_ON_SUPPRESSTYPE, list);
         }
-        if (getConstraintBagFromActionMethod && actionMethodInvoker != null) {
-            getConstraintBag(actionMethodInvoker.getMethod(), list,
-                    EMPTY_SUPPRESSTYPESET);
-        }
-
-        return list.toArray(new ConstraintBag[0]);
     }
 
     @SuppressWarnings("unchecked")
-    void getConstraintBag(AnnotatedElement element, List<ConstraintBag> list,
-            Set<ConstraintType> suppressTypeSet) {
+    void createConstraintBags(AnnotatedElement element,
+            ConfirmationDecider decider, List<ConstraintBag<?>> list) {
         if (element == null) {
             return;
         }
@@ -265,22 +310,12 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         for (Iterator<Annotation> itr = constraintAnnotationList.iterator(); itr
                 .hasNext();) {
             Annotation annotation = itr.next();
-            addConstraintBagIfNecessary(element, annotation, suppressTypeSet,
-                    list);
-        }
-    }
 
-    @SuppressWarnings("unchecked")
-    void addConstraintBagIfNecessary(AnnotatedElement element,
-            Annotation annotation, Set<ConstraintType> suppressTypeSet,
-            List<ConstraintBag> list) {
-        ConstraintAnnotation constraintAnnotation = annotation.annotationType()
-                .getAnnotation(ConstraintAnnotation.class);
-        if (constraintAnnotation != null
-                && !suppressTypeSet.contains(constraintAnnotation.type())) {
+            ConstraintAnnotation constraintAnnotation = annotation
+                    .annotationType().getAnnotation(ConstraintAnnotation.class);
             list.add(new ConstraintBag(((Constraint) getS2Container()
                     .getComponent(constraintAnnotation.component())),
-                    annotation, element));
+                    annotation, element, decider));
         }
     }
 
@@ -321,31 +356,27 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
                         }
                     }
 
-                    MethodInvoker mi;
-                    Class<?>[] parameterTypes = methods[i].getParameterTypes();
-                    if (parameterTypes.length == 1
-                            && (parameterTypes[0] == Integer.TYPE || parameterTypes[0] == Integer.class)) {
-                        if (actionParameters.length == 1) {
-                            // intの引数が1つあるメソッドについては、アクションに添え字がある場合は添え字を引数としてメソッドが呼び出されるようにする。
-                            mi = new MethodInvokerImpl(methods[i],
-                                    actionParameters);
-                        } else {
-                            mi = new MethodInvokerImpl(methods[i],
-                                    new Object[] { Integer.valueOf(0) });
-                        }
-                    } else if (parameterTypes.length == 0) {
-                        mi = new MethodInvokerImpl(methods[i], new Object[0]);
-                    } else {
-                        // @Validatorが付与されているメソッドの引数が不正。
-                        throw new RuntimeException(
-                                "@Validator must be annotated on a method that has no parameters or has only one int parameter");
-                    }
-
-                    validatorList.add(mi);
+                    validatorList.add(createValidatorMethodInvoker(methods[i],
+                            actionParameters));
                 }
             }
         }
         return validatorList.toArray(new MethodInvoker[0]);
+    }
+
+    MethodInvoker createValidatorMethodInvoker(Method method,
+            Object[] actionParameters) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        Object[] parameters = new Object[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            if (i < actionParameters.length) {
+                parameters[i] = actionParameters[i];
+            } else {
+                parameters[i] = typeConversionManager_.convert(null,
+                        parameterTypes[i]);
+            }
+        }
+        return new MethodInvokerImpl(method, parameters);
     }
 
     protected S2Container getS2Container() {
@@ -409,17 +440,14 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     protected class VisitorForConfirmingConstraint extends PageComponentVisitor {
-        private Action action_;
-
         private Request request_;
 
         private Set<ConstraintType> suppressTypeSet_;
 
         private Notes notes_ = new Notes();
 
-        public VisitorForConfirmingConstraint(Action action, Request request,
+        public VisitorForConfirmingConstraint(Request request,
                 Set<ConstraintType> supperssTypeSet) {
-            action_ = action;
             request_ = request;
             suppressTypeSet_ = supperssTypeSet;
         }
@@ -427,8 +455,8 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         public Object process(PageComponent pageComponent) {
             Object page = pageComponent.getPage();
             try {
-                confirmConstraint(page, pageComponent.getPageClass(), action_,
-                        request_, suppressTypeSet_, notes_);
+                confirmConstraint(page, pageComponent.getPageClass(), request_,
+                        suppressTypeSet_, notes_);
             } catch (PermissionDeniedException ex) {
                 throw new WrappingRuntimeException(ex);
             }

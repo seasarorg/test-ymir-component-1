@@ -3,14 +3,19 @@ package org.seasar.ymir.mock;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.PathMappingProvider;
 import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.impl.S2ContainerImpl;
 
 public class MockApplication implements Application {
-    private S2Container s2container_;
+    private S2Container s2container_ = new S2ContainerImpl();
+
+    private Map<Class<?>, Object> relatedObjectMap_ = new ConcurrentHashMap<Class<?>, Object>();
 
     public String getId() {
         return null;
@@ -108,5 +113,22 @@ public class MockApplication implements Application {
 
     public Enumeration propertyNames() {
         return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getRelatedObject(Class<T> clazz) {
+        return (T) relatedObjectMap_.get(clazz);
+    }
+
+    public <T> void setRelatedObject(Class<T> clazz, T object) {
+        if (object != null) {
+            relatedObjectMap_.put(clazz, object);
+        } else {
+            relatedObjectMap_.remove(clazz);
+        }
+    }
+
+    public void clear() {
+        relatedObjectMap_.clear();
     }
 }

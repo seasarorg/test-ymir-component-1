@@ -1,8 +1,8 @@
 package org.seasar.ymir.impl;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
@@ -14,7 +14,7 @@ public class PageComponentImpl implements PageComponent {
 
     private PageComponent[] children_;
 
-    private Map<Class<?>, Object> relatedObjectMap_ = new HashMap<Class<?>, Object>();
+    private Map<Class<?>, Object> relatedObjectMap_ = new ConcurrentHashMap<Class<?>, Object>();
 
     private PageComponent[] descendants_;
 
@@ -57,7 +57,11 @@ public class PageComponentImpl implements PageComponent {
     }
 
     public <T> void setRelatedObject(Class<T> clazz, T object) {
-        relatedObjectMap_.put(clazz, object);
+        if (object != null) {
+            relatedObjectMap_.put(clazz, object);
+        } else {
+            relatedObjectMap_.remove(clazz);
+        }
     }
 
     public PageComponent[] getChildren() {

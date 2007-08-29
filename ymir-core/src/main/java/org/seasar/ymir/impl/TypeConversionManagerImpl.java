@@ -5,8 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.seasar.framework.util.Disposable;
-import org.seasar.framework.util.DisposableUtil;
+import org.seasar.cms.pluggable.hotdeploy.AbstractHotdeployEventListener;
+import org.seasar.cms.pluggable.util.HotdeployEventUtils;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.beanutils.FormFileArrayConverter;
@@ -27,8 +27,8 @@ public class TypeConversionManagerImpl implements TypeConversionManager {
         propertyUtilsBean_ = new PropertyUtilsBean();
         beanUtilsBean_ = new BeanUtilsBean(convertUtilsBean_,
                 propertyUtilsBean_);
-        DisposableUtil.add(new Disposable() {
-            public void dispose() {
+        HotdeployEventUtils.add(new AbstractHotdeployEventListener() {
+            public void stop() {
                 propertyUtilsBean_.clearDescriptors();
             }
         });
@@ -51,5 +51,9 @@ public class TypeConversionManagerImpl implements TypeConversionManager {
     @SuppressWarnings("unchecked")
     public <T> T convert(String value, Class<T> type) {
         return (T) convertUtilsBean_.convert(value, type);
+    }
+
+    public String convert(Object value) {
+        return convertUtilsBean_.convert(value);
     }
 }

@@ -4,17 +4,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
 
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
-import org.seasar.ymir.PathMappingProvider;
 import org.seasar.framework.container.S2Container;
+import org.seasar.ymir.PathMappingProvider;
 
 public class SingleApplication extends AbstractApplication {
-
     public static final String ID_DEFAULT = "";
 
     private ServletContext context_;
@@ -24,6 +25,8 @@ public class SingleApplication extends AbstractApplication {
     private Class referenceClass_;
 
     private S2Container container_;
+
+    private Map<Class<?>, Object> relatedObjectMap_ = new ConcurrentHashMap<Class<?>, Object>();
 
     public SingleApplication(ServletContext context, Configuration config,
             Class referenceClass, S2Container container,
@@ -95,5 +98,22 @@ public class SingleApplication extends AbstractApplication {
 
     public String getWebappRoot() {
         return context_.getRealPath("");
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getRelatedObject(Class<T> clazz) {
+        return (T) relatedObjectMap_.get(clazz);
+    }
+
+    public <T> void setRelatedObject(Class<T> clazz, T object) {
+        if (object != null) {
+            relatedObjectMap_.put(clazz, object);
+        } else {
+            relatedObjectMap_.remove(clazz);
+        }
+    }
+
+    public void clear() {
+        relatedObjectMap_.clear();
     }
 }

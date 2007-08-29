@@ -1,10 +1,9 @@
-package org.seasar.ymir.hotdeploy;
+package org.seasar.ymir.hotdeploy.impl;
 
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.ymir.PageTestCase;
-import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 
-public class HotdeployManagerITest extends PageTestCase<Object> {
+public class HotdeployManagerImplITest extends PageTestCase<Object> {
     @Override
     protected Class<Object> getPageClass() {
         return Object.class;
@@ -18,6 +17,6 @@ public class HotdeployManagerITest extends PageTestCase<Object> {
             fail();
         }
 
-        assertEquals(3, actual.getHotdeployFitters().length);
+        assertEquals(4, actual.getHotdeployFitterBag().getFitters().length);
     }
 }

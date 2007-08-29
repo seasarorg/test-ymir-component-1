@@ -10,4 +10,6 @@ public interface TypeConversionManager {
             throws IllegalAccessException, InvocationTargetException;
 
     <T> T convert(String value, Class<T> type);
+
+    String convert(Object value);
 }
