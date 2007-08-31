@@ -58,7 +58,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.seasar.ymir</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>ymir-core</artifactId>
       <version>${project.version}</version>
     </dependency>

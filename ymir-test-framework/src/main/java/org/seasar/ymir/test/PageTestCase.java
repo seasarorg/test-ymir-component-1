@@ -11,7 +11,7 @@
  *   <li>{@link #processRequest(Request)}</li>
  * </ol>
  */
-package org.seasar.ymir;
+package org.seasar.ymir.test;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -34,12 +34,21 @@ import org.seasar.framework.mock.servlet.MockHttpSession;
 import org.seasar.framework.mock.servlet.MockServletContext;
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.framework.util.ArrayUtil;
+import org.seasar.ymir.Dispatcher;
+import org.seasar.ymir.FormFile;
+import org.seasar.ymir.HttpServletResponseFilter;
+import org.seasar.ymir.Notes;
+import org.seasar.ymir.PageNotFoundException;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.RequestProcessor;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.Ymir;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
-import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
-import org.seasar.ymir.mock.servlet.MockHttpServletResponse;
-import org.seasar.ymir.mock.servlet.MockHttpServletResponseImpl;
 import org.seasar.ymir.servlet.YmirListener;
+import org.seasar.ymir.test.mock.servlet.MockHttpServletRequestImpl;
+import org.seasar.ymir.test.mock.servlet.MockHttpServletResponse;
+import org.seasar.ymir.test.mock.servlet.MockHttpServletResponseImpl;
 
 abstract public class PageTestCase<P> extends TestCase {
     /** リクエストの処理が開始された直後であることを表す定数です。 */

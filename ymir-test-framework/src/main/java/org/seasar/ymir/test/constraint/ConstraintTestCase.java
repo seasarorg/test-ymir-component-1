@@ -1,4 +1,4 @@
-package org.seasar.ymir.constraint;
+package org.seasar.ymir.test.constraint;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -6,6 +6,8 @@ import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
 
+import org.seasar.ymir.constraint.Constraint;
+import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.mock.MockRequest;
 
 /**

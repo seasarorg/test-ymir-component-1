@@ -1,4 +1,4 @@
-package org.seasar.ymir.mock.servlet;
+package org.seasar.ymir.test.mock.servlet;
 
 import javax.servlet.ServletContext;
 
