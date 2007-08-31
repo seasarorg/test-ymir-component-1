@@ -10,8 +10,7 @@ import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.container.annotation.tiger.InitMethod;
 import org.seasar.framework.log.Logger;
 import org.seasar.kvasir.util.collection.I18NProperties;
-import org.seasar.kvasir.util.io.Resource;
-import org.seasar.kvasir.util.io.impl.JavaResource;
+import org.seasar.kvasir.util.collection.I18NPropertiesBuilder;
 import org.seasar.ymir.LocaleManager;
 import org.seasar.ymir.Messages;
 import org.seasar.ymir.Request;
@@ -43,32 +42,11 @@ public class MessagesImpl implements Messages {
         if (path_.isEmpty()) {
             logger_.warn("no message path specified");
         }
+        final I18NPropertiesBuilder propertiesBuilder = new I18NPropertiesBuilder();
         for (final String path : path_) {
-            final Resource resource = new JavaResource(path, Thread
-                    .currentThread().getContextClassLoader());
-
-            String name;
-            final int slash = path.lastIndexOf('/');
-            if (slash >= 0) {
-                name = path.substring(slash + 1);
-            } else {
-                name = path;
-            }
-            String baseName;
-            String suffix;
-            final int dot = name.lastIndexOf('.');
-            if (dot >= 0) {
-                baseName = name.substring(0, dot);
-                suffix = name.substring(dot);
-            } else {
-                baseName = name;
-                suffix = "";
-            }
-
-            final I18NProperties properties = new I18NProperties(resource
-                    .getParentResource(), baseName, suffix, messages_);
-            messages_ = properties;
+            propertiesBuilder.addPath(path);
         }
+        messages_ = propertiesBuilder.build();
     }
 
     public String getProperty(final String name) {
