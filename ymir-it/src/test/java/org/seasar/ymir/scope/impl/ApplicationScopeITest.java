@@ -1,12 +1,12 @@
 package org.seasar.ymir.scope.impl;
 
-import org.seasar.ymir.PageTestCase;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
+import org.seasar.ymir.test.PageTestCase;
 
 import com.example.web.ApplicationScopeTestPage;
 
-public class ApplicationScopeTest extends
+public class ApplicationScopeITest extends
         PageTestCase<ApplicationScopeTestPage> {
     @Override
     protected Class<ApplicationScopeTestPage> getPageClass() {

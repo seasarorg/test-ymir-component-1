@@ -2,12 +2,12 @@ package org.seasar.ymir.impl;
 
 import java.util.Locale;
 
-import org.seasar.ymir.PageTestCase;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.test.PageTestCase;
 
 import com.example.web.LocaleManagerImplPage;
 
-public class LocaleManagerImplTest extends PageTestCase<LocaleManagerImplPage> {
+public class LocaleManagerImplITest extends PageTestCase<LocaleManagerImplPage> {
     @Override
     protected Class<LocaleManagerImplPage> getPageClass() {
         return LocaleManagerImplPage.class;

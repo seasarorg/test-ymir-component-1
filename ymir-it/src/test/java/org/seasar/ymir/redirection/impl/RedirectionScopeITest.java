@@ -2,13 +2,13 @@ package org.seasar.ymir.redirection.impl;
 
 import javax.servlet.http.Cookie;
 
-import org.seasar.ymir.PageTestCase;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
+import org.seasar.ymir.test.PageTestCase;
 
 import com.example.web.RedirectionScopeTestPage;
 
-public class RedirectionScopeTest extends
+public class RedirectionScopeITest extends
         PageTestCase<RedirectionScopeTestPage> {
     @Override
     protected Class<RedirectionScopeTestPage> getPageClass() {
@@ -33,8 +33,9 @@ public class RedirectionScopeTest extends
         assertTrue(redirectPath.startsWith(pathPrefix));
 
         request = prepareForPrecessing("/redirectionScopeTest.html",
-                Request.METHOD_GET, "redirect=&" + RedirectionManagerImpl.KEY_SCOPEID
-                        + "=" + redirectPath.substring(pathPrefix.length()));
+                Request.METHOD_GET, "redirect=&"
+                        + RedirectionManagerImpl.KEY_SCOPEID + "="
+                        + redirectPath.substring(pathPrefix.length()));
         process(request);
 
         page = (RedirectionScopeTestPage) request

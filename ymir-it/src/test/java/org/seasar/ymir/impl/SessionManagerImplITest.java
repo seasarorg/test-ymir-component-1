@@ -2,13 +2,13 @@ package org.seasar.ymir.impl;
 
 import javax.servlet.http.HttpSession;
 
-import org.seasar.ymir.PageTestCase;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.SessionManager;
+import org.seasar.ymir.test.PageTestCase;
 
 import com.example.web.SessionManagerImplPage;
 
-public class SessionManagerImplTest extends
+public class SessionManagerImplITest extends
         PageTestCase<SessionManagerImplPage> {
     @Override
     protected Class<SessionManagerImplPage> getPageClass() {

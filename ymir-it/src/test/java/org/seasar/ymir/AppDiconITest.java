@@ -1,8 +1,9 @@
 package org.seasar.ymir;
 
 import com.example.web.HoePage;
+import org.seasar.ymir.test.PageTestCase;
 
-public class AppDiconTest extends PageTestCase<HoePage> {
+public class AppDiconITest extends PageTestCase<HoePage> {
     @Override
     protected Class<HoePage> getPageClass() {
         return HoePage.class;

@@ -13,7 +13,8 @@
   <artifactId>ymir-it</artifactId>
   <name>Ymir Integration Tests</name>
   <description>
-    Ymir Integration Tests project contains integration tests for Ymir framework.
+    Ymir Integration Tests project contains integration tests for Ymir
+    framework.
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
@@ -47,20 +48,16 @@
   </repositories>
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.2</version>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ymir-test-framework</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>2.4</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>ymir-core</artifactId>
-      <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>

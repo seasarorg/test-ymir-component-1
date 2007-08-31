@@ -1,11 +1,11 @@
 package org.seasar.ymir.conversation;
 
-import org.seasar.ymir.PageTestCase;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.test.PageTestCase;
 
 import com.example.web.ConversationBeginDisablePage;
 
-public class ConversationBeginDisableTest extends
+public class ConversationBeginDisableITest extends
         PageTestCase<ConversationBeginDisablePage> {
     @Override
     protected Class<ConversationBeginDisablePage> getPageClass() {

@@ -1,8 +1,9 @@
 package org.seasar.ymir;
 
 import com.example.web.ScopePage;
+import org.seasar.ymir.test.PageTestCase;
 
-public class ScopeAttributeTest extends PageTestCase<ScopePage> {
+public class ScopeAttributeITest extends PageTestCase<ScopePage> {
     @Override
     protected Class<ScopePage> getPageClass() {
         return ScopePage.class;
