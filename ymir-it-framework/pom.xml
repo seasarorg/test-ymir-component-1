@@ -10,10 +10,10 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.seasar.ymir</groupId>
-  <artifactId>ymir-it-framework</artifactId>
-  <name>Ymir Integration Test Framework</name>
+  <artifactId>ymir-test-framework</artifactId>
+  <name>Ymir Test Framework</name>
   <description>
-    Ymir Integration Test Framework is a framework for developing Ymir applications.
+    Ymir Test Framework is a framework for testing Ymir applications.
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
