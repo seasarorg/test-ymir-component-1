@@ -11,11 +11,20 @@ import org.seasar.cms.pluggable.SingletonPluggableContainerFactory;
 import org.seasar.cms.pluggable.hotdeploy.DistributedHotdeployBehavior;
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
 import org.seasar.cms.pluggable.impl.ConfigurationImpl;
+import org.seasar.framework.container.ComponentCreator;
+import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.external.servlet.HttpServletExternalContext;
+import org.seasar.framework.container.external.servlet.HttpServletExternalContextComponentDefRegister;
+import org.seasar.framework.container.impl.S2ContainerBehavior;
+import org.seasar.framework.container.impl.S2ContainerImpl;
+import org.seasar.framework.mock.servlet.MockHttpServletRequestImpl;
+import org.seasar.framework.mock.servlet.MockHttpServletResponseImpl;
+import org.seasar.framework.mock.servlet.MockServletContextImpl;
+import org.seasar.framework.util.ResourceUtil;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
-import org.seasar.ymir.YmirTestCase;
 import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.creator.PageCreator;
 import org.seasar.ymir.extension.Globals;
@@ -31,18 +40,9 @@ import org.seasar.ymir.impl.PathMappingImpl;
 import org.seasar.ymir.impl.PathMappingProviderImpl;
 import org.seasar.ymir.impl.SingleApplication;
 import org.seasar.ymir.impl.YmirImpl;
-import org.seasar.framework.container.ComponentCreator;
-import org.seasar.framework.container.S2Container;
-import org.seasar.framework.container.external.servlet.HttpServletExternalContext;
-import org.seasar.framework.container.external.servlet.HttpServletExternalContextComponentDefRegister;
-import org.seasar.framework.container.impl.S2ContainerBehavior;
-import org.seasar.framework.container.impl.S2ContainerImpl;
-import org.seasar.framework.mock.servlet.MockHttpServletRequestImpl;
-import org.seasar.framework.mock.servlet.MockHttpServletResponseImpl;
-import org.seasar.framework.mock.servlet.MockServletContextImpl;
-import org.seasar.framework.util.ResourceUtil;
+import org.seasar.ymir.test.TestCaseBase;
 
-abstract public class SourceCreatorImplTestBase extends YmirTestCase {
+abstract public class SourceCreatorImplTestBase extends TestCaseBase {
 
     protected S2Container container_;
 
