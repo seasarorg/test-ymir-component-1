@@ -1,4 +1,4 @@
-package org.seasar.ymir;
+package org.seasar.ymir.test;
 
 import java.io.File;
 
@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 
 import org.seasar.kvasir.util.io.IOUtils;
 
-public abstract class YmirTestCase extends TestCase {
+public abstract class TestCaseBase extends TestCase {
 
     protected String readResource(Class testClass, String name) {
 
@@ -16,7 +16,7 @@ public abstract class YmirTestCase extends TestCase {
             className = className.substring(dot + 1);
         }
         return IOUtils.readString(getClass().getResourceAsStream(
-            className + "_" + name), "UTF-8", false);
+                className + "_" + name), "UTF-8", false);
     }
 
     protected File clean(File dir) {
