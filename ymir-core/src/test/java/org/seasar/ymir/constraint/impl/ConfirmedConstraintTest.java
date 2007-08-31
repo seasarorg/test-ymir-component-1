@@ -2,9 +2,9 @@ package org.seasar.ymir.constraint.impl;
 
 import java.util.Map;
 
-import org.seasar.ymir.constraint.ConstraintTestCase;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.Confirmed;
+import org.seasar.ymir.test.constraint.ConstraintTestCase;
 
 public class ConfirmedConstraintTest extends
         ConstraintTestCase<Confirmed, ConfirmedConstraint> {
