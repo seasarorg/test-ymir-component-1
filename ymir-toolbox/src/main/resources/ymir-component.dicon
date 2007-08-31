@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
+  "http://www.seasar.org/dtd/components24.dtd">
+<components>
+  <component name="applicationManager"
+    class="org.seasar.ymir.impl.ApplicationManagerImpl" />
+  <component name="mimeTypeDetector"
+    class="org.seasar.ymir.impl.ServletMimeTypeDetector" />
+  <component name="messages"
+    class="org.seasar.ymir.impl.MessagesImpl">
+    <initMethod name="addPath">
+      <arg>"messages.xproperties"</arg>
+    </initMethod>
+  </component>
+  <component name="localeManager"
+    class="org.seasar.ymir.impl.LocaleManagerImpl" />
+  <component name="sessionManager"
+    class="org.seasar.ymir.impl.SessionManagerImpl" />
+  <component name="dateManager"
+    class="org.seasar.ymir.impl.DateManagerImpl" />
+  <component name="redirectionManager"
+    class="org.seasar.ymir.redirection.impl.RedirectionManagerImpl" />
+  <component name="tokenManager"
+    class="org.seasar.ymir.impl.TokenManagerImpl" />
+  <component name="hotdeployManager"
+    class="org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl" />
+  <component name="typeConversionManager"
+    class="org.seasar.ymir.impl.TypeConversionManagerImpl" />
+  <!-- HotdeployFitter -->
+  <component name="listFitter"
+    class="org.seasar.ymir.hotdeploy.fitter.impl.ListFitter" />
+  <component name="mapFitter"
+    class="org.seasar.ymir.hotdeploy.fitter.impl.MapFitter" />
+  <component name="collectionFitter"
+    class="org.seasar.ymir.hotdeploy.fitter.impl.CollectionFitter" />
+</components>
