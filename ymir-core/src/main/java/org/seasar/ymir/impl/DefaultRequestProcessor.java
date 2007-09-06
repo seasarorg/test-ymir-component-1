@@ -20,7 +20,8 @@ import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.PageNotFoundException;
 import org.seasar.ymir.PageProcessor;
-import org.seasar.ymir.PagePropertyMetaData;
+import org.seasar.ymir.PageMetaData;
+import org.seasar.ymir.Phase;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
@@ -52,9 +53,24 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
     private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
 
-    private final Logger logger_ = Logger.getLogger(getClass());
+    private final PageComponentVisitor visitorForInvokingInPhasePageComponentCreated_ = new VisitorForInvoking(
+            Phase.PAGECOMPONENT_CREATED);
 
-    private PageComponentVisitor visitorForRendering_ = new VisitorForRendering();
+    private final PageComponentVisitor visitorForInvokingInPhaseActionInvoking_ = new VisitorForInvoking(
+            Phase.ACTION_INVOKING);
+
+    private final PageComponentVisitor visitorForInvokingInPhaseActionInvoked_ = new VisitorForInvoking(
+            Phase.ACTION_INVOKED);
+
+    private final PageComponentVisitor visitorForRendering_ = new VisitorForRendering();
+
+    private final PageComponentVisitor visitorForInvokingInPhaseScopeObjectOutjecting_ = new VisitorForInvoking(
+            Phase.SCOPEOBJECT_OUTJECTING);
+
+    private final PageComponentVisitor visitorForInvokingInPhaseScopeObjectOutjected_ = new VisitorForInvoking(
+            Phase.SCOPEOBJECT_OUTJECTED);
+
+    private final Logger logger_ = Logger.getLogger(getClass());
 
     @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
@@ -168,6 +184,9 @@ public class DefaultRequestProcessor implements RequestProcessor {
             if (pageComponent != null) {
                 dispatch.setPageComponent(pageComponent);
 
+                pageComponent
+                        .accept(visitorForInvokingInPhasePageComponentCreated_);
+
                 for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
                     pageComponent = ymirProcessInterceptors_[i]
                             .pageComponentCreated(request, pageComponent);
@@ -188,6 +207,8 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
                 pageComponent.accept(new VisitorForPreparing(request));
 
+                pageComponent.accept(visitorForInvokingInPhaseActionInvoking_);
+
                 Action actualAction = action;
                 for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
                     actualAction = ymirProcessInterceptors_[i].actionInvoking(
@@ -198,6 +219,8 @@ public class DefaultRequestProcessor implements RequestProcessor {
                         invokeAction(actualAction), pageComponent), dispatch
                         .getPath());
 
+                pageComponent.accept(visitorForInvokingInPhaseActionInvoked_);
+
                 ResponseType responseType = response.getType();
                 if (responseType == ResponseType.PASSTHROUGH
                         || responseType == ResponseType.FORWARD) {
@@ -205,7 +228,13 @@ public class DefaultRequestProcessor implements RequestProcessor {
                     pageComponent.accept(visitorForRendering_);
                 }
 
-                pageComponent.accept(new VisitorForFinishing(dispatch));
+                pageComponent
+                        .accept(visitorForInvokingInPhaseScopeObjectOutjecting_);
+
+                pageComponent.accept(new VisitorForFinishing(request));
+
+                pageComponent
+                        .accept(visitorForInvokingInPhaseScopeObjectOutjected_);
 
                 // Pageコンポーネントをattributeとしてバインドしておく。
                 request.setAttribute(ATTR_PAGECOMPONENT, pageComponent);
@@ -268,6 +297,9 @@ public class DefaultRequestProcessor implements RequestProcessor {
         } else {
             pageComponent = new PageComponentImpl(page, pageClass);
         }
+
+        pageComponent.setRelatedObject(PageMetaData.class,
+                new PageMetaDataImpl(pageClass, getS2Container()));
 
         return pageComponent;
     }
@@ -394,6 +426,20 @@ public class DefaultRequestProcessor implements RequestProcessor {
         }
     }
 
+    protected class VisitorForInvoking extends PageComponentVisitor {
+        private Phase phase_;
+
+        public VisitorForInvoking(Phase phase) {
+            phase_ = phase;
+        }
+
+        public Object process(PageComponent pageComponent) {
+            pageProcessor_.invokeMethods(pageComponent.getPage(), pageComponent
+                    .getRelatedObject(PageMetaData.class), phase_);
+            return null;
+        }
+    }
+
     protected class VisitorForPreparing extends PageComponentVisitor {
         private Request request_;
 
@@ -403,21 +449,20 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
         public Object process(PageComponent pageComponent) {
             Object page = pageComponent.getPage();
-            PagePropertyMetaData bag = new PagePropertyMetaDataImpl(
-                    pageComponent.getPageClass(), getS2Container());
-            pageComponent.setRelatedObject(PagePropertyMetaData.class, bag);
+            PageMetaData metaData = pageComponent
+                    .getRelatedObject(PageMetaData.class);
 
             // リクエストパラメータをinjectする。
-            pageProcessor_.injectRequestParameters(page, bag, request_
+            pageProcessor_.injectRequestParameters(page, metaData, request_
                     .getParameterMap());
 
             // FormFileのリクエストパラメータをinjectする。
-            pageProcessor_.injectRequestFileParameters(page, bag, request_
+            pageProcessor_.injectRequestFileParameters(page, metaData, request_
                     .getFileParameterMap());
 
             // 各コンテキストが持つ属性をinjectする。
-            pageProcessor_.injectContextAttributes(page, request_
-                    .getCurrentDispatch().getActionName(), bag);
+            pageProcessor_.injectContextAttributes(page, metaData, request_
+                    .getCurrentDispatch().getActionName());
 
             return null;
         }
@@ -441,15 +486,15 @@ public class DefaultRequestProcessor implements RequestProcessor {
     protected class VisitorForFinishing extends PageComponentVisitor {
         private Dispatch dispatch_;
 
-        public VisitorForFinishing(Dispatch dispatch) {
-            dispatch_ = dispatch;
+        public VisitorForFinishing(Request request) {
+            dispatch_ = request.getCurrentDispatch();
         }
 
         public Object process(PageComponent pageComponent) {
             // 各コンテキストに属性をoutjectする。
             pageProcessor_.outjectContextAttributes(pageComponent.getPage(),
-                    dispatch_.getActionName(), pageComponent
-                            .getRelatedObject(PagePropertyMetaData.class));
+                    pageComponent.getRelatedObject(PageMetaData.class),
+                    dispatch_.getActionName());
 
             return null;
         }

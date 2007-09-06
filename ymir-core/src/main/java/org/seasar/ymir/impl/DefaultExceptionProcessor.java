@@ -7,7 +7,7 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.PageProcessor;
-import org.seasar.ymir.PagePropertyMetaData;
+import org.seasar.ymir.PageMetaData;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
@@ -93,11 +93,11 @@ public class DefaultExceptionProcessor implements ExceptionProcessor {
         ExceptionHandler handler = (ExceptionHandler) handlerCd.getComponent();
 
         // 各コンテキストが持つ属性をinjectする。
-        PagePropertyMetaData propertyMetaData = new PagePropertyMetaDataImpl(
+        PageMetaData propertyMetaData = new PageMetaDataImpl(
                 handlerCd.getComponentClass(), container);
         // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
         // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
-        pageProcessor_.injectContextAttributes(handler, null, propertyMetaData);
+        pageProcessor_.injectContextAttributes(handler, propertyMetaData, null);
 
         Response response = constructResponse(handler.handle(t));
         if (response.getType() == ResponseType.PASSTHROUGH) {
@@ -108,7 +108,7 @@ public class DefaultExceptionProcessor implements ExceptionProcessor {
 
         // 各コンテキストに属性をoutjectする。
         pageProcessor_
-                .outjectContextAttributes(handler, null, propertyMetaData);
+                .outjectContextAttributes(handler, propertyMetaData, null);
 
         // ExceptionHandlerコンポーネントをattributeとしてバインドしておく。
         request.setAttribute(ATTR_HANDLER, handler);

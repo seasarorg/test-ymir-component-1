@@ -3,23 +3,28 @@ package org.seasar.ymir.impl;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.FormFile;
-import org.seasar.ymir.PagePropertyMetaData;
+import org.seasar.ymir.PageMetaData;
+import org.seasar.ymir.Phase;
 import org.seasar.ymir.ScopeAttribute;
 import org.seasar.ymir.annotation.In;
+import org.seasar.ymir.annotation.Invoke;
 import org.seasar.ymir.annotation.Out;
 import org.seasar.ymir.annotation.Protected;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.impl.RequestScope;
 import org.seasar.ymir.util.BeanUtils;
 
-public class PagePropertyMetaDataImpl implements PagePropertyMetaData {
+public class PageMetaDataImpl implements PageMetaData {
     private Class<?> class_;
 
     private S2Container container_;
@@ -30,7 +35,9 @@ public class PagePropertyMetaDataImpl implements PagePropertyMetaData {
 
     private List<ScopeAttribute> outjectedScopeAttributeList_ = new ArrayList<ScopeAttribute>();
 
-    public PagePropertyMetaDataImpl(Class<?> clazz, S2Container container) {
+    private Map<Phase, Method[]> methodsMap_ = new HashMap<Phase, Method[]>();
+
+    public PageMetaDataImpl(Class<?> clazz, S2Container container) {
         class_ = clazz;
         container_ = container;
         Method[] methods = clazz.getMethods();
@@ -84,6 +91,23 @@ public class PagePropertyMetaDataImpl implements PagePropertyMetaData {
             // S2Container用のsetterとみなしてプロテクトする。
             protectedSetterNameSet_.add(BeanUtils.toPropertyName(method
                     .getName(), false));
+            return;
+        }
+
+        Invoke invoke = method.getAnnotation(Invoke.class);
+        if (invoke != null) {
+            if (method.getParameterTypes().length > 0) {
+                throw new RuntimeException(
+                        "Can't annotate method that has parameter with @Invoke");
+            }
+            Phase phase = invoke.value();
+            Method[] methods = methodsMap_.get(phase);
+            if (methods == null) {
+                methods = new Method[] { method };
+            } else {
+                methods = (Method[]) ArrayUtil.add(methods, method);
+            }
+            methodsMap_.put(phase, methods);
             return;
         }
     }
@@ -168,5 +192,9 @@ public class PagePropertyMetaDataImpl implements PagePropertyMetaData {
 
     Object getComponent(Object key) {
         return container_.getComponent(key);
+    }
+
+    public Method[] getMethods(Phase phase) {
+        return methodsMap_.get(phase);
     }
 }
