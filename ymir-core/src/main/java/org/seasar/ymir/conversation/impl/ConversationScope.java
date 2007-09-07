@@ -7,7 +7,9 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Globals;
+import org.seasar.ymir.Request;
 import org.seasar.ymir.conversation.Conversations;
+import org.seasar.ymir.conversation.annotation.Conversation;
 import org.seasar.ymir.scope.impl.AbstractServletScope;
 
 public class ConversationScope extends AbstractServletScope {
@@ -34,11 +36,31 @@ public class ConversationScope extends AbstractServletScope {
             }
         } else {
             Conversations conversations = getConversations();
-            if (conversations != null) {
+            if (conversations != null
+                    && conversationNameEquals(getPageConversationName(),
+                            conversations.getCurrentConversationName())) {
                 return conversations.getAttribute(name);
             } else {
                 return null;
             }
+        }
+    }
+
+    boolean conversationNameEquals(String conversationName1,
+            String conversationName2) {
+        return conversationName1 != null
+                && conversationName1.equals(conversationName2);
+    }
+
+    String getPageConversationName() {
+        Conversation conversation = ((Request) container_
+                .getComponent(Request.class)).getCurrentDispatch()
+                .getPageComponent().getPageClass().getAnnotation(
+                        Conversation.class);
+        if (conversation != null) {
+            return conversation.name();
+        } else {
+            return null;
         }
     }
 
@@ -58,7 +80,9 @@ public class ConversationScope extends AbstractServletScope {
             getSession().setAttribute(name, value);
         } else {
             Conversations conversations = getConversations();
-            if (conversations != null) {
+            if (conversations != null
+                    && conversationNameEquals(getPageConversationName(),
+                            conversations.getCurrentConversationName())) {
                 conversations.setAttribute(name, value);
             }
         }

@@ -85,16 +85,18 @@ public class PageProcessorImpl implements PageProcessor {
 
     public void invokeMethods(Object page, PageMetaData metaData, Phase phase) {
         Method[] methods = metaData.getMethods(phase);
-        for (int i = 0; i < methods.length; i++) {
-            try {
-                methods[i].invoke(page, new Object[0]);
-            } catch (IllegalArgumentException ex) {
-                throw new RuntimeException(
-                        "Can't invoke method with parameters", ex);
-            } catch (IllegalAccessException ex) {
-                throw new RuntimeException(ex);
-            } catch (InvocationTargetException ex) {
-                throw new WrappingRuntimeException(ex.getCause());
+        if (methods != null) {
+            for (int i = 0; i < methods.length; i++) {
+                try {
+                    methods[i].invoke(page, new Object[0]);
+                } catch (IllegalArgumentException ex) {
+                    throw new RuntimeException(
+                            "Can't invoke method with parameters", ex);
+                } catch (IllegalAccessException ex) {
+                    throw new RuntimeException(ex);
+                } catch (InvocationTargetException ex) {
+                    throw new WrappingRuntimeException(ex.getCause());
+                }
             }
         }
     }
