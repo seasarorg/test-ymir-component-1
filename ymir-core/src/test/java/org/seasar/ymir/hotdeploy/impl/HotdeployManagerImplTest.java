@@ -20,6 +20,7 @@ import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl.HotdeployFitterBag;
 import org.seasar.ymir.mock.MockApplicationManager;
 
 import com.example.IHoe;
+import com.example.IHoe2;
 
 public class HotdeployManagerImplTest extends TestCase {
     private HotdeployManagerImpl target_;
@@ -27,6 +28,8 @@ public class HotdeployManagerImplTest extends TestCase {
     private IHoe hoe_;
 
     private Object fuga_;
+
+    private IHoe2 hoe2_;
 
     @Override
     protected void setUp() throws Exception {
@@ -72,6 +75,8 @@ public class HotdeployManagerImplTest extends TestCase {
         Object[] fugas = (Object[]) Array.newInstance(fugaClass, 1);
         fugas[0] = fuga_;
         hoe_.setFugas(fugas);
+
+        hoe2_ = (IHoe2) cl.loadClass("com.example.hotdeploy.Hoe2").newInstance();
     }
 
     private HotdeployFitter<?>[] getHotdeployFitters(
@@ -145,5 +150,16 @@ public class HotdeployManagerImplTest extends TestCase {
                 ArrayList.class).getTargetClass() == ArrayList.class);
         assertTrue("Fitterの検索は完全一致→アサイン可能（登録順）のように行なわれること", target.findFitter(
                 List.class).getTargetClass() == List.class);
+    }
+    
+    public void testFit4_JIRA_YMIR_125_final宣言されているフィールドを持っていても処理できること() throws Exception {
+        IHoe2 hoe2 = null;
+        try {
+            hoe2= (IHoe2) target_.fit(hoe2_);
+        } catch (Exception ex) {
+            fail();
+        }
+        
+        assertEquals(hoe2_.getId(), hoe2.getId());
     }
 }
