@@ -66,10 +66,14 @@ public class RedirectionManagerImpl implements RedirectionManager {
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> getScopeMap(String scopeId, boolean create) {
-        HttpSession session = getSession();
+        HttpSession session = getSession(create);
         String scopeMapAttr = getScopeMapId(scopeId);
-        Map<String, Object> scopeMap = (Map<String, Object>) session
-                .getAttribute(scopeMapAttr);
+        Map<String, Object> scopeMap;
+        if (session != null) {
+            scopeMap = (Map<String, Object>) session.getAttribute(scopeMapAttr);
+        } else {
+            scopeMap = null;
+        }
         if (scopeMap == null && create) {
             scopeMap = new HashMap<String, Object>();
             session.setAttribute(scopeMapAttr, scopeMap);
