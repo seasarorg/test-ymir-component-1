@@ -5,11 +5,14 @@ import javax.servlet.http.HttpSession;
 
 import org.seasar.framework.container.ExternalContext;
 import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.scope.Scope;
 
 abstract public class AbstractServletScope implements Scope {
     protected S2Container container_;
 
+    @Binding(bindingType = BindingType.MUST)
     public void setS2Container(S2Container container) {
         container_ = container;
     }
