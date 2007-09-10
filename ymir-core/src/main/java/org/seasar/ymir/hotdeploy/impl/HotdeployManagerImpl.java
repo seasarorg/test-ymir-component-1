@@ -2,6 +2,7 @@ package org.seasar.ymir.hotdeploy.impl;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -125,9 +126,15 @@ public class HotdeployManagerImpl implements HotdeployManager {
 
             Field[] destinationFields = getFields(destinationClass);
             for (int i = 0; i < destinationFields.length; i++) {
+                if (Modifier.isStatic(destinationFields[i].getModifiers())) {
+                    continue;
+                }
                 Field sourceField = sourceFieldMap.get(destinationFields[i]
                         .getName());
                 if (sourceField != null) {
+                    if (Modifier.isStatic(sourceField.getModifiers())) {
+                        continue;
+                    }
                     sourceField.setAccessible(true);
                     destinationFields[i].setAccessible(true);
                     try {

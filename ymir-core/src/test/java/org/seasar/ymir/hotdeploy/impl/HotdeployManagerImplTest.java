@@ -161,5 +161,6 @@ public class HotdeployManagerImplTest extends TestCase {
         }
         
         assertEquals(hoe2_.getId(), hoe2.getId());
+        assertEquals(hoe2_.getStaticId(), hoe2.getStaticId());
     }
 }
