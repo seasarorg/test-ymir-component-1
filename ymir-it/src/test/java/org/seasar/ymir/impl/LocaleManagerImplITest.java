@@ -16,7 +16,7 @@ public class LocaleManagerImplITest extends PageTestCase<LocaleManagerImplPage> 
     public void test() throws Exception {
         Locale locale = new Locale("ja", "JP");
         setLocale(locale);
-        Request request = prepareForPrecessing("/localeManagerImpl.html",
+        Request request = prepareForProcessing("/localeManagerImpl.html",
                 Request.METHOD_GET);
         processRequest(request);
 

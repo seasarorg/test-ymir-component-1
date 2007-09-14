@@ -28,7 +28,7 @@ public class ConstraintInterceptorITest extends
 
     public void test_アクション制約とクラス制約と共通制約を返すこと・ただしgetterの制約は含まないこと()
             throws Exception {
-        Request request = prepareForPrecessing(
+        Request request = prepareForProcessing(
                 "/constraintInterceptorTest.html", Request.METHOD_GET,
                 "button1=");
         processRequest(request);
@@ -47,7 +47,7 @@ public class ConstraintInterceptorITest extends
 
     public void test_SuppressConstraintアノテーションが付与されている場合はクラス制約を含まないこと()
             throws Exception {
-        Request request = prepareForPrecessing(
+        Request request = prepareForProcessing(
                 "/constraintInterceptorTest.html", Request.METHOD_GET,
                 "button2=");
         processRequest(request);
@@ -61,7 +61,7 @@ public class ConstraintInterceptorITest extends
 
     public void test_SuppressConstraintアノテーションがConstraintTypeつきで付与されている場合は指定されたクラス制約を含まないこと()
             throws Exception {
-        Request request = prepareForPrecessing(
+        Request request = prepareForProcessing(
                 "/constraintInterceptorTest.html", Request.METHOD_GET,
                 "button3=");
         processRequest(request);
@@ -76,7 +76,7 @@ public class ConstraintInterceptorITest extends
 
     public void test_複数Constraintの一括指定系Constraintアノテーションが正しく解釈されること()
             throws Exception {
-        Request request = prepareForPrecessing(
+        Request request = prepareForProcessing(
                 "/constraintInterceptorTest.html", Request.METHOD_GET,
                 "button4=");
         processRequest(request);
@@ -90,7 +90,7 @@ public class ConstraintInterceptorITest extends
     }
 
     public void test_Validatorアノテーションがついているメソッドが呼び出されること() throws Exception {
-        Request request = prepareForPrecessing(
+        Request request = prepareForProcessing(
                 "/constraintInterceptorTest.html", Request.METHOD_GET,
                 "button5=");
         processRequest(request);
@@ -101,7 +101,7 @@ public class ConstraintInterceptorITest extends
 
     public void test_パラメータつきでアクションが呼ばれる時はValidatorアノテーションがついているアクションが引数を取るものであればパラメータが渡されること()
             throws Exception {
-        Request request = prepareForPrecessing(
+        Request request = prepareForProcessing(
                 "/constraintInterceptorTest.html", Request.METHOD_GET,
                 "button6[1][hoe]=");
         processRequest(request);

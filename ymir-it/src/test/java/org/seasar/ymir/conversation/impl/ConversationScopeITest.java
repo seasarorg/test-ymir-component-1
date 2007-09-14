@@ -10,15 +10,15 @@ import com.example.web.ConversationScopeITest3Page;
 public class ConversationScopeITest extends YmirTestCase {
     public void test_別のconversationから移動してきた場合はInで何もインジェクションされないこと()
             throws Exception {
-        Request request = prepareForPrecessing("/conversationScopeITest1.html",
+        Request request = prepareForProcessing("/conversationScopeITest1.html",
                 Request.METHOD_GET);
         process(request);
 
-        request = prepareForPrecessing("/conversationScopeITest2.html",
+        request = prepareForProcessing("/conversationScopeITest2.html",
                 Request.METHOD_GET);
         process(request);
 
-        request = prepareForPrecessing("/conversationScopeITest3.html",
+        request = prepareForProcessing("/conversationScopeITest3.html",
                 Request.METHOD_GET);
         ConversationScopeITest3Page actual = getComponent(ConversationScopeITest3Page.class);
         process(request);
@@ -28,15 +28,15 @@ public class ConversationScopeITest extends YmirTestCase {
 
     public void test_別のconversationに移動する場合はOutで何もアウトジェクションされないこと()
             throws Exception {
-        Request request = prepareForPrecessing("/conversationScopeITest4.html",
+        Request request = prepareForProcessing("/conversationScopeITest4.html",
                 Request.METHOD_GET, "begin=");
         process(request);
 
-        request = prepareForPrecessing("/conversationScopeITest4.html",
+        request = prepareForProcessing("/conversationScopeITest4.html",
                 Request.METHOD_GET, "next=");
         process(request);
 
-        request = prepareForPrecessing("/conversationScopeITest5.html",
+        request = prepareForProcessing("/conversationScopeITest5.html",
                 Request.METHOD_GET);
         process(request);
 

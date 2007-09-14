@@ -20,14 +20,14 @@ public class SessionManagerImplITest extends
                 .getComponent(SessionManager.class);
         sessionManager.addStraddlingAttributeName("hoehoe");
 
-        Request request = prepareForPrecessing("/sessionManagerImpl.html",
+        Request request = prepareForProcessing("/sessionManagerImpl.html",
                 Request.METHOD_GET, "getSession=");
         assertNull(getHttpSession());
         processRequest(request);
 
         assertNull("getSession(false)ではセッションが作成されないこと", getHttpSession());
 
-        request = prepareForPrecessing("/sessionManagerImpl.html",
+        request = prepareForProcessing("/sessionManagerImpl.html",
                 Request.METHOD_GET, "getSession2=");
         processRequest(request);
 
@@ -39,7 +39,7 @@ public class SessionManagerImplITest extends
                 .getComponent(SessionManager.class);
         sessionManager.addStraddlingAttributeName("hoehoe");
 
-        Request request = prepareForPrecessing("/sessionManagerImpl.html",
+        Request request = prepareForProcessing("/sessionManagerImpl.html",
                 Request.METHOD_GET, "invalidate=");
         getHttpServletRequest().getSession(true);
         processRequest(request);
@@ -53,7 +53,7 @@ public class SessionManagerImplITest extends
                 .getComponent(SessionManager.class);
         sessionManager.addStraddlingAttributeName("hoehoe");
 
-        Request request = prepareForPrecessing("/sessionManagerImpl.html",
+        Request request = prepareForProcessing("/sessionManagerImpl.html",
                 Request.METHOD_GET, "invalidateAndCreate=");
         HttpSession session = getHttpServletRequest().getSession();
         session.setAttribute("hoehoe", "HOEHOE");

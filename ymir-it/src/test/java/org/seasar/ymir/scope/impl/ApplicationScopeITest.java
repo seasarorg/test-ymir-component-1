@@ -15,7 +15,7 @@ public class ApplicationScopeITest extends
 
     public void test() throws Exception {
         getServletContext().setAttribute("injectedValue", "INJECTED_VALUE");
-        Request request = prepareForPrecessing("/applicationScopeTest.html",
+        Request request = prepareForProcessing("/applicationScopeTest.html",
                 Request.METHOD_GET);
         processRequest(request);
 

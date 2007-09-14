@@ -16,7 +16,7 @@ public class ConversationBeginDisableITest extends
             throws Exception {
         disableBeginCheck();
 
-        Request request = prepareForPrecessing(
+        Request request = prepareForProcessing(
                 "/conversationBeginDisable.html", Request.METHOD_GET);
         try {
             processRequest(request);

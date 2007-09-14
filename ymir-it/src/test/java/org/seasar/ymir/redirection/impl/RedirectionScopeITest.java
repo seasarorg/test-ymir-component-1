@@ -20,7 +20,7 @@ public class RedirectionScopeITest extends
                 .getComponent(RedirectionManagerImpl.class);
         redirectionManager.setAddScopeIdAsRequestParameter(true);
 
-        Request request = prepareForPrecessing("/redirectionScopeTest.html",
+        Request request = prepareForProcessing("/redirectionScopeTest.html",
                 Request.METHOD_GET);
         process(request);
 
@@ -32,7 +32,7 @@ public class RedirectionScopeITest extends
                 + RedirectionManagerImpl.KEY_SCOPEID + "=";
         assertTrue(redirectPath.startsWith(pathPrefix));
 
-        request = prepareForPrecessing("/redirectionScopeTest.html",
+        request = prepareForProcessing("/redirectionScopeTest.html",
                 Request.METHOD_GET, "redirect=&"
                         + RedirectionManagerImpl.KEY_SCOPEID + "="
                         + redirectPath.substring(pathPrefix.length()));
@@ -44,7 +44,7 @@ public class RedirectionScopeITest extends
     }
 
     public void test_Cookie版() throws Exception {
-        Request request = prepareForPrecessing("/redirectionScopeTest.html",
+        Request request = prepareForProcessing("/redirectionScopeTest.html",
                 Request.METHOD_GET);
         process(request);
 
@@ -58,7 +58,7 @@ public class RedirectionScopeITest extends
         assertEquals(1, cookies.length);
         assertEquals(RedirectionManagerImpl.KEY_SCOPEID, cookies[0].getName());
 
-        request = prepareForPrecessing("/redirectionScopeTest.html",
+        request = prepareForProcessing("/redirectionScopeTest.html",
                 Request.METHOD_GET, "redirect=");
         getHttpServletRequest().addCookie(cookies[0]);
         process(request);

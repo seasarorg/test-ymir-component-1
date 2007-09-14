@@ -11,7 +11,7 @@ public class AppDiconITest extends PageTestCase<HoePage> {
 
     public void test_appDiconで定義したコンポーネントにYmirのRequestがDIされること()
             throws Exception {
-        Request request = prepareForPrecessing("/hoe.html", Request.METHOD_GET);
+        Request request = prepareForProcessing("/hoe.html", Request.METHOD_GET);
         processRequest(request);
         HoePage page = getPage();
         AppDiconComponent component = page.getAppDiconComponent();
