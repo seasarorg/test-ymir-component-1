@@ -89,11 +89,13 @@ public class YmirFilter implements Filter {
 
             request = ymir_.prepareForProcessing(ServletUtils
                     .getContextPath(httpRequest), httpRequest.getMethod(),
-                    httpRequest.getParameterMap(), fileParameterMap,
+                    httpRequest.getCharacterEncoding(), httpRequest
+                            .getParameterMap(), fileParameterMap,
                     attributeContainer, LocaleUtils.findLocale(httpRequest));
             context.setComponent(Request.class, request);
         } else {
             request = (Request) context.getComponent(Request.class);
+            ymir_.updateParameterMap(request, httpRequest.getParameterMap());
         }
 
         ymir_.enterDispatch(request, ServletUtils.getPath(httpRequest),

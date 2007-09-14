@@ -13,11 +13,10 @@ import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 
 public interface Ymir {
-
     void init();
 
     Request prepareForProcessing(String contextPath, String method,
-            Map<String, String[]> parameterMap,
+            String characterEncoding, Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap,
             AttributeContainer attributeContainer, Locale locale);
 
@@ -57,4 +56,6 @@ public interface Ymir {
     Response processException(Request request, Throwable t);
 
     YmirProcessInterceptor[] getYmirProcessInterceptors();
+
+    void updateParameterMap(Request request, Map<String, String[]> parameterMap);
 }

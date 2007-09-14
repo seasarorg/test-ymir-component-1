@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.seasar.ymir.response.scheme;
 
 import org.seasar.ymir.Response;

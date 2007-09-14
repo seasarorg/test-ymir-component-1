@@ -30,6 +30,11 @@ public class Path {
         this(path, new LinkedHashMap<String, String[]>());
     }
 
+    public Path(String path, String parameterEncoding) {
+
+        this(path, new LinkedHashMap<String, String[]>(), parameterEncoding);
+    }
+
     public Path(String path, Map<String, String[]> parameterMap) {
 
         this(path, parameterMap, "UTF-8");

@@ -1,5 +1,6 @@
 package org.seasar.ymir.test.mock.servlet;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
@@ -60,5 +61,10 @@ public class MockHttpServletRequestImpl extends
 
     void clearSession() {
         session_ = null;
+    }
+
+    @Override
+    public RequestDispatcher getRequestDispatcher(String path) {
+        return new MockRequestDispatcherImpl(path);
     }
 }

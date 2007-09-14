@@ -32,7 +32,6 @@ import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.mock.servlet.MockHttpServletRequest;
 import org.seasar.framework.mock.servlet.MockHttpSession;
 import org.seasar.framework.mock.servlet.MockServletContext;
-import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
@@ -49,6 +48,7 @@ import org.seasar.ymir.servlet.YmirListener;
 import org.seasar.ymir.test.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.ymir.test.mock.servlet.MockHttpServletResponse;
 import org.seasar.ymir.test.mock.servlet.MockHttpServletResponseImpl;
+import org.seasar.ymir.test.mock.servlet.MockServletContextImpl;
 
 abstract public class YmirTestCase extends TestCase {
     /** リクエストの処理が開始された直後であることを表す定数です。 */
@@ -75,6 +75,8 @@ abstract public class YmirTestCase extends TestCase {
     private MockHttpServletRequest httpRequest_;
 
     private MockHttpServletResponse httpResponse_;
+
+    private Request request_;
 
     /**
      * テストに使用されるServletContextオブジェクトを返します。
@@ -250,8 +252,8 @@ abstract public class YmirTestCase extends TestCase {
      * @param httpMethod HTTPメソッド。Request.METHOD_XXXのいずれかを指定して下さい。
      * @return 構築されたRequestオブジェクト。
      */
-    protected Request prepareForPrecessing(String path, String httpMethod) {
-        return prepareForPrecessing(path, httpMethod,
+    protected Request prepareForProcessing(String path, String httpMethod) {
+        return prepareForProcessing(path, httpMethod,
                 new HashMap<String, String[]>(),
                 new HashMap<String, FormFile[]>());
     }
@@ -266,9 +268,9 @@ abstract public class YmirTestCase extends TestCase {
      * @param httpMethod HTTPメソッド。Request.METHOD_XXXのいずれかを指定して下さい。
      * @return 構築されたRequestオブジェクト。
      */
-    protected Request prepareForPrecessing(String path, String httpMethod,
+    protected Request prepareForProcessing(String path, String httpMethod,
             String queryString) {
-        return prepareForPrecessing(path, httpMethod,
+        return prepareForProcessing(path, httpMethod,
                 parseQueryString(queryString),
                 new HashMap<String, FormFile[]>());
     }
@@ -332,26 +334,12 @@ abstract public class YmirTestCase extends TestCase {
      * @param httpMethod HTTPメソッド。Request.METHOD_XXXのいずれかを指定して下さい。
      * @return 構築されたRequestオブジェクト。
      */
-    protected Request prepareForPrecessing(String path, String httpMethod,
+    protected Request prepareForProcessing(String path, String httpMethod,
             Map<String, String[]> parameterMap) {
-        return prepareForPrecessing(path, httpMethod, parameterMap,
+        return prepareForProcessing(path, httpMethod,
+                parameterMap != null ? parameterMap
+                        : new HashMap<String, String[]>(),
                 new HashMap<String, FormFile[]>());
-    }
-
-    /**
-     * Pageクラスのアクション呼び出しのための準備を行ないます。
-     *
-     * @param path リクエストパス（コンテキストパス相対）。
-     * @param parameterMap リクエストパラメータが格納されているMap。
-     * @param fileParameterMap fileタイプのリクエストパラメータが格納されているMap。
-     * @param httpMethod HTTPメソッド。Request.METHOD_XXXのいずれかを指定して下さい。
-     * @return 構築されたRequestオブジェクト。
-     */
-    protected Request prepareForPrecessing(String path, String httpMethod,
-            Map<String, String[]> parameterMap,
-            Map<String, FormFile[]> fileParameterMap) {
-        return prepareForPrecessing(path, httpMethod, Dispatcher.REQUEST,
-                parameterMap, fileParameterMap);
     }
 
     /**
@@ -364,15 +352,24 @@ abstract public class YmirTestCase extends TestCase {
      * @param fileParameterMap fileタイプのリクエストパラメータが格納されているMap。
      * @return 構築されたRequestオブジェクト。
      */
-    protected Request prepareForPrecessing(String path, String httpMethod,
-            Dispatcher dispatcher, Map<String, String[]> parameterMap,
+    @SuppressWarnings("unchecked")
+    protected Request prepareForProcessing(String path, String httpMethod,
+            Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap) {
+        if (parameterMap == null) {
+            parameterMap = new HashMap<String, String[]>();
+        }
+        if (fileParameterMap == null) {
+            fileParameterMap = new HashMap<String, FormFile[]>();
+        }
+
         MockHttpSession session = null;
         if (httpRequest_ != null) {
             session = (MockHttpSession) httpRequest_.getSession(false);
         }
         httpRequest_ = new MockHttpServletRequestImpl(application_, path,
                 session);
+        httpRequest_.getParameterMap().putAll(parameterMap);
         httpRequest_.setLocale(getLocale());
         httpResponse_ = new MockHttpServletResponseImpl(httpRequest_);
 
@@ -382,12 +379,28 @@ abstract public class YmirTestCase extends TestCase {
 
         status_ = STATUS_PREPARED;
 
-        Request request = ymir_.prepareForProcessing(getContextPath(),
-                httpMethod, parameterMap, fileParameterMap,
+        request_ = ymir_.prepareForProcessing(getContextPath(), httpMethod,
+                "UTF-8", parameterMap, fileParameterMap,
                 new HttpServletRequestAttributeContainer(httpRequest_),
                 getLocale());
-        ymir_.enterDispatch(request, path, dispatcher);
-        return request;
+
+        ymir_.enterDispatch(request_, path, Dispatcher.REQUEST);
+        return request_;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void prepareForProcessing(String path, Dispatcher dispatcher) {
+        checkStatus(STATUS_PROCESSED);
+
+        ymir_.updateParameterMap(request_, httpRequest_.getParameterMap());
+
+        ExternalContext externalContext = container_.getExternalContext();
+        externalContext.setRequest(httpRequest_);
+        externalContext.setResponse(httpResponse_);
+
+        status_ = STATUS_PREPARED;
+
+        ymir_.enterDispatch(request_, path, dispatcher);
     }
 
     protected void checkStatus(int status) {

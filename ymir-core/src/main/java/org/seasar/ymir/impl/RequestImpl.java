@@ -16,6 +16,8 @@ public class RequestImpl implements Request {
 
     private String method_;
 
+    private String characterEncoding_;
+
     private Map<String, String[]> parameterMap_;
 
     private Map<String, FormFile[]> fileParameterMap_;
@@ -34,11 +36,12 @@ public class RequestImpl implements Request {
     }
 
     public RequestImpl(String contextPath, String method,
-            Map<String, String[]> parameterMap,
+            String characterEncoding, Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap,
             AttributeContainer attributeContainer, Locale locale) {
         contextPath_ = contextPath;
         method_ = method;
+        characterEncoding_ = characterEncoding;
         parameterMap_ = parameterMap;
         fileParameterMap_ = fileParameterMap;
         attributeContainer_ = attributeContainer;
@@ -51,6 +54,14 @@ public class RequestImpl implements Request {
 
     public void setMethod(String method) {
         method_ = method;
+    }
+
+    public String getCharacterEncoding() {
+        return characterEncoding_;
+    }
+
+    public void setCharacterEncoding(String characterEncoding) {
+        characterEncoding_ = characterEncoding;
     }
 
     public String getContextPath() {

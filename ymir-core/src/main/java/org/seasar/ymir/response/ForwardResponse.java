@@ -10,6 +10,7 @@ public class ForwardResponse extends TransitionResponse {
         super(path);
     }
 
+    @Override
     public String toString() {
         return "forward:" + getPath();
     }

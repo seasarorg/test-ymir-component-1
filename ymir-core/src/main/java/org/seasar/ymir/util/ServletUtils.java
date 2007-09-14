@@ -1,12 +1,17 @@
 package org.seasar.ymir.util;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.seasar.framework.util.ArrayUtil;
 
 /**
  * @author YOKOTA Takehiko
@@ -170,5 +175,35 @@ public class ServletUtils {
             sb.append('?').append(queryString);
         }
         return sb.toString();
+    }
+
+    public static Map<String, String[]> parseParameters(String param,
+            String encoding) throws UnsupportedEncodingException {
+        Map<String, String[]> map = new HashMap<String, String[]>();
+
+        StringTokenizer st = new StringTokenizer(param, "&");
+        while (st.hasMoreTokens()) {
+            String tkn = st.nextToken();
+            int equal = tkn.indexOf("=");
+            String name;
+            String value;
+            if (equal >= 0) {
+                name = tkn.substring(0, equal);
+                value = tkn.substring(equal + 1);
+            } else {
+                name = tkn;
+                value = "";
+            }
+            name = URLDecoder.decode(name, encoding);
+            value = URLDecoder.decode(value, encoding);
+            String[] current = map.get(name);
+            if (current == null) {
+                map.put(name, new String[] { value });
+            } else {
+                map.put(name, (String[]) ArrayUtil.add(current, value));
+            }
+        }
+
+        return map;
     }
 }

@@ -13,9 +13,10 @@ import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.MatchedPathMapping;
-import org.seasar.ymir.Request;
+import org.seasar.ymir.RequestWrapper;
+import org.seasar.ymir.impl.RequestImpl;
 
-public class MockRequest implements Request {
+public class MockRequest extends RequestWrapper {
     private AttributeContainer attributeContainer_ = this;
 
     private String contextPath_;
@@ -41,6 +42,10 @@ public class MockRequest implements Request {
     private Dispatch dispatch_;
 
     private LinkedList<Dispatch> dispatchStack_ = new LinkedList<Dispatch>();
+
+    public MockRequest() {
+        super(new RequestImpl());
+    }
 
     public String getAbsolutePath() {
         if (requestDispatch_ != null) {

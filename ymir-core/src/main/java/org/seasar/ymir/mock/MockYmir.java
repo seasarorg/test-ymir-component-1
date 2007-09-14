@@ -60,13 +60,14 @@ public class MockYmir implements Ymir {
     }
 
     public Request prepareForProcessing(String contextPath, String method,
-            Map<String, String[]> parameterMap,
+            String characterEncoding, Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap,
             AttributeContainer attributeContainer, Locale locale) {
         return null;
     }
 
-    public void enterDispatch(Request request, String path, Dispatcher dispatcher) {
+    public void enterDispatch(Request request, String path,
+            Dispatcher dispatcher) {
         request.enterDispatch(new MockDispatch().setPath(path).setDispatcher(
                 dispatcher));
     }
@@ -97,5 +98,9 @@ public class MockYmir implements Ymir {
 
     public YmirProcessInterceptor[] getYmirProcessInterceptors() {
         return new YmirProcessInterceptor[0];
+    }
+
+    public void updateParameterMap(Request request,
+            Map<String, String[]> parameterMap) {
     }
 }

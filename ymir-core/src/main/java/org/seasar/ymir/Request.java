@@ -59,6 +59,12 @@ public interface Request extends AttributeContainer {
     String getMethod();
 
     /**
+     * リクエストの文字エンコーディングを返します。
+     * @return リクエストの文字エンコーディング。
+     */
+    String getCharacterEncoding();
+
+    /**
      * 指定された名前のリクエストパラメータの値を返します。
      * <p>指定された名前のリクエストパラメータが存在しない場合はnullを返します。
      * </p>

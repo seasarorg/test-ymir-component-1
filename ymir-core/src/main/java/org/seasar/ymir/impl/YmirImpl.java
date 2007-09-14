@@ -1,6 +1,9 @@
 package org.seasar.ymir.impl;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -10,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.cms.pluggable.Configuration;
+import org.seasar.cms.pluggable.ThreadContext;
 import org.seasar.framework.log.Logger;
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.Application;
@@ -18,6 +22,7 @@ import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.FormFile;
+import org.seasar.ymir.Globals;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.LifecycleListener;
 import org.seasar.ymir.MatchedPathMapping;
@@ -25,15 +30,21 @@ import org.seasar.ymir.PageNotFoundException;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
+import org.seasar.ymir.RequestWrapper;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseProcessor;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
+import org.seasar.ymir.response.TransitionResponse;
+import org.seasar.ymir.util.ServletUtils;
 import org.seasar.ymir.util.YmirUtils;
 
 public class YmirImpl implements Ymir {
     public static final String PARAM_METHOD = "__ymir__method";
+
+    private static final String ATTR_RESPONSE = Globals.IDPREFIX
+            + "impl.response";
 
     private LifecycleListener[] lifecycleListeners_ = new LifecycleListener[0];
 
@@ -99,15 +110,17 @@ public class YmirImpl implements Ymir {
     }
 
     public Request prepareForProcessing(final String contextPath,
-            String method, final Map<String, String[]> parameterMap,
+            String method, String characterEncoding,
+            final Map<String, String[]> parameterMap,
             final Map<String, FormFile[]> fileParameterMap,
             final AttributeContainer attributeContainer, final Locale locale) {
         if (isUnderDevelopment()) {
             method = correctMethod(method, parameterMap);
         }
 
-        Request request = new RequestImpl(contextPath, method, parameterMap,
-                fileParameterMap, attributeContainer, locale);
+        Request request = new RequestImpl(contextPath, method,
+                characterEncoding, parameterMap, fileParameterMap,
+                attributeContainer, locale);
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             request = ymirProcessInterceptors_[i].requestCreated(request);
         }
@@ -159,7 +172,9 @@ public class YmirImpl implements Ymir {
 
     public Response processRequest(final Request request)
             throws PageNotFoundException, PermissionDeniedException {
-        return requestProcessor_.process(request);
+        Response response = requestProcessor_.process(request);
+        request.setAttribute(ATTR_RESPONSE, response);
+        return response;
     }
 
     public HttpServletResponseFilter processResponse(
@@ -194,12 +209,27 @@ public class YmirImpl implements Ymir {
     }
 
     public Object backupForInclusion(final AttributeContainer attributeContainer) {
-        return requestProcessor_.backupForInclusion(attributeContainer);
+        // FIXME Objectの配列というのもイマイチ…。
+        return new Object[] {
+            requestProcessor_.backupForInclusion(attributeContainer),
+            unwrapRequest(
+                    ((Request) getThreadContext().getComponent(Request.class)))
+                    .getParameterMap() };
     }
 
+    @SuppressWarnings("unchecked")
     public void restoreForInclusion(
             final AttributeContainer attributeContainer, final Object backupped) {
-        requestProcessor_.restoreForInclusion(attributeContainer, backupped);
+        Object[] backuppeds = (Object[]) backupped;
+        unwrapRequest((Request) getThreadContext().getComponent(Request.class))
+                .setParameterMap((Map<String, String[]>) backuppeds[1]);
+        requestProcessor_
+                .restoreForInclusion(attributeContainer, backuppeds[0]);
+    }
+
+    protected ThreadContext getThreadContext() {
+        return (ThreadContext) getApplication().getS2Container().getRoot()
+                .getComponent(ThreadContext.class);
     }
 
     public Response processException(final Request request, final Throwable t) {
@@ -225,5 +255,44 @@ public class YmirImpl implements Ymir {
 
     public YmirProcessInterceptor[] getYmirProcessInterceptors() {
         return ymirProcessInterceptors_;
+    }
+
+    public void updateParameterMap(Request request,
+            Map<String, String[]> parameterMap) {
+        Object response = request.getAttribute(ATTR_RESPONSE);
+        if (response instanceof TransitionResponse) {
+            TransitionResponse transitionResponse = (TransitionResponse) response;
+            if (!transitionResponse.isParameterTakenOver()) {
+                String path = transitionResponse.getPath();
+                int question = path.indexOf('?');
+                if (question >= 0) {
+                    try {
+                        parameterMap = ServletUtils.parseParameters(path
+                                .substring(question + 1), request
+                                .getCharacterEncoding());
+                    } catch (UnsupportedEncodingException ex) {
+                        throw new RuntimeException(
+                                "May framework's logic error", ex);
+                    }
+                } else {
+                    parameterMap = new HashMap<String, String[]>();
+                }
+                parameterMap = Collections.unmodifiableMap(parameterMap);
+            }
+        }
+        unwrapRequest(request).setParameterMap(parameterMap);
+    }
+
+    RequestImpl unwrapRequest(Request request) {
+        while (request instanceof RequestWrapper) {
+            request = ((RequestWrapper) request).getRequest();
+        }
+        try {
+            return (RequestImpl) request;
+        } catch (ClassCastException ex) {
+            throw new RuntimeException(
+                    "Must give the original Request instance or an instance of RequestWrapper to Ymir",
+                    ex);
+        }
     }
 }
