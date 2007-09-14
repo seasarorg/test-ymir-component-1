@@ -350,6 +350,23 @@ abstract public class YmirTestCase extends TestCase {
     protected Request prepareForPrecessing(String path, String httpMethod,
             Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap) {
+        return prepareForPrecessing(path, httpMethod, Dispatcher.REQUEST,
+                parameterMap, fileParameterMap);
+    }
+
+    /**
+     * Pageクラスのアクション呼び出しのための準備を行ないます。
+     *
+     * @param path リクエストパス（コンテキストパス相対）。
+     * @param httpMethod HTTPメソッド。Request.METHOD_XXXのいずれかを指定して下さい。
+     * @param dispatcher ディスパッチャ。通常はDispatcher.REQUESTを指定して下さい。
+     * @param parameterMap リクエストパラメータが格納されているMap。
+     * @param fileParameterMap fileタイプのリクエストパラメータが格納されているMap。
+     * @return 構築されたRequestオブジェクト。
+     */
+    protected Request prepareForPrecessing(String path, String httpMethod,
+            Dispatcher dispatcher, Map<String, String[]> parameterMap,
+            Map<String, FormFile[]> fileParameterMap) {
         MockHttpSession session = null;
         if (httpRequest_ != null) {
             session = (MockHttpSession) httpRequest_.getSession(false);
@@ -369,7 +386,7 @@ abstract public class YmirTestCase extends TestCase {
                 httpMethod, parameterMap, fileParameterMap,
                 new HttpServletRequestAttributeContainer(httpRequest_),
                 getLocale());
-        ymir_.enterDispatch(request, path, Dispatcher.REQUEST);
+        ymir_.enterDispatch(request, path, dispatcher);
         return request;
     }
 
