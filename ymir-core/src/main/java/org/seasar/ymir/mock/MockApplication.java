@@ -131,4 +131,8 @@ public class MockApplication implements Application {
     public void clear() {
         relatedObjectMap_.clear();
     }
+
+    public String getTemplateEncoding() {
+        return null;
+    }
 }

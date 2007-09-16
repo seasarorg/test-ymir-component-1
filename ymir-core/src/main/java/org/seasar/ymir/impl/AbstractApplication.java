@@ -5,7 +5,6 @@ import org.seasar.ymir.Application;
 import org.seasar.ymir.PathMappingProvider;
 
 abstract public class AbstractApplication implements Application {
-
     public static final String KEY_PROJECTROOT = "projectRoot";
 
     public static final String KEY_WEBAPPSOURCEROOT = "webappSourceRoot";
@@ -15,6 +14,8 @@ abstract public class AbstractApplication implements Application {
     public static final String KEY_RESOURCESDIRECTORY = "resourcesDirectory";
 
     public static final String KEY_SOURCEDIRECTORY = "sourceDirectory";
+
+    public static final String KEY_TEMPLATEENCODING = "templateEncoding";
 
     private static final String PROPERTIESFILEPATH = "app.properties";
 
@@ -119,6 +120,14 @@ abstract public class AbstractApplication implements Application {
         } else {
             return resourcesDirectory + "/" + PROPERTIESFILEPATH;
         }
+    }
+
+    public String getTemplateEncoding() {
+        String templateEncoding = getProperty(KEY_TEMPLATEENCODING);
+        if (templateEncoding == null) {
+            templateEncoding = "UTF-8";
+        }
+        return templateEncoding;
     }
 
     public LocalHotdeployS2Container getHotdeployS2Container() {

@@ -76,4 +76,6 @@ public interface Application {
     <T> void setRelatedObject(Class<T> clazz, T object);
 
     void clear();
+
+    String getTemplateEncoding();
 }
