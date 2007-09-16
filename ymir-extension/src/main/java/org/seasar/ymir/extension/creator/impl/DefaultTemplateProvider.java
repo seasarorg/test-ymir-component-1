@@ -7,7 +7,6 @@ import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateProvider;
 
 public class DefaultTemplateProvider implements TemplateProvider {
-
     private SourceCreator sourceCreator_;
 
     public DefaultTemplateProvider(SourceCreator sourceCreator) {
@@ -16,6 +15,7 @@ public class DefaultTemplateProvider implements TemplateProvider {
 
     public Template getTemplate(String path) {
         return new FileTemplate(path, new File(sourceCreator_
-                .getWebappSourceRoot(), path));
+                .getWebappSourceRoot(), path), sourceCreator_
+                .getTemplateEncoding());
     }
 }

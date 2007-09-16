@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import org.seasar.ymir.extension.creator.Template;
 
 public class NullTemplate implements Template {
-
     public static final NullTemplate INSTANCE = new NullTemplate();
 
     private NullTemplate() {
@@ -36,5 +35,9 @@ public class NullTemplate implements Template {
 
     public long lastModified() {
         return 0;
+    }
+
+    public String getEncoding() {
+        return "UTF-8";
     }
 }

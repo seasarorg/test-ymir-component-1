@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public interface Template {
-
     boolean exists();
 
     InputStream getInputStream() throws IOException;
@@ -17,4 +16,6 @@ public interface Template {
     String getName();
 
     OutputStream getOutputStream() throws IOException;
+
+    String getEncoding();
 }

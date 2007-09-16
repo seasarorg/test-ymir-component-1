@@ -2,7 +2,6 @@ package org.seasar.ymir.extension.creator;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
-import java.io.OutputStream;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -59,10 +58,6 @@ public interface SourceCreator extends Updater {
 
     SourceGenerator getSourceGenerator();
 
-    void writeString(String string, File file);
-
-    void writeString(String string, OutputStream os);
-
     Class getClass(String className);
 
     PropertyDescriptor getPropertyDescriptor(String className,
@@ -89,7 +84,7 @@ public interface SourceCreator extends Updater {
 
     TemplateProvider getTemplateProvider();
 
-    String getEncoding();
+    String getSourceEncoding();
 
     boolean shouldUpdate(Application application);
 
@@ -98,4 +93,6 @@ public interface SourceCreator extends Updater {
     HttpServletRequest getHttpServletRequest();
 
     HttpServletResponse getHttpServletResponse();
+
+    String getTemplateEncoding();
 }

@@ -11,14 +11,16 @@ import java.io.OutputStream;
 import org.seasar.ymir.extension.creator.Template;
 
 public class FileTemplate implements Template {
-
     private String path_;
 
     private File file_;
 
-    public FileTemplate(String path, File file) {
+    private String encoding_;
+
+    public FileTemplate(String path, File file, String encoding) {
         path_ = path;
         file_ = file;
+        encoding_ = encoding;
     }
 
     public boolean exists() {
@@ -46,12 +48,15 @@ public class FileTemplate implements Template {
     }
 
     public OutputStream getOutputStream() throws IOException {
-
         if (file_.exists() && file_.isDirectory()) {
             throw new FileNotFoundException(
                     "Can't open outputStream: is directory: " + file_);
         }
         file_.getParentFile().mkdirs();
         return new FileOutputStream(file_);
+    }
+
+    public String getEncoding() {
+        return encoding_;
     }
 }

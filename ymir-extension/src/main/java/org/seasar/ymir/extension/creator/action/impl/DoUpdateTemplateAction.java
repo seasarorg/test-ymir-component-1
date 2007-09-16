@@ -31,8 +31,8 @@ public class DoUpdateTemplateAction extends DoEditTemplateAction {
         }
 
         try {
-            IOUtils.writeString(template.getOutputStream(), body, "UTF-8",
-                    false);
+            IOUtils.writeString(template.getOutputStream(), body, template
+                    .getEncoding(), false);
         } catch (IOException ex) {
             throw new IORuntimeException("Can't write template: path="
                     + template.getPath(), ex);

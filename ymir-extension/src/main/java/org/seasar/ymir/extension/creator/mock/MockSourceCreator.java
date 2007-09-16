@@ -2,7 +2,6 @@ package org.seasar.ymir.extension.creator.mock;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
-import java.io.OutputStream;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -27,7 +26,6 @@ import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateProvider;
 
 public class MockSourceCreator implements SourceCreator {
-
     private ServletContext servletContext_;
 
     private HttpServletRequest httpServletRequest_;
@@ -107,9 +105,6 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public void writeString(String string, File file) {
-    }
-
     public Class getClass(String className) {
         return null;
     }
@@ -173,14 +168,11 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public void writeString(String string, OutputStream os) {
-    }
-
     public TemplateProvider getTemplateProvider() {
         return null;
     }
 
-    public String getEncoding() {
+    public String getSourceEncoding() {
         return "UTF-8";
     }
 
@@ -221,5 +213,9 @@ public class MockSourceCreator implements SourceCreator {
 
     public Response updateByException(Request request, Throwable t) {
         return null;
+    }
+
+    public String getTemplateEncoding() {
+        return "UTF-8";
     }
 }

@@ -16,7 +16,6 @@ import net.skirnir.freyja.TemplateSet;
 import net.skirnir.freyja.impl.AbstractPathTemplateSet;
 
 public class AnalyzerTemplateSet implements TemplateSet {
-
     private TemplateSet templateSet_;
 
     private TemplateSet localTemplateSet_;
@@ -24,7 +23,6 @@ public class AnalyzerTemplateSet implements TemplateSet {
     public AnalyzerTemplateSet(TemplateEvaluator evaluator,
             TemplateSet templateSet, SourceCreator sourceCreator,
             TemplatePathResolver resolver) {
-
         localTemplateSet_ = new LocalTemplateSet(evaluator, sourceCreator,
                 resolver);
         templateSet_ = templateSet;
@@ -118,14 +116,13 @@ public class AnalyzerTemplateSet implements TemplateSet {
     }
 
     private class LocalTemplateSet extends AbstractPathTemplateSet {
-
         private SourceCreator sourceCreator_;
 
         private TemplatePathResolver resolver_;
 
         public LocalTemplateSet(TemplateEvaluator evaluator,
                 SourceCreator sourceCreator, TemplatePathResolver resolver) {
-            super(sourceCreator.getEncoding(), evaluator);
+            super(sourceCreator.getTemplateEncoding(), evaluator);
             sourceCreator_ = sourceCreator;
             resolver_ = resolver;
         }
@@ -133,14 +130,12 @@ public class AnalyzerTemplateSet implements TemplateSet {
         @Override
         public String getCanonicalName(String baseTemplateName,
                 String templateName) {
-
             return templateSet_
                     .getCanonicalName(baseTemplateName, templateName);
         }
 
         @Override
         protected InputStream getInputStream(String templateName) {
-
             Template tempate = getTemplate(templateName);
             if (!tempate.exists()) {
                 return null;

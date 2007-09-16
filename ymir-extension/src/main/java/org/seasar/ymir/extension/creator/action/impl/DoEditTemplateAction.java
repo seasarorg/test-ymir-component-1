@@ -25,7 +25,8 @@ public class DoEditTemplateAction extends DoTemplateActionBase {
 
         try {
             return new SelfContainedResponse(new AsIsInputStreamFactory(
-                    template.getInputStream()), "text/html");
+                    template.getInputStream()), "text/html;charset="
+                    + template.getEncoding());
         } catch (IOException ex) {
             return VoidResponse.INSTANCE;
         }

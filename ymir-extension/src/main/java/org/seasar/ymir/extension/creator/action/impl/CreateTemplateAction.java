@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -99,8 +100,8 @@ public class CreateTemplateAction extends AbstractAction implements
         if (templateString != null) {
             Template template = pathMetaData.getTemplate();
             try {
-                getSourceCreator().writeString(templateString,
-                        template.getOutputStream());
+                IOUtils.writeString(template.getOutputStream(), templateString,
+                        template.getEncoding(), false);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }

@@ -218,6 +218,10 @@ public class ZptAnalyzerTest extends TestCase {
                     public long lastModified() {
                         return 0;
                     }
+
+                    public String getEncoding() {
+                        return "UTF-8";
+                    }
                 }, pageClassName, null, ignoreVariables);
     }
 

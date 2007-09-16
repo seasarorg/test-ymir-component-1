@@ -78,7 +78,7 @@ public class ZptAnalyzer implements TemplateAnalyzer {
         try {
             inputStream = template.getInputStream();
             evaluator_.evaluate(context, new InputStreamReader(inputStream,
-                    sourceCreator_.getEncoding()));
+                    template.getEncoding()));
             context.close();
         } catch (RuntimeException ex) {
             if (ex.getCause() instanceof IllegalSyntaxException) {

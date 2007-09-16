@@ -109,7 +109,6 @@ import org.seasar.ymir.impl.YmirImpl;
 import net.skirnir.freyja.EvaluationRuntimeException;
 
 public class SourceCreatorImpl implements SourceCreator {
-
     private static final String SOURCECREATOR_PROPERTIES = "sourceCreator.properties";
 
     public static final ServletContext MOCK_SERVLETCONTEXT = new MockServletContextImpl(
@@ -135,7 +134,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
     private ClassDescModifier[] classDescModifiers_ = new ClassDescModifier[0];
 
-    private String encoding_ = "UTF-8";
+    private String sourceEncoding_ = "UTF-8";
 
     private SourceGenerator sourceGenerator_;
 
@@ -835,8 +834,7 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    public void writeString(String string, File file) {
-
+    void writeString(String string, File file) {
         if (string == null) {
             return;
         }
@@ -848,14 +846,13 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    public void writeString(String string, OutputStream os) {
-
+    void writeString(String string, OutputStream os) {
         try {
             if (string == null) {
                 return;
             }
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-                    os, encoding_));
+                    os, sourceEncoding_));
             writer.write(string);
             writer.flush();
         } catch (IOException ex) {
@@ -1098,14 +1095,14 @@ public class SourceCreatorImpl implements SourceCreator {
         classDescModifiers_ = classDescModifiers;
     }
 
-    public String getEncoding() {
+    public String getSourceEncoding() {
 
-        return encoding_;
+        return sourceEncoding_;
     }
 
-    public void setEncoding(String encoding) {
+    public void setSourceEncoding(String sourceEncoding) {
 
-        encoding_ = encoding;
+        sourceEncoding_ = sourceEncoding;
     }
 
     public String getRootPackageName() {
@@ -1274,5 +1271,9 @@ public class SourceCreatorImpl implements SourceCreator {
                 + jsSuffix + jsPrefix + "scriptaculous/scriptaculous.js"
                 + jsSuffix + jsPrefix + "sourceCreator.js" + jsSuffix
                 + "</head>");
+    }
+
+    public String getTemplateEncoding() {
+        return getApplication().getTemplateEncoding();
     }
 }
