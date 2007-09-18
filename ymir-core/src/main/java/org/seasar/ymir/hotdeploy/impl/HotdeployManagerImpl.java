@@ -11,12 +11,12 @@ import java.util.Map;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.framework.container.hotdeploy.HotdeployClassLoader;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.hotdeploy.fitter.HotdeployFitter;
 import org.seasar.ymir.util.ContainerUtils;
-import org.seasar.ymir.util.HotdeployUtils;
 
 public class HotdeployManagerImpl implements HotdeployManager {
     private HotdeployFitter<?>[] hotdeployFitters_ = new HotdeployFitter<?>[0];
@@ -62,8 +62,8 @@ public class HotdeployManagerImpl implements HotdeployManager {
             return ((HotdeployFitter<Object>) fitter).copy(value);
         }
 
-        Class<?> destinationClass = HotdeployUtils.getContextClass(sourceClass);
-        if (!HotdeployUtils.isHotdeployClass(sourceClass)) {
+        Class<?> destinationClass = getContextClass(sourceClass);
+        if (!isHotdeployClass(sourceClass)) {
             return value;
         }
 
@@ -164,6 +164,26 @@ public class HotdeployManagerImpl implements HotdeployManager {
             clazz = clazz.getSuperclass();
         }
         return list.toArray(new Field[0]);
+    }
+
+    Class getContextClass(Class<?> clazz) {
+        ClassLoader contextClassLoader = Thread.currentThread()
+                .getContextClassLoader();
+        try {
+            if (!clazz.isArray()) {
+                return contextClassLoader.loadClass(clazz.getName());
+            } else {
+                return Array.newInstance(
+                        contextClassLoader.loadClass(clazz.getComponentType()
+                                .getName()), 0).getClass();
+            }
+        } catch (ClassNotFoundException ex) {
+            return clazz;
+        }
+    }
+
+    boolean isHotdeployClass(Class<?> clazz) {
+        return clazz.getClassLoader() instanceof HotdeployClassLoader;
     }
 
     static class HotdeployFitterBag {
