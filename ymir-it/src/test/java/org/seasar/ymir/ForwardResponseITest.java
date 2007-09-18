@@ -3,9 +3,10 @@ package org.seasar.ymir;
 import org.seasar.ymir.test.YmirTestCase;
 
 import com.example.web.ForwardResponseITest2Page;
+import com.example.web.ForwardResponseITest4Page;
 
 public class ForwardResponseITest extends YmirTestCase {
-    public void test_isParameterTakenOverがtrueであるForwardResponseについてはリクエストパラメータを引き継がれること()
+    public void test_isParameterTakenOverがtrueであるForwardResponseについてはリクエストパラメータが引き継がれること()
             throws Exception {
         Request request = prepareForProcessing("/forwardResponseITest.html",
                 Request.METHOD_GET, "param1=value1");
@@ -21,7 +22,7 @@ public class ForwardResponseITest extends YmirTestCase {
         assertEquals("value2", page.getParam2());
     }
 
-    public void test_isParameterTakenOverがfalseであるForwardResponseについてはリクエストパラメータを引き継がないこと()
+    public void test_isParameterTakenOverがfalseであるForwardResponseについてはリクエストパラメータが引き継がないこと()
             throws Exception {
         Request request = prepareForProcessing("/forwardResponseITest.html",
                 Request.METHOD_POST, "param1=value1");
@@ -35,5 +36,31 @@ public class ForwardResponseITest extends YmirTestCase {
         assertEquals("value2", request.getParameter("param2"));
         assertNull(page.getParam1());
         assertEquals("value2", page.getParam2());
+    }
+
+    public void test_isMethodTakenOverがtrueであるForwardResponseについてはHTTPメソッドが引き継がれること()
+            throws Exception {
+        Request request = prepareForProcessing("/forwardResponseITest3.html",
+                Request.METHOD_PUT);
+        process(request);
+
+        prepareForProcessing("/forwardResponseITest4.html", Dispatcher.FORWARD);
+        ForwardResponseITest4Page page = getComponent(ForwardResponseITest4Page.class);
+        processRequest(request);
+
+        assertTrue(page.isPutCalled());
+    }
+
+    public void test_isMethodTakenOverがfalseであるForwardResponseについてはHTTPメソッドが引き継がれないこと()
+            throws Exception {
+        Request request = prepareForProcessing("/forwardResponseITest3.html",
+                Request.METHOD_POST);
+        process(request);
+
+        prepareForProcessing("/forwardResponseITest4.html", Dispatcher.FORWARD);
+        ForwardResponseITest4Page page = getComponent(ForwardResponseITest4Page.class);
+        processRequest(request);
+
+        assertTrue(page.isGetCalled());
     }
 }
