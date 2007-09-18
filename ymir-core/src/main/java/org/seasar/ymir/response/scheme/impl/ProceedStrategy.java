@@ -10,6 +10,7 @@ public class ProceedStrategy extends AbstractTransitionStrategy {
     public TransitionResponse newResponse() {
         ForwardResponse response = new ForwardResponse();
         response.setParameterTakenOver(false);
+        response.setMethodTakenOver(false);
         return response;
     }
 

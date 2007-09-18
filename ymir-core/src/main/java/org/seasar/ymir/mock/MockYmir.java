@@ -100,7 +100,7 @@ public class MockYmir implements Ymir {
         return new YmirProcessInterceptor[0];
     }
 
-    public void updateParameterMap(Request request,
-            Map<String, String[]> parameterMap) {
+    public void updateRequest(Request request,
+            HttpServletRequest httpRequest) {
     }
 }

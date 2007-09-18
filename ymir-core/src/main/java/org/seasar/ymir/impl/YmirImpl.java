@@ -36,7 +36,7 @@ import org.seasar.ymir.ResponseProcessor;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
-import org.seasar.ymir.response.TransitionResponse;
+import org.seasar.ymir.response.ForwardResponse;
 import org.seasar.ymir.util.ServletUtils;
 import org.seasar.ymir.util.YmirUtils;
 
@@ -257,13 +257,15 @@ public class YmirImpl implements Ymir {
         return ymirProcessInterceptors_;
     }
 
-    public void updateParameterMap(Request request,
-            Map<String, String[]> parameterMap) {
+    @SuppressWarnings("unchecked")
+    public void updateRequest(Request request, HttpServletRequest httpRequest) {
+        RequestImpl unwrappedRequest = unwrapRequest(request);
+        Map<String, String[]> parameterMap = httpRequest.getParameterMap();
         Object response = request.getAttribute(ATTR_RESPONSE);
-        if (response instanceof TransitionResponse) {
-            TransitionResponse transitionResponse = (TransitionResponse) response;
-            if (!transitionResponse.isParameterTakenOver()) {
-                String path = transitionResponse.getPath();
+        if (response instanceof ForwardResponse) {
+            ForwardResponse forwardResponse = (ForwardResponse) response;
+            if (!forwardResponse.isParameterTakenOver()) {
+                String path = forwardResponse.getPath();
                 int question = path.indexOf('?');
                 if (question >= 0) {
                     try {
@@ -279,8 +281,11 @@ public class YmirImpl implements Ymir {
                 }
                 parameterMap = Collections.unmodifiableMap(parameterMap);
             }
+            if (!forwardResponse.isMethodTakenOver()) {
+                unwrappedRequest.setMethod(Request.METHOD_GET);
+            }
         }
-        unwrapRequest(request).setParameterMap(parameterMap);
+        unwrappedRequest.setParameterMap(parameterMap);
     }
 
     RequestImpl unwrapRequest(Request request) {

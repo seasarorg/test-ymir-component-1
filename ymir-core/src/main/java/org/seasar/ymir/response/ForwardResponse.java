@@ -3,6 +3,10 @@ package org.seasar.ymir.response;
 import org.seasar.ymir.ResponseType;
 
 public class ForwardResponse extends TransitionResponse {
+    protected boolean parameterTakenOver_ = true;
+
+    protected boolean methodTakenOver_ = true;
+
     public ForwardResponse() {
     }
 
@@ -17,5 +21,21 @@ public class ForwardResponse extends TransitionResponse {
 
     public ResponseType getType() {
         return ResponseType.FORWARD;
+    }
+
+    public boolean isParameterTakenOver() {
+        return parameterTakenOver_;
+    }
+
+    public void setParameterTakenOver(boolean parameterTakenOver) {
+        parameterTakenOver_ = parameterTakenOver;
+    }
+
+    public boolean isMethodTakenOver() {
+        return methodTakenOver_;
+    }
+
+    public void setMethodTakenOver(boolean methodTakenOver) {
+        methodTakenOver_ = methodTakenOver;
     }
 }

@@ -95,7 +95,7 @@ public class YmirFilter implements Filter {
             context.setComponent(Request.class, request);
         } else {
             request = (Request) context.getComponent(Request.class);
-            ymir_.updateParameterMap(request, httpRequest.getParameterMap());
+            ymir_.updateRequest(request, httpRequest);
         }
 
         ymir_.enterDispatch(request, ServletUtils.getPath(httpRequest),

@@ -57,5 +57,5 @@ public interface Ymir {
 
     YmirProcessInterceptor[] getYmirProcessInterceptors();
 
-    void updateParameterMap(Request request, Map<String, String[]> parameterMap);
+    void updateRequest(Request request, HttpServletRequest httpRequest);
 }
