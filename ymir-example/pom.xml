@@ -13,7 +13,7 @@
   <artifactId>ymir-example</artifactId>
   <name>Ymir Example</name>
   <description>
-      This is a project to provide an example Ymir application project.
+    This is a project to provide an example Ymir application project.
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
@@ -61,7 +61,7 @@
     <dependency>
       <groupId>org.seasar.dao</groupId>
       <artifactId>s2-dao-tiger</artifactId>
-      <version>1.0.40</version>
+      <version>1.0.46</version>
       <exclusions>
         <exclusion>
           <groupId>org.seasar.container</groupId>
