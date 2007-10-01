@@ -1,5 +1,7 @@
 package org.seasar.ymir.zpt;
 
+import org.seasar.ymir.impl.NoteRendererImpl;
+
 import net.skirnir.freyja.zpt.tales.NoteLocalizer;
 import net.skirnir.freyja.zpt.webapp.ServletTalesExpressionEvaluator;
 
@@ -8,7 +10,8 @@ public class YmirTalesExpressionEvaluator extends
     public static final String TYPE_I18NPAGE = "i18npage";
 
     public YmirTalesExpressionEvaluator() {
-        NoteLocalizer noteLocalizer = new YmirNoteLocalizer();
+        NoteLocalizer noteLocalizer = new YmirNoteLocalizer(
+                new NoteRendererImpl());
         addPathResolver(new YmirPathResolver().setNoteLocalizer(noteLocalizer))
                 .addPathResolver(
                         new LocalizationPathResolver()

@@ -1,6 +1,5 @@
 package org.seasar.ymir.zpt;
 
-import java.text.MessageFormat;
 import java.util.Locale;
 
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
@@ -8,6 +7,7 @@ import org.seasar.ymir.Globals;
 import org.seasar.ymir.MessageNotFoundRuntimeException;
 import org.seasar.ymir.Messages;
 import org.seasar.ymir.MessagesNotFoundRuntimeException;
+import org.seasar.ymir.NoteRenderer;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
@@ -17,7 +17,11 @@ import net.skirnir.freyja.VariableResolver;
 import net.skirnir.freyja.zpt.tales.NoteLocalizer;
 
 public class YmirNoteLocalizer implements NoteLocalizer {
-    private static final String PROPERTYPREFIX_LABEL = "label.";
+    private NoteRenderer renderer_;
+
+    public YmirNoteLocalizer(NoteRenderer renderer) {
+        renderer_ = renderer;
+    }
 
     public String getMessageResourceValue(TemplateContext context,
             VariableResolver varResolver, String noteValue,
@@ -51,19 +55,10 @@ public class YmirNoteLocalizer implements NoteLocalizer {
         }
 
         if (messages != null) {
-            String v = messages.getMessage(noteValue);
-            if (v != null) {
-                for (int i = 0; i < noteParameters.length; i++) {
-                    if (noteParameters[i] instanceof String) {
-                        String localizedValue = messages
-                                .getMessage(PROPERTYPREFIX_LABEL
-                                        + noteParameters[i]);
-                        if (localizedValue != null) {
-                            noteParameters[i] = localizedValue;
-                        }
-                    }
-                }
-                noteValue = MessageFormat.format(v, noteParameters);
+            String rendered = renderer_.render(noteValue, noteParameters,
+                    messages);
+            if (rendered != null) {
+                return rendered;
             } else {
                 StringBuffer sb = new StringBuffer();
                 sb.append("Message corresponding key ('").append(noteValue)
