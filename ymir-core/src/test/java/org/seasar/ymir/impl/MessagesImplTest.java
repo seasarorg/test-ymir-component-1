@@ -38,38 +38,6 @@ public class MessagesImplTest extends TestCase {
         assertEquals("1b", message.getMessage("b"));
     }
 
-    public void testNoResource() throws Exception {
-        // ## Arrange ##
-        final String path = MessagesImplTest.class.getName().replace('.', '/')
-                + "-testNoResource.xproperties";
-
-        final MockLocaleManager localeManager = new MockLocaleManager();
-        localeManager.setLocale(Locale.JAPAN);
-
-        final MessagesImpl message = new MessagesImpl() {
-            @Override
-            String getPageName() {
-                return "no_page";
-            }
-
-            @Override
-            protected Ymir getYmir() {
-                return new MockYmir();
-            }
-        };
-        message.setLocaleManager(localeManager);
-        message.addPath(path);
-
-        // ## Act ##
-        // ## Assert ##
-        try {
-            message.init();
-            fail();
-        } catch (final IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
     public void testMultiLocale() throws Exception {
         // ## Arrange ##
         final String path = MessagesImplTest.class.getName().replace('.', '/')

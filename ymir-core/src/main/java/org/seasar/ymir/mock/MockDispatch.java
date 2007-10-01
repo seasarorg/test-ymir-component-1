@@ -9,6 +9,8 @@ import org.seasar.ymir.PageComponent;
 public class MockDispatch implements Dispatch {
     private String path_;
 
+    private String queryString_;
+
     private Dispatcher dispatcher_;
 
     private MatchedPathMapping matched_;
@@ -41,6 +43,15 @@ public class MockDispatch implements Dispatch {
 
     public MockDispatch setPath(String path) {
         path_ = path;
+        return this;
+    }
+
+    public String getQueryString() {
+        return queryString_;
+    }
+
+    public MockDispatch setQueryString(String queryString) {
+        queryString_ = queryString;
         return this;
     }
 

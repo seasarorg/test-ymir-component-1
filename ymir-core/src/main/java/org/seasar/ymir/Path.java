@@ -21,35 +21,29 @@ public class Path {
     private boolean asNoCache_;
 
     public Path() {
-
         this(null);
     }
 
     public Path(String path) {
-
         this(path, new LinkedHashMap<String, String[]>());
     }
 
     public Path(String path, String parameterEncoding) {
-
         this(path, new LinkedHashMap<String, String[]>(), parameterEncoding);
     }
 
     public Path(String path, Map<String, String[]> parameterMap) {
-
         this(path, parameterMap, "UTF-8");
     }
 
     public Path(String path, Map<String, String[]> parameterMap,
             String parameterEncoding) {
-
         parameterMap_ = parameterMap;
         parameterEncoding_ = parameterEncoding;
         analyze(path);
     }
 
     void analyze(String path) {
-
         if (path == null) {
             return;
         }
@@ -92,16 +86,25 @@ public class Path {
     }
 
     public String toString() {
-
         return asString();
     }
 
     public String asString() {
-
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(trunk_);
+        String queryString = getQueryString();
+        if (queryString != null) {
+            sb.append("?").append(queryString);
+        }
+        sb.append(fragment_);
+
+        return sb.toString();
+    }
+
+    public String getQueryString() {
+        StringBuilder sb = new StringBuilder();
+        String delim = "";
         if (parameterMap_ != null) {
-            String delim = "?";
             for (Iterator itr = parameterMap_.entrySet().iterator(); itr
                     .hasNext();) {
                 Map.Entry entry = (Map.Entry) itr.next();
@@ -127,14 +130,16 @@ public class Path {
                     delim = "&";
                 }
             }
-            if (asNoCache_) {
-                sb.append(delim).append(getUniqueKey());
-                delim = "&";
-            }
         }
-        sb.append(fragment_);
-
-        return sb.toString();
+        if (asNoCache_) {
+            sb.append(delim).append(getUniqueKey());
+            delim = "&";
+        }
+        if (sb.length() == 0) {
+            return null;
+        } else {
+            return sb.toString();
+        }
     }
 
     String getUniqueKey() {
@@ -142,40 +147,33 @@ public class Path {
     }
 
     public String getTrunk() {
-
         return trunk_;
     }
 
     public Path setTrunk(String trunk) {
-
         trunk_ = trunk;
         return this;
     }
 
     public Map<String, String[]> getParameterMap() {
-
         return parameterMap_;
     }
 
     public Path setParameterMap(Map<String, String[]> parameterMap) {
-
         parameterMap_ = parameterMap;
         return this;
     }
 
     public Path setParameter(String name, String value) {
-
         return setParameter(name, new String[] { value });
     }
 
     public Path setParameter(String name, String[] values) {
-
         parameterMap_.put(name, values);
         return this;
     }
 
     public Path addParameter(String name, String value) {
-
         if (value == null) {
             return this;
         }
@@ -194,24 +192,20 @@ public class Path {
     }
 
     public Path removeParameter(String name) {
-
         parameterMap_.remove(name);
         return this;
     }
 
     public Path clearParameters() {
-
         parameterMap_.clear();
         return this;
     }
 
     public String getParameterEncoding() {
-
         return parameterEncoding_;
     }
 
     public Path setParameterEncoding(String parameterEncoding) {
-
         parameterEncoding_ = parameterEncoding;
         return this;
     }

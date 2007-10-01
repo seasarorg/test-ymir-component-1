@@ -4,10 +4,18 @@ public interface Dispatch {
     /**
      * パスを返します。
      * <p>返されるパスはコンテキストパス相対です。</p>
+     * <p>パスにはクエリ文字列は含まれません。</p>
      *
      * @return パス。
      */
     String getPath();
+
+    /**
+     * クエリ文字列を返します。
+     * 
+     * @return クエリ文字列。クエリ文字列が付与されていない場合はnullを返します。
+     */
+    String getQueryString();
 
     /**
      * 絶対パスを返します。

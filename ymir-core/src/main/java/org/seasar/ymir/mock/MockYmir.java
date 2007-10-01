@@ -66,10 +66,10 @@ public class MockYmir implements Ymir {
         return null;
     }
 
-    public void enterDispatch(Request request, String path,
+    public void enterDispatch(Request request, String path, String queryString,
             Dispatcher dispatcher) {
-        request.enterDispatch(new MockDispatch().setPath(path).setDispatcher(
-                dispatcher));
+        request.enterDispatch(new MockDispatch().setPath(path).setQueryString(
+                queryString).setDispatcher(dispatcher));
     }
 
     public void leaveDispatch(Request request) {
@@ -100,7 +100,6 @@ public class MockYmir implements Ymir {
         return new YmirProcessInterceptor[0];
     }
 
-    public void updateRequest(Request request,
-            HttpServletRequest httpRequest) {
+    public void updateRequest(Request request, HttpServletRequest httpRequest) {
     }
 }

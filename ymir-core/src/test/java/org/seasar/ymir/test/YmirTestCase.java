@@ -38,6 +38,7 @@ import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.PageNotFoundException;
+import org.seasar.ymir.Path;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
@@ -384,7 +385,11 @@ abstract public class YmirTestCase extends TestCase {
                 new HttpServletRequestAttributeContainer(httpRequest_),
                 getLocale());
 
-        ymir_.enterDispatch(request_, path, Dispatcher.REQUEST);
+        String queryString = null;
+        if (Request.METHOD_GET.equals(httpMethod) && !parameterMap.isEmpty()) {
+            queryString = new Path(path, parameterMap).getQueryString();
+        }
+        ymir_.enterDispatch(request_, path, queryString, Dispatcher.REQUEST);
         return request_;
     }
 
@@ -400,7 +405,7 @@ abstract public class YmirTestCase extends TestCase {
 
         status_ = STATUS_PREPARED;
 
-        ymir_.enterDispatch(request_, path, dispatcher);
+        ymir_.enterDispatch(request_, path, null, dispatcher);
     }
 
     protected void checkStatus(int status) {

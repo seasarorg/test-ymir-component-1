@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.framework.util.ArrayUtil;
+import org.seasar.ymir.Dispatcher;
 
 /**
  * @author YOKOTA Takehiko
@@ -22,6 +23,18 @@ public class ServletUtils {
     public static final String ATTR_INCLUDE_PATH_INFO = "javax.servlet.include.path_info";
 
     public static final String ATTR_INCLUDE_SERVLET_PATH = "javax.servlet.include.servlet_path";
+
+    public static final String ATTR_INCLUDE_QUERY_STRING = "javax.servlet.include.query_string";
+
+    public static final String ATTR_FORWARD_CONTEXT_PATH = "javax.servlet.forward.context_path";
+
+    public static final String ATTR_FORWARD_PATH_INFO = "javax.servlet.forward.path_info";
+
+    public static final String ATTR_FORWARD_SERVLET_PATH = "javax.servlet.forward.servlet_path";
+
+    public static final String ATTR_FORWARD_QUERY_STRING = "javax.servlet.forward.query_string";
+
+    public static final String ATTR_ERROR_EXCEPTION = "javax.servlet.error.exception";
 
     private static final String PROTOCOL_HTTP = "http";
 
@@ -70,6 +83,30 @@ public class ServletUtils {
             path = path.substring(0, path.length() - 1);
         }
         return path;
+    }
+
+    public static String getQueryString(HttpServletRequest request) {
+        if (getDispatcher(request) == Dispatcher.INCLUDE) {
+            return getIncludeQueryString(request);
+        } else {
+            return request.getQueryString();
+        }
+    }
+
+    public static Dispatcher getDispatcher(HttpServletRequest request) {
+        if (request.getAttribute(ATTR_INCLUDE_CONTEXT_PATH) != null) {
+            return Dispatcher.INCLUDE;
+        } else if (request.getAttribute(ATTR_FORWARD_CONTEXT_PATH) != null) {
+            return Dispatcher.FORWARD;
+        } else if (request.getAttribute(ATTR_ERROR_EXCEPTION) != null) {
+            return Dispatcher.ERROR;
+        } else {
+            return Dispatcher.REQUEST;
+        }
+    }
+
+    static String getIncludeQueryString(HttpServletRequest request) {
+        return null;
     }
 
     public static String getNativePath(HttpServletRequest request) {

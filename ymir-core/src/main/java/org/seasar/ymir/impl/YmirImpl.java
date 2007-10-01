@@ -137,14 +137,17 @@ public class YmirImpl implements Ymir {
     }
 
     /*
-     * includeされているページで、リクエストパスを取得することもinclude対象のテンプレートのパスを取得することも両方できるようにするためです。
-     * includeされているページで自分自身のパスを取るのは、servletAPI的にはrequestにあるキーでバインドされているパス情報を取ればいいのだけど、
+     * dispatchの概念を追加したのは、例えばincludeされているページでリクエストパスを取得することも
+     * include対象のテンプレートのパスを取得することも両方できるようにするためです。
+     * includeされているページで自分自身のパスを取るのは、servletAPI的にはrequestにあるキーで
+     * バインドされているパス情報を取ればいいのだけど、
      * それだとservletAPIを意識しないといけなくなるので、オブジェクトからその情報を取れるようにしました。
      */
     public void enterDispatch(final Request request, final String path,
-            final Dispatcher dispatcher) {
+            final String queryString, final Dispatcher dispatcher) {
         request.enterDispatch(new DispatchImpl(request.getContextPath(), path,
-                dispatcher, findMatchedPathMapping(path, request.getMethod())));
+                queryString, dispatcher, findMatchedPathMapping(path, request
+                        .getMethod())));
     }
 
     public MatchedPathMapping findMatchedPathMapping(final String path,

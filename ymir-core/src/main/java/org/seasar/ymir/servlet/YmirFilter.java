@@ -99,7 +99,7 @@ public class YmirFilter implements Filter {
         }
 
         ymir_.enterDispatch(request, ServletUtils.getPath(httpRequest),
-                dispatcher_);
+                ServletUtils.getQueryString(httpRequest), dispatcher_);
         try {
             Response response = ymir_.processRequest(request);
             for (int i = 0; i < ymirProcessInterceptors_.length; i++) {

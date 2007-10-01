@@ -11,6 +11,8 @@ public class DispatchImpl implements Dispatch {
 
     private String path_;
 
+    private String queryString_;
+
     private Dispatcher dispatcher_;
 
     private MatchedPathMapping matched_;
@@ -22,10 +24,11 @@ public class DispatchImpl implements Dispatch {
     public DispatchImpl() {
     }
 
-    public DispatchImpl(String contextPath, String path, Dispatcher dispatcher,
-            MatchedPathMapping matched) {
+    public DispatchImpl(String contextPath, String path, String queryString,
+            Dispatcher dispatcher, MatchedPathMapping matched) {
         contextPath_ = contextPath;
         path_ = path;
+        queryString_ = queryString;
         dispatcher_ = dispatcher;
         matched_ = matched;
     }
@@ -60,6 +63,14 @@ public class DispatchImpl implements Dispatch {
 
     public void setPath(String path) {
         path_ = path;
+    }
+
+    public String getQueryString() {
+        return queryString_;
+    }
+
+    public void setQueryString(String queryString) {
+        queryString_ = queryString;
     }
 
     public String getAbsolutePath() {
