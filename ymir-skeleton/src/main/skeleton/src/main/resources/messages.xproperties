@@ -1,3 +1,9 @@
+_.note.parameter.segment.direction=l
+_.note.parameter.head=
+_.note.parameter.delimiter=\ of\ 
+_.note.parameter.tail=
+_.note.parameter.segment.template={2}th {0}
+
 error.constraint.length.min=The length must be longer than {1} or equal: {0}
 error.constraint.length.max=The length must be shorter than {1} or equal: {0}
 error.constraint.numeric=Specify numeric value: {0}
