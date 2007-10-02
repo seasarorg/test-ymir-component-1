@@ -1,0 +1,6 @@
+a=A${b}C
+b=B
+c=A${d}C
+e=${abc}
+abc=${def}
+def=DEF

@@ -116,4 +116,36 @@ public class MessagesImplTest extends TestCase {
         assertEquals("d3", message.getMessage("d"));
     }
 
+    public void test1_埋め込み値の解釈が行なわれること() throws Exception {
+        // ## Arrange ##
+        final String path = MessagesImplTest.class.getName().replace('.', '/')
+                + "-test1.xproperties";
+
+        final MockLocaleManager localeManager = new MockLocaleManager();
+        localeManager.setLocale(Locale.JAPAN);
+
+        final MessagesImpl message = new MessagesImpl() {
+            @Override
+            String getPageName() {
+                return "no_page";
+            }
+
+            @Override
+            protected Ymir getYmir() {
+                return new MockYmir();
+            }
+        };
+        message.setLocaleManager(localeManager);
+        message.addPath(path);
+        message.init();
+
+        // ## Act ##
+        // ## Assert ##
+        assertEquals("埋め込み値の解釈が行なわれること", "ABC", message.getMessage("a"));
+
+        assertEquals("埋め込み値に対応する値がない場合は空文字列として扱われること", "AC", message
+                .getMessage("c"));
+
+        assertEquals("埋め込み値の解釈が再帰的に行なわれること", "DEF", message.getMessage("e"));
+    }
 }
