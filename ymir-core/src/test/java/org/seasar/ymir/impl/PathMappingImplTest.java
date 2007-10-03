@@ -10,7 +10,6 @@ import org.seasar.ymir.Action;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.constraint.annotation.Required;
 import org.seasar.ymir.mock.MockRequest;
 
 public class PathMappingImplTest extends TestCase {
@@ -86,7 +85,21 @@ public class PathMappingImplTest extends TestCase {
         assertNull(params[idx++]);
     }
 
-    @Required
-    public void testname() throws Exception {
+    public void testGetAction_imageタイプのinputタグの名前に対応するアクションが正しく返されること()
+            throws Exception {
+        Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+        parameterMap.put("image.x", new String[] { "" });
+        parameterMap.put("image.y", new String[] { "" });
+        Request request = new MockRequest().setParameterMap(parameterMap);
+        VariableResolver resolver = target_.match("/index.html",
+                Request.METHOD_POST);
+        Test6Page test6Page = new Test6Page();
+        PageComponent pageComponent = new PageComponentImpl(test6Page,
+                Test6Page.class);
+
+        Action action = target_.getAction(pageComponent, request, resolver);
+
+        assertNotNull(action);
+        assertEquals("_post_image", action.getName());
     }
 }

@@ -319,7 +319,8 @@ public class PathMappingImpl implements PathMapping {
             return null;
         }
 
-        if (request.getParameter(buttonName) != null) {
+        if (request.getParameter(buttonName) != null
+                || request.getParameter(buttonName + ".x") != null) {
             return new ActionImpl(page, new MethodInvokerImpl(method,
                     new Object[0]));
         } else {
