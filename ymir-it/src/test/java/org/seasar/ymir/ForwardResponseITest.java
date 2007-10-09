@@ -4,6 +4,7 @@ import org.seasar.ymir.test.YmirTestCase;
 
 import com.example.web.ForwardResponseITest2Page;
 import com.example.web.ForwardResponseITest4Page;
+import com.example.web.ForwardResponseITest5Page;
 
 public class ForwardResponseITest extends YmirTestCase {
     public void test_isParameterTakenOverがtrueであるForwardResponseについてはリクエストパラメータが引き継がれること()
@@ -62,5 +63,24 @@ public class ForwardResponseITest extends YmirTestCase {
         processRequest(request);
 
         assertTrue(page.isGetCalled());
+    }
+
+    public void test_YMIR134_forwardの場合は対応するPageコンポーネントが存在しない時だけrenderメソッドが呼び出されること()
+            throws Exception {
+        Request request = prepareForProcessing("/forwardResponseITest5.html",
+                Request.METHOD_GET);
+        processRequest(request);
+        ForwardResponseITest5Page actual = getComponent(ForwardResponseITest5Page.class);
+
+        assertTrue("forward先のページ対応するコンポーネントが存在しない場合はrenderが呼び出されること", actual
+                .isRenderCalled());
+
+        request = prepareForProcessing("/forwardResponseITest5.html",
+                Request.METHOD_POST);
+        processRequest(request);
+        actual = getComponent(ForwardResponseITest5Page.class);
+
+        assertFalse("forward先のページ対応するコンポーネントが存在する場合はrenderが呼び出されないこと（互換性のため）",
+                actual.isRenderCalled());
     }
 }
