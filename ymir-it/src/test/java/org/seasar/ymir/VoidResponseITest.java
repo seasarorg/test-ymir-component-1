@@ -1,4 +1,4 @@
-package org.seasar.ymir.impl;
+package org.seasar.ymir;
 
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
