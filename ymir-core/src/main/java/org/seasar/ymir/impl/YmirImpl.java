@@ -36,7 +36,6 @@ import org.seasar.ymir.ResponseProcessor;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
-import org.seasar.ymir.response.ForwardResponse;
 import org.seasar.ymir.util.ServletUtils;
 import org.seasar.ymir.util.YmirUtils;
 
@@ -264,29 +263,25 @@ public class YmirImpl implements Ymir {
     public void updateRequest(Request request, HttpServletRequest httpRequest) {
         RequestImpl unwrappedRequest = unwrapRequest(request);
         Map<String, String[]> parameterMap = httpRequest.getParameterMap();
-        Object response = request.getAttribute(ATTR_RESPONSE);
-        if (response instanceof ForwardResponse) {
-            ForwardResponse forwardResponse = (ForwardResponse) response;
-            if (!forwardResponse.isParameterTakenOver()) {
-                String path = forwardResponse.getPath();
-                int question = path.indexOf('?');
-                if (question >= 0) {
-                    try {
-                        parameterMap = ServletUtils.parseParameters(path
-                                .substring(question + 1), request
-                                .getCharacterEncoding());
-                    } catch (UnsupportedEncodingException ex) {
-                        throw new RuntimeException(
-                                "May framework's logic error", ex);
-                    }
-                } else {
-                    parameterMap = new HashMap<String, String[]>();
+        Response response = (Response) request.getAttribute(ATTR_RESPONSE);
+        if (!response.isSubordinate()) {
+            String path = response.getPath();
+            int question = path.indexOf('?');
+            if (question >= 0) {
+                try {
+                    parameterMap = ServletUtils.parseParameters(path
+                            .substring(question + 1), request
+                            .getCharacterEncoding());
+                } catch (UnsupportedEncodingException ex) {
+                    throw new RuntimeException("May framework's logic error",
+                            ex);
                 }
-                parameterMap = Collections.unmodifiableMap(parameterMap);
+            } else {
+                parameterMap = new HashMap<String, String[]>();
             }
-            if (!forwardResponse.isMethodTakenOver()) {
-                unwrappedRequest.setMethod(Request.METHOD_GET);
-            }
+            parameterMap = Collections.unmodifiableMap(parameterMap);
+
+            unwrappedRequest.setMethod(Request.METHOD_GET);
         }
         unwrappedRequest.setParameterMap(parameterMap);
     }

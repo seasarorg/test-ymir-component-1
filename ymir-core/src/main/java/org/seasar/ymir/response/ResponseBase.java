@@ -19,6 +19,10 @@ abstract public class ResponseBase implements Response {
         throw new UnsupportedOperationException();
     }
 
+    public void setSubordinate(boolean subordinate) {
+        throw new UnsupportedOperationException();
+    }
+
     public String getPath() {
         throw new UnsupportedOperationException();
     }

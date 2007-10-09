@@ -2,21 +2,21 @@ package org.seasar.ymir.response;
 
 import org.seasar.ymir.ResponseType;
 
-public class ForwardResponse extends TransitionResponse {
-    public ForwardResponse() {
+public class ProceedResponse extends TransitionResponse {
+    public ProceedResponse() {
     }
 
-    public ForwardResponse(String path) {
+    public ProceedResponse(String path) {
         super(path);
     }
 
     public boolean isSubordinate() {
-        return true;
+        return false;
     }
 
     @Override
     public String toString() {
-        return "forward:" + getPath();
+        return "proceed:" + getPath();
     }
 
     public ResponseType getType() {

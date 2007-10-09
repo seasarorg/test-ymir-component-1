@@ -59,4 +59,6 @@ public interface Ymir {
     YmirProcessInterceptor[] getYmirProcessInterceptors();
 
     void updateRequest(Request request, HttpServletRequest httpRequest);
+
+    MatchedPathMapping findMatchedPathMapping(String path, String method);
 }

@@ -7,7 +7,7 @@ public interface Response {
 
     ResponseType getType();
 
-    void setType(ResponseType type);
+    boolean isSubordinate();
 
     String getPath();
 

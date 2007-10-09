@@ -243,4 +243,17 @@ public class ServletUtils {
 
         return map;
     }
+
+    public static String getTrunk(String path) {
+        if (path == null) {
+            return null;
+        }
+
+        int question = path.indexOf('?');
+        if (question < 0) {
+            return path;
+        } else {
+            return path.substring(0, question);
+        }
+    }
 }

@@ -12,4 +12,8 @@ public class PassthroughResponse extends ResponseBase {
     public ResponseType getType() {
         return ResponseType.PASSTHROUGH;
     }
+
+    public boolean isSubordinate() {
+        return true;
+    }
 }

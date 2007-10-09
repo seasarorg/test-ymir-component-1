@@ -1,6 +1,6 @@
 package org.seasar.ymir.response.scheme.impl;
 
-import org.seasar.ymir.response.ForwardResponse;
+import org.seasar.ymir.response.ProceedResponse;
 import org.seasar.ymir.response.TransitionResponse;
 
 public class ProceedStrategy extends AbstractTransitionStrategy {
@@ -8,10 +8,7 @@ public class ProceedStrategy extends AbstractTransitionStrategy {
 
     @Override
     public TransitionResponse newResponse() {
-        ForwardResponse response = new ForwardResponse();
-        response.setParameterTakenOver(false);
-        response.setMethodTakenOver(false);
-        return response;
+        return new ProceedResponse();
     }
 
     public String getScheme() {

@@ -8,4 +8,8 @@ public class VoidResponse extends ResponseBase {
     public ResponseType getType() {
         return ResponseType.VOID;
     }
+
+    public boolean isSubordinate() {
+        return false;
+    }
 }

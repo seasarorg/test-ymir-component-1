@@ -15,6 +15,7 @@ import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpServletResponseFilter;
+import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageNotFoundException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -101,5 +102,9 @@ public class MockYmir implements Ymir {
     }
 
     public void updateRequest(Request request, HttpServletRequest httpRequest) {
+    }
+
+    public MatchedPathMapping findMatchedPathMapping(String path, String method) {
+        return null;
     }
 }

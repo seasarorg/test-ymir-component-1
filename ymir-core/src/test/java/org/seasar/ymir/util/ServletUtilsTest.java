@@ -44,4 +44,13 @@ public class ServletUtilsTest extends TestCase {
                 "http://localhost:8080/context/path/to/file.html?param=value",
                 ServletUtils.constructRequestURL(request, "http", 8080));
     }
+
+    public void testGetTrunk() throws Exception {
+        assertNull(ServletUtils.getTrunk(null));
+
+        assertEquals("/path/to/file", ServletUtils.getTrunk("/path/to/file"));
+
+        assertEquals("/path/to/file", ServletUtils
+                .getTrunk("/path/to/file?a=1"));
+    }
 }

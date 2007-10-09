@@ -16,6 +16,7 @@ import org.seasar.ymir.Action;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
+import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.PageMetaData;
@@ -37,6 +38,7 @@ import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
 import org.seasar.ymir.util.MethodUtils;
+import org.seasar.ymir.util.ServletUtils;
 import org.seasar.ymir.util.YmirUtils;
 
 public class DefaultRequestProcessor implements RequestProcessor {
@@ -221,11 +223,27 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
                 pageComponent.accept(visitorForInvokingInPhaseActionInvoked_);
 
-                ResponseType responseType = response.getType();
-                if (responseType == ResponseType.PASSTHROUGH
-                        || responseType == ResponseType.FORWARD) {
+                if (response.isSubordinate()) {
                     // 画面描画のためのAction呼び出しを行なう。
-                    pageComponent.accept(visitorForRendering_);
+                    //
+                    // ただしforwardの時で遷移先のページに対応するPageコンポーネントが
+                    // 存在する場合は遷移元のページのrenderは呼ばない（互換性のため
+                    // にこうしている）。
+                    boolean renderShouldBeCalled = true;
+                    if (response.getType() == ResponseType.FORWARD) {
+                        MatchedPathMapping mapping = ymir_
+                                .findMatchedPathMapping(ServletUtils
+                                        .getTrunk(response.getPath()),
+                                        Request.METHOD_GET);
+                        if (mapping != null
+                                && componentExists(mapping
+                                        .getPageComponentName())) {
+                            renderShouldBeCalled = false;
+                        }
+                    }
+                    if (renderShouldBeCalled) {
+                        pageComponent.accept(visitorForRendering_);
+                    }
                 }
 
                 pageComponent
@@ -326,6 +344,10 @@ public class DefaultRequestProcessor implements RequestProcessor {
         } else {
             return null;
         }
+    }
+
+    protected boolean componentExists(Object componentKey) {
+        return getS2Container().hasComponentDef(componentKey);
     }
 
     Response normalizeResponse(Response response, String path) {

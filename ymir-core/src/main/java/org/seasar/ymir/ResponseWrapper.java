@@ -81,7 +81,7 @@ public class ResponseWrapper implements Response {
         response_.setStatus(status);
     }
 
-    public void setType(ResponseType type) {
-        response_.setType(type);
+    public boolean isSubordinate() {
+        return response_.isSubordinate();
     }
 }

@@ -10,6 +10,10 @@ public class RedirectResponse extends TransitionResponse {
         super(path);
     }
 
+    public boolean isSubordinate() {
+        return false;
+    }
+
     public String toString() {
         return "redirect:" + getPath();
     }

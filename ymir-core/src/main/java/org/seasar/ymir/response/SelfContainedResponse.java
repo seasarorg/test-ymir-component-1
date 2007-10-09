@@ -68,6 +68,10 @@ public class SelfContainedResponse extends ResponseBase {
         return ResponseType.SELF_CONTAINED;
     }
 
+    public boolean isSubordinate() {
+        return false;
+    }
+
     public InputStream getInputStream() {
         InputStream inputStream;
         if (inputStreamFactory_ != null) {

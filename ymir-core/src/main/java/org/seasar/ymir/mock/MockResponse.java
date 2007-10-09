@@ -14,6 +14,8 @@ public class MockResponse extends ResponseBase {
 
     private ResponseType type_;
 
+    private boolean subordinate_;
+
     private String characterEncoding_;
 
     public String getCharacterEncoding() {
@@ -54,5 +56,13 @@ public class MockResponse extends ResponseBase {
 
     public void setType(ResponseType type) {
         type_ = type;
+    }
+
+    public boolean isSubordinate() {
+        return subordinate_;
+    }
+
+    public void setSubordinate(boolean subordinate) {
+        subordinate_ = subordinate;
     }
 }
