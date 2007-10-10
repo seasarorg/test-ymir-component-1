@@ -5,10 +5,10 @@ import org.seasar.ymir.test.YmirTestCase;
 import com.example.web.ForwardResponseITest2Page;
 import com.example.web.ForwardResponseITest4Page;
 import com.example.web.ForwardResponseITest5Page;
+import com.example.web.ForwardResponseITest8Page;
 
 public class ForwardResponseITest extends YmirTestCase {
-    public void test_isParameterTakenOverがtrueであるForwardResponseについてはリクエストパラメータが引き継がれること()
-            throws Exception {
+    public void test_ForwardResponseについてはリクエストパラメータが引き継がれること() throws Exception {
         Request request = prepareForProcessing("/forwardResponseITest.html",
                 Request.METHOD_GET, "param1=value1");
         process(request);
@@ -23,8 +23,7 @@ public class ForwardResponseITest extends YmirTestCase {
         assertEquals("value2", page.getParam2());
     }
 
-    public void test_isParameterTakenOverがfalseであるForwardResponseについてはリクエストパラメータが引き継がないこと()
-            throws Exception {
+    public void test_ProceedResponseについてはリクエストパラメータを引き継がないこと() throws Exception {
         Request request = prepareForProcessing("/forwardResponseITest.html",
                 Request.METHOD_POST, "param1=value1");
         process(request);
@@ -39,8 +38,7 @@ public class ForwardResponseITest extends YmirTestCase {
         assertEquals("value2", page.getParam2());
     }
 
-    public void test_isMethodTakenOverがtrueであるForwardResponseについてはHTTPメソッドが引き継がれること()
-            throws Exception {
+    public void test_ForwardResponseについてはHTTPメソッドが引き継がれること() throws Exception {
         Request request = prepareForProcessing("/forwardResponseITest3.html",
                 Request.METHOD_PUT);
         process(request);
@@ -52,8 +50,7 @@ public class ForwardResponseITest extends YmirTestCase {
         assertTrue(page.isPutCalled());
     }
 
-    public void test_isMethodTakenOverがfalseであるForwardResponseについてはHTTPメソッドが引き継がれないこと()
-            throws Exception {
+    public void test_ProceedResponseについてはHTTPメソッドが引き継がれないこと() throws Exception {
         Request request = prepareForProcessing("/forwardResponseITest3.html",
                 Request.METHOD_POST);
         process(request);
@@ -82,5 +79,15 @@ public class ForwardResponseITest extends YmirTestCase {
 
         assertFalse("forward先のページ対応するコンポーネントが存在する場合はrenderが呼び出されないこと（互換性のため）",
                 actual.isRenderCalled());
+    }
+
+    public void test_DeniedPathMappingにマッチするパスにforwardする時は遷移元のrenderメソッドが呼び出されること()
+            throws Exception {
+        Request request = prepareForProcessing("/forwardResponseITest8.html",
+                Request.METHOD_GET);
+        processRequest(request);
+        ForwardResponseITest8Page actual = getComponent(ForwardResponseITest8Page.class);
+
+        assertTrue(actual.isRenderCalled());
     }
 }
