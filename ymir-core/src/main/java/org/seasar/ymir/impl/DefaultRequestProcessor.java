@@ -347,6 +347,9 @@ public class DefaultRequestProcessor implements RequestProcessor {
     }
 
     protected boolean componentExists(Object componentKey) {
+        if (componentKey == null) {
+            return false;
+        }
         return getS2Container().hasComponentDef(componentKey);
     }
 
