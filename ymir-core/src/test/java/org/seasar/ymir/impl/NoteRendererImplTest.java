@@ -23,6 +23,10 @@ public class NoteRendererImplTest extends TestCase {
     }
 
     private Messages newMessages(Locale locale) {
+        return newMessages(locale, "");
+    }
+
+    private Messages newMessages(Locale locale, String suffix) {
         MessagesImpl messages = new MessagesImpl() {
             @Override
             String getPageName() {
@@ -33,8 +37,8 @@ public class NoteRendererImplTest extends TestCase {
             void updateMessages() {
             }
         };
-        messages
-                .addPath("org/seasar/ymir/impl/NoteRendererImplTest.xproperties");
+        messages.addPath("org/seasar/ymir/impl/NoteRendererImplTest" + suffix
+                + ".xproperties");
         MockLocaleManager localeManager = new MockLocaleManager();
         localeManager.setLocale(locale);
         messages.setLocaleManager(localeManager);
@@ -82,5 +86,33 @@ public class NoteRendererImplTest extends TestCase {
     public void test_インデックスつき複合プロパティ_ja() throws Exception {
         assertEquals("エラー：1番目のエーの2番目のビーのシーが不正です。", target_.render(new Note(
                 "template", new Object[] { "a[0].b[1].c" }), japaneseMessages_));
+    }
+
+    public void testStripIndex() throws Exception {
+        assertNull(target_.stripIndex(null));
+
+        assertEquals("a.b.c", target_.stripIndex("a[10].b[2].c[3]"));
+    }
+
+    public void testGetLastSegment() throws Exception {
+        assertNull(target_.getLastSegment(null));
+
+        assertEquals("a", target_.getLastSegment("a"));
+
+        assertEquals("c", target_.getLastSegment("a.b.c"));
+    }
+
+    public void test詳細表示用のテンプレートがない場合は簡易表示されること1() throws Exception {
+        Messages messages = newMessages(Locale.JAPANESE, "Simple");
+        assertEquals("label.a.b.cに対応するエントリが存在する場合", "エラー：エーのビーのシーが不正です。",
+                target_.render(new Note("template",
+                        new Object[] { "a[0].b[1].c" }), messages));
+    }
+
+    public void test詳細表示用のテンプレートがない場合は簡易表示されること2() throws Exception {
+        Messages messages = newMessages(Locale.JAPANESE, "Simple");
+        assertEquals("label.d.e.fに対応するエントリが存在しない場合", "エラー：エフが不正です。", target_
+                .render(new Note("template", new Object[] { "d[0].e[1].f" }),
+                        messages));
     }
 }

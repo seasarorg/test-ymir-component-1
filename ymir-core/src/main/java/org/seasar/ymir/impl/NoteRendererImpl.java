@@ -32,8 +32,6 @@ public class NoteRendererImpl implements NoteRenderer {
 
     private static final String DELIMITER = ".";
 
-    private static final String SEGMENT_TEMPLATE_DEFAULT = "{0}[{1}]";
-
     private static final String DIRECTION_DEFAULT = "r";
 
     public String render(Note note, Messages messages) {
@@ -55,14 +53,26 @@ public class NoteRendererImpl implements NoteRenderer {
         return MessageFormat.format(v, parameters);
     }
 
-    private String localize(String parameter, Messages messages) {
-        StringBuilder sb = new StringBuilder();
-
+    protected String localize(String parameter, Messages messages) {
         String segmentTemplate = messages
                 .getMessage(PROPERTY_NOTE_PARAMETER_SEGMENT_TEMPLATE);
         if (segmentTemplate == null) {
-            segmentTemplate = SEGMENT_TEMPLATE_DEFAULT;
+            // 例えばa[1].b[2].cについて、テンプレートがみつからない場合は
+            // a.b.cに対応するラベルを探し、なければcに対応するラベルを探すようにする。
+            String stripped = stripIndex(parameter);
+            String message = messages.getMessage(PROPERTYPREFIX_LABEL
+                    + stripped);
+            if (message == null) {
+                message = messages.getMessage(PROPERTYPREFIX_LABEL
+                        + getLastSegment(stripped));
+            }
+            if (message == null) {
+                message = parameter;
+            }
+            return message;
         }
+
+        StringBuilder sb = new StringBuilder();
 
         String head = messages.getMessage(PROPERTY_NOTE_PARAMETER_HEAD);
         if (head != null) {
@@ -115,6 +125,41 @@ public class NoteRendererImpl implements NoteRenderer {
         if (tail != null) {
             sb.append(tail);
         }
+
+        return sb.toString();
+    }
+
+    String getLastSegment(String parameter) {
+        if (parameter == null) {
+            return null;
+        }
+
+        int delim = parameter.lastIndexOf(DELIMITER);
+        if (delim < 0) {
+            return parameter;
+        } else {
+            return parameter.substring(delim + 1);
+        }
+    }
+
+    String stripIndex(String parameter) {
+        if (parameter == null) {
+            return null;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        int pre = 0;
+        int idx;
+        while ((idx = parameter.indexOf('[', pre)) >= 0) {
+            sb.append(parameter.substring(pre, idx));
+            int rparen = parameter.indexOf(']', idx + 1);
+            if (rparen >= 0) {
+                pre = rparen + 1;
+            } else {
+                pre = parameter.length();
+            }
+        }
+        sb.append(parameter.substring(pre));
 
         return sb.toString();
     }

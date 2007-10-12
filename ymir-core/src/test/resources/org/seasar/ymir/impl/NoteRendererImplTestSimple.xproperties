@@ -1,0 +1,8 @@
+template=Error: {0} is illegal.
+label.a.b.c=C of B of A
+label.a=A
+label.b=B
+label.c=C
+label.d=D
+label.e=E
+label.f=F
