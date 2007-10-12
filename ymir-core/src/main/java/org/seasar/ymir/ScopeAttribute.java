@@ -56,12 +56,13 @@ public class ScopeAttribute {
         if (value != null || injectWhereNull_) {
             boolean removeValue = false;
             try {
-                if (value != null
-                        && YmirContext.isUnderDevelopment()
-                        && !writeMethod_.getParameterTypes()[0]
-                                .isAssignableFrom(value.getClass())) {
+                if (value != null && YmirContext.isUnderDevelopment()) {
                     // 開発時はHotdeployのせいで見かけ上型が合わないことがありうる。
                     // そのため開発時で見かけ上型が合わない場合はオブジェクトを再構築する。
+                    // なお、value自身がHotdeployClassLoader以外から読まれたコンテナ
+                    // クラスのインスタンスで、中身がHotdeployClassLoaderから読まれたクラス
+                    // のインスタンスである場合に適切にオブジェクトを再構築できるように、
+                    // 無条件にvalueをfit()に渡すようにしている。（[#YMIR-136]）
                     value = hotdeployManager_.fit(value);
                 }
                 writeMethod_.invoke(component, new Object[] { value });
