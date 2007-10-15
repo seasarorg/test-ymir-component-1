@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -64,6 +65,8 @@ import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
+import org.seasar.ymir.annotation.Meta;
+import org.seasar.ymir.annotation.Metas;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.extension.Globals;
@@ -596,6 +599,23 @@ public class SourceCreatorImpl implements SourceCreator {
             classDesc.setMethodDesc(md);
         }
 
+        // 特別な処理を行なう。
+
+        Field[] fields = clazz.getDeclaredFields();
+        for (int i = 0; i < fields.length; i++) {
+            Meta meta = fields[i].getAnnotation(Meta.class);
+            if (meta != null && Globals.META_NAME_PROPERTY.equals(meta.name())) {
+                String name = meta.value();
+                PropertyDesc pd = classDesc.getPropertyDesc(name);
+                if (pd == null) {
+                    classDesc.addProperty(name, PropertyDesc.NONE);
+                    pd = classDesc.getPropertyDesc(name);
+                    pd.setAnnotationDesc(createAnnotationDesc(meta));
+                    pd.setTypeDesc(fields[i].getType().getName());
+                }
+            }
+        }
+
         return classDesc;
     }
 
@@ -614,9 +634,19 @@ public class SourceCreatorImpl implements SourceCreator {
         Annotation[] annotations = element.getAnnotations();
         AnnotationDesc[] ads = new AnnotationDesc[annotations.length];
         for (int i = 0; i < annotations.length; i++) {
-            ads[i] = new AnnotationDescImpl(annotations[i]);
+            ads[i] = createAnnotationDesc(annotations[i]);
         }
         return ads;
+    }
+
+    AnnotationDesc createAnnotationDesc(Annotation annotation) {
+        if (annotation instanceof Metas) {
+            return new MetasAnnotationDescImpl((Metas) annotation);
+        } else if (annotation instanceof Meta) {
+            return new MetaAnnotationDescImpl((Meta) annotation);
+        } else {
+            return new AnnotationDescImpl(annotation);
+        }
     }
 
     ClassDesc[] addRelativeClassDescs(ClassDesc[] classDescs) {
@@ -789,7 +819,8 @@ public class SourceCreatorImpl implements SourceCreator {
                 removeModeFrom(pds[i], PropertyDesc.WRITE, gapDesc);
                 removeModeFrom(pds[i], PropertyDesc.WRITE, superDesc);
             }
-            if (!pds[i].isReadable() && !pds[i].isWritable()) {
+            if (!pds[i].isReadable() && !pds[i].isWritable()
+                    && !pds[i].hasMeta(Globals.META_NAME_PROPERTY)) {
                 generated.removePropertyDesc(pds[i].getName());
             }
         }

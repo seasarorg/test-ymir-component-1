@@ -229,4 +229,19 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
 
         assertEquals("test", actual);
     }
+
+    public void testGenerateBaseSource_Page6() throws Exception {
+
+        ClassDesc classDesc = new SourceCreatorImpl() {
+            @Override
+            public ClassDesc newClassDesc(String className) {
+                return new ClassDescImpl(className);
+            }
+        }.getClassDesc(Hoe6PageBase.class,
+                "org.seasar.ymir.extension.freemarker.Hoe6Page");
+        String actual = target_.generateBaseSource(classDesc);
+
+        assertEquals(readResource(getClass(),
+                "testGenerateBaseSource_Page6.expected"), actual);
+    }
 }

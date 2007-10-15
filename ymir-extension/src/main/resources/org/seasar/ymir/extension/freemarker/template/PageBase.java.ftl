@@ -3,17 +3,18 @@
 <#list classDesc.annotationDescs as annotationDesc>${annotationDesc.string}
 </#list>public <#if classDesc.baseClassAbstract>abstract </#if>class ${classDesc.shortName}Base<#if classDesc.superclassName?exists> extends ${classDesc.superclassName}</#if>
 {
-<#list classDesc.propertyDescs as propertyDesc>
-    protected ${propertyDesc.typeDesc.name} ${fieldPrefix}${propertyDesc.name}${fieldSuffix};
+<#list classDesc.propertyDescs as propertyDesc><#if !propertyDesc.hasMetaOnSetter("formProperty")>
+    <#if propertyDesc.hasMeta("property")>@org.seasar.ymir.annotation.Meta(name="property",value="${propertyDesc.getMetaValue("property")}")
+    </#if>protected ${propertyDesc.typeDesc.name} ${fieldPrefix}${propertyDesc.name}${fieldSuffix}<#if propertyDesc.hasMeta("property")> = new ${propertyDesc.typeDesc.name}()</#if>;
 
-</#list>
+</#if></#list>
 <#list classDesc.propertyDescs as propertyDesc>
 <#if propertyDesc.readable>
 
 <#list propertyDesc.annotationDescsForGetter as annotationDesc>    ${annotationDesc.string}
 </#list>    public ${propertyDesc.typeDesc.name} <#if propertyDesc.typeDesc.name == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}()
     {
-        return ${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix};
+        return <#if propertyDesc.hasMetaOnGetter("formProperty")>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.getMetaValueOnGetter("formProperty")}${fieldSuffix}.<#if propertyDesc.typeDesc.name == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}();<#else>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix};</#if>
     }
 </#if>
 <#if propertyDesc.writable>
@@ -21,7 +22,7 @@
 <#list propertyDesc.annotationDescsForSetter as annotationDesc>    ${annotationDesc.string}
 </#list>    public void set${propertyDesc.name?cap_first}(${propertyDesc.typeDesc.name} ${propertyDesc.name})
     {
-        ${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix} = ${propertyDesc.name};
+        <#if propertyDesc.hasMetaOnSetter("formProperty")>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.getMetaValueOnSetter("formProperty")}${fieldSuffix}.set${propertyDesc.name?cap_first}(${propertyDesc.name});<#else>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix} = ${propertyDesc.name};</#if>
     }
 </#if>
 </#list>

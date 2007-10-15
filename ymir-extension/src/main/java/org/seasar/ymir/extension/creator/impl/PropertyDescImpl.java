@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.seasar.ymir.extension.creator.AnnotationDesc;
+import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 
@@ -27,6 +28,8 @@ public class PropertyDescImpl implements PropertyDesc, Cloneable {
 
     private Map<String, AnnotationDesc> annotationDescForSetterMap_ = new TreeMap<String, AnnotationDesc>();
 
+    private Map<String, AnnotationDesc> annotationDescMap_ = new TreeMap<String, AnnotationDesc>();
+
     public PropertyDescImpl(String name) {
 
         name_ = name;
@@ -47,6 +50,8 @@ public class PropertyDescImpl implements PropertyDesc, Cloneable {
                 annotationDescForGetterMap_);
         cloned.annotationDescForSetterMap_ = new TreeMap<String, AnnotationDesc>(
                 annotationDescForSetterMap_);
+        cloned.annotationDescMap_ = new TreeMap<String, AnnotationDesc>(
+                annotationDescMap_);
 
         return cloned;
     }
@@ -151,5 +156,80 @@ public class PropertyDescImpl implements PropertyDesc, Cloneable {
     public void setAnnotationDescForSetter(AnnotationDesc annotationDesc) {
         annotationDescForSetterMap_.put(annotationDesc.getName(),
                 annotationDesc);
+    }
+
+    public AnnotationDesc getAnnotationDesc(String name) {
+        return annotationDescMap_.get(name);
+    }
+
+    public AnnotationDesc[] getAnnotationDescs() {
+        return annotationDescMap_.values().toArray(new AnnotationDesc[0]);
+    }
+
+    public void setAnnotationDesc(AnnotationDesc annotationDesc) {
+        annotationDescMap_.put(annotationDesc.getName(), annotationDesc);
+    }
+
+    public String getMetaValueOnGetter(String name) {
+        MetaAnnotationDesc metas = (MetaAnnotationDesc) annotationDescForGetterMap_
+                .get(ANNOTATION_NAME_METAS);
+        if (metas != null) {
+            String value = metas.getValue(name);
+            if (value != null) {
+                return value;
+            }
+        }
+        MetaAnnotationDesc meta = (MetaAnnotationDesc) annotationDescForGetterMap_
+                .get(ANNOTATION_NAME_META);
+        if (meta != null) {
+            return meta.getValue(name);
+        }
+        return null;
+    }
+
+    public String getMetaValueOnSetter(String name) {
+        MetaAnnotationDesc metas = (MetaAnnotationDesc) annotationDescForSetterMap_
+                .get(ANNOTATION_NAME_METAS);
+        if (metas != null) {
+            String value = metas.getValue(name);
+            if (value != null) {
+                return value;
+            }
+        }
+        MetaAnnotationDesc meta = (MetaAnnotationDesc) annotationDescForSetterMap_
+                .get(ANNOTATION_NAME_META);
+        if (meta != null) {
+            return meta.getValue(name);
+        }
+        return null;
+    }
+
+    public String getMetaValue(String name) {
+        MetaAnnotationDesc metas = (MetaAnnotationDesc) annotationDescMap_
+                .get(ANNOTATION_NAME_METAS);
+        if (metas != null) {
+            String value = metas.getValue(name);
+            if (value != null) {
+                return value;
+            }
+        }
+        MetaAnnotationDesc meta = (MetaAnnotationDesc) annotationDescMap_
+                .get(ANNOTATION_NAME_META);
+        if (meta != null) {
+            return meta.getValue(name);
+        }
+        return null;
+    }
+
+    public boolean hasMetaOnGetter(String name) {
+        return (getMetaValueOnGetter(name) != null);
+    }
+
+    public boolean hasMetaOnSetter(String name) {
+        return (getMetaValueOnSetter(name) != null);
+    }
+
+    public boolean hasMeta(String name) {
+        return (getMetaValue(name) != null);
     }
 }

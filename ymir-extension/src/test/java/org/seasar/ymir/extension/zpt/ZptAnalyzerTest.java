@@ -23,6 +23,7 @@ import org.seasar.ymir.Note;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
@@ -54,6 +55,8 @@ public class ZptAnalyzerTest extends TestCase {
 
     private ZptAnalyzer target_;
 
+    private SourceCreatorImpl sourceCreator_;
+
     private Map<String, ClassDesc> classDescMap_ = new HashMap<String, ClassDesc>();
 
     private String path_ = "/hoe.html";
@@ -82,8 +85,7 @@ public class ZptAnalyzerTest extends TestCase {
                 };
             }
         };
-        SourceCreatorImpl creator = new SourceCreatorImpl() {
-
+        sourceCreator_ = new SourceCreatorImpl() {
             @Override
             public MatchedPathMapping findMatchedPathMapping(String path,
                     String method) {
@@ -159,7 +161,7 @@ public class ZptAnalyzerTest extends TestCase {
                 }
             }
         };
-        creator.setNamingConvention(new NamingConventionImpl());
+        sourceCreator_.setNamingConvention(new NamingConventionImpl());
         ApplicationManagerImpl applicationManager = new ApplicationManagerImpl();
         MockApplication mockApplication = new MockApplication() {
             @Override
@@ -169,8 +171,8 @@ public class ZptAnalyzerTest extends TestCase {
         }.setS2Container(S2ContainerFactory
                 .create("org/seasar/ymir/extension/zpt/ZptAnalyzerTest.dicon"));
         applicationManager.setBaseApplication(mockApplication);
-        creator.setApplicationManager(applicationManager);
-        target_.setSourceCreator(creator);
+        sourceCreator_.setApplicationManager(applicationManager);
+        target_.setSourceCreator(sourceCreator_);
 
         YmirImpl ymir = new YmirImpl();
         ymir.setApplicationManager(applicationManager);
@@ -800,5 +802,29 @@ public class ZptAnalyzerTest extends TestCase {
         ClassDesc cd = getClassDesc(Test47Page.class.getName());
         assertEquals(Test47Page.class.getName() + ".Internal", cd
                 .getPropertyDesc("property").getTypeDesc().getName());
+    }
+
+    public void testAnalyze48_name属性を持つformについてはSetterがDtoへのSetterとなること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                Globals.APPKEY_SOURCECREATOR_FEATURE_CREATEFORMDTO_ENABLE,
+                String.valueOf(true));
+
+        act("testAnalyze48");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        PropertyDesc pd = cd.getPropertyDesc("form");
+        assertNotNull(pd);
+        assertEquals("com.example.dto.FormDto", pd.getTypeDesc().getName());
+        assertEquals(PropertyDesc.NONE, pd.getMode());
+        assertTrue(pd.hasMeta(Globals.META_NAME_PROPERTY));
+        assertEquals("form", pd.getMetaValue(Globals.META_NAME_PROPERTY));
+        pd = cd.getPropertyDesc("value");
+        assertNotNull(pd);
+        assertTrue(pd.isWritable());
+        assertTrue(pd.hasMetaOnSetter(Globals.META_NAME_FORMPROPERTY));
+        assertEquals("form", pd
+                .getMetaValueOnSetter(Globals.META_NAME_FORMPROPERTY));
     }
 }

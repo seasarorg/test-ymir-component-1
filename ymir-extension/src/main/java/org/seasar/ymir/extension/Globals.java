@@ -28,4 +28,10 @@ public interface Globals extends org.seasar.ymir.Globals {
     String APPKEY_SOURCECREATOR_FEATURE_CREATEMESSAGE_ENABLE = "extension.sourceCreator.feature.createMessage.enable";
 
     String APPKEY_SOURCECREATOR_FEATURE_CREATEMESSAGES_ENABLE = "extension.sourceCreator.feature.createMessages.enable";
+
+    String APPKEY_SOURCECREATOR_FEATURE_CREATEFORMDTO_ENABLE = "extension.sourceCreator.feature.createFormDto.enable";
+
+    String META_NAME_PROPERTY = "property";
+
+    String META_NAME_FORMPROPERTY = "formProperty";
 }

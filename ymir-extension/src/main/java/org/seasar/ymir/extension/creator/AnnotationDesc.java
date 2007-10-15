@@ -9,4 +9,6 @@ public interface AnnotationDesc extends Cloneable {
     String getBody();
 
     void setBody(String body);
+
+    String getString();
 }

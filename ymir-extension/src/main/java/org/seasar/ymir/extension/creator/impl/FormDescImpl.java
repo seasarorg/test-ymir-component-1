@@ -14,15 +14,22 @@ public class FormDescImpl implements FormDesc {
 
     private ClassDesc classDesc_;
 
+    private ClassDesc dtoClassDesc_;
+
     private String actionName_;
+
+    private String name_;
 
     private boolean dispatchingByRequestParameter_;
 
-    public FormDescImpl(ClassDesc classDesc, String actionName,
+    public FormDescImpl(ClassDesc classDesc, ClassDesc dtoClassDesc,
+            String actionName, String name,
             boolean dispatchingByRequestParameter) {
 
         classDesc_ = classDesc;
+        dtoClassDesc_ = dtoClassDesc;
         actionName_ = actionName;
+        name_ = name;
         dispatchingByRequestParameter_ = dispatchingByRequestParameter;
     }
 
@@ -74,5 +81,15 @@ public class FormDescImpl implements FormDesc {
     public ClassDesc getClassDesc() {
 
         return classDesc_;
+    }
+
+    public ClassDesc getDtoClassDesc() {
+
+        return dtoClassDesc_;
+    }
+
+    public String getName() {
+
+        return name_;
     }
 }

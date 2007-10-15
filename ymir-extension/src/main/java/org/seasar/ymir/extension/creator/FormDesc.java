@@ -9,4 +9,8 @@ public interface FormDesc {
     void setActionMethodDesc(String parameterName);
 
     ClassDesc getClassDesc();
+
+    ClassDesc getDtoClassDesc();
+
+    String getName();
 }
