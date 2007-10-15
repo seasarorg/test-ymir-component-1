@@ -4,18 +4,21 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
-import org.seasar.ymir.Application;
-import org.seasar.ymir.PathMappingProvider;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.impl.S2ContainerImpl;
+import org.seasar.ymir.Application;
+import org.seasar.ymir.PathMappingProvider;
 
 public class MockApplication implements Application {
     private S2Container s2container_ = new S2ContainerImpl();
 
     private Map<Class<?>, Object> relatedObjectMap_ = new ConcurrentHashMap<Class<?>, Object>();
+
+    private Properties prop_ = new Properties();
 
     public String getId() {
         return null;
@@ -38,11 +41,11 @@ public class MockApplication implements Application {
     }
 
     public String getProperty(String key) {
-        return null;
+        return prop_.getProperty(key);
     }
 
     public String getProperty(String key, String defaultValue) {
-        return null;
+        return prop_.getProperty(key, defaultValue);
     }
 
     public Class getReferenceClass() {
@@ -100,6 +103,7 @@ public class MockApplication implements Application {
     }
 
     public void setProperty(String key, String value) {
+        prop_.setProperty(key, value);
     }
 
     public void setResourcesDirectory(String resourcesDirectory) {
