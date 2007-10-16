@@ -93,11 +93,11 @@ public class DefaultExceptionProcessor implements ExceptionProcessor {
         ExceptionHandler handler = (ExceptionHandler) handlerCd.getComponent();
 
         // 各コンテキストが持つ属性をinjectする。
-        PageMetaData propertyMetaData = new PageMetaDataImpl(
-                handlerCd.getComponentClass(), container);
+        PageMetaData pageMetaData = new PageMetaDataImpl(handlerCd
+                .getComponentClass(), container);
         // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
         // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
-        pageProcessor_.injectContextAttributes(handler, propertyMetaData, null);
+        pageProcessor_.injectContextAttributes(handler, pageMetaData, null);
 
         Response response = constructResponse(handler.handle(t));
         if (response.getType() == ResponseType.PASSTHROUGH) {
@@ -107,8 +107,7 @@ public class DefaultExceptionProcessor implements ExceptionProcessor {
         }
 
         // 各コンテキストに属性をoutjectする。
-        pageProcessor_
-                .outjectContextAttributes(handler, propertyMetaData, null);
+        pageProcessor_.outjectContextAttributes(handler, pageMetaData, null);
 
         // ExceptionHandlerコンポーネントをattributeとしてバインドしておく。
         request.setAttribute(ATTR_HANDLER, handler);
