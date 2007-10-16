@@ -3,12 +3,18 @@ package org.seasar.ymir.conversation.impl;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.conversation.Conversation;
+import org.seasar.ymir.hotdeploy.HotdeployManager;
 
 /**
  * このクラスはスレッドセーフです。
  */
 public class ConversationImpl implements Conversation {
+    private HotdeployManager hotdeployManager_;
+
+    private ApplicationManager applicationManager_;
+
     private String name_;
 
     private Map<String, Object> attributeMap_ = new ConcurrentHashMap<String, Object>();
@@ -21,6 +27,14 @@ public class ConversationImpl implements Conversation {
         name_ = name;
     }
 
+    public void setHotdeployManager(HotdeployManager hotdeployManager) {
+        hotdeployManager_ = hotdeployManager;
+    }
+
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
+    }
+
     @Override
     public String toString() {
         return getName();
@@ -31,7 +45,12 @@ public class ConversationImpl implements Conversation {
     }
 
     public Object getAttribute(String name) {
-        return attributeMap_.get(name);
+        Object value = attributeMap_.get(name);
+        if (applicationManager_.findContextApplication().isUnderDevelopment()) {
+            return hotdeployManager_.fit(value);
+        } else {
+            return value;
+        }
     }
 
     public void setAttribute(String name, Object value) {
@@ -57,4 +76,5 @@ public class ConversationImpl implements Conversation {
     public void setReenterResponse(Object reenterResponse) {
         reenterResponse_ = reenterResponse;
     }
+
 }

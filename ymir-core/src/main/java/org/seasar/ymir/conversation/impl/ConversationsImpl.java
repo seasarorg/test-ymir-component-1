@@ -2,19 +2,33 @@ package org.seasar.ymir.conversation.impl;
 
 import java.util.LinkedList;
 
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.conversation.Conversation;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.conversation.IllegalTransitionRuntimeException;
+import org.seasar.ymir.hotdeploy.HotdeployManager;
 
 /**
  * このクラスはスレッドセーフです。
  */
 public class ConversationsImpl implements Conversations {
+    private HotdeployManager hotdeployManager_;
+
+    private ApplicationManager applicationManager_;
+
     private LinkedList<Conversation> conversationStack_ = new LinkedList<Conversation>();
 
     private Conversation currentConversation_;
 
     private String subConversationName_;
+
+    public void setHotdeployManager(HotdeployManager hotdeployManager) {
+        hotdeployManager_ = hotdeployManager;
+    }
+
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
+    }
 
     public synchronized Conversation getCurrentConversation() {
         return currentConversation_;
@@ -46,7 +60,10 @@ public class ConversationsImpl implements Conversations {
     }
 
     Conversation newConversation(String conversationName) {
-        return new ConversationImpl(conversationName);
+        ConversationImpl impl = new ConversationImpl(conversationName);
+        impl.setHotdeployManager(hotdeployManager_);
+        impl.setApplicationManager(applicationManager_);
+        return impl;
     }
 
     public synchronized Object getAttribute(String name) {

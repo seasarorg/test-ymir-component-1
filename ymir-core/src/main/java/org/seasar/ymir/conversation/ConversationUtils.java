@@ -4,9 +4,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.seasar.framework.container.S2Container;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.conversation.impl.ConversationsImpl;
+import org.seasar.ymir.hotdeploy.HotdeployManager;
 
 public class ConversationUtils {
     public static final String ATTRPREFIX_CONVERSATION = Globals.IDPREFIX
@@ -45,12 +47,25 @@ public class ConversationUtils {
                 Conversations conversations = (Conversations) session
                         .getAttribute(ATTR_CONVERSATIONS);
                 if (conversations == null && create) {
-                    conversations = new ConversationsImpl();
+                    ConversationsImpl impl = new ConversationsImpl();
+                    impl.setHotdeployManager(getHotdeployManager());
+                    impl.setApplicationManager(getApplicationManager());
+                    conversations = impl;
                     session.setAttribute(ATTR_CONVERSATIONS, conversations);
                 }
                 return conversations;
             }
         }
+    }
+
+    static ApplicationManager getApplicationManager() {
+        return (ApplicationManager) getS2Container().getComponent(
+                ApplicationManager.class);
+    }
+
+    static HotdeployManager getHotdeployManager() {
+        return (HotdeployManager) getS2Container().getComponent(
+                HotdeployManager.class);
     }
 
     static HttpSession getSession() {
