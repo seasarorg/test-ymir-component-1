@@ -14,15 +14,18 @@ import org.seasar.ymir.FormFile;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Path;
+import org.seasar.ymir.annotation.RequestParameter;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.FormDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.impl.AnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.FormDescImpl;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
 import org.seasar.ymir.extension.creator.impl.PropertyDescImpl;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
+import org.seasar.ymir.util.BeanUtils;
 
 import net.skirnir.freyja.Attribute;
 import net.skirnir.freyja.Element;
@@ -78,51 +81,46 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             } finally {
                 analyzerContext.setFormDesc(null);
             }
-        } else if ("input".equals(name)
+        } else if (("input".equals(name) || "select".equals(name) || "textarea"
+                .equals(name))
                 && !runtimeAttributeNameSet.contains("name")) {
             // nameの値が実行時に決まる場合は正しくプロパティやメソッドを生成できないので、
             // nameの値が定数である場合のみ処理を行なうようにしている。
-            String type = getAttributeValue(attrMap, "type", null);
-            FormDesc formDesc = analyzerContext.getFormDesc();
-            if (formDesc != null
-                    && formDesc.isDispatchingByRequestParameter()
-                    && ("submit".equals(type) || "button".equals(type) || "image"
-                            .equals(type))) {
-                formDesc.setActionMethodDesc(getAttributeValue(attrMap, "name",
-                        null));
-            } else {
+            do {
+                FormDesc formDesc = analyzerContext.getFormDesc();
+                if (formDesc == null) {
+                    break;
+                }
+
+                String type = getAttributeValue(attrMap, "type", null);
+                if ("input".equals(name)
+                        && ("submit".equals(type) || "button".equals(type) || "image"
+                                .equals(type))) {
+                    if (formDesc.isDispatchingByRequestParameter()) {
+                        formDesc.setActionMethodDesc(getAttributeValue(attrMap,
+                                "name", null));
+                    }
+                    break;
+                }
+
                 PropertyDesc propertyDesc = processParameterTag(
-                        analyzerContext, attrMap, annotation);
-                if (propertyDesc != null) {
+                        analyzerContext, attrMap, annotation, formDesc);
+                if (propertyDesc == null) {
+                    break;
+                }
+
+                if ("input".equals(name)) {
                     if ("file".equals(type)) {
                         propertyDesc.getTypeDesc().setClassDesc(
                                 FormFile.class.getName());
                     } else if ("radio".equals(type)) {
                         propertyDesc.getTypeDesc().setArray(false);
                     }
-                    if (formDesc != null && formDesc.getDtoClassDesc() != null) {
-                        formDesc.getDtoClassDesc().setPropertyDesc(
-                                (PropertyDesc) propertyDesc.clone());
-                        propertyDesc
-                                .setAnnotationDescForGetter(new MetaAnnotationDescImpl(
-                                        org.seasar.ymir.extension.Globals.META_NAME_FORMPROPERTY,
-                                        formDesc.getName()));
-                        propertyDesc
-                                .setAnnotationDescForSetter(new MetaAnnotationDescImpl(
-                                        org.seasar.ymir.extension.Globals.META_NAME_FORMPROPERTY,
-                                        formDesc.getName()));
-                    }
                 }
-            }
-        } else if (("select".equals(name) || "textarea".equals(name))
-                && !runtimeAttributeNameSet.contains("name")) {
-            // nameの値が実行時に決まる場合は正しくプロパティやメソッドを生成できないので、
-            // nameの値が定数である場合のみ処理を行なうようにしている。
-            PropertyDesc propertyDesc = processParameterTag(analyzerContext,
-                    attrMap, annotation);
-            if (propertyDesc != null) {
-                FormDesc formDesc = analyzerContext.getFormDesc();
-                if (formDesc != null && formDesc.getDtoClassDesc() != null) {
+
+                String parameterName = getAttributeValue(attrMap, "name", null);
+                if (BeanUtils.isSingleSegment(parameterName)
+                        && formDesc.getDtoClassDesc() != null) {
                     formDesc.getDtoClassDesc().setPropertyDesc(
                             (PropertyDesc) propertyDesc.clone());
                     propertyDesc
@@ -134,7 +132,19 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                                     org.seasar.ymir.extension.Globals.META_NAME_FORMPROPERTY,
                                     formDesc.getName()));
                 }
-            }
+
+                if (BeanUtils.isSingleSegment(parameterName)) {
+                    propertyDesc
+                            .setAnnotationDescForSetter(new AnnotationDescImpl(
+                                    RequestParameter.class.getName()));
+                } else {
+                    formDesc.getClassDesc().getPropertyDesc(
+                            BeanUtils.getFirstSimpleSegment(parameterName))
+                            .setAnnotationDescForGetter(
+                                    new AnnotationDescImpl(
+                                            RequestParameter.class.getName()));
+                }
+            } while (false);
         } else if ("option".equals(name)
                 && analyzerContext.isUsingFreyjaRenderClasses()) {
             String returned = super.evaluate(context, name, attrs, body);
@@ -400,13 +410,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
     }
 
     PropertyDesc processParameterTag(AnalyzerContext context, Map attrMap,
-            String annotation) {
-
-        FormDesc formDesc = context.getFormDesc();
-        if (formDesc == null) {
-            return null;
-        }
-
+            String annotation, FormDesc formDesc) {
         String name = getAttributeValue(attrMap, "name", null);
         if (name != null && shouldGeneratePropertyForParameter(name)) {
             return context.getPropertyDesc(formDesc.getClassDesc(), name,

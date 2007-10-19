@@ -23,6 +23,7 @@ import org.seasar.ymir.Note;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.annotation.RequestParameter;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
@@ -320,9 +321,9 @@ public class ZptAnalyzerTest extends TestCase {
         pd = cd.getPropertyDesc("file");
         assertNotNull(pd);
         assertEquals(FormFile.class.getName(), pd.getTypeDesc().getName());
-        assertNotNull(cd.getPropertyDesc("button"));
-        assertNotNull(cd.getPropertyDesc("image"));
-        assertNotNull(cd.getPropertyDesc("submit"));
+        assertNull("ボタンに対応するプロパティは生成されないこと", cd.getPropertyDesc("button"));
+        assertNull("ボタンに対応するプロパティは生成されないこと", cd.getPropertyDesc("image"));
+        assertNull("ボタンに対応するプロパティは生成されないこと", cd.getPropertyDesc("submit"));
 
         assertNull(cd.getPropertyDesc("text2"));
         assertNull(cd.getPropertyDesc("select2"));
@@ -826,5 +827,25 @@ public class ZptAnalyzerTest extends TestCase {
         assertTrue(pd.hasMetaOnSetter(Globals.META_NAME_FORMPROPERTY));
         assertEquals("form", pd
                 .getMetaValueOnSetter(Globals.META_NAME_FORMPROPERTY));
+    }
+
+    public void testAnalyze49_strictInjectionモードではRequestParameterアノテーションが付与されること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                Globals.APPKEY_CORE_REQUESTPARAMETER_STRICTINJECTION,
+                String.valueOf(true));
+
+        act("testAnalyze49");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        PropertyDesc pd = cd.getPropertyDesc("value");
+        assertNotNull(pd);
+        assertNotNull(pd.getAnnotationDescForSetter(RequestParameter.class
+                .getName()));
+        pd = cd.getPropertyDesc("aaa");
+        assertNotNull(pd);
+        assertNotNull(pd.getAnnotationDescForGetter(RequestParameter.class
+                .getName()));
     }
 }

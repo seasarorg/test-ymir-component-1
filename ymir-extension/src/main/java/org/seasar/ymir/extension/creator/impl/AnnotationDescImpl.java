@@ -155,6 +155,7 @@ public class AnnotationDescImpl implements AnnotationDesc {
 
     public AnnotationDescImpl(String name) {
         name_ = name;
+        body_ = "";
     }
 
     public Object clone() {
