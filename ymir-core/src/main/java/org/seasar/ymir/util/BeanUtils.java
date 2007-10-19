@@ -47,4 +47,35 @@ public class BeanUtils {
             return Character.toLowerCase(name.charAt(0)) + name.substring(1);
         }
     }
+
+    public static String getFirstSimpleSegment(String propertyName) {
+        String segment = getFirstSegment(propertyName);
+        if (segment == null) {
+            return null;
+        }
+        int index = segment.indexOf('[');
+        if (index < 0) {
+            index = segment.indexOf('(');
+            if (index < 0) {
+                return segment;
+            }
+        }
+        return segment.substring(0, index);
+    }
+
+    public static String getFirstSegment(String propertyName) {
+        if (propertyName == null) {
+            return null;
+        }
+        int dot = propertyName.indexOf('.');
+        if (dot < 0) {
+            return propertyName;
+        } else {
+            return propertyName.substring(0, dot);
+        }
+    }
+
+    public static boolean isSingleSegment(String propertyName) {
+        return propertyName.indexOf('.') < 0;
+    }
 }

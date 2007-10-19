@@ -1,7 +1,7 @@
 package org.seasar.ymir.conversation;
 
-public interface Globals {
-    String APPKEYPREFIX_CONVERSATION = "core.conversation.";
+public interface Globals extends org.seasar.ymir.Globals {
+    String APPKEYPREFIX_CONVERSATION = APPKEYPREFIX_CORE + "conversation.";
 
     String APPKEY_DISABLEBEGINCHECK = APPKEYPREFIX_CONVERSATION
             + "disableBeginCheck";

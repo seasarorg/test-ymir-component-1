@@ -1,12 +1,17 @@
 package org.seasar.ymir.impl;
 
+import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.S2ContainerFactory;
 
 import junit.framework.TestCase;
 
 public class PagePropertyMetaDataImplTest extends TestCase {
-    private PageMetaDataImpl target_ = new PageMetaDataImpl(
-            Object.class, null);
+    private PageMetaDataImpl target_ = new PageMetaDataImpl(Object.class, null) {
+        @Override
+        boolean isStrictInjection(S2Container container) {
+            return false;
+        }
+    };
 
     public void testToAttributeName() throws Exception {
         assertEquals("a", target_.toAttributeName("getA", null));
@@ -21,8 +26,8 @@ public class PagePropertyMetaDataImplTest extends TestCase {
     }
 
     public void testIsProtected() throws Exception {
-        PageMetaDataImpl target = new PageMetaDataImpl(
-                HoePage.class, S2ContainerFactory.create(getClass().getName()
+        PageMetaDataImpl target = new PageMetaDataImpl(HoePage.class,
+                S2ContainerFactory.create(getClass().getName()
                         .replace('.', '/').concat(".dicon")));
 
         assertTrue(target.isProtected("map"));

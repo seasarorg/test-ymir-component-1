@@ -10,4 +10,9 @@ public interface Globals {
     String MESSAGES = "messages.xproperties";
 
     String NAME_MESSAGES = "messages";
+
+    String APPKEYPREFIX_CORE = "core.";
+
+    String APPKEY_CORE_REQUESTPARAMETER_STRICTINJECTION = APPKEYPREFIX_CORE
+            + "requestParameter.strictInjection";
 }

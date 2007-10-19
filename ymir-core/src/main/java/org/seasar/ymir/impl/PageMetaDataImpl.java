@@ -12,7 +12,10 @@ import java.util.Set;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.util.ArrayUtil;
+import org.seasar.kvasir.util.PropertyUtils;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.FormFile;
+import org.seasar.ymir.Globals;
 import org.seasar.ymir.PageMetaData;
 import org.seasar.ymir.Phase;
 import org.seasar.ymir.ScopeAttribute;
@@ -20,6 +23,7 @@ import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Invoke;
 import org.seasar.ymir.annotation.Out;
 import org.seasar.ymir.annotation.Protected;
+import org.seasar.ymir.annotation.RequestParameter;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.impl.RequestScope;
 import org.seasar.ymir.util.BeanUtils;
@@ -29,7 +33,9 @@ public class PageMetaDataImpl implements PageMetaData {
 
     private S2Container container_;
 
-    private Set<String> protectedSetterNameSet_ = new HashSet<String>();
+    private Set<String> protectedNameSet_ = new HashSet<String>();
+
+    private Set<String> permittedNameSet_ = new HashSet<String>();
 
     private List<ScopeAttribute> injectedScopeAttributeList_ = new ArrayList<ScopeAttribute>();
 
@@ -37,17 +43,34 @@ public class PageMetaDataImpl implements PageMetaData {
 
     private Map<Phase, Method[]> methodsMap_ = new HashMap<Phase, Method[]>();
 
+    private boolean strictInjection_;
+
     public PageMetaDataImpl(Class<?> clazz, S2Container container) {
         class_ = clazz;
         container_ = container;
+        strictInjection_ = isStrictInjection(container);
         Method[] methods = clazz.getMethods();
         for (int i = 0; i < methods.length; i++) {
             register(methods[i]);
         }
     }
 
+    boolean isStrictInjection(S2Container container) {
+        return PropertyUtils.valueOf(((ApplicationManager) container
+                .getComponent(ApplicationManager.class))
+                .findContextApplication().getProperty(
+                        Globals.APPKEY_CORE_REQUESTPARAMETER_STRICTINJECTION),
+                false);
+    }
+
     public boolean isProtected(String propertyName) {
-        return protectedSetterNameSet_.contains(propertyName);
+        if (strictInjection_) {
+            return !permittedNameSet_.contains(BeanUtils
+                    .getFirstSimpleSegment(propertyName));
+        } else {
+            return protectedNameSet_.contains(BeanUtils
+                    .getFirstSimpleSegment(propertyName));
+        }
     }
 
     public ScopeAttribute[] getInjectedScopeAttributes() {
@@ -59,39 +82,19 @@ public class PageMetaDataImpl implements PageMetaData {
     }
 
     void register(Method method) {
+        boolean shouldProtect = false;
+
         In in = method.getAnnotation(In.class);
         if (in != null) {
             registerForInjectionFromScope(in, method);
-            protectedSetterNameSet_.add(BeanUtils.toPropertyName(method
-                    .getName(), false));
-            return;
+            shouldProtect = true;
         }
 
         Out out = method.getAnnotation(Out.class);
         if (out != null) {
             registerForOutjectionToScope(out, method);
-            return;
-        }
-
-        if (method.isAnnotationPresent(Binding.class)
-                || method.isAnnotationPresent(Protected.class)) {
-            protectedSetterNameSet_.add(BeanUtils.toPropertyName(method
-                    .getName(), false));
-            return;
-        }
-
-        Class<?>[] types = method.getParameterTypes();
-        if (method.getName().startsWith("set")
-                && types.length == 1
-                && (!FormFile.class.isAssignableFrom(types[0])
-                        && types[0].isInterface() || types[0].isArray()
-                        && !FormFile.class.isAssignableFrom(types[0]
-                                .getComponentType())
-                        && types[0].getComponentType().isInterface())) {
-            // S2Container用のsetterとみなしてプロテクトする。
-            protectedSetterNameSet_.add(BeanUtils.toPropertyName(method
-                    .getName(), false));
-            return;
+            // パラメータをSetterで受けて@OutつきGetterでオブジェクトスコープにOutjectするケース
+            // があるため、@Outがついている場合はプロテクトしない。
         }
 
         Invoke invoke = method.getAnnotation(Invoke.class);
@@ -108,7 +111,34 @@ public class PageMetaDataImpl implements PageMetaData {
                 methods = (Method[]) ArrayUtil.add(methods, method);
             }
             methodsMap_.put(phase, methods);
-            return;
+        }
+
+        if (method.isAnnotationPresent(Binding.class)
+                || method.isAnnotationPresent(Protected.class)) {
+            shouldProtect = true;
+        }
+
+        Class<?>[] types = method.getParameterTypes();
+        if (method.getName().startsWith("set")
+                && types.length == 1
+                && (!FormFile.class.isAssignableFrom(types[0])
+                        && types[0].isInterface() || types[0].isArray()
+                        && !FormFile.class.isAssignableFrom(types[0]
+                                .getComponentType())
+                        && types[0].getComponentType().isInterface())) {
+            // S2Container用のsetterとみなしてプロテクトする。
+            shouldProtect = true;
+        }
+
+        if (shouldProtect) {
+            protectedNameSet_.add(BeanUtils.toPropertyName(method.getName(),
+                    false));
+        }
+
+        if (strictInjection_
+                && method.isAnnotationPresent(RequestParameter.class)) {
+            permittedNameSet_.add(BeanUtils.toPropertyName(method.getName(),
+                    false));
         }
     }
 

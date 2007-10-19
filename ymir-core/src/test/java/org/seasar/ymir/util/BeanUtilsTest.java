@@ -70,4 +70,19 @@ public class BeanUtilsTest extends TestCase {
         assertNull("a", BeanUtils.toPropertyName("injectA"));
         assertEquals("a", BeanUtils.toPropertyName("injectA", false));
     }
+
+    public void testGetFirstSegment() throws Exception {
+        assertNull(BeanUtils.getFirstSegment(null));
+
+        assertEquals("aaa", BeanUtils.getFirstSegment("aaa"));
+        assertEquals("aaa[0]", BeanUtils.getFirstSegment("aaa[0].bbb[1].ccc"));
+    }
+
+    public void testGetFirstSimpleSegment() throws Exception {
+        assertNull(BeanUtils.getFirstSimpleSegment(null));
+
+        assertEquals("aaa", BeanUtils.getFirstSimpleSegment("aaa"));
+        assertEquals("aaa", BeanUtils
+                .getFirstSimpleSegment("aaa[0].bbb[1].ccc"));
+    }
 }
