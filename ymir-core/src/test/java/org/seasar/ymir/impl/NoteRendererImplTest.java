@@ -30,7 +30,7 @@ public class NoteRendererImplTest extends TestCase {
         MessagesImpl messages = new MessagesImpl() {
             @Override
             String getPageName() {
-                return "page";
+                return "indexPage";
             }
 
             @Override

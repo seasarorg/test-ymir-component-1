@@ -23,6 +23,8 @@ import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.util.MessagesUtils;
 
 public class MessagesImpl implements Messages {
+    private static final String SUFFIX_PAGE = "Page";
+
     private final Logger logger_ = Logger.getLogger(getClass());
 
     private final List<String> path_ = new ArrayList<String>();
@@ -113,12 +115,18 @@ public class MessagesImpl implements Messages {
     public String getMessage(final String name) {
         updateMessages();
         final Locale locale = localeManager_.getLocale();
+        final String pageName = getPageName();
         final String pageSpecificName = MessagesUtils.getPageSpecificName(name,
-                getPageName());
+                pageName);
 
         String message = null;
         if (pageSpecificName != null) {
             message = getProperty0(pageSpecificName, locale);
+            if (message == null && pageName.endsWith(SUFFIX_PAGE)) {
+                message = getProperty0(MessagesUtils.getPageSpecificName(name,
+                        pageName.substring(0, pageName.length()
+                                - SUFFIX_PAGE.length())), locale);
+            }
         }
         if (message == null) {
             message = getProperty0(name, locale);
