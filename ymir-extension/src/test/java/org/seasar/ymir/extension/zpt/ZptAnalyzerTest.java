@@ -848,4 +848,14 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(pd.getAnnotationDescForGetter(RequestParameter.class
                 .getName()));
     }
+
+    public void testAnalyze50_talAttributesの中でtalDefineされた変数を使ってもExceptionがスローされないこと()
+            throws Exception {
+
+        try {
+            act("testAnalyze50");
+        } catch (Exception ex) {
+            fail();
+        }
+    }
 }

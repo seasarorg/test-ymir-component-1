@@ -460,19 +460,35 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         VariableResolver varResolver = context.getVariableResolver();
 
         List<Attribute> attrList = new ArrayList<Attribute>();
+        Attribute defineAttr = null;
         Attribute attributesAttr = null;
         for (int i = 0; i < attrs.length; i++) {
             if (attrs[i].getName().startsWith("tal:")) {
                 if ("tal:attributes".equals(attrs[i].getName())) {
                     attributesAttr = attrs[i];
+                } else if ("tal:define".equals(attrs[i].getName())) {
+                    defineAttr = attrs[i];
                 }
             } else {
                 attrList.add(attrs[i]);
             }
         }
         if (attributesAttr != null) {
-            attrs = processAttributes(context, expEvaluator, varResolver,
-                    attributesAttr, attrs, true);
+            boolean variableScopePushed = false;
+            try {
+                if (defineAttr != null) {
+                    context.pushVariableScope();
+                    variableScopePushed = true;
+                    processDefine(context, expEvaluator, varResolver,
+                            defineAttr);
+                }
+                attrs = processAttributes(context, expEvaluator, varResolver,
+                        attributesAttr, attrs, true);
+            } finally {
+                if (variableScopePushed) {
+                    context.popVariableScope();
+                }
+            }
         }
         return TagEvaluatorUtils.toMap(attrs);
     }
