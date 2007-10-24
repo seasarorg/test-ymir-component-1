@@ -27,6 +27,7 @@ import org.seasar.ymir.annotation.RequestParameter;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.impl.RequestScope;
 import org.seasar.ymir.util.BeanUtils;
+import org.seasar.ymir.util.ClassUtils;
 
 public class PageMetaDataImpl implements PageMetaData {
     private Class<?> class_;
@@ -49,7 +50,7 @@ public class PageMetaDataImpl implements PageMetaData {
         class_ = clazz;
         container_ = container;
         strictInjection_ = isStrictInjection(container);
-        Method[] methods = clazz.getMethods();
+        Method[] methods = ClassUtils.getMethods(clazz);
         for (int i = 0; i < methods.length; i++) {
             register(methods[i]);
         }

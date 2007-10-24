@@ -46,6 +46,7 @@ import org.seasar.ymir.impl.ActionImpl;
 import org.seasar.ymir.impl.MethodInvokerImpl;
 import org.seasar.ymir.impl.VoidMethodInvoker;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
+import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.MethodUtils;
 
 /**
@@ -337,7 +338,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
         // バリデーションを抑制するように指定されている場合はカスタムバリデータを収集しない。
         if (!suppressTypeSet.contains(ConstraintType.VALIDATION)) {
-            Method[] methods = pageClass.getMethods();
+            Method[] methods = ClassUtils.getMethods(pageClass);
             for (int i = 0; i < methods.length; i++) {
                 Validator validator = methods[i].getAnnotation(Validator.class);
                 if (validator != null) {

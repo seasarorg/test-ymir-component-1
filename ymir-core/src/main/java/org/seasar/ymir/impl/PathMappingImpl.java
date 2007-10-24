@@ -23,6 +23,7 @@ import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.TypeConversionManager;
+import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.MethodUtils;
 
 public class PathMappingImpl implements PathMapping {
@@ -287,7 +288,7 @@ public class PathMappingImpl implements PathMapping {
 
     protected Action getActionForButton(Object page, Class<?> pageClass,
             String actionName, Request request) {
-        Method[] methods = pageClass.getMethods();
+        Method[] methods = ClassUtils.getMethods(pageClass);
         if (logger_.isDebugEnabled()) {
             logger_.debug("getActionByParameter: search " + pageClass + " for "
                     + actionName + " method...");
