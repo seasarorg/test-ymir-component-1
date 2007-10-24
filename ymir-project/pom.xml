@@ -6,7 +6,7 @@
   <groupId>org.seasar.ymir</groupId>
   <artifactId>ymir-project</artifactId>
   <packaging>pom</packaging>
-  <version>0.9.2-SNAPSHOT</version>
+  <version>0.9.2</version>
   <name>Ymir Project</name>
   <description>
     Ymir Project is a project to develop Ymir, which is a simple Web
@@ -167,7 +167,9 @@
     <developerConnection>
       scm:svn:https://www.seasar.org/svn/sandbox/ymir/trunk/${project.artifactId}
     </developerConnection>
-    <url>http://svn.seasar.org/browse/trunk/${project.artifactId}?root=sandbox.ymir</url>
+    <url>
+      http://svn.seasar.org/browse/trunk/${project.artifactId}?root=sandbox.ymir
+    </url>
   </scm>
   <repositories>
     <repository>
