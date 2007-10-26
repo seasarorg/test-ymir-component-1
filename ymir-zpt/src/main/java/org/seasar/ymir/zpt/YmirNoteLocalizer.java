@@ -8,12 +8,12 @@ import org.seasar.ymir.MessageNotFoundRuntimeException;
 import org.seasar.ymir.Messages;
 import org.seasar.ymir.MessagesNotFoundRuntimeException;
 import org.seasar.ymir.NoteRenderer;
-import org.seasar.ymir.Request;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;
+import net.skirnir.freyja.webapp.ServletVariableResolver;
 import net.skirnir.freyja.zpt.tales.NoteLocalizer;
 
 public class YmirNoteLocalizer implements NoteLocalizer {
@@ -90,7 +90,7 @@ public class YmirNoteLocalizer implements NoteLocalizer {
 
     public Locale findLocale(TemplateContext context,
             VariableResolver varResolver) {
-        return ((Request) varResolver.getVariable(context,
-                YmirVariableResolver.NAME_YMIRREQUEST)).getLocale();
+        return (Locale) varResolver.getVariable(context,
+                ServletVariableResolver.VAR_LOCALE);
     }
 }
