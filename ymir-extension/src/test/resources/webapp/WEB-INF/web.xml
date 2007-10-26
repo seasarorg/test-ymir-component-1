@@ -87,9 +87,7 @@
   </listener>
   <servlet>
     <servlet-name>zpt</servlet-name>
-    <servlet-class>
-      net.skirnir.freyja.webapp.FreyjaServlet
-    </servlet-class>
+    <servlet-class>org.seasar.ymir.zpt.YmirFreyjaServlet</servlet-class>
     <init-param>
       <param-name>templateParser</param-name>
       <param-value>org.seasar.ymir.zpt.YmirTemplateParser</param-value>
