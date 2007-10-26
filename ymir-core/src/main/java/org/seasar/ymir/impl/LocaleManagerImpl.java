@@ -5,14 +5,22 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import org.seasar.framework.container.S2Container;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.LocaleManager;
+import org.seasar.ymir.Request;
 import org.seasar.ymir.util.LocaleUtils;
 
 public class LocaleManagerImpl implements LocaleManager {
     private S2Container container_;
 
+    private ApplicationManager applicationManager_;
+
     public void setContainer(S2Container container) {
         container_ = container;
+    }
+
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
     }
 
     public Locale getLocale() {
@@ -26,6 +34,20 @@ public class LocaleManagerImpl implements LocaleManager {
 
     public void setLocale(Locale locale) {
         LocaleUtils.setLocale(getHttpServletRequest(), locale);
+        Request request = getRequest();
+        if (request != null) {
+            request.setLocale(locale);
+        }
+    }
+
+    Request getRequest() {
+        S2Container container = applicationManager_.findContextApplication()
+                .getS2Container();
+        if (container.hasComponentDef(Request.class)) {
+            return (Request) container.getComponent(Request.class);
+        } else {
+            return null;
+        }
     }
 
     public void removeLocale() {

@@ -72,6 +72,10 @@ public class RequestWrapper implements Request {
         return request_.getLocale();
     }
 
+    public void setLocale(Locale locale) {
+        request_.setLocale(locale);
+    }
+
     public String getMethod() {
         return request_.getMethod();
     }

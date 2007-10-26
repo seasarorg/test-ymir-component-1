@@ -179,6 +179,16 @@ public interface Request extends AttributeContainer {
     Locale getLocale();
 
     /**
+     * ロケールを設定します。
+     * <p>このメソッドはフレームワークによって用いられます。
+     * アプリケーションはこのメソッドを呼び出さないようにして下さい。
+     * </p>
+     * 
+     * @param action アクション。
+     */
+    void setLocale(Locale locale);
+
+    /**
      * 現在のディスパッチの処理を開始します。
      * <p>このメソッドはフレームワークが現在のディスパッチを表すDispatchオブジェクトを
      * Requestオブジェクトにセットするために用いられます。

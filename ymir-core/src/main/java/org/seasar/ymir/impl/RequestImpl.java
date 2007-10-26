@@ -176,6 +176,10 @@ public class RequestImpl implements Request {
         return locale_;
     }
 
+    public void setLocale(Locale locale) {
+        locale_ = locale;
+    }
+
     public Dispatch getRequestDispatch() {
         return requestDispatch_;
     }
