@@ -175,6 +175,9 @@ public class YmirImpl implements Ymir {
     public Response processRequest(final Request request)
             throws PageNotFoundException, PermissionDeniedException {
         Response response = requestProcessor_.process(request);
+        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+            response = ymirProcessInterceptors_[i].responseCreated(response);
+        }
         request.setAttribute(ATTR_RESPONSE, response);
         return response;
     }
@@ -235,7 +238,9 @@ public class YmirImpl implements Ymir {
     }
 
     public Response processException(final Request request, final Throwable t) {
-        return exceptionProcessor_.process(request, t);
+        Response response = exceptionProcessor_.process(request, t);
+        request.setAttribute(ATTR_RESPONSE, response);
+        return response;
     }
 
     public Application getApplication() {

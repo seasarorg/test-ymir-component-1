@@ -102,10 +102,6 @@ public class YmirFilter implements Filter {
                 ServletUtils.getQueryString(httpRequest), dispatcher_);
         try {
             Response response = ymir_.processRequest(request);
-            for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                response = ymirProcessInterceptors_[i]
-                        .responseCreated(response);
-            }
 
             HttpServletResponseFilter responseFilter = ymir_.processResponse(
                     context_, httpRequest, httpResponse, request, response);
