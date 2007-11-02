@@ -397,7 +397,7 @@ abstract public class YmirTestCase extends TestCase {
     protected void prepareForProcessing(String path, Dispatcher dispatcher) {
         checkStatus(STATUS_PROCESSED);
 
-        ymir_.updateRequest(request_, httpRequest_);
+        ymir_.updateRequest(request_, httpRequest_, dispatcher);
 
         ExternalContext externalContext = container_.getExternalContext();
         externalContext.setRequest(httpRequest_);

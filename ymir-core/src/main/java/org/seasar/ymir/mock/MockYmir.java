@@ -101,7 +101,8 @@ public class MockYmir implements Ymir {
         return new YmirProcessInterceptor[0];
     }
 
-    public void updateRequest(Request request, HttpServletRequest httpRequest) {
+    public void updateRequest(Request request, HttpServletRequest httpRequest,
+            Dispatcher dispatcher) {
     }
 
     public MatchedPathMapping findMatchedPathMapping(String path, String method) {

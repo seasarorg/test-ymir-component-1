@@ -142,8 +142,22 @@ public class YmirImpl implements Ymir {
      * バインドされているパス情報を取ればいいのだけど、
      * それだとservletAPIを意識しないといけなくなるので、オブジェクトからその情報を取れるようにしました。
      */
-    public void enterDispatch(final Request request, final String path,
-            final String queryString, final Dispatcher dispatcher) {
+    public void enterDispatch(Request request, String path, String queryString,
+            Dispatcher dispatcher) {
+        // proceedされてきた場合はqueryStringとして適切な値が渡ってこないので、ここで
+        // 差し替えている。
+        if (dispatcher == Dispatcher.FORWARD) {
+            Response response = (Response) request.getAttribute(ATTR_RESPONSE);
+            if (!response.isSubordinate()) {
+                String responsePath = response.getPath();
+                int question = responsePath.indexOf('?');
+                if (question >= 0) {
+                    queryString = responsePath.substring(question);
+                } else {
+                    queryString = null;
+                }
+            }
+        }
         request.enterDispatch(new DispatchImpl(request.getContextPath(), path,
                 queryString, dispatcher, findMatchedPathMapping(path, request
                         .getMethod())));
@@ -265,7 +279,12 @@ public class YmirImpl implements Ymir {
     }
 
     @SuppressWarnings("unchecked")
-    public void updateRequest(Request request, HttpServletRequest httpRequest) {
+    public void updateRequest(Request request, HttpServletRequest httpRequest,
+            Dispatcher dispatcher) {
+        if (dispatcher != Dispatcher.FORWARD) {
+            return;
+        }
+
         RequestImpl unwrappedRequest = unwrapRequest(request);
         Map<String, String[]> parameterMap = httpRequest.getParameterMap();
         Response response = (Response) request.getAttribute(ATTR_RESPONSE);
