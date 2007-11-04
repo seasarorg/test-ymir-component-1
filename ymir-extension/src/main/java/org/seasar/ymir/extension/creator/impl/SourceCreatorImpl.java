@@ -129,6 +129,14 @@ public class SourceCreatorImpl implements SourceCreator {
     public static final HttpServletResponse MOCK_RESPONSE = new MockHttpServletResponseImpl(
             MOCK_REQUEST);
 
+    private static final String PROPERTY_ID = "id";
+
+    private static final String ID_ANNOTATIONNAME = "org.seasar.dao.annotation.tiger.Id";
+
+    private static final String ID_BODY = "(org.seasar.dao.annotation.tiger.IdType.IDENTITY)";
+
+    private static final String ID_TYPE = "int";
+
     private YmirImpl ymir_;
 
     private NamingConvention namingConvention_;
@@ -687,6 +695,15 @@ public class SourceCreatorImpl implements SourceCreator {
                 for (int j = 0; j < pds.length; j++) {
                     classDesc.setPropertyDesc((PropertyDesc) pds[j].clone());
                 }
+                // プライマリキーがないとS2Daoがエラーになるので生成しておく。
+                PropertyDesc idPd = classDesc.getPropertyDesc(PROPERTY_ID);
+                if (idPd == null) {
+                    idPd = classDesc.addProperty(PROPERTY_ID, PropertyDesc.READ
+                            | PropertyDesc.WRITE);
+                    idPd.setTypeDesc(ID_TYPE);
+                }
+                idPd.setAnnotationDescForGetter(new AnnotationDescImpl(
+                        ID_ANNOTATIONNAME, ID_BODY));
                 classDescList.add(classDesc);
 
                 // Dxo用のClassDescを生成しておく。

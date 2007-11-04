@@ -154,8 +154,12 @@ public class AnnotationDescImpl implements AnnotationDesc {
     }
 
     public AnnotationDescImpl(String name) {
+        this(name, "");
+    }
+
+    public AnnotationDescImpl(String name, String body) {
         name_ = name;
-        body_ = "";
+        body_ = body;
     }
 
     public Object clone() {
