@@ -279,11 +279,14 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
     protected Response processInclude(final Request request)
             throws PageNotFoundException, PermissionDeniedException {
-        // includeの場合はselfを設定するだけ。
-        Object page = getPage(request.getCurrentDispatch()
-                .getPageComponentName());
-        if (page != null) {
-            request.setAttribute(ATTR_SELF, page);
+        Dispatch dispatch = request.getCurrentDispatch();
+        if (dispatch.isMatched()) {
+            // includeの場合はselfを設定するだけ。
+            Object page = getPage(request.getCurrentDispatch()
+                    .getPageComponentName());
+            if (page != null) {
+                request.setAttribute(ATTR_SELF, page);
+            }
         }
 
         return PassthroughResponse.INSTANCE;
