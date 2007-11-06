@@ -111,19 +111,7 @@ public class BeantableManager implements LifecycleListener, HotdeployListener {
                 .getReferenceClass() != null);
     }
 
-    public void destroy() {
-    }
-
-    /*
-     * HotdeployListener
-     */
-
-    public void definedClass(Class clazz) {
-        if (!configuration_
-                .equalsProjectStatus(Configuration.PROJECTSTATUS_DEVELOP)) {
-            return;
-        }
-
+    public void enableBeantable(Class clazz, boolean correctTableSchema) {
         ClassTraverserBag bag = getClassTraverserBag(clazz);
         if (bag == null) {
             return;
@@ -146,10 +134,21 @@ public class BeantableManager implements LifecycleListener, HotdeployListener {
             logger_.error("Can't activate table: " + clazz.getName(), ex);
         }
         try {
-            beantable.update();
+            beantable.update(correctTableSchema);
         } catch (SQLException ex) {
             logger_.error("Can't update table: " + clazz.getName(), ex);
         }
+    }
+
+    public void destroy() {
+    }
+
+    /*
+     * HotdeployListener
+     */
+
+    public void definedClass(Class clazz) {
+        enableBeantable(clazz, true);
     }
 
     ClassTraverserBag getClassTraverserBag(Class clazz) {

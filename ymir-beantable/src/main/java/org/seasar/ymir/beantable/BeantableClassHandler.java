@@ -22,10 +22,7 @@ public class BeantableClassHandler implements ClassHandler {
         }
         String className = packageName + "." + shortClassName;
         try {
-            // hotdeployClassloaderでclassを読み込むようにしているため、
-            // テーブルの更新処理自体はhotdeployListenerであるBeantableManagerが
-            // やってくれる。
-            Class.forName(className, true, cl);
+            manager_.enableBeantable(Class.forName(className, true, cl), false);
         } catch (ClassNotFoundException ex) {
             if (logger_.isDebugEnabled()) {
                 logger_.debug("[SKIP] Class not found: " + className);
