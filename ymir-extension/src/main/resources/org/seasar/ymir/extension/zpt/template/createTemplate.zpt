@@ -13,7 +13,7 @@
   <input type="hidden" name="__ymir__method" tal:attributes="value request/method" />
   <p><textarea name="__ymir__template" cols="80" rows="25" tal:content="template"></textarea></p>
   <p><input type="submit" value="作成" />
-  <input type="button" value="スキップ" onclick="location.reload()" /></p>
+  <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" /></p>
 </form>
 <p>既に存在しているテンプレートに処理をフォワードさせたい場合や別のパスに処理をリダイレクトさせたい場合は、下のフォームに遷移先のパス（コンテキスト相対）を入力した上で「設定」ボタンを押して下さい。</p>
 <form tal:attributes="action request/absolutePath" method="post">
@@ -30,7 +30,7 @@
   </div>
   <div style="clear: both"></div>
   <p><input type="submit" value="設定" />
-  <input type="button" value="スキップ" onclick="location.reload()" /></p>
+  <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" /></p>
 </form>
   </body>
 </html>

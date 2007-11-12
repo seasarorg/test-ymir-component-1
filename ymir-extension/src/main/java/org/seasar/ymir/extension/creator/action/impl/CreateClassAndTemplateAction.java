@@ -29,6 +29,10 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
 
     public Response act(Request request, PathMetaData pathMetaData) {
 
+        if (isSkipButtonPushed(request)) {
+            return null;
+        }
+
         String subTask = request.getParameter(PARAM_SUBTASK);
         if ("template".equals(subTask)) {
             return actTemplate(request, pathMetaData);

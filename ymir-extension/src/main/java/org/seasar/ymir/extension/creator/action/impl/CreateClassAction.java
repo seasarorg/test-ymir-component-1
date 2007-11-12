@@ -30,6 +30,10 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
 
     public Response act(Request request, PathMetaData pathMetaData) {
 
+        if (isSkipButtonPushed(request)) {
+            return null;
+        }
+
         String subTask = request.getParameter(PARAM_SUBTASK);
         if ("create".equals(subTask)) {
             return actCreate(request, pathMetaData);

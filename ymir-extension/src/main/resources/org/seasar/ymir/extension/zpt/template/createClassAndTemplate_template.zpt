@@ -12,7 +12,7 @@
   <input type="hidden" name="__ymir__method" tal:attributes="value method" />
   <p><textarea name="__ymir__template" cols="80" rows="25" tal:content="template"></textarea></p>
   <p><input type="submit" value="作成" />
-  <input type="button" value="スキップ" onclick="location.reload()" /></p>
+  <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" /></p>
 </form>
   </body>
 </html>

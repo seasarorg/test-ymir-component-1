@@ -37,6 +37,10 @@ public class CreateMessageAction extends AbstractAction implements
             return null;
         }
 
+        if (isSkipButtonPushed(request)) {
+            return null;
+        }
+
         String subTask = request.getParameter(PARAM_SUBTASK);
         if ("create".equals(subTask)) {
             return actCreate(request, t);

@@ -32,7 +32,7 @@
     </dd>
   </dl>
   <p><input type="submit" value=" OK " />
-  <input type="button" value="スキップ" onclick="location.reload()" /></p>
+  <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" /></p>
 </form>
   </body>
 </html>

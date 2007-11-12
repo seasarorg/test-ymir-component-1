@@ -60,6 +60,10 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
 
     public Response act(Request request, PathMetaData pathMetaData) {
 
+        if (isSkipButtonPushed(request)) {
+            return null;
+        }
+
         String subTask = request.getParameter(PARAM_SUBTASK);
         if ("update".equals(subTask)) {
             return actUpdate(request, pathMetaData);

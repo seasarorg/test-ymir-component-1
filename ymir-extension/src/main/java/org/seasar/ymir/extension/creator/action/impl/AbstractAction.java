@@ -11,6 +11,9 @@ import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 
 abstract public class AbstractAction {
 
+    private static final String PARAM_BUTTON_SKIP = SourceCreator.PARAM_PREFIX
+            + "button_skip";
+
     public static final String PARAM_SUBTASK = SourceCreator.PARAM_PREFIX
             + "subTask";
 
@@ -67,6 +70,10 @@ abstract public class AbstractAction {
             }
         }
         return list.toArray(new Parameter[0]);
+    }
+
+    protected boolean isSkipButtonPushed(Request request) {
+        return (request.getParameter(PARAM_BUTTON_SKIP) != null);
     }
 
     public static class Parameter {

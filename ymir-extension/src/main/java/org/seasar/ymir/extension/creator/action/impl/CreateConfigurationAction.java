@@ -33,6 +33,10 @@ public class CreateConfigurationAction extends AbstractAction implements
 
     public Response act(Request request, PathMetaData pathMetaData) {
 
+        if (isSkipButtonPushed(request)) {
+            return null;
+        }
+
         String subTask = request.getParameter(PARAM_SUBTASK);
         if ("create".equals(subTask)) {
             return actCreate(request, pathMetaData);

@@ -13,7 +13,7 @@
   <input type="hidden" name="__ymir__method" tal:attributes="value request/method" />
   <input type="text" name="__ymir__value" size="64" value="" />
   <p><input type="submit" value="追加" />
-  <input type="button" value="スキップ" onclick="location.reload()" /></p>
+  <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" /></p>
 </form>
   </body>
 </html>
