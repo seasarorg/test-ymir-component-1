@@ -94,12 +94,12 @@ public class ServletUtils {
     }
 
     public static Dispatcher getDispatcher(HttpServletRequest request) {
-        if (request.getAttribute(ATTR_INCLUDE_CONTEXT_PATH) != null) {
+        if (request.getAttribute(ATTR_ERROR_EXCEPTION) != null) {
+            return Dispatcher.ERROR;
+        } else if (request.getAttribute(ATTR_INCLUDE_CONTEXT_PATH) != null) {
             return Dispatcher.INCLUDE;
         } else if (request.getAttribute(ATTR_FORWARD_CONTEXT_PATH) != null) {
             return Dispatcher.FORWARD;
-        } else if (request.getAttribute(ATTR_ERROR_EXCEPTION) != null) {
-            return Dispatcher.ERROR;
         } else {
             return Dispatcher.REQUEST;
         }
