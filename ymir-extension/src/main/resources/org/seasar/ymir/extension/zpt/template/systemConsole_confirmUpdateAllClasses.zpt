@@ -2,7 +2,7 @@
   <head>
     <title>SYSTEM CONSOLE</title>
   </head>
-  <body>
+  <body onload="document.getElementById('yesButton').focus()">
 <h1>SYSTEM CONSOLE</h1>
 <form tal:attributes="method method; action request/absolutePath">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
@@ -21,7 +21,7 @@
 </ul>
 </p>
 <p>よろしいですか？</p>
-  <p><input type="submit" value="はい" />
+  <p><input id="yesButton" type="submit" value="はい" />
   <input type="button" value="戻る" onclick="history.back()" /></p>
 </form>
   </body>

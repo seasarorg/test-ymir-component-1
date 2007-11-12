@@ -2,7 +2,7 @@
   <head>
     <title>SYSTEM CONSOLE</title>
   </head>
-  <body>
+  <body onload="document.getElementById('okButton').focus()">
 <h1>SYSTEM CONSOLE</h1>
 <p>クラスを一括更新しました。</p>
 <p tal:condition="classDescBag/createdClassDescs">以下のクラスが追加されました：
@@ -24,7 +24,7 @@
 <form tal:attributes="method method; action request/absolutePath">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
   <input type="hidden" name="__ymir__task" value="systemConsole" />
-  <input type="submit" value=" OK " />
+  <input id="okButton" type="submit" value=" OK " />
 </form>
   </body>
 </html>

@@ -2,7 +2,7 @@
   <head>
     <title>SYSTEM NOTIFICATION</title>
   </head>
-  <body>
+  <body onload="document.getElementById('okButton').focus()">
 <h1>SYSTEM NOTIFICATION</h1>
 <p tal:condition="classDescBag/createdClassDescs">以下のクラスが追加されました：
 <ul>
@@ -29,7 +29,7 @@
 <p>EclipseでプロジェクトルートをRefreshしてから、以下の「OK」ボタンを押して下さい。</p>
 <form tal:attributes="method method; action request/absolutePath">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
-  <input type="submit" value=" OK " />
+  <input id="okButton" type="submit" value=" OK " />
 </form>
 <p tal:condition="suggestionExists"><strong>次にあなたがすべき事の例：</strong>
 <ul>

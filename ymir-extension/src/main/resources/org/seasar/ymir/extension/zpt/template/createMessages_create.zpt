@@ -2,7 +2,7 @@
   <head>
     <title>SYSTEM NOTIFICATION</title>
   </head>
-  <body>
+  <body onload="document.getElementById('okButton').focus()">
 <h1>SYSTEM NOTIFICATION</h1>
 <p>メッセージリソースファイル<span tal:replace="messagesName">MESSAGES_NAME</span>.xpropertiesを作成しました。
 アプリケーションのdiconファイル（app.diconなど）に以下のエントリを追加した後、EclipseでプロジェクトルートをRefreshし、
@@ -15,7 +15,7 @@
 </pre>
 <form tal:attributes="method method; action request/absolutePath">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
-  <input type="submit" value=" OK " />
+  <input id="okButton" type="submit" value=" OK " />
 </form>
   </body>
 </html>
