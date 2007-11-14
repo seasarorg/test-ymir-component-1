@@ -1,0 +1,16 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <form method="post" tal:attributes="action page:/article/update.do" action="#">
+      <button type="button" name="button" value="BUTTON" />
+      <button type="submit" name="submit" value="SUBMIT" />
+    </form>
+    <ul>
+      <li tal:define="entity self/entity" tal:content="entity/content">CONTENT</li>
+    </ul>
+    <button type="button" name="button2" value="BUTTON2" />
+    <button type="submit" name="submit2" value="SUBMIT2" />
+  </body>
+</html>

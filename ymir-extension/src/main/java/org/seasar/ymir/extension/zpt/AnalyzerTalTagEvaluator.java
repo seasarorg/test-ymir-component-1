@@ -47,7 +47,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
 
     @Override
     public String[] getSpecialTagPatternStrings() {
-        return new String[] { "form", "input", "select", "textarea" };
+        return new String[] { "form", "input", "select", "textarea", "button" };
     }
 
     @Override
@@ -81,8 +81,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             } finally {
                 analyzerContext.setFormDesc(null);
             }
-        } else if (("input".equals(name) || "select".equals(name) || "textarea"
-                .equals(name))
+        } else if (("input".equals(name) || "select".equals(name)
+                || "textarea".equals(name) || "button".equals(name))
                 && !runtimeAttributeNameSet.contains("name")) {
             // nameの値が実行時に決まる場合は正しくプロパティやメソッドを生成できないので、
             // nameの値が定数である場合のみ処理を行なうようにしている。
@@ -95,7 +95,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 String type = getAttributeValue(attrMap, "type", null);
                 if ("input".equals(name)
                         && ("submit".equals(type) || "button".equals(type) || "image"
-                                .equals(type))) {
+                                .equals(type)) || "button".equals(name)
+                        && ("submit".equals(type) || "button".equals(type))) {
                     if (formDesc.isDispatchingByRequestParameter()) {
                         formDesc.setActionMethodDesc(getAttributeValue(attrMap,
                                 "name", null));

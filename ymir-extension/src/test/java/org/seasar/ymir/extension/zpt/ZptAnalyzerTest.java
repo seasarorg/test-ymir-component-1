@@ -858,4 +858,33 @@ public class ZptAnalyzerTest extends TestCase {
             fail();
         }
     }
+
+    public void testAnalyze51_YMIR_84_buttonタグを正しく解釈できること() throws Exception {
+
+        act("testAnalyze51");
+
+        ClassDesc cd = getClassDesc("com.example.web.UpdatePage");
+        assertNotNull(cd);
+        assertNull(
+                "dispatchingByRequestParameterがtrueであるようなPathMappingにactionのパスがマッチする場合はbuttonのnameに対応するプロパティのgetter/setterは生成されないこと",
+                cd.getPropertyDesc("button"));
+        assertNull(
+                "dispatchingByRequestParameterがtrueであるようなPathMappingにactionのパスがマッチする場合はbutton（type=submit）のnameに対応するプロパティのgetter/setterは生成されないこと",
+                cd.getPropertyDesc("submit"));
+        assertNotNull(
+                "dispatchingByRequestParameterがtrueであるようなPathMappingにactionのパスがマッチする場合はbuttonのnameに対応するアクションメソッドが生成されること",
+                cd.getMethodDesc(new MethodDescImpl("POST_button")));
+        assertNotNull(
+                "dispatchingByRequestParameterがtrueであるようなPathMappingにactionのパスがマッチする場合はbutton（type=submit）のnameに対応するアクションメソッドが生成されること",
+                cd.getMethodDesc(new MethodDescImpl("POST_submit")));
+
+        cd = getClassDesc(CLASSNAME);
+        assertNull("formの外にあるbuttonタグは無視されること", cd.getPropertyDesc("button2"));
+        assertNull("formの外にあるbuttonタグは無視されること", cd
+                .getMethodDesc(new MethodDescImpl("POST_button2")));
+        assertNull("formの外にあるbuttonタグ（type=submit）は無視されること", cd
+                .getPropertyDesc("submit2"));
+        assertNull("formの外にあるbuttonタグ（type=submit）は無視されること", cd
+                .getMethodDesc(new MethodDescImpl("POST_submit2")));
+    }
 }
