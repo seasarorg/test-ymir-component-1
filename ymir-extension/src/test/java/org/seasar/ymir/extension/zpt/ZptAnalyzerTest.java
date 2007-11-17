@@ -50,9 +50,9 @@ public class ZptAnalyzerTest extends TestCase {
 
     private PathMapping[] mappings_ = new PathMapping[] {
         new PathMappingImpl("^/([^/]+)\\.(.+)$", "${1}Page", "${METHOD}", "",
-                null, null),
+                null, null, null),
         new PathMappingImpl("^/[^/]+/(.+)\\.(.+)$", "${1}Page", "${METHOD}",
-                "", null, "_(.+)$"), };
+                "", null, "_(.+)$", null), };
 
     private ZptAnalyzer target_;
 

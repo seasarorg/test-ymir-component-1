@@ -132,7 +132,7 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         pathMappingProvider
                 .setPathMappings(new PathMapping[] { new PathMappingImpl(
                         "^/([^/]+)\\.(.+)$", "${1}Page", "_${method}", "",
-                        null, null) });
+                        null, null, null) });
         applicationManager.setBaseApplication(new SingleApplication(context,
                 configuration, null, container_, ondemandContainer,
                 pathMappingProvider));
