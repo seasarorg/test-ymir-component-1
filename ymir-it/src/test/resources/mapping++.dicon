@@ -5,4 +5,20 @@
   <component class="org.seasar.ymir.impl.DeniedPathMappingImpl">
     <arg>"/forwardResponseITest8\\..*\\.html"</arg>
   </component>
+  <component class="org.seasar.ymir.impl.PathMappingImpl">
+    <arg>
+      #{ "pattern" : "^/URIParameterITest1/([^/]*)/([^/]*)\\.html$",
+      "pageComponentNameTemplate" : "URIParameterITest1Page",
+      "actionNameTemplate" : "_${method}", "parameterTemplate" :
+      "category=${1};sequence=${2}" }
+    </arg>
+  </component>
+  <component class="org.seasar.ymir.impl.PathMappingImpl">
+    <arg>
+      #{ "pattern" : "^/URIParameterITest2/([^/]*)\\.html$",
+      "pageComponentNameTemplate" : "URIParameterITest2Page",
+      "actionNameTemplate" : "_${method}", "parameterTemplate" :
+      "sequence=${1}" }
+    </arg>
+  </component>
 </components>
