@@ -6,12 +6,15 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.log.Logger;
+import org.seasar.framework.util.ArrayUtil;
+import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.el.EvaluationException;
 import org.seasar.kvasir.util.el.TextTemplateEvaluator;
 import org.seasar.kvasir.util.el.VariableResolver;
@@ -27,6 +30,22 @@ import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.MethodUtils;
 
 public class PathMappingImpl implements PathMapping {
+    public static final String KEY_DENIED = "denied";
+
+    public static final String KEY_PATTERN = "pattern";
+
+    public static final String KEY_PAGECOMPONENTNAME_TEMPLATE = "pageComponentNameTemplate";
+
+    public static final String KEY_ACTIONNAME_TEMPLATE = "actionNameTemplate";
+
+    public static final String KEY_PATHINFO_TEMPLATE = "pathInfoTemplate";
+
+    public static final String KEY_PARAMETER_TEMPLATE = "parameterTemplate";
+
+    public static final String KEY_DEFAULTRETURNVALUE = "defaultReturnValue";
+
+    public static final String KEY_BUTTONNAMEPATTERN = "buttonNamePattern";
+
     private static final char PARAM_PREFIX_CHAR = '[';
 
     private static final char PARAM_SUFFIX_CHAR = ']';
@@ -47,6 +66,8 @@ public class PathMappingImpl implements PathMapping {
 
     private String pathInfoTemplate_;
 
+    private String parameterTemplate_;
+
     private String defaultReturnValueTemplate_;
 
     private Object defaultReturnValue_;
@@ -61,24 +82,45 @@ public class PathMappingImpl implements PathMapping {
 
     private final Logger logger_ = Logger.getLogger(getClass());
 
-    public PathMappingImpl(String patternString, String componentTemplate,
-            String actionNameTemplate, String pathInfoTemplate,
-            Object defaultReturnValue,
-            String buttonNamePatternStringForDispatching) {
-
-        this(false, patternString, componentTemplate, actionNameTemplate,
-                pathInfoTemplate, defaultReturnValue,
-                buttonNamePatternStringForDispatching);
-    }
-
-    public PathMappingImpl(boolean denied, String patternString,
-            String pageComponentTemplate, String actionNameTemplate,
+    @Deprecated
+    public PathMappingImpl(String patternString,
+            String pageComponentNameTemplate, String actionNameTemplate,
             String pathInfoTemplate, Object defaultReturnValue,
             String buttonNamePatternStringForDispatching) {
 
+        this(false, patternString, pageComponentNameTemplate,
+                actionNameTemplate, pathInfoTemplate, defaultReturnValue,
+                buttonNamePatternStringForDispatching, null);
+    }
+
+    public PathMappingImpl(String patternString,
+            String pageComponentNameTemplate, String actionNameTemplate,
+            String pathInfoTemplate, Object defaultReturnValue,
+            String buttonNamePatternStringForDispatching,
+            String parameterTemplate) {
+        this(false, patternString, pageComponentNameTemplate,
+                actionNameTemplate, pathInfoTemplate, defaultReturnValue,
+                buttonNamePatternStringForDispatching, parameterTemplate);
+    }
+
+    @Deprecated
+    public PathMappingImpl(boolean denied, String patternString,
+            String pageComponentNameTemplate, String actionNameTemplate,
+            String pathInfoTemplate, Object defaultReturnValue,
+            String buttonNamePatternStringForDispatching) {
+        this(denied, patternString, pageComponentNameTemplate,
+                actionNameTemplate, pathInfoTemplate, defaultReturnValue,
+                buttonNamePatternStringForDispatching, null);
+    }
+
+    public PathMappingImpl(boolean denied, String patternString,
+            String pageComponentNameTemplate, String actionNameTemplate,
+            String pathInfoTemplate, Object defaultReturnValue,
+            String buttonNamePatternStringForDispatching,
+            String parameterTemplate) {
         denied_ = denied;
         pattern_ = Pattern.compile(patternString);
-        pageComponentNameTemplate_ = pageComponentTemplate;
+        pageComponentNameTemplate_ = pageComponentNameTemplate;
         actionNameTemplate_ = actionNameTemplate;
         pathInfoTemplate_ = pathInfoTemplate;
         if (defaultReturnValue instanceof String) {
@@ -90,6 +132,53 @@ public class PathMappingImpl implements PathMapping {
             buttonNamePatternStringForDispatching_ = buttonNamePatternStringForDispatching;
             buttonNamePatternForDispatching_ = Pattern
                     .compile(buttonNamePatternStringForDispatching);
+        }
+        parameterTemplate_ = parameterTemplate;
+    }
+
+    public PathMappingImpl(Map<String, Object> map) {
+        denied_ = PropertyUtils.valueOf(map.get(KEY_DENIED), false);
+        map.remove(KEY_DENIED);
+        pattern_ = Pattern.compile(PropertyUtils.valueOf(map.get(KEY_PATTERN),
+                (String) null));
+        map.remove(KEY_PATTERN);
+        pageComponentNameTemplate_ = PropertyUtils.valueOf(map
+                .get(KEY_PAGECOMPONENTNAME_TEMPLATE), (String) null);
+        map.remove(KEY_PAGECOMPONENTNAME_TEMPLATE);
+        actionNameTemplate_ = PropertyUtils.valueOf(map
+                .get(KEY_ACTIONNAME_TEMPLATE), (String) null);
+        map.remove(KEY_ACTIONNAME_TEMPLATE);
+        pathInfoTemplate_ = PropertyUtils.valueOf(map
+                .get(KEY_PATHINFO_TEMPLATE), (String) null);
+        map.remove(KEY_PATHINFO_TEMPLATE);
+        Object defaultReturnValue = map.get(KEY_DEFAULTRETURNVALUE);
+        map.remove(KEY_DEFAULTRETURNVALUE);
+        if (defaultReturnValue instanceof String) {
+            defaultReturnValueTemplate_ = (String) defaultReturnValue;
+        } else {
+            defaultReturnValue_ = defaultReturnValue;
+        }
+        String buttonNamePatternStringForDispatching = PropertyUtils.valueOf(
+                map.get(KEY_BUTTONNAMEPATTERN), (String) null);
+        map.remove(KEY_BUTTONNAMEPATTERN);
+        if (buttonNamePatternStringForDispatching != null) {
+            buttonNamePatternStringForDispatching_ = buttonNamePatternStringForDispatching;
+            buttonNamePatternForDispatching_ = Pattern
+                    .compile(buttonNamePatternStringForDispatching);
+        }
+        parameterTemplate_ = PropertyUtils.valueOf(map
+                .get(KEY_PARAMETER_TEMPLATE), (String) null);
+        map.remove(KEY_PARAMETER_TEMPLATE);
+
+        if (!map.isEmpty()) {
+            // キーのtypoなどを早めに検知するためにこうしている。
+            StringBuilder sb = new StringBuilder();
+            String delim = "Unknown key exists (typo?): ";
+            for (Iterator<String> itr = map.keySet().iterator(); itr.hasNext();) {
+                sb.append(delim).append(itr.next());
+                delim = ", ";
+            }
+            throw new IllegalArgumentException(sb.toString());
         }
     }
 
@@ -119,8 +208,16 @@ public class PathMappingImpl implements PathMapping {
         return defaultReturnValue_;
     }
 
+    public String getQueryStringTemplate() {
+        return parameterTemplate_;
+    }
+
     public Pattern getPattern() {
         return pattern_;
+    }
+
+    public String getButtonNamePatternStringForDispatching() {
+        return buttonNamePatternStringForDispatching_;
     }
 
     public VariableResolver match(String path, String method) {
@@ -178,6 +275,37 @@ public class PathMappingImpl implements PathMapping {
 
     public String getPathInfo(VariableResolver resolver) {
         return evaluate(pathInfoTemplate_, resolver);
+    }
+
+    public Map<String, String[]> getParameterMap(VariableResolver resolver) {
+        if (parameterTemplate_ == null) {
+            return null;
+        }
+
+        Map<String, String[]> map = new HashMap<String, String[]>();
+
+        StringTokenizer st = new StringTokenizer(parameterTemplate_, ";");
+        while (st.hasMoreTokens()) {
+            String tkn = st.nextToken();
+            int equal = tkn.indexOf("=");
+            String name;
+            String value;
+            if (equal >= 0) {
+                name = tkn.substring(0, equal);
+                value = evaluate(tkn.substring(equal + 1), resolver);
+            } else {
+                name = tkn;
+                value = "";
+            }
+            String[] current = map.get(name);
+            if (current == null) {
+                map.put(name, new String[] { value });
+            } else {
+                map.put(name, (String[]) ArrayUtil.add(current, value));
+            }
+        }
+
+        return map;
     }
 
     public Object getDefaultReturnValue(VariableResolver resolver) {

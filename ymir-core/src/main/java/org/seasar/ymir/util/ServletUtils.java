@@ -216,6 +216,10 @@ public class ServletUtils {
 
     public static Map<String, String[]> parseParameters(String param,
             String encoding) throws UnsupportedEncodingException {
+        if (param == null) {
+            return null;
+        }
+
         Map<String, String[]> map = new HashMap<String, String[]>();
 
         StringTokenizer st = new StringTokenizer(param, "&");

@@ -1,23 +1,10 @@
 package org.seasar.ymir;
 
-import java.util.regex.Pattern;
+import java.util.Map;
 
 import org.seasar.kvasir.util.el.VariableResolver;
 
 public interface PathMapping {
-
-    String getActionNameTemplate();
-
-    String getPageComponentNameTemplate();
-
-    String getPathInfoTemplate();
-
-    String getDefaultReturnValueTemplate();
-
-    Object getDefaultReturnValue();
-
-    Pattern getPattern();
-
     VariableResolver match(String path, String method);
 
     String getPageComponentName(VariableResolver resolver);
@@ -26,20 +13,22 @@ public interface PathMapping {
 
     String getPathInfo(VariableResolver resolver);
 
+    Map<String, String[]> getParameterMap(VariableResolver resolver);
+
     /**
-     * アクションのデフォルトの返り値を返します。
-     * <p>リクエストを処理した結果構築されたResponseが「パススルー」タイプであった場合に
-     * 処理を遷移させる先を表すオブジェクトを返します。</p>
-     * <p>デフォルトの返り値がnullでない場合でかつ
-     * リクエストを処理した結果構築されたResponseが「パススルー」タイプであった場合に、
-     * ResponseConstructorを使ってこのデフォルトの返り値から構築したResponseオブジェクトが
-     * 最終的なResponseオブジェクトとしてフレームワークによって利用されます。
-     * <p>パスに対応するコンポーネントが存在しない場合や
-     * PathMappingルールにデフォルトの返り値が設定されていない場合はnullを返します。</p>
-     *
-     * @param resolver パスとパターンとのマッチング結果を表すVariableResolver。
-     * @return デフォルトの返り値。
-     */
+    * アクションのデフォルトの返り値を返します。
+    * <p>リクエストを処理した結果構築されたResponseが「パススルー」タイプであった場合に
+    * 処理を遷移させる先を表すオブジェクトを返します。</p>
+    * <p>デフォルトの返り値がnullでない場合でかつ
+    * リクエストを処理した結果構築されたResponseが「パススルー」タイプであった場合に、
+    * ResponseConstructorを使ってこのデフォルトの返り値から構築したResponseオブジェクトが
+    * 最終的なResponseオブジェクトとしてフレームワークによって利用されます。
+    * <p>パスに対応するコンポーネントが存在しない場合や
+    * PathMappingルールにデフォルトの返り値が設定されていない場合はnullを返します。</p>
+    *
+    * @param resolver パスとパターンとのマッチング結果を表すVariableResolver。
+    * @return デフォルトの返り値。
+    */
     Object getDefaultReturnValue(VariableResolver resolver);
 
     boolean isDenied();

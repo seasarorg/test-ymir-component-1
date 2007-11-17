@@ -21,7 +21,7 @@ public class PathMappingImplTest extends TestCase {
 
         target_ = new PathMappingImpl("^/([a-zA-Z][a-zA-Z0-9]*)\\.(html|do)$",
                 "${1}Page", "_${method}", "", "/${1}.html",
-                "^_([a-zA-Z][a-zA-Z0-9]*)$");
+                "^_([a-zA-Z][a-zA-Z0-9]*)$", null);
         target_.setTypeConversionManager(new TypeConversionManagerImpl());
     }
 
@@ -101,5 +101,59 @@ public class PathMappingImplTest extends TestCase {
 
         assertNotNull(action);
         assertEquals("_post_image", action.getName());
+    }
+
+    public void testConstructor_Map() throws Exception {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put(PathMappingImpl.KEY_ACTIONNAME_TEMPLATE,
+                "actionNameTemplateValue");
+        map
+                .put(PathMappingImpl.KEY_BUTTONNAMEPATTERN,
+                        "buttonNamePatternValue");
+        map.put(PathMappingImpl.KEY_DEFAULTRETURNVALUE,
+                "defaultReturnValueValue");
+        map.put(PathMappingImpl.KEY_DENIED, "true");
+        map.put(PathMappingImpl.KEY_PAGECOMPONENTNAME_TEMPLATE,
+                "pageComponentNameTemplateValue");
+        map.put(PathMappingImpl.KEY_PATHINFO_TEMPLATE, "pathInfoTemplateValue");
+        map.put(PathMappingImpl.KEY_PATTERN, "patternValue");
+        map.put(PathMappingImpl.KEY_PARAMETER_TEMPLATE,
+                "queryStringTemplateValue");
+
+        PathMappingImpl target = new PathMappingImpl(
+                new HashMap<String, Object>(map));
+
+        assertEquals("actionNameTemplateValue", target.getActionNameTemplate());
+        assertEquals("buttonNamePatternValue", target
+                .getButtonNamePatternStringForDispatching());
+        assertEquals("defaultReturnValueValue", target
+                .getDefaultReturnValueTemplate());
+        assertTrue(target.isDenied());
+        assertEquals("pageComponentNameTemplateValue", target
+                .getPageComponentNameTemplate());
+        assertEquals("pathInfoTemplateValue", target.getPathInfoTemplate());
+        assertEquals("patternValue", target.getPattern().pattern());
+        assertEquals("queryStringTemplateValue", target
+                .getQueryStringTemplate());
+
+        map.put(PathMappingImpl.KEY_DENIED, Boolean.TRUE);
+
+        target = new PathMappingImpl(new HashMap<String, Object>(map));
+
+        assertTrue(target.isDenied());
+    }
+
+    public void testGetParameterMap() throws Exception {
+        PathMappingImpl target = new PathMappingImpl(
+                "^/article/([^/]*)/([^/]*)\\.html$", "articlePage",
+                "_${method}", "", "", "^_([a-zA-Z][a-zA-Z0-9]*)$",
+                "category=${1};sequence=${2}");
+        target.setTypeConversionManager(new TypeConversionManagerImpl());
+
+        Map<String, String[]> actual = target.getParameterMap(target.match(
+                "/article/science&technology/15.html", Request.METHOD_GET));
+
+        assertEquals("science&technology", actual.get("category")[0]);
+        assertEquals("15", actual.get("sequence")[0]);
     }
 }

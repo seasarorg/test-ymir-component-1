@@ -27,8 +27,12 @@ public class PageProcessorImpl implements PageProcessor {
         typeConversionManager_ = typeConversionManager;
     }
 
-    public void injectRequestParameters(Object page, PageMetaData metaData,
+    public void injectProperties(Object page, PageMetaData metaData,
             Map<String, String[]> properties) {
+        if (properties == null) {
+            return;
+        }
+
         for (Iterator itr = properties.keySet().iterator(); itr.hasNext();) {
             String name = (String) itr.next();
             if (name == null || metaData.isProtected(name)) {
@@ -45,8 +49,12 @@ public class PageProcessorImpl implements PageProcessor {
         }
     }
 
-    public void injectRequestFileParameters(Object page, PageMetaData metaData,
+    public void injectFormFileProperties(Object page, PageMetaData metaData,
             Map<String, FormFile[]> properties) {
+        if (properties == null) {
+            return;
+        }
+
         for (Iterator itr = properties.keySet().iterator(); itr.hasNext();) {
             String name = (String) itr.next();
             if (name == null || metaData.isProtected(name)) {

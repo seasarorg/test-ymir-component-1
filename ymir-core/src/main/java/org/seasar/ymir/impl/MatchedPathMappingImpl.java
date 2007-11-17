@@ -1,5 +1,7 @@
 package org.seasar.ymir.impl;
 
+import java.util.Map;
+
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.MatchedPathMapping;
@@ -8,7 +10,6 @@ import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 
 public class MatchedPathMappingImpl implements MatchedPathMapping {
-
     private PathMapping pathMapping_;
 
     private VariableResolver variableResolver_;
@@ -51,16 +52,16 @@ public class MatchedPathMappingImpl implements MatchedPathMapping {
 
     }
 
+    public Map<String, String[]> getParameterMap() {
+        return pathMapping_.getParameterMap(variableResolver_);
+    }
+
     public Object getDefaultReturnValue() {
         return pathMapping_.getDefaultReturnValue(variableResolver_);
     }
 
     public boolean isDenied() {
         return pathMapping_.isDenied();
-    }
-
-    public boolean isDispatchingByParameter() {
-        return pathMapping_.isDispatchingByButton();
     }
 
     public Action getAction(PageComponent pageComponent, Request request) {

@@ -1,5 +1,7 @@
 package org.seasar.ymir.mock;
 
+import java.util.Map;
+
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.MatchedPathMapping;
@@ -17,6 +19,8 @@ public class MockMatchedPathMapping implements MatchedPathMapping {
     private Object defaultReturnValue_;
 
     private String pathInfo_;
+
+    private Map<String, String[]> parameterMap_;
 
     private PathMapping pathMapping_;
 
@@ -69,6 +73,16 @@ public class MockMatchedPathMapping implements MatchedPathMapping {
 
     public MockMatchedPathMapping setPathInfo(String pathInfo) {
         pathInfo_ = pathInfo;
+        return this;
+    }
+
+    public Map<String, String[]> getParameterMap() {
+        return parameterMap_;
+    }
+
+    public MockMatchedPathMapping setParameterMap(
+            Map<String, String[]> parameterMap) {
+        parameterMap_ = parameterMap;
         return this;
     }
 

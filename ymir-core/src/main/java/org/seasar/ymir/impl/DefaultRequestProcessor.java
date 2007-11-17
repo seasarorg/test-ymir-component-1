@@ -479,18 +479,23 @@ public class DefaultRequestProcessor implements RequestProcessor {
             Object page = pageComponent.getPage();
             PageMetaData metaData = pageComponent
                     .getRelatedObject(PageMetaData.class);
+            Dispatch dispatch = request_.getCurrentDispatch();
 
             // リクエストパラメータをinjectする。
-            pageProcessor_.injectRequestParameters(page, metaData, request_
+            pageProcessor_.injectProperties(page, metaData, request_
                     .getParameterMap());
 
             // FormFileのリクエストパラメータをinjectする。
-            pageProcessor_.injectRequestFileParameters(page, metaData, request_
+            pageProcessor_.injectFormFileProperties(page, metaData, request_
                     .getFileParameterMap());
 
+            // URIから抽出したパラメータをinjectする。
+            pageProcessor_.injectProperties(page, metaData, dispatch
+                    .getMatchedPathMapping().getParameterMap());
+
             // 各コンテキストが持つ属性をinjectする。
-            pageProcessor_.injectContextAttributes(page, metaData, request_
-                    .getCurrentDispatch().getActionName());
+            pageProcessor_.injectContextAttributes(page, metaData, dispatch
+                    .getActionName());
 
             return null;
         }

@@ -5,11 +5,11 @@ import java.util.Map;
 import org.seasar.ymir.PageMetaData;
 
 public interface PageProcessor {
-    void injectRequestParameters(Object page, PageMetaData metaData,
+    void injectProperties(Object page, PageMetaData metaData,
             Map<String, String[]> properties);
 
-    void injectRequestFileParameters(Object page,
-            PageMetaData metaData, Map<String, FormFile[]> properties);
+    void injectFormFileProperties(Object page, PageMetaData metaData,
+            Map<String, FormFile[]> properties);
 
     void injectContextAttributes(Object page, PageMetaData metaData,
             String actionName);

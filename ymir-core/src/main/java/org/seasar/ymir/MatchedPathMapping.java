@@ -1,5 +1,7 @@
 package org.seasar.ymir;
 
+import java.util.Map;
+
 import org.seasar.kvasir.util.el.VariableResolver;
 
 public interface MatchedPathMapping {
@@ -13,11 +15,11 @@ public interface MatchedPathMapping {
 
     String getPathInfo();
 
+    Map<String, String[]> getParameterMap();
+
     Object getDefaultReturnValue();
 
     boolean isDenied();
-
-    boolean isDispatchingByParameter();
 
     Action getAction(PageComponent pageComponent, Request request);
 }
