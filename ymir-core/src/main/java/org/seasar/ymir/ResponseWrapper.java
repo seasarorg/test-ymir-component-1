@@ -25,6 +25,10 @@ public class ResponseWrapper implements Response {
         response_.addIntHeader(name, value);
     }
 
+    public boolean containsHeader(String name) {
+        return response_.containsHeader(name);
+    }
+
     public String getCharacterEncoding() {
         return response_.getCharacterEncoding();
     }

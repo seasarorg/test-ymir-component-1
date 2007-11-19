@@ -2,6 +2,7 @@ package org.seasar.ymir.response;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.seasar.ymir.Response;
@@ -95,5 +96,16 @@ abstract public class ResponseBase implements Response {
 
     public ResponseHeader[] getResponseHeaders() {
         return headerList_.toArray(new ResponseHeader[0]);
+    }
+
+    public boolean containsHeader(String name) {
+        for (Iterator<ResponseHeader> itr = headerList_.iterator(); itr
+                .hasNext();) {
+            ResponseHeader header = itr.next();
+            if (name.equals(header.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -39,5 +39,7 @@ public interface Response {
 
     void addIntHeader(String name, int value);
 
+    boolean containsHeader(String name);
+
     ResponseHeader[] getResponseHeaders();
 }

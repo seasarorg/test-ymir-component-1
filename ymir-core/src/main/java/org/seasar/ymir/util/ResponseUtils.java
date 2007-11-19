@@ -11,11 +11,24 @@ public class ResponseUtils {
 
     /**
      * レスポンスがキャッシュされないようにするためのヘッダ情報をResponseオブジェクトに設定します。
+     * <p>これは<code>setNoCache(response, false)</code>と等価です。
      * 
      * @param response Responseオブジェクト。nullを指定した場合は何もしません。
      */
     public static void setNoCache(Response response) {
-        if (response == null) {
+        setNoCache(response, false);
+    }
+
+    /**
+     * レスポンスがキャッシュされないようにするためのヘッダ情報をResponseオブジェクトに設定します。
+     * 
+     * @param response Responseオブジェクト。nullを指定した場合は何もしません。
+     * @param force falseの場合、既にCache-Controlヘッダが設定されていれば何もしません。
+     * trueの場合、Cache-Controlヘッダの情報を上書きします。
+     */
+    public static void setNoCache(Response response, boolean force) {
+        if (response == null || !force
+                && response.containsHeader("Cache-Control")) {
             return;
         }
 
