@@ -1,5 +1,7 @@
 package org.seasar.ymir;
 
+import java.util.Map;
+
 public interface Dispatch {
     /**
      * パスを返します。
@@ -89,9 +91,18 @@ public interface Dispatch {
     /**
      * パスに連結されているpathInfo情報を返します。
      *
-     * @return pathInfo情報。PathMappingルールによってはnullが返されることもあります。
+     * @return pathInfo情報。
+     * パスにマッチしたPathMappingルールが持つpathInfoテンプレートがnullの場合はnullが返されます。
      */
     String getPathInfo();
+
+    /**
+     * パスから取り出したパラメータ情報を返します。
+     * 
+     * @return パラメータ情報。
+     * パスにマッチしたPathMappingルールが持つパラメータテンプレートがnullの場合はnullが返されます。
+     */
+    Map<String, String[]> getParameterMap();
 
     /**
      * パスがパスマッピングにマッチしたかどうかを返します。

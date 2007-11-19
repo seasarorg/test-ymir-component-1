@@ -1,5 +1,7 @@
 package org.seasar.ymir.mock;
 
+import java.util.Map;
+
 import org.seasar.ymir.Action;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
@@ -18,6 +20,8 @@ public class MockDispatch implements Dispatch {
     private String absolutePath_;
 
     private String pathInfo_;
+
+    private Map<String, String[]> parameterMap_;
 
     private String pageComponentName_;
 
@@ -87,6 +91,19 @@ public class MockDispatch implements Dispatch {
 
     public MockDispatch setPathInfo(String pathInfo) {
         pathInfo_ = pathInfo;
+        return this;
+    }
+
+    public Map<String, String[]> getParameterMap() {
+        if (parameterMap_ != null) {
+            return parameterMap_;
+        } else {
+            return matched_.getParameterMap();
+        }
+    }
+
+    public MockDispatch setParameterMap(Map<String, String[]> parameterMap) {
+        parameterMap_ = parameterMap;
         return this;
     }
 

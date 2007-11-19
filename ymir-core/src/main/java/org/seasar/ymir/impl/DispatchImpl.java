@@ -1,5 +1,7 @@
 package org.seasar.ymir.impl;
 
+import java.util.Map;
+
 import org.seasar.ymir.Action;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
@@ -95,6 +97,10 @@ public class DispatchImpl implements Dispatch {
 
     public String getPathInfo() {
         return matched_.getPathInfo();
+    }
+
+    public Map<String, String[]> getParameterMap() {
+        return matched_.getParameterMap();
     }
 
     public MatchedPathMapping getMatchedPathMapping() {
