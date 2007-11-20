@@ -142,7 +142,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
             return processInclude(request);
 
         default:
-            return PassthroughResponse.INSTANCE;
+            return new PassthroughResponse();
         }
     }
 
@@ -178,7 +178,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
             throws PageNotFoundException, PermissionDeniedException {
         Dispatch dispatch = request.getCurrentDispatch();
 
-        Response response = PassthroughResponse.INSTANCE;
+        Response response = new PassthroughResponse();
 
         if (dispatch.isMatched()) {
             PageComponent pageComponent = createPageComponent(dispatch
@@ -289,7 +289,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
             }
         }
 
-        return PassthroughResponse.INSTANCE;
+        return new PassthroughResponse();
     }
 
     protected PageComponent createPageComponent(Object pageComponentKey) {
@@ -363,7 +363,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
     Response normalizeResponse(Response response, String path) {
         if (response.getType() == ResponseType.FORWARD
                 && response.getPath().equals(path)) {
-            return PassthroughResponse.INSTANCE;
+            return new PassthroughResponse();
         } else {
             return response;
         }
@@ -374,7 +374,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
     }
 
     Response invokeAction(final Action action) throws PermissionDeniedException {
-        Response response = PassthroughResponse.INSTANCE;
+        Response response = new PassthroughResponse();
 
         if (action != null && action.shouldInvoke()) {
             if (logger_.isDebugEnabled()) {
@@ -406,7 +406,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
     Response constructDefaultResponse(Dispatch dispatch, Object page) {
         if (fileResourceExists(dispatch.getPath())) {
             // パスに対応するテンプレートファイルが存在する場合はパススルーする。
-            return PassthroughResponse.INSTANCE;
+            return new PassthroughResponse();
         } else {
             Object returnValue = dispatch.getMatchedPathMapping()
                     .getDefaultReturnValue();
@@ -414,7 +414,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
                 return constructResponse(page, returnValue.getClass(),
                         returnValue);
             } else {
-                return PassthroughResponse.INSTANCE;
+                return new PassthroughResponse();
             }
         }
     }

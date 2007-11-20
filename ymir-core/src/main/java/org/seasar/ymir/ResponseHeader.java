@@ -17,6 +17,11 @@ public class ResponseHeader {
         add_ = add;
     }
 
+    @Override
+    public String toString() {
+        return name_ + "=" + value_ + " (add=" + add_;
+    }
+
     public boolean isAdd() {
         return add_;
     }
