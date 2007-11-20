@@ -10,6 +10,12 @@ import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.Length;
 
 public class LengthConstraint extends AbstractConstraint<Length> {
+    public static final String SUFFIX_DIFFERENT = ".different";
+
+    public static final String SUFFIX_MIN = ".min";
+
+    public static final String SUFFIX_MAX = ".max";
+
     public void confirm(Object component, Request request, Length annotation,
             AnnotatedElement element) throws ConstraintViolatedException {
         String[] names = getParameterNames(request, annotation.property(),
@@ -38,16 +44,31 @@ public class LengthConstraint extends AbstractConstraint<Length> {
         if (values == null) {
             return;
         }
+        boolean same = (min == max);
         for (int i = 0; i < values.length; i++) {
             if (values[i].length() == 0) {
                 continue;
             }
+            String actualKey = null;
+            int border = 0;
             if (values[i].length() < min) {
-                notes.add(name, new Note(key + ".min",
-                        new Object[] { name, min }));
+                if (same) {
+                    actualKey = key + SUFFIX_DIFFERENT;
+                } else {
+                    actualKey = key + SUFFIX_MIN;
+                }
+                border = min;
             } else if (values[i].length() > max) {
-                notes.add(name, new Note(key + ".max",
-                        new Object[] { name, max }));
+                if (same) {
+                    actualKey = key + SUFFIX_DIFFERENT;
+                } else {
+                    actualKey = key + SUFFIX_MAX;
+                }
+                border = max;
+            }
+            if (actualKey != null) {
+                notes.add(name, new Note(actualKey,
+                        new Object[] { name, border }));
             }
         }
     }

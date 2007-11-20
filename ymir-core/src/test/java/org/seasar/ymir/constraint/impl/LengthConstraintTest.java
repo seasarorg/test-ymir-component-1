@@ -1,5 +1,7 @@
 package org.seasar.ymir.constraint.impl;
 
+import org.seasar.ymir.Note;
+import org.seasar.ymir.constraint.Constraint;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.Length;
 import org.seasar.ymir.test.constraint.ConstraintTestCase;
@@ -34,6 +36,10 @@ public class LengthConstraintTest extends
 
     @Length(property = "#hoge1", max = 1)
     public void _get_testValidate6() {
+    }
+
+    @Length(min = 5, max = 5)
+    public void setValue7(String value) {
     }
 
     public void testValidate_最大長が指定されている場合() throws Exception {
@@ -119,6 +125,19 @@ public class LengthConstraintTest extends
             confirm(getActionMethod("_get_testValidate6"));
         } catch (ValidationFailedException ex) {
             fail();
+        }
+    }
+
+    public void testValidate7_最大値と最小値が同じ場合はメッセージが変わること() throws Exception {
+        getRequest().getParameterMap().put("value7", new String[] { "1" });
+
+        try {
+            confirm(getSetterMethod("value7"));
+        } catch (ValidationFailedException ex) {
+            Note[] notes = ex.getNotes().getNotes();
+            assertEquals(1, notes.length);
+            assertEquals(Constraint.PREFIX_MESSAGEKEY + "length.different",
+                    notes[0].getValue());
         }
     }
 }
