@@ -340,6 +340,10 @@ public class DefaultRequestProcessor implements RequestProcessor {
     }
 
     protected Class<?> getComponentClass(Object componentKey) {
+        if (componentKey == null) {
+            return null;
+        }
+
         S2Container s2container = getS2Container();
         if (s2container.hasComponentDef(componentKey)) {
             return s2container.getComponentDef(componentKey)
