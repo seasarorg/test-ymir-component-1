@@ -21,7 +21,8 @@ public class RequiredConstraint extends AbstractConstraint<Required> {
 
         Notes notes = new Notes();
         for (int i = 0; i < names.length; i++) {
-            if (isEmpty(request, names[i], annotation.completely())) {
+            if (isEmpty(request, names[i], annotation.completely(), annotation
+                    .allowWhitespace())) {
                 notes.add(names[i], new Note(PREFIX_MESSAGEKEY + "required",
                         new Object[] { names[i] }));
             }
@@ -31,18 +32,27 @@ public class RequiredConstraint extends AbstractConstraint<Required> {
         }
     }
 
-    boolean isEmpty(Request request, String name, boolean completely) {
+    boolean isEmpty(Request request, String name, boolean completely,
+            boolean allowWhitespace) {
         String[] values = request.getParameterValues(name);
         if (values != null) {
             if (completely) {
                 for (int i = 0; i < values.length; i++) {
-                    if (values[i].length() == 0) {
+                    String v = values[i];
+                    if (!allowWhitespace) {
+                        v = v.trim();
+                    }
+                    if (v.length() == 0) {
                         return true;
                     }
                 }
             } else {
                 for (int i = 0; i < values.length; i++) {
-                    if (values[i].length() > 0) {
+                    String v = values[i];
+                    if (!allowWhitespace) {
+                        v = v.trim();
+                    }
+                    if (v.length() > 0) {
                         return false;
                     }
                 }

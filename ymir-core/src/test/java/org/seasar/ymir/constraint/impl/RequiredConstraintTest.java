@@ -33,6 +33,10 @@ public class RequiredConstraintTest extends
     public void setValue3(String value3) {
     }
 
+    @Required(allowWhitespace = false)
+    public void setValue4(String value) {
+    }
+
     @Required("file")
     public void setFile(FormFile file) {
     }
@@ -119,6 +123,27 @@ public class RequiredConstraintTest extends
             confirm(getSetterMethod("file", new Class[] { FormFile.class }));
         } catch (ValidationFailedException ex) {
             fail();
+        }
+    }
+
+    public void testValidate_パラメータが空白文字である場合() throws Exception {
+        getRequest().getParameterMap().put("value", new String[] { " \t\n\r" });
+
+        try {
+            confirm(getSetterMethod("value"));
+        } catch (ValidationFailedException ex) {
+            fail();
+        }
+    }
+
+    public void testValidate_パラメータが空白文字である場合でもallowWhitespaceがfalseの時はバリデーションエラーになること()
+            throws Exception {
+        getRequest().getParameterMap().put("value", new String[] { " \t\n\r" });
+
+        try {
+            confirm(getSetterMethod("value4"));
+            fail();
+        } catch (ValidationFailedException ex) {
         }
     }
 }

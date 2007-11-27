@@ -15,4 +15,6 @@ public @interface Required {
     String[] value() default {};
 
     boolean completely() default false;
+
+    boolean allowWhitespace() default true;
 }
