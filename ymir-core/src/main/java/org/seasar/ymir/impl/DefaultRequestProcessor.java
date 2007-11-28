@@ -497,6 +497,9 @@ public class DefaultRequestProcessor implements RequestProcessor {
             pageProcessor_.injectProperties(page, metaData, dispatch
                     .getMatchedPathMapping().getParameterMap());
 
+            pageProcessor_.invokeMethods(page, metaData,
+                    Phase.SCOPEOBJECT_INJECTING);
+
             // 各コンテキストが持つ属性をinjectする。
             pageProcessor_.injectContextAttributes(page, metaData, dispatch
                     .getActionName());
