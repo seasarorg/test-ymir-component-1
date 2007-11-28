@@ -15,7 +15,7 @@ import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.extension.creator.impl.BodyDescImpl;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
-import org.seasar.ymir.impl.DefaultRequestProcessor;
+import org.seasar.ymir.impl.RequestProcessorImpl;
 
 public class CreateClassAndTemplateAction extends AbstractAction implements
         UpdateAction {
@@ -97,7 +97,7 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
                 + quote("redirect:" + redirectPath) + ";"));
         classDesc.setMethodDesc(methodDesc);
         classDesc.setMethodDesc(new MethodDescImpl(
-                DefaultRequestProcessor.METHOD_RENDER));
+                RequestProcessorImpl.METHOD_RENDER));
 
         String[] lackingClassNames = null;
         try {
