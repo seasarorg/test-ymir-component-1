@@ -11,16 +11,11 @@ import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PathMappingProvider;
-import org.seasar.ymir.Request;
-import org.seasar.ymir.Response;
-import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.mock.MockApplication;
-import org.seasar.ymir.mock.MockRequest;
-import org.seasar.ymir.response.ForwardResponse;
 
-public class DefaultRequestProcessorTest extends S2TestCase {
+public class RequestProcessorImplTest extends S2TestCase {
 
-    private DefaultRequestProcessor target_;
+    private RequestProcessorImpl target_;
 
     private PathMappingProvider pathMappingProvider_;
 
@@ -48,7 +43,7 @@ public class DefaultRequestProcessorTest extends S2TestCase {
 
         include(getClass().getName().replace('.', '/') + ".dicon");
 
-        target_ = (DefaultRequestProcessor) getComponent(DefaultRequestProcessor.class);
+        target_ = (RequestProcessorImpl) getComponent(RequestProcessorImpl.class);
         pathMappingProvider_ = (PathMappingProvider) getComponent(PathMappingProvider.class);
 
         ApplicationManager applicationManager = (ApplicationManager) getComponent(ApplicationManager.class);
@@ -65,22 +60,6 @@ public class DefaultRequestProcessorTest extends S2TestCase {
         applicationManager.setBaseApplication(application);
 
         getContainer().init();
-    }
-
-    public void testNormlizeResponse() throws Exception {
-
-        Request request = new MockRequest() {
-            public String getPath() {
-                return "/article/update.zpt";
-            }
-        };
-        Response response = new ForwardResponse("/article/update.zpt");
-
-        Response actual = target_
-                .normalizeResponse(response, request.getPath());
-
-        assertEquals("リクエストパスと同じパスへのフォワードはPASSTHROUGHに正規化されること",
-                ResponseType.PASSTHROUGH, actual.getType());
     }
 
     public void testFileResourceExists() throws Exception {

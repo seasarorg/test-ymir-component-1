@@ -51,7 +51,7 @@
     </property>
   </component>
   <component name="requestProcessor"
-    class="org.seasar.ymir.impl.DefaultRequestProcessor">
+    class="org.seasar.ymir.impl.RequestProcessorImpl">
     <property name="updaters" bindingType="none">
       <meta name="delayed">
         @org.seasar.ymir.util.ContainerUtils@findAllAndAscendantComponents(container,
@@ -62,9 +62,9 @@
   <component name="pageProcessor"
     class="org.seasar.ymir.impl.PageProcessorImpl" />
   <component name="responseProcessor"
-    class="org.seasar.ymir.impl.DefaultResponseProcessor" />
+    class="org.seasar.ymir.impl.ResponseProcessorImpl" />
   <component name="exceptionProcessor"
-    class="org.seasar.ymir.impl.DefaultExceptionProcessor" />
+    class="org.seasar.ymir.impl.ExceptionProcessorImpl" />
   <component
     class="org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl" />
   <component

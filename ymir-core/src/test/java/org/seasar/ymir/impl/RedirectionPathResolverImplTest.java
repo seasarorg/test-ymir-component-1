@@ -5,9 +5,9 @@ import junit.framework.TestCase;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
 
-public class DefaultRedirectionPathResolverTest extends TestCase {
+public class RedirectionPathResolverImplTest extends TestCase {
 
-    private DefaultRedirectionPathResolver target_ = new DefaultRedirectionPathResolver();
+    private RedirectionPathResolverImpl target_ = new RedirectionPathResolverImpl();
 
     public void testResolve1() throws Exception {
 

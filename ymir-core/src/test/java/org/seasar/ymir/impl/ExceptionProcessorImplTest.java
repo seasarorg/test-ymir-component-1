@@ -2,8 +2,8 @@ package org.seasar.ymir.impl;
 
 import junit.framework.TestCase;
 
-public class DefaultExceptionProcessorTest extends TestCase {
-    private DefaultExceptionProcessor target_ = new DefaultExceptionProcessor();
+public class ExceptionProcessorImplTest extends TestCase {
+    private ExceptionProcessorImpl target_ = new ExceptionProcessorImpl();
 
     public void testGetComponentName() throws Exception {
         assertEquals("hoeExceptionHandler", target_

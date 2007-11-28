@@ -69,7 +69,7 @@
       </meta>
     </property>
   </component>
-  <component class="org.seasar.ymir.impl.DefaultRequestProcessor">
+  <component class="org.seasar.ymir.impl.RequestProcessorImpl">
     <property name="updaters" bindingType="none">
       <meta name="delayed">
         @org.seasar.cms.pluggable.util.PluggableUtils@findAscendantComponents(container,
@@ -78,7 +78,7 @@
     </property>
   </component>
   <component class="org.seasar.ymir.impl.PageProcessorImpl" />
-  <component class="org.seasar.ymir.impl.DefaultResponseProcessor" />
+  <component class="org.seasar.ymir.impl.ResponseProcessorImpl" />
   <component
     class="org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl" />
   <component

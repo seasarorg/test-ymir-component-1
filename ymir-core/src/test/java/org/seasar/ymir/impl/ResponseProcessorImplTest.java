@@ -9,8 +9,8 @@ import org.seasar.ymir.mock.MockResponse;
 
 import junit.framework.TestCase;
 
-public class DefaultResponseProcessorTest extends TestCase {
-    private DefaultResponseProcessor target_ = new DefaultResponseProcessor();
+public class ResponseProcessorImplTest extends TestCase {
+    private ResponseProcessorImpl target_ = new ResponseProcessorImpl();
 
     public void testPopulateHaders() throws Exception {
         Response response = new MockResponse();
