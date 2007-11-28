@@ -16,7 +16,7 @@ import org.seasar.ymir.Messages;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Token;
 import org.seasar.ymir.TokenManager;
-import org.seasar.ymir.impl.DefaultRequestProcessor;
+import org.seasar.ymir.impl.RequestProcessorImpl;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;
@@ -86,7 +86,7 @@ public class YmirVariableResolver extends VariableResolverImpl {
         }
 
         Object component = request_
-                .getAttribute(DefaultRequestProcessor.ATTR_SELF);
+                .getAttribute(RequestProcessorImpl.ATTR_SELF);
         if (component != null) {
             try {
                 return PropertyUtils.getProperty(component, name);
@@ -113,7 +113,7 @@ public class YmirVariableResolver extends VariableResolverImpl {
             nameSet.add(enm.nextElement());
         }
         Object component = request_
-                .getAttribute(DefaultRequestProcessor.ATTR_SELF);
+                .getAttribute(RequestProcessorImpl.ATTR_SELF);
         if (component != null) {
             PropertyDescriptor[] pds = PropertyUtils
                     .getPropertyDescriptors(component);
@@ -140,7 +140,7 @@ public class YmirVariableResolver extends VariableResolverImpl {
         }
 
         Object component = request_
-                .getAttribute(DefaultRequestProcessor.ATTR_SELF);
+                .getAttribute(RequestProcessorImpl.ATTR_SELF);
         if (component != null) {
             try {
                 if (PropertyUtils.getPropertyDescriptor(component, name) != null) {
@@ -180,7 +180,7 @@ public class YmirVariableResolver extends VariableResolverImpl {
         }
 
         Object component = request_
-                .getAttribute(DefaultRequestProcessor.ATTR_SELF);
+                .getAttribute(RequestProcessorImpl.ATTR_SELF);
         if (component != null) {
             try {
                 PropertyDescriptor pd = PropertyUtils.getPropertyDescriptor(
