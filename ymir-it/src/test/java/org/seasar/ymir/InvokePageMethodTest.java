@@ -21,9 +21,10 @@ public class InvokePageMethodTest extends
         InvokePageMethodTestPage actual = getPage();
 
         List<Phase> list = actual.getList();
-        assertEquals(5, list.size());
+        assertEquals(6, list.size());
         int idx = 0;
         assertEquals(Phase.PAGECOMPONENT_CREATED, list.get(idx++));
+        assertEquals(Phase.SCOPEOBJECT_INJECTING, list.get(idx++));
         assertEquals(Phase.ACTION_INVOKING, list.get(idx++));
         assertEquals(Phase.ACTION_INVOKED, list.get(idx++));
         assertEquals(Phase.SCOPEOBJECT_OUTJECTING, list.get(idx++));
