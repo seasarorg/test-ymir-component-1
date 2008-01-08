@@ -93,6 +93,20 @@ public class ServletUtils {
         }
     }
 
+    public static String getQueryString(String path) {
+        int question = path.indexOf('?');
+        if (question >= 0) {
+            String rawQueryString = path.substring(question + 1);
+            if (rawQueryString.trim().length() == 0) {
+                return null;
+            } else {
+                return rawQueryString;
+            }
+        } else {
+            return null;
+        }
+    }
+
     public static Dispatcher getDispatcher(HttpServletRequest request) {
         if (request.getAttribute(ATTR_ERROR_EXCEPTION) != null) {
             return Dispatcher.ERROR;

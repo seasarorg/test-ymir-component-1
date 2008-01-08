@@ -53,4 +53,11 @@ public class ServletUtilsTest extends TestCase {
         assertEquals("/path/to/file", ServletUtils
                 .getTrunk("/path/to/file?a=1"));
     }
+
+    public void testGetQueryString() throws Exception {
+        assertEquals("a=b", ServletUtils.getQueryString("hoge.html?a=b"));
+        assertEquals("a", ServletUtils.getQueryString("hoge.html?a"));
+        assertNull(ServletUtils.getQueryString("hoge.html?"));
+        assertNull(ServletUtils.getQueryString("hoge.html"));
+    }
 }

@@ -149,13 +149,7 @@ public class YmirImpl implements Ymir {
         if (dispatcher == Dispatcher.FORWARD) {
             Response response = (Response) request.getAttribute(ATTR_RESPONSE);
             if (!response.isSubordinate()) {
-                String responsePath = response.getPath();
-                int question = responsePath.indexOf('?');
-                if (question >= 0) {
-                    queryString = responsePath.substring(question);
-                } else {
-                    queryString = null;
-                }
+                queryString = ServletUtils.getQueryString(response.getPath());
             }
         }
         request.enterDispatch(new DispatchImpl(request.getContextPath(), path,
