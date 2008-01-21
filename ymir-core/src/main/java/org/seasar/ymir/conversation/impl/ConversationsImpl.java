@@ -20,7 +20,7 @@ public class ConversationsImpl implements Conversations {
 
     private Conversation currentConversation_;
 
-    private String subConversationName_;
+    private boolean enteredInSubConversation_;
 
     public void setHotdeployManager(HotdeployManager hotdeployManager) {
         hotdeployManager_ = hotdeployManager;
@@ -88,15 +88,14 @@ public class ConversationsImpl implements Conversations {
             return;
         }
 
-        if (!conversationName.equals(subConversationName_)) {
-            // 開始されたsub-conversationと一致しない、もしくはsub-conversationが
-            // 開始されていない場合は以前のconversationを破棄する。
+        if (!enteredInSubConversation_) {
+            // sub-conversationが開始されている場合*以外*は以前のconversationを破棄する。
             clear();
         }
 
         currentConversation_ = newConversation(conversationName);
         currentConversation_.setPhase(phase);
-        subConversationName_ = null;
+        enteredInSubConversation_ = false;
     }
 
     boolean equals(String s1, String s2) {
@@ -152,21 +151,30 @@ public class ConversationsImpl implements Conversations {
         if (currentConversation_ != null) {
             currentConversation_ = null;
         }
-        subConversationName_ = null;
+        enteredInSubConversation_ = false;
     }
 
     void clear() {
         currentConversation_ = null;
-        subConversationName_ = null;
+        enteredInSubConversation_ = false;
         conversationStack_.clear();
     }
 
+    @Deprecated
     public synchronized void beginSubConversation(String conversationName,
             Object reenterResponse) {
+        beginSubConversation(reenterResponse);
+    }
+
+    public synchronized void beginSubConversation(Object reenterResponse) {
+        if (currentConversation_ == null) {
+            throw new RuntimeException("Conversation is not begun");
+        }
+
         currentConversation_.setReenterResponse(reenterResponse);
         conversationStack_.addLast(currentConversation_);
         currentConversation_ = null;
-        subConversationName_ = conversationName;
+        enteredInSubConversation_ = true;
     }
 
     LinkedList<Conversation> getConversationStack() {

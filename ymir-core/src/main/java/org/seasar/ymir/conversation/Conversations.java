@@ -50,5 +50,8 @@ public interface Conversations {
 
     Object end();
 
+    @Deprecated
     void beginSubConversation(String conversationName, Object reenterResponse);
+
+    void beginSubConversation(Object reenterResponse);
 }

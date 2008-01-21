@@ -17,7 +17,7 @@ public class BeginSubConversationMethodInvoker extends MethodInvokerWrapper {
     public Object invoke(Object component) {
         Object returned = methodInvoker_.invoke(component);
         ConversationUtils.getConversations().beginSubConversation(
-                annotation_.name(), annotation_.reenter());
+                annotation_.reenter());
         return returned;
     }
 }

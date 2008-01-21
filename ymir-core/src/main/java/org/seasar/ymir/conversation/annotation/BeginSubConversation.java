@@ -8,7 +8,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface BeginSubConversation {
-    String name();
+    // TODO 互換性のため残しているが、いつかなくす。
+    String name() default "";
 
     String reenter();
 }
