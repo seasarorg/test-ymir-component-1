@@ -59,7 +59,7 @@ public class ConversationsImpl implements Conversations {
         }
     }
 
-    Conversation newConversation(String conversationName) {
+    protected Conversation newConversation(String conversationName) {
         ConversationImpl impl = new ConversationImpl(conversationName);
         impl.setHotdeployManager(hotdeployManager_);
         impl.setApplicationManager(applicationManager_);
