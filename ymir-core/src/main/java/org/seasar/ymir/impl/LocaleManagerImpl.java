@@ -5,6 +5,8 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.LocaleManager;
 import org.seasar.ymir.Request;
@@ -15,10 +17,12 @@ public class LocaleManagerImpl implements LocaleManager {
 
     private ApplicationManager applicationManager_;
 
+    @Binding(bindingType = BindingType.MUST)
     public void setContainer(S2Container container) {
         container_ = container;
     }
 
+    @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
         applicationManager_ = applicationManager;
     }

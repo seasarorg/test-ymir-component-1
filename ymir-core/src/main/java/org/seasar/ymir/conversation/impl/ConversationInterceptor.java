@@ -6,6 +6,8 @@ import java.lang.reflect.Method;
 
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.LifecycleListener;
@@ -13,6 +15,7 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.SessionManager;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.constraint.PermissionDeniedException;
+import org.seasar.ymir.conversation.ConversationManager;
 import org.seasar.ymir.conversation.ConversationUtils;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.conversation.Globals;
@@ -32,17 +35,19 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor
 
     private SessionManager sessionManager_;
 
+    @Binding(bindingType = BindingType.MUST)
     public void setConfiguration(Configuration configuration) {
         configuration_ = configuration;
     }
 
+    @Binding(bindingType = BindingType.MUST)
     public void setSessionManager(SessionManager sessionManager) {
         sessionManager_ = sessionManager;
     }
 
     public void init() {
         sessionManager_
-                .addStraddlingAttributeName(ConversationUtils.ATTR_CONVERSATIONS);
+                .addStraddlingAttributeName(ConversationManager.ATTR_CONVERSATIONS);
     }
 
     public void destroy() {
