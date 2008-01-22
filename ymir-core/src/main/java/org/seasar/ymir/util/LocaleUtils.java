@@ -3,57 +3,54 @@ package org.seasar.ymir.util;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
-import org.seasar.ymir.Globals;
+import org.seasar.framework.container.S2Container;
+import org.seasar.ymir.LocaleManager;
+import org.seasar.ymir.YmirContext;
 
 public class LocaleUtils {
+    private static S2Container container_;
 
     protected LocaleUtils() {
     }
 
-    /**
-     * 指定されたrequestを元にロケールを決定します。
-     * <p>ロケールの決定方法は次の通りです：</p>
-     * <ol>
-     * <li>session中に
-     * {@link Globals#LOCALE_KEY}というキーでにバインドされているLocale</li>
-     * <li><code>request.getLocale()の返り値</code></li>
-     * </ol>
-     * <p><code>request</code>としてnullを指定した場合、
-     * システムのデフォルトロケールを返します。
-     * </p>
-     *
-     * @param request リクエストオブジェクト。nullを指定することもできます。
-     * @return Localeオブジェクト。
-     */
-    public static Locale findLocale(HttpServletRequest request) {
-
-        if (request != null) {
-            Locale locale = null;
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                locale = (Locale) session.getAttribute(Globals.ATTR_LOCALE);
-            }
-            if (locale == null) {
-                locale = request.getLocale();
-            }
-            return locale;
+    static S2Container getS2Container() {
+        if (container_ != null) {
+            return container_;
         } else {
-            return Locale.getDefault();
+            return YmirContext.getYmir().getApplication().getS2Container();
         }
     }
 
+    @Deprecated
+    public static Locale findLocale(HttpServletRequest request) {
+        return getLocale();
+    }
+
+    public static Locale getLocale() {
+        return getLocaleManager().getLocale();
+    }
+
+    @Deprecated
     public static void setLocale(HttpServletRequest request, Locale locale) {
-
-        request.getSession().setAttribute(Globals.ATTR_LOCALE, locale);
+        setLocale(locale);
     }
 
-    public static void removeLocale(HttpServletRequest request) {
+    public static void setLocale(Locale locale) {
+        getLocaleManager().setLocale(locale);
+    }
 
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.removeAttribute(Globals.ATTR_LOCALE);
-        }
+    @Deprecated
+    public static void removeLocale(HttpServletRequest request) {
+        removeLocale();
+    }
+
+    public static void removeLocale() {
+        getLocaleManager().removeLocale();
+    }
+
+    static LocaleManager getLocaleManager() {
+        return (LocaleManager) getS2Container().getComponent(
+                LocaleManager.class);
     }
 }

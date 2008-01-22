@@ -19,6 +19,7 @@ import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpServletResponseFilter;
+import org.seasar.ymir.LocaleManager;
 import org.seasar.ymir.MultipartServletRequest;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -26,7 +27,6 @@ import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
-import org.seasar.ymir.util.LocaleUtils;
 import org.seasar.ymir.util.ServletUtils;
 
 public class YmirFilter implements Filter {
@@ -38,11 +38,14 @@ public class YmirFilter implements Filter {
 
     private YmirProcessInterceptor[] ymirProcessInterceptors_;
 
-    public void init(FilterConfig config) throws ServletException {
+    private LocaleManager localeManager_;
 
+    public void init(FilterConfig config) throws ServletException {
         context_ = config.getServletContext();
         ymir_ = (Ymir) context_.getAttribute(YmirListener.ATTR_YMIR);
         ymirProcessInterceptors_ = ymir_.getYmirProcessInterceptors();
+        localeManager_ = (LocaleManager) ymir_.getApplication()
+                .getS2Container().getComponent(LocaleManager.class);
 
         String dispatcher = config.getInitParameter("dispatcher");
         if (dispatcher == null) {
@@ -53,7 +56,6 @@ public class YmirFilter implements Filter {
     }
 
     public void destroy() {
-
         context_ = null;
         ymir_ = null;
         ymirProcessInterceptors_ = null;
@@ -63,7 +65,6 @@ public class YmirFilter implements Filter {
     @SuppressWarnings("unchecked")
     public void doFilter(ServletRequest req, ServletResponse res,
             FilterChain chain) throws IOException, ServletException {
-
         HttpServletRequest httpRequest = (HttpServletRequest) req;
         HttpServletResponse httpResponse = (HttpServletResponse) res;
         AttributeContainer attributeContainer = new HttpServletRequestAttributeContainer(
@@ -91,7 +92,7 @@ public class YmirFilter implements Filter {
                     .getContextPath(httpRequest), httpRequest.getMethod(),
                     httpRequest.getCharacterEncoding(), httpRequest
                             .getParameterMap(), fileParameterMap,
-                    attributeContainer, LocaleUtils.findLocale(httpRequest));
+                    attributeContainer, localeManager_.getLocale());
             context.setComponent(Request.class, request);
         } else {
             request = (Request) context.getComponent(Request.class);
