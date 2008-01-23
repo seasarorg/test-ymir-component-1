@@ -116,6 +116,11 @@ public class ConversationsImpl implements Conversations {
         }
     }
 
+    public synchronized boolean isInSubConversation() {
+        return (conversationStack_.size() > 0 && conversationStack_.peek()
+                .getReenterResponse() != null);
+    }
+
     public synchronized void join(String conversationName, String phase,
             String[] followAfter) {
         if (currentConversation_ == null

@@ -85,6 +85,14 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor
                             "Can't specify both @End and @BeginSubConversation: "
                                     + actionMethod.getName());
                 }
+                if (conversations.isInSubConversation()
+                        && !action.getMethodInvoker().getReturnType()
+                                .isAssignableFrom(String.class)) {
+                    throw new RuntimeException(
+                            "@End must annote a method whose return type is assignable from String: "
+                                    + action.getTarget().getClass().getName()
+                                    + "#" + action.getName() + "()");
+                }
                 action = new ActionImpl(action.getTarget(),
                         new EndConversationMethodInvoker(action
                                 .getMethodInvoker()));
