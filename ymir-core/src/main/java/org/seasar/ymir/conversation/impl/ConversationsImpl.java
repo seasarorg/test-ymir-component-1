@@ -81,11 +81,19 @@ public class ConversationsImpl implements Conversations {
     }
 
     public synchronized void begin(String conversationName, String phase) {
+        begin(conversationName, phase, true);
+    }
+
+    public synchronized void begin(String conversationName, String phase,
+            boolean alwaysBegin) {
         if (currentConversation_ != null
-                && currentConversation_.getName().equals(conversationName)
-                && equals(currentConversation_.getPhase(), phase)) {
-            // 既に同一名のConversationが始まっていてかつフェーズが同じなら何もしない。
-            return;
+                && currentConversation_.getName().equals(conversationName)) {
+            // 既に同一名のConversationが始まっている場合、
+            if (!alwaysBegin || equals(currentConversation_.getPhase(), phase)) {
+                // alwaysBegin == falseなら再beginしないようにする。
+                // また、alwaysBegin == trueである場合、フェーズが同じなら何もしない。
+                return;
+            }
         }
 
         if (!enteredInSubConversation_) {

@@ -46,6 +46,8 @@ public interface Conversations {
 
     void begin(String conversationName, String phase);
 
+    void begin(String conversationName, String phase, boolean alwaysBegin);
+
     void join(String conversationName, String phase, String[] followAfter);
 
     Object end();

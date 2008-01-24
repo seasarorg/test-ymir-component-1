@@ -64,13 +64,17 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor
 
             Method actionMethod = action != null ? action.getMethodInvoker()
                     .getMethod() : null;
-            if (isAnnotationPresent(actionMethod, Begin.class)
-                    || isDisableBeginCheck()
+            Begin begin = getAnnotation(actionMethod, Begin.class);
+            if (begin != null) {
+                conversations.begin(annotation.name(), annotation.phase(),
+                        begin.alwaysBegin());
+            } else if (isDisableBeginCheck()
                     && !annotation.name().equals(
                             conversations.getCurrentConversationName())) {
-                // Beginチェックが無効であっても、conversationが同一であればbeginしない。
-                // （こうしないと不便なことがありそうだから。不便なことがなければ、Beginチェックが
-                // 無効の場合は何も考えずにbeginしちゃって良いと思う。）
+                // Beginチェックを無効にする旨の指定がされている場合はbeginする。
+                // ただし、conversationが同一であればbeginしない。
+                // （こうしないと不便なことがありそうだから。不便なことがなければ、
+                // 何も考えずにbeginしちゃって良いと思う。）
                 conversations.begin(annotation.name(), annotation.phase());
             }
 
