@@ -56,7 +56,7 @@ public class PageMetaDataImpl implements PageMetaData {
         }
     }
 
-    boolean isStrictInjection(S2Container container) {
+    protected boolean isStrictInjection(S2Container container) {
         return PropertyUtils.valueOf(((ApplicationManager) container
                 .getComponent(ApplicationManager.class))
                 .findContextApplication().getProperty(

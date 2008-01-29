@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 public class PagePropertyMetaDataImplTest extends TestCase {
     private PageMetaDataImpl target_ = new PageMetaDataImpl(Object.class, null) {
         @Override
-        boolean isStrictInjection(S2Container container) {
+        protected boolean isStrictInjection(S2Container container) {
             return false;
         }
     };

@@ -12,7 +12,7 @@ public class PageMetaDataImplTest extends TestCase {
     private PageMetaDataImpl targetNonStrict_ = new PageMetaDataImpl(
             Hoe2Page.class, null) {
         @Override
-        boolean isStrictInjection(S2Container container) {
+        protected boolean isStrictInjection(S2Container container) {
             return false;
         }
 
@@ -28,7 +28,7 @@ public class PageMetaDataImplTest extends TestCase {
     private PageMetaDataImpl targetStrict_ = new PageMetaDataImpl(
             Hoe2Page.class, null) {
         @Override
-        boolean isStrictInjection(S2Container container) {
+        protected boolean isStrictInjection(S2Container container) {
             return true;
         }
 
