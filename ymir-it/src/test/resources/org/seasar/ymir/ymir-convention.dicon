@@ -2,7 +2,6 @@
 <!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
-  <include path="org/seasar/ymir/app.dicon" />
   <include path="global.dicon" />
   <meta name="expand">"org/seasar/ymir/ymir-creator.dicon"</meta>
   <component class="org.seasar.ymir.convention.YmirNamingConvention">
