@@ -243,5 +243,6 @@
     <module>../ymir-extension</module>
     <module>../ymir-skeleton</module>
     <module>../ymir-example</module>
+    <module>../ymir-json</module>
   </modules>
 </project>
