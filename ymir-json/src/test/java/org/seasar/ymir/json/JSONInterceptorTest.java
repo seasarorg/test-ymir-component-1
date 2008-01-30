@@ -68,4 +68,12 @@ public class JSONInterceptorTest extends TestCase {
         assertEquals("HOE", testPage.getHoe());
         assertNull(testPage.getFuga());
     }
+
+    public void testIsJSONRequest_requestのcontentTypeがnullの場合はfalseを返すこと()
+            throws Exception {
+        JSONInterceptor target = new JSONInterceptor();
+
+        assertFalse(target.isJSONRequest(new MockHttpServletRequestImpl(
+                new MockServletContextImpl("/context"), "/index.html")));
+    }
 }

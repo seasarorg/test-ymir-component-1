@@ -69,6 +69,9 @@ public class JSONInterceptor extends AbstractYmirProcessInterceptor {
 
     protected boolean isJSONRequest(HttpServletRequest httpRequest) {
         String contentType = httpRequest.getContentType();
+        if (contentType == null) {
+            return false;
+        }
         int semi = contentType.indexOf(';');
         if (semi >= 0) {
             contentType = contentType.substring(0, semi).trim();
