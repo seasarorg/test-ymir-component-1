@@ -35,7 +35,6 @@
                 <directory>${basedir}/src/main/webapp</directory>
                 <excludes>
                   <exclude>WEB-INF/classes/</exclude>
-                  <exclude>WEB-INF/h2/</exclude>
                   <exclude>WEB-INF/lib/</exclude>
                 </excludes>
               </resource>
@@ -106,12 +105,6 @@
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.13</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.h2</groupId>
-      <artifactId>h2</artifactId>
-      <version>1.0</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
