@@ -31,6 +31,24 @@
       <input type="radio" name="__ymir__key_beantable.enable" value="true" tal:attributes="checked beantableEnable" /> 利用する
       <input type="radio" name="__ymir__key_beantable.enable" value="false" checked="checked" tal:attributes="checked not:beantableEnable" /> 利用しない
     </dd>
+    <dt>Eclipse連携</dt>
+    <dd>
+      <dl>
+        <dt>enable</dt>
+        <dd>Eclipse連携機能を利用するかどうかを指定して下さい。（Eclipse連携機能を利用するにはEclipse用の<a href="http://resourcesynchronizer.sandbox.seasar.org/" target="_blank">ResourceSynchronizerプラグイン</a>が必要です）<br />
+          <input type="radio" name="__ymir__key_extension.sourceCreator.eclipse.enable" value="true" tal:attributes="checked eclipseEnable" /> 利用する
+          <input type="radio" name="__ymir__key_extension.sourceCreator.eclipse.enable" value="false" checked="checked" tal:attributes="checked not:eclipseEnable" /> 利用しない
+        </dd>
+        <dt>projectName</dt>
+        <dd>Eclipseプロジェクト名を指定して下さい。（例：<tt>skeleton</tt>）<br />
+          <input type="text" name="__ymir__key_extension.sourceCreator.eclipse.projectName" size="64" tal:attributes="value projectName" />
+        </dd>
+        <dt>resourceSynchronizerURL</dt>
+        <dd>resourceSynchronizerプラグインの同期サーバのURLを指定して下さい。（例：<tt>http://localhost:8386/</tt>）<br />
+          <input type="text" name="__ymir__key_extension.sourceCreator.eclipse.resourceSynchronizerURL" size="64" tal:attributes="value resourceSynchronizerURL" />
+        </dd>
+      </dl>
+    </dd>
   </dl>
   <p><input type="submit" value=" OK " />
   <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" /></p>

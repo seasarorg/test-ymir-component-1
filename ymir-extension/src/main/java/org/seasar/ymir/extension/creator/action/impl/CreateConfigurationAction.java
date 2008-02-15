@@ -1,16 +1,25 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 import static org.seasar.ymir.beantable.Globals.APPKEY_BEANTABLE_ENABLE;
+import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_ECLIPSE_ENABLE;
+import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_ECLIPSE_PROJECTNAME;
+import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_ECLIPSE_RESOURCESYNCHRONIZERURL;
+import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
+import java.io.OutputStream;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.seasar.kvasir.util.PropertyUtils;
+import org.seasar.kvasir.util.collection.MapProperties;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -26,6 +35,8 @@ public class CreateConfigurationAction extends AbstractAction implements
             + "key_";
 
     private static final String POM_XML = "pom.xml";
+
+    private static final String RESOURCESYNCHRONIZERURL_DEFAULT = "http://localhost:8386/";
 
     public CreateConfigurationAction(SourceCreator sourceCreator) {
         super(sourceCreator);
@@ -56,13 +67,21 @@ public class CreateConfigurationAction extends AbstractAction implements
             }
         }
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("application", application);
         variableMap.put("beantableEnable", Boolean.valueOf(PropertyUtils
                 .valueOf(application.getProperty(APPKEY_BEANTABLE_ENABLE),
                         false)));
+        variableMap.put("eclipseEnable", Boolean.valueOf(PropertyUtils.valueOf(
+                application.getProperty(APPKEY_SOURCECREATOR_ECLIPSE_ENABLE),
+                false)));
+        variableMap.put("projectName", application
+                .getProperty(APPKEY_SOURCECREATOR_ECLIPSE_PROJECTNAME));
+        variableMap.put("resourceSynchronizerURL", application.getProperty(
+                APPKEY_SOURCECREATOR_ECLIPSE_RESOURCESYNCHRONIZERURL,
+                RESOURCESYNCHRONIZERURL_DEFAULT));
         return getSourceCreator().getResponseCreator().createResponse(
                 "createConfiguration", variableMap);
     }
@@ -88,8 +107,14 @@ public class CreateConfigurationAction extends AbstractAction implements
         }
 
         Application application = getSourceCreator().getApplication();
-        for (Iterator itr = request.getParameterNames(); itr.hasNext();) {
-            String name = (String) itr.next();
+        MapProperties orderedProp = readAppPropertiesInOrder(application);
+
+        SortedSet<String> nameSet = new TreeSet<String>();
+        for (Iterator<String> itr = request.getParameterNames(); itr.hasNext();) {
+            nameSet.add(itr.next());
+        }
+        for (Iterator<String> itr = nameSet.iterator(); itr.hasNext();) {
+            String name = itr.next();
             if (!name.startsWith(PARAMPREFIX_KEY)) {
                 continue;
             }
@@ -102,6 +127,7 @@ public class CreateConfigurationAction extends AbstractAction implements
             } else {
                 application.setProperty(key, value);
             }
+            orderedProp.setProperty(key, value);
         }
 
         String propertiesFilePath = application.getDefaultPropertiesFilePath();
@@ -111,7 +137,8 @@ public class CreateConfigurationAction extends AbstractAction implements
             FileOutputStream fos = null;
             try {
                 fos = new FileOutputStream(file);
-                application.save(fos, null);
+                writeHeader(fos, null);
+                orderedProp.store(fos);
             } catch (IOException ex) {
                 throw new RuntimeException("Can't write property file: "
                         + file.getAbsolutePath());
@@ -125,11 +152,40 @@ public class CreateConfigurationAction extends AbstractAction implements
             }
         }
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        synchronizeResources(null);
+
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("method", method);
         variableMap.put("parameters", getParameters(request));
         return getSourceCreator().getResponseCreator().createResponse(
                 "createConfiguration_create", variableMap);
+    }
+
+    void writeHeader(OutputStream out, String header) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("#");
+        if (header != null) {
+            sb.append(header);
+        } else {
+            sb.append(new Date());
+        }
+        out.write(sb.append(System.getProperty("line.separator")).toString()
+                .getBytes("ISO-8859-1"));
+    }
+
+    MapProperties readAppPropertiesInOrder(Application application) {
+        MapProperties prop = new MapProperties(new LinkedHashMap());
+        String filePath = application.getDefaultPropertiesFilePath();
+        if (filePath != null) {
+            File file = new File(filePath);
+            if (file.exists()) {
+                try {
+                    prop.load(new FileInputStream(file));
+                } catch (IOException ignore) {
+                }
+            }
+        }
+        return prop;
     }
 }

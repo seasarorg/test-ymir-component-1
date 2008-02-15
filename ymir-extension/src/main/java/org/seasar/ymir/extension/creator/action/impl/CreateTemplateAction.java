@@ -70,7 +70,7 @@ public class CreateTemplateAction extends AbstractAction implements
             template = "";
         }
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("pathMetaData", pathMetaData);
@@ -109,6 +109,8 @@ public class CreateTemplateAction extends AbstractAction implements
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
+
+            synchronizeResources(new String[] { getPath(template) });
         } else if (transition != null) {
             ClassDesc classDesc = getSourceCreator().newClassDesc(
                     pathMetaData.getClassName());
@@ -128,11 +130,13 @@ public class CreateTemplateAction extends AbstractAction implements
             } catch (InvalidClassDescException ex) {
                 throw new RuntimeException("Can't happen!", ex);
             }
+
+            synchronizeResources(new String[] { getRootPackagePath() });
         } else {
             return null;
         }
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("method", method);
         variableMap.put("parameters", getParameters(request));

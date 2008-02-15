@@ -6,8 +6,8 @@
   <body onload="document.getElementById('okButton').focus()">
 <h1>SYSTEM NOTIFICATION</h1>
 <p>メッセージリソースファイル<span tal:replace="messagesName">MESSAGES_NAME</span>.xpropertiesを作成しました。
-アプリケーションのdiconファイル（app.diconなど）に以下のエントリを追加した後、EclipseでプロジェクトルートをRefreshし、
-サーブレットコンテナでこのWebアプリケーションをリロードしてから、以下の「OK」ボタンを押して下さい。</p>
+アプリケーションのdiconファイル（app.diconなど）に以下のエントリを追加した後、<span tal:condition="not:resourceAutoSynchronized">EclipseでプロジェクトルートをRefreshし、</span>
+サーブレットコンテナでこのWebアプリケーションをリロードしてから以下の「OK」ボタンを押して下さい。</p>
 <pre>
   &lt;component name="<span tal:replace="messagesName">MESSAGES_NAME</span>"
     class="org.seasar.ymir.impl.MessagesImpl"&gt;

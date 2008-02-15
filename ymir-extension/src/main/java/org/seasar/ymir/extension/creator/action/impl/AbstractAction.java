@@ -1,12 +1,27 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
+import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_ECLIPSE_ENABLE;
+import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_ECLIPSE_RESOURCESYNCHRONIZERURL;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.seasar.kvasir.util.PropertyUtils;
+import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 
 abstract public class AbstractAction {
@@ -16,6 +31,10 @@ abstract public class AbstractAction {
 
     public static final String PARAM_SUBTASK = SourceCreator.PARAM_PREFIX
             + "subTask";
+
+    private static final int TIMEOUT_MILLISEC = 3 * 1000;
+
+    private final Log log_ = LogFactory.getLog(getClass());
 
     private SourceCreator sourceCreator_;
 
@@ -92,6 +111,173 @@ abstract public class AbstractAction {
 
         public String getValue() {
             return value_;
+        }
+    }
+
+    protected Map<String, Object> newVariableMap() {
+        Map<String, Object> variableMap = new HashMap<String, Object>();
+
+        variableMap.put("resourceAutoSynchronized", isResourceSynchronized());
+
+        return variableMap;
+    }
+
+    protected boolean isResourceSynchronized() {
+        return (PropertyUtils.valueOf(getSourceCreator().getApplication()
+                .getProperty(APPKEY_SOURCECREATOR_ECLIPSE_ENABLE), false)
+                && getResourceSynchronizerURL("") != null && getProjectName()
+                .length() > 0);
+    }
+
+    protected void synchronizeResources(String[] paths) {
+        if (!isResourceSynchronized()) {
+            return;
+        }
+        if (paths != null && paths.length == 0) {
+            return;
+        }
+
+        String projectName = getProjectName();
+        StringBuilder sb = new StringBuilder().append("refresh?");
+        if (paths == null) {
+            // プロジェクト全体をリフレッシュする。
+            sb.append(projectName).append("=INFINITE");
+        } else {
+            // 指定されたりソースをリフレッシュする。
+            String delim = "";
+            for (String path : paths) {
+                if (path == null) {
+                    continue;
+                }
+
+                sb.append(delim).append(projectName);
+                if (!path.startsWith("/")) {
+                    sb.append("/");
+                }
+                sb.append(path).append("=INFINITE");
+                delim = "&";
+            }
+            if (delim.equals("")) {
+                // 1つもリソースがない。
+                return;
+            }
+        }
+        URL url = getResourceSynchronizerURL(sb.toString());
+        if (url == null) {
+            return;
+        }
+
+        InputStream is = null;
+        try {
+            URLConnection connection = url.openConnection();
+            connection.setReadTimeout(TIMEOUT_MILLISEC);
+            connection.connect();
+            is = connection.getInputStream();
+            if (log_.isDebugEnabled()) {
+                log_.debug("Response from " + url + " is:"
+                        + IOUtils.readString(is, "UTF-8", false));
+            }
+        } catch (IOException ex) {
+            log_.warn("I/O error occured on a resourceSynchronizing server: "
+                    + url, ex);
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
+    }
+
+    URL getResourceSynchronizerURL(String path) {
+        String urlString = getSourceCreator().getApplication().getProperty(
+                APPKEY_SOURCECREATOR_ECLIPSE_RESOURCESYNCHRONIZERURL, "");
+        if (urlString.length() > 0) {
+            if (!urlString.endsWith("/")) {
+                urlString = urlString + "/";
+            }
+            try {
+                return new URL(urlString + path);
+            } catch (MalformedURLException ex) {
+                log_.warn("Application property ("
+                        + APPKEY_SOURCECREATOR_ECLIPSE_RESOURCESYNCHRONIZERURL
+                        + ") is not a valid URL: " + urlString, ex);
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    String getProjectName() {
+        return getSourceCreator().getApplication().getProperty(
+                Globals.APPKEY_SOURCECREATOR_ECLIPSE_PROJECTNAME, "");
+    }
+
+    protected String getRootPackagePath() {
+        String sourcePath = adjustPath(getSourceCreator().getApplication()
+                .getSourceDirectory());
+        if (sourcePath == null) {
+            return null;
+        }
+        String rootPackageName = getSourceCreator().getApplication()
+                .getRootPackageName();
+        if (rootPackageName == null) {
+            return sourcePath;
+        } else {
+            return sourcePath + "/" + rootPackageName.replace('.', '/');
+        }
+    }
+
+    protected String getResourcesPath() {
+        return adjustPath(getSourceCreator().getApplication()
+                .getResourcesDirectory());
+    }
+
+    protected String getWebappSourceRootPath() {
+        return adjustPath(getSourceCreator().getApplication()
+                .getWebappSourceRoot());
+    }
+
+    protected String getPath(Template template) {
+        if (template == null) {
+            return null;
+        }
+        String webappSourceRootPath = getWebappSourceRootPath();
+        if (webappSourceRootPath == null) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(webappSourceRootPath);
+        String templatePath = template.getPath();
+        if (!templatePath.startsWith("/")) {
+            sb.append("/");
+        }
+        sb.append(templatePath);
+        return sb.toString();
+    }
+
+    protected String adjustPath(String filePath) {
+        if (filePath == null) {
+            return null;
+        }
+        filePath = filePath.replace('\\', '/');
+
+        String projectRoot = getProjectRoot();
+        if (projectRoot == null) {
+            return null;
+        }
+
+        if (filePath.startsWith(projectRoot)) {
+            return filePath.substring(projectRoot.length());
+        } else {
+            return null;
+        }
+    }
+
+    protected String getProjectRoot() {
+        String projectRoot = getSourceCreator().getApplication()
+                .getProjectRoot();
+        if (projectRoot == null || projectRoot.length() == 0) {
+            return null;
+        } else {
+            return projectRoot.replace('\\', '/');
         }
     }
 }

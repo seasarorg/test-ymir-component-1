@@ -5,7 +5,6 @@ import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -84,7 +83,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             return null;
         }
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("template", pathMetaData.getTemplate());
         variableMap.put("parameters", getParameters(request));
@@ -184,7 +183,10 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
 
         getSourceCreator().updateClasses(classDescBag, mergeMethod);
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        synchronizeResources(new String[] { getRootPackagePath(),
+            getPath(pathMetaData.getTemplate()) });
+
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("method", method);
         variableMap.put("parameters", getParameters(request));

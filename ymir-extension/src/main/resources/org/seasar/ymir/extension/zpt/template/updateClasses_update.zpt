@@ -27,7 +27,7 @@
   </li>
 </ul>
 </p>
-<p>EclipseでプロジェクトルートをRefreshしてから、以下の「OK」ボタンを押して下さい。</p>
+<p><span tal:condition="not:resourceAutoSynchronized">EclipseでプロジェクトルートをRefreshしてから、</span>以下の「OK」ボタンを押して下さい。</p>
 <form tal:attributes="method method; action request/absolutePath">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
   <input id="okButton" type="submit" value=" OK " />

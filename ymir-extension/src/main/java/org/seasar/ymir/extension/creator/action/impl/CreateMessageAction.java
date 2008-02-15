@@ -4,7 +4,6 @@ import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_FEATURE_CRE
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.seasar.kvasir.util.PropertyUtils;
@@ -52,7 +51,7 @@ public class CreateMessageAction extends AbstractAction implements
     Response actDefault(Request request, Throwable t) {
         MessageNotFoundRuntimeException mnfre = (MessageNotFoundRuntimeException) t;
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("messageKey", mnfre.getMessageKey());
@@ -76,7 +75,9 @@ public class CreateMessageAction extends AbstractAction implements
 
         createMessage(mnfre.getMessagesName(), mnfre.getMessageKey(), value);
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        synchronizeResources(new String[] { getResourcesPath() });
+
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("method", method);

@@ -5,7 +5,6 @@ import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +42,7 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
 
     Response actDefault(Request request, PathMetaData pathMetaData) {
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("method", request.getMethod());
@@ -62,7 +61,7 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
         ClassDescBag classDescBag = getSourceCreator().gatherClassDescs(
                 gatherPaths());
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("method", method);
@@ -96,7 +95,9 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
 
         getSourceCreator().updateClasses(classDescBag, false);
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        synchronizeResources(new String[] { getRootPackagePath() });
+
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("method", method);

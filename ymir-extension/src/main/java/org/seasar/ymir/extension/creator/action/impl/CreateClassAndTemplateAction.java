@@ -45,7 +45,7 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
 
     Response actDefault(Request request, PathMetaData pathMetaData) {
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("pathMetaData", pathMetaData);
         return getSourceCreator().getResponseCreator().createResponse(
@@ -67,7 +67,7 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
             template = "";
         }
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("method", method);
         variableMap.put("pathMetaData", pathMetaData);
@@ -106,7 +106,9 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
             lackingClassNames = ex.getLackingClassNames();
         }
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        synchronizeResources(new String[] { getRootPackagePath() });
+
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("method", method);
         variableMap.put("pathMetaData", pathMetaData);

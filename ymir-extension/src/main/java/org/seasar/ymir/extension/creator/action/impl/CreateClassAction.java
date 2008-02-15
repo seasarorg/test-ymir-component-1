@@ -2,7 +2,6 @@ package org.seasar.ymir.extension.creator.action.impl;
 
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.seasar.ymir.Request;
@@ -47,7 +46,7 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
         String actionName = getSourceCreator().getActionName(
                 request.getCurrentDispatch().getPath(), request.getMethod());
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("pathMetaData", pathMetaData);
@@ -88,7 +87,9 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
             lackingClassNames = ex.getLackingClassNames();
         }
 
-        Map<String, Object> variableMap = new HashMap<String, Object>();
+        synchronizeResources(new String[] { getRootPackagePath() });
+
+        Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("method", method);
         variableMap.put("parameters", getParameters(request));
