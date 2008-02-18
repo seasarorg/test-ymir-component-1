@@ -134,8 +134,8 @@ public class ConversationsImpl implements Conversations {
         if (currentConversation_ == null
                 || !currentConversation_.getName().equals(conversationName)) {
             // 現在のconversationが同一conversationではない。
-            clear();
-            throw new IllegalTransitionRuntimeException();
+            illegalTransitionDetected();
+            return;
         }
 
         String currentPhase = currentConversation_.getPhase();
@@ -153,11 +153,25 @@ public class ConversationsImpl implements Conversations {
         }
         if (!matched) {
             // 現在のconversationが指定されたフェーズでない。
-            clear();
-            throw new IllegalTransitionRuntimeException();
+            illegalTransitionDetected();
+            return;
         }
 
         currentConversation_.setPhase(phase);
+    }
+
+    /**
+     * 不正な遷移が検出された際に呼び出されるメソッドです。
+     * <p>Ymir-0.9.5以前と互換性を保つには、このメソッドをオーバライドして
+     * <code>clear()</code>メソッドを呼び出すようにしたConversationsImplのサブクラスを作成し、
+     * ConversationManagerImpl#newConversations()メソッドをオーバライドして
+     * 上記クラスのインスタンスを生成して返すようにしたConversationManagerImplのサブクラスを作成し、
+     * 上記クラスをコンポーネント定義した
+     * ymir-component+conversationManager.diconをクラスパスに追加して下さい。
+     * </p>
+     */
+    protected void illegalTransitionDetected() {
+        throw new IllegalTransitionRuntimeException();
     }
 
     void removeCurrentConversation() {
