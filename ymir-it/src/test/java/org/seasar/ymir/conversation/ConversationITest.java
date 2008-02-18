@@ -74,4 +74,27 @@ public class ConversationITest extends YmirTestCase {
 
         assertEquals("value", page.getCurrentValue());
     }
+
+    public void test_不正な遷移をした場合に正しく検出されること() throws Exception {
+        Request request = prepareForProcessing("/conversation3Phase1.html",
+                Request.METHOD_GET);
+        processRequest(request);
+
+        try {
+            request = prepareForProcessing("/conversation3Phase2.html",
+                    Request.METHOD_GET);
+            processRequest(request);
+
+            fail();
+        } catch (IllegalTransitionRuntimeException expected) {
+            Conversations conversations = ConversationUtils
+                    .getConversations(false);
+            assertNotNull(conversations);
+            Conversation conversation = conversations.getCurrentConversation();
+            assertNotNull(conversation);
+            assertEquals("以前の状態が保たれていること", "conversation", conversation
+                    .getName());
+            assertEquals("以前の状態が保たれていること", "phase1", conversation.getPhase());
+        }
+    }
 }
