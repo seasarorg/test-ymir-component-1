@@ -8,12 +8,16 @@ public class StringUtils {
     }
 
     public static String getScopeKey(Object scope) {
+        return getScopeKey(scope, false);
+    }
+
+    public static String getScopeKey(Object scope, boolean local) {
         if (scope == null) {
             return null;
         }
 
         return generateKey(String.valueOf(System.identityHashCode(scope)),
-                false);
+                local);
     }
 
     public static String generateLocalKey(Object scope) {

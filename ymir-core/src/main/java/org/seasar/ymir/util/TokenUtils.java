@@ -10,7 +10,7 @@ public class TokenUtils {
     public static String generateToken(HttpServletRequest request) {
         HttpSession session = request.getSession();
         try {
-            return StringUtils.getScopeKey(session.getId());
+            return StringUtils.getScopeKey(session.getId(), true);
         } catch (IllegalStateException ex) {
             return null;
         }
