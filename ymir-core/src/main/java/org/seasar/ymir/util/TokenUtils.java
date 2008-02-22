@@ -21,7 +21,9 @@ public class TokenUtils {
         if (session == null) {
             return null;
         } else {
-            return (String) session.getAttribute(tokenKey);
+            synchronized (session.getId().intern()) {
+                return (String) session.getAttribute(tokenKey);
+            }
         }
     }
 
@@ -43,7 +45,7 @@ public class TokenUtils {
                 return false;
             }
             if (reset) {
-                session.removeAttribute(tokenKey);
+                resetToken(request, tokenKey);
             }
 
             String token = request.getParameter(tokenKey);
@@ -58,7 +60,9 @@ public class TokenUtils {
     public static void resetToken(HttpServletRequest request, String tokenKey) {
         HttpSession session = request.getSession(false);
         if (session != null) {
-            session.removeAttribute(tokenKey);
+            synchronized (session.getId().intern()) {
+                session.removeAttribute(tokenKey);
+            }
         }
     }
 
@@ -77,9 +81,11 @@ public class TokenUtils {
             session = request.getSession();
         }
 
-        String token = generateToken(request);
-        if (token != null) {
-            session.setAttribute(tokenKey, token);
+        synchronized (session.getId().intern()) {
+            String token = generateToken(request);
+            if (token != null) {
+                session.setAttribute(tokenKey, token);
+            }
         }
     }
 }

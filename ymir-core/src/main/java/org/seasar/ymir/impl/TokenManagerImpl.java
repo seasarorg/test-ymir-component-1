@@ -22,6 +22,10 @@ public class TokenManagerImpl implements TokenManager {
         applicationManager_ = applicationManager;
     }
 
+    public ApplicationManager getApplicationManager() {
+        return applicationManager_;
+    }
+
     public String getTokenKey() {
         return tokenKey_;
     }
@@ -31,7 +35,7 @@ public class TokenManagerImpl implements TokenManager {
     }
 
     public Token newToken() {
-        return new TokenImpl(getRequest());
+        return new TokenImpl();
     }
 
     public String generateToken() {
@@ -62,21 +66,15 @@ public class TokenManagerImpl implements TokenManager {
         TokenUtils.saveToken(getRequest(), tokenKey, force);
     }
 
-    HttpServletRequest getRequest() {
+    protected HttpServletRequest getRequest() {
         return (HttpServletRequest) applicationManager_
                 .findContextApplication().getS2Container().getComponent(
                         HttpServletRequest.class);
     }
 
-    class TokenImpl implements Token {
-        private HttpServletRequest request_;
-
-        public TokenImpl(HttpServletRequest request) {
-            request_ = request;
-        }
-
+    protected class TokenImpl implements Token {
         public boolean exists() {
-            return (TokenUtils.getToken(request_, getTokenKey()) != null);
+            return (getToken(getTokenKey()) != null);
         };
 
         public String getName() {
@@ -84,8 +82,8 @@ public class TokenManagerImpl implements TokenManager {
         }
 
         public String getValue() {
-            TokenUtils.saveToken(request_, getTokenKey(), false);
-            return TokenUtils.getToken(request_, getTokenKey());
+            saveToken(getTokenKey(), false);
+            return getToken(getTokenKey());
         }
     }
 }
