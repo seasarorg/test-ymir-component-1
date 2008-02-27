@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.util.ContainerUtils;
 
 import net.skirnir.freyja.zpt.MetalTagEvaluator;
 
@@ -53,8 +54,8 @@ public class YmirTagEvaluator extends MetalTagEvaluator {
     }
 
     TagRenderingInterceptor[] gatherTagRenderingInterceptors() {
-        return (TagRenderingInterceptor[]) getS2Container().findAllComponents(
-                TagRenderingInterceptor.class);
+        return (TagRenderingInterceptor[]) ContainerUtils.findAllComponents(
+                getS2Container(), TagRenderingInterceptor.class);
     }
 
     S2Container getS2Container() {

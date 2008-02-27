@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.util.ContainerUtils;
 
 import net.skirnir.freyja.Element;
 import net.skirnir.freyja.TagElement;
@@ -58,8 +59,8 @@ public class YmirTemplateParser extends TemplateParserImpl {
     }
 
     TemplateParsingInterceptor[] gatherTemplateParsingInterceptors() {
-        return (TemplateParsingInterceptor[]) getS2Container()
-                .findAllComponents(TemplateParsingInterceptor.class);
+        return (TemplateParsingInterceptor[]) ContainerUtils.findAllComponents(
+                getS2Container(), TemplateParsingInterceptor.class);
     }
 
     S2Container getS2Container() {

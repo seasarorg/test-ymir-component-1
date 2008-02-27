@@ -2,6 +2,7 @@ package org.seasar.ymir.zpt;
 
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.util.ContainerUtils;
 
 import net.skirnir.freyja.Attribute;
 import net.skirnir.freyja.TagRenderer;
@@ -24,8 +25,8 @@ public class YmirTagRenderer implements TagRenderer {
     }
 
     TagRenderingInterceptor[] gatherTagRenderingInterceptors() {
-        return (TagRenderingInterceptor[]) getS2Container().findAllComponents(
-                TagRenderingInterceptor.class);
+        return (TagRenderingInterceptor[]) ContainerUtils.findAllComponents(
+                getS2Container(), TagRenderingInterceptor.class);
     }
 
     private TagRenderingInterceptorChain newChain(
