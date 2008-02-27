@@ -6,7 +6,8 @@
   <component
     class="org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container">
     <property name="creators">
-      container.findLocalComponents(@org.seasar.framework.container.ComponentCreator@class)
+      @org.seasar.cms.pluggable.util.ContainerUtils@findLocalComponents(container,
+      @org.seasar.framework.container.ComponentCreator@class)
     </property>
   </component>
 </components>

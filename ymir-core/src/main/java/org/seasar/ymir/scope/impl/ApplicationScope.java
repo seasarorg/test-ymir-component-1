@@ -2,6 +2,8 @@ package org.seasar.ymir.scope.impl;
 
 import javax.servlet.ServletContext;
 
+import org.seasar.ymir.util.ContainerUtils;
+
 public class ApplicationScope extends AbstractServletScope {
     public Object getAttribute(String name) {
         return getServletContext().getAttribute(name);
@@ -12,6 +14,6 @@ public class ApplicationScope extends AbstractServletScope {
     }
 
     ServletContext getServletContext() {
-        return (ServletContext) getExternalContext().getApplication();
+        return ContainerUtils.getServletContext(container_.getRoot());
     }
 }

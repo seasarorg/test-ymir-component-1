@@ -1,6 +1,5 @@
 package org.seasar.ymir.conversation.impl;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.seasar.framework.container.S2Container;
@@ -11,6 +10,7 @@ import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.conversation.ConversationManager;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
+import org.seasar.ymir.util.ContainerUtils;
 
 public class ConversationManagerImpl implements ConversationManager {
     private S2Container container_;
@@ -74,7 +74,7 @@ public class ConversationManagerImpl implements ConversationManager {
     }
 
     HttpSession getSession(boolean create) {
-        return ((HttpServletRequest) getS2Container().getExternalContext()
-                .getRequest()).getSession(create);
+        return ContainerUtils.getHttpServletRequest(getS2Container())
+                .getSession(create);
     }
 }

@@ -10,11 +10,9 @@ import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.YmirContext;
 
-public class ContainerUtils {
+public class ContainerUtils extends
+        org.seasar.cms.pluggable.util.ContainerUtils {
     private static S2Container container_;
-
-    protected ContainerUtils() {
-    }
 
     // for test
     static void setS2Container(S2Container container) {
@@ -33,27 +31,15 @@ public class ContainerUtils {
             Object componentKey) {
         ComponentDef[] componentDefs = findAllAndAscendantComponentDefs(
                 container, componentKey);
-
-        Class clazz;
-        if (componentKey instanceof Class) {
-            clazz = (Class) componentKey;
-        } else {
-            clazz = Object.class;
-        }
-        Object[] objs = (Object[]) Array.newInstance(clazz,
-                componentDefs.length);
-        for (int i = 0; i < objs.length; i++) {
-            objs[i] = componentDefs[i].getComponent();
-        }
-        return objs;
+        return toComponents(componentKey, componentDefs);
     }
 
     public static ComponentDef[] findAllAndAscendantComponentDefs(
             S2Container container, Object componentKey) {
         synchronized (container.getRoot()) {
             Set<ComponentDef> componentDefSet = new LinkedHashSet<ComponentDef>();
-            componentDefSet.addAll(Arrays.asList(container
-                    .findAllComponentDefs(componentKey)));
+            componentDefSet.addAll(Arrays.asList(findAllComponentDefs(
+                    container, componentKey)));
             componentDefSet.addAll(Arrays.asList(PluggableUtils
                     .findAscendantComponentDefs(container, componentKey)));
             return componentDefSet.toArray(new ComponentDef[0]);

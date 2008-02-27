@@ -11,7 +11,6 @@ import java.util.Map;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.framework.container.hotdeploy.HotdeployClassLoader;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
@@ -19,6 +18,8 @@ import org.seasar.ymir.hotdeploy.fitter.HotdeployFitter;
 import org.seasar.ymir.util.ContainerUtils;
 
 public class HotdeployManagerImpl implements HotdeployManager {
+    private static final String CLASS_HOTDEPLOYCLASSLOADER = "org.seasar.framework.container.hotdeploy.HotdeployClassLoader";
+
     private HotdeployFitter<?>[] hotdeployFitters_ = new HotdeployFitter<?>[0];
 
     private ApplicationManager applicationManager_;
@@ -100,8 +101,8 @@ public class HotdeployManagerImpl implements HotdeployManager {
                 .getRelatedObject(HotdeployFitterBag.class);
         if (fitterBag == null) {
             fitterBag = new HotdeployFitterBag(ContainerUtils.merge(
-                    hotdeployFitters_, (HotdeployFitter[]) application
-                            .getS2Container().findAllComponents(
+                    hotdeployFitters_, (HotdeployFitter[]) ContainerUtils
+                            .findAllComponents(application.getS2Container(),
                                     HotdeployFitter.class)));
             application.setRelatedObject(HotdeployFitterBag.class, fitterBag);
         }
@@ -183,7 +184,10 @@ public class HotdeployManagerImpl implements HotdeployManager {
     }
 
     boolean isHotdeployClass(Class<?> clazz) {
-        return clazz.getClassLoader() instanceof HotdeployClassLoader;
+        ClassLoader classLoader = clazz.getClassLoader();
+        return classLoader != null
+                && classLoader.getClass().getName().equals(
+                        CLASS_HOTDEPLOYCLASSLOADER);
     }
 
     static class HotdeployFitterBag {

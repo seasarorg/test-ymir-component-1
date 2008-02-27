@@ -12,6 +12,7 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.LocaleManager;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.util.ContainerUtils;
 
 public class LocaleManagerImpl implements LocaleManager {
     private ApplicationManager applicationManager_;
@@ -57,8 +58,7 @@ public class LocaleManagerImpl implements LocaleManager {
     }
 
     HttpServletRequest getHttpServletRequest() {
-        return (HttpServletRequest) getS2Container().getRoot()
-                .getExternalContext().getRequest();
+        return ContainerUtils.getHttpServletRequest(getS2Container().getRoot());
     }
 
     public void setLocale(Locale locale) {

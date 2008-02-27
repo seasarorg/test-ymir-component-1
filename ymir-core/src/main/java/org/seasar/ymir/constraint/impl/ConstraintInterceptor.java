@@ -47,6 +47,7 @@ import org.seasar.ymir.impl.MethodInvokerImpl;
 import org.seasar.ymir.impl.VoidMethodInvoker;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.util.ClassUtils;
+import org.seasar.ymir.util.ContainerUtils;
 import org.seasar.ymir.util.MethodUtils;
 
 /**
@@ -231,8 +232,8 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         ConstraintBag<?>[] bags = application
                 .getRelatedObject(ConstraintBag[].class);
         if (bags == null) {
-            ComponentDef[] bundleCds = application.getS2Container()
-                    .findAllComponentDefs(ConstraintBundle.class);
+            ComponentDef[] bundleCds = ContainerUtils.findAllComponentDefs(
+                    application.getS2Container(), ConstraintBundle.class);
             List<ConstraintBag<?>> list = new ArrayList<ConstraintBag<?>>();
             for (int i = 0; i < bundleCds.length; i++) {
                 createConstraintBags(bundleCds[i].getComponentClass(),

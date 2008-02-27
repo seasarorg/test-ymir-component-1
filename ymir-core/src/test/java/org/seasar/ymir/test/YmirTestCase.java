@@ -26,7 +26,6 @@ import junit.framework.TestCase;
 
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.cms.pluggable.ThreadContext;
-import org.seasar.framework.container.ExternalContext;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.mock.servlet.MockHttpServletRequest;
@@ -50,6 +49,7 @@ import org.seasar.ymir.test.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.ymir.test.mock.servlet.MockHttpServletResponse;
 import org.seasar.ymir.test.mock.servlet.MockHttpServletResponseImpl;
 import org.seasar.ymir.test.mock.servlet.MockServletContextImpl;
+import org.seasar.ymir.util.ContainerUtils;
 
 abstract public class YmirTestCase extends TestCase {
     /** リクエストの処理が開始された直後であることを表す定数です。 */
@@ -374,9 +374,8 @@ abstract public class YmirTestCase extends TestCase {
         httpRequest_.setLocale(getLocale());
         httpResponse_ = new MockHttpServletResponseImpl(httpRequest_);
 
-        ExternalContext externalContext = container_.getExternalContext();
-        externalContext.setRequest(httpRequest_);
-        externalContext.setResponse(httpResponse_);
+        ContainerUtils.setRequest(container_, httpRequest_);
+        ContainerUtils.setResponse(container_, httpResponse_);
 
         status_ = STATUS_PREPARED;
 
@@ -399,9 +398,8 @@ abstract public class YmirTestCase extends TestCase {
 
         ymir_.updateRequest(request_, httpRequest_, dispatcher);
 
-        ExternalContext externalContext = container_.getExternalContext();
-        externalContext.setRequest(httpRequest_);
-        externalContext.setResponse(httpResponse_);
+        ContainerUtils.setRequest(container_, httpRequest_);
+        ContainerUtils.setResponse(container_, httpResponse_);
 
         status_ = STATUS_PREPARED;
 

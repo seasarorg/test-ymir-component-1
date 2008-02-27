@@ -2,8 +2,9 @@ package org.seasar.ymir.impl;
 
 import javax.servlet.ServletContext;
 
-import org.seasar.ymir.MimeTypeDetector;
 import org.seasar.framework.container.S2Container;
+import org.seasar.ymir.MimeTypeDetector;
+import org.seasar.ymir.util.ContainerUtils;
 
 public class ServletMimeTypeDetector implements MimeTypeDetector {
 
@@ -16,10 +17,10 @@ public class ServletMimeTypeDetector implements MimeTypeDetector {
 
     public String getMimeType(String name) {
 
-        Object application = container_.getRoot().getExternalContext()
-                .getApplication();
-        if (application instanceof ServletContext) {
-            return ((ServletContext) application).getMimeType(name);
+        ServletContext application = ContainerUtils
+                .getServletContext(container_.getRoot());
+        if (application != null) {
+            return application.getMimeType(name);
         } else {
             return null;
         }

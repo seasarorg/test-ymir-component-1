@@ -10,6 +10,7 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.Attribute;
 import org.seasar.ymir.SessionManager;
+import org.seasar.ymir.util.ContainerUtils;
 
 public class SessionManagerImpl implements SessionManager {
     private S2Container container_;
@@ -78,7 +79,6 @@ public class SessionManagerImpl implements SessionManager {
     }
 
     HttpServletRequest getHttpServletRequest() {
-        return (HttpServletRequest) container_.getRoot().getExternalContext()
-                .getRequest();
+        return ContainerUtils.getHttpServletRequest(container_.getRoot());
     }
 }

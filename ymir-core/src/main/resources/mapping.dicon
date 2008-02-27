@@ -5,7 +5,8 @@
   <include path="ymir-component.dicon" />
   <component class="org.seasar.ymir.impl.PathMappingProviderImpl">
     <property name="pathMappings">
-      container.findLocalComponents(@org.seasar.ymir.PathMapping@class)
+      @org.seasar.cms.pluggable.util.ContainerUtils@findLocalComponents(container,
+      @org.seasar.ymir.PathMapping@class)
     </property>
   </component>
   <component class="org.seasar.ymir.impl.PathMappingImpl">
