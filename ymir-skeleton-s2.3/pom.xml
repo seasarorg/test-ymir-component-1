@@ -9,9 +9,9 @@
     <version>0.9.6-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.seasar.ymir</groupId>
-  <artifactId>ymir-skeleton</artifactId>
-  <name>Ymir Skeleton</name>
+  <groupId>org.seasar.ymir.skeleton</groupId>
+  <artifactId>ymir-skeleton-s2.3</artifactId>
+  <name>Ymir Skeleton for Seasar2.3</name>
   <description>
     This is a project to generate Ymir application skeleton to start
     developing Ymir application smoothly.
