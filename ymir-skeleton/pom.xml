@@ -9,7 +9,7 @@
     <version>0.9.6-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.seasar.ymir</groupId>
+  <groupId>org.seasar.ymir.skeleton</groupId>
   <artifactId>ymir-skeleton</artifactId>
   <name>Ymir Skeleton</name>
   <description>
