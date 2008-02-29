@@ -54,7 +54,7 @@
   </repositories>
   <dependencies>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.seasar.ymir</groupId>
       <artifactId>ymir-extension</artifactId>
       <version>${project.version}</version>
     </dependency>
