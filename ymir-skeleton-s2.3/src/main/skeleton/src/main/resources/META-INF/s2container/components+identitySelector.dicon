@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
+  "http://www.seasar.org/dtd/components24.dtd">
+<components>
+  <component name="identitySelector"
+    class="org.seasar.cms.database.identity.impl.IdentitySelectorImpl">
+    <property name="identities">
+      @org.seasar.cms.pluggable.util.ContainerUtils@findAllComponents(container,
+      @org.seasar.cms.database.identity.Identity@class)
+    </property>
+    <initMethod name="start" />
+    <destroyMethod name="stop" />
+  </component>
+</components>

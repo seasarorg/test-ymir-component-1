@@ -5,7 +5,7 @@
          http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>ymir-skeleton</groupId>
-  <artifactId>ymir-skeleton</artifactId>
+  <artifactId>ymir-skeleton-s2.3</artifactId>
   <packaging>war</packaging>
   <name>Application Skeleton</name>
   <version>0.0.1</version>
@@ -71,17 +71,62 @@
       <groupId>org.seasar.ymir</groupId>
       <artifactId>ymir-extension</artifactId>
       <version>0.9.6-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.seasar.dao</groupId>
-      <artifactId>s2-dao-tiger</artifactId>
-      <version>1.0.46</version>
       <exclusions>
+        <exclusion>
+          <groupId>org.seasar.container</groupId>
+          <artifactId>s2-framework</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>org.seasar.container</groupId>
           <artifactId>s2-extension</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.seasar.container</groupId>
+          <artifactId>s2-tiger</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.seasar.cms.s2-pluggable</groupId>
+          <artifactId>s2-pluggable</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.seasar.cms.s2-classbuilder</groupId>
+          <artifactId>s2-classbuilder</artifactId>
+        </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.container</groupId>
+      <artifactId>s2-tiger</artifactId>
+      <version>2.3.23</version>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.dao</groupId>
+      <artifactId>s2-dao-tiger</artifactId>
+      <version>1.0.47</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.seasar.container</groupId>
+          <artifactId>s2-framework</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.seasar.container</groupId>
+          <artifactId>s2-extension</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.seasar.container</groupId>
+          <artifactId>s2-tiger</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.cms.s2-pluggable</groupId>
+      <artifactId>s2.3-pluggable</artifactId>
+      <version>0.0.9-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.cms.s2-classbuilder</groupId>
+      <artifactId>s2.3-classbuilder</artifactId>
+      <version>0.0.6-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>

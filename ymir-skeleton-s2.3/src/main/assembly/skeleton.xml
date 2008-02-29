@@ -9,13 +9,13 @@
   <fileSets>
     <fileSet>
       <directory>src/main/skeleton</directory>
-      <outputDirectory>ymir-skeleton</outputDirectory>
+      <outputDirectory>ymir-skeleton-s2.3</outputDirectory>
     </fileSet>
   </fileSets>
   <dependencySets>
     <dependencySet>
       <outputDirectory>
-        ymir-skeleton/src/main/webapp/WEB-INF/lib
+        ymir-skeleton-s2.3/src/main/webapp/WEB-INF/lib
       </outputDirectory>
       <scope>runtime</scope>
     </dependencySet>
