@@ -31,6 +31,7 @@ import org.seasar.ymir.Updater;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.Include;
+import org.seasar.ymir.constraint.ActionNotFoundException;
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
@@ -204,7 +205,8 @@ public class RequestProcessorImpl implements RequestProcessor {
                     // ただしforwardの時はアクションがなくても良いことにしている。
                     // これは、forward先のパスに対応するPageクラスでは_render()だけ
                     // 呼びたい場合にアクションメソッドを省略できるようにするため。
-                    throw new PermissionDeniedException("Action not found");
+                    throw new ActionNotFoundException(dispatch
+                            .getMatchedPathMapping().getActionName());
                 }
                 dispatch.setAction(action);
 
