@@ -11,9 +11,9 @@ import junit.framework.TestCase;
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageMetaData;
+import org.seasar.ymir.impl.BeanUtilsTypeConversionManager;
 import org.seasar.ymir.impl.PageComponentImpl;
 import org.seasar.ymir.impl.PageMetaDataImpl;
-import org.seasar.ymir.impl.TypeConversionManagerImpl;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
 import org.seasar.ymir.test.mock.servlet.MockHttpServletRequestImpl;
@@ -45,7 +45,7 @@ public class JSONInterceptorTest extends TestCase {
                 };
             }
         };
-        target.setTypeConversionManager(new TypeConversionManagerImpl());
+        target.setTypeConversionManager(new BeanUtilsTypeConversionManager());
 
         MockRequest request = new MockRequest();
         MockDispatch dispatch = new MockDispatch();
