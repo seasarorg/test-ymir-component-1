@@ -3,6 +3,8 @@ package org.seasar.ymir.response.constructor.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
 
@@ -33,6 +35,7 @@ public class ResponseConstructorSelectorImpl implements
         constructorMap_.put(constructor.getTargetClass(), constructor);
     }
 
+    @Binding(value = "@org.seasar.ymir.util.ContainerUtils@findAllComponents(container, @org.seasar.ymir.response.constructor.ResponseConstructor@class)", bindingType = BindingType.MUST)
     public void setResponseConstructors(ResponseConstructor[] constructors) {
 
         for (int i = 0; i < constructors.length; i++) {

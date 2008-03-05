@@ -94,6 +94,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         updaters_ = updaters;
     }
 
+    @Binding(value = "@org.seasar.ymir.util.ContainerUtils@findAllComponents(container, @org.seasar.ymir.interceptor.YmirProcessInterceptor@class)", bindingType = BindingType.MUST)
     public void setYmirProcessInterceptors(
             YmirProcessInterceptor[] ymirProcessInterceptors) {
         ymirProcessInterceptors_ = ymirProcessInterceptors;

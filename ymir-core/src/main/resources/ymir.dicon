@@ -62,21 +62,25 @@
   <component name="pageProcessor"
     class="org.seasar.ymir.impl.PageProcessorImpl" />
   <component name="responseProcessor"
-    class="org.seasar.ymir.impl.ResponseProcessorImpl" />
+    class="org.seasar.ymir.impl.ResponseProcessorImpl">
+    <property name="updaters" bindingType="none">
+      <meta name="delayed">
+        @org.seasar.ymir.util.ContainerUtils@findAllAndAscendantComponents(container,
+        @org.seasar.ymir.Updater@class)
+      </meta>
+    </property>
+  </component>
   <component name="exceptionProcessor"
-    class="org.seasar.ymir.impl.ExceptionProcessorImpl" />
-  <component
-    class="org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl">
-    <property name="responseConstructors">
-      @org.seasar.ymir.util.ContainerUtils@findAllComponents(container,
-      @org.seasar.ymir.response.constructor.ResponseConstructor@class)
+    class="org.seasar.ymir.impl.ExceptionProcessorImpl">
+    <property name="updaters" bindingType="none">
+      <meta name="delayed">
+        @org.seasar.ymir.util.ContainerUtils@findAllAndAscendantComponents(container,
+        @org.seasar.ymir.Updater@class)
+      </meta>
     </property>
   </component>
   <component
-    class="org.seasar.ymir.response.scheme.impl.StrategySelectorImpl">
-    <property name="strategies">
-      @org.seasar.ymir.util.ContainerUtils@findAllComponents(container,
-      @org.seasar.ymir.response.scheme.Strategy@class)
-    </property>
-  </component>
+    class="org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl" />
+  <component
+    class="org.seasar.ymir.response.scheme.impl.StrategySelectorImpl" />
 </components>

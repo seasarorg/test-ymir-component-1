@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.cms.pluggable.ThreadContext;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.log.Logger;
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.Application;
@@ -66,29 +68,35 @@ public class YmirImpl implements Ymir {
         lifecycleListeners_ = lifecycleListeners;
     }
 
+    @Binding(bindingType = BindingType.MUST)
     public void setRequestProcessor(final RequestProcessor requestProcessor) {
         requestProcessor_ = requestProcessor;
     }
 
+    @Binding(bindingType = BindingType.MUST)
     public void setResponseProcessor(final ResponseProcessor responseProcessor) {
         responseProcessor_ = responseProcessor;
     }
 
+    @Binding(bindingType = BindingType.MUST)
     public void setExceptionProcessor(
             final ExceptionProcessor exceptionProcessor) {
         exceptionProcessor_ = exceptionProcessor;
     }
 
+    @Binding(value = "@org.seasar.ymir.util.ContainerUtils@findAllComponents(container, @org.seasar.ymir.interceptor.YmirProcessInterceptor@class)", bindingType = BindingType.MUST)
     public void setYmirProcessInterceptors(
             final YmirProcessInterceptor[] ymirProcessInterceptors) {
         ymirProcessInterceptors_ = ymirProcessInterceptors;
         YmirUtils.sortYmirProcessInterceptors(ymirProcessInterceptors_);
     }
 
+    @Binding(bindingType = BindingType.MUST)
     public void setConfiguration(final Configuration configuration) {
         configuration_ = configuration;
     }
 
+    @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(
             final ApplicationManager applicationManager) {
         applicationManager_ = applicationManager;

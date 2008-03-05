@@ -29,7 +29,6 @@ import org.seasar.ymir.Notes;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.annotation.SuppressConstraints;
 import org.seasar.ymir.annotation.Validator;
@@ -70,17 +69,9 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
     private ApplicationManager applicationManager_;
 
-    private TypeConversionManager typeConversionManager_;
-
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
         applicationManager_ = applicationManager;
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setTypeConversionManager(
-            TypeConversionManager typeConversionManager) {
-        typeConversionManager_ = typeConversionManager;
     }
 
     @Override
