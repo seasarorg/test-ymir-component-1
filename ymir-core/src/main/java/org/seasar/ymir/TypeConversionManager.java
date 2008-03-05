@@ -11,5 +11,7 @@ public interface TypeConversionManager {
 
     <T> T convert(String value, Class<T> type);
 
+    <T> T[] convert(String[] values, Class<T> type);
+
     String convert(Object value);
 }

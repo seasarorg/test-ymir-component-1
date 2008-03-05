@@ -375,11 +375,32 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             if (i < actionParameters.length) {
                 parameters[i] = actionParameters[i];
             } else {
-                parameters[i] = typeConversionManager_.convert(null,
-                        parameterTypes[i]);
+                parameters[i] = getDefaultValue(parameterTypes[i]);
             }
         }
         return new MethodInvokerImpl(method, parameters);
+    }
+
+    Object getDefaultValue(Class<?> type) {
+        if (type == Byte.TYPE) {
+            return Byte.valueOf((byte) 0);
+        } else if (type == Short.TYPE) {
+            return Short.valueOf((short) 0);
+        } else if (type == Integer.TYPE) {
+            return Integer.valueOf(0);
+        } else if (type == Long.TYPE) {
+            return Long.valueOf(0l);
+        } else if (type == Float.TYPE) {
+            return Float.valueOf(0f);
+        } else if (type == Double.TYPE) {
+            return Double.valueOf(0d);
+        } else if (type == Character.TYPE) {
+            return Character.valueOf('\0');
+        } else if (type == Boolean.TYPE) {
+            return Boolean.FALSE;
+        } else {
+            return null;
+        }
     }
 
     protected S2Container getS2Container() {

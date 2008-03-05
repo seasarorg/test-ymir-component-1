@@ -12,7 +12,7 @@ public class FormFileArrayConverter implements Converter {
         } else if (value instanceof FormFile) {
             return new FormFile[] { (FormFile) value };
         } else {
-            return null;
+            return new FormFile[0];
         }
     }
 }

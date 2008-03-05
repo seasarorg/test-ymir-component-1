@@ -22,7 +22,7 @@ public class PathMappingImplTest extends TestCase {
         target_ = new PathMappingImpl("^/([a-zA-Z][a-zA-Z0-9]*)\\.(html|do)$",
                 "${1}Page", "_${method}", "", "/${1}.html",
                 "^_([a-zA-Z][a-zA-Z0-9]*)$", null);
-        target_.setTypeConversionManager(new TypeConversionManagerImpl());
+        target_.setTypeConversionManager(new BeanUtilsTypeConversionManager());
     }
 
     public void testGetAction_親のボタン用アクション・子のボタン用のアクション・親の通常アクション・子の通常アクションの順で探索すること()
@@ -148,7 +148,7 @@ public class PathMappingImplTest extends TestCase {
                 "^/article/([^/]*)/([^/]*)\\.html$", "articlePage",
                 "_${method}", "", "", "^_([a-zA-Z][a-zA-Z0-9]*)$",
                 "category=${1};sequence=${2}");
-        target.setTypeConversionManager(new TypeConversionManagerImpl());
+        target.setTypeConversionManager(new BeanUtilsTypeConversionManager());
 
         Map<String, String[]> actual = target.getParameterMap(target.match(
                 "/article/science&technology/15.html", Request.METHOD_GET));
