@@ -25,7 +25,7 @@
   <component name="hotdeployManager"
     class="org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl" />
   <component name="typeConversionManager"
-    class="org.seasar.ymir.impl.TypeConversionManagerImpl" />
+    class="org.seasar.ymir.impl.BeanUtilsTypeConversionManager" />
   <component name="conversationManager"
     class="org.seasar.ymir.conversation.impl.ConversationManagerImpl" />
   <!-- HotdeployFitter -->
