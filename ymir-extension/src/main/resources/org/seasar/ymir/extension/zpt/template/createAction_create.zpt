@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>SYSTEM NOTIFICATION</title>
+  </head>
+  <body onload="document.getElementById('okButton').focus()">
+<h1>SYSTEM NOTIFICATION</h1>
+<div tal:condition="lackingClassNames">
+<p>以下のクラスに関する情報を取得できなかったため、Pageクラス<span tal:replace="pathMetaData/className">CLASSNAME</span>に<span tal:replace="actionName">ACTIONNAME</span>()メソッドを作成できませんでした。</p>
+<ul>
+  <li tal:repeat="className lackingClassNames" tal:content="className"></li>
+</ul>
+</div>
+<div tal:condition="not:lackingClassNames">
+<p>Pageクラス<span tal:replace="pathMetaData/className">CLASSNAME</span>に<span tal:replace="actionName">ACTIONNAME</span>()メソッドを作成しました。</p>
+<p><span tal:condition="not:resourceAutoSynchronized">EclipseでプロジェクトルートをRefreshしてから、</span>以下の「OK」ボタンを押して下さい。</p>
+</div>
+<form tal:attributes="method method; action request/absolutePath">
+  <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
+  <input id="okButton" type="submit" value=" OK " />
+</form>
+  </body>
+</html>

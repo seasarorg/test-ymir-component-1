@@ -16,7 +16,6 @@ import org.seasar.ymir.extension.creator.impl.BodyDescImpl;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
 
 public class CreateClassAction extends AbstractAction implements UpdateAction {
-
     private static final String PARAM_TRANSITION = SourceCreator.PARAM_PREFIX
             + "transition";
 
@@ -28,7 +27,6 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
     }
 
     public Response act(Request request, PathMetaData pathMetaData) {
-
         if (isSkipButtonPushed(request)) {
             return null;
         }
@@ -42,7 +40,6 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
     }
 
     Response actDefault(Request request, PathMetaData pathMetaData) {
-
         String actionName = getSourceCreator().getActionName(
                 request.getCurrentDispatch().getPath(), request.getMethod());
 
@@ -56,7 +53,6 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
     }
 
     Response actCreate(Request request, PathMetaData pathMetaData) {
-
         String method = request.getParameter(PARAM_METHOD);
         if (method == null) {
             return null;

@@ -7,7 +7,6 @@ import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 
 public class LazyPathMetaData implements PathMetaData {
-
     private SourceCreator sourceCreator_;
 
     private String path_;
@@ -46,7 +45,6 @@ public class LazyPathMetaData implements PathMetaData {
 
     public LazyPathMetaData(SourceCreator sourceCreator, String path,
             String method, String forwardPath) {
-
         sourceCreator_ = sourceCreator;
         path_ = path;
         method_ = method;
@@ -66,22 +64,18 @@ public class LazyPathMetaData implements PathMetaData {
     }
 
     public String getMethod() {
-
         return method_;
     }
 
     public String getPath() {
-
         return path_;
     }
 
     public String getForwardPath() {
-
         return forwardPath_;
     }
 
     public boolean isDenied() {
-
         if (!deniedLoaded_) {
             denied_ = sourceCreator_.isDenied(path_, method_);
             deniedLoaded_ = true;
@@ -90,7 +84,6 @@ public class LazyPathMetaData implements PathMetaData {
     }
 
     public String getComponentName() {
-
         // forward先のパスに対応するクラスがあればforward先のパスからコンポーネント名を
         // 組み立てる。そうでなければリクエストパスからコンポーネント名を組み立てる。
         // 基本的にYmirではforward先のテンプレート中の動的要素のレンダリングのための準備を
@@ -115,7 +108,6 @@ public class LazyPathMetaData implements PathMetaData {
     }
 
     public String getClassName() {
-
         if (!classNameLoaded_) {
             className_ = sourceCreator_.getClassName(getComponentName());
             classNameLoaded_ = true;
@@ -124,7 +116,6 @@ public class LazyPathMetaData implements PathMetaData {
     }
 
     public String getActionName() {
-
         if (!actionNameLoaded_) {
             actionName_ = sourceCreator_.getActionName(path_, method_);
             actionNameLoaded_ = true;
@@ -133,7 +124,6 @@ public class LazyPathMetaData implements PathMetaData {
     }
 
     public File getBaseSourceFile() {
-
         if (!baseSourceFileLoaded_) {
             baseSourceFile_ = sourceCreator_.getSourceFile(getClassName()
                     + "Base");
@@ -143,7 +133,6 @@ public class LazyPathMetaData implements PathMetaData {
     }
 
     public File getSourceFile() {
-
         if (!sourceFileLoaded_) {
             sourceFile_ = sourceCreator_.getSourceFile(getClassName());
             sourceFileLoaded_ = true;
@@ -152,7 +141,6 @@ public class LazyPathMetaData implements PathMetaData {
     }
 
     public Template getTemplate() {
-
         if (!templateLoaded_) {
             if (forwardPath_ != null) {
                 template_ = sourceCreator_.getTemplate(forwardPath_);

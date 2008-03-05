@@ -130,6 +130,10 @@ public class MockSourceCreator implements SourceCreator {
     public void updateClasses(ClassDescBag classDescBag, boolean mergeMethod) {
     }
 
+    public void updateClass(ClassDesc classDesc, boolean mergeMethod)
+            throws InvalidClassDescException {
+    }
+
     public File getClassesDirectory() {
         return null;
     }

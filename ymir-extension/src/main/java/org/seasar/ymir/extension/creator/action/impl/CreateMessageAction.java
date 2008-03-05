@@ -13,6 +13,7 @@ import org.seasar.kvasir.util.io.impl.FileResource;
 import org.seasar.ymir.MessageNotFoundRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.action.UpdateByExceptionAction;
 
@@ -28,7 +29,7 @@ public class CreateMessageAction extends AbstractAction implements
         super(sourceCreator);
     }
 
-    public Response act(Request request, Throwable t) {
+    public Response act(Request request, PathMetaData pathMetaData, Throwable t) {
         if (!PropertyUtils.valueOf(
                 getSourceCreator().getApplication().getProperty(
                         APPKEY_SOURCECREATOR_FEATURE_CREATEMESSAGE_ENABLE),
@@ -42,13 +43,13 @@ public class CreateMessageAction extends AbstractAction implements
 
         String subTask = request.getParameter(PARAM_SUBTASK);
         if ("create".equals(subTask)) {
-            return actCreate(request, t);
+            return actCreate(request, pathMetaData, t);
         } else {
-            return actDefault(request, t);
+            return actDefault(request, pathMetaData, t);
         }
     }
 
-    Response actDefault(Request request, Throwable t) {
+    Response actDefault(Request request, PathMetaData pathMetaData, Throwable t) {
         MessageNotFoundRuntimeException mnfre = (MessageNotFoundRuntimeException) t;
 
         Map<String, Object> variableMap = newVariableMap();
@@ -60,7 +61,7 @@ public class CreateMessageAction extends AbstractAction implements
                 "createMessage", variableMap);
     }
 
-    Response actCreate(Request request, Throwable t) {
+    Response actCreate(Request request, PathMetaData pathMetaData, Throwable t) {
         MessageNotFoundRuntimeException mnfre = (MessageNotFoundRuntimeException) t;
 
         String method = request.getParameter(PARAM_METHOD);

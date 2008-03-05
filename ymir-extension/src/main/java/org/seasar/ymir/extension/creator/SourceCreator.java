@@ -74,6 +74,9 @@ public interface SourceCreator extends Updater {
 
     void updateClasses(ClassDescBag classDescBag, boolean mergeMethod);
 
+    void updateClass(ClassDesc classDesc, boolean mergeMethod)
+            throws InvalidClassDescException;
+
     Properties getSourceCreatorProperties();
 
     void saveSourceCreatorProperties();

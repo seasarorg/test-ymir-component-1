@@ -67,6 +67,7 @@ import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Metas;
+import org.seasar.ymir.constraint.ActionNotFoundException;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.extension.Globals;
@@ -96,6 +97,7 @@ import org.seasar.ymir.extension.creator.action.Condition;
 import org.seasar.ymir.extension.creator.action.State;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.extension.creator.action.UpdateByExceptionAction;
+import org.seasar.ymir.extension.creator.action.impl.CreateActionAction;
 import org.seasar.ymir.extension.creator.action.impl.CreateClassAction;
 import org.seasar.ymir.extension.creator.action.impl.CreateClassAndTemplateAction;
 import org.seasar.ymir.extension.creator.action.impl.CreateConfigurationAction;
@@ -193,24 +195,24 @@ public class SourceCreatorImpl implements SourceCreator {
                     new CreateMessagesAction(this)).register(
                     MessageNotFoundRuntimeException.class,
                     new CreateMessageAction(this)).register("createMessage",
-                    new CreateMessageAction(this));
+                    new CreateMessageAction(this))
+            .register(ActionNotFoundException.class,
+                    new CreateActionAction(this)).register("createAction",
+                    new CreateActionAction(this));
 
     public Logger logger_ = Logger.getLogger(getClass());
 
     public Response update(Request request, Response response) {
-
         Application application = getApplication();
         if (!shouldUpdate(application)) {
             return response;
         }
 
-        String path = request.getCurrentDispatch().getPath();
-        String forwardPath = null;
-        if (response.getType() == ResponseType.FORWARD) {
-            forwardPath = response.getPath();
-        } else if (response.getType() == ResponseType.PASSTHROUGH) {
-            forwardPath = path;
-        }
+        LazyPathMetaData pathMetaData = createLazyPathMetaData(request,
+                response);
+        String path = pathMetaData.getPath();
+        String forwardPath = pathMetaData.getForwardPath();
+        String method = pathMetaData.getMethod();
 
         if (!shouldUpdate(forwardPath)) {
             return response;
@@ -236,10 +238,6 @@ public class SourceCreatorImpl implements SourceCreator {
                 return response;
             }
         }
-
-        String method = getOriginalMethod(request);
-        PathMetaData pathMetaData = new LazyPathMetaData(this, path, method,
-                forwardPath);
 
         if (condition == null) {
             if (!isAlreadyConfigured(application)) {
@@ -272,8 +270,22 @@ public class SourceCreatorImpl implements SourceCreator {
         return response;
     }
 
-    public Response updateByException(Request request, Throwable t) {
+    LazyPathMetaData createLazyPathMetaData(Request request, Response response) {
+        String path = request.getCurrentDispatch().getPath();
+        String forwardPath = null;
+        if (response != null) {
+            if (response.getType() == ResponseType.FORWARD) {
+                forwardPath = response.getPath();
+            } else if (response.getType() == ResponseType.PASSTHROUGH) {
+                forwardPath = path;
+            }
+        }
 
+        return new LazyPathMetaData(this, path, getOriginalMethod(request),
+                forwardPath);
+    }
+
+    public Response updateByException(Request request, Throwable t) {
         Application application = getApplication();
         if (!shouldUpdate(application)) {
             return null;
@@ -303,12 +315,12 @@ public class SourceCreatorImpl implements SourceCreator {
         if (action == null) {
             return null;
         } else {
-            return action.act(request, t);
+            return action
+                    .act(request, createLazyPathMetaData(request, null), t);
         }
     }
 
     String getOriginalMethod(Request request) {
-
         String originalMethod = request.getParameter(PARAM_METHOD);
         if (originalMethod != null) {
             return originalMethod;
@@ -318,18 +330,17 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public boolean shouldUpdate(Application application) {
-
         return !"false".equals(application
                 .getProperty(APPKEY_SOURCECREATOR_ENABLE));
     }
 
     public boolean shouldUpdate(String path) {
-        return !"false".equals(getApplication().getProperty(
-                APPKEYPREFIX_SOURCECREATOR_ENABLE + path));
+        return path == null
+                || !"false".equals(getApplication().getProperty(
+                        APPKEYPREFIX_SOURCECREATOR_ENABLE + path));
     }
 
     boolean isAlreadyConfigured(Application application) {
-
         if (application.getProjectRoot() == null) {
             return false;
         } else if (!new File(application.getProjectRoot()).exists()) {
@@ -346,7 +357,6 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
             PropertyTypeHintBag hintBag, String[] ignoreVariables) {
-
         Map<String, ClassDesc> classDescMap = new LinkedHashMap<String, ClassDesc>();
         for (int i = 0; i < pathMetaDatas.length; i++) {
             gatherClassDescs(classDescMap, pathMetaDatas[i], hintBag,
@@ -359,7 +369,6 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public void updateClasses(ClassDescBag classDescBag, boolean mergeMethod) {
-
         ClassDescSet classDescSet = classDescBag.getClassDescSet();
 
         writeSourceFiles(classDescBag, ClassDesc.KIND_BEAN, false);
@@ -407,7 +416,6 @@ public class SourceCreatorImpl implements SourceCreator {
     public void gatherClassDescs(Map<String, ClassDesc> classDescMap,
             PathMetaData pathMetaData, PropertyTypeHintBag hintBag,
             String[] ignoreVariables) {
-
         String path = pathMetaData.getPath();
         String method = pathMetaData.getMethod();
         String pageClassName = pathMetaData.getClassName();
@@ -458,7 +466,6 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     ClassDescBag classifyClassDescs(ClassDesc[] classDescs) {
-
         ClassDescBag classDescBag = new ClassDescBag();
         for (int i = 0; i < classDescs.length; i++) {
             if (getClass(classDescs[i].getName()) == null) {
@@ -472,13 +479,11 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public ClassDesc getClassDesc(Class clazz, String className) {
-
         return getClassDesc(clazz, className, true);
     }
 
     public ClassDesc getClassDesc(Class clazz, String className,
             boolean onlyDeclared) {
-
         if (clazz == null) {
             return null;
         }
@@ -658,7 +663,6 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     ClassDesc[] addRelativeClassDescs(ClassDesc[] classDescs) {
-
         Map<String, List<ClassDesc>> pageByDtoMap = new HashMap<String, List<ClassDesc>>();
         for (int i = 0; i < classDescs.length; i++) {
             if (!classDescs[i].isKindOf(ClassDesc.KIND_PAGE)) {
@@ -730,7 +734,6 @@ public class SourceCreatorImpl implements SourceCreator {
     @SuppressWarnings("unchecked")
     void addSelectStatement(MethodDesc methodDesc, PropertyDesc propertyDesc,
             EntityMetaData metaData) {
-
         BodyDesc bodyDesc = methodDesc.getBodyDesc();
         Map<String, Object> root = new HashMap<String, Object>();
         root.put("entityMetaData", metaData);
@@ -751,7 +754,6 @@ public class SourceCreatorImpl implements SourceCreator {
 
     boolean addPropertyIfValid(ClassDesc classDesc, TypeDesc typeDesc,
             int mode, ClassDescSet classDescSet) {
-
         if (DescValidator.validate(typeDesc, classDescSet).isValid()) {
             PropertyDesc propertyDesc = classDesc.addProperty(typeDesc
                     .getInstanceName(), mode);
@@ -765,13 +767,11 @@ public class SourceCreatorImpl implements SourceCreator {
 
     void writeSourceFiles(ClassDescBag classDescBag, String kind,
             boolean mergeMethod) {
-
         ClassDesc[] classDescs = classDescBag.getClassDescs(kind);
+        ClassDescSet classDescSet = classDescBag.getClassDescSet();
         for (int i = 0; i < classDescs.length; i++) {
-            // 既存のクラスがあればマージする。
-            mergeWithExistentClass(classDescs[i], mergeMethod);
             try {
-                writeSourceFile(classDescs[i], classDescBag.getClassDescSet());
+                updateClass(classDescs[i], classDescSet, mergeMethod);
             } catch (InvalidClassDescException ex) {
                 // ソースファイルの生成に失敗した。
                 classDescBag.remove(classDescs[i].getName());
@@ -781,8 +781,19 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    public void mergeWithExistentClass(ClassDesc desc, boolean mergeMethod) {
+    public void updateClass(ClassDesc classDesc, boolean mergeMethod)
+            throws InvalidClassDescException {
+        updateClass(classDesc, null, mergeMethod);
+    }
 
+    void updateClass(ClassDesc classDesc, ClassDescSet classDescSet,
+            boolean mergeMethod) throws InvalidClassDescException {
+        // 既存のクラスがあればマージする。
+        mergeWithExistentClass(classDesc, mergeMethod);
+        writeSourceFile(classDesc, classDescSet);
+    }
+
+    public void mergeWithExistentClass(ClassDesc desc, boolean mergeMethod) {
         String className = desc.getName();
         Class clazz = getClass(className);
         ClassDesc gapDesc = getClassDesc(clazz, className);
@@ -854,7 +865,6 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     void removeModeFrom(PropertyDesc pd, int mode, ClassDesc cd) {
-
         PropertyDesc p = cd.getPropertyDesc(pd.getName());
         if (p != null) {
             if ((p.getMode() & mode) != 0) {
@@ -865,7 +875,6 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public void writeSourceFile(ClassDesc classDesc, ClassDescSet classDescSet)
             throws InvalidClassDescException {
-
         Result result = DescValidator.validate(classDesc, classDescSet);
         if (!result.isValid()) {
             throw new InvalidClassDescException(result.getClassNames());
@@ -923,7 +932,6 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public boolean isDenied(String path, String method) {
-
         if (path == null) {
             return true;
         }
@@ -936,7 +944,6 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public String getComponentName(String path, String method) {
-
         if (path == null) {
             return null;
         }
@@ -950,7 +957,6 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public String getActionName(String path, String method) {
-
         if (path == null) {
             return null;
         }
@@ -964,7 +970,6 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public String getClassName(String componentName) {
-
         if (componentName != null) {
             LocalHotdeployS2Container hotdeployContainer = getApplication()
                     .getHotdeployS2Container();
@@ -978,7 +983,6 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public Class getClass(String className) {
-
         if (className == null) {
             return null;
         }
@@ -996,7 +1000,6 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public PropertyDescriptor getPropertyDescriptor(String className,
             String propertyName) {
-
         Class clazz = getClass(className);
         if (clazz == null || propertyName == null) {
             return null;
@@ -1018,18 +1021,15 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public Template getTemplate(String path) {
-
         return templateProvider_.getTemplate(path);
     }
 
     public File getSourceFile(String className) {
-
         return new File(getSourceDirectory(), className.replace('.', '/')
                 + ".java");
     }
 
     public Properties getSourceCreatorProperties() {
-
         if (sourceCreatorProperties_ == null) {
             sourceCreatorProperties_ = new Properties();
             File file = getSourceCreatorPropertiesFile();
@@ -1054,13 +1054,11 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public File getSourceCreatorPropertiesFile() {
-
         return new File(getResourcesDirectory(), SOURCECREATOR_PROPERTIES);
     }
 
     @SuppressWarnings("unchecked")
     public void saveSourceCreatorProperties() {
-
         if (sourceCreatorProperties_ == null) {
             return;
         }
@@ -1090,12 +1088,10 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public void setNamingConvention(NamingConvention namingConvention) {
-
         namingConvention_ = namingConvention;
     }
 
     public void setYmir(Ymir ymir) {
-
         if (ymir instanceof YmirImpl) {
             ymir_ = (YmirImpl) ymir;
         } else {
@@ -1104,7 +1100,6 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public File getSourceDirectory() {
-
         String sourceDirectory = getApplication().getSourceDirectory();
         if (sourceDirectory != null) {
             return new File(sourceDirectory);
@@ -1114,7 +1109,6 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public File getResourcesDirectory() {
-
         String resourcesDirectory = getApplication().getResourcesDirectory();
         if (resourcesDirectory != null) {
             return new File(resourcesDirectory);
@@ -1124,129 +1118,105 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public File getWebappSourceRoot() {
-
         return new File(getApplication().getWebappSourceRoot());
     }
 
     public TemplateAnalyzer getTemplateAnalyzer() {
-
         return analyzer_;
     }
 
     public void setTemplateAnalyzer(TemplateAnalyzer analyzer) {
-
         analyzer_ = analyzer;
     }
 
     public void setClassDescModifiers(ClassDescModifier[] classDescModifiers) {
-
         classDescModifiers_ = classDescModifiers;
     }
 
     public String getSourceEncoding() {
-
         return sourceEncoding_;
     }
 
     public void setSourceEncoding(String sourceEncoding) {
-
         sourceEncoding_ = sourceEncoding;
     }
 
     public String getRootPackageName() {
-
         return getApplication().getRootPackageName();
     }
 
     public String getPagePackageName() {
-
         return getRootPackageName() + "."
                 + namingConvention_.getSubApplicationRootPackageName();
     }
 
     public String getDtoPackageName() {
-
         return getRootPackageName() + "."
                 + namingConvention_.getDtoPackageName();
     }
 
     public String getDaoPackageName() {
-
         return getRootPackageName() + "."
                 + namingConvention_.getDaoPackageName();
     }
 
     public String getDxoPackageName() {
-
         return getRootPackageName() + "."
                 + namingConvention_.getDxoPackageName();
     }
 
     public SourceGenerator getSourceGenerator() {
-
         return sourceGenerator_;
     }
 
     public void setSourceGenerator(SourceGenerator sourceGenerator) {
-
         sourceGenerator_ = sourceGenerator;
     }
 
     public ResponseCreator getResponseCreator() {
-
         return responseCreator_;
     }
 
     public void setResponseCreator(ResponseCreator responseCreator) {
-
         responseCreator_ = responseCreator;
     }
 
     public Application getApplication() {
-
         return applicationManager_.findContextApplication();
     }
 
     public ServletContext getServletContext() {
-
         return (ServletContext) getRootS2Container().getComponent(
                 ServletContext.class);
     }
 
     public HttpServletRequest getHttpServletRequest() {
-
         return (HttpServletRequest) getRootS2Container().getComponent(
                 HttpServletRequest.class);
     }
 
     public HttpServletResponse getHttpServletResponse() {
-
         return (HttpServletResponse) getRootS2Container().getComponent(
                 HttpServletResponse.class);
     }
 
     S2Container getS2Container() {
-
         return getApplication().getS2Container();
     }
 
     S2Container getRootS2Container() {
-
         return SingletonS2ContainerFactory.getContainer();
     }
 
     public void registerUpdateAction(Object condition, UpdateAction updateAction) {
-
         actionSelector_.register(condition, updateAction);
     }
 
     public void setApplicationManager(ApplicationManager applicationManager) {
-
         applicationManager_ = applicationManager;
     }
 
     public ClassDesc newClassDesc(String className) {
-
         // booleanとかのクラスについてはSimpleClassDescを返した方が都合が良いのでこうしている。
         if (className.indexOf('.') < 0) {
             return new SimpleClassDesc(className);
@@ -1294,12 +1264,10 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public TemplateProvider getTemplateProvider() {
-
         return templateProvider_;
     }
 
     public String filterResponse(String response) {
-
         Application application = getApplication();
         if (!shouldUpdate(application)) {
             return response;

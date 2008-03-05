@@ -14,6 +14,7 @@ import org.seasar.kvasir.util.io.impl.FileResource;
 import org.seasar.ymir.MessagesNotFoundRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.action.UpdateByExceptionAction;
 
@@ -26,7 +27,7 @@ public class CreateMessagesAction extends AbstractAction implements
         super(sourceCreator);
     }
 
-    public Response act(Request request, Throwable t) {
+    public Response act(Request request, PathMetaData pathMetaData, Throwable t) {
         if (!PropertyUtils.valueOf(
                 getSourceCreator().getApplication().getProperty(
                         APPKEY_SOURCECREATOR_FEATURE_CREATEMESSAGES_ENABLE),
@@ -40,13 +41,13 @@ public class CreateMessagesAction extends AbstractAction implements
 
         String subTask = request.getParameter(PARAM_SUBTASK);
         if ("create".equals(subTask)) {
-            return actCreate(request, t);
+            return actCreate(request, pathMetaData, t);
         } else {
-            return actDefault(request, t);
+            return actDefault(request, pathMetaData, t);
         }
     }
 
-    Response actDefault(Request request, Throwable t) {
+    Response actDefault(Request request, PathMetaData pathMetaData, Throwable t) {
         MessagesNotFoundRuntimeException mnfre = (MessagesNotFoundRuntimeException) t;
 
         Map<String, Object> variableMap = newVariableMap();
@@ -58,7 +59,7 @@ public class CreateMessagesAction extends AbstractAction implements
                 "createMessages", variableMap);
     }
 
-    Response actCreate(Request request, Throwable t) {
+    Response actCreate(Request request, PathMetaData pathMetaData, Throwable t) {
         MessagesNotFoundRuntimeException mnfre = (MessagesNotFoundRuntimeException) t;
 
         String method = request.getParameter(PARAM_METHOD);
@@ -69,7 +70,7 @@ public class CreateMessagesAction extends AbstractAction implements
         createMessages(mnfre.getMessagesName());
 
         synchronizeResources(new String[] { getResourcesPath() });
-        
+
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
