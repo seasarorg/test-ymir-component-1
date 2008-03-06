@@ -887,4 +887,20 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull("formの外にあるbuttonタグ（type=submit）は無視されること", cd
                 .getMethodDesc(new MethodDescImpl("POST_submit2")));
     }
+
+    public void testAnalyze52_YMIR_180_formのname属性で指定した名前と同じ名前のプロパティのGetterが生成されること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                Globals.APPKEY_SOURCECREATOR_FEATURE_CREATEFORMDTO_ENABLE,
+                String.valueOf(true));
+
+        act("testAnalyze52");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        assertNotNull(cd);
+        PropertyDesc pd = cd.getPropertyDesc("form");
+        assertNotNull(pd);
+        assertTrue(pd.isReadable());
+    }
 }

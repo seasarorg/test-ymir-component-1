@@ -41,11 +41,13 @@ public class DescWrapper {
 
         ClassDesc cd = getValueClassDesc();
         PropertyDesc pd = cd.getPropertyDesc(name);
+        int mode = (cd.isKindOf(ClassDesc.KIND_DTO) ? (PropertyDesc.READ | PropertyDesc.WRITE)
+                : PropertyDesc.READ);
         if (pd == null) {
-            int mode = (cd.isKindOf(ClassDesc.KIND_DTO) ? (PropertyDesc.READ | PropertyDesc.WRITE)
-                    : PropertyDesc.READ);
             pd = analyzerContext_.adjustPropertyType(cd.getName(), cd
                     .addProperty(name, mode));
+        } else {
+            pd.addMode(mode);
         }
 
         TypeDesc td = pd.getTypeDesc();

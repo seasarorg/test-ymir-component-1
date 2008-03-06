@@ -1,0 +1,10 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <form name="form" method="post" action="index.html">
+      <p tal:content="self/form/string">STRING</p>
+    </form>
+  </body>
+</html>
