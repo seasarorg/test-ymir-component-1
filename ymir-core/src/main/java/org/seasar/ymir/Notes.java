@@ -21,7 +21,14 @@ public class Notes {
     }
 
     public Notes(Notes notes) {
-        add(notes);
+        if (notes != null) {
+            boolean accessed = notes.isAccessed();
+            try {
+                add(notes);
+            } finally {
+                notes.setAccessed(accessed);
+            }
+        }
     }
 
     public Notes add(Notes notes) {
@@ -76,6 +83,10 @@ public class Notes {
 
     public boolean isAccessed() {
         return accessed_;
+    }
+
+    public void setAccessed(boolean accessed) {
+        accessed_ = accessed;
     }
 
     public Iterator<Note> get(String category) {
