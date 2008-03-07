@@ -24,6 +24,11 @@
     </dd>
     <dt>ignorePackageNames</dt>
     <dd>Hotdeployクラスローダに読み込ませたくないパッケージ名を入力して下さい。（例：<tt>com.example.ignore1, com.example.ignore2</tt>）<br />
+           例えば以下のようなパッケージを入力して下さい。
+      <ul>
+        <li>app.diconに&lt;component&gt;定義を追加したいクラスのパッケージ</li>
+        <li><strong>[重要]</strong> DBFluteのpackageBase（自動生成クラスのルートパッケージ）</li>
+      </ul>
       <input type="text" name="__ymir__key_ignorePackageNames" size="64" tal:attributes="value application/ignorePackageNames" />
     </dd>
     <dt>beantable.enable</dt>
