@@ -22,8 +22,20 @@ public class YmirNamingConvention extends PluggableNamingConventionImpl {
     @Override
     public void addIgnorePackageName(String ignorePackageName) {
         String[] ignorePackageNames = PropertyUtils.toLines(ignorePackageName);
+        String[] rootPackageNames = getRootPackageNames();
+        if (rootPackageNames == null || rootPackageNames.length == 0) {
+            throw new RuntimeException(
+                    "Must be set rootPackageName before adding ignorePackageName");
+        }
+
         for (int i = 0; i < ignorePackageNames.length; i++) {
-            super.addIgnorePackageName(ignorePackageNames[i]);
+            String absoluteName;
+            if (ignorePackageNames[i].startsWith(".")) {
+                absoluteName = rootPackageNames[0] + ignorePackageNames[i];
+            } else {
+                absoluteName = ignorePackageNames[i];
+            }
+            super.addIgnorePackageName(absoluteName);
         }
     }
 }
