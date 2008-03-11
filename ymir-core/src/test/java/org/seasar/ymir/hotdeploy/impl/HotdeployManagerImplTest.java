@@ -9,7 +9,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.seasar.framework.container.hotdeploy.HotdeployClassLoader;
+import org.seasar.cms.pluggable.hotdeploy.PluggableHotdeployClassLoader;
 import org.seasar.framework.convention.impl.NamingConventionImpl;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.hotdeploy.fitter.HotdeployFitter;
@@ -43,7 +43,7 @@ public class HotdeployManagerImplTest extends TestCase {
         namingConverntion.addRootPackageName("com.example.hotdeploy");
 
         final ClassLoader delegated = getClass().getClassLoader();
-        HotdeployClassLoader cl = new HotdeployClassLoader(
+        PluggableHotdeployClassLoader cl = new PluggableHotdeployClassLoader(
                 new ClassLoader(null) {
                     @Override
                     protected synchronized Class<?> loadClass(String name,

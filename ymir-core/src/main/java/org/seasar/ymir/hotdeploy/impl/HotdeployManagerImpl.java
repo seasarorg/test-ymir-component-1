@@ -20,6 +20,8 @@ import org.seasar.ymir.util.ContainerUtils;
 public class HotdeployManagerImpl implements HotdeployManager {
     private static final String CLASS_HOTDEPLOYCLASSLOADER = "org.seasar.framework.container.hotdeploy.HotdeployClassLoader";
 
+    private static final String CLASS_PLUGGABLEHOTDEPLOYCLASSLOADER = "org.seasar.cms.pluggable.hotdeploy.PluggableHotdeployClassLoader";
+
     private HotdeployFitter<?>[] hotdeployFitters_ = new HotdeployFitter<?>[0];
 
     private ApplicationManager applicationManager_;
@@ -185,9 +187,12 @@ public class HotdeployManagerImpl implements HotdeployManager {
 
     boolean isHotdeployClass(Class<?> clazz) {
         ClassLoader classLoader = clazz.getClassLoader();
-        return classLoader != null
-                && classLoader.getClass().getName().equals(
-                        CLASS_HOTDEPLOYCLASSLOADER);
+        if (classLoader == null) {
+            return false;
+        }
+        String name = classLoader.getClass().getName();
+        return name.equals(CLASS_PLUGGABLEHOTDEPLOYCLASSLOADER)
+                || name.equals(CLASS_HOTDEPLOYCLASSLOADER);
     }
 
     static class HotdeployFitterBag {
