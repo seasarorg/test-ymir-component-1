@@ -85,6 +85,16 @@ public class ServletUtils {
         return path;
     }
 
+    public static String normalizePath(String path) {
+        if (path == null) {
+            return null;
+        } else if (path.endsWith("/")) {
+            return path.substring(0, path.length() - 1);
+        } else {
+            return path;
+        }
+    }
+
     public static String getQueryString(HttpServletRequest request) {
         if (getDispatcher(request) == Dispatcher.INCLUDE) {
             return getIncludeQueryString(request);

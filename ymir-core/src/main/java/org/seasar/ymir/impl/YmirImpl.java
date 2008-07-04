@@ -167,11 +167,12 @@ public class YmirImpl implements Ymir {
 
     public MatchedPathMapping findMatchedPathMapping(final String path,
             final String method) {
+        String normalizedPath = ServletUtils.normalizePath(path);
         VariableResolver resolver = null;
         final PathMapping[] pathMappings = getPathMappings();
         if (pathMappings != null) {
             for (int i = 0; i < pathMappings.length; i++) {
-                resolver = pathMappings[i].match(path, method);
+                resolver = pathMappings[i].match(normalizedPath, method);
                 if (resolver != null) {
                     return new MatchedPathMappingImpl(pathMappings[i], resolver);
                 }

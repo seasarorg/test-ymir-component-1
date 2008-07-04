@@ -60,4 +60,16 @@ public class ServletUtilsTest extends TestCase {
         assertNull(ServletUtils.getQueryString("hoge.html?"));
         assertNull(ServletUtils.getQueryString("hoge.html"));
     }
+
+    public void testNormalizePath() throws Exception {
+        assertNull(ServletUtils.normalizePath(null));
+
+        assertEquals("", ServletUtils.normalizePath(""));
+
+        assertEquals("", ServletUtils.normalizePath("/"));
+
+        assertEquals("/a/b/c", ServletUtils.normalizePath("/a/b/c"));
+
+        assertEquals("/a/b/c", ServletUtils.normalizePath("/a/b/c/"));
+    }
 }

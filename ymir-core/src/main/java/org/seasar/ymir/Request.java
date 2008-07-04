@@ -4,31 +4,57 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
+import org.seasar.ymir.util.ServletUtils;
+
+/**
+ * HTTPリクエストを抽象化したインタフェースです。
+ * <p>HttpServletRequestとほぼ対応しますが、1回のリクエスト中に行なわれたインクルードやフォワードなどの
+ * ディスパッチを抽象化して扱えるように工夫されています。
+ * ディスパッチに関する情報は{@link Dispatch}インタフェースで表され、
+ * {@link #getCurrentDispatch()}などのメソッドで取得することができます。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ * @see Dispatch
+ */
 public interface Request extends AttributeContainer {
+    /** CONNECTメソッドを表す定数です。 */
     String METHOD_CONNECT = "CONNECT";
 
+    /** DELETEメソッドを表す定数です。 */
     String METHOD_DELETE = "DELETE";
 
+    /** GETメソッドを表す定数です。 */
     String METHOD_GET = "GET";
 
+    /** HEADメソッドを表す定数です。 */
     String METHOD_HEAD = "HEAD";
 
+    /** LINKメソッドを表す定数です。 */
     String METHOD_LINK = "LINK";
 
+    /** OPTIONSメソッドを表す定数です。 */
     String METHOD_OPTIONS = "OPTIONS";
 
+    /** PATCHメソッドを表す定数です。 */
     String METHOD_PATCH = "PATCH";
 
+    /** POSTメソッドを表す定数です。 */
     String METHOD_POST = "POST";
 
+    /** PUTメソッドを表す定数です。 */
     String METHOD_PUT = "PUT";
 
+    /** TRACEメソッドを表す定数です。 */
     String METHOD_TRACE = "TRACE";
 
+    /** UNLINKメソッドを表す定数です。 */
     String METHOD_UNLINK = "UNLINK";
 
     /**
      * コンテキストパスを返します。
+     * <p>返されるパスは末尾に「/」がつかない形に正規化されています。
+     * </p>
      *
      * @return コンテキストパス。
      */
@@ -37,6 +63,9 @@ public interface Request extends AttributeContainer {
     /**
      * リクエストパスを返します。
      * <p>返されるパスはコンテキストパス相対です。</p>
+     * <p>リクエストされた際のオリジナルのパスの末尾に「/」がついている場合は「/」がついたまま返されます。
+     * 「/」がつかない形にしたい場合は{@link ServletUtils#normalizePath(String)}を使って下さい。
+     * </p>
      *
      * @return リクエストパス。
      */
@@ -45,6 +74,9 @@ public interface Request extends AttributeContainer {
     /**
      * リクエストパスの絶対パスを返します。
      * <p>返されるパスはコンテキストパスとパスを連結したものです。</p>
+     * <p>リクエストされた際のオリジナルのパスの末尾に「/」がついている場合は「/」がついたまま返されます。
+     * 「/」がつかない形にしたい場合は{@link ServletUtils#normalizePath(String)}を使って下さい。
+     * </p>
      *
      * @return リクエストパスの絶対パス。
      */

@@ -423,12 +423,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         if (path.length() == 0 || path.equals("/")) {
             return false;
         }
-        String normalized;
-        if (path.endsWith("/")) {
-            normalized = path.substring(0, path.length() - 1);
-        } else {
-            normalized = path;
-        }
+        String normalized = ServletUtils.normalizePath(path);
         Set resourceSet = getServletContext().getResourcePaths(
                 normalized.substring(0, normalized.lastIndexOf('/') + 1));
         return (resourceSet != null && resourceSet.contains(normalized));
