@@ -110,6 +110,7 @@ import org.seasar.ymir.extension.creator.action.impl.ResourceAction;
 import org.seasar.ymir.extension.creator.action.impl.SystemConsoleAction;
 import org.seasar.ymir.extension.creator.action.impl.UpdateClassesAction;
 import org.seasar.ymir.impl.YmirImpl;
+import org.seasar.ymir.util.ServletUtils;
 
 import net.skirnir.freyja.EvaluationRuntimeException;
 
@@ -210,7 +211,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
         LazyPathMetaData pathMetaData = createLazyPathMetaData(request,
                 response);
-        String path = pathMetaData.getPath();
+        String path = ServletUtils.normalizePath(pathMetaData.getPath());
         String forwardPath = pathMetaData.getForwardPath();
         String method = pathMetaData.getMethod();
 
@@ -295,7 +296,8 @@ public class SourceCreatorImpl implements SourceCreator {
                 && t.getCause() != null) {
             t = t.getCause();
         }
-        String path = request.getCurrentDispatch().getPath();
+        String path = ServletUtils.normalizePath(request.getCurrentDispatch()
+                .getPath());
         Object condition = null;
         if (request.getParameter(PARAM_TASK) != null) {
             condition = request.getParameter(PARAM_TASK);
@@ -337,7 +339,8 @@ public class SourceCreatorImpl implements SourceCreator {
     public boolean shouldUpdate(String path) {
         return path == null
                 || !"false".equals(getApplication().getProperty(
-                        APPKEYPREFIX_SOURCECREATOR_ENABLE + path));
+                        APPKEYPREFIX_SOURCECREATOR_ENABLE
+                                + ServletUtils.normalizePath(path)));
     }
 
     boolean isAlreadyConfigured(Application application) {
@@ -438,8 +441,8 @@ public class SourceCreatorImpl implements SourceCreator {
         }
         if (pageClassDesc != null) {
             // アクションメソッドを追加する。
-            pageClassDesc.setMethodDesc(new MethodDescImpl(getActionName(
-                    pathMetaData.getPath(), method)));
+            pageClassDesc.setMethodDesc(new MethodDescImpl(getActionName(path,
+                    method)));
             // _render()を追加する。
             pageClassDesc.setMethodDesc(new MethodDescImpl(
                     RequestProcessor.METHOD_RENDER));

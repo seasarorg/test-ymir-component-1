@@ -5,6 +5,7 @@ import java.io.File;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateProvider;
+import org.seasar.ymir.util.ServletUtils;
 
 public class DefaultTemplateProvider implements TemplateProvider {
     private SourceCreator sourceCreator_;
@@ -14,8 +15,9 @@ public class DefaultTemplateProvider implements TemplateProvider {
     }
 
     public Template getTemplate(String path) {
-        return new FileTemplate(path, new File(sourceCreator_
-                .getWebappSourceRoot(), path), sourceCreator_
+        String normalizedPath = ServletUtils.normalizePath(path);
+        return new FileTemplate(normalizedPath, new File(sourceCreator_
+                .getWebappSourceRoot(), normalizedPath), sourceCreator_
                 .getTemplateEncoding());
     }
 }

@@ -14,6 +14,7 @@ import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.impl.AsIsInputStreamFactory;
 import org.seasar.ymir.response.SelfContainedResponse;
 import org.seasar.ymir.response.VoidResponse;
+import org.seasar.ymir.util.ServletUtils;
 import org.seasar.kvasir.util.io.IOUtils;
 
 public class ResourceAction implements UpdateAction {
@@ -66,7 +67,7 @@ public class ResourceAction implements UpdateAction {
     }
 
     String getResourcePath(PathMetaData pathMetaData) {
-        String path = pathMetaData.getPath();
+        String path = ServletUtils.normalizePath(pathMetaData.getPath());
         if (path.startsWith(PATH_PREFIX_RESOURCE)) {
             return path.substring(PATH_PREFIX_RESOURCE.length());
         }

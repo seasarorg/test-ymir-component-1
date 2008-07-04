@@ -21,6 +21,7 @@ import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateAnalyzer;
+import org.seasar.ymir.util.ServletUtils;
 
 import net.skirnir.freyja.ExpressionEvaluator;
 import net.skirnir.freyja.IllegalSyntaxException;
@@ -58,7 +59,8 @@ public class ZptAnalyzer implements TemplateAnalyzer {
             String[] ignoreVariables) {
         Zpt zpt = getZpt();
 
-        path = zpt.getTemplatePathResolver().resolve(path, request);
+        path = zpt.getTemplatePathResolver().resolve(
+                ServletUtils.normalizePath(path), request);
         AnalyzerContext context = (AnalyzerContext) evaluator_.newContext();
         context.setPath(path);
         context.setIgnoreVariables(ignoreVariables);
