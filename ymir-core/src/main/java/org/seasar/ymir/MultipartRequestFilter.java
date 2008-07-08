@@ -14,8 +14,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.servlet.ServletRequestContext;
 
+/**
+ * マルチパートのHTTPリクエストを前処理するためのFilterクラスです。
+ * <p>このFilterを使うことで、enctypeが"multipart/form-data"であるようなフォームからsubmitされた
+ * HTTPリクエストを適切に処理することができます。
+ * </p>
+ * <p><b>同期化：</b>
+ * このクラスはスレッドセーフです。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ */
 public class MultipartRequestFilter implements Filter {
-
     public void init(FilterConfig config) throws ServletException {
     }
 
@@ -23,13 +33,12 @@ public class MultipartRequestFilter implements Filter {
     }
 
     public void doFilter(ServletRequest req, ServletResponse res,
-        FilterChain chain) throws IOException, ServletException {
-
+            FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) req;
         HttpServletResponse httpResponse = (HttpServletResponse) res;
 
         if (ServletFileUpload.isMultipartContent(new ServletRequestContext(
-            httpRequest))) {
+                httpRequest))) {
             httpRequest = new MultipartServletRequest(httpRequest);
         }
         chain.doFilter(httpRequest, httpResponse);

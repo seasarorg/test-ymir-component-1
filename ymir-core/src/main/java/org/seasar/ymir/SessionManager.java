@@ -4,6 +4,11 @@ import javax.servlet.http.HttpSession;
 
 /**
  * HTTPセッションを管理するためのインタフェースです。
+ * <p><b>同期化：</b>
+ * このインタフェースの実装クラスはスレッドセーフである必要があります。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
  */
 public interface SessionManager {
     /**

@@ -5,6 +5,16 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * {@link Request}インタフェースのラッパクラスです。
+ * <p>Requestオブジェクトをラップしたい場合はこのクラスまたはこのクラスのサブクラスを使うようにして下さい。
+ * </p>
+ * <p><b>同期化：</b>
+ * このクラスはスレッドセーフではありません。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ */
 public class RequestWrapper implements Request {
     private Request request_;
 

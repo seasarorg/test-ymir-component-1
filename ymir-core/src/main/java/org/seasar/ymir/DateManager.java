@@ -3,6 +3,18 @@ package org.seasar.ymir;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * 現在の日付を管理するためのインタフェースです。
+ * <p>アプリケーションコードで現在の日付を取得する場合は、日付に関連する単体テストが行ないやすいよう、
+ * このインタフェースを使って現在の日付を取得して利用するようにして下さい。
+ * </p>
+ * 
+ * <p><b>同期化：</b>
+ * このインタフェースの実装クラスはスレッドセーフである必要があります。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ */
 public interface DateManager {
     /**
      * 現在の時刻を表すDateオブジェクトを生成して返します。

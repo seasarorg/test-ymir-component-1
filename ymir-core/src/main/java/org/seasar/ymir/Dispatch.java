@@ -2,6 +2,17 @@ package org.seasar.ymir;
 
 import java.util.Map;
 
+/**
+ * サーブレットの処理フェーズを表すインタフェースです。
+ * <p>Dispatchは1回のHTTPリクエスト中で1回以上行なわれるサーブレットの処理フェーズです。
+ * Dispatchは{@link Dispatcher}のいずれかの値に対応します。
+ * </p>
+ * <p><b>同期化：</b>
+ * このインタフェースの実装クラスはスレッドセーフである必要はありません。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ */
 public interface Dispatch {
     /**
      * パスを返します。
@@ -118,5 +129,10 @@ public interface Dispatch {
      */
     boolean isDenied();
 
+    /**
+     * パスにマッチしたPathMappingオブジェクトを返します。
+     * 
+     * @return PathMappingオブジェクト。通常nullを返すことはありません。
+     */
     MatchedPathMapping getMatchedPathMapping();
 }

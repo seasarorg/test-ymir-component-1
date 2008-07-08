@@ -75,7 +75,7 @@ public class PageProcessorImpl implements PageProcessor {
             String actionName) {
         ScopeAttribute[] attributes = metaData.getInjectedScopeAttributes();
         for (int i = 0; i < attributes.length; i++) {
-            if (attributes[i].isEnable(actionName)) {
+            if (attributes[i].isEnabled(actionName)) {
                 attributes[i].injectTo(page);
             }
         }
@@ -85,7 +85,7 @@ public class PageProcessorImpl implements PageProcessor {
             String actionName) {
         ScopeAttribute[] attributes = metaData.getOutjectedScopeAttributes();
         for (int i = 0; i < attributes.length; i++) {
-            if (attributes[i].isEnable(actionName)) {
+            if (attributes[i].isEnabled(actionName)) {
                 attributes[i].outjectFrom(page);
             }
         }

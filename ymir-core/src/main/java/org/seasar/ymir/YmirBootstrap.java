@@ -8,14 +8,40 @@ import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.ymir.impl.SingleApplication;
+import org.seasar.ymir.servlet.YmirListener;
 
+/**
+ * WebアプリケーションでYmirを利用するためのブートストラップクラスです。
+ * <p><b>同期化：</b>
+ * このクラスはスレッドセーフです。
+ * </p>
+ *
+ * @see YmirListener
+ * @author YOKOTA Takehiko
+ */
 public class YmirBootstrap {
     private Ymir ymir_;
 
+    /**
+     * フレームワークを初期化する前に行なっておくべき準備を行ないます。
+     * <p>このメソッドは{@link #init()}よりも前に呼び出す必要があります。
+     * また、このメソッドはS2コンテナの初期化よりも先に呼び出す必要があります。
+     * </p>
+     * 
+     * @param servletContext サーブレットコンテキスト。
+     */
     public void prepare(ServletContext servletContext) {
         initializeApplication(servletContext);
     }
 
+    /**
+     * フレームワークを初期化してYmirオブジェクトを構築します。
+     * <p>このメソッドは{@link #prepare(ServletContext)}よりも後に呼び出す必要があります。
+     * また、このメソッドはS2コンテナの初期化よりも後に呼び出す必要があります。
+     * </p>
+     * 
+     * @return 構築したYmirオブジェクト。
+     */
     public Ymir init() {
         ymir_ = (Ymir) getContainer().getComponent(Ymir.class);
         YmirContext.setYmir(ymir_);
@@ -46,6 +72,9 @@ public class YmirBootstrap {
         return (Configuration) getContainer().getComponent(Configuration.class);
     }
 
+    /**
+     * フレームワークの利用を終了します。
+     */
     public void destroy() {
         if (ymir_ != null) {
             ymir_.destroy();

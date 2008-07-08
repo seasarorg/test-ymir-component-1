@@ -30,7 +30,9 @@ import org.seasar.ymir.impl.FormFileImpl;
  * @author YOKOTA Takehiko
  */
 public class MultipartServletRequest extends HttpServletRequestWrapper {
-
+    /**
+     * {@link FormFile}オブジェクトが格納されたMapをHttpServletRequestの属性として保持するためのキー名です。
+     */
     public static final String ATTR_FORMFILEMAP = MultipartServletRequest.class
             .getName()
             + ".formFileMap";

@@ -11,6 +11,14 @@ import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.scope.Scope;
 
+/**
+ * スコープに格納される属性を表すクラスです。
+ * このクラスはスレッドセーフです。
+ * </p>
+ * 
+ * @see PageMetaData
+ * @author YOKOTA Takehiko
+ */
 public class ScopeAttribute {
     private S2Container container_;
 
@@ -22,7 +30,7 @@ public class ScopeAttribute {
 
     private Method readMethod_;
 
-    private Set<String> enableActionNameSet_;
+    private Set<String> enabledActionNameSet_;
 
     private boolean injectWhereNull_;
 
@@ -33,9 +41,22 @@ public class ScopeAttribute {
     private static final Logger logger_ = Logger
             .getLogger(ScopeAttribute.class);
 
+    /**
+     * このクラスのオブジェクトを構築します。
+     * 
+     * @param container コンテナ。
+     * @param name 属性名。
+     * @param scope 属性を格納しているスコープ。
+     * @param writeMethod Pageオブジェクトに属性値を書き込むためのメソッドを表すMethodオブジェクト。
+     * @param injectWhereNull 属性値がnullであった場合でもPageオブジェクトにインジェクトするかどうか。
+     * @param readMethod Pageオブジェクトから属性値とする値を取り出すためのメソッドを表すMethodオブジェクト。
+     * @param outjectWhereNull 値がnullであってもPageオブジェクトからアウトジェクトするかどうか。
+     * @param enabledActionNames 属性が有効であるようなアクションの名前。
+     * どのアクション呼び出しの時にこの属性に関する操作を行なうかを表します。
+     */
     public ScopeAttribute(S2Container container, String name, Scope scope,
             Method writeMethod, boolean injectWhereNull, Method readMethod,
-            boolean outjectWhereNull, String[] enableActionNames) {
+            boolean outjectWhereNull, String[] enabledActionNames) {
         container_ = container;
         name_ = name;
         scope_ = scope;
@@ -43,14 +64,19 @@ public class ScopeAttribute {
         injectWhereNull_ = injectWhereNull;
         readMethod_ = readMethod;
         outjectWhereNull_ = outjectWhereNull;
-        if (enableActionNames.length > 0) {
-            enableActionNameSet_ = new HashSet<String>(Arrays
-                    .asList(enableActionNames));
+        if (enabledActionNames.length > 0) {
+            enabledActionNameSet_ = new HashSet<String>(Arrays
+                    .asList(enabledActionNames));
         }
         hotdeployManager_ = (HotdeployManager) container_
                 .getComponent(HotdeployManager.class);
     }
 
+    /**
+     * 指定されたコンポーネントに属性値をインジェクトします。
+     * 
+     * @param component コンポーネント。
+     */
     public void injectTo(Object component) {
         Object value = scope_.getAttribute(name_);
         if (value != null || injectWhereNull_) {
@@ -87,6 +113,11 @@ public class ScopeAttribute {
         }
     }
 
+    /**
+     * 指定されたコンポーネントから値を取り出してスコープに会うとジェクトします。
+     * 
+     * @param component コンポーネント。
+     */
     public void outjectFrom(Object component) {
         Object value;
         try {
@@ -102,11 +133,17 @@ public class ScopeAttribute {
         }
     }
 
-    public boolean isEnable(String actionName) {
-        if (enableActionNameSet_ == null) {
+    /**
+     * このオブジェクトの表す属性が、指定されたアクションにおいて有効かどうかを返します。
+     * 
+     * @param actionName アクション名。
+     * @return 指定されたアクションにおいてこの属性が有効かどうか。
+     */
+    public boolean isEnabled(String actionName) {
+        if (enabledActionNameSet_ == null) {
             return true;
         } else {
-            return enableActionNameSet_.contains(actionName);
+            return enabledActionNameSet_.contains(actionName);
         }
     }
 }

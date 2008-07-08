@@ -1,5 +1,13 @@
 package org.seasar.ymir;
 
+/**
+ * PageComponentをトラバースするためのVisitorを実装するベースとなる抽象クラスです。
+ * <p><b>同期化：</b>
+ * この抽象クラスのサブクラスはスレッドセーフである必要はありません。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ */
 abstract public class PageComponentVisitor implements Visitor<PageComponent> {
     @SuppressWarnings("unchecked")
     public final Object visit(PageComponent pageComponent) {
@@ -14,5 +22,12 @@ abstract public class PageComponentVisitor implements Visitor<PageComponent> {
         return null;
     }
 
+    /**
+     * 指定されたPageComponentを処理します。
+     * 
+     * @param pageComponent 処理対象のPageComponent。
+     * @return 処理結果。
+     * 処理結果がnullでない場合、この処理結果を最終的な処理結果とみなしてトラバースを終了します。
+     */
     abstract public Object process(PageComponent pageComponent);
 }

@@ -2,6 +2,16 @@ package org.seasar.ymir;
 
 import java.io.InputStream;
 
+/**
+ * {@link Response}インタフェースのラッパクラスです。
+ * <p>Responseオブジェクトをラップしたい場合はこのクラスまたはこのクラスのサブクラスを使うようにして下さい。
+ * </p>
+ * <p><b>同期化：</b>
+ * このクラスはスレッドセーフではありません。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ */
 public class ResponseWrapper implements Response {
     private Response response_;
 
