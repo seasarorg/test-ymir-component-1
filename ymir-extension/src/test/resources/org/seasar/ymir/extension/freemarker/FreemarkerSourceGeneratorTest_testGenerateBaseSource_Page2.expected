@@ -6,8 +6,8 @@ public class HoePageBase
     protected String hoe_;
 
 
-    @org.seasar.ymir.annotation.SuppressConstraints({org.seasar.ymir.constraint.ConstraintType.VALIDATION,org.seasar.ymir.constraint.ConstraintType.PERMISSION})
     @org.seasar.ymir.constraint.annotation.Required(allowWhitespace=true,completely=false,value="get")
+    @org.seasar.ymir.constraint.annotation.SuppressConstraints({org.seasar.ymir.constraint.ConstraintType.VALIDATION,org.seasar.ymir.constraint.ConstraintType.PERMISSION})
     public String getHoe()
     {
         return hoe_;
