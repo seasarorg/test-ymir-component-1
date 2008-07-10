@@ -7,6 +7,16 @@ import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.redirection.RedirectionManager;
 import org.seasar.ymir.scope.Scope;
 
+/**
+ * リダイレクト先でだけ有効なオブジェクトを管理するスコープを表すクラスです。
+ * <p>リダイレクト先に一時的に何らかの情報を受け渡したい場合に利用されます。
+ * </p>
+ * <p><b>同期化：</b>
+ * このクラスはスレッドセーフです。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ */
 public class RedirectionScope implements Scope {
     private RedirectionManager redirectionManager_;
 

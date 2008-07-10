@@ -12,6 +12,14 @@ import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.conversation.annotation.Conversation;
 import org.seasar.ymir.scope.impl.AbstractServletScope;
 
+/**
+ * conversationの範囲で有効なオブジェクトを管理するスコープを表すクラスです。
+ * <p><b>同期化：</b>
+ * このクラスはスレッドセーフです。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ */
 public class ConversationScope extends AbstractServletScope {
     public static final String ATTRPREFIX_CONVERSATION = Globals.IDPREFIX
             + "conversation.";

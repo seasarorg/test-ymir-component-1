@@ -2,6 +2,14 @@ package org.seasar.ymir.response;
 
 import org.seasar.ymir.ResponseType;
 
+/**
+ * フォワードすることを表すResponseオブジェクトです。
+ * <p><b>同期化：</b>
+ * このクラスはスレッドセーフではありません。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ */
 public class RedirectResponse extends TransitionResponse {
     public RedirectResponse() {
     }

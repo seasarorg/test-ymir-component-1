@@ -1,4 +1,4 @@
-package org.seasar.ymir.annotation;
+package org.seasar.ymir.constraint.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,15 +12,10 @@ import org.seasar.ymir.constraint.ConstraintType;
  * <p>このアノテーションが付与されたアクションメソッドの実行時には、
  * 制約チェックが実行されなくなります。
  * </p>
- * <p>このアノテーションは互換性のために残されています。
- * このアノテーションの代わりに{@link org.seasar.ymir.constraint.annotation.SuppressConstraints}
- * アノテーションを使用して下さい。
- * </p>
  * 
  * @see org.seasar.ymir.constraint.annotation.SuppressConstraints
  * @author YOKOTA Takehiko
  */
-@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface SuppressConstraints {

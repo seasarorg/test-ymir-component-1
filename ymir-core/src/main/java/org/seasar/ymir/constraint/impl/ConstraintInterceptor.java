@@ -30,8 +30,6 @@ import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.WrappingRuntimeException;
-import org.seasar.ymir.annotation.SuppressConstraints;
-import org.seasar.ymir.annotation.Validator;
 import org.seasar.ymir.constraint.ConfirmationDecider;
 import org.seasar.ymir.constraint.Constraint;
 import org.seasar.ymir.constraint.ConstraintBundle;
@@ -41,6 +39,8 @@ import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
 import org.seasar.ymir.constraint.annotation.ConstraintsAnnotation;
+import org.seasar.ymir.constraint.annotation.SuppressConstraints;
+import org.seasar.ymir.constraint.annotation.Validator;
 import org.seasar.ymir.impl.ActionImpl;
 import org.seasar.ymir.impl.MethodInvokerImpl;
 import org.seasar.ymir.impl.VoidMethodInvoker;
@@ -204,16 +204,32 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         Set<ConstraintType> suppressTypeSet = EnumSet
                 .noneOf(ConstraintType.class);
         if (actionMethod != null) {
-            SuppressConstraints suppress = actionMethod
-                    .getAnnotation(SuppressConstraints.class);
-            if (suppress != null) {
-                ConstraintType[] types = suppress.value();
+            ConstraintType[] types = getSuppressConstraintsValue(actionMethod);
+            if (types != null) {
                 for (int i = 0; i < types.length; i++) {
                     suppressTypeSet.add(types[i]);
                 }
             }
         }
         return suppressTypeSet;
+    }
+
+    @SuppressWarnings("deprecation")
+    ConstraintType[] getSuppressConstraintsValue(Method actionMethod) {
+        SuppressConstraints suppress = actionMethod
+                .getAnnotation(SuppressConstraints.class);
+        if (suppress != null) {
+            return suppress.value();
+        }
+
+        // 後方互換性のため。
+        org.seasar.ymir.annotation.SuppressConstraints suppress2 = actionMethod
+                .getAnnotation(org.seasar.ymir.annotation.SuppressConstraints.class);
+        if (suppress2 != null) {
+            return suppress2.value();
+        }
+
+        return null;
     }
 
     ConstraintBag<?>[] getConstraintBagsFromConstraintBundles() {
@@ -332,9 +348,8 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         if (!suppressTypeSet.contains(ConstraintType.VALIDATION)) {
             Method[] methods = ClassUtils.getMethods(pageClass);
             for (int i = 0; i < methods.length; i++) {
-                Validator validator = methods[i].getAnnotation(Validator.class);
-                if (validator != null) {
-                    String[] actionNames = validator.value();
+                String[] actionNames = getValidatorValue(methods[i]);
+                if (actionNames != null) {
                     if (actionNames.length > 0) {
                         // 対象アクションが限定されているので、アクションが対象アクションでない
                         // 場合は無視するようにする。
@@ -356,6 +371,23 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             }
         }
         return validatorList.toArray(new MethodInvoker[0]);
+    }
+
+    @SuppressWarnings("deprecation")
+    String[] getValidatorValue(Method method) {
+        Validator validator = method.getAnnotation(Validator.class);
+        if (validator != null) {
+            return validator.value();
+        }
+
+        // 後方互換性のため。
+        org.seasar.ymir.annotation.Validator validator2 = method
+                .getAnnotation(org.seasar.ymir.annotation.Validator.class);
+        if (validator2 != null) {
+            return validator2.value();
+        }
+
+        return null;
     }
 
     MethodInvoker createValidatorMethodInvoker(Method method,

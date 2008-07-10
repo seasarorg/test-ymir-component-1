@@ -1,9 +1,19 @@
 package org.seasar.ymir.response.scheme;
 
 import org.seasar.ymir.Response;
+import org.seasar.ymir.response.constructor.impl.StringResponseConstructor;
 
+/**
+ * 文字列からResponseオブジェクトを構築するためのStrategyインタフェースです。
+ * <p><b>同期化：</b>
+ * このインタフェースの実装クラスはスレッドセーフである必要があります。
+ * </p>
+ *
+ * @see StringResponseConstructor
+ * @see StrategySelector
+ * @author YOKOTA Takehiko
+ */
 public interface Strategy {
-
     /**
      * このStrategyが処理する対象のスキーム文字列を返します。
      * 

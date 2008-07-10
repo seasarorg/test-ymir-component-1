@@ -8,11 +8,19 @@ import org.seasar.ymir.Action;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseProcessor;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 
 /**
  * Ymirの処理の途中で独自の処理を挟み込むためのインタフェースです。
- * <p>このインタフェースの実装クラスはスレッドセーフである必要があります。</p>
+ * <p>Ymirの処理の途中で独自の処理を挟み込みたい場合、
+ * このインタフェースの実装クラスをコンテナにコンポーネント登録して下さい。
+ * </p>
+ * <p><b>同期化：</b>
+ * このインタフェースの実装クラスはスレッドセーフである必要があります。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
  */
 public interface YmirProcessInterceptor {
     /**
@@ -26,24 +34,66 @@ public interface YmirProcessInterceptor {
     double getPriority();
 
     /**
-     * 現在のリクエストに関する情報を持つRequestオブジェクトをフレームワークが生成した後に、
+     * 現在のリクエストに関する情報を持つRequestオブジェクトをフレームワークが構築した後に、
      * Requestオブジェクトを加工できるように呼び出されるメソッドです。
      * <p>Requestオブジェクトを加工しない場合は引数で渡されたRequestオブジェクトをそのまま返すようにして下さい。
      * </p>
      * 
-     * @param request フレームワークによって作成されたRequestオブジェクト。
+     * @param request フレームワークによって構築されたRequestオブジェクト。
      * @return Requestオブジェクト。
      */
     Request requestCreated(Request request);
 
+    /**
+     * 現在のリクエストに対応するPageComponentオブジェクトをフレームワークが構築した際に、
+     * PageComponentオブジェクトを加工できるように呼び出されるメソッドです。
+     * <p>PageComponentオブジェクトを加工しない場合は引数で渡されたPageComponentオブジェクトをそのまま返すようにして下さい。
+     * </p>
+     * 
+     * @param request 現在のRequestオブジェクト。
+     * @param pageComponent フレームワークによって構築されたPageComponentオブジェクト。
+     * @return PageComponentオブジェクト。
+     */
     PageComponent pageComponentCreated(Request request,
             PageComponent pageComponent);
 
+    /**
+     * 現在のリクエストに対応するアクションが実行される前に、
+     * Actionオブジェクトを加工できるように呼び出されるメソッドです。
+     * <p>Actionオブジェクトを加工しない場合は引数で渡されたActionオブジェクトをそのまま返すようにして下さい。
+     * </p>
+     * 
+     * @param request 現在のRequestオブジェクト。
+     * @param originalAction フレームワークが構築した元もとのActionオブジェクト。
+     * @param action 現在のActionオブジェクト。他のYmirProcessInterceptorによって、
+     * 元もとのActionではないものに差し替えられていることがあります。
+     * @return Actionオブジェクト。
+     * @throws PermissionDeniedException 権限エラーが発生した場合。
+     */
     Action actionInvoking(Request request, Action originalAction, Action action)
             throws PermissionDeniedException;
 
+    /**
+     * フレームワークがResponseオブジェクトを構築した際に、
+     * Responseオブジェクトを加工できるように呼び出されるメソッドです。
+     * <p>Responseオブジェクトを加工しない場合は引数で渡されたResponseオブジェクトをそのまま返すようにして下さい。
+     * </p>
+     * 
+     * @param response フレームワークによって構築されたResponseオブジェクト。
+     * @return Responseオブジェクト。
+     */
     Response responseCreated(Response response);
 
+    /**
+     * {@link ResponseProcessor#process(ServletContext, HttpServletRequest, HttpServletResponse, Request, Response)}
+     * メソッドによってResponseの処理が開始された際に呼び出されるメソッドです。
+     * 
+     * @param context ServletContextオブジェクト。
+     * @param httpRequest HttpServletRequestオブジェクト。
+     * @param httpResponse HttpServletResponseオブジェクト。
+     * @param request Requestオブジェクト。
+     * @param response Responseオブジェクト。
+     */
     void responseProcessingStarted(ServletContext context,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             Request request, Response response);
@@ -61,5 +111,10 @@ public interface YmirProcessInterceptor {
      */
     String encodingRedirectURL(String url);
 
+    /**
+     * フレームワークがHTTPリクエストの処理を完了する直前に呼び出されるメソッドです。
+     * 
+     * @param request Requestオブジェクト。
+     */
     void leavingRequest(Request request);
 }

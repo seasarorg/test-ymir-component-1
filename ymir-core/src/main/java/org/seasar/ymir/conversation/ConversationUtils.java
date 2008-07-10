@@ -3,6 +3,13 @@ package org.seasar.ymir.conversation;
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.YmirContext;
 
+/**
+ * conversationを操作するためのユーティリティクラスです。
+ * <p>可能であれば{@link ConversationManager}を使ってconversationを操作するようにして下さい。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ */
 public class ConversationUtils {
     private static S2Container container_;
 

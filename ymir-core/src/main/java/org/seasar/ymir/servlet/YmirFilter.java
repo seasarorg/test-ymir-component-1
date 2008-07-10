@@ -29,6 +29,14 @@ import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.util.ServletUtils;
 
+/**
+ * フレームワークの動作させるための{@link Filter}クラスです。
+ * <p><b>同期化：</b>
+ * このインタフェースの実装クラスはスレッドセーフである必要があります。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ */
 public class YmirFilter implements Filter {
     private Dispatcher dispatcher_;
 

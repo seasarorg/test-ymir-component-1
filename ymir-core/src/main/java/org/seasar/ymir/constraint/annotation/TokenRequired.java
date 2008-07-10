@@ -8,9 +8,21 @@ import java.lang.annotation.Target;
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.impl.TokenRequiredConstraint;
 
+/**
+ * トランザクショントークンが一致することを表す制約アノテーションです。
+ * <p>リクエストパラメータに指定されているトランザクショントークンと
+ * セッションに保存されているトランザクショントークンが一致することを要求します。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.TYPE, ElementType.METHOD })
 @ConstraintAnnotation(type = ConstraintType.VALIDATION, component = TokenRequiredConstraint.class)
 public @interface TokenRequired {
+    /**
+     * トークンキーの名前です。
+     * @return トークンキーの名前。
+     */
     String value() default "";
 }

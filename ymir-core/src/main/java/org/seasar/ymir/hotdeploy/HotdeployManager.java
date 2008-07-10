@@ -2,7 +2,23 @@ package org.seasar.ymir.hotdeploy;
 
 import org.seasar.ymir.hotdeploy.fitter.HotdeployFitter;
 
+/**
+ * S2ContainerのHOT Deployに関する操作を提供するためのインタフェースです。
+ * <p>通常このインタフェースはフレームワーク中から利用されます。
+ * をアプリケーションコードから利用することはありません。
+ * </p>
+ * <p><b>同期化：</b>
+ * このインタフェースの実装クラスはスレッドセーフである必要があります。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ */
 public interface HotdeployManager {
+    /**
+     * HotdeployFittersを設定します。
+     * 
+     * @param hotdeployFitters HotdeployFitters。
+     */
     void setHotdeployFitters(HotdeployFitter<?>[] hotdeployFitters);
 
     /**

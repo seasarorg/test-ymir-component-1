@@ -1,4 +1,4 @@
-package org.seasar.ymir.annotation;
+package org.seasar.ymir.constraint.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,15 +7,9 @@ import java.lang.annotation.Target;
 
 /**
  * Pageオブジェクトに対して制約チェックを行なう際に、バリデータとして実行するメソッドを指定するためのアノテーションです。
- * <p>このアノテーションは互換性のために残されています。
- * このアノテーションの代わりに{@link org.seasar.ymir.constraint.annotation.Validator}
- * アノテーションを使用して下さい。
- * </p>
  * 
- * @see org.seasar.ymir.constraint.annotation.Validator
  * @author YOKOTA Takehiko
  */
-@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Validator {

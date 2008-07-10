@@ -9,6 +9,14 @@ import org.seasar.kvasir.util.io.InputStreamFactory;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.impl.AsIsInputStreamFactory;
 
+/**
+ * レスポンスヘッダやレスポンスボディの情報を内包するResponseオブジェクトです。
+ * <p><b>同期化：</b>
+ * このクラスはスレッドセーフではありません。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ */
 public class SelfContainedResponse extends ResponseBase {
     public static final String DEFAULT_BINARY_CONTENTTYPE = "application/octet-stream";
 

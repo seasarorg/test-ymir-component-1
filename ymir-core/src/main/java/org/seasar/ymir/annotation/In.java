@@ -10,7 +10,8 @@ import java.lang.annotation.Target;
  * <p>このアノテーションをPageクラスのSetterメソッドに付与することで、アクションの実行に先立って
  * スコープから属性値がPageオブジェクトにインジェクトされるようになります。
  * </p> 
- * 
+ *
+ * @see Out
  * @author YOKOTA Takehiko
  */
 @Retention(RetentionPolicy.RUNTIME)
