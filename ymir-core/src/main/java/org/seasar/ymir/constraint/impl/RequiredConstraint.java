@@ -1,6 +1,10 @@
 package org.seasar.ymir.constraint.impl;
 
 import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.Note;
@@ -13,13 +17,24 @@ import org.seasar.ymir.constraint.annotation.Required;
 public class RequiredConstraint extends AbstractConstraint<Required> {
     public void confirm(Object component, Request request, Required annotation,
             AnnotatedElement element) throws ConstraintViolatedException {
+
+        Notes notes = new Notes();
+        if (annotation.matchedParameterRequired()) {
+            // 正規表現で指定されているパラメータについては、マッチするパラメータが存在するかのチェックを行なう。
+            String[] patterns = getNotMatchedPatterns(request, annotation
+                    .value());
+            for (String pattern : patterns) {
+                notes.add(pattern, new Note(PREFIX_MESSAGEKEY + "required",
+                        new Object[] { pattern }));
+            }
+        }
+
         String[] names = getParameterNames(request, annotation.value(),
                 getPropertyName(element));
-        if (names.length == 0) {
+        if (notes.isEmpty() && names.length == 0) {
             return;
         }
 
-        Notes notes = new Notes();
         for (int i = 0; i < names.length; i++) {
             if (isEmpty(request, names[i], annotation.completely(), annotation
                     .allowWhitespace())) {
@@ -30,6 +45,32 @@ public class RequiredConstraint extends AbstractConstraint<Required> {
         if (notes.size() > 0) {
             throw new ValidationFailedException().setNotes(notes);
         }
+    }
+
+    String[] getNotMatchedPatterns(Request request, String[] names) {
+        List<String> list = new ArrayList<String>();
+        for (int i = 0; i < names.length; i++) {
+            if (!names[i].startsWith(PREFIX_REGEX)) {
+                // 正規表現でないのでチェック不要。
+                continue;
+            }
+
+            Pattern pattern = Pattern.compile(names[i].substring(PREFIX_REGEX
+                    .length()));
+            boolean matched = false;
+            for (Iterator<String> itr = request.getParameterNames(); itr
+                    .hasNext();) {
+                String name = itr.next();
+                if (pattern.matcher(name).matches()) {
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                list.add(names[i]);
+            }
+        }
+        return list.toArray(new String[0]);
     }
 
     boolean isEmpty(Request request, String name, boolean completely,

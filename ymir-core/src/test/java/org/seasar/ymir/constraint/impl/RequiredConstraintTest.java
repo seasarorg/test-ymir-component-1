@@ -37,6 +37,14 @@ public class RequiredConstraintTest extends
     public void setValue4(String value) {
     }
 
+    @Required(value = "#valu.N", matchedParameterRequired = true)
+    public void setValue5(String value) {
+    }
+
+    @Required(value = "#valu.N")
+    public void setValue6(String value) {
+    }
+
     @Required("file")
     public void setFile(FormFile file) {
     }
@@ -102,6 +110,7 @@ public class RequiredConstraintTest extends
 
         try {
             confirm(getSetterMethod("value3"));
+            fail();
         } catch (ValidationFailedException expected) {
             Notes notes = expected.getNotes();
             assertNotNull(notes);
@@ -144,6 +153,34 @@ public class RequiredConstraintTest extends
             confirm(getSetterMethod("value4"));
             fail();
         } catch (ValidationFailedException ex) {
+        }
+    }
+
+    public void testValidate_matchedParameterRequiredプロパティがtrueの場合は正規表現にマッチするパラメータがない場合にバリデーションエラーになること()
+            throws Exception {
+        getRequest().getParameterMap().put("value5", new String[] { "a" });
+
+        try {
+            confirm(getSetterMethod("value5"));
+            fail();
+        } catch (ValidationFailedException expected) {
+            Notes notes = expected.getNotes();
+            assertNotNull(notes);
+            assertEquals(1, notes.size());
+            assertEquals(Constraint.PREFIX_MESSAGEKEY + "required", notes
+                    .getNotes()[0].getValue());
+            assertEquals("#valu.N", notes.getNotes()[0].getParameters()[0]);
+        }
+    }
+
+    public void testValidate_matchedParameterRequiredプロパティがfalseの場合は正規表現にマッチするパラメータがなくてもバリデーションエラーにならないこと()
+            throws Exception {
+        getRequest().getParameterMap().put("value6", new String[] { "a" });
+
+        try {
+            confirm(getSetterMethod("value6"));
+        } catch (ValidationFailedException ex) {
+            fail();
         }
     }
 }

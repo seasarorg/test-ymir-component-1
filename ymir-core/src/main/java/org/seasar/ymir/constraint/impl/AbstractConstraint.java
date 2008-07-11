@@ -14,8 +14,7 @@ import org.seasar.ymir.util.BeanUtils;
 
 abstract public class AbstractConstraint<T extends Annotation> implements
         Constraint<T> {
-
-    private static final String PREFIX_REGEX = "#";
+    protected static final String PREFIX_REGEX = "#";
 
     protected String getPropertyName(AnnotatedElement element) {
         if (!(element instanceof Method)) {
