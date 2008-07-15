@@ -111,7 +111,7 @@ public class BeantableManager implements LifecycleListener, HotdeployListener {
                 .getReferenceClass() != null);
     }
 
-    public void enableBeantable(Class clazz, boolean correctTableSchema) {
+    public void enableBeantable(Class<?> clazz, boolean correctTableSchema) {
         ClassTraverserBag bag = getClassTraverserBag(clazz);
         if (bag == null) {
             return;
@@ -127,7 +127,7 @@ public class BeantableManager implements LifecycleListener, HotdeployListener {
             return;
         }
 
-        Beantable beantable = newBeantable(clazz);
+        Beantable<?> beantable = newBeantable(clazz);
         try {
             beantable.activate();
         } catch (SQLException ex) {
@@ -147,11 +147,12 @@ public class BeantableManager implements LifecycleListener, HotdeployListener {
      * HotdeployListener
      */
 
+    @SuppressWarnings("unchecked")
     public void definedClass(Class clazz) {
         enableBeantable(clazz, true);
     }
 
-    ClassTraverserBag getClassTraverserBag(Class clazz) {
+    ClassTraverserBag getClassTraverserBag(Class<?> clazz) {
         if (traverserBags_ != null) {
             for (int i = 0; i < traverserBags_.length; i++) {
                 if (traverserBags_[i].getApplication().isCapable(clazz)) {
@@ -162,7 +163,7 @@ public class BeantableManager implements LifecycleListener, HotdeployListener {
         return null;
     }
 
-    boolean isBeanClass(Class clazz, ClassTraverser traverser) {
+    boolean isBeanClass(Class<?> clazz, ClassTraverser traverser) {
         String packageName;
         String shortClassName;
         String className = clazz.getName();
