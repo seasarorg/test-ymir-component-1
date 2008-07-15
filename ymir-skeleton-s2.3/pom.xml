@@ -62,7 +62,7 @@
     <dependency>
       <groupId>org.seasar.dao</groupId>
       <artifactId>s2-dao-tiger</artifactId>
-      <version>1.0.46</version>
+      <version>1.0.47</version>
       <exclusions>
         <exclusion>
           <groupId>org.seasar.container</groupId>
