@@ -128,13 +128,6 @@ public class AnalyzerTemplateSet implements TemplateSet {
         }
 
         @Override
-        public String getCanonicalName(String baseTemplateName,
-                String templateName) {
-            return templateSet_
-                    .getCanonicalName(baseTemplateName, templateName);
-        }
-
-        @Override
         protected InputStream getInputStream(String templateName) {
             Template tempate = getTemplate(templateName);
             if (!tempate.exists()) {
