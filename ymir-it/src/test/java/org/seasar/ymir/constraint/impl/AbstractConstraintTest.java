@@ -11,7 +11,7 @@ import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.mock.MockRequest;
 
 public class AbstractConstraintTest extends TestCase {
-
+    @SuppressWarnings("unchecked")
     private AbstractConstraint target_ = new AbstractConstraint() {
         public void confirm(Object component, Request request,
                 Annotation annotation, AnnotatedElement element)
