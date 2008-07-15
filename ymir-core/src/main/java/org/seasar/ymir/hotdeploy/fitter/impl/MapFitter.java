@@ -3,6 +3,7 @@ package org.seasar.ymir.hotdeploy.fitter.impl;
 import java.util.Map;
 import java.util.Iterator;
 
+@SuppressWarnings("unchecked")
 public class MapFitter extends AbstractFitter<Map> {
     public Class<Map> getTargetClass() {
         return Map.class;

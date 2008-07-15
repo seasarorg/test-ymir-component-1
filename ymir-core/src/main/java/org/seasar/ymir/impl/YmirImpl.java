@@ -134,8 +134,9 @@ public class YmirImpl implements Ymir {
         return request;
     }
 
-    String correctMethod(final String method, final Map parameterMap) {
-        final String[] values = (String[]) parameterMap.get(PARAM_METHOD);
+    String correctMethod(final String method,
+            final Map<String, String[]> parameterMap) {
+        final String[] values = parameterMap.get(PARAM_METHOD);
         if (values != null && values.length > 0) {
             return values[0];
         } else {

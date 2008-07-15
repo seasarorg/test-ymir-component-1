@@ -3,6 +3,7 @@ package org.seasar.ymir.hotdeploy.fitter.impl;
 import java.util.List;
 import java.util.ListIterator;
 
+@SuppressWarnings("unchecked")
 public class ListFitter extends AbstractFitter<List> {
     public Class<List> getTargetClass() {
         return List.class;

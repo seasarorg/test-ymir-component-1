@@ -127,12 +127,12 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         return constructor.constructResponse(null, returnValue);
     }
 
-    String getComponentName(Class clazz) {
+    String getComponentName(Class<?> clazz) {
         return BeanUtils.changeWithPropertyNameRule(getClassShortName(clazz))
                 + SUFFIX_HANDLER;
     }
 
-    String getClassShortName(Class clazz) {
+    String getClassShortName(Class<?> clazz) {
         String name = clazz.getName();
         int dot = name.lastIndexOf('.');
         if (dot >= 0) {

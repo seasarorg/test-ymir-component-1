@@ -33,8 +33,9 @@ public class PageProcessorImpl implements PageProcessor {
             return;
         }
 
-        for (Iterator itr = properties.keySet().iterator(); itr.hasNext();) {
-            String name = (String) itr.next();
+        for (Iterator<String> itr = properties.keySet().iterator(); itr
+                .hasNext();) {
+            String name = itr.next();
             if (name == null || metaData.isProtected(name)) {
                 continue;
             }
@@ -55,8 +56,9 @@ public class PageProcessorImpl implements PageProcessor {
             return;
         }
 
-        for (Iterator itr = properties.keySet().iterator(); itr.hasNext();) {
-            String name = (String) itr.next();
+        for (Iterator<String> itr = properties.keySet().iterator(); itr
+                .hasNext();) {
+            String name = itr.next();
             if (name == null || metaData.isProtected(name)) {
                 continue;
             }

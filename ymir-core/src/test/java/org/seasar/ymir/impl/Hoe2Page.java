@@ -34,7 +34,7 @@ public class Hoe2Page {
     public void setHoehoe6(FormFile[] hoehoe6) {
     }
 
-    public void setHoehoe7(Map hoehoe7) {
+    public void setHoehoe7(Map<?, ?> hoehoe7) {
     }
 
     @In(scopeClass = SessionScope.class)
@@ -60,7 +60,7 @@ public class Hoe2Page {
     public void setFugafuga6(FormFile[] fugafuga6) {
     }
 
-    public void setFugafuga7(Map fugafuga7) {
+    public void setFugafuga7(Map<?, ?> fugafuga7) {
     }
 
     public String getFugafuga8() {
@@ -71,15 +71,15 @@ public class Hoe2Page {
     public void setFugafuga8(String fugafuga8) {
     }
 
-    public Map getAaa() {
+    public Map<?, ?> getAaa() {
         return null;
     }
 
     @RequestParameter
-    public Map getBbb() {
+    public Map<?, ?> getBbb() {
         return null;
     }
 
-    public void setBbb(Map bbb) {
+    public void setBbb(Map<?, ?> bbb) {
     }
 }

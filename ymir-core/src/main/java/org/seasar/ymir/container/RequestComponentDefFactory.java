@@ -5,9 +5,9 @@ import org.seasar.cms.pluggable.ThreadContextComponentDefFactory;
 import org.seasar.ymir.Request;
 
 public class RequestComponentDefFactory implements
-    ThreadContextComponentDefFactory {
+        ThreadContextComponentDefFactory {
 
-    public Class getComponentClass() {
+    public Class<?> getComponentClass() {
         return Request.class;
     }
 
@@ -17,6 +17,6 @@ public class RequestComponentDefFactory implements
 
     public ThreadContextComponentDef newInstance() {
         return new ThreadContextComponentDef(getComponentClass(),
-            getComponentName());
+                getComponentName());
     }
 }

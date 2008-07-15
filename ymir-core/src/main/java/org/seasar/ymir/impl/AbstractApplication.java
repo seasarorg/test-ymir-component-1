@@ -138,7 +138,7 @@ abstract public class AbstractApplication implements Application {
         return pathMappingProvider_;
     }
 
-    public boolean isCapable(Class clazz) {
+    public boolean isCapable(Class<?> clazz) {
         return clazz.getName().startsWith(getRootPackageName() + ".");
     }
 }

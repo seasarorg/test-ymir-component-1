@@ -50,7 +50,7 @@ public class YmirBootstrap {
     }
 
     void initializeApplication(ServletContext servletContext) {
-        Class landmark = null;
+        Class<?> landmark = null;
         try {
             landmark = Class.forName(Globals.LANDMARK_CLASSNAME);
         } catch (ClassNotFoundException ignored) {

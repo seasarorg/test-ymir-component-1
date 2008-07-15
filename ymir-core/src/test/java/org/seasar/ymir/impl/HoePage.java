@@ -10,10 +10,10 @@ import org.seasar.ymir.annotation.Protected;
 import org.seasar.ymir.scope.impl.SessionScope;
 
 public class HoePage {
-    public void setMap(Map map) {
+    public void setMap(Map<?,?> map) {
     }
 
-    public void setMaps(Map[] maps) {
+    public void setMaps(Map<?, ?>[] maps) {
     }
 
     public void setString(String string) {

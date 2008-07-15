@@ -14,7 +14,6 @@ import org.seasar.ymir.PathMappingProvider;
 import org.seasar.ymir.mock.MockApplication;
 
 public class RequestProcessorImplTest extends S2TestCase {
-
     private RequestProcessorImpl target_;
 
     private PathMappingProvider pathMappingProvider_;
@@ -23,7 +22,8 @@ public class RequestProcessorImplTest extends S2TestCase {
         setServletContext(new MockServletContextImpl("test") {
             private static final long serialVersionUID = 1L;
 
-            public Set getResourcePaths(String path) {
+            @Override
+            public Set<String> getResourcePaths(String path) {
                 if ("/path/to/".equals(path)) {
                     return new HashSet<String>(Arrays.asList(new String[] {
                         "/path/to/file", "/path/to/dir/" }));

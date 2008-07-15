@@ -48,7 +48,7 @@ public class MockApplication implements Application {
         return prop_.getProperty(key, defaultValue);
     }
 
-    public Class getReferenceClass() {
+    public Class<?> getReferenceClass() {
         return null;
     }
 
@@ -85,7 +85,7 @@ public class MockApplication implements Application {
         return false;
     }
 
-    public boolean isCapable(Class clazz) {
+    public boolean isCapable(Class<?> clazz) {
         return false;
     }
 
@@ -115,7 +115,7 @@ public class MockApplication implements Application {
     public void setSourceDirectory(String sourceDirectory) {
     }
 
-    public Enumeration propertyNames() {
+    public Enumeration<String> propertyNames() {
         return null;
     }
 

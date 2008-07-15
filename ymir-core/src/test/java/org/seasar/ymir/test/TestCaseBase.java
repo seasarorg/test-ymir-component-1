@@ -7,9 +7,7 @@ import junit.framework.TestCase;
 import org.seasar.kvasir.util.io.IOUtils;
 
 public abstract class TestCaseBase extends TestCase {
-
-    protected String readResource(Class testClass, String name) {
-
+    protected String readResource(Class<?> testClass, String name) {
         String className = testClass.getName();
         int dot = className.lastIndexOf('.');
         if (dot >= 0) {

@@ -76,9 +76,11 @@ public class HotdeployManagerImplTest extends TestCase {
         fugas[0] = fuga_;
         hoe_.setFugas(fugas);
 
-        hoe2_ = (IHoe2) cl.loadClass("com.example.hotdeploy.Hoe2").newInstance();
+        hoe2_ = (IHoe2) cl.loadClass("com.example.hotdeploy.Hoe2")
+                .newInstance();
     }
 
+    @SuppressWarnings("unchecked")
     private HotdeployFitter<?>[] getHotdeployFitters(
             final HotdeployManager hotdeployManager) {
         ListFitter listFitter = new ListFitter();
@@ -100,8 +102,8 @@ public class HotdeployManagerImplTest extends TestCase {
                 return value;
             }
         };
-        return new HotdeployFitter<?>[] { listFitter, mapFitter, collectionFitter,
-            arrayListFitter };
+        return new HotdeployFitter<?>[] { listFitter, mapFitter,
+            collectionFitter, arrayListFitter };
     }
 
     @Override
@@ -151,15 +153,16 @@ public class HotdeployManagerImplTest extends TestCase {
         assertTrue("Fitterの検索は完全一致→アサイン可能（登録順）のように行なわれること", target.findFitter(
                 List.class).getTargetClass() == List.class);
     }
-    
-    public void testFit4_JIRA_YMIR_125_final宣言されているフィールドを持っていても処理できること() throws Exception {
+
+    public void testFit4_JIRA_YMIR_125_final宣言されているフィールドを持っていても処理できること()
+            throws Exception {
         IHoe2 hoe2 = null;
         try {
-            hoe2= (IHoe2) target_.fit(hoe2_);
+            hoe2 = (IHoe2) target_.fit(hoe2_);
         } catch (Exception ex) {
             fail();
         }
-        
+
         assertEquals(hoe2_.getId(), hoe2.getId());
         assertEquals(hoe2_.getStaticId(), hoe2.getStaticId());
     }

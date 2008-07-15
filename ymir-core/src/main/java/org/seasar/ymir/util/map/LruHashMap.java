@@ -6,8 +6,7 @@ import java.util.Map;
 /**
  * Seasar2.4のLruHashMapです。
  */
-public class LruHashMap extends LinkedHashMap {
-
+public class LruHashMap<K, V> extends LinkedHashMap<K, V> {
     private static final long serialVersionUID = 1L;
 
     protected static final int DEFAULT_INITIAL_CAPACITY = 16;
@@ -30,7 +29,7 @@ public class LruHashMap extends LinkedHashMap {
         return limitSize;
     }
 
-    protected boolean removeEldestEntry(final Map.Entry entry) {
+    protected boolean removeEldestEntry(final Map.Entry<K, V> entry) {
         return size() > limitSize;
     }
 }

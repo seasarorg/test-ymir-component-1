@@ -3,6 +3,7 @@ package org.seasar.ymir.hotdeploy.fitter.impl;
 import java.util.Collection;
 import java.util.Iterator;
 
+@SuppressWarnings("unchecked")
 public class CollectionFitter extends AbstractFitter<Collection> {
     public Class<Collection> getTargetClass() {
         return Collection.class;

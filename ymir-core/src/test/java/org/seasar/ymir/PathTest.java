@@ -33,15 +33,15 @@ public class PathTest extends TestCase {
     }
 
     private void assertEquals(Path expected, Path actual) {
-        Map expectedParameter = expected.getParameterMap();
-        Map actualParameter = actual.getParameterMap();
+        Map<String, String[]> expectedParameter = expected.getParameterMap();
+        Map<String, String[]> actualParameter = actual.getParameterMap();
         assertEquals(expectedParameter.size(), actualParameter.size());
-        for (Iterator itr = expectedParameter.keySet().iterator(); itr
+        for (Iterator<String> itr = expectedParameter.keySet().iterator(); itr
                 .hasNext();) {
-            String key = (String) itr.next();
+            String key = itr.next();
             assertNotNull(actualParameter.get(key));
-            String[] expectedValue = (String[]) expectedParameter.get(key);
-            String[] actualValue = (String[]) actualParameter.get(key);
+            String[] expectedValue = expectedParameter.get(key);
+            String[] actualValue = actualParameter.get(key);
             Arrays.sort(expectedValue);
             Arrays.sort(actualValue);
             assertEquals(expectedValue, actualValue);

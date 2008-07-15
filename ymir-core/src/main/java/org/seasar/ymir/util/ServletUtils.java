@@ -162,7 +162,8 @@ public class ServletUtils {
         return (String) request.getAttribute(ATTR_INCLUDE_SERVLET_PATH);
     }
 
-    public static String constructURI(String path, Map paramMap, String encoding)
+    public static String constructURI(String path,
+            Map<String, Object> paramMap, String encoding)
             throws UnsupportedEncodingException {
         if (paramMap == null) {
             return path;
@@ -173,10 +174,11 @@ public class ServletUtils {
         }
         StringBuffer sb = new StringBuffer(path);
         String delim = "?";
-        Iterator itr = paramMap.entrySet().iterator();
+        Iterator<Map.Entry<String, Object>> itr = paramMap.entrySet()
+                .iterator();
         while (itr.hasNext()) {
-            Map.Entry entry = (Map.Entry) itr.next();
-            String key = (String) entry.getKey();
+            Map.Entry<String, Object> entry = itr.next();
+            String key = entry.getKey();
             Object value = entry.getValue();
             if (key == null || value == null) {
                 continue;

@@ -419,12 +419,13 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
     }
 
+    @SuppressWarnings("unchecked")
     boolean fileResourceExists(String path) {
         if (path.length() == 0 || path.equals("/")) {
             return false;
         }
         String normalized = ServletUtils.normalizePath(path);
-        Set resourceSet = getServletContext().getResourcePaths(
+        Set<String> resourceSet = getServletContext().getResourcePaths(
                 normalized.substring(0, normalized.lastIndexOf('/') + 1));
         return (resourceSet != null && resourceSet.contains(normalized));
     }

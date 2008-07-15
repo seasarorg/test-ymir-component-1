@@ -11,10 +11,9 @@ import org.seasar.ymir.response.constructor.ResponseConstructor;
 import junit.framework.TestCase;
 
 public class ObjectResponseConstructorTest extends TestCase {
-
     private ObjectResponseConstructor target_;
 
-    private Class calledClass_;
+    private Class<?> calledClass_;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -47,7 +46,6 @@ public class ObjectResponseConstructorTest extends TestCase {
     }
 
     public void testConstructResponse() throws Exception {
-
         target_.constructResponse(null, "test");
         assertSame(String.class, calledClass_);
 
@@ -60,7 +58,6 @@ public class ObjectResponseConstructorTest extends TestCase {
     }
 
     public void testFindResponseConstructor() throws Exception {
-
         assertNull("Objectクラスに対してはnullを返すこと", target_
                 .findResponseConstructor(Object.class));
 

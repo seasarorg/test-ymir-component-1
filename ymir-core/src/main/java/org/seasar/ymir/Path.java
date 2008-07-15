@@ -163,11 +163,11 @@ public class Path {
         StringBuilder sb = new StringBuilder();
         String delim = "";
         if (parameterMap_ != null) {
-            for (Iterator itr = parameterMap_.entrySet().iterator(); itr
-                    .hasNext();) {
-                Map.Entry entry = (Map.Entry) itr.next();
-                String key = (String) entry.getKey();
-                String[] values = (String[]) entry.getValue();
+            for (Iterator<Map.Entry<String, String[]>> itr = parameterMap_
+                    .entrySet().iterator(); itr.hasNext();) {
+                Map.Entry<String, String[]> entry = itr.next();
+                String key = entry.getKey();
+                String[] values = entry.getValue();
                 if (key == null || values == null || values.length == 0) {
                     continue;
                 }

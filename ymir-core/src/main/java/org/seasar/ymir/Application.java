@@ -53,7 +53,7 @@ public interface Application {
      * 
      * @return 基準となるClassオブジェクト。
      */
-    Class getReferenceClass();
+    Class<?> getReferenceClass();
 
     /**
      * アプリケーション開発プロジェクトのルートディレクトリのパス文字列を返します。
@@ -132,7 +132,7 @@ public interface Application {
      * @param clazz Class。
      * @return このアプリケーションのルートパッケージ以下に属するかどうか。
      */
-    boolean isCapable(Class clazz);
+    boolean isCapable(Class<?> clazz);
 
     /**
      * 指定されたキーに対応するプロパティの値を返します。
@@ -162,7 +162,7 @@ public interface Application {
      * 
      * @return プロパティの全てのキーを表すEnumeration。
      */
-    Enumeration propertyNames();
+    Enumeration<String> propertyNames();
 
     /**
      * 指定されたキーに対応するプロパティの値を設定します。

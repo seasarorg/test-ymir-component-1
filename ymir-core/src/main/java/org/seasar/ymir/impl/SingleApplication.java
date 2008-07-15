@@ -22,14 +22,14 @@ public class SingleApplication extends AbstractApplication {
 
     private Configuration config_;
 
-    private Class referenceClass_;
+    private Class<?> referenceClass_;
 
     private S2Container container_;
 
     private Map<Class<?>, Object> relatedObjectMap_ = new ConcurrentHashMap<Class<?>, Object>();
 
     public SingleApplication(ServletContext context, Configuration config,
-            Class referenceClass, S2Container container,
+            Class<?> referenceClass, S2Container container,
             LocalHotdeployS2Container ondemandContainer,
             PathMappingProvider pathMappingProvider) {
         super(ID_DEFAULT, ondemandContainer, pathMappingProvider);
@@ -46,7 +46,7 @@ public class SingleApplication extends AbstractApplication {
         return container_;
     }
 
-    public Class getReferenceClass() {
+    public Class<?> getReferenceClass() {
         return referenceClass_;
     }
 
@@ -58,7 +58,8 @@ public class SingleApplication extends AbstractApplication {
         return config_.getProperty(key, defaultValue);
     }
 
-    public Enumeration propertyNames() {
+    @SuppressWarnings("unchecked")
+    public Enumeration<String> propertyNames() {
         return config_.propertyNames();
     }
 
@@ -69,9 +70,9 @@ public class SingleApplication extends AbstractApplication {
     public void save(OutputStream out, String header) throws IOException {
         Properties prop = new Properties();
         synchronized (config_) {
-            for (Enumeration enm = config_.propertyNames(); enm
+            for (Enumeration<String> enm = propertyNames(); enm
                     .hasMoreElements();) {
-                String name = (String) enm.nextElement();
+                String name = enm.nextElement();
                 if (!Configuration.KEY_PROJECTSTATUS.equals(name)) {
                     prop.setProperty(name, config_.getProperty(name));
                 }

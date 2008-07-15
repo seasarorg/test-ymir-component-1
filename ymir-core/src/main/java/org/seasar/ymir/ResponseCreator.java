@@ -19,7 +19,7 @@ public interface ResponseCreator {
      * @param variableMap テンプレートに埋め込む変数を保持するMap。
      * @return 生成したResponseオブジェクト。
      */
-    Response createResponse(String templateName, Map variableMap);
+    Response createResponse(String templateName, Map<String, Object> variableMap);
 
     /**
      * Responseオブジェクトを生成します。
@@ -28,5 +28,5 @@ public interface ResponseCreator {
      * @param variableMap テンプレートに埋め込む変数を保持するMap。
      * @return 生成したResponseオブジェクト。
      */
-    Response createResponse(URL templateURL, Map variableMap);
+    Response createResponse(URL templateURL, Map<String, Object> variableMap);
 }

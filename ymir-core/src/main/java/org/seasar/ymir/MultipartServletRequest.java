@@ -76,11 +76,11 @@ public class MultipartServletRequest extends HttpServletRequestWrapper {
         return value;
     }
 
-    public Map getParameterMap() {
+    public Map<String, String[]> getParameterMap() {
         return paramMap_;
     }
 
-    public Enumeration getParameterNames() {
+    public Enumeration<String> getParameterNames() {
         return Collections.enumeration(paramMap_.keySet());
     }
 

@@ -10,17 +10,14 @@ import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
 
 public class ResponseConstructorSelectorImpl implements
         ResponseConstructorSelector {
-
     private Map<Class<?>, ResponseConstructor<?>> constructorMap_ = new HashMap<Class<?>, ResponseConstructor<?>>();
 
-    public boolean hasResponseConstructor(Class type) {
-
+    public boolean hasResponseConstructor(Class<?> type) {
         return constructorMap_.containsKey(type);
     }
 
     @SuppressWarnings("unchecked")
     public <T> ResponseConstructor<T> getResponseConstructor(Class<T> type) {
-
         ResponseConstructor<?> constructor = constructorMap_.get(type);
         if (constructor != null) {
             return (ResponseConstructor<T>) constructor;
@@ -30,14 +27,12 @@ public class ResponseConstructorSelectorImpl implements
         }
     }
 
-    public void add(ResponseConstructor constructor) {
-
+    public void add(ResponseConstructor<?> constructor) {
         constructorMap_.put(constructor.getTargetClass(), constructor);
     }
 
     @Binding(value = "@org.seasar.ymir.util.ContainerUtils@findAllComponents(container, @org.seasar.ymir.response.constructor.ResponseConstructor@class)", bindingType = BindingType.MUST)
-    public void setResponseConstructors(ResponseConstructor[] constructors) {
-
+    public void setResponseConstructors(ResponseConstructor<?>[] constructors) {
         for (int i = 0; i < constructors.length; i++) {
             add(constructors[i]);
         }

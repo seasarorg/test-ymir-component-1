@@ -52,7 +52,7 @@ public class ObjectResponseConstructor implements ResponseConstructor<Object> {
             return null;
         }
 
-        Set<Class> interfaceSet = new LinkedHashSet<Class>();
+        Set<Class<?>> interfaceSet = new LinkedHashSet<Class<?>>();
         if (clazz.isInterface()) {
             if (responseConstructorSelector_.hasResponseConstructor(clazz)) {
                 return responseConstructorSelector_
@@ -70,8 +70,8 @@ public class ObjectResponseConstructor implements ResponseConstructor<Object> {
             } while ((type = type.getSuperclass()) != Object.class);
         }
 
-        for (Iterator<Class> itr = interfaceSet.iterator(); itr.hasNext();) {
-            Class interfaze = itr.next();
+        for (Iterator<Class<?>> itr = interfaceSet.iterator(); itr.hasNext();) {
+            Class<?> interfaze = itr.next();
             ResponseConstructor<?> constructor = findResponseConstructor(interfaze);
             if (constructor != null) {
                 return constructor;

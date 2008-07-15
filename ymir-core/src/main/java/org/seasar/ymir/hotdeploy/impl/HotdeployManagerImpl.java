@@ -169,7 +169,7 @@ public class HotdeployManagerImpl implements HotdeployManager {
         return list.toArray(new Field[0]);
     }
 
-    Class getContextClass(Class<?> clazz) {
+    Class<?> getContextClass(Class<?> clazz) {
         ClassLoader contextClassLoader = Thread.currentThread()
                 .getContextClassLoader();
         try {
