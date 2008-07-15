@@ -1,7 +1,5 @@
 package org.seasar.ymir.extension.creator.impl;
 
-import java.util.Map;
-
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -122,8 +120,7 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         MethodDesc actualMd = actual
                 .getMethodDesc(new MethodDescImpl("method"));
         assertNotNull(actualMd);
-        assertEquals("body", ((Map) actualMd.getBodyDesc().getRoot())
-                .get("body"));
+        assertEquals("body", actualMd.getBodyDesc().getRoot().get("body"));
         assertEquals("Integer", actual.getMethodDesc(
                 new MethodDescImpl("method")).getReturnTypeDesc().getName());
         assertEquals("String", actual.getMethodDesc(

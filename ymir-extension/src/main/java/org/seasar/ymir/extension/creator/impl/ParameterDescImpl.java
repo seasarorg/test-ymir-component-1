@@ -4,7 +4,6 @@ import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 
 public class ParameterDescImpl implements ParameterDesc {
-
     private TypeDesc typeDesc_;
 
     private String name_;
@@ -18,11 +17,11 @@ public class ParameterDescImpl implements ParameterDesc {
         name_ = name;
     }
 
-    public ParameterDescImpl(Class type) {
+    public ParameterDescImpl(Class<?> type) {
         this(type, null);
     }
 
-    public ParameterDescImpl(Class type, String name) {
+    public ParameterDescImpl(Class<?> type, String name) {
         this(new TypeDescImpl(type), name);
     }
 

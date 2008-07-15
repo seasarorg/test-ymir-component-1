@@ -481,11 +481,11 @@ public class SourceCreatorImpl implements SourceCreator {
         return classDescBag;
     }
 
-    public ClassDesc getClassDesc(Class clazz, String className) {
+    public ClassDesc getClassDesc(Class<?> clazz, String className) {
         return getClassDesc(clazz, className, true);
     }
 
-    public ClassDesc getClassDesc(Class clazz, String className,
+    public ClassDesc getClassDesc(Class<?> clazz, String className,
             boolean onlyDeclared) {
         if (clazz == null) {
             return null;
@@ -545,7 +545,7 @@ public class SourceCreatorImpl implements SourceCreator {
             }
 
             propertyDesc.setMode(mode);
-            Class propertyType = pds[i].getPropertyType();
+            Class<?> propertyType = pds[i].getPropertyType();
             if (propertyType == null) {
                 logger_.info("**** PropertyType is NULL: name=" + name);
                 continue;
@@ -581,7 +581,7 @@ public class SourceCreatorImpl implements SourceCreator {
         } else {
             // 祖先クラスにあるメソッドも対象とする。ただしObjectクラスのメソッドは対象外とする。
             List<Method> methodList = new ArrayList<Method>();
-            for (Class c = clazz; c != Object.class; c = c.getSuperclass()) {
+            for (Class<?> c = clazz; c != Object.class; c = c.getSuperclass()) {
                 methodList.addAll(Arrays.asList(c.getDeclaredMethods()));
             }
             methods = methodList.toArray(new Method[0]);
@@ -715,12 +715,14 @@ public class SourceCreatorImpl implements SourceCreator {
 
                 // Dxo用のClassDescを生成しておく。
                 classDesc = metaData.getDxoClassDesc();
-                List list = (List) pageByDtoMap.get(classDescs[i].getName());
+                List<ClassDesc> list = pageByDtoMap
+                        .get(classDescs[i].getName());
                 if (list != null) {
-                    for (Iterator itr = list.iterator(); itr.hasNext();) {
+                    for (Iterator<ClassDesc> itr = list.iterator(); itr
+                            .hasNext();) {
                         MethodDescImpl md = new MethodDescImpl("convert");
                         ParameterDesc[] pmds = new ParameterDesc[] { new ParameterDescImpl(
-                                new TypeDescImpl(((ClassDesc) itr.next()))) };
+                                new TypeDescImpl(itr.next())) };
                         md.setParameterDescs(pmds);
                         md.setReturnTypeDesc(metaData.getBeanClassDesc()
                                 .getName());
@@ -798,13 +800,13 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public void mergeWithExistentClass(ClassDesc desc, boolean mergeMethod) {
         String className = desc.getName();
-        Class clazz = getClass(className);
+        Class<?> clazz = getClass(className);
         ClassDesc gapDesc = getClassDesc(clazz, className);
         if (gapDesc == null) {
             gapDesc = newClassDesc(className);
         }
 
-        Class baseClass = (clazz != null
+        Class<?> baseClass = (clazz != null
                 && clazz.getSuperclass().getName().equals(className + "Base") ? clazz
                 .getSuperclass()
                 : null);
@@ -985,7 +987,7 @@ public class SourceCreatorImpl implements SourceCreator {
         return null;
     }
 
-    public Class getClass(String className) {
+    public Class<?> getClass(String className) {
         if (className == null) {
             return null;
         }
@@ -1003,7 +1005,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public PropertyDescriptor getPropertyDescriptor(String className,
             String propertyName) {
-        Class clazz = getClass(className);
+        Class<?> clazz = getClass(className);
         if (clazz == null || propertyName == null) {
             return null;
         }
@@ -1229,9 +1231,9 @@ public class SourceCreatorImpl implements SourceCreator {
 
         // スーパークラスをセットする。
         Application application = getApplication();
-        for (Enumeration enm = application.propertyNames(); enm
+        for (Enumeration<String> enm = application.propertyNames(); enm
                 .hasMoreElements();) {
-            String key = (String) enm.nextElement();
+            String key = enm.nextElement();
             if (!key.startsWith(APPKEYPREFIX_SOURCECREATOR_SUPERCLASS)) {
                 continue;
             }
@@ -1241,7 +1243,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 continue;
             }
             String superclassName = application.getProperty(key);
-            Class superclass = getClass(superclassName);
+            Class<?> superclass = getClass(superclassName);
             if (superclass == null) {
                 throw new RuntimeException(
                         "Superclass is not found: superclass key=" + key
@@ -1253,7 +1255,7 @@ public class SourceCreatorImpl implements SourceCreator {
         if (classDescImpl.getSuperclassName() == null) {
             String superclassName = application
                     .getProperty(APPKEY_SOURCECREATOR_SUPERCLASS);
-            Class superclass = getClass(superclassName);
+            Class<?> superclass = getClass(superclassName);
             if (superclassName != null && superclass == null) {
                 throw new RuntimeException(
                         "Superclass is not found: superclass key="

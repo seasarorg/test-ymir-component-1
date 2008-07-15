@@ -17,7 +17,7 @@ public class MockServletContext implements ServletContext {
         return null;
     }
 
-    public Enumeration getAttributeNames() {
+    public Enumeration<String> getAttributeNames() {
         return null;
     }
 
@@ -29,7 +29,7 @@ public class MockServletContext implements ServletContext {
         return null;
     }
 
-    public Enumeration getInitParameterNames() {
+    public Enumeration<String> getInitParameterNames() {
         return null;
     }
 
@@ -65,7 +65,7 @@ public class MockServletContext implements ServletContext {
         return null;
     }
 
-    public Set getResourcePaths(String path) {
+    public Set<String> getResourcePaths(String path) {
         return null;
     }
 
@@ -81,11 +81,11 @@ public class MockServletContext implements ServletContext {
         return null;
     }
 
-    public Enumeration getServletNames() {
+    public Enumeration<String> getServletNames() {
         return null;
     }
 
-    public Enumeration getServlets() {
+    public Enumeration<Servlet> getServlets() {
         return null;
     }
 

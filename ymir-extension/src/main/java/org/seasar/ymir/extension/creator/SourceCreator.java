@@ -58,7 +58,7 @@ public interface SourceCreator extends Updater {
 
     SourceGenerator getSourceGenerator();
 
-    Class getClass(String className);
+    Class<?> getClass(String className);
 
     PropertyDescriptor getPropertyDescriptor(String className,
             String propertyName);

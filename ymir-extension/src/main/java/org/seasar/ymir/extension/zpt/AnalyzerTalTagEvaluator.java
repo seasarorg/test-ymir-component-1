@@ -63,12 +63,11 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
 
     public String evaluate(TemplateContext context, String name,
             Attribute[] attrs, Element[] body) {
-
         AnnotationResult result = findAnnotation(context, name, attrs);
         String annotation = result.getAnnotation();
         attrs = result.getTheOtherAttributes();
         AnalyzerContext analyzerContext = toAnalyzerContext(context);
-        Map attrMap = evaluate(analyzerContext, attrs);
+        Map<String, Attribute> attrMap = evaluate(analyzerContext, attrs);
         Set<String> runtimeAttributeNameSet = getRuntimeAttributeNameSet(attrs);
 
         if ("form".equals(name)) {
@@ -252,8 +251,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
     }
 
     FormDesc registerTransitionClassDesc(AnalyzerContext analyzerContext,
-            Map attrMap, Set<String> runtimeAttributeNameSet, String attrName,
-            String method) {
+            Map<String, Attribute> attrMap,
+            Set<String> runtimeAttributeNameSet, String attrName, String method) {
 
         SourceCreator creator = analyzerContext.getSourceCreator();
         String url = getAttributeValue(attrMap, attrName, null);
@@ -281,9 +280,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         boolean dispatchingByParameter = matched.getPathMapping()
                 .isDispatchingByButton();
         classDesc.setMethodDesc(new MethodDescImpl(actionName));
-        for (Iterator itr = path.getParameterMap().keySet().iterator(); itr
+        for (Iterator<String> itr = path.getParameterMap().keySet().iterator(); itr
                 .hasNext();) {
-            classDesc.addProperty((String) itr.next(),
+            classDesc.addProperty(itr.next(),
                     PropertyDesc.WRITE | PropertyDesc.READ)
                     .notifyUpdatingType();
         }
@@ -411,8 +410,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 .toArray(new Attribute[0]));
     }
 
-    PropertyDesc processParameterTag(AnalyzerContext context, Map attrMap,
-            String annotation, FormDesc formDesc) {
+    PropertyDesc processParameterTag(AnalyzerContext context,
+            Map<String, Attribute> attrMap, String annotation, FormDesc formDesc) {
         String name = getAttributeValue(attrMap, "name", null);
         if (name != null && shouldGeneratePropertyForParameter(name)) {
             return context.getPropertyDesc(formDesc.getClassDesc(), name,
@@ -456,8 +455,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         return AnalyzerUtils.isValidVariableName(name);
     }
 
-    Map evaluate(ZptTemplateContext context, Attribute[] attrs) {
-
+    @SuppressWarnings("unchecked")
+    Map<String, Attribute> evaluate(ZptTemplateContext context,
+            Attribute[] attrs) {
         ExpressionEvaluator expEvaluator = context.getExpressionEvaluator();
         VariableResolver varResolver = context.getVariableResolver();
 
@@ -496,13 +496,12 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
     }
 
     AnalyzerContext toAnalyzerContext(TemplateContext context) {
-
         return (AnalyzerContext) context;
     }
 
-    String getAttributeValue(Map attrMap, String name, String defaultValue) {
-
-        Attribute attr = (Attribute) attrMap.get(name);
+    String getAttributeValue(Map<String, Attribute> attrMap, String name,
+            String defaultValue) {
+        Attribute attr = attrMap.get(name);
         if (attr != null) {
             return TagEvaluatorUtils.defilter(attr.getValue());
         } else {
@@ -511,7 +510,6 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
     }
 
     static class AnnotationResult {
-
         private String annotation_;
 
         private Attribute[] theOtherAttributes_;
@@ -535,7 +533,6 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
     protected boolean evaluateCondition(TemplateContext context,
             ExpressionEvaluator expEvaluator, VariableResolver varResolver,
             String condition) {
-
         if (condition.trim().length() == 0) {
             return false;
         }

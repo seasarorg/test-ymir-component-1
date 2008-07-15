@@ -151,7 +151,7 @@ public class ZptAnalyzerTest extends TestCase {
             }
 
             @Override
-            public Class getClass(String className) {
+            public Class<?> getClass(String className) {
                 if (className == null) {
                     return null;
                 }
@@ -166,8 +166,8 @@ public class ZptAnalyzerTest extends TestCase {
         ApplicationManagerImpl applicationManager = new ApplicationManagerImpl();
         MockApplication mockApplication = new MockApplication() {
             @Override
-            public Enumeration propertyNames() {
-                return new Vector().elements();
+            public Enumeration<String> propertyNames() {
+                return new Vector<String>().elements();
             }
         }.setS2Container(S2ContainerFactory
                 .create("org/seasar/ymir/extension/zpt/ZptAnalyzerTest.dicon"));

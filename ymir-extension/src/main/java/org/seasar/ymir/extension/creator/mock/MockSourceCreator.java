@@ -105,7 +105,7 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public Class getClass(String className) {
+    public Class<?> getClass(String className) {
         return null;
     }
 

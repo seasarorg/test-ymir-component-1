@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 public class MockHttpServletRequest implements HttpServletRequest {
-
     private StringBuffer requestURL_;
 
     private String requestURI_;
@@ -42,11 +41,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return null;
     }
 
-    public Enumeration getHeaderNames() {
+    public Enumeration<String> getHeaderNames() {
         return null;
     }
 
-    public Enumeration getHeaders(String name) {
+    public Enumeration<String> getHeaders(String name) {
         return null;
     }
 
@@ -126,7 +125,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return null;
     }
 
-    public Enumeration getAttributeNames() {
+    public Enumeration<String> getAttributeNames() {
         return null;
     }
 
@@ -162,7 +161,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return null;
     }
 
-    public Enumeration getLocales() {
+    public Enumeration<Locale> getLocales() {
         return null;
     }
 
@@ -170,11 +169,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return null;
     }
 
-    public Map getParameterMap() {
+    public Map<String, String[]> getParameterMap() {
         return null;
     }
 
-    public Enumeration getParameterNames() {
+    public Enumeration<String> getParameterNames() {
         return null;
     }
 

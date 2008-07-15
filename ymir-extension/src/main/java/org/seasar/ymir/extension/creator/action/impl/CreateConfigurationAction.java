@@ -175,7 +175,8 @@ public class CreateConfigurationAction extends AbstractAction implements
     }
 
     MapProperties readAppPropertiesInOrder(Application application) {
-        MapProperties prop = new MapProperties(new LinkedHashMap());
+        MapProperties prop = new MapProperties(
+                new LinkedHashMap<String, String>());
         String filePath = application.getDefaultPropertiesFilePath();
         if (filePath != null) {
             File file = new File(filePath);

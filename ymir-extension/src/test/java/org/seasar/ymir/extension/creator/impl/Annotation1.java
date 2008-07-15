@@ -23,5 +23,5 @@ public @interface Annotation1 {
 
     Enum1 enumValue() default Enum1.VALUE1;
 
-    Class classValue() default Object.class;
+    Class<?> classValue() default Object.class;
 }

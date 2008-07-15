@@ -35,7 +35,7 @@ public class ClassDescBag {
         return getClassDescMap(kind).values().toArray(new ClassDesc[0]);
     }
 
-    public Iterator getClassDescKindIterator() {
+    public Iterator<String> getClassDescKindIterator() {
         return map_.keySet().iterator();
     }
 
@@ -158,9 +158,10 @@ public class ClassDescBag {
         set_.remove(className);
     }
 
-    void remove(Map map, String className) {
-        for (Iterator itr = map.values().iterator(); itr.hasNext();) {
-            Map kindMap = (Map) itr.next();
+    void remove(Map<String, Map<String, ClassDesc>> map, String className) {
+        for (Iterator<Map<String, ClassDesc>> itr = map.values().iterator(); itr
+                .hasNext();) {
+            Map<String, ClassDesc> kindMap = itr.next();
             kindMap.remove(className);
         }
     }

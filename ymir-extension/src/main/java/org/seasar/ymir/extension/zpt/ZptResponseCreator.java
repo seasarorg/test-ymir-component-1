@@ -27,22 +27,24 @@ public class ZptResponseCreator implements ResponseCreator {
     private TemplateEvaluator evaluator_ = new TemplateEvaluatorImpl(
             new MetalTagEvaluator(), new TalesExpressionEvaluator());
 
-    public Response createResponse(String templateName, Map variableMap) {
+    public Response createResponse(String templateName,
+            Map<String, Object> variableMap) {
 
         return createResponse(getClass().getResource(
                 TEMPLATE_PREFIX + templateName + TEMPLATE_SUFFIX), variableMap);
     }
 
-    public Response createResponse(URL templateURL, Map variableMap) {
+    public Response createResponse(URL templateURL,
+            Map<String, Object> variableMap) {
 
         TemplateContext context = evaluator_.newContext();
         context.setProperty(TemplateContext.PROP_CONTENT_TYPE, "text/html");
         if (variableMap != null) {
             VariableResolver resolver = new VariableResolverImpl();
-            for (Iterator itr = variableMap.entrySet().iterator(); itr
-                    .hasNext();) {
-                Map.Entry entry = (Map.Entry) itr.next();
-                resolver.setVariable((String) entry.getKey(), entry.getValue());
+            for (Iterator<Map.Entry<String, Object>> itr = variableMap
+                    .entrySet().iterator(); itr.hasNext();) {
+                Map.Entry<String, Object> entry = itr.next();
+                resolver.setVariable(entry.getKey(), entry.getValue());
             }
             context.setVariableResolver(resolver);
         }

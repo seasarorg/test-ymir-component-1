@@ -29,7 +29,6 @@ import net.skirnir.freyja.VariableResolver;
 import net.skirnir.freyja.zpt.ZptTemplateContext;
 
 public class AnalyzerContext extends ZptTemplateContext {
-
     private static final String MULTIPLE_SUFFIX = "ies";
 
     private static final String SINGULAR_SUFFIX = "y";
@@ -100,13 +99,11 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     public void defineVariable(int scope, String name, Object value) {
-
         setUsedAsLocalVariable(name);
         super.defineVariable(scope, name, value);
     }
 
     public RepeatInfo pushRepeatInfo(String name, Object[] objs) {
-
         setUsedAsLocalVariable(name);
         if (objs != null && objs.length == 1 && objs[0] instanceof DescWrapper) {
             DescWrapper wrapper = (DescWrapper) objs[0];
@@ -133,28 +130,23 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     public String getMethod() {
-
         return method_;
     }
 
     public void setMethod(String method) {
-
         method_ = method;
     }
 
-    public Map getClassDescMap() {
-
+    public Map<String, ClassDesc> getClassDescMap() {
         return classDescMap_;
     }
 
     public void setClassDescMap(Map<String, ClassDesc> classDescMap) {
-
         classDescMap_ = classDescMap;
     }
 
     public ClassDesc getTemporaryClassDescFromPropertyName(ClassDesc classDesc,
             String propertyName) {
-
         String className;
         if (usingFreyjaRenderClasses_
                 && !RequestProcessor.ATTR_NOTES.equals(propertyName)) {
@@ -180,8 +172,7 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     public ClassDesc getTemporaryClassDescFromClassName(String className) {
-
-        ClassDesc classDesc = (ClassDesc) temporaryClassDescMap_.get(className);
+        ClassDesc classDesc = temporaryClassDescMap_.get(className);
         if (classDesc == null) {
             classDesc = sourceCreator_.newClassDesc(className);
             temporaryClassDescMap_.put(className, classDesc);
@@ -190,13 +181,11 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     boolean isAvailable(String className) {
-
         return (sourceCreator_.getClass(className) != null);
     }
 
     public String fromPropertyNameToClassName(ClassDesc classDesc,
             String propertyName) {
-
         String className = null;
         if (RequestProcessor.ATTR_SELF.equals(propertyName)) {
             className = getPageClassName();
@@ -228,42 +217,34 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     public String getPageClassName() {
-
         return pageClassName_;
     }
 
     public void setPageClassName(String pageClassName) {
-
         pageClassName_ = pageClassName;
     }
 
     public ClassDesc getPageClassDesc() {
-
         return getTemporaryClassDescFromClassName(getPageClassName());
     }
 
     public SourceCreator getSourceCreator() {
-
         return sourceCreator_;
     }
 
     public void setSourceCreator(SourceCreator sourceCreator) {
-
         sourceCreator_ = sourceCreator;
     }
 
     public FormDesc getFormDesc() {
-
         return formDesc_;
     }
 
     public void setFormDesc(FormDesc formDesc) {
-
         formDesc_ = formDesc;
     }
 
     public void close() {
-
         for (Iterator<ClassDesc> itr = temporaryClassDescMap_.values()
                 .iterator(); itr.hasNext();) {
             ClassDesc classDesc = itr.next();
@@ -312,7 +293,6 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     void registerAvailablePagesAndDtos(ClassDesc classDesc) {
-
         if (!register(classDesc)) {
             return;
         }
@@ -326,7 +306,6 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     boolean register(ClassDesc classDesc) {
-
         String key = classDesc.getName();
         Object registered = classDescMap_.get(key);
         classDescMap_.put(key, classDesc);
@@ -339,24 +318,20 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     boolean isPage(ClassDesc classDesc) {
-
         return ClassDesc.KIND_PAGE.equals(classDesc.getKind())
                 && !isOuter(classDesc);
     }
 
     boolean isDto(ClassDesc classDesc) {
-
         return ClassDesc.KIND_DTO.equals(classDesc.getKind())
                 && !isOuter(classDesc);
     }
 
     boolean isEmptyDto(ClassDesc classDesc) {
-
         return (isDto(classDesc) && classDesc.isEmpty());
     }
 
     public String getDtoClassName(ClassDesc classDesc, String baseName) {
-
         StringBuilder dtoClassName = new StringBuilder();
         dtoClassName.append(sourceCreator_.getDtoPackageName());
 
@@ -387,7 +362,6 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     String capFirst(String string) {
-
         if (string == null || string.length() == 0) {
             return string;
         } else {
@@ -398,7 +372,6 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     public PropertyDesc getPropertyDesc(ClassDesc classDesc, String name,
             int mode) {
-
         int dot = name.indexOf('.');
         if (dot < 0) {
             return getSinglePropertyDesc(classDesc, name, mode, true);
@@ -419,7 +392,6 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     PropertyDesc getSinglePropertyDesc(ClassDesc classDesc, String name,
             int mode, boolean setAsArrayIfSetterExists) {
-
         boolean array = false;
         int lparen = name.indexOf(STR_ARRAY_LPAREN);
         int rparen = name.indexOf(CHAR_ARRAY_RPAREN);
@@ -450,7 +422,6 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     public ClassDesc preparePropertyTypeClassDesc(ClassDesc classDesc,
             PropertyDesc propertyDesc, boolean force) {
-
         ClassDesc cd = propertyDesc.getTypeDesc().getClassDesc();
         ClassDesc returned = null;
         if (cd instanceof ClassDescImpl) {
@@ -483,37 +454,30 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     public boolean isUsedAsVariable(String name) {
-
         return usedAsVariableSet_.contains(name);
     }
 
     public void setUsedAsVariable(String name) {
-
         usedAsVariableSet_.add(name);
     }
 
     public boolean isUsedAsLocalVariable(String name) {
-
         return usedAsLocalVariableSet_.contains(name);
     }
 
     public void setUsedAsLocalVariable(String name) {
-
         usedAsLocalVariableSet_.add(name);
     }
 
     public String getPath() {
-
         return path_;
     }
 
     public void setPath(String path) {
-
         path_ = path;
     }
 
     public void setPropertyTypeHintBag(PropertyTypeHintBag hintBag) {
-
         hintBag_ = hintBag;
     }
 

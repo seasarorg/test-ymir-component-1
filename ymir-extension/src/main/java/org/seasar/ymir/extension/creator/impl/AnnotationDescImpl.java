@@ -22,7 +22,7 @@ public class AnnotationDescImpl implements AnnotationDesc {
     }
 
     void analyze(Annotation annotation) {
-        Class type = annotation.annotationType();
+        Class<?> type = annotation.annotationType();
         name_ = type.getName();
 
         Method[] methods = type.getDeclaredMethods();
@@ -93,7 +93,7 @@ public class AnnotationDescImpl implements AnnotationDesc {
 
     void append(StringBuilder sb, Class<?> type, Object value) {
         if (type == Class.class) {
-            sb.append(((Class) value).getName()).append(".class");
+            sb.append(((Class<?>) value).getName()).append(".class");
         } else if (Annotation.class.isAssignableFrom(type)) {
             sb.append(new AnnotationDescImpl((Annotation) value).getString());
         } else if (type == String.class) {

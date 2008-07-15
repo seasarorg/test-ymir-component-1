@@ -52,7 +52,7 @@ public class CreateTemplateAction extends AbstractAction implements
     Response actDefault(Request request, PathMetaData pathMetaData) {
 
         boolean actionMethodNotFound = false;
-        Class pageClass = getSourceCreator().getClass(
+        Class<?> pageClass = getSourceCreator().getClass(
                 pathMetaData.getClassName());
         if (pageClass != null) {
             Method actionMethod = getActionMethod(pageClass, pathMetaData
@@ -80,7 +80,7 @@ public class CreateTemplateAction extends AbstractAction implements
                 "createTemplate", variableMap);
     }
 
-    Method getActionMethod(Class pageClass, String actionName) {
+    Method getActionMethod(Class<?> pageClass, String actionName) {
         try {
             return pageClass.getMethod(actionName, new Class[0]);
         } catch (SecurityException ex) {

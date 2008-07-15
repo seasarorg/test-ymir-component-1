@@ -25,7 +25,6 @@ import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 
 abstract public class AbstractAction {
-
     private static final String PARAM_BUTTON_SKIP = SourceCreator.PARAM_PREFIX
             + "button_skip";
 
@@ -39,17 +38,14 @@ abstract public class AbstractAction {
     private SourceCreator sourceCreator_;
 
     public AbstractAction(SourceCreator sourceCreator) {
-
         sourceCreator_ = sourceCreator;
     }
 
     public SourceCreator getSourceCreator() {
-
         return sourceCreator_;
     }
 
     protected String getSuffix(String name) {
-
         int dot = name.lastIndexOf('.');
         if (dot < 0) {
             return "";
@@ -59,7 +55,6 @@ abstract public class AbstractAction {
     }
 
     protected String quote(String string) {
-
         StringBuffer sb = new StringBuffer();
         sb.append('"');
         for (int i = 0; i < string.length(); i++) {
@@ -74,16 +69,15 @@ abstract public class AbstractAction {
     }
 
     protected Parameter[] getParameters(Request request) {
-
         List<Parameter> list = new ArrayList<Parameter>();
-        for (Iterator itr = request.getParameterMap().entrySet().iterator(); itr
-                .hasNext();) {
-            Map.Entry entry = (Map.Entry) itr.next();
-            String name = (String) entry.getKey();
+        for (Iterator<Map.Entry<String, String[]>> itr = request
+                .getParameterMap().entrySet().iterator(); itr.hasNext();) {
+            Map.Entry<String, String[]> entry = itr.next();
+            String name = entry.getKey();
             if (name.startsWith(SourceCreatorImpl.PARAM_PREFIX)) {
                 continue;
             }
-            String[] values = (String[]) entry.getValue();
+            String[] values = entry.getValue();
             for (int i = 0; i < values.length; i++) {
                 list.add(new Parameter(name, values[i]));
             }

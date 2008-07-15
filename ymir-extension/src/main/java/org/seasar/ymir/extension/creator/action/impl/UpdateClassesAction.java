@@ -26,7 +26,6 @@ import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 
 public class UpdateClassesAction extends AbstractAction implements UpdateAction {
-
     protected static final String PARAM_APPLY = SourceCreator.PARAM_PREFIX
             + "apply";
 
@@ -58,7 +57,6 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
     }
 
     public Response act(Request request, PathMetaData pathMetaData) {
-
         if (isSkipButtonPushed(request)) {
             return null;
         }
@@ -72,7 +70,6 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
     }
 
     Response actDefault(Request request, PathMetaData pathMetaData) {
-
         if (!shouldUpdate(pathMetaData)) {
             return null;
         }
@@ -97,7 +94,6 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
     }
 
     protected ClassDescDto[] createClassDescDtos(ClassDesc[] classDescs) {
-
         Properties prop = getSourceCreator().getSourceCreatorProperties();
 
         ClassDescDto[] dtos = new ClassDescDto[classDescs.length];
@@ -119,15 +115,14 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
     }
 
     Response actUpdate(Request request, PathMetaData pathMetaData) {
-
         String method = request.getParameter(PARAM_METHOD);
         if (method == null) {
             return null;
         }
 
         List<PropertyTypeHint> hintList = new ArrayList<PropertyTypeHint>();
-        for (Iterator itr = request.getParameterNames(); itr.hasNext();) {
-            String name = (String) itr.next();
+        for (Iterator<String> itr = request.getParameterNames(); itr.hasNext();) {
+            String name = itr.next();
             if (!name.startsWith(PARAMPREFIX_PROPERTYTYPE)) {
                 continue;
             }
@@ -217,7 +212,6 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
     }
 
     boolean shouldUpdate(PathMetaData pathMetaData) {
-
         Template template = pathMetaData.getTemplate();
         if (template == null || !template.exists()) {
             return false;
@@ -230,7 +224,6 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
     }
 
     long getCheckedTime(Template template) {
-
         Properties prop = getSourceCreator().getSourceCreatorProperties();
         String key = PREFIX_CHECKEDTIME + template.getPath();
         String timeString = prop.getProperty(key);
@@ -245,7 +238,6 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
     }
 
     void updateCheckedTime(Template template) {
-
         Properties prop = getSourceCreator().getSourceCreatorProperties();
         String key = PREFIX_CHECKEDTIME + template.getPath();
         prop.setProperty(key, String.valueOf(System.currentTimeMillis()));

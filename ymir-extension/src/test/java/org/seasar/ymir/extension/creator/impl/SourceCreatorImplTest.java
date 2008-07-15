@@ -257,8 +257,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         ClassDesc cd = target_.getClassDesc(Class1Base.class,
                 "org.seasar.ymir.extension.creator.impl.Class1");
         BodyDesc actual = cd.getMethodDescs()[0].getBodyDesc();
-        assertEquals("return \"return value\";", ((Map) actual.getRoot())
-                .get("body"));
+        assertEquals("return \"return value\";", actual.getRoot().get("body"));
     }
 
     public void testGetClassDesc_プロパティのGetterとSetterに付与したAnnotationが保持されること()

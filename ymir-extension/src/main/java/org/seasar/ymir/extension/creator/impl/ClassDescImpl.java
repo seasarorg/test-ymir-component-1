@@ -17,7 +17,7 @@ public class ClassDescImpl extends AbstractClassDesc {
 
     private String name_;
 
-    private Class superclass_;
+    private Class<?> superclass_;
 
     private Map<String, PropertyDesc> propertyDescMap_ = new TreeMap<String, PropertyDesc>();
 
@@ -119,12 +119,12 @@ public class ClassDescImpl extends AbstractClassDesc {
         }
     }
 
-    public Class getSuperclass() {
+    public Class<?> getSuperclass() {
 
         return superclass_;
     }
 
-    public void setSuperclass(Class superclass) {
+    public void setSuperclass(Class<?> superclass) {
 
         superclass_ = superclass;
     }
