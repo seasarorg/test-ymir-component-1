@@ -107,7 +107,7 @@ public class YmirFilter implements Filter {
             ymir_.updateRequest(request, httpRequest, dispatcher_);
         }
 
-        ymir_.enterDispatch(request, ServletUtils.getPath(httpRequest),
+        ymir_.enterDispatch(request, ServletUtils.getNativePath(httpRequest),
                 ServletUtils.getQueryString(httpRequest), dispatcher_);
         try {
             Response response = ymir_.processRequest(request);
