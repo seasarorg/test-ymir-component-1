@@ -31,14 +31,16 @@ public class JSONInjectionVisitor extends PageComponentVisitor {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public void injectJSONObject(Object page, PageMetaData metaData,
             JSONObject jsonObject) {
         if (jsonObject == null) {
             return;
         }
 
-        for (Iterator itr = jsonObject.keySet().iterator(); itr.hasNext();) {
-            String name = (String) itr.next();
+        for (Iterator<String> itr = jsonObject.keySet().iterator(); itr
+                .hasNext();) {
+            String name = itr.next();
             if (name == null || metaData.isProtected(name)) {
                 continue;
             }
