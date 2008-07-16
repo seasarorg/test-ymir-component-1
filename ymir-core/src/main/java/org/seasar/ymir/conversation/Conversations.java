@@ -82,14 +82,13 @@ public interface Conversations {
      * <p>現在のconversationの名前が指定された名前と一致する場合は、
      * alwaysBeginがfalseであればconversationを開始しません。
      * alwaysBeginがtrueであれば、
-     * 現在のconversationの名前が指定された名前と一致する場合でも再度conversationを開始しますが、
-     * フェーズ名まで一致した場合はconversationを開始しません。
+     * 現在のconversationの名前が指定された名前と一致する場合でも再度conversationを開始します。
+     * （ただし直前のフェーズ名と新しいフェーズ名が一致した場合はconversationを開始しません。）
      * </p>
      * 
      * @param conversationName 開始するconversationの名前。
      * @param phase 開始するフェーズの名前。
-     * @param alwaysBegin 既に同一名のconversationが開始されていて
-     * かつフェーズが異なる場合に再度開始するかどうか。
+     * @param alwaysBegin 既に同一名のconversationが開始されていても再度開始するかどうか。
      */
     void begin(String conversationName, String phase, boolean alwaysBegin);
 
