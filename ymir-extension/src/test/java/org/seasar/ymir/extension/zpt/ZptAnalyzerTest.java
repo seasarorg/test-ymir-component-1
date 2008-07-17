@@ -909,4 +909,21 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(pd);
         assertTrue(pd.isReadable());
     }
+
+    public void testAnalyze53_hrefに書かれたパスにリクエストパラメータがなくてもPageクラスが生成されること()
+            throws Exception {
+
+        act("testAnalyze53");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        assertNotNull(cd);
+    }
+
+    public void testAnalyze54_formにパラメータがなくてもPageクラスが生成されること() throws Exception {
+
+        act("testAnalyze54");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        assertNotNull(cd);
+    }
 }

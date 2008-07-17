@@ -1,0 +1,9 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <form action="./index.html" method="get">
+    </form>
+  </body>
+</html>
