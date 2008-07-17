@@ -590,6 +590,47 @@ public class SourceCreatorImpl implements SourceCreator {
             classDesc.setPropertyDesc(propertyDesc);
         }
 
+//        // @Metaがついたフィールドを保存するようにする。
+//        Field[] fields;
+//        if (onlyDeclared) {
+//            // このクラスで定義されているメソッドだけを対象とする。
+//            fields = clazz.getDeclaredFields();
+//        } else {
+//            // 祖先クラスにあるメソッドも対象とする。ただしObjectクラスのメソッドは対象外とする。
+//            List<Field> fieldList = new ArrayList<Field>();
+//            for (Class<?> c = clazz; c != Object.class; c = c.getSuperclass()) {
+//                fieldList.addAll(Arrays.asList(c.getDeclaredFields()));
+//            }
+//            fields = fieldList.toArray(new Field[0]);
+//        }
+//        for (int i = 0; i < fields.length; i++) {
+//            if (Modifier.isStatic(fields[i].getModifiers())) {
+//                // staticはとりあえず除外している。
+//                continue;
+//            }
+//            Meta meta = fields[i].getAnnotation(Meta.class);
+//            if (meta == null) {
+//                // MetaがなくてもMetasがあったら対象にすべきか？
+//                continue;
+//            }
+//
+//            String name = fields[i].getName();
+//            String prefix = getApplication().getProperty(
+//                    Globals.APPKEY_SOURCECREATOR_FIELDPREFIX,
+//                    Globals.DEFAULT_SOURCECREATOR_FIELDPREFIX);
+//            String suffix = getApplication().getProperty(
+//                    Globals.APPKEY_SOURCECREATOR_FIELDSUFFIX,
+//                    Globals.DEFAULT_SOURCECREATOR_FIELDSUFFIX);
+//            String propertyName = name.substring(prefix.length(), name.length()
+//                    - suffix.length());
+//            PropertyDesc pd = classDesc.getPropertyDesc(propertyName);
+//            if (pd == null) {
+//                classDesc.addProperty(propertyName, PropertyDesc.NONE);
+//                pd = classDesc.getPropertyDesc(propertyName);
+//            }
+//            pd.setAnnotationDesc(new AnnotationDescImpl(meta));
+//        }
+
         Method[] methods;
         if (onlyDeclared) {
             // このクラスで定義されているメソッドだけを対象とする。

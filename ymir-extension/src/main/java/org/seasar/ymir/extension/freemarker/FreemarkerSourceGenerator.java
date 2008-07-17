@@ -79,9 +79,11 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
                 .getProperty(Globals.APPKEY_SOURCECREATOR_FIELDSPECIALPREFIX,
                         ""));
         root.put("fieldPrefix", sourceCreator_.getApplication().getProperty(
-                Globals.APPKEY_SOURCECREATOR_FIELDPREFIX, ""));
+                Globals.APPKEY_SOURCECREATOR_FIELDPREFIX,
+                Globals.DEFAULT_SOURCECREATOR_FIELDPREFIX));
         root.put("fieldSuffix", sourceCreator_.getApplication().getProperty(
-                Globals.APPKEY_SOURCECREATOR_FIELDSUFFIX, "_"));
+                Globals.APPKEY_SOURCECREATOR_FIELDSUFFIX,
+                Globals.DEFAULT_SOURCECREATOR_FIELDSUFFIX));
 
         StringWriter sw = new StringWriter();
         try {

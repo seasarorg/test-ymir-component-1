@@ -12,6 +12,7 @@ import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.annotation.In;
+import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Out;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
@@ -286,6 +287,16 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         ads = cd.getPropertyDesc("value").getAnnotationDescsForSetter();
         assertEquals(1, ads.length);
         assertEquals(In.class.getName(), ads[0].getName());
+    }
+
+    public void testGetClassDesc_YMIR_191_フォームDtoのfieldが保存されること()
+            throws Exception {
+
+        ClassDesc cd = target_.getClassDesc(Class3Base.class,
+                "org.seasar.ymir.extension.creator.impl.Class3");
+        PropertyDesc pd = cd.getPropertyDesc("form");
+        assertNotNull(pd);
+        assertNotNull(pd.getAnnotationDesc(Meta.class.getName()));
     }
 
     public void testFilterResponse() throws Exception {
