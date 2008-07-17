@@ -30,7 +30,7 @@
         <li>app.diconに&lt;component&gt;定義を追加したいクラスのパッケージ</li>
         <li><strong>[重要]</strong> DBFluteのpackageBase（自動生成クラスのルートパッケージ）</li>
       </ul></p>
-      <p><input type="text" name="__ymir__key_ignorePackageNames" size="64" tal:attributes="value application/ignorePackageNames" /></p>
+      <p><input type="text" name="__ymir__key_ignorePackageNames" size="64" tal:attributes="value application/property(ignorePackageNames)" /></p>
     </dd>
     <dt>beantable.enable</dt>
     <dd></p>Bean定義からテーブルを自動生成するBeantable機能を利用するかどうかを指定して下さい。</p>
