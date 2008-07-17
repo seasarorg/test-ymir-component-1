@@ -1,15 +1,22 @@
 package org.seasar.ymir.extension.zpt;
 
 import java.beans.PropertyDescriptor;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import org.seasar.cms.pluggable.ClassTraverser;
 import org.seasar.framework.container.S2Container;
+import org.seasar.framework.util.ClassTraversal;
 import org.seasar.ymir.Messages;
+import org.seasar.ymir.Note;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
@@ -26,6 +33,7 @@ import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 import org.seasar.ymir.zpt.YmirVariableResolver;
 
 import net.skirnir.freyja.VariableResolver;
+import net.skirnir.freyja.render.html.InputTag;
 import net.skirnir.freyja.zpt.ZptTemplateContext;
 
 public class AnalyzerContext extends ZptTemplateContext {
@@ -40,6 +48,8 @@ public class AnalyzerContext extends ZptTemplateContext {
     private static final char STR_ARRAY_LPAREN = '[';
 
     private static final char CHAR_ARRAY_RPAREN = ']';
+
+    private static ClassNamePattern[] freyjaRenderClassNamePairs_;
 
     private SourceCreator sourceCreator_;
 
@@ -66,6 +76,76 @@ public class AnalyzerContext extends ZptTemplateContext {
     private String path_;
 
     private PropertyTypeHintBag hintBag_;
+
+    static {
+        final List<ClassNamePattern> list = new ArrayList<ClassNamePattern>();
+        ClassTraverser traverser = new ClassTraverser();
+        traverser.addReferenceClass(InputTag.class);
+        traverser.addClassPattern("net.skirnir.freyja.render", ".+");
+        traverser.setClassHandler(new ClassTraversal.ClassHandler() {
+            public void processClass(String packageName, String shortClassName) {
+                String className = packageName + "." + shortClassName;
+                if (className.equals(net.skirnir.freyja.render.Notes.class
+                        .getName())) {
+                    className = Notes.class.getName();
+                } else if (className
+                        .equals(net.skirnir.freyja.render.Note.class.getName())) {
+                    className = Note.class.getName();
+                }
+                list.add(new ClassNamePattern(shortClassName, className));
+            }
+        });
+        traverser.traverse();
+        Collections.sort(list);
+        freyjaRenderClassNamePairs_ = list.toArray(new ClassNamePattern[0]);
+    }
+
+    protected static class ClassNamePattern implements
+            Comparable<ClassNamePattern> {
+        private Pattern pattern_;
+
+        private String shortName_;
+
+        private String className_;
+
+        public ClassNamePattern(String shortName, String className) {
+            pattern_ = Pattern.compile(".*" + shortName);
+            shortName_ = shortName;
+            className_ = className;
+        }
+
+        public String getClassNameIfMatched(String name) {
+            if (name == null) {
+                return null;
+            }
+            if (pattern_.matcher(name).matches()) {
+                return className_;
+            } else {
+                return null;
+            }
+        }
+
+        public String getClassNameEquals(String name) {
+            if (shortName_.equals(name)) {
+                return className_;
+            } else {
+                return null;
+            }
+        }
+
+        public int compareTo(ClassNamePattern o) {
+            int cmp = o.shortName_.length() - shortName_.length();
+            if (cmp == 0) {
+                cmp = shortName_.compareTo(o.shortName_);
+            }
+            return cmp;
+        }
+
+        @Override
+        public String toString() {
+            return shortName_;
+        }
+    }
 
     @Override
     public VariableResolver getVariableResolver() {
@@ -151,24 +231,36 @@ public class AnalyzerContext extends ZptTemplateContext {
         if (usingFreyjaRenderClasses_
                 && !RequestProcessor.ATTR_NOTES.equals(propertyName)) {
             // NotesはFreyjaにもYmirにもあるが、Ymirのものを優先させたいため上のようにしている。
-            String renderClassName = "net.skirnir.freyja.render."
-                    + capFirst(propertyName);
-            if (isAvailable(renderClassName)) {
-                className = renderClassName;
-            } else {
-                renderClassName = "net.skirnir.freyja.render.html."
-                        + capFirst(propertyName) + "Tag";
-                if (isAvailable(renderClassName)) {
-                    className = renderClassName;
-                } else {
-                    className = fromPropertyNameToClassName(classDesc,
-                            propertyName);
-                }
+            className = findRenderClassName(propertyName);
+            if (className == null) {
+                className = fromPropertyNameToClassName(classDesc, propertyName);
             }
         } else {
             className = fromPropertyNameToClassName(classDesc, propertyName);
         }
         return getTemporaryClassDescFromClassName(className);
+    }
+
+    String findRenderClassName(String propertyName) {
+        String name = capFirst(propertyName);
+
+        // 互換性のため。
+        String fullName = name + "Tag";
+        for (ClassNamePattern pair : freyjaRenderClassNamePairs_) {
+            String className = pair.getClassNameEquals(fullName);
+            if (className != null) {
+                return className;
+            }
+        }
+
+        for (ClassNamePattern pair : freyjaRenderClassNamePairs_) {
+            String className = pair.getClassNameIfMatched(name);
+            if (className != null) {
+                return className;
+            }
+        }
+
+        return null;
     }
 
     public ClassDesc getTemporaryClassDescFromClassName(String className) {
