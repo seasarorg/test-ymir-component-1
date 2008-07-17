@@ -147,7 +147,7 @@ public class TypeDescImpl implements TypeDesc {
 
     public String getName() {
         String name = classDesc_.getName().replace('$', '.');
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if (name.startsWith(PACKAGE_JAVA_LANG)) {
             sb.append(name.substring(PACKAGE_JAVA_LANG.length()));
         } else {

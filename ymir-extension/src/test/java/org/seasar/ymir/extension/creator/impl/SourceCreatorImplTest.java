@@ -13,7 +13,9 @@ import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Out;
+import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
+import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
@@ -129,6 +131,16 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertNotNull(actual[0].getMethodDesc(new MethodDescImpl("_render")));
         assertEquals("Integer", actual[0].getPropertyDesc("result")
                 .getTypeDesc().getName());
+        md = new MethodDescImpl("_validationFailed");
+        md.setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                Notes.class) });
+        assertNotNull(actual[0].getMethodDesc(md));
+        md = new MethodDescImpl("_permissionDenied");
+        md.setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                PermissionDeniedException.class) });
+        md = actual[0].getMethodDesc(md);
+        assertNotNull(md);
+        assertNotNull(md.getAnnotationDesc(Begin.class.getName()));
     }
 
     public void testGatherClassDescs2_hintとして外部のDtoクラスを指定していても正しく利用されること()
@@ -376,5 +388,11 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         AnnotationDesc[] ads = target_.createAnnotationDescs(Hoe2.class);
         assertEquals(1, ads.length);
         assertEquals(Deprecated.class.getName(), ads[0].getName());
+    }
+
+    public void testGetBeginAnnotation() throws Exception {
+        Begin actual = target_.getBeginAnnotation();
+
+        assertNotNull(actual);
     }
 }

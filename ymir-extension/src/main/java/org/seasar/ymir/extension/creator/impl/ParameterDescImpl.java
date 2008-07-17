@@ -63,6 +63,11 @@ public class ParameterDescImpl implements ParameterDesc {
         }
     }
 
+    public String getNameAsIs() {
+
+        return name_;
+    }
+
     public void setName(String name) {
 
         name_ = name;

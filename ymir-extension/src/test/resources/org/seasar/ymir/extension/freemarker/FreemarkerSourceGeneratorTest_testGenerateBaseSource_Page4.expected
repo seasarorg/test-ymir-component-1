@@ -3,6 +3,7 @@ package com.example.web;
 public class TestPageBase
 {
 
+    @org.seasar.ymir.conversation.annotation.Begin(alwaysBegin=true)
     public void _permissionDenied(org.seasar.ymir.constraint.PermissionDeniedException ex)
         throws org.seasar.ymir.constraint.PermissionDeniedException
     {

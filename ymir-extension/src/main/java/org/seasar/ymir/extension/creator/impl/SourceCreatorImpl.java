@@ -70,6 +70,7 @@ import org.seasar.ymir.annotation.Metas;
 import org.seasar.ymir.constraint.ActionNotFoundException;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
+import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
@@ -464,7 +465,22 @@ public class SourceCreatorImpl implements SourceCreator {
             methodDesc.setBodyDesc(new BodyDescImpl(
                     ConstraintInterceptor.ACTION_PERMISSIONDENIED,
                     new HashMap<String, Object>()));
+            methodDesc.setAnnotationDesc(new AnnotationDescImpl(
+                    getBeginAnnotation()));
             pageClassDesc.setMethodDesc(methodDesc);
+        }
+    }
+
+    @Begin
+    Begin getBeginAnnotation() {
+        try {
+            return SourceCreatorImpl.class.getDeclaredMethod(
+                    "getBeginAnnotation", new Class<?>[0]).getAnnotation(
+                    Begin.class);
+        } catch (SecurityException ex) {
+            throw new RuntimeException(ex);
+        } catch (NoSuchMethodException ex) {
+            throw new RuntimeException("Logic error!", ex);
         }
     }
 
@@ -599,17 +615,34 @@ public class SourceCreatorImpl implements SourceCreator {
             }
             Class<?> returnType = methods[i].getReturnType();
             md.setReturnTypeDesc(returnType.getName());
-            if (clazz.getName().endsWith("Base") && returnType == String.class
-                    && methods[i].getParameterTypes().length == 0) {
-                // Baseクラスについては、引数なしで返り値がStringのメソッドについてはボディを用意する。
-                // （他のもそうしたいが今はこれだけ）
-                try {
-                    String value = (String) methods[i].invoke(clazz
-                            .newInstance(), new Object[0]);
-                    BodyDesc bodyDesc = new BodyDescImpl("return "
-                            + quote(value) + ";");
-                    md.setBodyDesc(bodyDesc);
-                } catch (Throwable ignore) {
+            if (clazz.getName().endsWith("Base")) {
+                if (returnType == String.class
+                        && methods[i].getParameterTypes().length == 0) {
+                    // Baseクラスについては、引数なしで返り値がStringのメソッドについてはボディを用意する。
+                    // （他のもそうしたいが今はこれだけ）
+                    try {
+                        String value = (String) methods[i].invoke(clazz
+                                .newInstance(), new Object[0]);
+                        BodyDesc bodyDesc = new BodyDescImpl("return "
+                                + quote(value) + ";");
+                        md.setBodyDesc(bodyDesc);
+                    } catch (Throwable ignore) {
+                    }
+                } else if (methods[i].getName().equals(
+                        ConstraintInterceptor.ACTION_PERMISSIONDENIED)) {
+                    // Baseクラスについては、_permissionDeniedのボディが消えると困るので用意する。
+                    ParameterDesc[] ps = md.getParameterDescs();
+                    for (int j = 0; j < ps.length; j++) {
+                        if (PermissionDeniedException.class.getName().equals(
+                                ps[j].getTypeDesc().getName())
+                                && ps[j].getNameAsIs() == null) {
+                            ps[j].setName("ex");
+                            break;
+                        }
+                    }
+                    md.setBodyDesc(new BodyDescImpl(
+                            ConstraintInterceptor.ACTION_PERMISSIONDENIED,
+                            new HashMap<String, Object>()));
                 }
             }
             classDesc.setMethodDesc(md);

@@ -10,5 +10,7 @@ public interface ParameterDesc extends Cloneable {
 
     String getName();
 
+    String getNameAsIs();
+
     void setName(String name);
 }
