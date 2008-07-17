@@ -25,6 +25,7 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.annotation.RequestParameter;
 import org.seasar.ymir.extension.Globals;
+import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
@@ -754,7 +755,12 @@ public class ZptAnalyzerTest extends TestCase {
 
         act("testAnalyze43");
 
-        assertNotNull(getClassDesc(CLASSNAME).getPropertyDesc("value"));
+        PropertyDesc pd = getClassDesc(CLASSNAME).getPropertyDesc("value");
+        assertNotNull(pd);
+        AnnotationDesc[] ads = pd.getAnnotationDescsForSetter();
+        assertEquals("[#YMIR-187]", 1, ads.length);
+        assertEquals("[#YMIR-187]", RequestParameter.class.getName(), ads[0]
+                .getName());
     }
 
     public void testAnalyze44_talConditionに書いたものがtalContentにも出てくる時はbooleanにならないこと()
@@ -778,7 +784,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(pd);
         assertEquals("com.example.dto.EntryDto[]", pd.getTypeDesc().getName());
 
-        assertNull("副作用で添え字部分以外の部分が実行時に決定されるinputタグが自走生成対象になったりしていないこと", cd
+        assertNull("副作用で添え字部分以外の部分が実行時に決定されるinputタグが自動生成対象になったりしていないこと", cd
                 .getPropertyDesc("entry"));
     }
 

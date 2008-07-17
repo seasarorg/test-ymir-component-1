@@ -282,9 +282,23 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         classDesc.setMethodDesc(new MethodDescImpl(actionName));
         for (Iterator<String> itr = path.getParameterMap().keySet().iterator(); itr
                 .hasNext();) {
-            classDesc.addProperty(itr.next(),
-                    PropertyDesc.WRITE | PropertyDesc.READ)
-                    .notifyUpdatingType();
+            String name = itr.next();
+            if (!shouldGeneratePropertyForParameter(name)) {
+                continue;
+            }
+            if (BeanUtils.isSingleSegment(name)) {
+                PropertyDesc propertyDesc = classDesc.addProperty(name,
+                        PropertyDesc.WRITE | PropertyDesc.READ);
+                propertyDesc.setAnnotationDescForSetter(new AnnotationDescImpl(
+                        RequestParameter.class.getName()));
+                propertyDesc.notifyUpdatingType();
+            } else {
+                PropertyDesc propertyDesc = classDesc.addProperty(BeanUtils
+                        .getFirstSimpleSegment(name), PropertyDesc.READ);
+                propertyDesc.setAnnotationDescForGetter(new AnnotationDescImpl(
+                        RequestParameter.class.getName()));
+                propertyDesc.notifyUpdatingType();
+            }
         }
         ClassDesc dtoClassDesc = null;
         String formName = null;
