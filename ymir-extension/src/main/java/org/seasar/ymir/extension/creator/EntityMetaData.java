@@ -16,6 +16,8 @@ public class EntityMetaData {
 
     private String dxoClassName_;
 
+    private String converterClassName_;
+
     public EntityMetaData(SourceCreator creator, String className) {
 
         creator_ = creator;
@@ -32,6 +34,8 @@ public class EntityMetaData {
                 + ClassDesc.KIND_DAO;
         dxoClassName_ = creator_.getDxoPackageName() + "." + entityName_
                 + ClassDesc.KIND_DXO;
+        converterClassName_ = creator_.getConverterPackageName() + "."
+                + entityName_ + ClassDesc.KIND_CONVERTER;
     }
 
     public String getEntityName() {
@@ -57,5 +61,10 @@ public class EntityMetaData {
     public ClassDesc getDxoClassDesc() {
 
         return creator_.newClassDesc(dxoClassName_);
+    }
+
+    public ClassDesc getConverterClassDesc() {
+
+        return creator_.newClassDesc(converterClassName_);
     }
 }

@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.creator;
 
+import java.util.Map;
+
 public interface ClassDesc extends AnnotatedDesc, Cloneable {
 
     String KIND_PAGE = "Page";
@@ -11,6 +13,8 @@ public interface ClassDesc extends AnnotatedDesc, Cloneable {
     String KIND_DXO = "Dxo";
 
     String KIND_BEAN = "Bean";
+
+    String KIND_CONVERTER = "Converter";
 
     Object clone();
 
@@ -68,4 +72,8 @@ public interface ClassDesc extends AnnotatedDesc, Cloneable {
     boolean isEmpty();
 
     void clear();
+
+    Map<String, Object> getOptionalSourceGeneratorParameter();
+
+    void setOptionalSourceGeneratorParameter(Map<String, Object> parameter);
 }

@@ -29,11 +29,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
@@ -50,6 +52,7 @@ import org.seasar.framework.log.Logger;
 import org.seasar.framework.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.framework.mock.servlet.MockHttpServletResponseImpl;
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
+import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.StringUtils;
 import org.seasar.kvasir.util.collection.MapProperties;
 import org.seasar.ymir.Application;
@@ -373,13 +376,30 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public void updateClasses(ClassDescBag classDescBag, boolean mergeMethod) {
+        // 既存のクラスがあればマージする。
+        mergeWithExistentClasses(classDescBag, ClassDesc.KIND_BEAN, false);
+        mergeWithExistentClasses(classDescBag, ClassDesc.KIND_DAO, false);
+        mergeWithExistentClasses(classDescBag, ClassDesc.KIND_DTO, mergeMethod);
+        mergeWithExistentClasses(classDescBag, ClassDesc.KIND_DXO, mergeMethod);
+        mergeWithExistentClasses(classDescBag, ClassDesc.KIND_PAGE, mergeMethod);
+
+        if (isConverterCreated()) {
+            mergeWithExistentClasses(classDescBag, ClassDesc.KIND_CONVERTER,
+                    false);
+
+            for (ClassDesc cd : classDescBag
+                    .getClassDescs(ClassDesc.KIND_CONVERTER)) {
+                Map<String, Object> param = cd
+                        .getOptionalSourceGeneratorParameter();
+                ClassDesc targetCd = (ClassDesc) param.get("targetClassDesc");
+                ClassDesc[] pairCds = (ClassDesc[]) param.get("pairClassDescs");
+                for (ClassDesc pairCd : pairCds) {
+                    setCommonPropertyDescs(targetCd, pairCd);
+                }
+            }
+        }
+
         ClassDescSet classDescSet = classDescBag.getClassDescSet();
-
-        writeSourceFiles(classDescBag, ClassDesc.KIND_BEAN, false);
-        writeSourceFiles(classDescBag, ClassDesc.KIND_DAO, false);
-        writeSourceFiles(classDescBag, ClassDesc.KIND_DTO, mergeMethod);
-        writeSourceFiles(classDescBag, ClassDesc.KIND_DXO, mergeMethod);
-
         ClassDesc[] pageClassDescs = classDescBag
                 .getClassDescs(ClassDesc.KIND_PAGE);
         for (int i = 0; i < pageClassDescs.length; i++) {
@@ -414,7 +434,46 @@ public class SourceCreatorImpl implements SourceCreator {
                 }
             }
         }
-        writeSourceFiles(classDescBag, ClassDesc.KIND_PAGE, mergeMethod);
+
+        writeSourceFiles(classDescBag, ClassDesc.KIND_BEAN);
+        writeSourceFiles(classDescBag, ClassDesc.KIND_DAO);
+        writeSourceFiles(classDescBag, ClassDesc.KIND_DTO);
+        writeSourceFiles(classDescBag, ClassDesc.KIND_DXO);
+        writeSourceFiles(classDescBag, ClassDesc.KIND_PAGE);
+        if (isConverterCreated()) {
+            writeSourceFiles(classDescBag, ClassDesc.KIND_CONVERTER);
+        }
+    }
+
+    void setCommonPropertyDescs(ClassDesc targetCd, ClassDesc pairCd) {
+        BeanInfo beanInfo;
+        try {
+            beanInfo = Introspector.getBeanInfo(getClass(pairCd.getName()));
+        } catch (IntrospectionException ex) {
+            throw new RuntimeException(ex);
+        }
+        Set<String> pairPropertyNameSet = new HashSet<String>();
+        for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+            if (pd.getReadMethod() != null && pd.getWriteMethod() != null) {
+                pairPropertyNameSet.add(pd.getName());
+            }
+        }
+
+        for (PropertyDesc targetPd : targetCd.getPropertyDescs()) {
+            if (targetPd.isReadable() && targetPd.isWritable()
+                    && pairPropertyNameSet.contains(targetPd.getName())) {
+                pairCd.addProperty(targetPd.getName(), PropertyDesc.READ
+                        | PropertyDesc.WRITE);
+            }
+        }
+    }
+
+    void mergeWithExistentClasses(ClassDescBag classDescBag, String kind,
+            boolean mergeMethod) {
+        ClassDesc[] classDescs = classDescBag.getClassDescs(kind);
+        for (int i = 0; i < classDescs.length; i++) {
+            mergeWithExistentClass(classDescs[i], mergeMethod);
+        }
     }
 
     public void gatherClassDescs(Map<String, ClassDesc> classDescMap,
@@ -654,7 +713,7 @@ public class SourceCreatorImpl implements SourceCreator {
         for (int i = 0; i < fields.length; i++) {
             Meta meta = fields[i].getAnnotation(Meta.class);
             if (meta != null && Globals.META_NAME_PROPERTY.equals(meta.name())) {
-                String name = meta.value();
+                String name = meta.value()[0];
                 PropertyDesc pd = classDesc.getPropertyDesc(name);
                 if (pd == null) {
                     classDesc.addProperty(name, PropertyDesc.NONE);
@@ -719,6 +778,13 @@ public class SourceCreatorImpl implements SourceCreator {
             }
         }
 
+        boolean createConverter = PropertyUtils
+                .valueOf(
+                        getApplication()
+                                .getProperty(
+                                        Globals.APPKEY_SOURCECREATOR_FEATURE_CREATECONVERTER_ENABLE),
+                        false);
+
         List<ClassDesc> classDescList = new ArrayList<ClassDesc>(Arrays
                 .asList(classDescs));
         for (int i = 0; i < classDescs.length; i++) {
@@ -763,10 +829,61 @@ public class SourceCreatorImpl implements SourceCreator {
                     }
                 }
                 classDescList.add(classDesc);
+
+                // Converter用のClassDescを生成しておく。
+                if (createConverter) {
+                    Class<?> dtoClass = getClass(classDescs[i].getName());
+                    if (dtoClass != null) {
+                        Class<?>[] pairClasses = getPairClasses(dtoClass);
+                        if (pairClasses.length > 0) {
+                            classDesc = metaData.getConverterClassDesc();
+                            Map<String, Object> param = new HashMap<String, Object>();
+                            param.put("targetClassDesc", classDescs[i]);
+                            ClassDesc[] pairClassDescs = new ClassDesc[pairClasses.length];
+                            for (int j = 0; j < pairClasses.length; j++) {
+                                pairClassDescs[j] = newClassDesc(pairClasses[j]
+                                        .getName());
+                            }
+                            param.put("pairClassDescs", pairClassDescs);
+                            classDesc
+                                    .setOptionalSourceGeneratorParameter(param);
+                            classDescList.add(classDesc);
+                        }
+                    }
+                }
             }
         }
 
         return classDescList.toArray(new ClassDesc[0]);
+    }
+
+    boolean isConverterCreated() {
+        return PropertyUtils.valueOf(getApplication().getProperty(
+                Globals.APPKEY_SOURCECREATOR_FEATURE_CREATECONVERTER_ENABLE),
+                false);
+    }
+
+    Class<?>[] getPairClasses(Class<?> dtoClass) {
+        return getMetaClassValue(dtoClass, "conversion");
+    }
+
+    Class<?>[] getMetaClassValue(Class<?> clazz, String name) {
+        Meta meta = clazz.getAnnotation(Meta.class);
+        if (meta != null) {
+            if (name.equals(meta.name())) {
+                return meta.classValue();
+            }
+        }
+        Metas metas = clazz.getAnnotation(Metas.class);
+        if (metas != null) {
+            for (Meta m : metas.value()) {
+                if (name.equals(m.name())) {
+                    return m.classValue();
+                }
+            }
+        }
+
+        return new Class[0];
     }
 
     @SuppressWarnings("unchecked")
@@ -803,13 +920,12 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    void writeSourceFiles(ClassDescBag classDescBag, String kind,
-            boolean mergeMethod) {
+    void writeSourceFiles(ClassDescBag classDescBag, String kind) {
         ClassDesc[] classDescs = classDescBag.getClassDescs(kind);
         ClassDescSet classDescSet = classDescBag.getClassDescSet();
         for (int i = 0; i < classDescs.length; i++) {
             try {
-                updateClass(classDescs[i], classDescSet, mergeMethod);
+                updateClass(classDescs[i], classDescSet);
             } catch (InvalidClassDescException ex) {
                 // ソースファイルの生成に失敗した。
                 classDescBag.remove(classDescs[i].getName());
@@ -821,13 +937,13 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public void updateClass(ClassDesc classDesc, boolean mergeMethod)
             throws InvalidClassDescException {
-        updateClass(classDesc, null, mergeMethod);
-    }
-
-    void updateClass(ClassDesc classDesc, ClassDescSet classDescSet,
-            boolean mergeMethod) throws InvalidClassDescException {
         // 既存のクラスがあればマージする。
         mergeWithExistentClass(classDesc, mergeMethod);
+        updateClass(classDesc, null);
+    }
+
+    void updateClass(ClassDesc classDesc, ClassDescSet classDescSet)
+            throws InvalidClassDescException {
         writeSourceFile(classDesc, classDescSet);
     }
 
@@ -1201,6 +1317,11 @@ public class SourceCreatorImpl implements SourceCreator {
     public String getDxoPackageName() {
         return getRootPackageName() + "."
                 + namingConvention_.getDxoPackageName();
+    }
+
+    public String getConverterPackageName() {
+        return getRootPackageName() + "."
+                + namingConvention_.getConverterPackageName();
     }
 
     public SourceGenerator getSourceGenerator() {

@@ -126,11 +126,13 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     propertyDesc
                             .setAnnotationDescForGetter(new MetaAnnotationDescImpl(
                                     org.seasar.ymir.extension.Globals.META_NAME_FORMPROPERTY,
-                                    formDesc.getName()));
+                                    new String[] { formDesc.getName() },
+                                    new Class[0]));
                     propertyDesc
                             .setAnnotationDescForSetter(new MetaAnnotationDescImpl(
                                     org.seasar.ymir.extension.Globals.META_NAME_FORMPROPERTY,
-                                    formDesc.getName()));
+                                    new String[] { formDesc.getName() },
+                                    new Class[0]));
                 }
 
                 if (BeanUtils.isSingleSegment(parameterName)) {
@@ -320,7 +322,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 PropertyDesc propertyDesc = new PropertyDescImpl(name);
                 propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
                         org.seasar.ymir.extension.Globals.META_NAME_PROPERTY,
-                        name));
+                        new String[] { name }, new Class[0]));
                 propertyDesc.setTypeDesc(new TypeDescImpl(dtoClassDesc));
                 classDesc.setPropertyDesc(propertyDesc);
             }

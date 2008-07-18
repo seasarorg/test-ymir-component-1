@@ -49,6 +49,10 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
+    public String getConverterPackageName() {
+        return null;
+    }
+
     public MatchedPathMapping findMatchedPathMapping(String path, String method) {
         return null;
     }

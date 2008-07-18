@@ -50,6 +50,11 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
         root.put("classDesc", classDesc);
         root.put("entityMetaData", new EntityMetaData(sourceCreator_, classDesc
                 .getName()));
+        Map<String, Object> map = classDesc
+                .getOptionalSourceGeneratorParameter();
+        if (map != null) {
+            root.putAll(map);
+        }
 
         return generateSource(templateName, root);
     }

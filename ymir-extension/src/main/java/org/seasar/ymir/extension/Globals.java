@@ -27,6 +27,8 @@ public interface Globals extends org.seasar.ymir.Globals {
 
     String APPKEY_SOURCECREATOR_FEATURE_CREATEFORMDTO_ENABLE = "extension.sourceCreator.feature.createFormDto.enable";
 
+    String APPKEY_SOURCECREATOR_FEATURE_CREATECONVERTER_ENABLE = "extension.sourceCreator.feature.createConverter.enable";
+
     String APPKEY_SOURCECREATOR_ECLIPSE_ENABLE = "extension.sourceCreator.eclipse.enable";
 
     String APPKEY_SOURCECREATOR_ECLIPSE_PROJECTNAME = "extension.sourceCreator.eclipse.projectName";

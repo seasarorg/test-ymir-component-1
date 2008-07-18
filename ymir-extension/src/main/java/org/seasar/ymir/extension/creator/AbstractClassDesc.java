@@ -1,10 +1,14 @@
 package org.seasar.ymir.extension.creator;
 
+import java.util.Map;
+
 abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
         ClassDesc {
 
     private static final String[] AUTODETECTED_KINDS = new String[] {
-        KIND_PAGE, KIND_DTO, KIND_DAO, KIND_DXO };
+        KIND_PAGE, KIND_DTO, KIND_DAO, KIND_DXO, KIND_CONVERTER };
+
+    private Map<String, Object> parameter_;
 
     abstract public String getName();
 
@@ -107,5 +111,14 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
             return Character.toLowerCase(string.charAt(0))
                     + string.substring(1);
         }
+    }
+
+    public Map<String, Object> getOptionalSourceGeneratorParameter() {
+        return parameter_;
+    }
+
+    public void setOptionalSourceGeneratorParameter(
+            Map<String, Object> parameter) {
+        parameter_ = parameter;
     }
 }

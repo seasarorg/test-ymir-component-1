@@ -31,6 +31,8 @@ public interface SourceCreator extends Updater {
 
     String getDxoPackageName();
 
+    String getConverterPackageName();
+
     File getWebappSourceRoot();
 
     File getSourceDirectory();
