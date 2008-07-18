@@ -73,6 +73,12 @@ public class MockYmir implements Ymir {
                 queryString).setDispatcher(dispatcher));
     }
 
+    public void enterDispatch(Request request, String path, String queryString,
+            Dispatcher dispatcher, MatchedPathMapping matched) {
+        request.enterDispatch(new MockDispatch().setPath(path).setQueryString(
+                queryString).setDispatcher(dispatcher));
+    }
+
     public void leaveDispatch(Request request) {
         request.leaveDispatch();
     }

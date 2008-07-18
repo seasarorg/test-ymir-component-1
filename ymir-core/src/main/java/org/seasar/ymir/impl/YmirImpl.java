@@ -153,6 +153,12 @@ public class YmirImpl implements Ymir {
      */
     public void enterDispatch(Request request, String path, String queryString,
             Dispatcher dispatcher) {
+        enterDispatch(request, path, queryString, dispatcher,
+                findMatchedPathMapping(path, request.getMethod()));
+    }
+
+    public void enterDispatch(Request request, String path, String queryString,
+            Dispatcher dispatcher, MatchedPathMapping matched) {
         // proceedされてきた場合はqueryStringとして適切な値が渡ってこないので、ここで
         // 差し替えている。
         if (dispatcher == Dispatcher.FORWARD) {
@@ -162,8 +168,7 @@ public class YmirImpl implements Ymir {
             }
         }
         request.enterDispatch(new DispatchImpl(request.getContextPath(), path,
-                queryString, dispatcher, findMatchedPathMapping(path, request
-                        .getMethod())));
+                queryString, dispatcher, matched));
     }
 
     public MatchedPathMapping findMatchedPathMapping(final String path,

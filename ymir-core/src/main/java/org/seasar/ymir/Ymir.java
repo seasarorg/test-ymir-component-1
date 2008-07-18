@@ -47,6 +47,10 @@ public interface Ymir {
 
     /**
      * ディスパッチの処理を開始します。
+     * <p>このメソッドはMatchedPathMappingを生成して
+     * {@link #enterDispatch(Request, String, String, Dispatcher, MatchedPathMapping)}
+     * を呼び出します。
+     * </p>
      * 
      * @param request 現在のRequest。
      * @param path ディスパッチのパス。
@@ -57,6 +61,21 @@ public interface Ymir {
      */
     void enterDispatch(Request request, String path, String queryString,
             Dispatcher dispatcher);
+
+    /**
+     * ディスパッチの処理を開始します。
+     * 
+     * @param request 現在のRequest。
+     * @param path ディスパッチのパス。
+     * @param queryString ディスパッチのクエリ文字列。nullを指定することもできます。
+     * @param dispatcher ディスパッチを表すDispatcher。
+     * @param matched ディスパッチのパスとパスマッピングのマッチング情報を持つMatchedPathMappingオブジェクト。
+     * nullを指定してはいけません。
+     * @see Dispatch
+     * @see Dispatcher
+     */
+    void enterDispatch(Request request, String path, String queryString,
+            Dispatcher dispatcher, MatchedPathMapping matched);
 
     /**
      * RequestオブジェクトからResponseオブジェクトを構築します。
@@ -182,7 +201,7 @@ public interface Ymir {
      * <p>マッチするPathMappingが見つからなかった場合はnullを返します。
      * </p>
      * 
-     * @param path パス。
+     * @param path パス。末尾に「/」がついていてもついていなくても構いません。
      * @param method HTTPメソッド。
      * @return 構築したMatchedPathMappingオブジェクト。
      */

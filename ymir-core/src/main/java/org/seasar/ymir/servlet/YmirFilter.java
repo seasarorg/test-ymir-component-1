@@ -20,6 +20,7 @@ import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.LocaleManager;
+import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.MultipartServletRequest;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -75,6 +76,17 @@ public class YmirFilter implements Filter {
             FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) req;
         HttpServletResponse httpResponse = (HttpServletResponse) res;
+
+        String path = ServletUtils.getNativePath(httpRequest);
+        String method = httpRequest.getMethod();
+
+        MatchedPathMapping matched = ymir_.findMatchedPathMapping(path, method);
+        if (matched == null) {
+            // マッチしないのでYmirでは処理しない。
+            chain.doFilter(req, res);
+            return;
+        }
+
         AttributeContainer attributeContainer = new HttpServletRequestAttributeContainer(
                 httpRequest);
 
@@ -97,18 +109,18 @@ public class YmirFilter implements Filter {
             }
 
             request = ymir_.prepareForProcessing(ServletUtils
-                    .getContextPath(httpRequest), httpRequest.getMethod(),
-                    httpRequest.getCharacterEncoding(), httpRequest
-                            .getParameterMap(), fileParameterMap,
-                    attributeContainer, localeManager_.getLocale());
+                    .getContextPath(httpRequest), method, httpRequest
+                    .getCharacterEncoding(), httpRequest.getParameterMap(),
+                    fileParameterMap, attributeContainer, localeManager_
+                            .getLocale());
             context.setComponent(Request.class, request);
         } else {
             request = (Request) context.getComponent(Request.class);
             ymir_.updateRequest(request, httpRequest, dispatcher_);
         }
 
-        ymir_.enterDispatch(request, ServletUtils.getNativePath(httpRequest),
-                ServletUtils.getQueryString(httpRequest), dispatcher_);
+        ymir_.enterDispatch(request, path, ServletUtils
+                .getQueryString(httpRequest), dispatcher_, matched);
         try {
             Response response = ymir_.processRequest(request);
 
