@@ -25,5 +25,12 @@ public @interface Meta {
      * 
      * @return メタデータの内容。
      */
-    String value();
+    String[] value() default {};
+
+    /**
+     * メタデータの内容です。
+     * 
+     * @return メタデータの内容。
+     */
+    Class<?>[] classValue() default {};
 }

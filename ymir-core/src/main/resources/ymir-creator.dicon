@@ -38,4 +38,22 @@
       </component>
     </property>
   </component>
+  <component name="serviceCreator"
+    class="org.seasar.framework.container.creator.ServiceCreator">
+    <property name="serviceCustomizer">
+      <component
+        class="org.seasar.framework.container.customizer.AspectCustomizer"
+        autoBinding="none">
+        <property name="interceptorName">"j2ee.requiredTx"</property>
+      </component>
+    </property>
+  </component>
+  <component name="logicCreator"
+    class="org.seasar.framework.container.creator.LogicCreator">
+    <property name="logicCustomizer" bindingType="may" />
+  </component>
+  <component name="converterCreator"
+    class="org.seasar.framework.container.creator.ConverterCreator">
+    <property name="converterCustomizer" bindingType="may" />
+  </component>
 </components>

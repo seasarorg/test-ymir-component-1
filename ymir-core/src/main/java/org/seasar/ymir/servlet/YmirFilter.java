@@ -81,8 +81,9 @@ public class YmirFilter implements Filter {
         String method = httpRequest.getMethod();
 
         MatchedPathMapping matched = ymir_.findMatchedPathMapping(path, method);
-        if (matched == null) {
+        if (matched == null && !ymir_.isUnderDevelopment()) {
             // マッチしないのでYmirでは処理しない。
+            // ただし開発モードではResponseを加工できるようにYmirで処理するようにする。
             chain.doFilter(req, res);
             return;
         }
