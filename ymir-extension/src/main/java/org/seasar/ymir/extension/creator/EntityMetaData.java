@@ -26,16 +26,16 @@ public class EntityMetaData {
 
     void analyze(String className) {
 
-        entityName_ = new SimpleClassDesc(className).getBaseName();
+        entityName_ = new SimpleClassDesc(className).getNameBase();
         dtoClassName_ = creator_.getDtoPackageName() + "." + entityName_
-                + ClassDesc.KIND_DTO;
+                + ClassType.DTO.getSuffix();
         beanClassName_ = creator_.getDaoPackageName() + "." + entityName_;
         daoClassName_ = creator_.getDaoPackageName() + "." + entityName_
-                + ClassDesc.KIND_DAO;
+                + ClassType.DAO.getSuffix();
         dxoClassName_ = creator_.getDxoPackageName() + "." + entityName_
-                + ClassDesc.KIND_DXO;
+                + ClassType.DXO.getSuffix();
         converterClassName_ = creator_.getConverterPackageName() + "."
-                + entityName_ + ClassDesc.KIND_CONVERTER;
+                + entityName_ + ClassType.CONVERTER.getSuffix();
     }
 
     public String getEntityName() {

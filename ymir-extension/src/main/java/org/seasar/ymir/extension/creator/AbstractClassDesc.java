@@ -4,10 +4,6 @@ import java.util.Map;
 
 abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
         ClassDesc {
-
-    private static final String[] AUTODETECTED_KINDS = new String[] {
-        KIND_PAGE, KIND_DTO, KIND_DAO, KIND_DXO, KIND_CONVERTER };
-
     private Map<String, Object> parameter_;
 
     abstract public String getName();
@@ -21,24 +17,21 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
         }
     }
 
-    public String getKind() {
-
-        return getKind(getName());
+    public ClassType getType() {
+        return getType(getName());
     }
 
-    String getKind(String name) {
-
-        for (int i = 0; i < AUTODETECTED_KINDS.length; i++) {
-            if (name.endsWith(AUTODETECTED_KINDS[i])) {
-                return AUTODETECTED_KINDS[i];
+    ClassType getType(String name) {
+        for (ClassType type : ClassType.values()) {
+            if (name.endsWith(type.getSuffix())) {
+                return type;
             }
         }
-        return KIND_BEAN;
+        return ClassType.BEAN;
     }
 
-    public boolean isKindOf(String kind) {
-
-        return kind.equals(getKind());
+    public boolean isTypeOf(ClassType type) {
+        return type == getType();
     }
 
     public String toString() {
@@ -61,18 +54,16 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
         }
     }
 
-    public String getBaseName() {
-
-        return getBaseName(getName());
+    public String getNameBase() {
+        return getNameBase(getName());
     }
 
-    String getBaseName(String name) {
-
+    String getNameBase(String name) {
         name = getShortName(name);
-        for (int i = 0; i < AUTODETECTED_KINDS.length; i++) {
-            if (name.endsWith(AUTODETECTED_KINDS[i])) {
+        for (ClassType type : ClassType.values()) {
+            if (name.endsWith(type.getSuffix())) {
                 return name.substring(0, name.length()
-                        - AUTODETECTED_KINDS[i].length());
+                        - type.getSuffix().length());
             }
         }
         return name;

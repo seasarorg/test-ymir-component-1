@@ -124,7 +124,7 @@ public class CreateTemplateAction extends AbstractAction implements
             methodDesc.setBodyDesc(new BodyDescImpl("return "
                     + quote(transition.trim()) + ";"));
             classDesc.setMethodDesc(methodDesc);
-            getSourceCreator().mergeWithExistentClass(classDesc, true);
+            getSourceCreator().adjustByExistentClass(classDesc);
             try {
                 getSourceCreator().writeSourceFile(classDesc, null);
             } catch (InvalidClassDescException ex) {

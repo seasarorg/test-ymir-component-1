@@ -1,6 +1,6 @@
 package org.seasar.ymir.extension.creator.impl;
 
-public class Merge3BaseBase {
+public class Merge3PageBaseBase {
 
     protected String hoe_;
 

@@ -2,6 +2,7 @@ package org.seasar.ymir.extension.creator;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
+import java.lang.reflect.AnnotatedElement;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -74,10 +75,9 @@ public interface SourceCreator extends Updater {
     ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
             PropertyTypeHintBag hintBag, String[] ignoreVariables);
 
-    void updateClasses(ClassDescBag classDescBag, boolean mergeMethod);
+    void updateClasses(ClassDescBag classDescBag);
 
-    void updateClass(ClassDesc classDesc, boolean mergeMethod)
-            throws InvalidClassDescException;
+    void updateClass(ClassDesc classDesc) throws InvalidClassDescException;
 
     Properties getSourceCreatorProperties();
 
@@ -85,7 +85,7 @@ public interface SourceCreator extends Updater {
 
     ClassDesc newClassDesc(String className);
 
-    void mergeWithExistentClass(ClassDesc desc, boolean mergeMethod);
+    void adjustByExistentClass(ClassDesc desc);
 
     TemplateProvider getTemplateProvider();
 
@@ -100,4 +100,6 @@ public interface SourceCreator extends Updater {
     HttpServletResponse getHttpServletResponse();
 
     String getTemplateEncoding();
+
+    AnnotationDesc[] createAnnotationDescs(AnnotatedElement element);
 }

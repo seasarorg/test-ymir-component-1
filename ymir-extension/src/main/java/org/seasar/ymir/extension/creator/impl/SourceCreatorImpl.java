@@ -29,13 +29,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
@@ -46,6 +44,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.convention.NamingConvention;
 import org.seasar.framework.log.Logger;
@@ -55,6 +54,7 @@ import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.StringUtils;
 import org.seasar.kvasir.util.collection.MapProperties;
+import org.seasar.ymir.ActionNotFoundException;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.MatchedPathMapping;
@@ -70,7 +70,6 @@ import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Metas;
-import org.seasar.ymir.constraint.ActionNotFoundException;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.conversation.annotation.Begin;
@@ -81,6 +80,7 @@ import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
 import org.seasar.ymir.extension.creator.ClassDescModifier;
 import org.seasar.ymir.extension.creator.ClassDescSet;
+import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.DescValidator;
 import org.seasar.ymir.extension.creator.EntityMetaData;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
@@ -375,44 +375,48 @@ public class SourceCreatorImpl implements SourceCreator {
         return classifyClassDescs(classDescs);
     }
 
-    public void updateClasses(ClassDescBag classDescBag, boolean mergeMethod) {
-        // 既存のクラスがあればマージする。
-        mergeWithExistentClasses(classDescBag, ClassDesc.KIND_BEAN, false);
-        mergeWithExistentClasses(classDescBag, ClassDesc.KIND_DAO, false);
-        mergeWithExistentClasses(classDescBag, ClassDesc.KIND_DTO, mergeMethod);
-        mergeWithExistentClasses(classDescBag, ClassDesc.KIND_DXO, mergeMethod);
-        mergeWithExistentClasses(classDescBag, ClassDesc.KIND_PAGE, mergeMethod);
-
+    public void updateClasses(ClassDescBag classDescBag) {
         if (isConverterCreated()) {
-            mergeWithExistentClasses(classDescBag, ClassDesc.KIND_CONVERTER,
-                    false);
+            // Converter用のClassDescを生成する。
+            for (ClassDesc dtoCd : classDescBag.getClassDescs(ClassType.DTO)) {
+                Class<?>[] pairClasses = getPairClasses(dtoCd);
+                if (pairClasses.length > 0) {
+                    adjustByExistentClass(dtoCd);
+                    EntityMetaData metaData = new EntityMetaData(this, dtoCd
+                            .getName());
 
-            for (ClassDesc cd : classDescBag
-                    .getClassDescs(ClassDesc.KIND_CONVERTER)) {
-                Map<String, Object> param = cd
-                        .getOptionalSourceGeneratorParameter();
-                ClassDesc targetCd = (ClassDesc) param.get("targetClassDesc");
-                ClassDesc[] pairCds = (ClassDesc[]) param.get("pairClassDescs");
-                for (ClassDesc pairCd : pairCds) {
-                    setCommonPropertyDescs(targetCd, pairCd);
+                    ClassDesc converterCd = metaData.getConverterClassDesc();
+                    Map<String, Object> param = new HashMap<String, Object>();
+                    param.put("targetClassDesc", dtoCd);
+                    ClassDesc[] pairCds = new ClassDesc[pairClasses.length];
+                    for (int i = 0; i < pairClasses.length; i++) {
+                        pairCds[i] = newClassDesc(pairClasses[i].getName());
+                        setCommonPropertyDescs(dtoCd, pairCds[i]);
+                    }
+                    param.put("pairClassDescs", pairCds);
+                    converterCd.setOptionalSourceGeneratorParameter(param);
+                    if (getClass(converterCd.getName()) == null) {
+                        classDescBag.addAsCreated(converterCd);
+                    } else {
+                        classDescBag.addAsUpdated(converterCd);
+                    }
                 }
             }
         }
 
         ClassDescSet classDescSet = classDescBag.getClassDescSet();
-        ClassDesc[] pageClassDescs = classDescBag
-                .getClassDescs(ClassDesc.KIND_PAGE);
+        ClassDesc[] pageClassDescs = classDescBag.getClassDescs(ClassType.PAGE);
         for (int i = 0; i < pageClassDescs.length; i++) {
             // Dtoに触るようなプロパティを持っているなら
             // Dtoに対応するBeanに対応するDaoのsetterを自動生成する。
             // Dxoのsetterも自動生成する。
+            // Converterのsetterも自動生成する。
             // _render()のボディも自動生成する。
             PropertyDesc[] pds = pageClassDescs[i].getPropertyDescs();
             for (int j = 0; j < pds.length; j++) {
                 TypeDesc td = pds[j].getTypeDesc();
                 if (!DescValidator.validate(td, classDescSet).isValid()
-                        || !ClassDesc.KIND_DTO.equals(td.getClassDesc()
-                                .getKind())) {
+                        || td.getClassDesc().getType() != ClassType.DTO) {
                     continue;
                 }
 
@@ -424,6 +428,9 @@ public class SourceCreatorImpl implements SourceCreator {
                 boolean dxoExists = addPropertyIfValid(pageClassDescs[i],
                         new TypeDescImpl(metaData.getDxoClassDesc()),
                         PropertyDesc.WRITE, classDescSet);
+                addPropertyIfValid(pageClassDescs[i], new TypeDescImpl(metaData
+                        .getConverterClassDesc()), PropertyDesc.WRITE,
+                        classDescSet);
 
                 MethodDesc md = pageClassDescs[i]
                         .getMethodDesc(new MethodDescImpl(
@@ -435,14 +442,7 @@ public class SourceCreatorImpl implements SourceCreator {
             }
         }
 
-        writeSourceFiles(classDescBag, ClassDesc.KIND_BEAN);
-        writeSourceFiles(classDescBag, ClassDesc.KIND_DAO);
-        writeSourceFiles(classDescBag, ClassDesc.KIND_DTO);
-        writeSourceFiles(classDescBag, ClassDesc.KIND_DXO);
-        writeSourceFiles(classDescBag, ClassDesc.KIND_PAGE);
-        if (isConverterCreated()) {
-            writeSourceFiles(classDescBag, ClassDesc.KIND_CONVERTER);
-        }
+        writeSourceFiles(classDescBag);
     }
 
     void setCommonPropertyDescs(ClassDesc targetCd, ClassDesc pairCd) {
@@ -452,27 +452,22 @@ public class SourceCreatorImpl implements SourceCreator {
         } catch (IntrospectionException ex) {
             throw new RuntimeException(ex);
         }
-        Set<String> pairPropertyNameSet = new HashSet<String>();
+        Map<String, PropertyDescriptor> pairPropertyDescMap = new HashMap<String, PropertyDescriptor>();
         for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
             if (pd.getReadMethod() != null && pd.getWriteMethod() != null) {
-                pairPropertyNameSet.add(pd.getName());
+                pairPropertyDescMap.put(pd.getName(), pd);
             }
         }
 
         for (PropertyDesc targetPd : targetCd.getPropertyDescs()) {
+            String name = targetPd.getName();
             if (targetPd.isReadable() && targetPd.isWritable()
-                    && pairPropertyNameSet.contains(targetPd.getName())) {
-                pairCd.addProperty(targetPd.getName(), PropertyDesc.READ
+                    && pairPropertyDescMap.containsKey(name)) {
+                PropertyDesc pd = pairCd.addProperty(name, PropertyDesc.READ
                         | PropertyDesc.WRITE);
+                pd.setTypeDesc(new TypeDescImpl(pairPropertyDescMap.get(name)
+                        .getPropertyType(), true));
             }
-        }
-    }
-
-    void mergeWithExistentClasses(ClassDescBag classDescBag, String kind,
-            boolean mergeMethod) {
-        ClassDesc[] classDescs = classDescBag.getClassDescs(kind);
-        for (int i = 0; i < classDescs.length; i++) {
-            mergeWithExistentClass(classDescs[i], mergeMethod);
         }
     }
 
@@ -735,7 +730,7 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    AnnotationDesc[] createAnnotationDescs(AnnotatedElement element) {
+    public AnnotationDesc[] createAnnotationDescs(AnnotatedElement element) {
         if (element == null) {
             return new AnnotationDesc[0];
         }
@@ -760,13 +755,13 @@ public class SourceCreatorImpl implements SourceCreator {
     ClassDesc[] addRelativeClassDescs(ClassDesc[] classDescs) {
         Map<String, List<ClassDesc>> pageByDtoMap = new HashMap<String, List<ClassDesc>>();
         for (int i = 0; i < classDescs.length; i++) {
-            if (!classDescs[i].isKindOf(ClassDesc.KIND_PAGE)) {
+            if (!classDescs[i].isTypeOf(ClassType.PAGE)) {
                 continue;
             }
             PropertyDesc[] pds = classDescs[i].getPropertyDescs();
             for (int j = 0; j < pds.length; j++) {
                 ClassDesc cd = pds[j].getTypeDesc().getClassDesc();
-                if (!cd.isKindOf(ClassDesc.KIND_DTO)) {
+                if (!cd.isTypeOf(ClassType.DTO)) {
                     continue;
                 }
                 List<ClassDesc> list = pageByDtoMap.get(cd.getName());
@@ -778,17 +773,10 @@ public class SourceCreatorImpl implements SourceCreator {
             }
         }
 
-        boolean createConverter = PropertyUtils
-                .valueOf(
-                        getApplication()
-                                .getProperty(
-                                        Globals.APPKEY_SOURCECREATOR_FEATURE_CREATECONVERTER_ENABLE),
-                        false);
-
         List<ClassDesc> classDescList = new ArrayList<ClassDesc>(Arrays
                 .asList(classDescs));
         for (int i = 0; i < classDescs.length; i++) {
-            if (classDescs[i].isKindOf(ClassDesc.KIND_DTO)) {
+            if (classDescs[i].isTypeOf(ClassType.DTO)) {
                 EntityMetaData metaData = new EntityMetaData(this,
                         classDescs[i].getName());
 
@@ -829,28 +817,6 @@ public class SourceCreatorImpl implements SourceCreator {
                     }
                 }
                 classDescList.add(classDesc);
-
-                // Converter用のClassDescを生成しておく。
-                if (createConverter) {
-                    Class<?> dtoClass = getClass(classDescs[i].getName());
-                    if (dtoClass != null) {
-                        Class<?>[] pairClasses = getPairClasses(dtoClass);
-                        if (pairClasses.length > 0) {
-                            classDesc = metaData.getConverterClassDesc();
-                            Map<String, Object> param = new HashMap<String, Object>();
-                            param.put("targetClassDesc", classDescs[i]);
-                            ClassDesc[] pairClassDescs = new ClassDesc[pairClasses.length];
-                            for (int j = 0; j < pairClasses.length; j++) {
-                                pairClassDescs[j] = newClassDesc(pairClasses[j]
-                                        .getName());
-                            }
-                            param.put("pairClassDescs", pairClassDescs);
-                            classDesc
-                                    .setOptionalSourceGeneratorParameter(param);
-                            classDescList.add(classDesc);
-                        }
-                    }
-                }
             }
         }
 
@@ -863,11 +829,22 @@ public class SourceCreatorImpl implements SourceCreator {
                 false);
     }
 
-    Class<?>[] getPairClasses(Class<?> dtoClass) {
-        return getMetaClassValue(dtoClass, "conversion");
+    Class<?>[] getPairClasses(ClassDesc classDesc) {
+        Class<?>[] pairClasses = classDesc.getMetaClassValues("conversion");
+        if (pairClasses == null) {
+            pairClasses = getMetaClassValue(getClass(classDesc.getName()
+                    + "Base"), "conversion");
+            if (pairClasses == null) {
+                pairClasses = new Class[0];
+            }
+        }
+        return pairClasses;
     }
 
     Class<?>[] getMetaClassValue(Class<?> clazz, String name) {
+        if (clazz == null) {
+            return new Class[0];
+        }
         Meta meta = clazz.getAnnotation(Meta.class);
         if (meta != null) {
             if (name.equals(meta.name())) {
@@ -914,40 +891,50 @@ public class SourceCreatorImpl implements SourceCreator {
                     .getInstanceName(), mode);
             propertyDesc.setTypeDesc(typeDesc);
             propertyDesc.notifyUpdatingType();
+            AnnotationDesc ad = propertyDesc.getAnnotationDesc(Binding.class
+                    .getName());
+            if (ad == null) {
+                propertyDesc
+                        .setAnnotationDescForSetter(new AnnotationDescImpl(
+                                Binding.class.getName(),
+                                "(bindingType = org.seasar.framework.container.annotation.tiger.BindingType.MUST)"));
+            }
             return true;
         } else {
             return false;
         }
     }
 
-    void writeSourceFiles(ClassDescBag classDescBag, String kind) {
-        ClassDesc[] classDescs = classDescBag.getClassDescs(kind);
-        ClassDescSet classDescSet = classDescBag.getClassDescSet();
-        for (int i = 0; i < classDescs.length; i++) {
-            try {
-                updateClass(classDescs[i], classDescSet);
-            } catch (InvalidClassDescException ex) {
-                // ソースファイルの生成に失敗した。
-                classDescBag.remove(classDescs[i].getName());
-                classDescBag.addAsFailed(classDescs[i], ex
-                        .getLackingClassNames());
+    void writeSourceFiles(ClassDescBag classDescBag) {
+        for (ClassType type : ClassType.values()) {
+            ClassDesc[] classDescs = classDescBag.getClassDescs(type);
+            ClassDescSet classDescSet = classDescBag.getClassDescSet();
+            for (int i = 0; i < classDescs.length; i++) {
+                try {
+                    updateClass(classDescs[i], classDescSet);
+                } catch (InvalidClassDescException ex) {
+                    // ソースファイルの生成に失敗した。
+                    classDescBag.remove(classDescs[i].getName());
+                    classDescBag.addAsFailed(classDescs[i], ex
+                            .getLackingClassNames());
+                }
             }
         }
     }
 
-    public void updateClass(ClassDesc classDesc, boolean mergeMethod)
+    public void updateClass(ClassDesc classDesc)
             throws InvalidClassDescException {
-        // 既存のクラスがあればマージする。
-        mergeWithExistentClass(classDesc, mergeMethod);
         updateClass(classDesc, null);
     }
 
     void updateClass(ClassDesc classDesc, ClassDescSet classDescSet)
             throws InvalidClassDescException {
+        // 既存のクラスの情報を使って調整する。
+        adjustByExistentClass(classDesc);
         writeSourceFile(classDesc, classDescSet);
     }
 
-    public void mergeWithExistentClass(ClassDesc desc, boolean mergeMethod) {
+    public void adjustByExistentClass(ClassDesc desc) {
         String className = desc.getName();
         Class<?> clazz = getClass(className);
         ClassDesc gapDesc = getClassDesc(clazz, className);
@@ -959,8 +946,9 @@ public class SourceCreatorImpl implements SourceCreator {
                 && clazz.getSuperclass().getName().equals(className + "Base") ? clazz
                 .getSuperclass()
                 : null);
-        ClassDesc baseDesc = (mergeMethod ? getClassDesc(baseClass, className)
-                : null);
+        // 従属タイプのクラスの場合は既存のBaseクラスの情報とマージしなくて良い。
+        ClassDesc baseDesc = desc.getType().isSubordinate() ? null
+                : getClassDesc(baseClass, className);
         if (baseDesc == null) {
             baseDesc = newClassDesc(className);
             baseDesc.setSuperclass(desc.getSuperclass());

@@ -1,6 +1,6 @@
 package org.seasar.ymir.extension.creator.impl;
 
-public class Merge3 extends Merge3Base {
+public class Merge3Page extends Merge3PageBase {
 
     public int sub(int f1, int f2) {
         return f1 - f2;

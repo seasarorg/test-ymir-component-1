@@ -2,6 +2,7 @@ package org.seasar.ymir.extension.creator.mock;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
+import java.lang.reflect.AnnotatedElement;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -14,6 +15,7 @@ import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseCreator;
+import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
 import org.seasar.ymir.extension.creator.ClassDescSet;
@@ -131,10 +133,10 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public void updateClasses(ClassDescBag classDescBag, boolean mergeMethod) {
+    public void updateClasses(ClassDescBag classDescBag) {
     }
 
-    public void updateClass(ClassDesc classDesc, boolean mergeMethod)
+    public void updateClass(ClassDesc classDesc)
             throws InvalidClassDescException {
     }
 
@@ -169,7 +171,7 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public void mergeWithExistentClass(ClassDesc desc, boolean mergeMethod) {
+    public void adjustByExistentClass(ClassDesc desc) {
     }
 
     public Template getTemplate(String path) {
@@ -225,5 +227,9 @@ public class MockSourceCreator implements SourceCreator {
 
     public String getTemplateEncoding() {
         return "UTF-8";
+    }
+
+    public AnnotationDesc[] createAnnotationDescs(AnnotatedElement element) {
+        return null;
     }
 }

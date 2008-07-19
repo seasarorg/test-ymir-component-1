@@ -18,5 +18,7 @@ public interface AnnotatedDesc {
 
     String[] getMetaValues(String name);
 
+    Class<?>[] getMetaClassValues(String name);
+
     boolean hasMeta(String name);
 }

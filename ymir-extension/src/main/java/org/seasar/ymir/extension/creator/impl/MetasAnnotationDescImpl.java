@@ -1,29 +1,34 @@
 package org.seasar.ymir.extension.creator.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Metas;
 import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
+import org.seasar.ymir.extension.creator.MetasAnnotationDesc;
 
-public class MetasAnnotationDescImpl implements MetaAnnotationDesc {
-    private MetaAnnotationDescImpl[] metaAnnotationDescs_;
+public class MetasAnnotationDescImpl implements MetasAnnotationDesc {
+    private MetaAnnotationDesc[] metaAnnotationDescs_;
 
     public MetasAnnotationDescImpl(Metas metas) {
-        Meta[] ms = metas.value();
-        metaAnnotationDescs_ = new MetaAnnotationDescImpl[ms.length];
-        for (int i = 0; i < ms.length; i++) {
-            metaAnnotationDescs_[i] = new MetaAnnotationDescImpl(ms[i]);
+        List<MetaAnnotationDesc> list = new ArrayList<MetaAnnotationDesc>(metas
+                .value().length);
+        for (Meta m : metas.value()) {
+            list.add(new MetaAnnotationDescImpl(m));
         }
+        metaAnnotationDescs_ = list.toArray(new MetaAnnotationDesc[0]);
+    }
+
+    public MetasAnnotationDescImpl(MetaAnnotationDesc[] mads) {
+        metaAnnotationDescs_ = mads;
     }
 
     public Object clone() {
         try {
             MetasAnnotationDescImpl cloned = (MetasAnnotationDescImpl) super
                     .clone();
-            cloned.metaAnnotationDescs_ = new MetaAnnotationDescImpl[metaAnnotationDescs_.length];
+            cloned.metaAnnotationDescs_ = new MetaAnnotationDesc[metaAnnotationDescs_.length];
             System
                     .arraycopy(metaAnnotationDescs_, 0,
                             cloned.metaAnnotationDescs_, 0,
@@ -89,11 +94,27 @@ public class MetasAnnotationDescImpl implements MetaAnnotationDesc {
     }
 
     public String[] getValues(String name) {
-        List<String> valueList = new ArrayList<String>();
         for (int i = 0; i < metaAnnotationDescs_.length; i++) {
-            valueList.addAll(Arrays.asList(metaAnnotationDescs_[i]
-                    .getValues(name)));
+            String[] values = metaAnnotationDescs_[i].getValues(name);
+            if (values != null) {
+                return values;
+            }
         }
-        return valueList.toArray(new String[0]);
+        return null;
+    }
+
+    public Class<?>[] getClassValues(String name) {
+        for (int i = 0; i < metaAnnotationDescs_.length; i++) {
+            Class<?>[] classValues = metaAnnotationDescs_[i]
+                    .getClassValues(name);
+            if (classValues != null) {
+                return classValues;
+            }
+        }
+        return null;
+    }
+
+    public MetaAnnotationDesc[] getMetaAnnotationDescs() {
+        return metaAnnotationDescs_;
     }
 }

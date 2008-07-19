@@ -4,9 +4,9 @@ import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.util.Map;
 
+import org.seasar.ymir.ActionNotFoundException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
-import org.seasar.ymir.constraint.ActionNotFoundException;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
 import org.seasar.ymir.extension.creator.PathMetaData;
@@ -60,7 +60,7 @@ public class CreateActionAction extends AbstractAction implements
 
         String[] lackingClassNames = null;
         try {
-            getSourceCreator().updateClass(classDesc, true);
+            getSourceCreator().updateClass(classDesc);
         } catch (InvalidClassDescException ex) {
             lackingClassNames = ex.getLackingClassNames();
         }

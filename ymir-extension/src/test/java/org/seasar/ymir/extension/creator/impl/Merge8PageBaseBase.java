@@ -1,6 +1,6 @@
 package org.seasar.ymir.extension.creator.impl;
 
-public class Merge8BaseBase {
+public class Merge8PageBaseBase {
     private String value_;
 
     public String getValue() {

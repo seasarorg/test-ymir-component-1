@@ -4,7 +4,6 @@ import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Metas;
 
 public interface PropertyDesc extends Cloneable {
-
     int NONE = 0;
 
     int READ = 1;

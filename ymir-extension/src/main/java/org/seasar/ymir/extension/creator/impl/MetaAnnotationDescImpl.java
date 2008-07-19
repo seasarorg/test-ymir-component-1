@@ -104,7 +104,15 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
         if (name.equals(metaName_)) {
             return metaValue_;
         } else {
-            return new String[0];
+            return null;
+        }
+    }
+
+    public Class<?>[] getClassValues(String name) {
+        if (name.equals(metaName_)) {
+            return metaClassValue_;
+        } else {
+            return null;
         }
     }
 }

@@ -3,19 +3,6 @@ package org.seasar.ymir.extension.creator;
 import java.util.Map;
 
 public interface ClassDesc extends AnnotatedDesc, Cloneable {
-
-    String KIND_PAGE = "Page";
-
-    String KIND_DTO = "Dto";
-
-    String KIND_DAO = "Dao";
-
-    String KIND_DXO = "Dxo";
-
-    String KIND_BEAN = "Bean";
-
-    String KIND_CONVERTER = "Converter";
-
     Object clone();
 
     String getName();
@@ -26,11 +13,11 @@ public interface ClassDesc extends AnnotatedDesc, Cloneable {
 
     String getInstanceName();
 
-    String getKind();
+    ClassType getType();
 
-    boolean isKindOf(String kind);
+    boolean isTypeOf(ClassType type);
 
-    String getBaseName();
+    String getNameBase();
 
     MethodDesc getMethodDesc(MethodDesc methodDesc);
 

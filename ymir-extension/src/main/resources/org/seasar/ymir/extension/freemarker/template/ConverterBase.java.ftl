@@ -57,7 +57,7 @@ public class ${classDesc.shortName}Base extends Converter
 <#list pairClassDesc.propertyDescs as propertyDesc>
     protected void copy${propertyDesc.name?cap_first}To(${pairClassDesc.shortName} entity, ${targetClassDesc.shortName} dto)
     {
-        entity.set${propertyDesc.name?cap_first}(convert(dto.get${propertyDesc.name?cap_first}(), (${propertyDesc.typeDesc.name}) null));
+        entity.set${propertyDesc.name?cap_first}(convert(dto.get${propertyDesc.name?cap_first}(), ${propertyDesc.typeDesc.wrapperName}.class));
     }
 
 </#list>

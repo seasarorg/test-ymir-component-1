@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
+import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_FEATURE_CREATECONVERTER_ENABLE;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.util.ArrayList;
@@ -16,24 +17,28 @@ import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.extension.creator.AnnotatedDesc;
+import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
+import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
+import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
 
 public class UpdateClassesAction extends AbstractAction implements UpdateAction {
     protected static final String PARAM_APPLY = SourceCreator.PARAM_PREFIX
             + "apply";
 
-    protected static final String PARAM_REPLACE = SourceCreator.PARAM_PREFIX
-            + "replace";
-
     protected static final String PARAMPREFIX_PROPERTYTYPE = SourceCreator.PARAM_PREFIX
             + "propertyType_";
+
+    protected static final String PARAMPREFIX_CONVERTER_PAIRCLASS = SourceCreator.PARAM_PREFIX
+            + "converter_pairClass_";
 
     protected static final String PREFIX_CHECKEDTIME = "updateClassesAction.checkedTime.";
 
@@ -89,6 +94,10 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 .getCreatedClassDescs()));
         variableMap.put("updatedClassDescs", createClassDescDtos(classDescBag
                 .getUpdatedClassDescs()));
+        variableMap.put("converterCreated", Boolean.valueOf(PropertyUtils
+                .valueOf(getSourceCreator().getApplication().getProperty(
+                        APPKEY_SOURCECREATOR_FEATURE_CREATECONVERTER_ENABLE),
+                        false)));
         return getSourceCreator().getResponseCreator().createResponse(
                 "updateClasses", variableMap);
     }
@@ -99,12 +108,26 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         ClassDescDto[] dtos = new ClassDescDto[classDescs.length];
         for (int i = 0; i < classDescs.length; i++) {
             String name = classDescs[i].getName();
-            String kind = classDescs[i].getKind();
-            if (ClassDesc.KIND_DAO.equals(kind)
-                    || ClassDesc.KIND_BEAN.equals(kind)
-                    || ClassDesc.KIND_DXO.equals(kind)) {
+            ClassType type = classDescs[i].getType();
+            if (type == ClassType.DAO || type == ClassType.BEAN
+                    || type == ClassType.DXO) {
                 dtos[i] = new ClassDescDto(classDescs[i], false);
             } else {
+                if (type == ClassType.DTO) {
+                    AnnotationDesc[] ads = getSourceCreator()
+                            .createAnnotationDescs(
+                                    getSourceCreator().getClass(
+                                            classDescs[i].getName() + "Base"));
+                    for (AnnotationDesc ad : ads) {
+                        if (AnnotatedDesc.ANNOTATION_NAME_META.equals(ad
+                                .getName())
+                                || AnnotatedDesc.ANNOTATION_NAME_METAS
+                                        .equals(ad.getName())) {
+                            classDescs[i].setAnnotationDesc(ad);
+                        }
+                    }
+                }
+
                 dtos[i] = new ClassDescDto(classDescs[i], PropertyUtils
                         .valueOf(prop.getProperty(PREFIX_CLASSCHECKED + name),
                                 true));
@@ -162,6 +185,15 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         ClassDesc[] classDescs = classDescBag.getClassDescs();
         for (int i = 0; i < classDescs.length; i++) {
             String name = classDescs[i].getName();
+            if (classDescs[i].isTypeOf(ClassType.DTO)) {
+                Class<?>[] pairClasses = toClasses(request
+                        .getParameter(PARAMPREFIX_CONVERTER_PAIRCLASS + name));
+                if (pairClasses.length > 0) {
+                    classDescs[i].setAnnotationDesc(new MetaAnnotationDescImpl(
+                            "conversion", new String[0], pairClasses));
+                }
+            }
+
             String checked;
             if (appliedClassNameSet.contains(name)) {
                 checked = String.valueOf(true);
@@ -173,10 +205,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         }
         getSourceCreator().saveSourceCreatorProperties();
 
-        boolean mergeMethod = !"true".equals(request
-                .getParameter(PARAM_REPLACE));
-
-        getSourceCreator().updateClasses(classDescBag, mergeMethod);
+        getSourceCreator().updateClasses(classDescBag);
 
         synchronizeResources(new String[] { getRootPackagePath(),
             getPath(pathMetaData.getTemplate()) });
@@ -189,17 +218,29 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         variableMap.put("classDescBag", classDescBag);
         variableMap.put("actionName", getSourceCreator().getActionName(
                 request.getCurrentDispatch().getPath(), method));
-        variableMap.put("suggestionExists", Boolean.valueOf(classDescBag
-                .getClassDescMap(ClassDesc.KIND_PAGE).size()
-                + classDescBag.getCreatedClassDescMap(ClassDesc.KIND_BEAN)
-                        .size() > 0));
+        variableMap.put("suggestionExists", Boolean
+                .valueOf(classDescBag.getClassDescMap(ClassType.PAGE).size()
+                        + classDescBag.getCreatedClassDescMap(ClassType.BEAN)
+                                .size() > 0));
         variableMap.put("pageClassDescs", classDescBag
-                .getClassDescs(ClassDesc.KIND_PAGE));
+                .getClassDescs(ClassType.PAGE));
         variableMap.put("renderActionName", RequestProcessor.METHOD_RENDER);
         variableMap.put("createdBeanClassDescs", classDescBag
-                .getCreatedClassDescs(ClassDesc.KIND_BEAN));
+                .getCreatedClassDescs(ClassType.BEAN));
         return getSourceCreator().getResponseCreator().createResponse(
                 "updateClasses_update", variableMap);
+    }
+
+    Class<?>[] toClasses(String classString) {
+        String[] classNames = PropertyUtils.toLines(classString, ",");
+        List<Class<?>> list = new ArrayList<Class<?>>(classNames.length);
+        for (String className : classNames) {
+            Class<?> clazz = getSourceCreator().getClass(className);
+            if (clazz != null) {
+                list.add(clazz);
+            }
+        }
+        return list.toArray(new Class[0]);
     }
 
     String normalizeTypeName(String typeName) {

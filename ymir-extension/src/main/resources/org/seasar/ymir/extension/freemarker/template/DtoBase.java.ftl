@@ -1,6 +1,7 @@
 <#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
 
-public class ${classDesc.shortName}Base
+<#list classDesc.annotationDescs as annotationDesc>${annotationDesc.string}
+</#list>public class ${classDesc.shortName}Base
 {
 <#list classDesc.propertyDescs as propertyDesc>
     protected ${propertyDesc.typeDesc.name} ${fieldPrefix}${propertyDesc.name}${fieldSuffix};

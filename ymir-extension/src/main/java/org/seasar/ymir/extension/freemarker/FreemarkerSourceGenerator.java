@@ -29,7 +29,8 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
         if (classDesc == null) {
             return null;
         }
-        return generateClassSource(classDesc.getKind() + ".java", classDesc);
+        return generateClassSource(classDesc.getType().getSuffix() + ".java",
+                classDesc);
     }
 
     public String generateBaseSource(ClassDesc classDesc) {
@@ -37,7 +38,8 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
         if (classDesc == null) {
             return null;
         }
-        return generateClassSource(classDesc.getKind() + "Base.java", classDesc);
+        return generateClassSource(classDesc.getType().getSuffix()
+                + "Base.java", classDesc);
     }
 
     String generateClassSource(String templateName, ClassDesc classDesc) {

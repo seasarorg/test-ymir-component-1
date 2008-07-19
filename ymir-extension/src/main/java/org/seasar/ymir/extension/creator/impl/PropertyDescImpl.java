@@ -9,7 +9,6 @@ import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 
 public class PropertyDescImpl implements PropertyDesc, Cloneable {
-
     public static final int NONE = 0;
 
     public static final int READ = 1;
@@ -31,7 +30,6 @@ public class PropertyDescImpl implements PropertyDesc, Cloneable {
     private Map<String, AnnotationDesc> annotationDescMap_ = new TreeMap<String, AnnotationDesc>();
 
     public PropertyDescImpl(String name) {
-
         name_ = name;
     }
 

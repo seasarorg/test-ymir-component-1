@@ -21,6 +21,7 @@ import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -191,11 +192,11 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         "com.example.page.TestPage").getSuperclassName());
     }
 
-    public void testMergeWithExistentClass() throws Exception {
+    public void testAdjustByExistentClass() throws Exception {
 
         ClassDesc cd = new ClassDescImpl(
-                "org.seasar.ymir.extension.creator.impl.Merge3");
-        cd.setSuperclass(Merge3BaseBase.class);
+                "org.seasar.ymir.extension.creator.impl.Merge3Page");
+        cd.setSuperclass(Merge3PageBaseBase.class);
         PropertyDesc pd = new PropertyDescImpl("hoe");
         pd.addMode(PropertyDesc.READ);
         pd.addMode(PropertyDesc.WRITE);
@@ -231,7 +232,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
             new ParameterDescImpl(Integer.TYPE) });
         cd.setMethodDesc(incMd);
 
-        target_.mergeWithExistentClass(cd, true);
+        target_.adjustByExistentClass(cd);
 
         assertEquals(2, cd.getPropertyDescs().length);
         assertFalse("スーパークラスだけが持っているプロパティのアクセッサは除去されること", cd.getPropertyDesc(
@@ -249,17 +250,17 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 .getMethodDesc(divMd));
     }
 
-    public void testMergeWithExistentClass2() throws Exception {
+    public void testAdjustByExistentClass2() throws Exception {
 
         ClassDesc cd = new ClassDescImpl(
-                "org.seasar.ymir.extension.creator.impl.Merge2");
-        cd.setSuperclass(Merge2BaseBase.class);
+                "org.seasar.ymir.extension.creator.impl.Merge2Page");
+        cd.setSuperclass(Merge2PageBaseBase.class);
         MethodDesc md = new MethodDescImpl("_render");
         md.setReturnTypeDesc(new TypeDescImpl(Void.TYPE));
         md.setParameterDescs(new ParameterDesc[0]);
         cd.setMethodDesc(md);
 
-        target_.mergeWithExistentClass(cd, true);
+        target_.adjustByExistentClass(cd);
 
         assertNull(cd.getMethodDesc(md));
     }
@@ -310,21 +311,21 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         .filterResponse("<html><head></head></html>"));
     }
 
-    public void testMergeWithExistentClass_既にギャップクラスがあるがベースクラスがない場合にObjectのメソッドがベースクラスに追加されないこと()
+    public void testAdjustByExistentClass_既にギャップクラスがあるがベースクラスがない場合にObjectのメソッドがベースクラスに追加されないこと()
             throws Exception {
 
         getConfiguration().removeProperty(
                 Globals.APPKEY_SOURCECREATOR_SUPERCLASS);
 
         ClassDesc cd = new ClassDescImpl(
-                "org.seasar.ymir.extension.creator.impl.Merge5");
+                "org.seasar.ymir.extension.creator.impl.Merge5Page");
 
-        target_.mergeWithExistentClass(cd, true);
+        target_.adjustByExistentClass(cd);
 
         assertNull(cd.getPropertyDesc("class"));
     }
 
-    public void testMergeWithExistentClass2_validationFailedなどがスーパークラスにある時は自動生成されないこと()
+    public void testAdjustByExistentClass2_validationFailedなどがスーパークラスにある時は自動生成されないこと()
             throws Exception {
 
         ClassDesc cd = new ClassDescImpl(
@@ -336,62 +337,78 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 Notes.class) });
         cd.setMethodDesc(md);
 
-        target_.mergeWithExistentClass(cd, true);
+        target_.adjustByExistentClass(cd);
 
         assertNull(cd.getMethodDesc(md));
     }
 
-    public void testMergeWithExistentClass3_Baseクラスの親クラス情報は維持されること()
+    public void testAdjustByExistentClass3_Baseクラスの親クラス情報は維持されること()
             throws Exception {
 
         ClassDesc cd = new ClassDescImpl(
-                "org.seasar.ymir.extension.creator.impl.Merge3");
+                "org.seasar.ymir.extension.creator.impl.Merge3Page");
         cd.setSuperclass(TestPageBase.class);
 
-        target_.mergeWithExistentClass(cd, true);
+        target_.adjustByExistentClass(cd);
 
         assertEquals("Ymirが親クラスを指定するようになっている場合でも、親クラスが指定されているのであればそれが維持されること",
-                "org.seasar.ymir.extension.creator.impl.Merge3BaseBase", cd
+                "org.seasar.ymir.extension.creator.impl.Merge3PageBaseBase", cd
                         .getSuperclassName());
     }
 
-    public void testMergeWithExistentClass4_Baseクラスの親クラス情報は維持されること2()
+    public void testAdjustByExistentClass4_Baseクラスの親クラス情報は維持されること2()
             throws Exception {
 
         ClassDesc cd = new ClassDescImpl(
-                "org.seasar.ymir.extension.creator.impl.Merge6");
+                "org.seasar.ymir.extension.creator.impl.Merge6Page");
         cd.setSuperclass(TestPageBase.class);
 
-        target_.mergeWithExistentClass(cd, true);
+        target_.adjustByExistentClass(cd);
 
         assertNull("Ymirが親クラスを指定するようになっている場合でも、親クラスが指定されていないならばそれが維持されること", cd
                 .getSuperclassName());
     }
 
-    public void testMergeWithExistentClass5_Baseクラスのabstract状態が維持されること()
+    public void testAdjustByExistentClass5_Baseクラスのabstract状態が維持されること()
             throws Exception {
 
         ClassDesc cd = new ClassDescImpl(
-                "org.seasar.ymir.extension.creator.impl.Merge7");
+                "org.seasar.ymir.extension.creator.impl.Merge7Page");
         cd.setSuperclass(TestPageBase.class);
 
-        target_.mergeWithExistentClass(cd, true);
+        target_.adjustByExistentClass(cd);
 
         assertTrue(cd.isBaseClassAbstract());
     }
 
-    public void testMergeWithExistentClass6_プロパティのGetterやSetterがスーパークラスにある時は自動生成されないこと()
+    public void testAdjustByExistentClass6_プロパティのGetterやSetterがスーパークラスにある時は自動生成されないこと()
             throws Exception {
 
         ClassDesc cd = new ClassDescImpl(
-                "org.seasar.ymir.extension.creator.impl.Merge8");
+                "org.seasar.ymir.extension.creator.impl.Merge8Page");
         PropertyDescImpl pd = new PropertyDescImpl("value");
         pd.setMode(PropertyDesc.READ);
         cd.setPropertyDesc(pd);
 
-        target_.mergeWithExistentClass(cd, true);
+        target_.adjustByExistentClass(cd);
 
         assertNull(cd.getPropertyDesc("value"));
+    }
+
+    public void testAdjustByExistentClass9_BaseクラスのAnnotationが上書きされること()
+            throws Exception {
+
+        ClassDesc cd = new ClassDescImpl(
+                "org.seasar.ymir.extension.creator.impl.Merge9Page");
+        cd.setAnnotationDesc(new MetaAnnotationDescImpl("meta",
+                new String[] { "newValue" }, new Class[0]));
+
+        target_.adjustByExistentClass(cd);
+
+        MetaAnnotationDesc actual = (MetaAnnotationDesc) cd
+                .getAnnotationDesc(Meta.class.getName());
+        assertNotNull(actual);
+        assertEquals("newValue", actual.getValue("meta"));
     }
 
     @SuppressWarnings("deprecation")

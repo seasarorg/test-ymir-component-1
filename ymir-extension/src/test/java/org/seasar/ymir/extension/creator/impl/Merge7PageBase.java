@@ -1,4 +1,4 @@
 package org.seasar.ymir.extension.creator.impl;
 
-public class Merge6Base {
+abstract public class Merge7PageBase {
 }

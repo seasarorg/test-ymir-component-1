@@ -1,6 +1,7 @@
 package org.seasar.ymir.extension.zpt;
 
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 
@@ -41,7 +42,7 @@ public class DescWrapper {
 
         ClassDesc cd = getValueClassDesc();
         PropertyDesc pd = cd.getPropertyDesc(name);
-        int mode = (cd.isKindOf(ClassDesc.KIND_DTO) ? (PropertyDesc.READ | PropertyDesc.WRITE)
+        int mode = (cd.isTypeOf(ClassType.DTO) ? (PropertyDesc.READ | PropertyDesc.WRITE)
                 : PropertyDesc.READ);
         if (pd == null) {
             pd = analyzerContext_.adjustPropertyType(cd.getName(), cd

@@ -15,13 +15,14 @@
   <ul>
     <li tal:repeat="classDesc createdClassDescs">
       <input type="checkbox" name="__ymir__apply" tal:attributes="value classDesc/name; checked classDesc/checked" /> <span tal:content="classDesc/name">CLASS</span>
+      <div tal:condition="converterCreated" tal:omit-tag=""><span tal:condition="classDesc/dto">&nbsp;&nbsp;対応するEntityクラス：<input tal:attributes="name string:__ymir__converter_pairClass_${classDesc/name}; value classDesc/pairClass" type="text" name="__ymir__converter_pairClass" size="48" /></span></div>
       <table tal:condition="classDesc/propertyDescs">
         <tr tal:repeat="propertyDesc classDesc/propertyDescs">
           <th align="right" nowrap="nowrap">
             <span tal:replace="propertyDesc/name">PROPERTYNAME</span>プロパティ
           </th>
           <td align="left" nowrap="nowrap">
-            <input type="text" tal:attributes="name string:__ymir__propertyType_${classDesc/name}/${propertyDesc/name}; value propertyDesc/typeName" />
+            <input type="text" tal:attributes="name string:__ymir__propertyType_${classDesc/name}/${propertyDesc/name}; value propertyDesc/typeName" size="48" />
           </td>
         </tr>
       </table>
@@ -32,20 +33,20 @@
   <ul>
     <li tal:repeat="classDesc updatedClassDescs">
       <input type="checkbox" name="__ymir__apply" tal:attributes="value classDesc/name; checked classDesc/checked" /> <span tal:content="classDesc/name">CLASS</span>
+      <div tal:condition="converterCreated" tal:omit-tag=""><span tal:condition="classDesc/dto">&nbsp;&nbsp;対応するEntityクラス：<input tal:attributes="name string:__ymir__converter_pairClass_${classDesc/name}; value classDesc/pairClass" type="text" name="__ymir__converter_pairClass" size="48" /></span></div>
       <table tal:condition="classDesc/propertyDescs">
         <tr tal:repeat="propertyDesc classDesc/propertyDescs">
           <th align="right" nowrap="nowrap">
             <span tal:replace="propertyDesc/name">PROPERTYNAME</span>プロパティ
           </th>
           <td align="left" nowrap="nowrap">
-            <input type="text" tal:attributes="name string:__ymir__propertyType_${classDesc/name}/${propertyDesc/name}; value propertyDesc/typeName" />
+            <input type="text" tal:attributes="name string:__ymir__propertyType_${classDesc/name}/${propertyDesc/name}; value propertyDesc/typeName" size="48" />
           </td>
         </tr>
       </table>
     </li>
   </ul>
   </p>
-  <p><input type="checkbox" name="__ymir__replace" value="true" /> 以前の生成結果を新しい結果で置き換える（以前のクラスが持つメソッドやプロパティの情報は全て失われます！）</p>
   <p>よろしいですか？</p>
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
   <input type="hidden" name="__ymir__task" value="updateClasses" />

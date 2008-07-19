@@ -5,5 +5,7 @@ public interface MetaAnnotationDesc extends AnnotationDesc {
 
     String[] getValues(String name);
 
+    Class<?>[] getClassValues(String name);
+
     boolean hasValue(String name);
 }

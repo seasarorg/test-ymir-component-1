@@ -22,6 +22,7 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Token;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.FormDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
@@ -410,13 +411,11 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     boolean isPage(ClassDesc classDesc) {
-        return ClassDesc.KIND_PAGE.equals(classDesc.getKind())
-                && !isOuter(classDesc);
+        return classDesc.isTypeOf(ClassType.PAGE) && !isOuter(classDesc);
     }
 
     boolean isDto(ClassDesc classDesc) {
-        return ClassDesc.KIND_DTO.equals(classDesc.getKind())
-                && !isOuter(classDesc);
+        return classDesc.isTypeOf(ClassType.DTO) && !isOuter(classDesc);
     }
 
     boolean isEmptyDto(ClassDesc classDesc) {
@@ -450,7 +449,7 @@ public class AnalyzerContext extends ZptTemplateContext {
             }
         }
         return dtoClassName.append('.').append(capFirst(baseName)).append(
-                ClassDesc.KIND_DTO).toString();
+                ClassType.DTO.getSuffix()).toString();
     }
 
     String capFirst(String string) {

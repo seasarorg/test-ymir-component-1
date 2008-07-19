@@ -1,6 +1,6 @@
 package org.seasar.ymir.extension.creator.impl;
 
-public class Merge3Base extends Merge3BaseBase {
+public class Merge3PageBase extends Merge3PageBaseBase {
 
     public void setHoe(String hoe) {
         hoe_ = hoe;

@@ -19,18 +19,30 @@ public class TypeDescImpl implements TypeDesc {
 
     private boolean explicit_;
 
-    private static final Map<String, String> defaultValueMap_;
+    private static final Map<String, String> DEFAULT_VALUE_MAP;
+
+    private static final Map<String, String> WRAPPER_MAP;
 
     static {
-        defaultValueMap_ = new HashMap<String, String>();
-        defaultValueMap_.put("byte", "0");
-        defaultValueMap_.put("short", "0");
-        defaultValueMap_.put("int", "0");
-        defaultValueMap_.put("long", "0");
-        defaultValueMap_.put("float", "0");
-        defaultValueMap_.put("double", "0");
-        defaultValueMap_.put("char", "0");
-        defaultValueMap_.put("boolean", "false");
+        DEFAULT_VALUE_MAP = new HashMap<String, String>();
+        DEFAULT_VALUE_MAP.put("byte", "0");
+        DEFAULT_VALUE_MAP.put("short", "0");
+        DEFAULT_VALUE_MAP.put("int", "0");
+        DEFAULT_VALUE_MAP.put("long", "0");
+        DEFAULT_VALUE_MAP.put("float", "0");
+        DEFAULT_VALUE_MAP.put("double", "0");
+        DEFAULT_VALUE_MAP.put("char", "0");
+        DEFAULT_VALUE_MAP.put("boolean", "false");
+
+        WRAPPER_MAP = new HashMap<String, String>();
+        WRAPPER_MAP.put("byte", "Byte");
+        WRAPPER_MAP.put("short", "Short");
+        WRAPPER_MAP.put("int", "Integer");
+        WRAPPER_MAP.put("long", "Long");
+        WRAPPER_MAP.put("float", "Float");
+        WRAPPER_MAP.put("double", "Double");
+        WRAPPER_MAP.put("char", "Character");
+        WRAPPER_MAP.put("boolean", "Boolean");
     }
 
     public TypeDescImpl() {
@@ -61,7 +73,11 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public TypeDescImpl(Class<?> clazz) {
-        this(new SimpleClassDesc(clazz.getName()), clazz.isArray());
+        this(clazz, false);
+    }
+
+    public TypeDescImpl(Class<?> clazz, boolean explicit) {
+        this(new SimpleClassDesc(clazz.getName()), clazz.isArray(), explicit);
     }
 
     static String getComponentName(String name) {
@@ -164,7 +180,7 @@ public class TypeDescImpl implements TypeDesc {
             return NULL_VALUE;
         } else {
             String name = classDesc_.getName();
-            String value = (String) defaultValueMap_.get(name);
+            String value = (String) DEFAULT_VALUE_MAP.get(name);
             if (value != null) {
                 return value;
             } else {
@@ -178,6 +194,32 @@ public class TypeDescImpl implements TypeDesc {
             return classDesc_.getInstanceName() + "s";
         } else {
             return classDesc_.getInstanceName();
+        }
+    }
+
+    public String getWrapperName() {
+        String name = classDesc_.getName().replace('$', '.');
+        StringBuilder sb = new StringBuilder();
+        if (name.startsWith(PACKAGE_JAVA_LANG)) {
+            sb.append(name.substring(PACKAGE_JAVA_LANG.length()));
+        } else {
+            sb.append(toWrapperName(name));
+        }
+        if (array_) {
+            sb.append(ARRAY_SUFFIX);
+        }
+        return sb.toString();
+    }
+
+    String toWrapperName(String name) {
+        if (name == null) {
+            return null;
+        }
+        String wrapperName = WRAPPER_MAP.get(name);
+        if (wrapperName != null) {
+            return wrapperName;
+        } else {
+            return name;
         }
     }
 }
