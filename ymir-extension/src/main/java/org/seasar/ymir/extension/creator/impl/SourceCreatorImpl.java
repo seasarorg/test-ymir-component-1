@@ -41,6 +41,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.seasar.cms.pluggable.ClassTraverser;
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
@@ -51,6 +52,7 @@ import org.seasar.framework.log.Logger;
 import org.seasar.framework.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.framework.mock.servlet.MockHttpServletResponseImpl;
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
+import org.seasar.framework.util.ClassTraversal;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.StringUtils;
 import org.seasar.kvasir.util.collection.MapProperties;
@@ -1131,6 +1133,33 @@ public class SourceCreatorImpl implements SourceCreator {
         try {
             return Class.forName(className, true, getClassLoader());
         } catch (ClassNotFoundException ex) {
+            if (className.indexOf('.') < 0) {
+                ClassTraverser traverser = new ClassTraverser();
+                try {
+                    traverser.addReferenceClass(Class.forName(
+                            "org.seasar.ymir.landmark.Landmark", true,
+                            getClassLoader()));
+                } catch (ClassNotFoundException e) {
+                    return null;
+                }
+                traverser.addClassPattern(getRootPackageName(), className);
+
+                final String[] found = new String[1];
+                traverser.setClassHandler(new ClassTraversal.ClassHandler() {
+                    public void processClass(String packageName,
+                            String shortClassName) {
+                        found[0] = packageName + "." + shortClassName;
+                    }
+                });
+                traverser.traverse();
+                if (found[0] != null) {
+                    try {
+                        return Class.forName(found[0], true, getClassLoader());
+                    } catch (ClassNotFoundException e) {
+                        return null;
+                    }
+                }
+            }
             return null;
         }
     }
