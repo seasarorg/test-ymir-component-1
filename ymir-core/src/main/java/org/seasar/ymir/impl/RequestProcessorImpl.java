@@ -271,10 +271,10 @@ public class RequestProcessorImpl implements RequestProcessor {
                 response = normalizeResponse(constructDefaultResponse(dispatch,
                         null), dispatch.getPath());
             }
-        }
 
-        if (logger_.isDebugEnabled()) {
-            logger_.debug("FINAL RESPONSE: " + response);
+            if (logger_.isDebugEnabled()) {
+                logger_.debug("FINAL RESPONSE: " + response);
+            }
         }
 
         return response;
