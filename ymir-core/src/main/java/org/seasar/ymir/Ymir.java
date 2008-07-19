@@ -70,7 +70,7 @@ public interface Ymir {
      * @param queryString ディスパッチのクエリ文字列。nullを指定することもできます。
      * @param dispatcher ディスパッチを表すDispatcher。
      * @param matched ディスパッチのパスとパスマッピングのマッチング情報を持つMatchedPathMappingオブジェクト。
-     * nullを指定してはいけません。
+     * nullが指定された場合は内部でMatchedPathMappingオブジェクトが作成されて使用されます。
      * @see Dispatch
      * @see Dispatcher
      */

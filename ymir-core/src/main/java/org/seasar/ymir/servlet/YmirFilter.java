@@ -80,12 +80,18 @@ public class YmirFilter implements Filter {
         String path = ServletUtils.getNativePath(httpRequest);
         String method = httpRequest.getMethod();
 
-        MatchedPathMapping matched = ymir_.findMatchedPathMapping(path, method);
-        if (matched == null && !ymir_.isUnderDevelopment()) {
-            // マッチしないのでYmirでは処理しない。
-            // ただし開発モードではResponseを加工できるようにYmirで処理するようにする。
-            chain.doFilter(req, res);
-            return;
+        // 開発モードではResponseを加工できるように、マッチするかに関わらずYmirで処理するようにする。
+        // また、開発モードではHTTPメソッドが差し替えられることがあるため、MatchedPathMappingは
+        // HTTPメソッド差し替え後に作成する必要がある。そのためここではMatchedPathMappingを
+        // 作らない。
+        MatchedPathMapping matched = null;
+        if (!ymir_.isUnderDevelopment()) {
+            matched = ymir_.findMatchedPathMapping(path, method);
+            if (matched == null) {
+                // マッチしないのでYmirでは処理しない。
+                chain.doFilter(req, res);
+                return;
+            }
         }
 
         AttributeContainer attributeContainer = new HttpServletRequestAttributeContainer(

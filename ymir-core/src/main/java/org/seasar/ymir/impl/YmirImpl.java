@@ -159,6 +159,9 @@ public class YmirImpl implements Ymir {
 
     public void enterDispatch(Request request, String path, String queryString,
             Dispatcher dispatcher, MatchedPathMapping matched) {
+        if (matched == null) {
+            matched = findMatchedPathMapping(path, request.getMethod());
+        }
         // proceedされてきた場合はqueryStringとして適切な値が渡ってこないので、ここで
         // 差し替えている。
         if (dispatcher == Dispatcher.FORWARD) {
