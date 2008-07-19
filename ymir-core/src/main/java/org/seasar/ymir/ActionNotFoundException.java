@@ -1,4 +1,4 @@
-package org.seasar.ymir.constraint;
+package org.seasar.ymir;
 
 /**
  * HTTPリクエストに対応するPageクラスのアクションメソッドが見つからなかった場合にスローされる例外クラスです。
@@ -8,8 +8,7 @@ package org.seasar.ymir.constraint;
  * 
  * @author YOKOTA Takehiko
  */
-@Deprecated
-public class ActionNotFoundException extends PermissionDeniedException {
+public class ActionNotFoundException extends PageNotFoundException {
     private static final long serialVersionUID = 5885040967668460745L;
 
     private String actionName_;
@@ -17,7 +16,8 @@ public class ActionNotFoundException extends PermissionDeniedException {
     /**
      * このクラスのオブジェクトを構築します。
      */
-    public ActionNotFoundException() {
+    public ActionNotFoundException(String path) {
+        super(path);
     }
 
     /**
@@ -25,7 +25,8 @@ public class ActionNotFoundException extends PermissionDeniedException {
      * 
      * @param actionName アクション名。
      */
-    public ActionNotFoundException(String actionName) {
+    public ActionNotFoundException(String path, String actionName) {
+        super(path);
         setActionName(actionName);
     }
 

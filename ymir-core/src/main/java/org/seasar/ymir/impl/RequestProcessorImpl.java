@@ -13,6 +13,7 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.log.Logger;
 import org.seasar.ymir.Action;
+import org.seasar.ymir.ActionNotFoundException;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
@@ -31,7 +32,6 @@ import org.seasar.ymir.Updater;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.Include;
-import org.seasar.ymir.constraint.ActionNotFoundException;
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
@@ -205,8 +205,8 @@ public class RequestProcessorImpl implements RequestProcessor {
                     // ただしforwardの時はアクションがなくても良いことにしている。
                     // これは、forward先のパスに対応するPageクラスでは_render()だけ
                     // 呼びたい場合にアクションメソッドを省略できるようにするため。
-                    throw new ActionNotFoundException(dispatch
-                            .getMatchedPathMapping().getActionName());
+                    throw new ActionNotFoundException(dispatch.getPath(),
+                            dispatch.getMatchedPathMapping().getActionName());
                 }
                 dispatch.setAction(action);
 
