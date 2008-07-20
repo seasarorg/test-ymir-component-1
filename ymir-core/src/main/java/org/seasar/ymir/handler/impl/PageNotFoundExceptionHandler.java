@@ -4,11 +4,12 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.seasar.ymir.PageNotFoundException;
 import org.seasar.ymir.handler.ExceptionHandler;
 import org.seasar.kvasir.util.io.IORuntimeException;
 
-public class PageNotFoundExceptionHandler implements ExceptionHandler {
-
+public class PageNotFoundExceptionHandler implements
+        ExceptionHandler<PageNotFoundException> {
     private HttpServletResponse httpResponse_;
 
     public void setHttpResponse(HttpServletResponse httpResponse) {
@@ -16,7 +17,7 @@ public class PageNotFoundExceptionHandler implements ExceptionHandler {
         httpResponse_ = httpResponse;
     }
 
-    public String handle(Throwable t) {
+    public String handle(PageNotFoundException t) {
 
         try {
             httpResponse_.sendError(HttpServletResponse.SC_NOT_FOUND);

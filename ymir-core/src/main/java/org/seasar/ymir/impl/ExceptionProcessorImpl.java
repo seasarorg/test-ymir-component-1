@@ -49,6 +49,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         updaters_ = updaters;
     }
 
+    @SuppressWarnings("unchecked")
     public Response process(Request request, Throwable t) {
         if (t instanceof WrappingRuntimeException) {
             t = ((WrappingRuntimeException) t).getCause();
@@ -90,7 +91,8 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         }
         // この時点でhandlerCdがnullならymir-convention.diconの記述ミス。
 
-        ExceptionHandler handler = (ExceptionHandler) handlerCd.getComponent();
+        ExceptionHandler<Throwable> handler = (ExceptionHandler<Throwable>) handlerCd
+                .getComponent();
 
         // 各コンテキストが持つ属性をinjectする。
         PageMetaData pageMetaData = new PageMetaDataImpl(handlerCd

@@ -13,7 +13,7 @@ package org.seasar.ymir.handler;
  * 
  * @author YOKOTA Takehiko
  */
-public interface ExceptionHandler {
+public interface ExceptionHandler<T extends Throwable> {
     /**
      * 例外をハンドリングします。
      * <p>指定された例外が発生した場合にこのメソッドが呼び出されます。
@@ -25,5 +25,5 @@ public interface ExceptionHandler {
      * @param t 発生した例外。
      * @return 遷移先。
      */
-    String handle(Throwable t);
+    String handle(T t);
 }
