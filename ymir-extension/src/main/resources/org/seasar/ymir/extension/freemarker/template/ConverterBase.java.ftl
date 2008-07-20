@@ -1,6 +1,6 @@
 <#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
 
-import org.seasar.ymir.mine.Converter;
+import ${application.rootPackageName}.converter.Converter;
 
 import ${targetClassDesc.name};
 <#list pairClassDescs as pairClassDesc>
@@ -29,7 +29,7 @@ public class ${classDesc.shortName}Base extends Converter
 <#list pairClassDesc.propertyDescs as propertyDesc>
     protected void copy${propertyDesc.name?cap_first}To(${targetClassDesc.shortName} dto, ${pairClassDesc.shortName} entity)
     {
-        dto.set${propertyDesc.name?cap_first}(convert(entity.get${propertyDesc.name?cap_first}()));
+        dto.set${propertyDesc.name?cap_first}(convert(entity.get${propertyDesc.name?cap_first}(), ${targetClassDesc.getPropertyDesc(propertyDesc.getName()).getTypeDesc().getName()}.class));
     }
 
 </#list>
@@ -57,7 +57,7 @@ public class ${classDesc.shortName}Base extends Converter
 <#list pairClassDesc.propertyDescs as propertyDesc>
     protected void copy${propertyDesc.name?cap_first}To(${pairClassDesc.shortName} entity, ${targetClassDesc.shortName} dto)
     {
-        entity.set${propertyDesc.name?cap_first}(convert(dto.get${propertyDesc.name?cap_first}(), ${propertyDesc.typeDesc.wrapperName}.class));
+        entity.set${propertyDesc.name?cap_first}(convert(dto.<#if targetClassDesc.getPropertyDesc(propertyDesc.getName()).getTypeDesc().getName() == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}(), ${propertyDesc.typeDesc.name}.class));
     }
 
 </#list>

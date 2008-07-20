@@ -197,20 +197,6 @@ public class TypeDescImpl implements TypeDesc {
         }
     }
 
-    public String getWrapperName() {
-        String name = classDesc_.getName().replace('$', '.');
-        StringBuilder sb = new StringBuilder();
-        if (name.startsWith(PACKAGE_JAVA_LANG)) {
-            sb.append(name.substring(PACKAGE_JAVA_LANG.length()));
-        } else {
-            sb.append(toWrapperName(name));
-        }
-        if (array_) {
-            sb.append(ARRAY_SUFFIX);
-        }
-        return sb.toString();
-    }
-
     String toWrapperName(String name) {
         if (name == null) {
             return null;

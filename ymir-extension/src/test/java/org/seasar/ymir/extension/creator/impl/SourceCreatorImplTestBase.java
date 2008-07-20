@@ -26,6 +26,7 @@ import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.convention.YmirNamingConvention;
+import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.creator.PageCreator;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -39,7 +40,6 @@ import org.seasar.ymir.impl.PathMappingImpl;
 import org.seasar.ymir.impl.PathMappingProviderImpl;
 import org.seasar.ymir.impl.RequestProcessorImpl;
 import org.seasar.ymir.impl.SingleApplication;
-import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.test.TestCaseBase;
 
 abstract public class SourceCreatorImplTestBase extends TestCaseBase {

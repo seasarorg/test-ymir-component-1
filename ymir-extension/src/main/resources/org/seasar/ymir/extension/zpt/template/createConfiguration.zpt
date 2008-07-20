@@ -14,30 +14,70 @@
   <input type="hidden" name="__ymir__subTask" value="create" />
   <input type="hidden" name="__ymir__method" tal:attributes="value request/method" />
   <dl>
-    <dt>projectRoot</dt>
-    <dd><p>このWebアプリケーションのためのEclipseプロジェクトのパスを入力して下さい。（例：<tt>C:\eclipse\workspace\skeleton</tt>）</p>
-      <p><input type="text" name="__ymir__key_projectRoot" size="64" tal:attributes="value application/projectRoot" /></p>
-    </dd>
-    <dt>rootPackageName</dt>
-    <dd><p>このWebアプリケーションのJavaソースコードのルートパッケージ名を入力して下さい。（例：<tt>com.example</tt>）</p>
-      <p><input type="text" name="__ymir__key_rootPackageName" size="64" tal:attributes="value application/rootPackageName" /></p>
-    </dd>
-    <dt>ignorePackageNames</dt>
+    <dt>基本情報</dt>
     <dd>
-      <p>Hotdeployクラスローダに読み込ませたくないパッケージ名を入力して下さい。「.」で始まるパッケージ名を指定した場合、ルートパッケージ名相対とみなされます。（例：<tt>.ignore1, com.example2.ignore2</tt>）</p>
-      <p>例えば以下のようなパッケージを入力して下さい。
-      <ul>
-        <li>app.diconに&lt;component&gt;定義を追加したいクラスのパッケージ</li>
-        <li><strong>[重要]</strong> DBFluteのpackageBase（自動生成クラスのルートパッケージ）</li>
-      </ul></p>
-      <p><input type="text" name="__ymir__key_ignorePackageNames" size="64" tal:attributes="value application/property(ignorePackageNames)" /></p>
+      <p><dl>
+        <dt>projectRoot</dt>
+        <dd><p>このWebアプリケーションのためのEclipseプロジェクトのパスを入力して下さい。（例：<tt>C:\eclipse\workspace\skeleton</tt>）</p>
+          <p><input type="text" name="__ymir__key_projectRoot" size="64" tal:attributes="value application/projectRoot" /></p>
+        </dd>
+        <dt>rootPackageName</dt>
+        <dd><p>このWebアプリケーションのJavaソースコードのルートパッケージ名を入力して下さい。（例：<tt>com.example</tt>）</p>
+          <p><input type="text" name="__ymir__key_rootPackageName" size="64" tal:attributes="value application/rootPackageName" /></p>
+        </dd>
+        <dt>ignorePackageNames</dt>
+        <dd>
+          <p>Hotdeployクラスローダに読み込ませたくないパッケージ名を入力して下さい。「.」で始まるパッケージ名を指定した場合、ルートパッケージ名相対とみなされます。（例：<tt>.ignore1, com.example2.ignore2</tt>）</p>
+          <p>例えば以下のようなパッケージを入力して下さい。
+          <ul>
+            <li>app.diconに&lt;component&gt;定義を追加したいクラスのパッケージ</li>
+            <li><strong>[重要]</strong> DBFluteのpackageBase（自動生成クラスのルートパッケージ）</li>
+          </ul></p>
+          <p><input type="text" name="__ymir__key_ignorePackageNames" size="64" tal:attributes="value application/property(ignorePackageNames)" /></p>
+        </dd>
+      </dl></p>
     </dd>
-    <dt>beantable.enable</dt>
-    <dd></p>Bean定義からテーブルを自動生成するBeantable機能を利用するかどうかを指定して下さい。</p>
-      <p>
-        <input type="radio" name="__ymir__key_beantable.enable" value="true" tal:attributes="checked beantableEnable" /> 利用する
-        <input type="radio" name="__ymir__key_beantable.enable" value="false" checked="checked" tal:attributes="checked not:beantableEnable" /> 利用しない
-      </p>
+    <dt>自動生成</dt>
+    <dd>
+      <p><dl>
+        <dt>extension.sourceCreator.superclass</dt>
+        <dd><p>Pageクラスの共通の親クラス名を指定して下さい。何も指定しないと親クラスは設定されません。</p>
+          <p>
+            <input type="text" name="__ymir__key_extension.sourceCreator.superclass" tal:attributes="value application/property(extension.sourceCreator.superclass)" size="48" />
+          </p>
+        </dd>
+        <dt>extension.sourceCreatoruseFreyjaRenderClasses</dt>
+        <dd><p>DTOを生成する際、Freyjaが持つレンダリングクラスが使える場合はレンダリングクラスを使うようにするかどうかを指定して下さい。
+               例えば種別を選択するためのラジオボタンの組をレンダリングするためのオブジェクトを返す「typeRadioInputTags」というプロパティが
+               ある場合、この設定が「利用する」になっていればプロパティの型は生成されたTypeRadioInputTagsDtoクラスではなく
+               Freyjaが持つRadioInputTagsクラスになります。</p>
+          <p>
+            <input type="radio" name="__ymir__key_extension.sourceCreator.useFreyjaRenderClasses" value="true" tal:attributes="checked application/property(extension.sourceCreator.useFreyjaRenderClasses)" /> 利用する
+            <input type="radio" name="__ymir__key_extension.sourceCreator.useFreyjaRenderClasses" value="false" checked="checked" tal:attributes="checked not:application/property(extension.sourceCreator.useFreyjaRenderClasses)" /> 利用しない
+          </p>
+        </dd>
+        <dt>beantable.enable</dt>
+        <dd><p>Bean定義からテーブルを自動生成するBeantable機能を利用するかどうかを指定して下さい。</p>
+          <p>
+            <input type="radio" name="__ymir__key_beantable.enable" value="true" tal:attributes="checked application/property(beantable.enable)" /> 利用する
+            <input type="radio" name="__ymir__key_beantable.enable" value="false" checked="checked" tal:attributes="checked not:application/property(beantable.enable)" /> 利用しない
+          </p>
+        </dd>
+        <dt>extension.sourceCreator.feature.createFormDto.enable</dt>
+        <dd><p>HTML中のformタグにnameが指定されている場合に同じ名前でformに対応するDTOを生成するかどうかを指定して下さい。</p>
+          <p>
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createFormDto.enable" value="true" tal:attributes="checked application/property(extension.sourceCreator.feature.createFormDto.enable)" /> 利用する
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createFormDto.enable" value="false" checked="checked" tal:attributes="checked not:application/property(extension.sourceCreator.feature.createFormDto.enable)" /> 利用しない
+          </p>
+        </dd>
+        <dt>extension.sourceCreator.feature.createConverter.enable</dt>
+        <dd><p>DTOとEntityの相互変換を行なうためのConverterクラスを自動生成するかどうかを指定して下さい。</p>
+          <p>
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="true" tal:attributes="checked application/property(extension.sourceCreator.feature.createConverter.enable)" /> 利用する
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="false" checked="checked" tal:attributes="checked not:application/property(extension.sourceCreator.feature.createConverter.enable)" /> 利用しない
+          </p>
+        </dd>
+      </dl></p>
     </dd>
     <dt>Eclipse連携</dt>
     <dd>

@@ -107,6 +107,10 @@ public class MockSourceCreator implements SourceCreator {
             throws InvalidClassDescException {
     }
 
+    public void writeSourceFile(String templateName, ClassDesc classDesc,
+            boolean force) {
+    }
+
     public SourceGenerator getSourceGenerator() {
         return null;
     }

@@ -42,11 +42,11 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
                 + "Base.java", classDesc);
     }
 
-    String generateClassSource(String templateName, ClassDesc classDesc) {
+    public String generateClassSource(String templateName, ClassDesc classDesc) {
 
         MethodDesc[] mds = classDesc.getMethodDescs();
         for (int i = 0; i < mds.length; i++) {
-            mds[i].setEvaluatedBody(generateSource(mds[i].getBodyDesc()));
+            mds[i].setEvaluatedBody(generateBodySource(mds[i].getBodyDesc()));
         }
         Map<String, Object> root = new HashMap<String, Object>();
         root.put("classDesc", classDesc);
@@ -61,12 +61,12 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
         return generateSource(templateName, root);
     }
 
-    public String generateTemplateSource(String suffix, Map<String, Object> root) {
+    public String generateViewSource(String suffix, Map<String, Object> root) {
 
-        return generateSource("Template" + suffix, root);
+        return generateSource("View" + suffix, root);
     }
 
-    public String generateSource(BodyDesc bodyDesc) {
+    public String generateBodySource(BodyDesc bodyDesc) {
 
         if (bodyDesc == null) {
             return null;
@@ -82,6 +82,7 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
         cfg.setObjectWrapper(new DefaultObjectWrapper());
 
         root = new HashMap<String, Object>(root);
+        root.put("application", sourceCreator_.getApplication());
         root.put("fieldSpecialPrefix", sourceCreator_.getApplication()
                 .getProperty(Globals.APPKEY_SOURCECREATOR_FIELDSPECIALPREFIX,
                         ""));

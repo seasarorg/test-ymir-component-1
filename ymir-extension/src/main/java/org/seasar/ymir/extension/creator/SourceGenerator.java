@@ -8,7 +8,9 @@ public interface SourceGenerator {
 
     String generateBaseSource(ClassDesc classDesc);
 
-    String generateTemplateSource(String suffix, Map<String, Object> root);
+    String generateClassSource(String templateName, ClassDesc classDesc);
 
-    String generateSource(BodyDesc bodyDesc);
+    String generateViewSource(String suffix, Map<String, Object> root);
+
+    String generateBodySource(BodyDesc bodyDesc);
 }

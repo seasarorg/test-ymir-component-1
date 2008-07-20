@@ -1,7 +1,7 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.ymir.extension.creator.SourceCreator.PARAM_PREFIX;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
+import static org.seasar.ymir.extension.creator.SourceCreator.PARAM_PREFIX;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -63,7 +63,7 @@ public class CreateTemplateAction extends AbstractAction implements
         }
 
         String template = getSourceCreator().getSourceGenerator()
-                .generateTemplateSource(
+                .generateViewSource(
                         getSuffix(pathMetaData.getTemplate().getName()),
                         new HashMap<String, Object>());
         if (template == null) {

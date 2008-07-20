@@ -1,7 +1,7 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_FEATURE_CREATECONVERTER_ENABLE;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
+import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_FEATURE_CREATECONVERTER_ENABLE;
 
 import java.util.ArrayList;
 import java.util.Arrays;

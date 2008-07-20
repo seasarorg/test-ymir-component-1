@@ -1,10 +1,9 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.ymir.beantable.Globals.APPKEY_BEANTABLE_ENABLE;
+import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_ECLIPSE_ENABLE;
 import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_ECLIPSE_PROJECTNAME;
 import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_ECLIPSE_RESOURCESYNCHRONIZERURL;
-import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,10 +22,13 @@ import org.seasar.kvasir.util.collection.MapProperties;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
+import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 import org.seasar.ymir.impl.SingleApplication;
+import org.seasar.ymir.util.StringUtils;
 
 public class CreateConfigurationAction extends AbstractAction implements
         UpdateAction {
@@ -71,9 +73,6 @@ public class CreateConfigurationAction extends AbstractAction implements
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("application", application);
-        variableMap.put("beantableEnable", Boolean.valueOf(PropertyUtils
-                .valueOf(application.getProperty(APPKEY_BEANTABLE_ENABLE),
-                        false)));
         variableMap.put("eclipseEnable", Boolean.valueOf(PropertyUtils.valueOf(
                 application.getProperty(APPKEY_SOURCECREATOR_ECLIPSE_ENABLE),
                 false)));
@@ -118,16 +117,29 @@ public class CreateConfigurationAction extends AbstractAction implements
             if (!name.startsWith(PARAMPREFIX_KEY)) {
                 continue;
             }
+
+            boolean remove = false;
             String key = name.substring(PARAMPREFIX_KEY.length());
-            String value = request.getParameter(name);
+            String value = request.getParameter(name).trim();
             if (SingleApplication.KEY_PROJECTROOT.equals(key)) {
                 application.setProjectRoot(value);
             } else if (SingleApplication.KEY_ROOTPACKAGENAME.equals(key)) {
                 application.setRootPackageName(value);
+            } else if (Globals.APPKEY_SOURCECREATOR_SUPERCLASS.equals(key)) {
+                if (!StringUtils.isEmpty(value)) {
+                    application.setProperty(key, value);
+                    getSourceCreator().writeSourceFile("PageSuperClass.java",
+                            new ClassDescImpl(value), false);
+                } else {
+                    application.removeProperty(key);
+                    remove = true;
+                }
             } else {
                 application.setProperty(key, value);
             }
-            orderedProp.setProperty(key, value);
+            if (!remove) {
+                orderedProp.setProperty(key, value);
+            }
         }
 
         String propertiesFilePath = application.getDefaultPropertiesFilePath();
@@ -150,6 +162,17 @@ public class CreateConfigurationAction extends AbstractAction implements
                     }
                 }
             }
+        }
+
+        if (PropertyUtils
+                .valueOf(
+                        application
+                                .getProperty(Globals.APPKEY_SOURCECREATOR_FEATURE_CREATECONVERTER_ENABLE),
+                        false)) {
+            getSourceCreator().writeSourceFile(
+                    "ConverterSuperClass.java",
+                    new ClassDescImpl(application.getRootPackageName()
+                            + ".converter.Converter"), false);
         }
 
         synchronizeResources(null);

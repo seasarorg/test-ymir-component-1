@@ -34,6 +34,11 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         target_ = new FreemarkerSourceGenerator();
         target_.setSourceCreator(new MockSourceCreator() {
             @Override
+            public String getRootPackageName() {
+                return "com.example";
+            }
+
+            @Override
             public String getPagePackageName() {
                 return "com.example.web";
             }
@@ -51,6 +56,11 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
             @Override
             public String getDxoPackageName() {
                 return "com.example.dxo";
+            }
+
+            @Override
+            public String getConverterPackageName() {
+                return "com.example.converter";
             }
 
             @Override
@@ -232,7 +242,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
 
     public void testGenerateSource_BodyDesc() throws Exception {
 
-        String actual = target_.generateSource(new BodyDescImpl("test"));
+        String actual = target_.generateBodySource(new BodyDescImpl("test"));
 
         assertEquals("test", actual);
     }

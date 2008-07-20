@@ -7,7 +7,7 @@ public class TypeDescImplTest extends TestCase {
     public void testGetDefaultValue() throws Exception {
 
         String actual = new TypeDescImpl("com.example.dto.TestDto[]")
-            .getDefaultValue();
+                .getDefaultValue();
         assertEquals("null", actual);
 
         actual = new TypeDescImpl("byte").getDefaultValue();

@@ -1,7 +1,7 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_FEATURE_CREATEMESSAGES_ENABLE;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
+import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_FEATURE_CREATEMESSAGES_ENABLE;
 
 import java.io.IOException;
 import java.io.OutputStream;

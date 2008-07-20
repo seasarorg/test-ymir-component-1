@@ -24,6 +24,7 @@ import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.annotation.RequestParameter;
+import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -37,7 +38,6 @@ import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.impl.ApplicationManagerImpl;
 import org.seasar.ymir.impl.MatchedPathMappingImpl;
 import org.seasar.ymir.impl.PathMappingImpl;
-import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.mock.MockApplication;
 
 import com.example.dto.SaruDto;
