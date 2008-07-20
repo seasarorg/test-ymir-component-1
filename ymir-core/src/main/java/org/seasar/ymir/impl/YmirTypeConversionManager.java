@@ -25,12 +25,19 @@ import org.apache.commons.beanutils.converters.SqlDateConverter;
 import org.apache.commons.beanutils.converters.SqlTimeConverter;
 import org.apache.commons.beanutils.converters.SqlTimestampConverter;
 import org.apache.commons.beanutils.converters.URLConverter;
+import org.seasar.ymir.converter.impl.DateConverter;
+import org.seasar.ymir.converter.impl.StringConverter;
 
 public class YmirTypeConversionManager extends BeanUtilsTypeConversionManager {
+    private static final String TRUE_NUMBER = "1";
+
+    private static final String FALSE_NUMBER = "0";
+
     @Override
     protected ConvertUtilsBean prepare(ConvertUtilsBean convertUtilsBean) {
         convertUtilsBean = super.prepare(convertUtilsBean);
 
+        convertUtilsBean.register(new StringConverter(), String.class);
         convertUtilsBean.register(new BigDecimalConverter(null),
                 BigDecimal.class);
         convertUtilsBean.register(new BigIntegerConverter(null),
@@ -51,7 +58,46 @@ public class YmirTypeConversionManager extends BeanUtilsTypeConversionManager {
                 Timestamp.class);
         convertUtilsBean.register(new FileConverter(null), File.class);
         convertUtilsBean.register(new URLConverter(null), URL.class);
+        convertUtilsBean
+                .register(new DateConverter(null), java.util.Date.class);
 
         return convertUtilsBean;
+    }
+
+    @Override
+    public <T> T convert(String value, Class<T> type) {
+        return super.convert(adjust(value, type), type);
+    }
+
+    @Override
+    public <T> T[] convert(String[] values, Class<T> type) {
+        for (int i = 0; i < values.length; i++) {
+            values[i] = adjust(values[i], type);
+        }
+        return super.convert(values, type);
+    }
+
+    String adjust(String value, Class<?> type) {
+        if (isNumericType(type)) {
+            if ("true".equals(value)) {
+                return TRUE_NUMBER;
+            } else if ("false".equals(value)) {
+                return FALSE_NUMBER;
+            }
+        } else if (type == Boolean.class) {
+            if (TRUE_NUMBER.equals(value)) {
+                return String.valueOf(true);
+            } else if (FALSE_NUMBER.equals(value)) {
+                return String.valueOf(false);
+            }
+        }
+        return value;
+    }
+
+    boolean isNumericType(Class<?> type) {
+        return Number.class.isAssignableFrom(type) || type == Byte.TYPE
+                || type == Short.TYPE || type == Integer.TYPE
+                || type == Long.TYPE || type == Float.TYPE
+                || type == Double.TYPE;
     }
 }
