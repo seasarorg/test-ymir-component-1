@@ -1,0 +1,58 @@
+package com.example.converter;
+
+import com.example.converter.Converter;
+
+import com.example.dto.HoeDto;
+import com.example.dao.Hoe;
+
+public class HoeConverterBase extends Converter
+{
+    public HoeDto copyTo(HoeDto dto, Hoe entity)
+    {
+        copyAaaTo(dto, entity);
+        copyCccTo(dto, entity);
+        copyEeeTo(dto, entity);
+
+        return dto;
+    }
+
+    protected void copyAaaTo(HoeDto dto, Hoe entity)
+    {
+        dto.setAaa(convert(entity.getAaa(), String.class));
+    }
+
+    protected void copyCccTo(HoeDto dto, Hoe entity)
+    {
+        dto.setCcc(convert(entity.isCcc(), String.class));
+    }
+
+    protected void copyEeeTo(HoeDto dto, Hoe entity)
+    {
+        dto.setEee(convert(entity.getEee(), String.class));
+    }
+
+    public Hoe copyTo(Hoe entity, HoeDto dto)
+    {
+        copyAaaTo(entity, dto);
+        copyBbbTo(entity, dto);
+        copyDddTo(entity, dto);
+
+        return entity;
+    }
+
+    protected void copyAaaTo(Hoe entity, HoeDto dto)
+    {
+        entity.setAaa(convert(dto.getAaa(), String.class));
+    }
+
+    protected void copyBbbTo(Hoe entity, HoeDto dto)
+    {
+        entity.setBbb(convert(dto.isBbb(), String.class));
+    }
+
+    protected void copyDddTo(Hoe entity, HoeDto dto)
+    {
+        entity.setDdd(convert(dto.getDdd(), String.class));
+    }
+
+}

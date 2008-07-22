@@ -31,9 +31,7 @@ public class ${classDesc.shortName} {
 
     @SuppressWarnings("unchecked")
     final protected <T> T convert(Object value, Class<T> type) {
-        if (value == null) {
-            return null;
-        } else if (type.isAssignableFrom(value.getClass())) {
+        if (value != null && type.isAssignableFrom(value.getClass())) {
             return (T) value;
         } else if (type == String.class) {
             return (T) typeConversionManager_.convert(value);

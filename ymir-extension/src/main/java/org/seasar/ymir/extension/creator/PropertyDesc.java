@@ -34,6 +34,10 @@ public interface PropertyDesc extends Cloneable {
 
     boolean isReadable();
 
+    String getGetterName();
+
+    void setGetterName(String getterName);
+
     boolean isWritable();
 
     void notifyUpdatingType();

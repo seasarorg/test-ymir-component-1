@@ -29,6 +29,8 @@ public class PropertyDescImpl implements PropertyDesc, Cloneable {
 
     private Map<String, AnnotationDesc> annotationDescMap_ = new TreeMap<String, AnnotationDesc>();
 
+    private String getterName_;
+
     public PropertyDescImpl(String name) {
         name_ = name;
     }
@@ -116,6 +118,29 @@ public class PropertyDescImpl implements PropertyDesc, Cloneable {
     public boolean isWritable() {
 
         return ((mode_ & WRITE) != 0);
+    }
+
+    public String getGetterName() {
+        return getterName_ != null ? getterName_ : constructGetterName();
+    }
+
+    public void setGetterName(String getterName) {
+        getterName_ = getterName;
+    }
+
+    String constructGetterName() {
+        if ("boolean".equals(typeDesc_.getName())) {
+            return "is" + capFirst(name_);
+        } else {
+            return "get" + capFirst(name_);
+        }
+    }
+
+    String capFirst(String str) {
+        if (str == null || str.length() == 0) {
+            return str;
+        }
+        return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 
     public boolean isTypeAlreadySet() {

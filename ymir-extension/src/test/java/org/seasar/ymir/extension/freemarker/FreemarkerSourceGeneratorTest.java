@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
+import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
@@ -22,6 +23,8 @@ import org.seasar.ymir.extension.creator.mock.MockSourceCreator;
 import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.test.TestCaseBase;
 
+import com.example.dao.Hoe;
+import com.example.dto.HoeDto;
 import com.example.page.TestPageBaseBase;
 
 public class FreemarkerSourceGeneratorTest extends TestCaseBase {
@@ -69,6 +72,11 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                     @Override
                     public String getProperty(String key, String defaultValue) {
                         return defaultValue;
+                    }
+
+                    @Override
+                    public String getRootPackageName() {
+                        return "com.example";
                     }
                 };
             }
@@ -260,5 +268,39 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
 
         assertEquals(readResource(getClass(),
                 "testGenerateBaseSource_Page6.expected"), actual);
+    }
+
+    public void testGenerateBaseSource_Converter() throws Exception {
+
+        ClassDesc classDesc = new SourceCreatorImpl() {
+            {
+                setNamingConvention(new YmirNamingConvention());
+            }
+
+            public ClassDesc createConverterClassDesc(ClassDesc dtoCd,
+                    Class<?>[] pairClasses) {
+                return super.createConverterClassDesc(dtoCd, pairClasses);
+            }
+
+            @Override
+            protected ClassLoader getClassLoader() {
+                return getClass().getClassLoader();
+            }
+
+            @Override
+            public Application getApplication() {
+                return new MockApplication() {
+                    @Override
+                    public String getRootPackageName() {
+                        return "com.example";
+                    }
+                };
+            }
+        }.createConverterClassDesc(new ClassDescImpl(HoeDto.class.getName()),
+                new Class[] { Hoe.class });
+        String actual = target_.generateBaseSource(classDesc);
+
+        assertEquals(readResource(getClass(),
+                "testGenerateBaseSource_Converter.expected"), actual);
     }
 }

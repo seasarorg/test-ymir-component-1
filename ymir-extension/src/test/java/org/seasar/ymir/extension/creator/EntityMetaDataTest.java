@@ -72,7 +72,8 @@ public class EntityMetaDataTest extends TestCase {
         ClassDesc actual = target_.getBeanClassDesc();
 
         // ## Assert ##
-        assertEquals("com.example.dao.sub.Test", actual.getName());
+        assertEquals("Beanにはサブパッケージを付与しないこと", "com.example.dao.Test", actual
+                .getName());
     }
 
     public void testGetDaoClassDesc() throws Exception {
@@ -82,7 +83,8 @@ public class EntityMetaDataTest extends TestCase {
         ClassDesc actual = target_.getDaoClassDesc();
 
         // ## Assert ##
-        assertEquals("com.example.dao.sub.TestDao", actual.getName());
+        assertEquals("Daoにはサブパッケージを付与しないこと", "com.example.dao.TestDao", actual
+                .getName());
     }
 
     public void testGetDxoClassDesc() throws Exception {

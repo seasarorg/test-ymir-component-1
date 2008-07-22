@@ -1,6 +1,7 @@
 package org.seasar.ymir.extension.zpt;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -601,6 +602,11 @@ public class AnalyzerContext extends ZptTemplateContext {
                     propertyType = descriptor.getPropertyType();
                 }
                 propertyTypeName = propertyType.getName();
+
+                Method readMethod = descriptor.getReadMethod();
+                if (readMethod != null) {
+                    pd.setGetterName(readMethod.getName());
+                }
             } else {
                 // ヒントも既存クラスからの情報もなければ何もしない。
                 return pd;

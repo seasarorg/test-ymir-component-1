@@ -12,59 +12,35 @@ public class ${classDesc.shortName}Base extends Converter
 <#list pairClassDescs as pairClassDesc>
     public ${targetClassDesc.shortName} copyTo(${targetClassDesc.shortName} dto, ${pairClassDesc.shortName} entity)
     {
-        dto = copyingTo(dto, entity);
-
-<#list pairClassDesc.propertyDescs as propertyDesc>
+<#list targetClassDesc.propertyDescs as propertyDesc><#if pairClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
         copy${propertyDesc.name?cap_first}To(dto, entity);
-</#list>
+</#if></#if></#list>
 
-        return copiedTo(dto, entity);
-    }
-
-    protected ${targetClassDesc.shortName} copyingTo(${targetClassDesc.shortName} dto, ${pairClassDesc.shortName} entity)
-    {
         return dto;
     }
+<#list targetClassDesc.propertyDescs as propertyDesc><#if pairClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
 
-<#list pairClassDesc.propertyDescs as propertyDesc>
     protected void copy${propertyDesc.name?cap_first}To(${targetClassDesc.shortName} dto, ${pairClassDesc.shortName} entity)
     {
-        dto.set${propertyDesc.name?cap_first}(convert(entity.get${propertyDesc.name?cap_first}(), ${targetClassDesc.getPropertyDesc(propertyDesc.getName()).getTypeDesc().getName()}.class));
+        dto.set${propertyDesc.name?cap_first}(convert(entity.${pd.getterName}(), ${propertyDesc.getTypeDesc().getName()}.class));
     }
-
-</#list>
-    protected ${targetClassDesc.shortName} copiedTo(${targetClassDesc.shortName} dto, ${pairClassDesc.shortName} entity)
-    {
-        return dto;
-    }
+</#if></#if></#list>
 
     public ${pairClassDesc.shortName} copyTo(${pairClassDesc.shortName} entity, ${targetClassDesc.shortName} dto)
     {
-        entity = copyingTo(entity, dto);
-
-<#list pairClassDesc.propertyDescs as propertyDesc>
+<#list pairClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
         copy${propertyDesc.name?cap_first}To(entity, dto);
-</#list>
+</#if></#if></#list>
 
-        return copiedTo(entity, dto);
-    }
-
-    protected ${pairClassDesc.shortName} copyingTo(${pairClassDesc.shortName} entity, ${targetClassDesc.shortName} dto)
-    {
         return entity;
     }
+<#list pairClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
 
-<#list pairClassDesc.propertyDescs as propertyDesc>
     protected void copy${propertyDesc.name?cap_first}To(${pairClassDesc.shortName} entity, ${targetClassDesc.shortName} dto)
     {
-        entity.set${propertyDesc.name?cap_first}(convert(dto.<#if targetClassDesc.getPropertyDesc(propertyDesc.getName()).getTypeDesc().getName() == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}(), ${propertyDesc.typeDesc.name}.class));
+        entity.set${propertyDesc.name?cap_first}(convert(dto.${pd.getterName}(), ${propertyDesc.typeDesc.name}.class));
     }
-
-</#list>
-    protected ${pairClassDesc.shortName} copiedTo(${pairClassDesc.shortName} entity, ${targetClassDesc.shortName} dto)
-    {
-        return entity;
-    }
+</#if></#if></#list>
 
 </#list>
 }

@@ -382,21 +382,9 @@ public class SourceCreatorImpl implements SourceCreator {
             // Converter用のClassDescを生成する。
             for (ClassDesc dtoCd : classDescBag.getClassDescs(ClassType.DTO)) {
                 Class<?>[] pairClasses = getPairClasses(dtoCd);
-                if (pairClasses.length > 0) {
-                    adjustByExistentClass(dtoCd);
-                    EntityMetaData metaData = new EntityMetaData(this, dtoCd
-                            .getName());
-
-                    ClassDesc converterCd = metaData.getConverterClassDesc();
-                    Map<String, Object> param = new HashMap<String, Object>();
-                    param.put("targetClassDesc", dtoCd);
-                    ClassDesc[] pairCds = new ClassDesc[pairClasses.length];
-                    for (int i = 0; i < pairClasses.length; i++) {
-                        pairCds[i] = newClassDesc(pairClasses[i].getName());
-                        setCommonPropertyDescs(dtoCd, pairCds[i]);
-                    }
-                    param.put("pairClassDescs", pairCds);
-                    converterCd.setOptionalSourceGeneratorParameter(param);
+                if (pairClasses != null) {
+                    ClassDesc converterCd = createConverterClassDesc(dtoCd,
+                            pairClasses);
                     if (getClass(converterCd.getName()) == null) {
                         classDescBag.addAsCreated(converterCd);
                     } else {
@@ -447,30 +435,24 @@ public class SourceCreatorImpl implements SourceCreator {
         writeSourceFiles(classDescBag);
     }
 
-    void setCommonPropertyDescs(ClassDesc targetCd, ClassDesc pairCd) {
-        BeanInfo beanInfo;
-        try {
-            beanInfo = Introspector.getBeanInfo(getClass(pairCd.getName()));
-        } catch (IntrospectionException ex) {
-            throw new RuntimeException(ex);
-        }
-        Map<String, PropertyDescriptor> pairPropertyDescMap = new HashMap<String, PropertyDescriptor>();
-        for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-            if (pd.getReadMethod() != null && pd.getWriteMethod() != null) {
-                pairPropertyDescMap.put(pd.getName(), pd);
-            }
-        }
+    protected ClassDesc createConverterClassDesc(ClassDesc dtoCd,
+            Class<?>[] pairClasses) {
+        ClassDesc clonedDtoCd = (ClassDesc) dtoCd.clone();
+        mergeWithExistentClass(clonedDtoCd);
+        EntityMetaData metaData = new EntityMetaData(this, clonedDtoCd
+                .getName());
 
-        for (PropertyDesc targetPd : targetCd.getPropertyDescs()) {
-            String name = targetPd.getName();
-            if (targetPd.isReadable() && targetPd.isWritable()
-                    && pairPropertyDescMap.containsKey(name)) {
-                PropertyDesc pd = pairCd.addProperty(name, PropertyDesc.READ
-                        | PropertyDesc.WRITE);
-                pd.setTypeDesc(new TypeDescImpl(pairPropertyDescMap.get(name)
-                        .getPropertyType(), true));
-            }
+        ClassDesc converterCd = metaData.getConverterClassDesc();
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("targetClassDesc", clonedDtoCd);
+        ClassDesc[] pairCds = new ClassDesc[pairClasses.length];
+        for (int i = 0; i < pairClasses.length; i++) {
+            pairCds[i] = getClassDesc(pairClasses[i], pairClasses[i].getName(),
+                    false);
         }
+        param.put("pairClassDescs", pairCds);
+        converterCd.setOptionalSourceGeneratorParameter(param);
+        return converterCd;
     }
 
     public void gatherClassDescs(Map<String, ClassDesc> classDescMap,
@@ -608,6 +590,7 @@ public class SourceCreatorImpl implements SourceCreator {
             int mode = PropertyDesc.NONE;
             if (readMethod != null) {
                 mode |= PropertyDesc.READ;
+                propertyDesc.setGetterName(readMethod.getName());
             }
             if (writeMethod != null) {
                 mode |= PropertyDesc.WRITE;
@@ -836,9 +819,6 @@ public class SourceCreatorImpl implements SourceCreator {
         if (pairClasses == null) {
             pairClasses = getMetaClassValue(getClass(classDesc.getName()
                     + "Base"), "conversion");
-            if (pairClasses == null) {
-                pairClasses = new Class[0];
-            }
         }
         return pairClasses;
     }
@@ -1017,6 +997,11 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
+    public void mergeWithExistentClass(ClassDesc classDesc) {
+        String className = classDesc.getName();
+        classDesc.merge(getClassDesc(getClass(className), className, false));
+    }
+
     public void writeSourceFile(ClassDesc classDesc, ClassDescSet classDescSet)
             throws InvalidClassDescException {
         Result result = DescValidator.validate(classDesc, classDescSet);
@@ -1173,7 +1158,7 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    ClassLoader getClassLoader() {
+    protected ClassLoader getClassLoader() {
         return getApplication().getHotdeployS2Container().getContainer()
                 .getClassLoader();
     }

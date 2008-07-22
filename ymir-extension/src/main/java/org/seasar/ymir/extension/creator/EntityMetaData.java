@@ -27,10 +27,9 @@ public class EntityMetaData {
         String subPackageName = getSubPackageName(className);
         dtoClassName_ = creator_.getDtoPackageName() + "." + subPackageName
                 + entityName_ + ClassType.DTO.getSuffix();
-        beanClassName_ = creator_.getDaoPackageName() + "." + subPackageName
-                + entityName_;
-        daoClassName_ = creator_.getDaoPackageName() + "." + subPackageName
-                + entityName_ + ClassType.DAO.getSuffix();
+        beanClassName_ = creator_.getDaoPackageName() + "." + entityName_;
+        daoClassName_ = creator_.getDaoPackageName() + "." + entityName_
+                + ClassType.DAO.getSuffix();
         dxoClassName_ = creator_.getDxoPackageName() + "." + subPackageName
                 + entityName_ + ClassType.DXO.getSuffix();
         converterClassName_ = creator_.getConverterPackageName() + "."
