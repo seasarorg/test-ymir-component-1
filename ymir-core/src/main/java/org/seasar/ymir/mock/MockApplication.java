@@ -2,7 +2,9 @@ package org.seasar.ymir.mock;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -116,7 +118,8 @@ public class MockApplication implements Application {
     }
 
     public Enumeration<String> propertyNames() {
-        return null;
+        List<String> emptyList = Collections.emptyList();
+        return Collections.enumeration(emptyList);
     }
 
     @SuppressWarnings("unchecked")

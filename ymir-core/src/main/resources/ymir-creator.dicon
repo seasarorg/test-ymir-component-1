@@ -39,7 +39,7 @@
     </property>
   </component>
   <component name="serviceCreator"
-    class="org.seasar.framework.container.creator.ServiceCreator">
+    class="org.seasar.ymir.creator.ServiceCreator">
     <property name="serviceCustomizer">
       <component
         class="org.seasar.framework.container.customizer.AspectCustomizer"
@@ -49,7 +49,7 @@
     </property>
   </component>
   <component name="logicCreator"
-    class="org.seasar.framework.container.creator.LogicCreator">
+    class="org.seasar.ymir.creator.LogicCreator">
     <property name="logicCustomizer" bindingType="may" />
   </component>
   <component name="converterCreator"
