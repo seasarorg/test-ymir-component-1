@@ -926,4 +926,15 @@ public class ZptAnalyzerTest extends TestCase {
         ClassDesc cd = getClassDesc(CLASSNAME);
         assertNotNull(cd);
     }
+
+    public void testAnalyze55() throws Exception {
+
+        act("testAnalyze55");
+
+        PropertyDesc actual = getClassDesc(CLASSNAME)
+                .getPropertyDesc("enabled");
+        assertNotNull("tal:omit-tagの式については生成するプロパティの型がbooleanになること", actual);
+        assertEquals("boolean", actual.getTypeDesc().getName());
+    }
+
 }

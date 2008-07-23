@@ -38,7 +38,6 @@ import net.skirnir.freyja.zpt.TalTagEvaluator;
 import net.skirnir.freyja.zpt.ZptTemplateContext;
 
 public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
-
     private static final String SEGMENT_PARENT = "..";
 
     private static final String SEGMENT_CURRENT = ".";
@@ -176,7 +175,6 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
     }
 
     Set<String> getRuntimeAttributeNameSet(Attribute[] attrs) {
-
         Set<String> set = new HashSet<String>();
         for (int i = 0; i < attrs.length; i++) {
             if ("tal:attributes".equals(attrs[i].getName())) {
@@ -200,7 +198,6 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
 
     boolean isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
             String expression) {
-
         if (!expression.startsWith(PREFIX_STRING_EXPRESSION)) {
             return false;
         }
@@ -255,7 +252,6 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
     FormDesc registerTransitionClassDesc(AnalyzerContext analyzerContext,
             Map<String, Attribute> attrMap,
             Set<String> runtimeAttributeNameSet, String attrName, String method) {
-
         SourceCreator creator = analyzerContext.getSourceCreator();
         String url = getAttributeValue(attrMap, attrName, null);
         if ("#".equals(url)) {
@@ -333,7 +329,6 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
     }
 
     Path constructPath(String basePath, String pathWithParameters) {
-
         if (pathWithParameters == null) {
             return null;
         } else {
@@ -398,7 +393,6 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
 
     AnnotationResult findAnnotation(TemplateContext context, String name,
             Attribute[] attrs) {
-
         String behaviorDuplicateTag = context
                 .getProperty("behavior.duplicate-tag");
         String annotation = null;
@@ -553,6 +547,23 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             return false;
         }
 
+        return evaluateIfTrue(context, expEvaluator, varResolver, condition);
+    }
+
+    @Override
+    protected boolean evaluateOmitTag(TemplateContext context,
+            ExpressionEvaluator expEvaluator, VariableResolver varResolver,
+            String condition) {
+        if (condition.trim().length() == 0) {
+            return true;
+        }
+
+        return evaluateIfTrue(context, expEvaluator, varResolver, condition);
+    }
+
+    protected boolean evaluateIfTrue(TemplateContext context,
+            ExpressionEvaluator expEvaluator, VariableResolver varResolver,
+            String condition) {
         Object evaluated = expEvaluator.evaluate(context, varResolver,
                 condition);
         if (evaluated instanceof DescWrapper) {
