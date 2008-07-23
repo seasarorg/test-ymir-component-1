@@ -284,19 +284,21 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             if (!shouldGeneratePropertyForParameter(name)) {
                 continue;
             }
+            PropertyDesc propertyDesc;
             if (BeanUtils.isSingleSegment(name)) {
-                PropertyDesc propertyDesc = classDesc.addProperty(name,
-                        PropertyDesc.WRITE | PropertyDesc.READ);
+                propertyDesc = classDesc.addProperty(name, PropertyDesc.WRITE
+                        | PropertyDesc.READ);
                 propertyDesc.setAnnotationDescForSetter(new AnnotationDescImpl(
                         RequestParameter.class.getName()));
-                propertyDesc.notifyUpdatingType();
             } else {
-                PropertyDesc propertyDesc = classDesc.addProperty(BeanUtils
+                propertyDesc = classDesc.addProperty(BeanUtils
                         .getFirstSimpleSegment(name), PropertyDesc.READ);
                 propertyDesc.setAnnotationDescForGetter(new AnnotationDescImpl(
                         RequestParameter.class.getName()));
-                propertyDesc.notifyUpdatingType();
             }
+            analyzerContext.adjustPropertyType(classDesc.getName(),
+                    propertyDesc);
+            propertyDesc.notifyUpdatingType();
         }
         ClassDesc dtoClassDesc = null;
         String formName = null;
