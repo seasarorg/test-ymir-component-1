@@ -70,15 +70,15 @@ public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
 
     public void testNormalizeTypeName() throws Exception {
 
-        assertNull(target_.normalizeTypeName(null));
-        assertEquals("boolean", target_.normalizeTypeName("boolean"));
-        assertEquals("byte", target_.normalizeTypeName("byte"));
-        assertEquals("char", target_.normalizeTypeName("char"));
-        assertEquals("short", target_.normalizeTypeName("short"));
-        assertEquals("int", target_.normalizeTypeName("int"));
-        assertEquals("long", target_.normalizeTypeName("long"));
-        assertEquals("float", target_.normalizeTypeName("float"));
-        assertEquals("double", target_.normalizeTypeName("double"));
-        assertEquals("java.lang.Integer", target_.normalizeTypeName("Integer"));
+        assertNull(target_.resolveTypeName(null));
+        assertEquals("boolean", target_.resolveTypeName("boolean"));
+        assertEquals("byte", target_.resolveTypeName("byte"));
+        assertEquals("char", target_.resolveTypeName("char"));
+        assertEquals("short", target_.resolveTypeName("short"));
+        assertEquals("int", target_.resolveTypeName("int"));
+        assertEquals("long", target_.resolveTypeName("long"));
+        assertEquals("float", target_.resolveTypeName("float"));
+        assertEquals("double", target_.resolveTypeName("double"));
+        assertEquals("java.lang.Integer", target_.resolveTypeName("Integer"));
     }
 }

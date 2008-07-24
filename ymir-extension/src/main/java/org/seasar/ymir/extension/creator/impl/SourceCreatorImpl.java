@@ -827,7 +827,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
     Class<?>[] getMetaClassValue(Class<?> clazz, String name) {
         if (clazz == null) {
-            return new Class[0];
+            return null;
         }
         Meta meta = clazz.getAnnotation(Meta.class);
         if (meta != null) {
@@ -844,7 +844,7 @@ public class SourceCreatorImpl implements SourceCreator {
             }
         }
 
-        return new Class[0];
+        return null;
     }
 
     @SuppressWarnings("unchecked")

@@ -166,7 +166,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             } else {
                 array = false;
             }
-            typeName = normalizeTypeName(typeName);
+            typeName = resolveTypeName(typeName);
             hintList.add(new PropertyTypeHint(className, propertyName,
                     typeName, array));
         }
@@ -243,12 +243,17 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         return list.toArray(new Class[0]);
     }
 
-    String normalizeTypeName(String typeName) {
+    String resolveTypeName(String typeName) {
         if (typeName == null || typeName.indexOf('.') >= 0
                 || primitiveSet_.contains(typeName)) {
             return typeName;
         } else {
-            return PACKAGEPREFIX_JAVA_LANG + typeName;
+            Class<?> clazz = getSourceCreator().getClass(typeName);
+            if (clazz != null) {
+                return clazz.getName();
+            } else {
+                return typeName;
+            }
         }
     }
 
