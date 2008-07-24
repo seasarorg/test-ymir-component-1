@@ -12,6 +12,8 @@
       <arg>"messages.xproperties"</arg>
     </initMethod>
   </component>
+  <component name="noteRenderer"
+    class="org.seasar.ymir.impl.NoteRendererImpl" />
   <component name="localeManager"
     class="org.seasar.ymir.impl.LocaleManagerImpl" />
   <component name="sessionManager"
