@@ -111,7 +111,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         private String className_;
 
         public ClassNamePattern(String shortName, String className) {
-            pattern_ = Pattern.compile(".*" + shortName);
+            pattern_ = Pattern.compile(".*" + shortName + "s?");
             shortName_ = shortName;
             className_ = className;
         }

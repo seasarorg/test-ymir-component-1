@@ -34,13 +34,15 @@ public class AnalyzerContextTest extends TestCase {
                 .findRenderClassName("note"));
         assertEquals("org.seasar.ymir.Notes", target_
                 .findRenderClassName("notes"));
-        assertEquals("net.skirnir.freyja.render.html.InputTag", target_
-                .findRenderClassName("input"));
+        assertEquals("互換性のため", "net.skirnir.freyja.render.html.InputTag",
+                target_.findRenderClassName("input"));
         assertEquals("net.skirnir.freyja.render.html.InputTag", target_
                 .findRenderClassName("inputTag"));
         assertNull(target_.findRenderClassName("theInput"));
         assertEquals("net.skirnir.freyja.render.html.InputTag", target_
                 .findRenderClassName("theInputTag"));
+        assertEquals("net.skirnir.freyja.render.html.InputTag", target_
+                .findRenderClassName("theInputTags"));
         assertNull(target_.findRenderClassName("radioInput"));
         assertEquals("net.skirnir.freyja.render.html.RadioInputTags", target_
                 .findRenderClassName("radioInputTags"));
