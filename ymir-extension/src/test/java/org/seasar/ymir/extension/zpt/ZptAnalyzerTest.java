@@ -937,4 +937,19 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals("boolean", actual.getTypeDesc().getName());
     }
 
+    public void testAnalyze56_YMIR_197_name属性を持つformについてformのDTOがGetされている場合はDTOのGetterが生成されること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                Globals.APPKEY_SOURCECREATOR_FEATURE_CREATEFORMDTO_ENABLE,
+                String.valueOf(true));
+
+        act("testAnalyze56");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        PropertyDesc pd = cd.getPropertyDesc("form");
+        assertNotNull(pd);
+        assertEquals("com.example.dto.FormDto", pd.getTypeDesc().getName());
+        assertTrue(pd.isReadable());
+    }
 }

@@ -23,7 +23,6 @@ import org.seasar.ymir.extension.creator.impl.AnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.FormDescImpl;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
-import org.seasar.ymir.extension.creator.impl.PropertyDescImpl;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 import org.seasar.ymir.util.BeanUtils;
 
@@ -317,7 +316,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 dtoClassDesc = analyzerContext
                         .getTemporaryClassDescFromClassName(analyzerContext
                                 .getDtoClassName(classDesc, name));
-                PropertyDesc propertyDesc = new PropertyDescImpl(name);
+                PropertyDesc propertyDesc = classDesc.addProperty(name,
+                        PropertyDesc.NONE);
                 propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
                         org.seasar.ymir.extension.Globals.META_NAME_PROPERTY,
                         new String[] { name }, new Class[0]));
