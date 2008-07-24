@@ -146,6 +146,8 @@ public class SourceCreatorImpl implements SourceCreator {
 
     private static final String ID_TYPE = "int";
 
+    private static final String PACKAGEPREFIX_JAVA_LANG = "java.lang.";
+
     private YmirImpl ymir_;
 
     private NamingConvention namingConvention_;
@@ -1124,38 +1126,46 @@ public class SourceCreatorImpl implements SourceCreator {
         if (className == null) {
             return null;
         }
+        ClassLoader cl = getClassLoader();
         try {
-            return Class.forName(className, true, getClassLoader());
+            return Class.forName(className, true, cl);
         } catch (ClassNotFoundException ex) {
             if (className.indexOf('.') < 0) {
-                ClassTraverser traverser = new ClassTraverser();
                 try {
-                    traverser.addReferenceClass(Class.forName(
-                            "org.seasar.ymir.landmark.Landmark", true,
-                            getClassLoader()));
-                } catch (ClassNotFoundException e) {
-                    return null;
-                }
-                traverser.addClassPattern(getRootPackageName(), className);
-
-                final String[] found = new String[1];
-                traverser.setClassHandler(new ClassTraversal.ClassHandler() {
-                    public void processClass(String packageName,
-                            String shortClassName) {
-                        found[0] = packageName + "." + shortClassName;
-                    }
-                });
-                traverser.traverse();
-                if (found[0] != null) {
+                    return Class.forName(PACKAGEPREFIX_JAVA_LANG + className,
+                            true, cl);
+                } catch (ClassNotFoundException ex2) {
+                    ClassTraverser traverser = new ClassTraverser();
                     try {
-                        return Class.forName(found[0], true, getClassLoader());
-                    } catch (ClassNotFoundException e) {
+                        traverser.addReferenceClass(Class.forName(
+                                "org.seasar.ymir.landmark.Landmark", true,
+                                getClassLoader()));
+                    } catch (ClassNotFoundException ex3) {
                         return null;
+                    }
+                    traverser.addClassPattern(getRootPackageName(), className);
+
+                    final String[] found = new String[1];
+                    traverser
+                            .setClassHandler(new ClassTraversal.ClassHandler() {
+                                public void processClass(String packageName,
+                                        String shortClassName) {
+                                    found[0] = packageName + "."
+                                            + shortClassName;
+                                }
+                            });
+                    traverser.traverse();
+                    if (found[0] != null) {
+                        try {
+                            return Class.forName(found[0], true, cl);
+                        } catch (ClassNotFoundException ignore) {
+                        }
                     }
                 }
             }
-            return null;
         }
+
+        return null;
     }
 
     protected ClassLoader getClassLoader() {

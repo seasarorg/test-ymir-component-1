@@ -3,13 +3,13 @@
 import ${application.rootPackageName}.converter.Converter;
 
 import ${targetClassDesc.name};
-<#list pairClassDescs as pairClassDesc>
+<#list pairClassDescs as pairClassDesc><#if pairClassDesc.name != "java.lang.Object">
 import ${pairClassDesc.name};
-</#list>
+</#if></#list>
 
 public class ${classDesc.shortName}Base extends Converter
 {
-<#list pairClassDescs as pairClassDesc>
+<#list pairClassDescs as pairClassDesc><#if pairClassDesc.name != "java.lang.Object">
     public ${targetClassDesc.shortName} copyTo(${targetClassDesc.shortName} dto, ${pairClassDesc.shortName} entity)
     {
 <#list targetClassDesc.propertyDescs as propertyDesc><#if pairClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
@@ -42,5 +42,5 @@ public class ${classDesc.shortName}Base extends Converter
     }
 </#if></#if></#list>
 
-</#list>
+</#if></#list>
 }
