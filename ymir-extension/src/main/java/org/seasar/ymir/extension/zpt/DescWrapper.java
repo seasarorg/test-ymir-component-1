@@ -57,6 +57,10 @@ public class DescWrapper {
             pd.notifyUpdatingType();
         }
 
+        // [#YMIR-198] 仮にnameで指定されたプロパティの値がこの先使われなくても、オブジェクトはこのプロパティを持つ
+        // はずなので、型情報などをセットしておく必要がある。
+        cd.setPropertyDesc(pd);
+
         DescWrapper returned = new DescWrapper(this, pd);
         if (pd.getTypeDesc().isArray()) {
             return new DescWrapper[] { returned };

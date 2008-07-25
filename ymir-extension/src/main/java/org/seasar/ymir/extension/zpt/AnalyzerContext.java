@@ -358,10 +358,12 @@ public class AnalyzerContext extends ZptTemplateContext {
             // そのDTOは上のフェーズで除外された、すなわちDTOかもしれないと考えて
             // 解析を進めたが結局DTOであることが確定しなかったので、
             // 型をデフォルトクラスに差し替える。
+            // [#YMIR-198] ただし明示的に型を指定されている場合は差し替えない。
             PropertyDesc[] pds = classDesc.getPropertyDescs();
             for (int i = 0; i < pds.length; i++) {
                 ClassDesc typeClassDesc = pds[i].getTypeDesc().getClassDesc();
-                if (isDto(typeClassDesc)
+                if (!pds[i].getTypeDesc().isExplicit()
+                        && isDto(typeClassDesc)
                         && !temporaryClassDescMap_.containsKey(typeClassDesc
                                 .getName())) {
                     pds[i].getTypeDesc().setClassDesc(

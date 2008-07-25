@@ -31,6 +31,8 @@ import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.PropertyTypeHint;
+import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
 import org.seasar.ymir.extension.creator.impl.ParameterDescImpl;
@@ -181,6 +183,10 @@ public class ZptAnalyzerTest extends TestCase {
         YmirContext.setYmir(ymir);
     }
 
+    private void act(String methodName, PropertyTypeHintBag hintBag) {
+        act(methodName, CLASSNAME, hintBag, null);
+    }
+
     private void act(String methodName) {
         act(methodName, CLASSNAME);
     }
@@ -195,6 +201,11 @@ public class ZptAnalyzerTest extends TestCase {
 
     private void act(final String methodName, String pageClassName,
             String[] ignoreVariables) {
+        act(methodName, pageClassName, null, ignoreVariables);
+    }
+
+    private void act(final String methodName, String pageClassName,
+            PropertyTypeHintBag hintBag, String[] ignoreVariables) {
 
         target_.analyze(MOCK_SERVLETCONTEXT, MOCK_REQUEST, MOCK_RESPONSE,
                 path_, Request.METHOD_GET, classDescMap_, new Template() {
@@ -226,7 +237,7 @@ public class ZptAnalyzerTest extends TestCase {
                     public String getEncoding() {
                         return "UTF-8";
                     }
-                }, pageClassName, null, ignoreVariables);
+                }, pageClassName, hintBag, ignoreVariables);
     }
 
     private ClassDesc getClassDesc(String name) {
@@ -951,5 +962,21 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(pd);
         assertEquals("com.example.dto.FormDto", pd.getTypeDesc().getName());
         assertTrue(pd.isReadable());
+    }
+
+    public void testAnalyze57_YMIR_198_プロパティの値が使われない場合でもプロパティの型はHintで指定された型になること()
+            throws Exception {
+
+        PropertyTypeHintBag hintBag = new PropertyTypeHintBag(
+                new PropertyTypeHint[] { new PropertyTypeHint(
+                        "com.example.web.IndexPage", "hoes",
+                        "com.example.dto.HoeDto", true) });
+
+        act("testAnalyze57", hintBag);
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        PropertyDesc pd = cd.getPropertyDesc("hoes");
+        assertNotNull(pd);
+        assertEquals("com.example.dto.HoeDto[]", pd.getTypeDesc().getName());
     }
 }
