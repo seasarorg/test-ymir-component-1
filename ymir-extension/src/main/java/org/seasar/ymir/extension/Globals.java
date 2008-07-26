@@ -21,6 +21,8 @@ public interface Globals extends org.seasar.ymir.Globals {
 
     String APPKEY_SOURCECREATOR_ENABLEINPLACEEDITOR = "extension.sourceCreator.enableInplaceEditor";
 
+    String APPKEY_SOURCECREATOR_ENABLECONTROLPANEL = "extension.sourceCreator.enableControlPanel";
+
     String APPKEY_SOURCECREATOR_FEATURE_CREATEMESSAGE_ENABLE = "extension.sourceCreator.feature.createMessage.enable";
 
     String APPKEY_SOURCECREATOR_FEATURE_CREATEMESSAGES_ENABLE = "extension.sourceCreator.feature.createMessages.enable";

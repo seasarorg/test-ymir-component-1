@@ -1,0 +1,15 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>SYSTEM CONSOLE</title>
+  </head>
+  <body onload="document.getElementById('okButton').focus()">
+<h1>SYSTEM NOTIFICATION</h1>
+<p>HTMLテンプレートの更新確認日時を初期化しました。</p>
+<p><span tal:condition="not:resourceAutoSynchronized">EclipseでプロジェクトルートをRefreshしてから、</span>以下の「OK」ボタンを押して下さい。</p>
+<form tal:attributes="method method; action request/absolutePath">
+  <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
+  <input id="okButton" type="submit" value=" OK " />
+</form>
+  </body>
+</html>

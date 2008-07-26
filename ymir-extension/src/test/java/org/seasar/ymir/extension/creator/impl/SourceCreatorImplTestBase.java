@@ -23,6 +23,7 @@ import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.framework.util.ResourceUtil;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.PathMapping;
+import org.seasar.ymir.Request;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.convention.YmirNamingConvention;
@@ -40,6 +41,8 @@ import org.seasar.ymir.impl.PathMappingImpl;
 import org.seasar.ymir.impl.PathMappingProviderImpl;
 import org.seasar.ymir.impl.RequestProcessorImpl;
 import org.seasar.ymir.impl.SingleApplication;
+import org.seasar.ymir.mock.MockDispatch;
+import org.seasar.ymir.mock.MockRequest;
 import org.seasar.ymir.test.TestCaseBase;
 
 abstract public class SourceCreatorImplTestBase extends TestCaseBase {
@@ -101,6 +104,15 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         LocalHotdeployS2Container ondemandContainer = (LocalHotdeployS2Container) container_
                 .getComponent(LocalHotdeployS2Container.class);
         ondemandContainer.addReferenceClassName(getClass().getName());
+
+        MockRequest ymirRequest = new MockRequest();
+        ymirRequest.setParameterValues("aaa", new String[] { "a&?", "b" });
+        ymirRequest.setParameter("bbb", "c");
+        ymirRequest.setMethod(Request.METHOD_GET);
+        MockDispatch dispatch = new MockDispatch();
+        dispatch.setAbsolutePath("/context/path");
+        ymirRequest.enterDispatch(dispatch);
+        container_.register(ymirRequest);
 
         container_.init();
 

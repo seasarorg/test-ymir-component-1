@@ -5,6 +5,8 @@
   </head>
   <body>
 <h1>SYSTEM CONSOLE</h1>
+<h2>クラスの一括更新</h2>
+<p>全てのHTMLテンプレートを解析してクラスを一括更新することができます。</p>
 <form tal:attributes="action request/absolutePath" method="post">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
   <input type="hidden" name="__ymir__task" value="systemConsole" />
@@ -12,10 +14,27 @@
   <input type="hidden" name="__ymir__method" tal:attributes="value method" />
   <p><input type="submit" value="クラスを一括更新する" /></p>
 </form>
-<form tal:attributes="method method; action request/absolutePath">
+<h2>HTMLテンプレートの更新確認日時の初期化</h2>
+<p>SubversionからプロジェクトのHTMLテンプレートを更新すると、
+Ymirが持つテンプレートの更新確認日時とテンプレートの更新日時に不整合が生じることがあります。
+その場合、実際にはテンプレートが更新されていないにも関わらず更新があったと誤認識されます。</p>
+<p>テンプレートの更新の誤認識を防ぐため、
+SubversionからプロジェクトのHTMLテンプレートを更新した後などは
+「HTMLテンプレートの更新確認日時を初期化する」ボタンを押して下さい。
+<form tal:attributes="action request/absolutePath" method="post">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
-  <p><input type="submit" value="進む" /></p>
+  <input type="hidden" name="__ymir__task" value="systemConsole" />
+  <input type="hidden" name="__ymir__subTask" value="initializeTemplateCheckedTime" />
+  <input type="hidden" name="__ymir__method" tal:attributes="value method" />
+  <p><input type="submit" value="HTMLテンプレートの更新確認日時を初期化する" /></p>
 </form>
-<p><input type="button" value="戻る" onclick="history.back()" /></p>
+<h2>アプリケーション画面への復帰</h2>
+<p>システムコンソールを終了してアプリケーション画面に戻る場合は「戻る」ボタンを押して下さい。</p>
+<form tal:attributes="action request/absolutePath" method="post">
+  <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
+  <input type="hidden" name="__ymir__task" value="systemConsole" />
+  <input type="hidden" name="__ymir__method" tal:attributes="value method" />
+  <input type="submit" name="__ymir__button_skip" value="戻る" />
+</form>
   </body>
 </html>

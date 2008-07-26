@@ -91,7 +91,6 @@ public class CreateTemplateAction extends AbstractAction implements
     }
 
     Response actCreate(Request request, PathMetaData pathMetaData) {
-
         String method = request.getParameter(PARAM_METHOD);
         if (method == null) {
             return null;

@@ -27,7 +27,10 @@ import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
+import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.TypeDesc;
+import org.seasar.ymir.mock.MockDispatch;
+import org.seasar.ymir.mock.MockRequest;
 
 import com.example.page.SourceCreatorImplTestPageBaseBase;
 import com.example.page.TestPageBase;
@@ -307,8 +310,17 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         + "<script type=\"text/javascript\" src=\"/context/__ymir__/resource/js/prototype/prototype.js\"></script>"
                         + "<script type=\"text/javascript\" src=\"/context/__ymir__/resource/js/scriptaculous/scriptaculous.js\"></script>"
                         + "<script type=\"text/javascript\" src=\"/context/__ymir__/resource/js/sourceCreator.js\"></script>"
-                        + "</head></html>", target_
-                        .filterResponse("<html><head></head></html>"));
+                        + "</head><body><div class=\"__ymir__controlPanel\">"
+                        + "<form action=\"/context/path\" method=\"post\">"
+                        + "<input type=\"hidden\" name=\"__ymir__task\" value=\"systemConsole\" />"
+                        + "<input type=\"hidden\" name=\"__ymir__method\" value=\"GET\" />"
+                        + "<input type=\"hidden\" name=\"aaa\" value=\"a%26%3F\" />"
+                        + "<input type=\"hidden\" name=\"aaa\" value=\"b\" />"
+                        + "<input type=\"hidden\" name=\"bbb\" value=\"c\" />"
+                        + "<input type=\"submit\" value=\"[TO SYSTEM CONSOLE]\" />"
+                        + "</form></div></body></html>",
+                target_
+                        .filterResponse("<html><head></head><body></body></html>"));
     }
 
     public void testAdjustByExistentClass_既にギャップクラスがあるがベースクラスがない場合にObjectのメソッドがベースクラスに追加されないこと()
@@ -422,5 +434,22 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         Begin actual = target_.getBeginAnnotation();
 
         assertNotNull(actual);
+    }
+
+    public void testCreateControlPanelFormHTML() throws Exception {
+        MockRequest request = new MockRequest();
+        request.setParameterValues("aaa", new String[] { "a&?", "b" });
+        request.setParameter("bbb", "c");
+        request.setParameter(SourceCreator.PARAM_PREFIX + "hoehoe", "c");
+        request.setMethod(Request.METHOD_GET);
+        MockDispatch dispatch = new MockDispatch();
+        dispatch.setAbsolutePath("/context/path");
+        request.enterDispatch(dispatch);
+
+        String actual = target_.createControlPanelFormHTML(request);
+
+        assertEquals(
+                "<form action=\"/context/path\" method=\"post\"><input type=\"hidden\" name=\"__ymir__task\" value=\"systemConsole\" /><input type=\"hidden\" name=\"__ymir__method\" value=\"GET\" /><input type=\"hidden\" name=\"aaa\" value=\"a%26%3F\" /><input type=\"hidden\" name=\"aaa\" value=\"b\" /><input type=\"hidden\" name=\"bbb\" value=\"c\" /><input type=\"submit\" value=\"[TO SYSTEM CONSOLE]\" /></form>",
+                actual);
     }
 }

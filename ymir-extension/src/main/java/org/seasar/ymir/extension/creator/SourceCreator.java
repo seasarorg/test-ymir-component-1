@@ -15,12 +15,13 @@ import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.Updater;
 
 public interface SourceCreator extends Updater {
-
     String PARAM_PREFIX = "__ymir__";
 
     String PARAM_TASK = PARAM_PREFIX + "task";
 
     String PATH_PREFIX = "/" + PARAM_PREFIX + "/";
+
+    String PREFIX_CHECKEDTIME = "updateClassesAction.checkedTime.";
 
     String getRootPackageName();
 
@@ -83,6 +84,8 @@ public interface SourceCreator extends Updater {
 
     Properties getSourceCreatorProperties();
 
+    File getSourceCreatorPropertiesFile();
+
     void saveSourceCreatorProperties();
 
     ClassDesc newClassDesc(String className);
@@ -104,4 +107,8 @@ public interface SourceCreator extends Updater {
     String getTemplateEncoding();
 
     AnnotationDesc[] createAnnotationDescs(AnnotatedElement element);
+
+    long getCheckedTime(Template template);
+
+    void updateCheckedTime(Template template);
 }

@@ -40,8 +40,6 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
     protected static final String PARAMPREFIX_CONVERTER_PAIRCLASS = SourceCreator.PARAM_PREFIX
             + "converter_pairClass_";
 
-    protected static final String PREFIX_CHECKEDTIME = "updateClassesAction.checkedTime.";
-
     protected static final String PREFIX_CLASSCHECKED = "updateClassesAction.class.checked.";
 
     private static final String SUFFIX_ARRAY = "[]";
@@ -262,31 +260,11 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         if (template == null || !template.exists()) {
             return false;
         }
-        boolean shouldUpdate = (template.lastModified() > getCheckedTime(template));
+        boolean shouldUpdate = (template.lastModified() > getSourceCreator()
+                .getCheckedTime(template));
         if (shouldUpdate) {
-            updateCheckedTime(template);
+            getSourceCreator().updateCheckedTime(template);
         }
         return shouldUpdate;
-    }
-
-    long getCheckedTime(Template template) {
-        Properties prop = getSourceCreator().getSourceCreatorProperties();
-        String key = PREFIX_CHECKEDTIME + template.getPath();
-        String timeString = prop.getProperty(key);
-        long time;
-        if (timeString == null) {
-            time = 0L;
-        } else {
-            time = Long.parseLong(timeString);
-        }
-
-        return time;
-    }
-
-    void updateCheckedTime(Template template) {
-        Properties prop = getSourceCreator().getSourceCreatorProperties();
-        String key = PREFIX_CHECKEDTIME + template.getPath();
-        prop.setProperty(key, String.valueOf(System.currentTimeMillis()));
-        getSourceCreator().saveSourceCreatorProperties();
     }
 }

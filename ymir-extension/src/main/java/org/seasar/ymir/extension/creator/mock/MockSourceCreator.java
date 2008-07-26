@@ -236,4 +236,15 @@ public class MockSourceCreator implements SourceCreator {
     public AnnotationDesc[] createAnnotationDescs(AnnotatedElement element) {
         return null;
     }
+
+    public long getCheckedTime(Template template) {
+        return 0L;
+    }
+
+    public File getSourceCreatorPropertiesFile() {
+        return null;
+    }
+
+    public void updateCheckedTime(Template template) {
+    }
 }

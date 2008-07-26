@@ -20,11 +20,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -116,6 +118,7 @@ import org.seasar.ymir.extension.creator.action.impl.ResourceAction;
 import org.seasar.ymir.extension.creator.action.impl.SystemConsoleAction;
 import org.seasar.ymir.extension.creator.action.impl.UpdateClassesAction;
 import org.seasar.ymir.impl.YmirImpl;
+import org.seasar.ymir.util.HTMLUtils;
 import org.seasar.ymir.util.ServletUtils;
 
 import net.skirnir.freyja.EvaluationRuntimeException;
@@ -1380,6 +1383,10 @@ public class SourceCreatorImpl implements SourceCreator {
                 HttpServletResponse.class);
     }
 
+    Request getRequest() {
+        return (Request) getRootS2Container().getComponent(Request.class);
+    }
+
     S2Container getS2Container() {
         return getApplication().getS2Container();
     }
@@ -1454,23 +1461,94 @@ public class SourceCreatorImpl implements SourceCreator {
             return response;
         }
 
-        if (!"true".equals(application.getProperty(
+        if ("true".equals(application.getProperty(
                 Globals.APPKEY_SOURCECREATOR_ENABLEINPLACEEDITOR, String
                         .valueOf(true)))) {
-            return response;
+            String jsPrefix = "<script type=\"text/javascript\" src=\""
+                    + getHttpServletRequest().getContextPath() + PATH_PREFIX
+                    + "resource/js/";
+            String jsSuffix = "\"></script>";
+            response = response.replace("</head>", jsPrefix
+                    + "prototype/prototype.js" + jsSuffix + jsPrefix
+                    + "scriptaculous/scriptaculous.js" + jsSuffix + jsPrefix
+                    + "sourceCreator.js" + jsSuffix + "</head>");
+        }
+        if ("true".equals(application.getProperty(
+                Globals.APPKEY_SOURCECREATOR_ENABLECONTROLPANEL, String
+                        .valueOf(true)))) {
+            response = response.replace("</body>",
+                    "<div class=\"__ymir__controlPanel\">"
+                            + createControlPanelFormHTML(getRequest())
+                            + "</div></body>");
         }
 
-        String jsPrefix = "<script type=\"text/javascript\" src=\""
-                + getHttpServletRequest().getContextPath() + PATH_PREFIX
-                + "resource/js/";
-        String jsSuffix = "\"></script>";
-        return response.replace("</head>", jsPrefix + "prototype/prototype.js"
-                + jsSuffix + jsPrefix + "scriptaculous/scriptaculous.js"
-                + jsSuffix + jsPrefix + "sourceCreator.js" + jsSuffix
-                + "</head>");
+        return response;
+    }
+
+    String createControlPanelFormHTML(Request request) {
+        StringBuilder sb = new StringBuilder();
+        sb
+                .append("<form action=\"")
+                .append(request.getAbsolutePath())
+                .append("\" method=\"post\">")
+                .append("<input type=\"hidden\" name=\"")
+                .append(PARAM_TASK)
+                .append(
+                        "\" value=\"systemConsole\" /><input type=\"hidden\" name=\"")
+                .append(PARAM_METHOD).append("\" value=\"").append(
+                        request.getMethod()).append("\" />");
+        for (Iterator<String> itr = request.getParameterNames(); itr.hasNext();) {
+            String name = itr.next();
+            if (name.startsWith(PARAM_PREFIX)) {
+                continue;
+            }
+            String encodedName;
+            try {
+                encodedName = HTMLUtils
+                        .filter(URLEncoder.encode(name, "UTF-8"));
+            } catch (UnsupportedEncodingException ex) {
+                throw new RuntimeException("Can't happen!", ex);
+            }
+            for (String value : request.getParameterValues(name)) {
+                String encodedValue;
+                try {
+                    encodedValue = HTMLUtils.filter(URLEncoder.encode(value,
+                            "UTF-8"));
+                } catch (UnsupportedEncodingException ex) {
+                    throw new RuntimeException("Can't happen!", ex);
+                }
+                sb.append("<input type=\"hidden\" name=\"").append(encodedName)
+                        .append("\" value=\"").append(encodedValue).append(
+                                "\" />");
+            }
+        }
+        sb
+                .append("<input type=\"submit\" value=\"[TO SYSTEM CONSOLE]\" /></form>");
+        return sb.toString();
     }
 
     public String getTemplateEncoding() {
         return getApplication().getTemplateEncoding();
+    }
+
+    public long getCheckedTime(Template template) {
+        Properties prop = getSourceCreatorProperties();
+        String key = PREFIX_CHECKEDTIME + template.getPath();
+        String timeString = prop.getProperty(key);
+        long time;
+        if (timeString == null) {
+            time = 0L;
+        } else {
+            time = Long.parseLong(timeString);
+        }
+
+        return time;
+    }
+
+    public void updateCheckedTime(Template template) {
+        Properties prop = getSourceCreatorProperties();
+        String key = PREFIX_CHECKEDTIME + template.getPath();
+        prop.setProperty(key, String.valueOf(System.currentTimeMillis()));
+        saveSourceCreatorProperties();
     }
 }
