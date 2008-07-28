@@ -51,43 +51,44 @@
                例えば種別を選択するためのラジオボタンの組をレンダリングするためのオブジェクトを返す「typeRadioInputTags」というプロパティが
                ある場合、この設定が「利用する」になっていればプロパティの型は生成されたTypeRadioInputTagsDtoクラスではなく
                Freyjaが持つRadioInputTagsクラスになります。</p>
-          <p>
-            <input type="radio" name="__ymir__key_extension.sourceCreator.useFreyjaRenderClasses" value="true" tal:attributes="checked application/property(extension.sourceCreator.useFreyjaRenderClasses)" /> 利用する
-            <input type="radio" name="__ymir__key_extension.sourceCreator.useFreyjaRenderClasses" value="false" checked="checked" tal:attributes="checked not:application/property(extension.sourceCreator.useFreyjaRenderClasses)" /> 利用しない
+          <p tal:define="flag java:&quot;true&quot;.equals(application.getProperty(&quot;extension.sourceCreator.useFreyjaRenderClasses&quot;))">
+            <input type="radio" name="__ymir__key_extension.sourceCreator.useFreyjaRenderClasses" value="true" tal:attributes="checked flag" /> 利用する
+            <input type="radio" name="__ymir__key_extension.sourceCreator.useFreyjaRenderClasses" value="false" checked="checked" tal:attributes="checked not:flag" /> 利用しない
           </p>
         </dd>
         <dt>beantable.enable</dt>
         <dd><p>Bean定義からテーブルを自動生成するBeantable機能を利用するかどうかを指定して下さい。</p>
-          <p>
-            <input type="radio" name="__ymir__key_beantable.enable" value="true" tal:attributes="checked application/property(beantable.enable)" /> 利用する
-            <input type="radio" name="__ymir__key_beantable.enable" value="false" checked="checked" tal:attributes="checked not:application/property(beantable.enable)" /> 利用しない
+          <p tal:define="flag java:&quot;true&quot;.equals(application.getProperty(&quot;beantable.enable&quot;))">
+            <input type="radio" name="__ymir__key_beantable.enable" value="true" tal:attributes="checked flag" /> 利用する
+            <input type="radio" name="__ymir__key_beantable.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 利用しない
           </p>
         </dd>
         <dt>extension.sourceCreator.feature.createFormDto.enable</dt>
         <dd><p>HTML中のformタグにnameが指定されている場合に同じ名前でformに対応するDTOを生成するかどうかを指定して下さい。</p>
-          <p>
-            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createFormDto.enable" value="true" tal:attributes="checked application/property(extension.sourceCreator.feature.createFormDto.enable)" /> 自動生成する
-            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createFormDto.enable" value="false" checked="checked" tal:attributes="checked not:application/property(extension.sourceCreator.feature.createFormDto.enable)" /> 自動生成しない
+          <p tal:define="flag java:&quot;true&quot;.equals(application.getProperty(&quot;extension.sourceCreator.feature.createFormDto.enable&quot;))">
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createFormDto.enable" value="true" tal:attributes="checked flag" /> 自動生成する
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createFormDto.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 自動生成しない
           </p>
         </dd>
         <dt>extension.sourceCreator.feature.createConverter.enable</dt>
         <dd><p>DTOとエンティティクラスの相互変換を行なうためのConverterクラスを自動生成するかどうかを指定して下さい。</p>
-          <p>
-            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="true" tal:attributes="checked application/property(extension.sourceCreator.feature.createConverter.enable)" /> 自動生成する
-            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="false" checked="checked" tal:attributes="checked not:application/property(extension.sourceCreator.feature.createConverter.enable)" /> 自動生成しない
+          <p tal:define="flag java:&quot;true&quot;.equals(application.getProperty(&quot;extension.sourceCreator.feature.createConverter.enable&quot;))">
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="true" tal:attributes="checked flag" /> 自動生成する
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 自動生成しない
           </p>
         </dd>
         <dt>extension.sourceCreator.feature.createDao.enable</dt>
         <dd><p>S2Dao用のDaoクラスとBeanクラスを自動生成するかどうかを指定して下さい。</p>
-          <p>
-            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDao.enable" value="true" tal:attributes="checked application/property(extension.sourceCreator.feature.createDao.enable)" /> 自動生成する
-            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDao.enable" value="false" checked="checked" tal:attributes="checked not:application/property(extension.sourceCreator.feature.createDao.enable)" /> 自動生成しない
+          <p tal:define="flag java:&quot;!false&quot;.equals(application.getProperty(&quot;extension.sourceCreator.feature.createDao.enable&quot;))">
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDao.enable" value="true" tal:attributes="checked flag" /> 自動生成する
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDao.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 自動生成しない
           </p>
         </dd>
+        <dt>extension.sourceCreator.feature.createDxo.enable</dt>
         <dd><p>S2Dxo用のDxoクラスを自動生成するかどうかを指定して下さい。</p>
-          <p>
-            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDxo.enable" value="true" tal:attributes="checked application/property(extension.sourceCreator.feature.createDxo.enable)" /> 自動生成する
-            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDxo.enable" value="false" checked="checked" tal:attributes="checked not:application/property(extension.sourceCreator.feature.createDxo.enable)" /> 自動生成しない
+          <p tal:define="flag java:&quot;!false&quot;.equals(application.getProperty(&quot;extension.sourceCreator.feature.createDxo.enable&quot;))">
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDxo.enable" value="true" tal:attributes="checked flag" /> 自動生成する
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDxo.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 自動生成しない
           </p>
         </dd>
       </dl></p>
