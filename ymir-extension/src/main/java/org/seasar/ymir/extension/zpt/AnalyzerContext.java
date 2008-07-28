@@ -196,9 +196,11 @@ public class AnalyzerContext extends ZptTemplateContext {
                 TypeDesc td = pd.getTypeDesc();
                 if (!td.isExplicit()) {
                     td.setArray(true);
-                    td.setClassDesc(getTemporaryClassDescFromPropertyName(
-                            wrapper.getParent() != null ? wrapper.getParent()
-                                    .getValueClassDesc() : null, name));
+                    td
+                            .setClassDesc(getTemporaryClassDesc(fromPropertyNameToClassName(
+                                    wrapper.getParent() != null ? wrapper
+                                            .getParent().getValueClassDesc()
+                                            : null, name)));
                 }
 
                 valueClassDesc = td.getClassDesc();
@@ -227,22 +229,6 @@ public class AnalyzerContext extends ZptTemplateContext {
         classDescMap_ = classDescMap;
     }
 
-    public ClassDesc getTemporaryClassDescFromPropertyName(ClassDesc classDesc,
-            String propertyName) {
-        String className;
-        if (usingFreyjaRenderClasses_
-                && !RequestProcessor.ATTR_NOTES.equals(propertyName)) {
-            // NotesはFreyjaにもYmirにもあるが、Ymirのものを優先させたいため上のようにしている。
-            className = findRenderClassName(propertyName);
-            if (className == null) {
-                className = fromPropertyNameToClassName(classDesc, propertyName);
-            }
-        } else {
-            className = fromPropertyNameToClassName(classDesc, propertyName);
-        }
-        return getTemporaryClassDescFromClassName(className);
-    }
-
     String findRenderClassName(String propertyName) {
         String name = capFirst(propertyName);
 
@@ -265,7 +251,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         return null;
     }
 
-    public ClassDesc getTemporaryClassDescFromClassName(String className) {
+    public ClassDesc getTemporaryClassDesc(String className) {
         ClassDesc classDesc = temporaryClassDescMap_.get(className);
         if (classDesc == null) {
             classDesc = sourceCreator_.newClassDesc(className);
@@ -278,27 +264,38 @@ public class AnalyzerContext extends ZptTemplateContext {
         return (sourceCreator_.getClass(className) != null);
     }
 
+    /**
+     * 指定されたClassDescが持つ指定された名前のプロパティの型を表すクラス名を推測して返します。
+     * 
+     * @param classDesc ClassDesc。
+     * @param propertyName プロパティ名。
+     * @return プロパティの型を表すクラス名。
+     */
     public String fromPropertyNameToClassName(ClassDesc classDesc,
             String propertyName) {
-        String className = null;
         if (RequestProcessor.ATTR_SELF.equals(propertyName)) {
-            className = getPageClassName();
+            return getPageClassName();
             // Kvasir/SoraのpopプラグインのexternalTemplate機能を使って自動生成
             // をしている場合、classNameはnullになり得ることに注意。
         } else if (RequestProcessor.ATTR_NOTES.equals(propertyName)) {
-            className = Notes.class.getName();
+            // NotesはFreyjaにもYmirにもあるが、Ymirのものを優先させたいためこうしている。
+            return Notes.class.getName();
         } else if (YmirVariableResolver.NAME_YMIRREQUEST.equals(propertyName)) {
-            className = Request.class.getName();
+            return Request.class.getName();
         } else if (YmirVariableResolver.NAME_CONTAINER.equals(propertyName)) {
-            className = S2Container.class.getName();
+            return S2Container.class.getName();
         } else if (YmirVariableResolver.NAME_MESSAGES.equals(propertyName)) {
-            className = Messages.class.getName();
+            return Messages.class.getName();
         } else if (YmirVariableResolver.NAME_TOKEN.equals(propertyName)) {
-            className = Token.class.getName();
-        } else {
-            className = getDtoClassName(classDesc, propertyName);
+            return Token.class.getName();
+        } else if (usingFreyjaRenderClasses_) {
+            String className = findRenderClassName(propertyName);
+            if (className != null) {
+                return className;
+            }
         }
-        return className;
+
+        return getDtoClassName(classDesc, propertyName);
     }
 
     public boolean isSystemVariable(String name) {
@@ -319,7 +316,7 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     public ClassDesc getPageClassDesc() {
-        return getTemporaryClassDescFromClassName(getPageClassName());
+        return getTemporaryClassDesc(getPageClassName());
     }
 
     public SourceCreator getSourceCreator() {
@@ -425,7 +422,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         return (isDto(classDesc) && classDesc.isEmpty());
     }
 
-    public String getDtoClassName(ClassDesc classDesc, String baseName) {
+    String getDtoClassName(ClassDesc classDesc, String propertyName) {
         StringBuilder dtoClassName = new StringBuilder();
         dtoClassName.append(sourceCreator_.getDtoPackageName());
 
@@ -442,17 +439,48 @@ public class AnalyzerContext extends ZptTemplateContext {
                     // com.example.web.sub ... subPackageName
                     // com.example         ... rootPackageName
                     //                ^    ... この「.」があればサブアプリケーション。
-                    dtoClassName.append(subPackageName.substring(dot));
+
+                    return findClassName(sourceCreator_.getDtoPackageName(),
+                            subPackageName.substring(dot + 1),
+                            getDtoShortClassName(propertyName));
                 }
             } else {
                 // パッケージがルートパッケージ外の場合はルートパッケージ外としてDTOクラス名を
                 // 生成しておく。（最終的にはルートパッケージ外なので無視されるはず）
-                dtoClassName.delete(0, dtoClassName.length());
-                dtoClassName.append(packageName + ".dto");
+                return packageName + ".dto."
+                        + getDtoShortClassName(propertyName);
             }
         }
-        return dtoClassName.append('.').append(capFirst(baseName)).append(
-                ClassType.DTO.getSuffix()).toString();
+        return sourceCreator_.getDtoPackageName() + "."
+                + getDtoShortClassName(propertyName);
+    }
+
+    String findClassName(String packageName, String relatedSubPackageName,
+            String shortClassName) {
+        String className = packageName + "." + shortClassName;
+        if (sourceCreator_.getClass(className) != null) {
+            return className;
+        }
+
+        int pre = 0;
+        int idx;
+        while ((idx = relatedSubPackageName.indexOf('.', pre)) >= 0) {
+            className = packageName + "."
+                    + relatedSubPackageName.substring(0, idx) + "."
+                    + shortClassName;
+            if (sourceCreator_.getClass(className) != null) {
+                return className;
+            }
+            pre = idx + 1;
+        }
+        return packageName + "." + relatedSubPackageName + "." + shortClassName;
+    }
+
+    String getDtoShortClassName(String propertyName) {
+        if (propertyName == null) {
+            return null;
+        }
+        return capFirst(propertyName) + ClassType.DTO.getSuffix();
     }
 
     String capFirst(String string) {
@@ -526,7 +554,8 @@ public class AnalyzerContext extends ZptTemplateContext {
                 // 名前を単数形にする。
                 name = toSingular(name);
             }
-            returned = getTemporaryClassDescFromPropertyName(classDesc, name);
+            returned = getTemporaryClassDesc(fromPropertyNameToClassName(
+                    classDesc, name));
             propertyDesc.getTypeDesc().setClassDesc(returned);
             propertyDesc.notifyUpdatingType();
         }
@@ -614,9 +643,8 @@ public class AnalyzerContext extends ZptTemplateContext {
                 return pd;
             }
         }
-        TypeDesc td = new TypeDescImpl(
-                getTemporaryClassDescFromClassName(propertyTypeName), array,
-                true);
+        TypeDesc td = new TypeDescImpl(getTemporaryClassDesc(propertyTypeName),
+                array, true);
         pd.setTypeDesc(td);
         pd.notifyUpdatingType();
         return pd;

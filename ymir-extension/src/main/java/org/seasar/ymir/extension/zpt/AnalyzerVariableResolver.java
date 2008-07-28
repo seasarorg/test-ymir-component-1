@@ -24,8 +24,9 @@ public class AnalyzerVariableResolver implements VariableResolver {
                 && !analyzerContext.shouldIgnoreVariable(name)
                 && analyzerContext.isSystemVariable(name)) {
             ClassDesc classDesc = analyzerContext
-                    .getTemporaryClassDescFromPropertyName(analyzerContext
-                            .getPageClassDesc(), name);
+                    .getTemporaryClassDesc(analyzerContext
+                            .fromPropertyNameToClassName(analyzerContext
+                                    .getPageClassDesc(), name));
             analyzerContext.setUsedAsVariable(classDesc.getName());
             return new DescWrapper(analyzerContext, classDesc);
         } else {

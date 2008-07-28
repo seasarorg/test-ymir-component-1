@@ -3,13 +3,13 @@ package org.seasar.ymir.extension.zpt;
 import junit.framework.TestCase;
 
 import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
-import org.seasar.ymir.extension.creator.mock.MockSourceCreator;
+import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 
 public class AnalyzerContextTest extends TestCase {
     private AnalyzerContext target_ = new AnalyzerContext();
 
     public void testGetDtoClassName() throws Exception {
-        target_.setSourceCreator(new MockSourceCreator() {
+        target_.setSourceCreator(new SourceCreatorImpl() {
             @Override
             public String getRootPackageName() {
                 return "com.example";
@@ -19,6 +19,11 @@ public class AnalyzerContextTest extends TestCase {
             public String getDtoPackageName() {
                 return getRootPackageName() + ".dto";
             }
+
+            @Override
+            protected ClassLoader getClassLoader() {
+                return getClass().getClassLoader();
+            }
         });
 
         assertEquals("com.example.dto.sub.NameDto", target_.getDtoClassName(
@@ -27,6 +32,11 @@ public class AnalyzerContextTest extends TestCase {
         assertEquals("net.kankeinai.package.dto.NameDto", target_
                 .getDtoClassName(new SimpleClassDesc(
                         "net.kankeinai.package.SubPage"), "name"));
+
+        assertEquals("[#YMIR-202]既存クラスが上位にあればそれを返すこと",
+                "com.example.dto.Name2Dto", target_.getDtoClassName(
+                        new SimpleClassDesc("com.example.web.sub.SubPage"),
+                        "name2"));
     }
 
     public void testFindRenderClassName() throws Exception {

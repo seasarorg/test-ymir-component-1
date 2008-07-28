@@ -272,8 +272,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             return null;
         }
         String actionName = matched.getActionName();
-        ClassDesc classDesc = analyzerContext
-                .getTemporaryClassDescFromClassName(className);
+        ClassDesc classDesc = analyzerContext.getTemporaryClassDesc(className);
         boolean dispatchingByParameter = matched.getPathMapping()
                 .isDispatchingByButton();
         classDesc.setMethodDesc(new MethodDescImpl(actionName));
@@ -314,8 +313,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             if (AnalyzerUtils.isValidVariableName(name)) {
                 formName = name;
                 dtoClassDesc = analyzerContext
-                        .getTemporaryClassDescFromClassName(analyzerContext
-                                .getDtoClassName(classDesc, name));
+                        .getTemporaryClassDesc(analyzerContext
+                                .fromPropertyNameToClassName(classDesc, name));
                 PropertyDesc propertyDesc = classDesc.addProperty(name,
                         PropertyDesc.NONE);
                 propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
