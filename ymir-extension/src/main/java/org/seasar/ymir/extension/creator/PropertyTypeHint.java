@@ -1,7 +1,6 @@
 package org.seasar.ymir.extension.creator;
 
 public class PropertyTypeHint {
-
     private String className_;
 
     private String propertyName_;

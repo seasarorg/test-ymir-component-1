@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PropertyTypeHintBag {
-
     private Map<String, Map<String, PropertyTypeHint>> map_ = new HashMap<String, Map<String, PropertyTypeHint>>();
 
     public PropertyTypeHintBag(PropertyTypeHint[] hints) {

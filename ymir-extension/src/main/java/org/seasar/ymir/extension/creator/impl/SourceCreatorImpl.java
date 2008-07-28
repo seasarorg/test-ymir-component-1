@@ -3,6 +3,8 @@ package org.seasar.ymir.extension.creator.impl;
 import static org.seasar.ymir.extension.Globals.APPKEYPREFIX_SOURCECREATOR_ENABLE;
 import static org.seasar.ymir.extension.Globals.APPKEYPREFIX_SOURCECREATOR_SUPERCLASS;
 import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_ENABLE;
+import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_FEATURE_CREATEDAO_ENABLE;
+import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_FEATURE_CREATEDXO_ENABLE;
 import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_SUPERCLASS;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
@@ -770,43 +772,50 @@ public class SourceCreatorImpl implements SourceCreator {
                 EntityMetaData metaData = new EntityMetaData(this,
                         classDescs[i].getName());
 
-                // Dao用のClassDescを生成しておく。
-                classDescList.add(metaData.getDaoClassDesc());
+                if (PropertyUtils.valueOf(getApplication().getProperty(
+                        APPKEY_SOURCECREATOR_FEATURE_CREATEDAO_ENABLE), true)) {
+                    // Dao用のClassDescを生成しておく。
+                    classDescList.add(metaData.getDaoClassDesc());
 
-                // Bean用のClassDescを生成しておく。
-                ClassDesc classDesc = metaData.getBeanClassDesc();
-                PropertyDesc[] pds = classDescs[i].getPropertyDescs();
-                for (int j = 0; j < pds.length; j++) {
-                    classDesc.setPropertyDesc((PropertyDesc) pds[j].clone());
-                }
-                // プライマリキーがないとS2Daoがエラーになるので生成しておく。
-                PropertyDesc idPd = classDesc.getPropertyDesc(PROPERTY_ID);
-                if (idPd == null) {
-                    idPd = classDesc.addProperty(PROPERTY_ID, PropertyDesc.READ
-                            | PropertyDesc.WRITE);
-                    idPd.setTypeDesc(ID_TYPE);
-                }
-                idPd.setAnnotationDescForGetter(new AnnotationDescImpl(
-                        ID_ANNOTATIONNAME, ID_BODY));
-                classDescList.add(classDesc);
-
-                // Dxo用のClassDescを生成しておく。
-                classDesc = metaData.getDxoClassDesc();
-                List<ClassDesc> list = pageByDtoMap
-                        .get(classDescs[i].getName());
-                if (list != null) {
-                    for (Iterator<ClassDesc> itr = list.iterator(); itr
-                            .hasNext();) {
-                        MethodDescImpl md = new MethodDescImpl("convert");
-                        ParameterDesc[] pmds = new ParameterDesc[] { new ParameterDescImpl(
-                                new TypeDescImpl(itr.next())) };
-                        md.setParameterDescs(pmds);
-                        md.setReturnTypeDesc(metaData.getBeanClassDesc()
-                                .getName());
-                        classDesc.setMethodDesc(md);
+                    // Bean用のClassDescを生成しておく。
+                    ClassDesc classDesc = metaData.getBeanClassDesc();
+                    PropertyDesc[] pds = classDescs[i].getPropertyDescs();
+                    for (int j = 0; j < pds.length; j++) {
+                        classDesc
+                                .setPropertyDesc((PropertyDesc) pds[j].clone());
                     }
+                    // プライマリキーがないとS2Daoがエラーになるので生成しておく。
+                    PropertyDesc idPd = classDesc.getPropertyDesc(PROPERTY_ID);
+                    if (idPd == null) {
+                        idPd = classDesc.addProperty(PROPERTY_ID,
+                                PropertyDesc.READ | PropertyDesc.WRITE);
+                        idPd.setTypeDesc(ID_TYPE);
+                    }
+                    idPd.setAnnotationDescForGetter(new AnnotationDescImpl(
+                            ID_ANNOTATIONNAME, ID_BODY));
+                    classDescList.add(classDesc);
                 }
-                classDescList.add(classDesc);
+
+                if (PropertyUtils.valueOf(getApplication().getProperty(
+                        APPKEY_SOURCECREATOR_FEATURE_CREATEDXO_ENABLE), true)) {
+                    // Dxo用のClassDescを生成しておく。
+                    ClassDesc classDesc = metaData.getDxoClassDesc();
+                    List<ClassDesc> list = pageByDtoMap.get(classDescs[i]
+                            .getName());
+                    if (list != null) {
+                        for (Iterator<ClassDesc> itr = list.iterator(); itr
+                                .hasNext();) {
+                            MethodDescImpl md = new MethodDescImpl("convert");
+                            ParameterDesc[] pmds = new ParameterDesc[] { new ParameterDescImpl(
+                                    new TypeDescImpl(itr.next())) };
+                            md.setParameterDescs(pmds);
+                            md.setReturnTypeDesc(metaData.getBeanClassDesc()
+                                    .getName());
+                            classDesc.setMethodDesc(md);
+                        }
+                    }
+                    classDescList.add(classDesc);
+                }
             }
         }
 

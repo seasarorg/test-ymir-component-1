@@ -66,15 +66,28 @@
         <dt>extension.sourceCreator.feature.createFormDto.enable</dt>
         <dd><p>HTML中のformタグにnameが指定されている場合に同じ名前でformに対応するDTOを生成するかどうかを指定して下さい。</p>
           <p>
-            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createFormDto.enable" value="true" tal:attributes="checked application/property(extension.sourceCreator.feature.createFormDto.enable)" /> 利用する
-            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createFormDto.enable" value="false" checked="checked" tal:attributes="checked not:application/property(extension.sourceCreator.feature.createFormDto.enable)" /> 利用しない
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createFormDto.enable" value="true" tal:attributes="checked application/property(extension.sourceCreator.feature.createFormDto.enable)" /> 自動生成する
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createFormDto.enable" value="false" checked="checked" tal:attributes="checked not:application/property(extension.sourceCreator.feature.createFormDto.enable)" /> 自動生成しない
           </p>
         </dd>
         <dt>extension.sourceCreator.feature.createConverter.enable</dt>
-        <dd><p>DTOとEntityの相互変換を行なうためのConverterクラスを自動生成するかどうかを指定して下さい。</p>
+        <dd><p>DTOとエンティティクラスの相互変換を行なうためのConverterクラスを自動生成するかどうかを指定して下さい。</p>
           <p>
-            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="true" tal:attributes="checked application/property(extension.sourceCreator.feature.createConverter.enable)" /> 利用する
-            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="false" checked="checked" tal:attributes="checked not:application/property(extension.sourceCreator.feature.createConverter.enable)" /> 利用しない
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="true" tal:attributes="checked application/property(extension.sourceCreator.feature.createConverter.enable)" /> 自動生成する
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="false" checked="checked" tal:attributes="checked not:application/property(extension.sourceCreator.feature.createConverter.enable)" /> 自動生成しない
+          </p>
+        </dd>
+        <dt>extension.sourceCreator.feature.createDao.enable</dt>
+        <dd><p>S2Dao用のDaoクラスとBeanクラスを自動生成するかどうかを指定して下さい。</p>
+          <p>
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDao.enable" value="true" tal:attributes="checked application/property(extension.sourceCreator.feature.createDao.enable)" /> 自動生成する
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDao.enable" value="false" checked="checked" tal:attributes="checked not:application/property(extension.sourceCreator.feature.createDao.enable)" /> 自動生成しない
+          </p>
+        </dd>
+        <dd><p>S2Dxo用のDxoクラスを自動生成するかどうかを指定して下さい。</p>
+          <p>
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDxo.enable" value="true" tal:attributes="checked application/property(extension.sourceCreator.feature.createDxo.enable)" /> 自動生成する
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDxo.enable" value="false" checked="checked" tal:attributes="checked not:application/property(extension.sourceCreator.feature.createDxo.enable)" /> 自動生成しない
           </p>
         </dd>
       </dl></p>
