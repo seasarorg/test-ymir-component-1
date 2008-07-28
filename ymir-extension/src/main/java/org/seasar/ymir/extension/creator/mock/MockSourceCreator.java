@@ -247,4 +247,8 @@ public class MockSourceCreator implements SourceCreator {
 
     public void updateCheckedTime(Template template) {
     }
+
+    public String getJavaPreamble() {
+        return "";
+    }
 }

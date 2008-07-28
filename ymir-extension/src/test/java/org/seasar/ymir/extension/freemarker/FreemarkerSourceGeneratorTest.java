@@ -28,7 +28,6 @@ import com.example.dto.HoeDto;
 import com.example.page.TestPageBaseBase;
 
 public class FreemarkerSourceGeneratorTest extends TestCaseBase {
-
     private FreemarkerSourceGenerator target_;
 
     protected void setUp() throws Exception {
@@ -84,7 +83,6 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     private ClassDesc prepareClassDesc() {
-
         ClassDesc classDesc = new ClassDescImpl("com.example.page.TestPage");
         classDesc.setSuperclass(TestPageBaseBase.class);
         PropertyDesc propertyDesc = new PropertyDescImpl("param1");
@@ -108,7 +106,6 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateGapSource() throws Exception {
-
         ClassDesc classDesc = prepareClassDesc();
         classDesc.setName("com.example.dto.TestDto");
 
@@ -120,7 +117,6 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Page() throws Exception {
-
         ClassDesc classDesc = prepareClassDesc();
         MethodDesc methodDesc = new MethodDescImpl("_get");
         methodDesc.setReturnTypeDesc(String.class.getName());
@@ -135,7 +131,6 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Page2() throws Exception {
-
         ClassDesc classDesc = new SourceCreatorImpl() {
             @Override
             public ClassDesc newClassDesc(String className) {
@@ -151,7 +146,6 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Page3() throws Exception {
-
         ClassDesc classDesc = new SourceCreatorImpl() {
             @Override
             public ClassDesc newClassDesc(String className) {
@@ -168,7 +162,6 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
 
     @Begin
     public void testGenerateBaseSource_Page4() throws Exception {
-
         ClassDesc classDesc = new ClassDescImpl("com.example.web.TestPage");
         MethodDesc methodDesc = new MethodDescImpl("_permissionDenied");
         methodDesc.setThrowsDesc(new ThrowsDescImpl()
@@ -192,7 +185,6 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Page5() throws Exception {
-
         ClassDesc classDesc = new SourceCreatorImpl() {
             @Override
             public ClassDesc newClassDesc(String className) {
@@ -223,7 +215,6 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Dto() throws Exception {
-
         ClassDesc classDesc = prepareClassDesc();
         classDesc.setName("com.example.dto.TestDto");
 
@@ -249,14 +240,12 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateSource_BodyDesc() throws Exception {
-
         String actual = target_.generateBodySource(new BodyDescImpl("test"));
 
         assertEquals("test", actual);
     }
 
     public void testGenerateBaseSource_Page6() throws Exception {
-
         ClassDesc classDesc = new SourceCreatorImpl() {
             @Override
             public ClassDesc newClassDesc(String className) {
@@ -271,7 +260,6 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Converter() throws Exception {
-
         ClassDesc classDesc = new SourceCreatorImpl() {
             {
                 setNamingConvention(new YmirNamingConvention());

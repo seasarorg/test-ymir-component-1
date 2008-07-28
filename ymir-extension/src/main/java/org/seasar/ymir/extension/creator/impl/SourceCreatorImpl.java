@@ -60,6 +60,7 @@ import org.seasar.framework.util.ClassTraversal;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.StringUtils;
 import org.seasar.kvasir.util.collection.MapProperties;
+import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.ActionNotFoundException;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
@@ -152,6 +153,8 @@ public class SourceCreatorImpl implements SourceCreator {
     private static final String ID_TYPE = "int";
 
     private static final String PACKAGEPREFIX_JAVA_LANG = "java.lang.";
+
+    private static final String RESOURCE_PREAMBLE_JAVA = "org/seasar/ymir/extension/Preamble.java.txt";
 
     private YmirImpl ymir_;
 
@@ -1559,5 +1562,11 @@ public class SourceCreatorImpl implements SourceCreator {
         String key = PREFIX_CHECKEDTIME + template.getPath();
         prop.setProperty(key, String.valueOf(System.currentTimeMillis()));
         saveSourceCreatorProperties();
+    }
+
+    public String getJavaPreamble() {
+        return IOUtils.readString(getClassLoader().getResourceAsStream(
+                RESOURCE_PREAMBLE_JAVA), SourceGenerator.TEMPLATE_ENCODING,
+                true);
     }
 }

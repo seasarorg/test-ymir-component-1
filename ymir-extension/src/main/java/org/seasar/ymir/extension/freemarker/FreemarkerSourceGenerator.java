@@ -21,11 +21,9 @@ import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.TemplateException;
 
 public class FreemarkerSourceGenerator implements SourceGenerator {
-
     private SourceCreator sourceCreator_;
 
     public String generateGapSource(ClassDesc classDesc) {
-
         if (classDesc == null) {
             return null;
         }
@@ -34,7 +32,6 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
     }
 
     public String generateBaseSource(ClassDesc classDesc) {
-
         if (classDesc == null) {
             return null;
         }
@@ -43,12 +40,12 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
     }
 
     public String generateClassSource(String templateName, ClassDesc classDesc) {
-
         MethodDesc[] mds = classDesc.getMethodDescs();
         for (int i = 0; i < mds.length; i++) {
             mds[i].setEvaluatedBody(generateBodySource(mds[i].getBodyDesc()));
         }
         Map<String, Object> root = new HashMap<String, Object>();
+        root.put("preamble", sourceCreator_.getJavaPreamble());
         root.put("classDesc", classDesc);
         root.put("entityMetaData", new EntityMetaData(sourceCreator_, classDesc
                 .getName()));
@@ -61,13 +58,11 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
         return generateSource(templateName, root);
     }
 
-    public String generateViewSource(String suffix, Map<String, Object> root) {
-
-        return generateSource("View" + suffix, root);
+    public String generateTemplateSource(String suffix, Map<String, Object> root) {
+        return generateSource("Template" + suffix, root);
     }
 
     public String generateBodySource(BodyDesc bodyDesc) {
-
         if (bodyDesc == null) {
             return null;
         }
@@ -75,9 +70,8 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
     }
 
     String generateSource(String templateName, Map<String, Object> root) {
-
         Configuration cfg = new Configuration();
-        cfg.setEncoding(Locale.getDefault(), "UTF-8");
+        cfg.setEncoding(Locale.getDefault(), TEMPLATE_ENCODING);
         cfg.setTemplateLoader(new ClassTemplateLoader(getClass(), "template"));
         cfg.setObjectWrapper(new DefaultObjectWrapper());
 
@@ -107,7 +101,6 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
     }
 
     public void setSourceCreator(SourceCreator sourceCreator) {
-
         sourceCreator_ = sourceCreator;
     }
 }

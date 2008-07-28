@@ -1,4 +1,4 @@
-<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
+${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
 
 <#list classDesc.annotationDescs as annotationDesc>${annotationDesc.string}
 </#list>public <#if classDesc.baseClassAbstract>abstract </#if>class ${classDesc.shortName}Base<#if classDesc.superclassName?exists> extends ${classDesc.superclassName}</#if>

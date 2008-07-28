@@ -111,4 +111,6 @@ public interface SourceCreator extends Updater {
     long getCheckedTime(Template template);
 
     void updateCheckedTime(Template template);
+
+    String getJavaPreamble();
 }

@@ -1,4 +1,4 @@
-<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
+${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
 
 import java.util.List;
 import ${entityMetaData.beanClassDesc.name};

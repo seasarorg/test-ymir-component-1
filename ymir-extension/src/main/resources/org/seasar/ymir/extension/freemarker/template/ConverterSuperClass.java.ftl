@@ -1,4 +1,4 @@
-<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
+${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
