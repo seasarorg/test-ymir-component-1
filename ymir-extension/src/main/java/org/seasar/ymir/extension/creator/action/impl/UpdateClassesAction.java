@@ -1,11 +1,12 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_FEATURE_CREATECONVERTER_ENABLE;
+import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -39,6 +40,9 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
 
     protected static final String PARAMPREFIX_CONVERTER_PAIRCLASS = SourceCreator.PARAM_PREFIX
             + "converter_pairClass_";
+
+    protected static final String PARAMPREFIX_CLASSNAME = SourceCreator.PARAM_PREFIX
+            + "className_";
 
     protected static final String PREFIX_CLASSCHECKED = "updateClassesAction.class.checked.";
 
@@ -141,6 +145,9 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             return null;
         }
 
+        ClassNameMapping classNameMapping = new ClassNameMapping(request
+                .getParameterMap());
+
         List<PropertyTypeHint> hintList = new ArrayList<PropertyTypeHint>();
         for (Iterator<String> itr = request.getParameterNames(); itr.hasNext();) {
             String name = itr.next();
@@ -153,9 +160,11 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             if (slash < 0) {
                 continue;
             }
-            String className = classAndPropertyName.substring(0, slash);
+            String actualClassName = classNameMapping
+                    .toActual(classAndPropertyName.substring(0, slash));
             String propertyName = classAndPropertyName.substring(slash + 1);
             String typeName = request.getParameter(name);
+
             boolean array;
             if (typeName.endsWith(SUFFIX_ARRAY)) {
                 array = true;
@@ -165,7 +174,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 array = false;
             }
             typeName = resolveTypeName(typeName);
-            hintList.add(new PropertyTypeHint(className, propertyName,
+            hintList.add(new PropertyTypeHint(actualClassName, propertyName,
                     typeName, array));
         }
 
@@ -174,18 +183,24 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 new PropertyTypeHintBag(hintList
                         .toArray(new PropertyTypeHint[0])), null);
 
-        String[] appliedClassNames = request.getParameterValues(PARAM_APPLY);
-        Set<String> appliedClassNameSet = new HashSet<String>();
-        if (appliedClassNames != null) {
-            appliedClassNameSet.addAll(Arrays.asList(appliedClassNames));
+        String[] appliedOriginalClassNames = request
+                .getParameterValues(PARAM_APPLY);
+        Set<String> appliedActualClassNameSet = new HashSet<String>();
+        if (appliedOriginalClassNames != null) {
+            for (String appliedOriginalClassName : appliedOriginalClassNames) {
+                appliedActualClassNameSet.add(classNameMapping
+                        .toActual(appliedOriginalClassName));
+            }
         }
+
         Properties prop = getSourceCreator().getSourceCreatorProperties();
         ClassDesc[] classDescs = classDescBag.getClassDescs();
         for (int i = 0; i < classDescs.length; i++) {
-            String name = classDescs[i].getName();
+            String actualName = classDescs[i].getName();
             if (classDescs[i].isTypeOf(ClassType.DTO)) {
                 Class<?>[] pairClasses = toClasses(request
-                        .getParameter(PARAMPREFIX_CONVERTER_PAIRCLASS + name));
+                        .getParameter(PARAMPREFIX_CONVERTER_PAIRCLASS
+                                + classNameMapping.toOriginal(actualName)));
                 if (pairClasses.length > 0) {
                     classDescs[i].setAnnotationDesc(new MetaAnnotationDescImpl(
                             "conversion", new String[0], pairClasses));
@@ -193,13 +208,13 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             }
 
             String checked;
-            if (appliedClassNameSet.contains(name)) {
+            if (appliedActualClassNameSet.contains(actualName)) {
                 checked = String.valueOf(true);
             } else {
                 checked = String.valueOf(false);
-                classDescBag.remove(name);
+                classDescBag.remove(actualName);
             }
-            prop.setProperty(PREFIX_CLASSCHECKED + name, checked);
+            prop.setProperty(PREFIX_CLASSCHECKED + actualName, checked);
         }
         getSourceCreator().saveSourceCreatorProperties();
 
@@ -266,5 +281,58 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             getSourceCreator().updateCheckedTime(template);
         }
         return shouldUpdate;
+    }
+
+    protected static class ClassNameMapping {
+        private Map<String, String> toActualClassNameMap_ = new HashMap<String, String>();
+
+        private Map<String, String> toOriginalClassNameMap_ = new HashMap<String, String>();
+
+        protected ClassNameMapping(Map<String, String[]> paramMap) {
+            initialize(paramMap);
+        }
+
+        public String toOriginal(String actualClassName) {
+            String originalClassName = toOriginalClassNameMap_
+                    .get(actualClassName);
+            if (originalClassName == null) {
+                return actualClassName;
+            } else {
+                return originalClassName;
+            }
+        }
+
+        public String toActual(String originalClassName) {
+            String actualClassName = toActualClassNameMap_
+                    .get(originalClassName);
+            if (actualClassName == null) {
+                return originalClassName;
+            } else {
+                return actualClassName;
+            }
+        }
+
+        void initialize(Map<String, String[]> paramMap) {
+            // initializeのテスト用。
+            if (paramMap == null) {
+                return;
+            }
+
+            for (Iterator<String> itr = paramMap.keySet().iterator(); itr
+                    .hasNext();) {
+                String name = itr.next();
+                if (!name.startsWith(PARAMPREFIX_CLASSNAME)) {
+                    continue;
+                }
+                String originalClassName = name.substring(PARAMPREFIX_CLASSNAME
+                        .length());
+                String actualClassName = paramMap.get(name)[0];
+                if (actualClassName.trim().length() == 0) {
+                    actualClassName = originalClassName;
+                }
+                toActualClassNameMap_.put(originalClassName, actualClassName);
+                toOriginalClassNameMap_.put(actualClassName, originalClassName);
+            }
+        }
     }
 }

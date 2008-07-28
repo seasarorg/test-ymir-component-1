@@ -14,7 +14,9 @@
   <p tal:condition="createdClassDescs"><strong>追加されるクラス：</strong>
   <ul>
     <li tal:repeat="classDesc createdClassDescs">
-      <input type="checkbox" name="__ymir__apply" tal:attributes="value classDesc/name; checked classDesc/checked" /> <span tal:content="classDesc/name">CLASS</span>
+      <input type="checkbox" name="__ymir__apply" tal:attributes="value classDesc/name; checked classDesc/checked" />
+      <span tal:condition="not:classDesc/dto" tal:content="classDesc/name">CLASS</span>
+      <input tal:condition="classDesc/dto" tal:attributes="name string:__ymir__className_${classDesc/name}; value classDesc/name" size="48" />
       <div tal:condition="converterCreated" tal:omit-tag=""><span tal:condition="classDesc/dto">&nbsp;&nbsp;対応するEntityクラス：<input tal:attributes="name string:__ymir__converter_pairClass_${classDesc/name}; value classDesc/pairClass" type="text" name="__ymir__converter_pairClass" size="48" /></span></div>
       <table tal:condition="classDesc/propertyDescs">
         <tr tal:repeat="propertyDesc classDesc/propertyDescs">
@@ -32,7 +34,9 @@
   <p tal:condition="updatedClassDescs"><strong>更新されるクラス：</strong>
   <ul>
     <li tal:repeat="classDesc updatedClassDescs">
-      <input type="checkbox" name="__ymir__apply" tal:attributes="value classDesc/name; checked classDesc/checked" /> <span tal:content="classDesc/name">CLASS</span>
+      <input type="checkbox" name="__ymir__apply" tal:attributes="value classDesc/name; checked classDesc/checked" />
+      <span tal:condition="not:classDesc/dto" tal:content="classDesc/name">CLASS</span>
+      <input tal:condition="classDesc/dto" tal:attributes="name string:__ymir__className_${classDesc/name}; value classDesc/name" size="48" />
       <div tal:condition="converterCreated" tal:omit-tag=""><span tal:condition="classDesc/dto">&nbsp;&nbsp;対応するEntityクラス：<input tal:attributes="name string:__ymir__converter_pairClass_${classDesc/name}; value classDesc/pairClass" type="text" name="__ymir__converter_pairClass" size="48" /></span></div>
       <table tal:condition="classDesc/propertyDescs">
         <tr tal:repeat="propertyDesc classDesc/propertyDescs">
