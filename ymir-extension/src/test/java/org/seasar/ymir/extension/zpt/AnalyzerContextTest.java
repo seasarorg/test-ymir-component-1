@@ -34,8 +34,8 @@ public class AnalyzerContextTest extends TestCase {
                         "net.kankeinai.package.SubPage"), "name"));
 
         assertEquals("[#YMIR-202]既存クラスが上位にあればそれを返すこと",
-                "com.example.dto.Name2Dto", target_.getDtoClassName(
-                        new SimpleClassDesc("com.example.web.sub.SubPage"),
+                "com.example.dto.sub.Name2Dto", target_.getDtoClassName(
+                        new SimpleClassDesc("com.example.web.sub.sub.SubPage"),
                         "name2"));
     }
 

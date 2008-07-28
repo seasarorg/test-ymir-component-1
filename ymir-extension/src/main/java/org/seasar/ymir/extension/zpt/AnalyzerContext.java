@@ -457,23 +457,31 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     String findClassName(String packageName, String relatedSubPackageName,
             String shortClassName) {
-        String className = packageName + "." + shortClassName;
-        if (sourceCreator_.getClass(className) != null) {
-            return className;
+        String fullClassName = packageName + "." + relatedSubPackageName + "."
+                + shortClassName;
+        if (sourceCreator_.getClass(fullClassName) != null) {
+            return fullClassName;
         }
 
-        int pre = 0;
+        String className;
+        int pre = relatedSubPackageName.length();
         int idx;
-        while ((idx = relatedSubPackageName.indexOf('.', pre)) >= 0) {
+        while ((idx = relatedSubPackageName.lastIndexOf('.', pre)) >= 0) {
             className = packageName + "."
                     + relatedSubPackageName.substring(0, idx) + "."
                     + shortClassName;
             if (sourceCreator_.getClass(className) != null) {
                 return className;
             }
-            pre = idx + 1;
+            pre = idx - 1;
         }
-        return packageName + "." + relatedSubPackageName + "." + shortClassName;
+
+        className = packageName + "." + shortClassName;
+        if (sourceCreator_.getClass(className) != null) {
+            return className;
+        }
+
+        return fullClassName;
     }
 
     String getDtoShortClassName(String propertyName) {
