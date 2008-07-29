@@ -4,12 +4,12 @@ import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.seasar.framework.util.ResourceUtil;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescSet;
 import org.seasar.ymir.extension.creator.impl.PathMetaDataImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImplTestBase;
-import org.seasar.framework.util.ResourceUtil;
 
 public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
 

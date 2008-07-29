@@ -1,10 +1,10 @@
 package org.seasar.ymir.extension.creator.action;
 
+import junit.framework.TestCase;
+
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.PathMetaData;
-
-import junit.framework.TestCase;
 
 public class ActionSelectorTest extends TestCase {
 

@@ -6,8 +6,10 @@
   <body>
 <h1>SYSTEM NOTIFICATION</h1>
 <p>Ymirへようこそ！</p>
-<p>Webアプリケーションを構築する前に、プロジェクトの設定を行ないます。
+<p tal:condition="not:reconfigured">Webアプリケーションを構築する前に、プロジェクトの設定を行ないます。
 以下の項目を埋めて「OK」ボタンを押して下さい。</p>
+<p tal:condition="reconfigured"><strong>プロジェクトのパスに対応するディレクトリが存在しなかったためプロジェクトのパスを再度自動検出しました。</strong>
+以下の項目を確認して「OK」ボタンを押して下さい。</p>
 <form tal:attributes="action request/absolutePath" method="post">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
   <input type="hidden" name="__ymir__task" value="createConfiguration" />
@@ -43,7 +45,7 @@
         <dt>extension.sourceCreator.superclass</dt>
         <dd><p>Pageクラスの共通の親クラス名を指定して下さい。何も指定しないと親クラスは設定されません。</p>
           <p>
-            <input type="text" name="__ymir__key_extension.sourceCreator.superclass" tal:attributes="value application/property(extension.sourceCreator.superclass)" size="48" />
+            <input type="text" name="__ymir__key_extension.sourceCreator.superclass" tal:attributes="value setting/pageSuperClassName)" size="48" />
           </p>
         </dd>
         <dt>extension.sourceCreatoruseFreyjaRenderClasses</dt>
@@ -51,42 +53,42 @@
                例えば種別を選択するためのラジオボタンの組をレンダリングするためのオブジェクトを返す「typeRadioInputTags」というプロパティが
                ある場合、この設定が「利用する」になっていればプロパティの型は生成されたTypeRadioInputTagsDtoクラスではなく
                Freyjaが持つRadioInputTagsクラスになります。</p>
-          <p tal:define="flag java:&quot;true&quot;.equals(application.getProperty(&quot;extension.sourceCreator.useFreyjaRenderClasses&quot;))">
+          <p tal:define="flag setting/usingFreyjaRenderClass">
             <input type="radio" name="__ymir__key_extension.sourceCreator.useFreyjaRenderClasses" value="true" tal:attributes="checked flag" /> 利用する
             <input type="radio" name="__ymir__key_extension.sourceCreator.useFreyjaRenderClasses" value="false" checked="checked" tal:attributes="checked not:flag" /> 利用しない
           </p>
         </dd>
         <dt>beantable.enable</dt>
         <dd><p>Bean定義からテーブルを自動生成するBeantable機能を利用するかどうかを指定して下さい。</p>
-          <p tal:define="flag java:&quot;true&quot;.equals(application.getProperty(&quot;beantable.enable&quot;))">
+          <p tal:define="flag setting/beantableEnabled">
             <input type="radio" name="__ymir__key_beantable.enable" value="true" tal:attributes="checked flag" /> 利用する
             <input type="radio" name="__ymir__key_beantable.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 利用しない
           </p>
         </dd>
         <dt>extension.sourceCreator.feature.createFormDto.enable</dt>
         <dd><p>HTML中のformタグにnameが指定されている場合に同じ名前でformに対応するDTOを生成するかどうかを指定して下さい。</p>
-          <p tal:define="flag java:&quot;true&quot;.equals(application.getProperty(&quot;extension.sourceCreator.feature.createFormDto.enable&quot;))">
+          <p tal:define="flag setting/formDtoCreationFeatureEnabled">
             <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createFormDto.enable" value="true" tal:attributes="checked flag" /> 自動生成する
             <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createFormDto.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 自動生成しない
           </p>
         </dd>
         <dt>extension.sourceCreator.feature.createConverter.enable</dt>
         <dd><p>DTOとエンティティクラスの相互変換を行なうためのConverterクラスを自動生成するかどうかを指定して下さい。</p>
-          <p tal:define="flag java:&quot;true&quot;.equals(application.getProperty(&quot;extension.sourceCreator.feature.createConverter.enable&quot;))">
+          <p tal:define="flag setting/converterCreationFeatureEnabled">
             <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="true" tal:attributes="checked flag" /> 自動生成する
             <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 自動生成しない
           </p>
         </dd>
         <dt>extension.sourceCreator.feature.createDao.enable</dt>
         <dd><p>S2Dao用のDaoクラスとBeanクラスを自動生成するかどうかを指定して下さい。</p>
-          <p tal:define="flag java:&quot;!false&quot;.equals(application.getProperty(&quot;extension.sourceCreator.feature.createDao.enable&quot;))">
+          <p tal:define="flag setting/daoCreationFeatureEnabled">
             <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDao.enable" value="true" tal:attributes="checked flag" /> 自動生成する
             <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDao.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 自動生成しない
           </p>
         </dd>
         <dt>extension.sourceCreator.feature.createDxo.enable</dt>
         <dd><p>S2Dxo用のDxoクラスを自動生成するかどうかを指定して下さい。</p>
-          <p tal:define="flag java:&quot;!false&quot;.equals(application.getProperty(&quot;extension.sourceCreator.feature.createDxo.enable&quot;))">
+          <p tal:define="flag setting/dxoCreationFeatureEnabled">
             <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDxo.enable" value="true" tal:attributes="checked flag" /> 自動生成する
             <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDxo.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 自動生成しない
           </p>
@@ -98,18 +100,18 @@
       <p><dl>
         <dt>enable</dt>
         <dd><p>Eclipse連携機能を利用するかどうかを指定して下さい。（Eclipse連携機能を利用するにはEclipse用の<a href="http://resourcesynchronizer.sandbox.seasar.org/" target="_blank">ResourceSynchronizerプラグイン</a>が必要です）</p>
-          <p>
-            <input type="radio" name="__ymir__key_extension.sourceCreator.eclipse.enable" value="true" tal:attributes="checked eclipseEnable" /> 利用する
-            <input type="radio" name="__ymir__key_extension.sourceCreator.eclipse.enable" value="false" checked="checked" tal:attributes="checked not:eclipseEnable" /> 利用しない
+          <p tal:define="flag setting/eclipseEnabled">
+            <input type="radio" name="__ymir__key_extension.sourceCreator.eclipse.enable" value="true" tal:attributes="checked flag" /> 利用する
+            <input type="radio" name="__ymir__key_extension.sourceCreator.eclipse.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 利用しない
           </p>
         </dd>
         <dt>projectName</dt>
         <dd><p>Eclipseプロジェクト名を指定して下さい。（例：<tt>skeleton</tt>）</p>
-          <p><input type="text" name="__ymir__key_extension.sourceCreator.eclipse.projectName" size="64" tal:attributes="value projectName" /></p>
+          <p><input type="text" name="__ymir__key_extension.sourceCreator.eclipse.projectName" size="64" tal:attributes="value setting/eclipseProjectName" /></p>
         </dd>
         <dt>resourceSynchronizerURL</dt>
         <dd><p>resourceSynchronizerプラグインの同期サーバのURLを指定して下さい。（例：<tt>http://localhost:8386/</tt>）</p>
-          <p><input type="text" name="__ymir__key_extension.sourceCreator.eclipse.resourceSynchronizerURL" size="64" tal:attributes="value resourceSynchronizerURL" /></p>
+          <p><input type="text" name="__ymir__key_extension.sourceCreator.eclipse.resourceSynchronizerURL" size="64" tal:attributes="value setting/resourceSynchronizerURL" /></p>
         </dd>
       </dl></p>
     </dd>

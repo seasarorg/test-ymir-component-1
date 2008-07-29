@@ -24,7 +24,6 @@ import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.annotation.RequestParameter;
-import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -33,6 +32,7 @@ import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
+import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
 import org.seasar.ymir.extension.creator.impl.ParameterDescImpl;
@@ -40,6 +40,7 @@ import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.impl.ApplicationManagerImpl;
 import org.seasar.ymir.impl.MatchedPathMappingImpl;
 import org.seasar.ymir.impl.PathMappingImpl;
+import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.mock.MockApplication;
 
 import com.example.dto.SaruDto;
@@ -71,11 +72,6 @@ public class ZptAnalyzerTest extends TestCase {
 
     void prepareForTarget(final boolean usingFreyjaRenderClasses) {
         target_ = new ZptAnalyzer() {
-            @Override
-            boolean isUsingFreyjaRenderClasses() {
-                return usingFreyjaRenderClasses;
-            }
-
             @Override
             AnalyzerTalTagEvaluator newAnalyzerTalTagEvaluator() {
                 return new AnalyzerTalTagEvaluator() {
@@ -163,6 +159,16 @@ public class ZptAnalyzerTest extends TestCase {
                 } catch (ClassNotFoundException ex) {
                     return null;
                 }
+            }
+
+            @Override
+            public SourceCreatorSetting getSourceCreatorSetting() {
+                return new SourceCreatorSetting(this) {
+                    @Override
+                    public boolean isUsingFreyjaRenderClasses() {
+                        return usingFreyjaRenderClasses;
+                    }
+                };
             }
         };
         sourceCreator_.setNamingConvention(new NamingConventionImpl());
@@ -825,9 +831,11 @@ public class ZptAnalyzerTest extends TestCase {
     public void testAnalyze48_name属性を持つformについてはSetterがDtoへのSetterとなること()
             throws Exception {
 
-        sourceCreator_.getApplication().setProperty(
-                Globals.APPKEY_SOURCECREATOR_FEATURE_CREATEFORMDTO_ENABLE,
-                String.valueOf(true));
+        sourceCreator_
+                .getApplication()
+                .setProperty(
+                        SourceCreatorSetting.APPKEY_SOURCECREATOR_FEATURE_CREATEFORMDTO_ENABLE,
+                        String.valueOf(true));
 
         act("testAnalyze48");
 
@@ -908,9 +916,11 @@ public class ZptAnalyzerTest extends TestCase {
     public void testAnalyze52_YMIR_180_formのname属性で指定した名前と同じ名前のプロパティのGetterが生成されること()
             throws Exception {
 
-        sourceCreator_.getApplication().setProperty(
-                Globals.APPKEY_SOURCECREATOR_FEATURE_CREATEFORMDTO_ENABLE,
-                String.valueOf(true));
+        sourceCreator_
+                .getApplication()
+                .setProperty(
+                        SourceCreatorSetting.APPKEY_SOURCECREATOR_FEATURE_CREATEFORMDTO_ENABLE,
+                        String.valueOf(true));
 
         act("testAnalyze52");
 
@@ -951,9 +961,11 @@ public class ZptAnalyzerTest extends TestCase {
     public void testAnalyze56_YMIR_197_name属性を持つformについてformのDTOがGetされている場合はDTOのGetterが生成されること()
             throws Exception {
 
-        sourceCreator_.getApplication().setProperty(
-                Globals.APPKEY_SOURCECREATOR_FEATURE_CREATEFORMDTO_ENABLE,
-                String.valueOf(true));
+        sourceCreator_
+                .getApplication()
+                .setProperty(
+                        SourceCreatorSetting.APPKEY_SOURCECREATOR_FEATURE_CREATEFORMDTO_ENABLE,
+                        String.valueOf(true));
 
         act("testAnalyze56");
 

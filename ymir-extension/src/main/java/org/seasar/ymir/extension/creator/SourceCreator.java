@@ -96,8 +96,6 @@ public interface SourceCreator extends Updater {
 
     String getSourceEncoding();
 
-    boolean shouldUpdate(Application application);
-
     boolean shouldUpdate(String path);
 
     HttpServletRequest getHttpServletRequest();
@@ -113,4 +111,6 @@ public interface SourceCreator extends Updater {
     void updateCheckedTime(Template template);
 
     String getJavaPreamble();
+
+    SourceCreatorSetting getSourceCreatorSetting();
 }

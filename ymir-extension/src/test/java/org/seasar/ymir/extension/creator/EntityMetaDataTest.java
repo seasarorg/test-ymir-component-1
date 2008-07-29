@@ -1,9 +1,9 @@
 package org.seasar.ymir.extension.creator;
 
+import junit.framework.TestCase;
+
 import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 import org.seasar.ymir.extension.creator.mock.MockSourceCreator;
-
-import junit.framework.TestCase;
 
 public class EntityMetaDataTest extends TestCase {
     private EntityMetaData target_ = new EntityMetaData(

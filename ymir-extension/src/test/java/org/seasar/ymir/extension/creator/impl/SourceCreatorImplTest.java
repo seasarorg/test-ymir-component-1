@@ -17,7 +17,6 @@ import org.seasar.ymir.annotation.Out;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.conversation.annotation.Begin;
-import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -28,6 +27,7 @@ import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
@@ -327,7 +327,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
             throws Exception {
 
         getConfiguration().removeProperty(
-                Globals.APPKEY_SOURCECREATOR_SUPERCLASS);
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_SUPERCLASS);
 
         ClassDesc cd = new ClassDescImpl(
                 "org.seasar.ymir.extension.creator.impl.Merge5Page");

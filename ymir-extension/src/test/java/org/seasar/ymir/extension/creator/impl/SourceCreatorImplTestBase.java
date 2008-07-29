@@ -27,12 +27,11 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.convention.YmirNamingConvention;
-import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.creator.PageCreator;
-import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.freemarker.FreemarkerSourceGenerator;
 import org.seasar.ymir.extension.zpt.ZptAnalyzer;
 import org.seasar.ymir.impl.AbstractApplication;
@@ -41,6 +40,7 @@ import org.seasar.ymir.impl.PathMappingImpl;
 import org.seasar.ymir.impl.PathMappingProviderImpl;
 import org.seasar.ymir.impl.RequestProcessorImpl;
 import org.seasar.ymir.impl.SingleApplication;
+import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
 import org.seasar.ymir.test.TestCaseBase;
@@ -134,10 +134,12 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
                 .getComponent(Configuration.class);
         configuration.setProperty(AbstractApplication.KEY_ROOTPACKAGENAME,
                 "com.example");
-        configuration.setProperty(Globals.APPKEY_SOURCECREATOR_SUPERCLASS,
+        configuration.setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_SUPERCLASS,
                 "com.example.page.TestPageBaseBase");
-        configuration.setProperty(Globals.APPKEYPREFIX_SOURCECREATOR_SUPERCLASS
-                + "IndexPage$", "com.example.web.IndexPageBaseBase");
+        configuration.setProperty(
+                SourceCreatorSetting.APPKEYPREFIX_SOURCECREATOR_SUPERCLASS
+                        + "IndexPage$", "com.example.web.IndexPageBaseBase");
         ApplicationManager applicationManager = (ApplicationManager) container_
                 .getComponent(ApplicationManager.class);
         PathMappingProviderImpl pathMappingProvider = new PathMappingProviderImpl();

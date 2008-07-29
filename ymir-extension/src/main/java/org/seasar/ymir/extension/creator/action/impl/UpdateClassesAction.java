@@ -1,6 +1,5 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_FEATURE_CREATECONVERTER_ENABLE;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.util.ArrayList;
@@ -96,10 +95,8 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 .getCreatedClassDescs()));
         variableMap.put("updatedClassDescs", createClassDescDtos(classDescBag
                 .getUpdatedClassDescs()));
-        variableMap.put("converterCreated", Boolean.valueOf(PropertyUtils
-                .valueOf(getSourceCreator().getApplication().getProperty(
-                        APPKEY_SOURCECREATOR_FEATURE_CREATECONVERTER_ENABLE),
-                        false)));
+        variableMap.put("converterCreated", getSourceCreatorSetting()
+                .isConverterCreationFeatureEnabled());
         return getSourceCreator().getResponseCreator().createResponse(
                 "updateClasses", variableMap);
     }

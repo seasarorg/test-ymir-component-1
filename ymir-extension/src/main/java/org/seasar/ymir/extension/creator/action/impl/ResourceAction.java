@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
+import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.PathMetaData;
@@ -15,7 +16,6 @@ import org.seasar.ymir.impl.AsIsInputStreamFactory;
 import org.seasar.ymir.response.SelfContainedResponse;
 import org.seasar.ymir.response.VoidResponse;
 import org.seasar.ymir.util.ServletUtils;
-import org.seasar.kvasir.util.io.IOUtils;
 
 public class ResourceAction implements UpdateAction {
 

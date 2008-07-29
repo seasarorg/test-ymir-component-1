@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.EntityMetaData;
@@ -77,15 +76,12 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
 
         root = new HashMap<String, Object>(root);
         root.put("application", sourceCreator_.getApplication());
-        root.put("fieldSpecialPrefix", sourceCreator_.getApplication()
-                .getProperty(Globals.APPKEY_SOURCECREATOR_FIELDSPECIALPREFIX,
-                        ""));
-        root.put("fieldPrefix", sourceCreator_.getApplication().getProperty(
-                Globals.APPKEY_SOURCECREATOR_FIELDPREFIX,
-                Globals.DEFAULT_SOURCECREATOR_FIELDPREFIX));
-        root.put("fieldSuffix", sourceCreator_.getApplication().getProperty(
-                Globals.APPKEY_SOURCECREATOR_FIELDSUFFIX,
-                Globals.DEFAULT_SOURCECREATOR_FIELDSUFFIX));
+        root.put("fieldSpecialPrefix", sourceCreator_.getSourceCreatorSetting()
+                .getFieldSpecialPrefix());
+        root.put("fieldPrefix", sourceCreator_.getSourceCreatorSetting()
+                .getFieldPrefix());
+        root.put("fieldSuffix", sourceCreator_.getSourceCreatorSetting()
+                .getFieldSuffix());
 
         StringWriter sw = new StringWriter();
         try {

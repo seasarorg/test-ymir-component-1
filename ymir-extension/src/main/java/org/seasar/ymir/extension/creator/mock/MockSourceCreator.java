@@ -23,6 +23,7 @@ import org.seasar.ymir.extension.creator.InvalidClassDescException;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.SourceGenerator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateProvider;
@@ -190,10 +191,6 @@ public class MockSourceCreator implements SourceCreator {
         return "UTF-8";
     }
 
-    public boolean shouldUpdate(Application application) {
-        return false;
-    }
-
     public boolean shouldUpdate(String path) {
         return true;
     }
@@ -250,5 +247,9 @@ public class MockSourceCreator implements SourceCreator {
 
     public String getJavaPreamble() {
         return "";
+    }
+
+    public SourceCreatorSetting getSourceCreatorSetting() {
+        return null;
     }
 }

@@ -1,11 +1,5 @@
 package org.seasar.ymir.extension.creator.impl;
 
-import static org.seasar.ymir.extension.Globals.APPKEYPREFIX_SOURCECREATOR_ENABLE;
-import static org.seasar.ymir.extension.Globals.APPKEYPREFIX_SOURCECREATOR_SUPERCLASS;
-import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_ENABLE;
-import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_FEATURE_CREATEDAO_ENABLE;
-import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_FEATURE_CREATEDXO_ENABLE;
-import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_SUPERCLASS;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.beans.BeanInfo;
@@ -31,7 +25,6 @@ import java.lang.reflect.Modifier;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -39,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -57,7 +49,6 @@ import org.seasar.framework.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.framework.mock.servlet.MockHttpServletResponseImpl;
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.framework.util.ClassTraversal;
-import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.StringUtils;
 import org.seasar.kvasir.util.collection.MapProperties;
 import org.seasar.kvasir.util.io.IOUtils;
@@ -97,6 +88,7 @@ import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.SourceGenerator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateAnalyzer;
@@ -177,6 +169,8 @@ public class SourceCreatorImpl implements SourceCreator {
     private TemplateProvider templateProvider_ = new DefaultTemplateProvider(
             this);
 
+    private SourceCreatorSetting setting_ = new SourceCreatorSetting(this);
+
     private ActionSelector<UpdateAction> actionSelector_ = new ActionSelector<UpdateAction>()
             .register(
                     new Condition(State.ANY, State.ANY, State.FALSE,
@@ -220,8 +214,7 @@ public class SourceCreatorImpl implements SourceCreator {
     public Logger logger_ = Logger.getLogger(getClass());
 
     public Response update(Request request, Response response) {
-        Application application = getApplication();
-        if (!shouldUpdate(application)) {
+        if (!shouldUpdate()) {
             return response;
         }
 
@@ -257,7 +250,7 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         if (condition == null) {
-            if (!isAlreadyConfigured(application)) {
+            if (!isAlreadyConfigured(getApplication())) {
                 condition = "createConfiguration";
             } else {
                 String className = pathMetaData.getClassName();
@@ -303,8 +296,7 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public Response updateByException(Request request, Throwable t) {
-        Application application = getApplication();
-        if (!shouldUpdate(application)) {
+        if (!shouldUpdate()) {
             return null;
         }
 
@@ -347,16 +339,12 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    public boolean shouldUpdate(Application application) {
-        return !"false".equals(application
-                .getProperty(APPKEY_SOURCECREATOR_ENABLE));
+    public boolean shouldUpdate() {
+        return setting_.isSourceCreatorEnabled();
     }
 
     public boolean shouldUpdate(String path) {
-        return path == null
-                || !"false".equals(getApplication().getProperty(
-                        APPKEYPREFIX_SOURCECREATOR_ENABLE
-                                + ServletUtils.normalizePath(path)));
+        return path == null || setting_.isSourceCreatorEnabledWith(path);
     }
 
     boolean isAlreadyConfigured(Application application) {
@@ -388,7 +376,7 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public void updateClasses(ClassDescBag classDescBag) {
-        if (isConverterCreated()) {
+        if (setting_.isConverterCreationFeatureEnabled()) {
             // Converter用のClassDescを生成する。
             for (ClassDesc dtoCd : classDescBag.getClassDescs(ClassType.DTO)) {
                 Class<?>[] pairClasses = getPairClasses(dtoCd);
@@ -775,8 +763,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 EntityMetaData metaData = new EntityMetaData(this,
                         classDescs[i].getName());
 
-                if (PropertyUtils.valueOf(getApplication().getProperty(
-                        APPKEY_SOURCECREATOR_FEATURE_CREATEDAO_ENABLE), true)) {
+                if (setting_.isDaoCreationFeatureEnabled()) {
                     // Dao用のClassDescを生成しておく。
                     classDescList.add(metaData.getDaoClassDesc());
 
@@ -799,8 +786,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     classDescList.add(classDesc);
                 }
 
-                if (PropertyUtils.valueOf(getApplication().getProperty(
-                        APPKEY_SOURCECREATOR_FEATURE_CREATEDXO_ENABLE), true)) {
+                if (setting_.isDxoCreationFeatureEnabled()) {
                     // Dxo用のClassDescを生成しておく。
                     ClassDesc classDesc = metaData.getDxoClassDesc();
                     List<ClassDesc> list = pageByDtoMap.get(classDescs[i]
@@ -823,12 +809,6 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         return classDescList.toArray(new ClassDesc[0]);
-    }
-
-    boolean isConverterCreated() {
-        return PropertyUtils.valueOf(getApplication().getProperty(
-                Globals.APPKEY_SOURCECREATOR_FEATURE_CREATECONVERTER_ENABLE),
-                false);
     }
 
     Class<?>[] getPairClasses(ClassDesc classDesc) {
@@ -1424,40 +1404,24 @@ public class SourceCreatorImpl implements SourceCreator {
         ClassDescImpl classDescImpl = new ClassDescImpl(className);
 
         // スーパークラスをセットする。
-        Application application = getApplication();
-        for (Enumeration<String> enm = application.propertyNames(); enm
-                .hasMoreElements();) {
-            String key = enm.nextElement();
-            if (!key.startsWith(APPKEYPREFIX_SOURCECREATOR_SUPERCLASS)) {
-                continue;
-            }
-            if (!Pattern.compile(
-                    key.substring(APPKEYPREFIX_SOURCECREATOR_SUPERCLASS
-                            .length())).matcher(className).find()) {
-                continue;
-            }
-            String superclassName = application.getProperty(key);
-            Class<?> superclass = getClass(superclassName);
+        String superClassName = setting_.getSuperClassName(className);
+        if (superClassName != null) {
+            Class<?> superclass = getClass(superClassName);
             if (superclass == null) {
-                throw new RuntimeException(
-                        "Superclass is not found: superclass key=" + key
-                                + ", value=" + superclassName);
+                throw new RuntimeException("Superclass is not found: "
+                        + superClassName);
             }
             classDescImpl.setSuperclass(superclass);
-            break;
-        }
-        if (classDescImpl.getSuperclassName() == null
-                && classDescImpl.isTypeOf(ClassType.PAGE)) {
-            String superclassName = application
-                    .getProperty(APPKEY_SOURCECREATOR_SUPERCLASS);
-            Class<?> superclass = getClass(superclassName);
-            if (superclassName != null && superclass == null) {
-                throw new RuntimeException(
-                        "Superclass is not found: superclass key="
-                                + APPKEY_SOURCECREATOR_SUPERCLASS + ", value="
-                                + superclassName);
+        } else if (classDescImpl.isTypeOf(ClassType.PAGE)) {
+            superClassName = setting_.getPageSuperClassName();
+            if (superClassName != null) {
+                Class<?> superClass = getClass(superClassName);
+                if (superClass == null) {
+                    throw new RuntimeException("Superclass is not found: "
+                            + superClassName);
+                }
+                classDescImpl.setSuperclass(superClass);
             }
-            classDescImpl.setSuperclass(superclass);
         }
 
         return classDescImpl;
@@ -1468,14 +1432,11 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public String filterResponse(String response) {
-        Application application = getApplication();
-        if (!shouldUpdate(application)) {
+        if (!shouldUpdate()) {
             return response;
         }
 
-        if ("true".equals(application.getProperty(
-                Globals.APPKEY_SOURCECREATOR_ENABLEINPLACEEDITOR, String
-                        .valueOf(true)))) {
+        if (setting_.isInPlaceEditorEnabled()) {
             String jsPrefix = "<script type=\"text/javascript\" src=\""
                     + getHttpServletRequest().getContextPath() + PATH_PREFIX
                     + "resource/js/";
@@ -1485,9 +1446,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     + "scriptaculous/scriptaculous.js" + jsSuffix + jsPrefix
                     + "sourceCreator.js" + jsSuffix + "</head>");
         }
-        if ("true".equals(application.getProperty(
-                Globals.APPKEY_SOURCECREATOR_ENABLECONTROLPANEL, String
-                        .valueOf(true)))) {
+        if (setting_.isControlPanelEnabled()) {
             response = response.replace("</body>",
                     "<div class=\"__ymir__controlPanel\">"
                             + createControlPanelFormHTML(getRequest())
@@ -1568,5 +1527,9 @@ public class SourceCreatorImpl implements SourceCreator {
         return IOUtils.readString(getClassLoader().getResourceAsStream(
                 RESOURCE_PREAMBLE_JAVA), SourceGenerator.TEMPLATE_ENCODING,
                 true);
+    }
+
+    public SourceCreatorSetting getSourceCreatorSetting() {
+        return setting_;
     }
 }

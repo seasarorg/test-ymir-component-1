@@ -1,13 +1,11 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
-import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_FEATURE_CREATEMESSAGES_ENABLE;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 
-import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.kvasir.util.io.impl.FileResource;
@@ -28,10 +26,7 @@ public class CreateMessagesAction extends AbstractAction implements
     }
 
     public Response act(Request request, PathMetaData pathMetaData, Throwable t) {
-        if (!PropertyUtils.valueOf(
-                getSourceCreator().getApplication().getProperty(
-                        APPKEY_SOURCECREATOR_FEATURE_CREATEMESSAGES_ENABLE),
-                true)) {
+        if (!getSourceCreatorSetting().isMessagesCreationFeatureEnabled()) {
             return null;
         }
 

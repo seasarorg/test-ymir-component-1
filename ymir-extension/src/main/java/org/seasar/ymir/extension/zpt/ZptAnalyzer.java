@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
@@ -73,7 +72,8 @@ public class ZptAnalyzer implements TemplateAnalyzer {
         context.setMethod(method);
         context.setClassDescMap(classDescMap);
         context.setPageClassName(className);
-        context.setUsingFreyjaRenderClasses(isUsingFreyjaRenderClasses());
+        context.setUsingFreyjaRenderClasses(sourceCreator_
+                .getSourceCreatorSetting().isUsingFreyjaRenderClasses());
         context.setPropertyTypeHintBag(hintBag);
 
         InputStream inputStream = null;
@@ -100,11 +100,6 @@ public class ZptAnalyzer implements TemplateAnalyzer {
                 }
             }
         }
-    }
-
-    boolean isUsingFreyjaRenderClasses() {
-        return "true".equals(sourceCreator_.getApplication().getProperty(
-                Globals.APPKEY_SOURCECREATOR_USEFREYJARENDERCLASSES));
     }
 
     public void setSourceCreator(SourceCreator sourceCreator) {

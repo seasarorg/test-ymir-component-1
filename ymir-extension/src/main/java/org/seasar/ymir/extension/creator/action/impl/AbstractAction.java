@@ -1,26 +1,26 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_ECLIPSE_ENABLE;
-import static org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_ECLIPSE_RESOURCESYNCHRONIZERURL;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 
@@ -111,97 +111,109 @@ abstract public class AbstractAction {
     protected Map<String, Object> newVariableMap() {
         Map<String, Object> variableMap = new HashMap<String, Object>();
 
-        variableMap.put("resourceAutoSynchronized", isResourceSynchronized());
+        variableMap.put("resourceAutoSynchronized", getSourceCreatorSetting()
+                .isResourceSynchronized());
 
         return variableMap;
     }
 
-    protected boolean isResourceSynchronized() {
-        return (PropertyUtils.valueOf(getSourceCreator().getApplication()
-                .getProperty(APPKEY_SOURCECREATOR_ECLIPSE_ENABLE), false)
-                && getResourceSynchronizerURL("") != null && getProjectName()
-                .length() > 0);
-    }
-
     protected void synchronizeResources(String[] paths) {
-        if (!isResourceSynchronized()) {
+        if (!getSourceCreatorSetting().isResourceSynchronized()) {
             return;
         }
         if (paths != null && paths.length == 0) {
             return;
         }
 
-        String projectName = getProjectName();
-        StringBuilder sb = new StringBuilder().append("refresh?");
+        String projectPath = "/"
+                + getSourceCreatorSetting().getEclipseProjectName();
         if (paths == null) {
             // プロジェクト全体をリフレッシュする。
-            sb.append(projectName).append("=INFINITE");
-        } else {
-            // 指定されたりソースをリフレッシュする。
-            String delim = "";
-            for (String path : paths) {
-                if (path == null) {
-                    continue;
-                }
-
-                sb.append(delim).append(projectName);
-                if (!path.startsWith("/")) {
-                    sb.append("/");
-                }
-                sb.append(path).append("=INFINITE");
-                delim = "&";
-            }
-            if (delim.equals("")) {
-                // 1つもリソースがない。
-                return;
-            }
-        }
-        URL url = getResourceSynchronizerURL(sb.toString());
-        if (url == null) {
+            synchronizeResources0(projectPath);
             return;
         }
 
+        Set<String> absolutePathSet = new LinkedHashSet<String>();
+        for (String path : paths) {
+            if (path == null) {
+                continue;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.append(projectPath);
+            if (path.length() > 0 && !path.startsWith("/")) {
+                sb.append("/");
+            }
+            sb.append(path);
+            absolutePathSet.add(sb.toString());
+        }
+
+        String[] absolutePaths = absolutePathSet.toArray(new String[0]);
+        do {
+            Set<String> absolutePathForRetrySet = new LinkedHashSet<String>();
+            for (String absolutePath : synchronizeResources0(absolutePaths)) {
+                absolutePathForRetrySet.add(getParentPath(absolutePath));
+            }
+            absolutePaths = absolutePathForRetrySet.toArray(new String[0]);
+        } while (absolutePaths.length > 0);
+    }
+
+    String getParentPath(String path) {
+        if (path == null) {
+            return null;
+        }
+        int slash = path.lastIndexOf('/');
+        if (slash < 0) {
+            return "";
+        }
+        return path.substring(0, slash);
+    }
+
+    protected String[] synchronizeResources0(String... absolutePaths) {
+        if (absolutePaths != null && absolutePaths.length == 0) {
+            return new String[0];
+        }
+
+        StringBuilder sb = new StringBuilder().append("refresh?");
+        String delim = "";
+        for (String absolutePath : absolutePaths) {
+            sb.append(delim).append(absolutePath).append("=INFINITE");
+            delim = "&";
+        }
+        URL url = getSourceCreatorSetting().constructResourceSynchronizerURL(
+                sb.toString());
+        if (url == null) {
+            return new String[0];
+        }
+
         InputStream is = null;
+        Set<String> okAbsolutePathSet;
         try {
             URLConnection connection = url.openConnection();
             connection.setReadTimeout(TIMEOUT_MILLISEC);
             connection.connect();
             is = connection.getInputStream();
+            String response = IOUtils.readString(is, "UTF-8", false);
+            okAbsolutePathSet = new HashSet<String>(Arrays.asList(PropertyUtils
+                    .toArray(response)));
             if (log_.isDebugEnabled()) {
-                log_.debug("Response from " + url + " is:"
-                        + IOUtils.readString(is, "UTF-8", false));
+                log_.debug("Response from " + url + " is:" + response);
             }
         } catch (IOException ex) {
             log_.warn("I/O error occured on a resourceSynchronizing server: "
                     + url, ex);
+            return new String[0];
         } finally {
             IOUtils.closeQuietly(is);
         }
-    }
 
-    URL getResourceSynchronizerURL(String path) {
-        String urlString = getSourceCreator().getApplication().getProperty(
-                APPKEY_SOURCECREATOR_ECLIPSE_RESOURCESYNCHRONIZERURL, "");
-        if (urlString.length() > 0) {
-            if (!urlString.endsWith("/")) {
-                urlString = urlString + "/";
+        List<String> ngAbsolutePathList = new ArrayList<String>();
+        for (String absolutePath : absolutePaths) {
+            if (!okAbsolutePathSet.contains(absolutePath)) {
+                ngAbsolutePathList.add(absolutePath);
             }
-            try {
-                return new URL(urlString + path);
-            } catch (MalformedURLException ex) {
-                log_.warn("Application property ("
-                        + APPKEY_SOURCECREATOR_ECLIPSE_RESOURCESYNCHRONIZERURL
-                        + ") is not a valid URL: " + urlString, ex);
-                return null;
-            }
-        } else {
-            return null;
         }
-    }
-
-    String getProjectName() {
-        return getSourceCreator().getApplication().getProperty(
-                Globals.APPKEY_SOURCECREATOR_ECLIPSE_PROJECTNAME, "");
+        return ngAbsolutePathList.toArray(new String[0]);
     }
 
     protected String getRootPackagePath() {
@@ -273,5 +285,9 @@ abstract public class AbstractAction {
         } else {
             return projectRoot.replace('\\', '/');
         }
+    }
+
+    protected SourceCreatorSetting getSourceCreatorSetting() {
+        return sourceCreator_.getSourceCreatorSetting();
     }
 }

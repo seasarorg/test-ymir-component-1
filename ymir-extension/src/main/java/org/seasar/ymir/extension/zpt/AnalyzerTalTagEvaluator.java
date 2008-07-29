@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.seasar.framework.util.ArrayUtil;
-import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.MatchedPathMapping;
@@ -300,14 +299,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         }
         ClassDesc dtoClassDesc = null;
         String formName = null;
-        if (PropertyUtils
-                .valueOf(
-                        analyzerContext
-                                .getSourceCreator()
-                                .getApplication()
-                                .getProperty(
-                                        org.seasar.ymir.extension.Globals.APPKEY_SOURCECREATOR_FEATURE_CREATEFORMDTO_ENABLE),
-                        false)
+        if (analyzerContext.getSourceCreator().getSourceCreatorSetting()
+                .isFormDtoCreationFeatureEnabled()
                 && !runtimeAttributeNameSet.contains("name")) {
             String name = getAttributeValue(attrMap, "name", null);
             if (AnalyzerUtils.isValidVariableName(name)) {

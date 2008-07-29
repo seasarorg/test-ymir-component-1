@@ -11,6 +11,7 @@ import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.impl.AnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.BodyDescImpl;
 import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
@@ -76,6 +77,26 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                     @Override
                     public String getRootPackageName() {
                         return "com.example";
+                    }
+                };
+            }
+
+            @Override
+            public SourceCreatorSetting getSourceCreatorSetting() {
+                return new SourceCreatorSetting(this) {
+                    @Override
+                    public String getFieldPrefix() {
+                        return "";
+                    }
+
+                    @Override
+                    public String getFieldSpecialPrefix() {
+                        return "";
+                    }
+
+                    @Override
+                    public String getFieldSuffix() {
+                        return "_";
                     }
                 };
             }

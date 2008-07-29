@@ -1,7 +1,7 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 import static org.seasar.ymir.extension.creator.SourceCreator.PARAM_PREFIX;
+import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
