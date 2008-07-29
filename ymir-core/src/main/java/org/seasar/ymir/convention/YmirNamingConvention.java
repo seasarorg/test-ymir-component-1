@@ -1,10 +1,16 @@
 package org.seasar.ymir.convention;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.cms.pluggable.impl.PluggableNamingConventionImpl;
+import org.seasar.framework.container.ComponentCreator;
+import org.seasar.framework.container.creator.ComponentCreatorImpl;
 import org.seasar.framework.exception.EmptyRuntimeException;
 import org.seasar.framework.util.StringUtil;
 import org.seasar.kvasir.util.PropertyUtils;
@@ -17,6 +23,63 @@ public class YmirNamingConvention extends PluggableNamingConventionImpl {
     public static final String SUFFIX_EXCEPTIONHANDLER = "Handler";
 
     public static final String SUFFIX_CONSTRAINT = "Constraint";
+
+    public static final String APPKEY_NAMINGCONVENTION_HOTDEPLOYABLEONLYPACKAGEFORCREATOR = "namingConvention.hotdeployableOnlyPackageForCreator";
+
+    private boolean hotdeployableOnlyPackageForCreator_;
+
+    private Set<String> creatorPackageNameSet_ = new HashSet<String>();
+
+    private String[] targetPackageNames_ = new String[0];
+
+    private static final Log log_ = LogFactory
+            .getLog(YmirNamingConvention.class);
+
+    public void setHotdeployableOnlyPackageForCreator(
+            boolean hotdeployableOnlyPackageForCreator) {
+        hotdeployableOnlyPackageForCreator_ = hotdeployableOnlyPackageForCreator;
+    }
+
+    public void setCreators(ComponentCreator[] creators) {
+        creatorPackageNameSet_.clear();
+        for (ComponentCreator creator : creators) {
+            if (!(creator instanceof ComponentCreatorImpl)) {
+                log_.warn("Can't get nameSuffix from ComponentCreator: "
+                        + creator.getClass());
+            }
+            creatorPackageNameSet_
+                    .add(fromSuffixToPackageName(((ComponentCreatorImpl) creator)
+                            .getNameSuffix()));
+        }
+        adjustTargetPackageNames();
+    }
+
+    @Override
+    public void addRootPackageName(String rootPackageName) {
+        super.addRootPackageName(rootPackageName);
+        adjustTargetPackageNames();
+    }
+
+    @Override
+    public void setSubApplicationRootPackageName(
+            String subApplicationRootPackageName) {
+        super.setSubApplicationRootPackageName(subApplicationRootPackageName);
+        adjustTargetPackageNames();
+    }
+
+    void adjustTargetPackageNames() {
+        List<String> targetPackageNameList = new ArrayList<String>();
+        for (String rootPackageName : getRootPackageNames()) {
+            targetPackageNameList.add(rootPackageName + "."
+                    + getSubApplicationRootPackageName() + ".");
+            for (String creatorPackageName : creatorPackageNameSet_) {
+                targetPackageNameList.add(rootPackageName + "."
+                        + creatorPackageName + ".");
+            }
+
+        }
+        targetPackageNames_ = targetPackageNameList.toArray(new String[0]);
+    }
 
     @Override
     public String fromComponentNameToPartOfClassName(String componentName) {
@@ -91,5 +154,19 @@ public class YmirNamingConvention extends PluggableNamingConventionImpl {
             }
             super.addIgnorePackageName(absoluteName);
         }
+    }
+
+    @Override
+    public boolean isTargetClassName(String className) {
+        if (!hotdeployableOnlyPackageForCreator_) {
+            return super.isTargetClassName(className);
+        }
+
+        for (int i = 0; i < targetPackageNames_.length; ++i) {
+            if (className.startsWith(targetPackageNames_[i])) {
+                return true;
+            }
+        }
+        return false;
     }
 }

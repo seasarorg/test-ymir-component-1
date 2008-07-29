@@ -1,5 +1,9 @@
 package org.seasar.ymir.convention;
 
+import org.seasar.framework.container.ComponentCreator;
+import org.seasar.framework.container.creator.DtoCreator;
+import org.seasar.ymir.creator.PageCreator;
+
 import junit.framework.TestCase;
 
 public class YmirNamingConventionTest extends TestCase {
@@ -113,5 +117,55 @@ public class YmirNamingConventionTest extends TestCase {
         assertEquals(1, actual.length);
         int idx = 0;
         assertEquals("a", actual[idx++]);
+    }
+
+    public void test_hotdeployableOnlyPackageForCreatorプロパティがfalseの時はignore以外のサブパッケージはすべてtargetであること()
+            throws Exception {
+        target_.setHotdeployableOnlyPackageForCreator(false);
+        target_.addRootPackageName("com.example.hoe");
+        target_.addRootPackageName("net.example.hoe");
+        target_.addIgnorePackageName("com.example.hoe.fuga");
+
+        assertTrue(target_.isTargetClassName("com.example.hoe.HoeClass"));
+        assertTrue(target_.isTargetClassName("com.example.hoe.sub.HoeClass"));
+        assertFalse(target_.isTargetClassName("com.example.hoe.fuga.HoeClass"));
+        assertTrue(target_.isTargetClassName("net.example.hoe.HoeClass"));
+        assertTrue(target_.isTargetClassName("net.example.hoe.sub.HoeClass"));
+        assertTrue(target_.isTargetClassName("net.example.hoe.fuga.HoeClass"));
+    }
+
+    public void test_hotdeployableOnlyPackageForCreatorプロパティがtrueの時はCreatorに対応するサブパッケージだけがtargetであること()
+            throws Exception {
+        target_.setHotdeployableOnlyPackageForCreator(true);
+        target_.setCreators(new ComponentCreator[] { new PageCreator(target_),
+            new DtoCreator(target_) });
+        target_.addRootPackageName("com.example.hoe");
+        target_.addRootPackageName("net.example.hoe");
+        target_.addIgnorePackageName("com.example.hoe.dto");
+
+        assertTrue("サブアプリケーションパッケージは必ずtargetであること", target_
+                .isTargetClassName("com.example.hoe.web.HoePage"));
+        assertTrue("サブアプリケーションパッケージは必ずtargetであること", target_
+                .isTargetClassName("com.example.hoe.web.HoeClass"));
+        assertTrue(target_.isTargetClassName("com.example.hoe.page.HoePage"));
+        assertTrue(target_.isTargetClassName("com.example.hoe.page.HoeClass"));
+        assertTrue("ignoreは無視されること", target_
+                .isTargetClassName("com.example.hoe.dto.HoeDto"));
+        assertTrue("ignoreは無視されること", target_
+                .isTargetClassName("com.example.hoe.dto.HoeClass"));
+        assertFalse(target_.isTargetClassName("com.example.hoe.HoeClass"));
+        assertFalse(target_.isTargetClassName("com.example.hoe.dao.HoeDao"));
+        assertTrue("サブアプリケーションパッケージは必ずtargetであること", target_
+                .isTargetClassName("net.example.hoe.web.HoePage"));
+        assertTrue("サブアプリケーションパッケージは必ずtargetであること", target_
+                .isTargetClassName("net.example.hoe.web.HoeClass"));
+        assertTrue(target_.isTargetClassName("net.example.hoe.page.HoePage"));
+        assertTrue(target_.isTargetClassName("net.example.hoe.page.HoeClass"));
+        assertTrue("ignoreは無視されること", target_
+                .isTargetClassName("net.example.hoe.dto.HoeDto"));
+        assertTrue("ignoreは無視されること", target_
+                .isTargetClassName("net.example.hoe.dto.HoeClass"));
+        assertFalse(target_.isTargetClassName("net.example.hoe.HoeClass"));
+        assertFalse(target_.isTargetClassName("net.example.hoe.dao.HoeDao"));
     }
 }

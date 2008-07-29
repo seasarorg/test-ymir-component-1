@@ -2,9 +2,8 @@
 <!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
-  <include path="ymir-convention.dicon" />
   <include path="mapping.dicon" />
-  <meta name="expand">"ymir-app.dicon"</meta>
+  <meta name="expand">"ymir-convention.dicon,ymir-app.dicon"</meta>
   <component
     class="org.seasar.framework.container.autoregister.ComponentAutoRegister">
     <initMethod name="addReferenceClass">
