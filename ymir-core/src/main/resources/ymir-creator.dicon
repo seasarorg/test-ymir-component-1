@@ -53,7 +53,7 @@
     <property name="logicCustomizer" bindingType="may" />
   </component>
   <component name="converterCreator"
-    class="org.seasar.framework.container.creator.ConverterCreator">
+    class="org.seasar.ymir.creator.ConverterCreator">
     <property name="converterCustomizer" bindingType="may" />
   </component>
 </components>

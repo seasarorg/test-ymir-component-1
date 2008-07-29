@@ -13,7 +13,6 @@ public class ConstraintCreator extends ComponentCreatorImpl {
         super(namingConvention);
         setNameSuffix(YmirNamingConvention.SUFFIX_CONSTRAINT);
         setInstanceDef(InstanceDefFactory.SINGLETON);
-        setExternalBinding(false);
     }
 
     public ComponentCustomizer getConstraintCustomizer() {

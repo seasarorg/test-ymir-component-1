@@ -14,7 +14,6 @@ public class ExceptionHandlerCreator extends ComponentCreatorImpl {
         super(namingConvention);
         setNameSuffix(YmirNamingConvention.SUFFIX_EXCEPTIONHANDLER);
         setInstanceDef(InstanceDefFactory.REQUEST);
-        setExternalBinding(false);
     }
 
     public ComponentCustomizer getExceptionHandlerCustomizer() {
