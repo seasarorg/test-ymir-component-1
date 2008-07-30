@@ -81,7 +81,6 @@ import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.DescValidator;
 import org.seasar.ymir.extension.creator.EntityMetaData;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
-import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PathMetaData;
@@ -667,13 +666,6 @@ public class SourceCreatorImpl implements SourceCreator {
                     }
                     md.setBodyDesc(new BodyDescImpl(
                             BodyDesc.KEY_PERMISSIONDENIED,
-                            new HashMap<String, Object>()));
-                } else if (MetaUtils.getValue(methods[i],
-                        MetaAnnotationDesc.NAME_DEFAULTACTION_EXCEPTION) != null) {
-                    // 対応するアクションがないボタンが押された場合などに呼ばれるデフォルトのアクションメソッドについては
-                    // ボディを用意する。
-                    md.setBodyDesc(new BodyDescImpl(
-                            BodyDesc.KEY_DEFAULTACTION_EXCEPTION,
                             new HashMap<String, Object>()));
                 } else if (returnType == String.class
                         && methods[i].getParameterTypes().length == 0) {

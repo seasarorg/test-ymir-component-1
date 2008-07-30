@@ -7,8 +7,6 @@ import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 public interface BodyDesc extends Cloneable {
     String KEY_ASIS = "asIs";
 
-    String KEY_DEFAULTACTION_EXCEPTION = "defaultAction.exception";
-
     String KEY_PERMISSIONDENIED = ConstraintInterceptor.ACTION_PERMISSIONDENIED;
 
     String PROP_BODY = "body";

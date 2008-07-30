@@ -26,9 +26,7 @@ import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.annotation.RequestParameter;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
-import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
-import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -998,68 +996,47 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc indexCd = getClassDesc(CLASSNAME);
         MethodDesc md = indexCd.getMethodDesc(new MethodDescImpl("POST"));
-        BodyDesc bd = md.getBodyDesc();
-        assertNull("dispatchingByRequestParameterがfalseである場合はPOSTの中身は空であること",
-                bd);
+        assertNotNull("dispatchingByRequestParameterがfalseである場合はPOSTが存在すること",
+                md);
 
         ClassDesc updateCd = getClassDesc("com.example.web.UpdatePage");
         md = updateCd.getMethodDesc(new MethodDescImpl("POST"));
-        bd = md.getBodyDesc();
         assertNull(
-                "dispatchingByRequestParameterがtrueである場合でもsubmit等がない場合はPOSTの中身は空であること",
-                bd);
+                "dispatchingByRequestParameterがtrueである場合でもsubmit等がない場合はPOSTが存在しないこと",
+                md);
 
         ClassDesc update2Cd = getClassDesc("com.example.web.Update2Page");
         md = update2Cd.getMethodDesc(new MethodDescImpl("GET"));
-        bd = md.getBodyDesc();
-        assertNull(
-                "dispatchingByRequestParameterがtrueである場合でもHTTPメソッドがGETである場合はPOSTの中身は空であること",
-                bd);
+        assertNotNull(
+                "dispatchingByRequestParameterがtrueである場合でもHTTPメソッドがGETである場合はPOSTが存在すること",
+                md);
 
         ClassDesc update3Cd = getClassDesc("com.example.web.Update3Page");
         md = update3Cd.getMethodDesc(new MethodDescImpl("POST"));
-        bd = md.getBodyDesc();
-        assertNotNull(
-                "dispatchingByRequestParameterがtrueである場合でnameを持つsubmit等がある場合はPOSTがExceptionをスローするようになっていること",
-                bd);
-        assertEquals(BodyDesc.KEY_DEFAULTACTION_EXCEPTION, bd.getKey());
-        assertNotNull(md
-                .getMetaValues(MetaAnnotationDesc.NAME_DEFAULTACTION_EXCEPTION));
+        assertNull(
+                "dispatchingByRequestParameterがtrueである場合でnameを持つsubmit等がある場合はPOSTが存在しないこと",
+                md);
 
         ClassDesc update4Cd = getClassDesc("com.example.web.Update4Page");
         md = update4Cd.getMethodDesc(new MethodDescImpl("POST"));
-        bd = md.getBodyDesc();
-        assertNotNull(bd);
-        assertEquals(BodyDesc.KEY_ASIS, bd.getKey());
-        assertEquals(
-                "dispatchingByRequestParameterがtrueである場合でも適切なnameを持つsubmit等がない場合はPOSTの中身は空であること",
-                "", bd.getRoot().get(BodyDesc.PROP_BODY));
+        assertNotNull(
+                "dispatchingByRequestParameterがtrueである場合でも適切なnameを持つsubmit等がない場合はPOSTが存在すること",
+                md);
 
         ClassDesc update5Cd = getClassDesc("com.example.web.Update5Page");
         md = update5Cd.getMethodDesc(new MethodDescImpl("POST"));
-        bd = md.getBodyDesc();
-        assertNotNull(bd);
-        assertEquals(BodyDesc.KEY_ASIS, bd.getKey());
-        assertEquals(
-                "dispatchingByRequestParameterがtrueである場合でもnameを持たないsubmit等がある場合はPOSTの中身は空であること",
-                "", bd.getRoot().get(BodyDesc.PROP_BODY));
+        assertNotNull(
+                "dispatchingByRequestParameterがtrueである場合でもnameを持たないsubmit等がある場合はPOSTが存在すること",
+                md);
 
         ClassDesc update6Cd = getClassDesc("com.example.web.Update6Page");
         md = update6Cd.getMethodDesc(new MethodDescImpl("POST"));
-        bd = md.getBodyDesc();
-        assertNotNull(bd);
-        assertEquals(BodyDesc.KEY_ASIS, bd.getKey());
-        assertEquals(
-                "適切なnameを持つsubmit等があっても適切なnameを持つsubmit等がない場合はPOSTの中身は空であること",
-                "", bd.getRoot().get(BodyDesc.PROP_BODY));
+        assertNotNull(
+                "適切なnameを持つsubmit等があっても適切なnameを持つsubmit等がない場合はPOSTが存在すること", md);
 
         ClassDesc update7Cd = getClassDesc("com.example.web.Update7Page");
         md = update7Cd.getMethodDesc(new MethodDescImpl("POST"));
-        bd = md.getBodyDesc();
-        assertNotNull(bd);
-        assertEquals(BodyDesc.KEY_ASIS, bd.getKey());
-        assertEquals(
-                "適切なnameを持つsubmit等があってもnameを持たないsubmit等がある場合はPOSTの中身は空であること",
-                "", bd.getRoot().get(BodyDesc.PROP_BODY));
+        assertNotNull(
+                "適切なnameを持つsubmit等があってもnameを持たないsubmit等がある場合はPOSTが存在すること", md);
     }
 }

@@ -1,13 +1,8 @@
 package org.seasar.ymir.extension.creator.impl;
 
-import java.util.HashMap;
-
 import org.seasar.ymir.Request;
-import org.seasar.ymir.extension.creator.AnnotationDesc;
-import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.FormDesc;
-import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.zpt.AnalyzerUtils;
@@ -28,6 +23,10 @@ public class FormDescImpl implements FormDesc {
     private boolean dispatchingByRequestParameter_;
 
     private String method_;
+
+    private boolean existsNamedButton_;
+
+    private boolean existsUnnamedButton_;
 
     public FormDescImpl(ClassDesc classDesc, ClassDesc dtoClassDesc,
             String actionName, String name,
@@ -50,10 +49,10 @@ public class FormDescImpl implements FormDesc {
     public void setActionMethodDesc(String parameterName) {
         if (parameterName == null) {
             // submit等にname属性が指定されていない場合。
-            // そのsubmitを押されるとデフォルトのPOSTアクションが呼ばれるので、ボディを明示的に空にする。
-            setEmptyToDefaultActionMethodBody();
+            existsUnnamedButton_ = true;
             return;
         }
+
         int lparen = parameterName.indexOf(INDEX_PREFIX);
         if (lparen >= 0) {
             if (parameterName.endsWith(INDEX_SUFFIX)) {
@@ -71,7 +70,7 @@ public class FormDescImpl implements FormDesc {
                                 .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
                                         Integer.TYPE, "index") });
                         classDesc_.setMethodDesc(md);
-                        adjustDefaultActionMethodBody();
+                        existsNamedButton_ = true;
                         return;
                     } catch (NumberFormatException ignore) {
                     }
@@ -82,40 +81,11 @@ public class FormDescImpl implements FormDesc {
         if (AnalyzerUtils.isValidVariableName(parameterName)) {
             classDesc_.setMethodDesc(new MethodDescImpl(
                     (actionName_ + "_" + parameterName)));
-            adjustDefaultActionMethodBody();
+            existsNamedButton_ = true;
         } else {
-            // このsubmitを押されるとデフォルトのPOSTアクションが呼ばれるので、ボディを明示的に空にする。
-            setEmptyToDefaultActionMethodBody();
+            // このsubmitを押されるとデフォルトのPOSTアクションが呼ばれる。
+            existsUnnamedButton_ = true;
         }
-    }
-
-    void setEmptyToDefaultActionMethodBody() {
-        if (!Request.METHOD_POST.equals(method_)) {
-            // GETとかでもやると不便なことが多そうなので、POSTの時だけ。
-            return;
-        }
-
-        MethodDesc md = getDefaultActionMethodDesc();
-        md.setBodyDesc(new BodyDescImpl(""));
-    }
-
-    void adjustDefaultActionMethodBody() {
-        if (!Request.METHOD_POST.equals(method_)) {
-            // GETとかでもやると不便なことが多そうなので、POSTの時だけ。
-            return;
-        }
-
-        MethodDesc md = getDefaultActionMethodDesc();
-        BodyDesc bd = md.getBodyDesc();
-        if (bd == null) {
-            bd = new BodyDescImpl(BodyDesc.KEY_DEFAULTACTION_EXCEPTION,
-                    new HashMap<String, Object>());
-            md.setBodyDesc(bd);
-        }
-    }
-
-    MethodDesc getDefaultActionMethodDesc() {
-        return classDesc_.getMethodDesc(new MethodDescImpl(actionName_));
     }
 
     public String getActionPageClassName() {
@@ -139,14 +109,9 @@ public class FormDescImpl implements FormDesc {
     }
 
     public void close() {
-        MethodDesc md = getDefaultActionMethodDesc();
-        BodyDesc bd = md.getBodyDesc();
-        if (bd != null
-                && BodyDesc.KEY_DEFAULTACTION_EXCEPTION.equals(bd.getKey())) {
-            AnnotationDesc ad = new MetaAnnotationDescImpl(
-                    MetaAnnotationDesc.NAME_DEFAULTACTION_EXCEPTION,
-                    new String[0], new Class[0]);
-            md.setAnnotationDesc(ad);
+        if (Request.METHOD_POST.equals(method_)
+                && dispatchingByRequestParameter_ && !existsUnnamedButton_) {
+            classDesc_.removeMethodDesc(new MethodDescImpl(actionName_));
         }
     }
 }
