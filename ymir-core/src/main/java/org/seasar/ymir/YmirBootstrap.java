@@ -20,6 +20,8 @@ import org.seasar.ymir.servlet.YmirListener;
  * @author YOKOTA Takehiko
  */
 public class YmirBootstrap {
+    private static final String SP = System.getProperty("line.separator");
+
     private Ymir ymir_;
 
     /**
@@ -53,7 +55,13 @@ public class YmirBootstrap {
         Class<?> landmark = null;
         try {
             landmark = Class.forName(Globals.LANDMARK_CLASSNAME);
-        } catch (ClassNotFoundException ignored) {
+        } catch (ClassNotFoundException ex) {
+            throw new RuntimeException("Landmark class ("
+                    + Globals.LANDMARK_CLASSNAME
+                    + ") not found. Can't boot Ymir." + SP
+                    + "You MUST put the landmark class"
+                    + " in the jar which contains Page classes"
+                    + " or in WEB-INF/classes where Page classes exist.");
         }
         ComponentDef cd = getContainer().getComponentDef(
                 LocalHotdeployS2Container.class);
