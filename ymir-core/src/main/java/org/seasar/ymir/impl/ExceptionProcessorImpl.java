@@ -6,19 +6,19 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ExceptionProcessor;
-import org.seasar.ymir.PageProcessor;
 import org.seasar.ymir.PageMetaData;
+import org.seasar.ymir.PageProcessor;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.Updater;
-import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.handler.ExceptionHandler;
 import org.seasar.ymir.response.ForwardResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
 import org.seasar.ymir.util.BeanUtils;
+import org.seasar.ymir.util.ThrowableUtils;
 
 public class ExceptionProcessorImpl implements ExceptionProcessor {
     private Ymir ymir_;
@@ -51,9 +51,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
 
     @SuppressWarnings("unchecked")
     public Response process(Request request, Throwable t) {
-        if (t instanceof WrappingRuntimeException) {
-            t = ((WrappingRuntimeException) t).getCause();
-        }
+        t = ThrowableUtils.unwrap(t);
 
         if (ymir_.isUnderDevelopment()) {
             for (int i = 0; i < updaters_.length; i++) {
