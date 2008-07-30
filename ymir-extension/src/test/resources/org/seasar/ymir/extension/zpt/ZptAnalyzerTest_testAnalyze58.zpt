@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <form method="post" action="./index.html">
+      <input type="submit" name="submit" value="SUBMIT" />
+    </form>
+    <form method="post" tal:attributes="action page:/article/update.do" action="#">
+    </form>
+    <form method="get" tal:attributes="action page:/article/update2.do" action="#">
+      <input type="submit" name="submit" value="SUBMIT" />
+    </form>
+    <form method="post" tal:attributes="action page:/article/update3.do" action="#">
+      <input type="submit" name="submit" value="SUBMIT" />
+    </form>
+    <form method="post" tal:attributes="action page:/article/update4.do" action="#">
+      <input type="submit" name="Go!" value="SUBMIT" />
+    </form>
+    <form method="post" tal:attributes="action page:/article/update5.do" action="#">
+      <input type="submit" />
+    </form>
+    <form method="post" tal:attributes="action page:/article/update6.do" action="#">
+      <input type="submit" name="submit" value="SUBMIT" />
+      <input type="submit" name="Go!" value="SUBMIT" />
+    </form>
+    <form method="post" tal:attributes="action page:/article/update7.do" action="#">
+      <input type="submit" name="submit" value="SUBMIT" />
+      <input type="submit" />
+    </form>
+  </body>
+</html>

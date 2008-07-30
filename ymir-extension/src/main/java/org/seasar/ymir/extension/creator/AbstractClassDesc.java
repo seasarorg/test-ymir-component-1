@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.creator;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
@@ -9,12 +11,17 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
     abstract public String getName();
 
     public Object clone() {
+        AbstractClassDesc cloned = (AbstractClassDesc) super.clone();
 
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException ex) {
-            throw new RuntimeException(ex);
+        if (parameter_ != null) {
+            cloned.parameter_ = new HashMap<String, Object>();
+            for (Iterator<Map.Entry<String, Object>> itr = parameter_
+                    .entrySet().iterator(); itr.hasNext();) {
+                Map.Entry<String, Object> entry = itr.next();
+                cloned.parameter_.put(entry.getKey(), entry.getValue());
+            }
         }
+        return cloned;
     }
 
     public ClassType getType() {
@@ -111,5 +118,10 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
     public void setOptionalSourceGeneratorParameter(
             Map<String, Object> parameter) {
         parameter_ = parameter;
+    }
+
+    public void clear() {
+        super.clear();
+        parameter_ = null;
     }
 }

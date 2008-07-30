@@ -227,7 +227,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 new HashMap<String, Object>()));
         generated.setMethodDesc(methodDesc);
 
-        classDesc.merge(generated);
+        classDesc.merge(generated, true);
 
         String actual = target_.generateBaseSource(classDesc);
 

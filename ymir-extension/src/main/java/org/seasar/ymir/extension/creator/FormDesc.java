@@ -13,4 +13,6 @@ public interface FormDesc {
     ClassDesc getDtoClassDesc();
 
     String getName();
+
+    void close();
 }

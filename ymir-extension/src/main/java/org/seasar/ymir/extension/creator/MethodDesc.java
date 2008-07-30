@@ -29,4 +29,6 @@ public interface MethodDesc extends AnnotatedDesc, Cloneable {
     ThrowsDesc getThrowsDesc();
 
     void setThrowsDesc(ThrowsDesc throwsDesc);
+
+    void setAnnotationDescs(AnnotationDesc[] annotationDescs);
 }

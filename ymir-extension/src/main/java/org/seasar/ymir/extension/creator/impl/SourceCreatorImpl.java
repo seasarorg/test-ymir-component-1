@@ -64,7 +64,6 @@ import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.ResponseType;
-import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Metas;
@@ -82,6 +81,7 @@ import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.DescValidator;
 import org.seasar.ymir.extension.creator.EntityMetaData;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
+import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PathMetaData;
@@ -112,6 +112,7 @@ import org.seasar.ymir.extension.creator.action.impl.DoUpdateTemplateAction;
 import org.seasar.ymir.extension.creator.action.impl.ResourceAction;
 import org.seasar.ymir.extension.creator.action.impl.SystemConsoleAction;
 import org.seasar.ymir.extension.creator.action.impl.UpdateClassesAction;
+import org.seasar.ymir.extension.creator.util.MetaUtils;
 import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.util.HTMLUtils;
 import org.seasar.ymir.util.ServletUtils;
@@ -300,8 +301,7 @@ public class SourceCreatorImpl implements SourceCreator {
             return null;
         }
 
-        if ((t instanceof WrappingRuntimeException || t instanceof EvaluationRuntimeException)
-                && t.getCause() != null) {
+        if (t instanceof EvaluationRuntimeException && t.getCause() != null) {
             t = t.getCause();
         }
         String path = ServletUtils.normalizePath(request.getCurrentDispatch()
@@ -499,7 +499,7 @@ public class SourceCreatorImpl implements SourceCreator {
             methodDesc.setThrowsDesc(new ThrowsDescImpl(
                     PermissionDeniedException.class));
             methodDesc.setBodyDesc(new BodyDescImpl(
-                    ConstraintInterceptor.ACTION_PERMISSIONDENIED,
+                    BodyDesc.KEY_PERMISSIONDENIED,
                     new HashMap<String, Object>()));
             methodDesc.setAnnotationDesc(new AnnotationDescImpl(
                     getBeginAnnotation()));
@@ -653,19 +653,7 @@ public class SourceCreatorImpl implements SourceCreator {
             Class<?> returnType = methods[i].getReturnType();
             md.setReturnTypeDesc(returnType.getName());
             if (clazz.getName().endsWith("Base")) {
-                if (returnType == String.class
-                        && methods[i].getParameterTypes().length == 0) {
-                    // Baseクラスについては、引数なしで返り値がStringのメソッドについてはボディを用意する。
-                    // （他のもそうしたいが今はこれだけ）
-                    try {
-                        String value = (String) methods[i].invoke(clazz
-                                .newInstance(), new Object[0]);
-                        BodyDesc bodyDesc = new BodyDescImpl("return "
-                                + quote(value) + ";");
-                        md.setBodyDesc(bodyDesc);
-                    } catch (Throwable ignore) {
-                    }
-                } else if (methods[i].getName().equals(
+                if (methods[i].getName().equals(
                         ConstraintInterceptor.ACTION_PERMISSIONDENIED)) {
                     // Baseクラスについては、_permissionDeniedのボディが消えると困るので用意する。
                     ParameterDesc[] ps = md.getParameterDescs();
@@ -678,8 +666,27 @@ public class SourceCreatorImpl implements SourceCreator {
                         }
                     }
                     md.setBodyDesc(new BodyDescImpl(
-                            ConstraintInterceptor.ACTION_PERMISSIONDENIED,
+                            BodyDesc.KEY_PERMISSIONDENIED,
                             new HashMap<String, Object>()));
+                } else if (MetaUtils.getValue(methods[i],
+                        MetaAnnotationDesc.NAME_DEFAULTACTION_EXCEPTION) != null) {
+                    // 対応するアクションがないボタンが押された場合などに呼ばれるデフォルトのアクションメソッドについては
+                    // ボディを用意する。
+                    md.setBodyDesc(new BodyDescImpl(
+                            BodyDesc.KEY_DEFAULTACTION_EXCEPTION,
+                            new HashMap<String, Object>()));
+                } else if (returnType == String.class
+                        && methods[i].getParameterTypes().length == 0) {
+                    // Baseクラスについては、引数なしで返り値がStringのメソッドについてはボディを用意する。
+                    // （他のもそうしたいが今はこれだけ）
+                    try {
+                        String value = (String) methods[i].invoke(clazz
+                                .newInstance(), new Object[0]);
+                        BodyDesc bodyDesc = new BodyDescImpl("return "
+                                + quote(value) + ";");
+                        md.setBodyDesc(bodyDesc);
+                    } catch (Throwable ignore) {
+                    }
                 }
             }
             classDesc.setMethodDesc(md);
@@ -814,32 +821,10 @@ public class SourceCreatorImpl implements SourceCreator {
     Class<?>[] getPairClasses(ClassDesc classDesc) {
         Class<?>[] pairClasses = classDesc.getMetaClassValues("conversion");
         if (pairClasses == null) {
-            pairClasses = getMetaClassValue(getClass(classDesc.getName()
+            pairClasses = MetaUtils.getClassValue(getClass(classDesc.getName()
                     + "Base"), "conversion");
         }
         return pairClasses;
-    }
-
-    Class<?>[] getMetaClassValue(Class<?> clazz, String name) {
-        if (clazz == null) {
-            return null;
-        }
-        Meta meta = clazz.getAnnotation(Meta.class);
-        if (meta != null) {
-            if (name.equals(meta.name())) {
-                return meta.classValue();
-            }
-        }
-        Metas metas = clazz.getAnnotation(Metas.class);
-        if (metas != null) {
-            for (Meta m : metas.value()) {
-                if (name.equals(m.name())) {
-                    return m.classValue();
-                }
-            }
-        }
-
-        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -949,7 +934,7 @@ public class SourceCreatorImpl implements SourceCreator {
         // baseにあるものは必ず残す。baseになくてsuperやgapにあるものは除去する。
         ClassDesc generated = (ClassDesc) desc.clone();
         desc.clear();
-        desc.merge(baseDesc);
+        desc.merge(baseDesc, true);
 
         ClassDesc superDesc = getClassDesc(getClass(desc.getSuperclassName()),
                 className, false);
@@ -982,7 +967,7 @@ public class SourceCreatorImpl implements SourceCreator {
             }
         }
 
-        desc.merge(generated);
+        desc.merge(generated, true);
     }
 
     void removeModeFrom(PropertyDesc pd, int mode, ClassDesc cd) {
@@ -996,7 +981,8 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public void mergeWithExistentClass(ClassDesc classDesc) {
         String className = classDesc.getName();
-        classDesc.merge(getClassDesc(getClass(className), className, false));
+        classDesc.merge(getClassDesc(getClass(className), className, false),
+                false);
     }
 
     public void writeSourceFile(ClassDesc classDesc, ClassDescSet classDescSet)

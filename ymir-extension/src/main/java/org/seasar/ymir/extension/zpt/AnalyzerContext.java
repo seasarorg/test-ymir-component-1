@@ -367,7 +367,7 @@ public class AnalyzerContext extends ZptTemplateContext {
                             TypeDesc.DEFAULT_CLASSDESC);
                 }
             }
-            classDesc.merge(classDescMap_.get(name));
+            classDesc.merge(classDescMap_.get(name), false);
         }
 
         for (Iterator<ClassDesc> itr = temporaryClassDescMap_.values()

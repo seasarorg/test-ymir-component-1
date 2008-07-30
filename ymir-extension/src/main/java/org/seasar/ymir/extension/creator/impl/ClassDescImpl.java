@@ -5,6 +5,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.seasar.ymir.annotation.Meta;
+import org.seasar.ymir.annotation.Metas;
 import org.seasar.ymir.extension.creator.AbstractClassDesc;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -31,7 +33,6 @@ public class ClassDescImpl extends AbstractClassDesc {
     }
 
     public Object clone() {
-
         ClassDescImpl cloned = (ClassDescImpl) super.clone();
 
         cloned.propertyDescMap_ = new LinkedHashMap<String, PropertyDesc>();
@@ -135,17 +136,15 @@ public class ClassDescImpl extends AbstractClassDesc {
     }
 
     public void setBaseClassAbstract(boolean baseClassAbstract) {
-
         baseClassAbstract_ = baseClassAbstract;
     }
 
-    public void merge(ClassDesc classDesc) {
-
+    public void merge(ClassDesc classDesc, boolean force) {
         if (classDesc == null) {
             return;
         }
 
-        if (superclass_ == null) {
+        if (superclass_ == null || force && classDesc.getSuperclass() != null) {
             setSuperclass(classDesc.getSuperclass());
         }
 
@@ -155,7 +154,7 @@ public class ClassDescImpl extends AbstractClassDesc {
             if (pd == null) {
                 setPropertyDesc((PropertyDesc) propertyDescs[i].clone());
             } else {
-                merge(pd.getTypeDesc(), propertyDescs[i].getTypeDesc());
+                merge(pd.getTypeDesc(), propertyDescs[i].getTypeDesc(), force);
                 pd.addMode(propertyDescs[i].getMode());
             }
         }
@@ -166,30 +165,59 @@ public class ClassDescImpl extends AbstractClassDesc {
             if (md == null) {
                 setMethodDesc((MethodDesc) methodDescs[i].clone());
             } else {
-                // パラメータ名をコピーするためにこうしている。
-                md.setParameterDescs(methodDescs[i].getParameterDescs());
+                if (force) {
+                    // パラメータ名をコピーするためにこうしている。
+                    md.setParameterDescs(methodDescs[i].getParameterDescs());
+                }
 
                 TypeDesc returnTd = md.getReturnTypeDesc();
                 TypeDesc returnTypeDesc = methodDescs[i].getReturnTypeDesc();
-                if (merge(returnTd, returnTypeDesc)) {
+                if (merge(returnTd, returnTypeDesc, force)) {
                     md.setBodyDesc(methodDescs[i].getBodyDesc());
                 }
+                md.setAnnotationDescs(merge(md.getAnnotationDescs(),
+                        methodDescs[i].getAnnotationDescs(), force));
             }
         }
 
-        AnnotationDesc[] annotationDescs = classDesc.getAnnotationDescs();
-        for (int i = 0; i < annotationDescs.length; i++) {
-            AnnotationDesc ad = getAnnotationDesc(annotationDescs[i].getName());
-            if (ad == null) {
-                setAnnotationDesc((AnnotationDesc) annotationDescs[i].clone());
-            }
-        }
+        setAnnotationDescs(merge(getAnnotationDescs(), classDesc
+                .getAnnotationDescs(), force));
     }
 
-    boolean merge(TypeDesc td, TypeDesc typeDesc) {
+    AnnotationDesc[] merge(AnnotationDesc[] ads,
+            AnnotationDesc[] annotationDescs, boolean force) {
+        Map<String, AnnotationDesc> adMap = new LinkedHashMap<String, AnnotationDesc>();
+        for (AnnotationDesc ad : ads) {
+            if (force && isMetaAnnotation(ad)) {
+                continue;
+            }
+            adMap.put(ad.getName(), ad);
+        }
+        for (AnnotationDesc annotationdesc : annotationDescs) {
+            if (!force && isMetaAnnotation(annotationdesc)) {
+                continue;
+            }
+            AnnotationDesc ad = adMap.get(annotationdesc.getName());
+            if (force || ad == null) {
+                adMap.put(annotationdesc.getName(),
+                        (AnnotationDesc) annotationdesc.clone());
+            }
+        }
+
+        return adMap.values().toArray(new AnnotationDesc[0]);
+    }
+
+    boolean isMetaAnnotation(AnnotationDesc ad) {
+        return ad != null
+                && (Meta.class.getName().equals(ad.getName()) || Metas.class
+                        .getName().equals(ad.getName()));
+    }
+
+    boolean merge(TypeDesc td, TypeDesc typeDesc, boolean force) {
         if (td.equals(typeDesc)) {
-            return true;
-        } else if (!td.isExplicit() && typeDesc.isExplicit()) {
+            return force;
+        } else if (!force && !td.isExplicit() && typeDesc.isExplicit() || force
+                && (!td.isExplicit() || typeDesc.isExplicit())) {
             td.transcript(typeDesc);
             return true;
         } else {
@@ -203,7 +231,7 @@ public class ClassDescImpl extends AbstractClassDesc {
     }
 
     public void clear() {
-
+        super.clear();
         superclass_ = null;
         propertyDescMap_.clear();
         methodDescMap_.clear();

@@ -75,7 +75,11 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             try {
                 return super.evaluate(context, name, attrs, body);
             } finally {
-                analyzerContext.setFormDesc(null);
+                FormDesc formDesc = analyzerContext.getFormDesc();
+                if (formDesc != null) {
+                    formDesc.close();
+                    analyzerContext.setFormDesc(null);
+                }
             }
         } else if (("input".equals(name) || "select".equals(name)
                 || "textarea".equals(name) || "button".equals(name))
@@ -319,7 +323,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         }
 
         return new FormDescImpl(classDesc, dtoClassDesc, actionName, formName,
-                dispatchingByParameter);
+                dispatchingByParameter, method);
     }
 
     Path constructPath(String basePath, String pathWithParameters) {

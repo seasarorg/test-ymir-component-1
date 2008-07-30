@@ -35,10 +35,16 @@ public interface ClassDesc extends AnnotatedDesc, Cloneable {
 
     /**
      * 指定されたClassDescの内容をこのClassDescにマージします。
+     * <p><code>force</code>がfalseの場合、
+     * 重複している内容についてはもともとある方が優先されます。
+     * <code>force</code>がtrueの場合、
+     * 重複している内容については<code>classDesc</code>にある方が優先されます。
+     * </p>
      *
      * @param classDesc マージするClassDesc。nullを指定した場合は何もしません。
+     * @param force 引数で与えたClassDescの内容を優先するかどうか。
      */
-    void merge(ClassDesc classDesc);
+    void merge(ClassDesc classDesc, boolean force);
 
     void setName(String name);
 

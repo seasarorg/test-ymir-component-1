@@ -29,7 +29,6 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
     }
 
     public MethodDescImpl(Method method) {
-
         name_ = method.getName();
         returnTypeDesc_ = new TypeDescImpl(method.getReturnType());
         Class<?>[] types = method.getParameterTypes();
@@ -44,13 +43,8 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
     }
 
     public Object clone() {
+        MethodDescImpl cloned = (MethodDescImpl) super.clone();
 
-        MethodDescImpl cloned;
-        try {
-            cloned = (MethodDescImpl) super.clone();
-        } catch (CloneNotSupportedException ex) {
-            throw new RuntimeException(ex);
-        }
         if (parameterDescs_ != null) {
             cloned.parameterDescs_ = new ParameterDesc[parameterDescs_.length];
             for (int i = 0; i < parameterDescs_.length; i++) {
