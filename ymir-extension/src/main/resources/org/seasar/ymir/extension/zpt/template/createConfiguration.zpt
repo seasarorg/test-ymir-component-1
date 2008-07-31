@@ -5,11 +5,15 @@
   </head>
   <body>
 <h1>SYSTEM NOTIFICATION</h1>
+<div tal:condition="not:reconfigured" tal:omit-tag="">
 <p>Ymirへようこそ！</p>
 <p tal:condition="not:reconfigured">Webアプリケーションを構築する前に、プロジェクトの設定を行ないます。
 以下の項目を埋めて「OK」ボタンを押して下さい。</p>
-<p tal:condition="reconfigured"><strong>プロジェクトのパスに対応するディレクトリが存在しなかったためプロジェクトのパスを再度自動検出しました。</strong>
-以下の項目を確認して「OK」ボタンを押して下さい。</p>
+</div>
+<div tal:condition="reconfigured" tal:omit-tag="">
+<p>プロジェクトの設定の変更</p>
+<p>以下の項目について、内容を変更して「OK」ボタンを押して下さい。</p>
+</div>
 <form tal:attributes="action request/absolutePath" method="post">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
   <input type="hidden" name="__ymir__task" value="createConfiguration" />
@@ -19,14 +23,22 @@
     <dt>基本情報</dt>
     <dd>
       <p><dl>
+        <div tal:condition="shouldSpecifyProjectRoot" tal:omit-tag="">
         <dt>projectRoot</dt>
         <dd><p>このWebアプリケーションのためのEclipseプロジェクトのパスを入力して下さい。（例：<tt>C:\eclipse\workspace\skeleton</tt>）</p>
-          <p><input type="text" name="__ymir__key_projectRoot" size="64" tal:attributes="value application/projectRoot" /></p>
+        <p tal:condition="not:existsProjectRoot">
+          <strong>現在指定されているプロジェクトのパスに対応するディレクトリは存在しません。必ず正しく書き換えて下さい。</strong>
+          <span tal:condition="canBeEmptyProjectRoot">なおパスを空にすると毎回起動時にシステムがプロジェクトパスを自動検出するようになります。</span>
+        </p>
+          <p><input type="text" name="__ymir__key_projectRoot" size="64" tal:attributes="value originalProjectRoot" /></p>
         </dd>
+        </div>
+        <div tal:condition="not:reconfigured" tal:omit-tag="">
         <dt>rootPackageName</dt>
         <dd><p>このWebアプリケーションのJavaソースコードのルートパッケージ名を入力して下さい。（例：<tt>com.example</tt>）</p>
-          <p><input type="text" name="__ymir__key_rootPackageName" size="64" tal:attributes="value application/rootPackageName" /></p>
+          <p><input type="text" name="__ymir__key_rootPackageName" size="64" /></p>
         </dd>
+        </div>
       </dl></p>
     </dd>
     <dt>自動生成</dt>
@@ -35,7 +47,7 @@
         <dt>extension.sourceCreator.superclass</dt>
         <dd><p>Pageクラスの共通の親クラス名を指定して下さい。何も指定しないと親クラスは設定されません。</p>
           <p>
-            <input type="text" name="__ymir__key_extension.sourceCreator.superclass" tal:attributes="value setting/pageSuperClassName)" size="48" />
+            <input type="text" name="__ymir__key_extension.sourceCreator.superclass" tal:attributes="value setting/pageSuperClassName" size="48" />
           </p>
         </dd>
         <dt>extension.sourceCreatoruseFreyjaRenderClasses</dt>

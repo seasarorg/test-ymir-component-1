@@ -112,6 +112,7 @@ import org.seasar.ymir.extension.creator.action.impl.ResourceAction;
 import org.seasar.ymir.extension.creator.action.impl.SystemConsoleAction;
 import org.seasar.ymir.extension.creator.action.impl.UpdateClassesAction;
 import org.seasar.ymir.extension.creator.util.MetaUtils;
+import org.seasar.ymir.extension.creator.util.SourceCreatorUtils;
 import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.util.HTMLUtils;
 import org.seasar.ymir.util.ServletUtils;
@@ -228,6 +229,8 @@ public class SourceCreatorImpl implements SourceCreator {
             return response;
         }
 
+        setProjectRootIfNotDetecetd(getApplication());
+
         Object condition = null;
         if (request.getParameter(PARAM_TASK) != null) {
             condition = request.getParameter(PARAM_TASK);
@@ -278,6 +281,19 @@ public class SourceCreatorImpl implements SourceCreator {
             }
         }
         return response;
+    }
+
+    void setProjectRootIfNotDetecetd(Application application) {
+        if (application.getProjectRoot() != null
+                && new File(application.getProjectRoot()).exists()) {
+            return;
+        }
+
+        String projectRoot = SourceCreatorUtils
+                .findProjectRootDirectory(application);
+        application.setProjectRoot(projectRoot);
+        logger_.info("Project root has been detected and set automatically: "
+                + projectRoot);
     }
 
     LazyPathMetaData createLazyPathMetaData(Request request, Response response) {
@@ -347,14 +363,13 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     boolean isAlreadyConfigured(Application application) {
-        if (application.getProjectRoot() == null) {
-            return false;
-        } else if (!new File(application.getProjectRoot()).exists()) {
-            return false;
-        } else if (application.getRootPackageName() == null) {
-            return false;
-        }
-        return true;
+        String originalProjectRoot = SourceCreatorUtils
+                .getOriginalProjectRoot(application);
+        String projectRoot = application.getProjectRoot();
+        return (projectRoot != null
+                && (originalProjectRoot == null || originalProjectRoot
+                        .equals(projectRoot)) && application
+                .getRootPackageName() != null);
     }
 
     public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas) {

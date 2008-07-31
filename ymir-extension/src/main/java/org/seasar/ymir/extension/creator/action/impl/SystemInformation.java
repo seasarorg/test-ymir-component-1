@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.seasar.ymir.Application;
 import org.seasar.ymir.convention.YmirNamingConvention;
+import org.seasar.ymir.extension.creator.util.SourceCreatorUtils;
 
 public class SystemInformation {
     private Application application_;
@@ -51,5 +52,9 @@ public class SystemInformation {
 
     public Application getApplication() {
         return application_;
+    }
+
+    public boolean isProjectRootDetectedAutomatically() {
+        return SourceCreatorUtils.getOriginalProjectRoot(application_) == null;
     }
 }
