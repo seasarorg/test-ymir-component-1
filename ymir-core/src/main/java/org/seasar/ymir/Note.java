@@ -25,68 +25,12 @@ public class Note {
 
     /**
      * このクラスのオブジェクトを構築します。
-     * 
-     * @param value 文を表す文字列。文そのものか、または文に対応するメッセージリソースのキーを指定します。
-     */
-    public Note(String value) {
-        this(value, null);
-    }
-
-    /**
-     * このクラスのオブジェクトを構築します。
-     * 
-     * @param value 文に対応するメッセージリソースのキー。
-     * @param parameter0 文に埋め込むパラメータ。
-     */
-    public Note(String value, Object parameter0) {
-        this(value, new Object[] { parameter0 }, false);
-    }
-
-    /**
-     * このクラスのオブジェクトを構築します。
-     * 
-     * @param value 文に対応するメッセージリソースのキー。
-     * @param parameter0 文に埋め込む1つ目のパラメータ。
-     * @param parameter1 文に埋め込む2つ目のパラメータ。
-     */
-    public Note(String value, Object parameter0, Object parameter1) {
-        this(value, new Object[] { parameter0, parameter1 }, false);
-    }
-
-    /**
-     * このクラスのオブジェクトを構築します。
-     * 
-     * @param value 文に対応するメッセージリソースのキー。
-     * @param parameter0 文に埋め込む1つ目のパラメータ。
-     * @param parameter1 文に埋め込む2つ目のパラメータ。
-     */
-    public Note(String value, Object parameter0, Object parameter1,
-            Object parameter2) {
-        this(value, new Object[] { parameter0, parameter1, parameter2 }, false);
-    }
-
-    /**
-     * このクラスのオブジェクトを構築します。
-     * 
-     * @param value 文に対応するメッセージリソースのキー。
-     * @param parameter0 文に埋め込む1つ目のパラメータ。
-     * @param parameter1 文に埋め込む2つ目のパラメータ。
-     * @param parameter2 文に埋め込む3つ目のパラメータ。
-     */
-    public Note(String value, Object parameter0, Object parameter1,
-            Object parameter2, Object parameter3) {
-        this(value, new Object[] { parameter0, parameter1, parameter2,
-            parameter3 }, false);
-    }
-
-    /**
-     * このクラスのオブジェクトを構築します。
      * <p>パラメータ列は内部で複製されます。</p>
      * 
-     * @param value 文に対応するメッセージリソースのキー。
-     * @param parameters 文に埋め込むパラメータ。nullを指定しても構いません。
+     * @param value 文を表す文字列。文そのものか、または文に対応するメッセージリソースのキーを指定します。
+     * @param parameters 文に埋め込むパラメータ。n
      */
-    public Note(String value, Object[] parameters) {
+    public Note(String value, Object... parameters) {
         this(value, parameters, true);
     }
 
