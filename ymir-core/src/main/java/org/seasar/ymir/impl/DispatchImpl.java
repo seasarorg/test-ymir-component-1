@@ -1,5 +1,6 @@
 package org.seasar.ymir.impl;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.seasar.ymir.Action;
@@ -100,7 +101,12 @@ public class DispatchImpl implements Dispatch {
     }
 
     public Map<String, String[]> getParameterMap() {
-        return matched_.getParameterMap();
+        Map<String, String[]> parameterMap = matched_.getParameterMap();
+        if (parameterMap != null) {
+            return parameterMap;
+        } else {
+            return Collections.emptyMap();
+        }
     }
 
     public MatchedPathMapping getMatchedPathMapping() {

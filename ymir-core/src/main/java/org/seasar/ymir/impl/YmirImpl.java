@@ -243,17 +243,15 @@ public class YmirImpl implements Ymir {
         // FIXME Objectの配列というのもイマイチ…。
         return new Object[] {
             requestProcessor_.backupForInclusion(attributeContainer),
-            unwrapRequest(
-                    ((Request) getThreadContext().getComponent(Request.class)))
-                    .getParameterMap() };
+            getUnwrappedRequest().getParameterMap() };
     }
 
     @SuppressWarnings("unchecked")
     public void restoreForInclusion(
             final AttributeContainer attributeContainer, final Object backupped) {
         Object[] backuppeds = (Object[]) backupped;
-        unwrapRequest((Request) getThreadContext().getComponent(Request.class))
-                .setParameterMap((Map<String, String[]>) backuppeds[1]);
+        getUnwrappedRequest().setQueryParameterMap(
+                (Map<String, String[]>) backuppeds[1]);
         requestProcessor_
                 .restoreForInclusion(attributeContainer, backuppeds[0]);
     }
@@ -294,6 +292,8 @@ public class YmirImpl implements Ymir {
     public void updateRequest(Request request, HttpServletRequest httpRequest,
             Dispatcher dispatcher) {
         if (dispatcher != Dispatcher.FORWARD) {
+            // 例えばINCLUDEに関してはインクルード元Pageの処理の時に被インクルードPageのアクション呼び出し等が完了しているため、
+            // ここでパラメータを調整しても仕方がない。そのため何もしないようになっている。
             return;
         }
 
@@ -319,7 +319,12 @@ public class YmirImpl implements Ymir {
 
             unwrappedRequest.setMethod(Request.METHOD_GET);
         }
-        unwrappedRequest.setParameterMap(parameterMap);
+        unwrappedRequest.setQueryParameterMap(parameterMap);
+    }
+
+    protected RequestImpl getUnwrappedRequest() {
+        return unwrapRequest(((Request) getThreadContext().getComponent(
+                Request.class)));
     }
 
     RequestImpl unwrapRequest(Request request) {

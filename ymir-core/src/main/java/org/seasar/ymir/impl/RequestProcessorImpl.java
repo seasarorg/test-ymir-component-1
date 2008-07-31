@@ -489,10 +489,6 @@ public class RequestProcessorImpl implements RequestProcessor {
             pageProcessor_.injectFormFileProperties(page, metaData, request_
                     .getFileParameterMap());
 
-            // URIから抽出したパラメータをinjectする。
-            pageProcessor_.injectProperties(page, metaData, dispatch
-                    .getMatchedPathMapping().getParameterMap());
-
             pageProcessor_.invokeMethods(page, metaData,
                     Phase.SCOPEOBJECT_INJECTING);
 

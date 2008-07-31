@@ -1,6 +1,7 @@
 package org.seasar.ymir.impl;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -18,9 +19,11 @@ public class RequestImpl implements Request {
 
     private String characterEncoding_;
 
-    private Map<String, String[]> parameterMap_;
+    private Map<String, String[]> queryParameterMap_;
 
     private Map<String, FormFile[]> fileParameterMap_;
+
+    private Map<String, String[]> parameterMap_;
 
     private AttributeContainer attributeContainer_;
 
@@ -36,13 +39,13 @@ public class RequestImpl implements Request {
     }
 
     public RequestImpl(String contextPath, String method,
-            String characterEncoding, Map<String, String[]> parameterMap,
+            String characterEncoding, Map<String, String[]> queryParameterMap,
             Map<String, FormFile[]> fileParameterMap,
             AttributeContainer attributeContainer, Locale locale) {
         contextPath_ = contextPath;
         method_ = method;
         characterEncoding_ = characterEncoding;
-        parameterMap_ = parameterMap;
+        setQueryParameterMap(queryParameterMap);
         fileParameterMap_ = fileParameterMap;
         attributeContainer_ = attributeContainer;
         locale_ = locale;
@@ -114,8 +117,10 @@ public class RequestImpl implements Request {
         return parameterMap_;
     }
 
-    public void setParameterMap(Map<String, String[]> parameterMap) {
-        parameterMap_ = parameterMap;
+    // parameterMapを再構築していないため、enterDispatch～leaveDispatchの間では呼び出してはいけない！
+    public void setQueryParameterMap(Map<String, String[]> queryParameterMap) {
+        queryParameterMap_ = queryParameterMap;
+        parameterMap_ = queryParameterMap;
     }
 
     public FormFile getFileParameter(String name) {
@@ -194,9 +199,38 @@ public class RequestImpl implements Request {
         }
         dispatchStack_.addFirst(dispatch);
         dispatch_ = dispatch;
+
+        parameterMap_ = mergeParameterMap(queryParameterMap_, dispatch
+                .getParameterMap());
+    }
+
+    Map<String, String[]> mergeParameterMap(
+            Map<String, String[]> queryParameterMap,
+            Map<String, String[]> uriParameterMap) {
+        Map<String, String[]> merged = new HashMap<String, String[]>(
+                queryParameterMap);
+        for (Iterator<Map.Entry<String, String[]>> itr = uriParameterMap
+                .entrySet().iterator(); itr.hasNext();) {
+            Map.Entry<String, String[]> entry = itr.next();
+            String key = entry.getKey();
+            String[] value = entry.getValue();
+            String[] v = merged.get(key);
+            String[] newV;
+            if (v == null) {
+                newV = value;
+            } else {
+                newV = new String[v.length + value.length];
+                System.arraycopy(v, 0, newV, 0, v.length);
+                System.arraycopy(value, 0, newV, v.length, value.length);
+            }
+            merged.put(key, newV);
+        }
+        return merged;
     }
 
     public void leaveDispatch() {
+        parameterMap_ = unmergeParameterMap(queryParameterMap_);
+
         dispatchStack_.removeFirst();
         if (!dispatchStack_.isEmpty()) {
             dispatch_ = dispatchStack_.peek();
@@ -204,6 +238,11 @@ public class RequestImpl implements Request {
             dispatch_ = null;
             requestDispatch_ = null;
         }
+    }
+
+    Map<String, String[]> unmergeParameterMap(
+            Map<String, String[]> queryParameterMap) {
+        return queryParameterMap;
     }
 
     public String getActionName() {
