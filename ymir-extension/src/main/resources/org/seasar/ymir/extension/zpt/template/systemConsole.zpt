@@ -5,6 +5,26 @@
   </head>
   <body>
 <h1>SYSTEM CONSOLE</h1>
+<h2>システム情報</h2>
+<h3>基本情報</h3>
+<dl>
+  <dt>ルートパッケージ</dt>
+  <dd tal:content="systemInformation/application/rootPackageName">ROOT PACKAGE</dd>
+</dl>
+<h3>Hot Deploy</h3>
+<div tal:condition="systemInformation/hotdeployEnabledPackageNames" tal:omit-tag="">
+<p>HOT Deploy対象パッケージ</p>
+<ul>
+  <li tal:repeat="name systemInformation/hotdeployEnabledPackageNames" tal:content="name">NAME</li>
+</ul>
+</div>
+<div tal:condition="systemInformation/hotdeployDisabledPackageNames" tal:omit-tag="">
+<p>HOT Deploy対象外パッケージ</p>
+<ul>
+  <li tal:repeat="name systemInformation/hotdeployDisabledPackageNames" tal:content="name">NAME</li>
+</ul>
+</div>
+
 <h2>クラスの一括更新</h2>
 <p>全てのHTMLテンプレートを解析してクラスを一括更新することができます。</p>
 <form tal:attributes="action request/absolutePath" method="post">

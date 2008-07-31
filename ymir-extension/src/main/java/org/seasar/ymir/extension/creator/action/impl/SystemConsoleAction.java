@@ -9,8 +9,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
 import org.seasar.ymir.extension.creator.PathMetaData;
@@ -49,8 +51,21 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
         variableMap.put("request", request);
         variableMap.put("method", request.getMethod());
         variableMap.put("parameters", getParameters(request));
+        variableMap
+                .put("systemInformation", new SystemInformation(
+                        getSourceCreator().getApplication(),
+                        getYmirNamingConvention()));
         return getSourceCreator().getResponseCreator().createResponse(
                 "systemConsole", variableMap);
+    }
+
+    YmirNamingConvention getYmirNamingConvention() {
+        try {
+            return (YmirNamingConvention) getSourceCreator().getApplication()
+                    .getS2Container().getComponent(YmirNamingConvention.class);
+        } catch (ComponentNotFoundRuntimeException ex) {
+            return null;
+        }
     }
 
     Response actConfirmUpdateAllClasses(Request request,
