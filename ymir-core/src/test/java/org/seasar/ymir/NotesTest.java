@@ -20,4 +20,20 @@ public class NotesTest extends TestCase {
 
         assertTrue(target_.containsValue(null));
     }
+
+    public void testAdd_複数カテゴリに同時にエントリを追加できること() throws Exception {
+        target_.add("a+b", new Note("value"));
+
+        assertEquals(1, target_.getNotes("a").length);
+        assertEquals(1, target_.getNotes("b").length);
+        assertEquals(1, target_.getNotes().length);
+    }
+
+    public void testAdd_Note_Strings_複数カテゴリに同時にエントリを追加できること() throws Exception {
+        target_.add(new Note("value"), "a", "b");
+
+        assertEquals(1, target_.getNotes("a").length);
+        assertEquals(1, target_.getNotes("b").length);
+        assertEquals(1, target_.getNotes().length);
+    }
 }

@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.seasar.ymir.util.StringUtils;
+
 /**
  * 複数の文を束ねるためのクラスです。
  * <p>このクラスは{@link Note}オブジェクトを束ねるためのクラスです。
@@ -20,6 +22,14 @@ import java.util.Map;
  * @author YOKOTA Takehiko
  */
 public class Notes {
+    /**
+     * 相関バリデータ関連のエラーのようにNoteを複数のカテゴリに関連づけたい場合にカテゴリ名を連結するための区切り文字です。
+     */
+    public static final String CATEGORY_DELIMITER = "+";
+
+    private static final String CATEGORY_DELIMITER_PATTERN = "\\"
+            + CATEGORY_DELIMITER;
+
     /**
      * 標準のカテゴリです。
      */
@@ -93,20 +103,42 @@ public class Notes {
 
     /**
      * 指定されたNoteオブジェクトをこのオブジェクトに追加します。
-     * <p>指定されたカテゴリに追加します。
+     * <p>指定されたカテゴリに追加します。</p>
      * 
      * @param category カテゴリ。
+     * 「+」で区切ることで{@link #add(Note, String...)}と同じく複数カテゴリを指定することができます。
      * @param note Noteオブジェクト。 
      * @return このオブジェクト自身。
      */
     public Notes add(String category, Note note) {
+        return add(note, category.split(CATEGORY_DELIMITER_PATTERN, -1));
+    }
+
+    /**
+     * 指定されたNoteオブジェクトをこのオブジェクトに追加します。
+     * <p>指定されたカテゴリに追加します。</p>
+     * <p>カテゴリを複数指定した場合は、指定されたNoteオブジェクトを複数のカテゴリに対して追加しますが、
+     * 実体は1つです。
+     * 例えばNotesが空の状態で<code>add(note, "a", "b")</code>とした場合、
+     * <code>size()</code>も<code>size("a")</code>も<code>size("b")</code>
+     * も全て1になります。
+     * </p>
+     * 
+     * @param note Noteオブジェクト。
+     * @param categories カテゴリ。 
+     * @return このオブジェクト自身。
+     * @since 0.9.6
+     */
+    public Notes add(Note note, String... categories) {
         list_.add(note);
-        List<Note> noteList = map_.get(category);
-        if (noteList == null) {
-            noteList = new ArrayList<Note>();
-            map_.put(category, noteList);
+        for (String category : StringUtils.unique(categories)) {
+            List<Note> noteList = map_.get(category);
+            if (noteList == null) {
+                noteList = new ArrayList<Note>();
+                map_.put(category, noteList);
+            }
+            noteList.add(note);
         }
-        noteList.add(note);
         return this;
     }
 
