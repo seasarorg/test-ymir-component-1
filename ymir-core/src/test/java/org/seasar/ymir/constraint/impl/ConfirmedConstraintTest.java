@@ -50,8 +50,8 @@ public class ConfirmedConstraintTest extends
         parameterMap.remove("passwordConfirm");
         try {
             confirm(getSetterMethod("password"));
-            fail();
         } catch (ValidationFailedException expected) {
+            fail("値がないパラメータが指定されている場合はそのパラメータについてはチェックは行なわれないこと");
         }
     }
 
