@@ -20,7 +20,7 @@ public class AbstractConstraintTest extends TestCase {
     };
 
     public void testAdd() throws Exception {
-        String[] actual = target_.add(new String[] { "a", "b" }, null);
+        String[] actual = target_.add(null, new String[] { "a", "b" });
 
         assertEquals(2, actual.length);
         assertEquals("a", actual[0]);
@@ -28,12 +28,37 @@ public class AbstractConstraintTest extends TestCase {
     }
 
     public void testAdd2() throws Exception {
-        String[] actual = target_.add(new String[] { "a", "b" }, "c");
+        String[] actual = target_.add("a", new String[] { "b", "c" });
 
         assertEquals(3, actual.length);
         assertEquals("a", actual[0]);
         assertEquals("b", actual[1]);
         assertEquals("c", actual[2]);
+    }
+
+    public void testAdd3() throws Exception {
+        String[] actual = target_.add(null, new String[] { "a", "b" },
+                new String[] { "c", "d" });
+
+        assertEquals(4, actual.length);
+        int idx = 0;
+        assertEquals("a", actual[idx++]);
+        assertEquals("b", actual[idx++]);
+        assertEquals("c", actual[idx++]);
+        assertEquals("d", actual[idx++]);
+    }
+
+    public void testAdd4() throws Exception {
+        String[] actual = target_.add("a", new String[] { "b", "c" },
+                new String[] { "d", "e" });
+
+        assertEquals(5, actual.length);
+        int idx = 0;
+        assertEquals("a", actual[idx++]);
+        assertEquals("b", actual[idx++]);
+        assertEquals("c", actual[idx++]);
+        assertEquals("d", actual[idx++]);
+        assertEquals("e", actual[idx++]);
     }
 
     public void testExpand() throws Exception {
