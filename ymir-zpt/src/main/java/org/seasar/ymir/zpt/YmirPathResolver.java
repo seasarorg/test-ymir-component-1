@@ -1,11 +1,5 @@
 package org.seasar.ymir.zpt;
 
-import static net.skirnir.freyja.zpt.tales.NotePathResolver.NAMEPREFIX_SIZE;
-import static net.skirnir.freyja.zpt.tales.NotePathResolver.NAMESUFFIX_SIZE;
-import static net.skirnir.freyja.zpt.tales.NotePathResolver.NAME_CATEGORIES;
-import static net.skirnir.freyja.zpt.tales.NotePathResolver.NAME_SIZE;
-import static net.skirnir.freyja.zpt.tales.NotePathResolver.NAME_VALUE;
-
 import org.seasar.ymir.Note;
 import org.seasar.ymir.Notes;
 
@@ -15,6 +9,20 @@ import net.skirnir.freyja.zpt.tales.NoteLocalizer;
 import net.skirnir.freyja.zpt.tales.PathResolver;
 
 public class YmirPathResolver implements PathResolver {
+    public static final String NAME_SIZE = "size";
+
+    public static final String NAMEPREFIX_SIZE = "size(";
+
+    public static final String NAMESUFFIX_SIZE = ")";
+
+    public static final String NAMEPREFIX_NOTES = "notes(";
+
+    public static final String NAMESUFFIX_NOTES = ")";
+
+    public static final String NAME_CATEGORIES = "categories";
+
+    public static final String NAME_VALUE = "%value";
+
     public static final String NAMEPREFIX_CONTAINS = "contains(";
 
     public static final String NAMESUFFIX_CONTAINS = ")";
@@ -45,6 +53,11 @@ public class YmirPathResolver implements PathResolver {
                     && child.endsWith(NAMESUFFIX_SIZE)) {
                 return notes.size(child.substring(NAMEPREFIX_SIZE.length(),
                         child.length() - NAMESUFFIX_SIZE.length()));
+            } else if (child.startsWith(NAMEPREFIX_NOTES)
+                    && child.endsWith(NAMESUFFIX_NOTES)) {
+                return notes.getNotes(child.substring(
+                        NAMEPREFIX_NOTES.length(), child.length()
+                                - NAMESUFFIX_NOTES.length()));
             } else if (child.equals(NAME_CATEGORIES)) {
                 return notes.categories();
             } else if (child.startsWith(NAMEPREFIX_CONTAINS)
