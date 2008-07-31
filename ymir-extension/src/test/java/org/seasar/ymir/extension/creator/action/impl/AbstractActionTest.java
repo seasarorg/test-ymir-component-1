@@ -18,7 +18,7 @@ public class AbstractActionTest extends TestCase {
         parameterMap.put("__ymir__task", new String[] { "value" });
         parameterMap.put("__ymir__template", new String[] { "value" });
         parameterMap.put("test2", new String[] { "value3" });
-        request.setParameterMap(parameterMap);
+        request.setQueryParameterMap(parameterMap);
 
         Parameter[] parameters = new AbstractAction(null) {
         }.getParameters(request);
