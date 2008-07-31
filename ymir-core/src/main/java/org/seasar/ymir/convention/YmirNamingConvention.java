@@ -81,6 +81,10 @@ public class YmirNamingConvention extends PluggableNamingConventionImpl {
         targetPackageNames_ = targetPackageNameList.toArray(new String[0]);
     }
 
+    public boolean isHotdeployableOnlyPackageForCreator() {
+        return hotdeployableOnlyPackageForCreator_;
+    }
+
     @Override
     public String fromComponentNameToPartOfClassName(String componentName) {
         if (componentName == null) {
@@ -168,5 +172,9 @@ public class YmirNamingConvention extends PluggableNamingConventionImpl {
             }
         }
         return false;
+    }
+
+    public String[] getTargetPackageNames() {
+        return targetPackageNames_;
     }
 }

@@ -101,12 +101,13 @@ public class DispatchImpl implements Dispatch {
     }
 
     public Map<String, String[]> getParameterMap() {
-        Map<String, String[]> parameterMap = matched_.getParameterMap();
-        if (parameterMap != null) {
-            return parameterMap;
-        } else {
-            return Collections.emptyMap();
+        if (matched_ != null) {
+            Map<String, String[]> parameterMap = matched_.getParameterMap();
+            if (parameterMap != null) {
+                return parameterMap;
+            }
         }
+        return Collections.emptyMap();
     }
 
     public MatchedPathMapping getMatchedPathMapping() {
