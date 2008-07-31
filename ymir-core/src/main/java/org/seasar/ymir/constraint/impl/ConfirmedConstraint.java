@@ -1,6 +1,9 @@
 package org.seasar.ymir.constraint.impl;
 
 import java.lang.reflect.AnnotatedElement;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.seasar.ymir.Note;
 import org.seasar.ymir.Notes;
@@ -13,34 +16,30 @@ public class ConfirmedConstraint extends AbstractConstraint<Confirmed> {
     public void confirm(Object component, Request request,
             Confirmed annotation, AnnotatedElement element)
             throws ConstraintViolatedException {
-        String name = getPropertyName(element);
-        if (name == null || name.length() == 0) {
-            throw new IllegalArgumentException(
-                    "Target property name must be specified");
+        String[] names = getParameterNames(request, getPropertyName(element),
+                annotation.value());
+        if (names.length == 0) {
+            return;
         }
 
         Notes notes = new Notes();
-        confirm(request, name, annotation.value(), notes);
+        confirm(request, names, notes);
         if (notes.size() > 0) {
             throw new ValidationFailedException().setNotes(notes);
         }
     }
 
-    void confirm(Request request, String name, String confirmedName, Notes notes) {
+    void confirm(Request request, String[] names, Notes notes) {
         String key = PREFIX_MESSAGEKEY + "confirmed";
-        String[] values = request.getParameterValues(name);
-        if (values == null) {
-            return;
+        Set<String> valueSet = new HashSet<String>();
+        for (String name : names) {
+            String[] values = request.getParameterValues(name);
+            if (values != null) {
+                valueSet.addAll(Arrays.asList(values));
+            }
         }
-        String confirmedValue = request.getParameter(confirmedName);
-        for (int i = 0; i < values.length; i++) {
-            if (values[i].length() == 0) {
-                continue;
-            }
-            if (!values[i].equals(confirmedValue)) {
-                notes.add(name, new Note(key, new Object[] { name,
-                    confirmedName }));
-            }
+        if (valueSet.size() > 1) {
+            notes.add(new Note(key, (Object[]) names), names);
         }
     }
 }

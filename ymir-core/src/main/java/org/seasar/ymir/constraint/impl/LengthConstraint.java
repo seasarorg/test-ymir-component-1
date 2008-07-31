@@ -18,8 +18,8 @@ public class LengthConstraint extends AbstractConstraint<Length> {
 
     public void confirm(Object component, Request request, Length annotation,
             AnnotatedElement element) throws ConstraintViolatedException {
-        String[] names = getParameterNames(request, annotation.property(),
-                getPropertyName(element));
+        String[] names = getParameterNames(request, getPropertyName(element),
+                annotation.property());
         if (names.length == 0) {
             return;
         }

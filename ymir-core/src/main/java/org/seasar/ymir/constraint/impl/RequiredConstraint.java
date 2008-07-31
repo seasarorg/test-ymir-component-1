@@ -29,8 +29,8 @@ public class RequiredConstraint extends AbstractConstraint<Required> {
             }
         }
 
-        String[] names = getParameterNames(request, annotation.value(),
-                getPropertyName(element));
+        String[] names = getParameterNames(request, getPropertyName(element),
+                annotation.value());
         if (notes.isEmpty() && names.length == 0) {
             return;
         }

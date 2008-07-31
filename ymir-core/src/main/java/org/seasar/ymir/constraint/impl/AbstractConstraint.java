@@ -23,9 +23,9 @@ abstract public class AbstractConstraint<T extends Annotation> implements
         return BeanUtils.toPropertyName(((Method) element).getName());
     }
 
-    protected String[] getParameterNames(Request request, String[] strings,
-            String string) {
-        return expand(add(strings, string), request);
+    protected String[] getParameterNames(Request request, String string,
+            String[] strings) {
+        return expand(add(string, strings), request);
 
     }
 
@@ -50,31 +50,32 @@ abstract public class AbstractConstraint<T extends Annotation> implements
         return expandedNameSet.toArray(new String[0]);
     }
 
-    protected String[] add(String[] strings, String string) {
+    protected String[] add(String string, String[] strings) {
         if (string != null) {
             String[] newStrings = new String[strings.length + 1];
-            System.arraycopy(strings, 0, newStrings, 0, strings.length);
-            newStrings[strings.length] = string;
+            newStrings[0] = string;
+            System.arraycopy(strings, 0, newStrings, 1, strings.length);
             return newStrings;
         } else {
             return strings;
         }
     }
 
-    protected String[] getParameterNames(Request request, String[] strings,
-            String[] strings2, String string) {
-        return expand(add(strings, strings2, string), request);
+    protected String[] getParameterNames(Request request, String string,
+            String[] strings, String[] strings2) {
+        return expand(add(string, strings, strings2), request);
     }
 
-    protected String[] add(String[] strings, String[] strings2, String string) {
+    protected String[] add(String string, String[] strings, String[] strings2) {
         String[] newStrings = new String[strings.length + strings2.length
                 + (string != null ? 1 : 0)];
-        System.arraycopy(strings, 0, newStrings, 0, strings.length);
-        System.arraycopy(strings2, 0, newStrings, strings.length,
-                strings2.length);
+        int offset = 0;
         if (string != null) {
-            newStrings[strings.length + strings2.length] = string;
+            newStrings[offset++] = string;
         }
+        System.arraycopy(strings, 0, newStrings, offset, strings.length);
+        System.arraycopy(strings2, 0, newStrings, offset + strings.length,
+                strings2.length);
         return newStrings;
     }
 }

@@ -23,8 +23,8 @@ abstract public class AbstractRegexConstraint<T extends Annotation> extends
     protected void confirm(Request request, T annotation,
             AnnotatedElement element, String[] property, String pattern,
             String messageKey) throws ConstraintViolatedException {
-        String[] names = getParameterNames(request, property,
-                getPropertyName(element));
+        String[] names = getParameterNames(request, getPropertyName(element),
+                property);
         if (names.length == 0) {
             return;
         }

@@ -2,6 +2,8 @@ package org.seasar.ymir.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 
 public class StringUtils {
     private StringUtils() {
@@ -63,5 +65,13 @@ public class StringUtils {
 
     public static boolean isEmpty(String str) {
         return str == null || str.trim().length() == 0;
+    }
+
+    public static String[] unique(String... strings) {
+        if (strings == null) {
+            return null;
+        }
+        return new LinkedHashSet<String>(Arrays.asList(strings))
+                .toArray(new String[0]);
     }
 }

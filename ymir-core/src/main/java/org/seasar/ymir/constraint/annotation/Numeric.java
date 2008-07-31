@@ -15,7 +15,7 @@ import org.seasar.ymir.constraint.impl.NumericConstraint;
  * </p>
  * <p>制約チェックの対象とするリクエストパラメータは、
  * アノテーションが付与されているSetterメソッドに対応するプロパティの名前と同じ名前を持つリクエストパラメータと、
- * アノテーションのpropertyプロパティで名前を指定されているリクエストパラメータです。
+ * アノテーションのvalueプロパティとpropertyプロパティで名前を指定されているリクエストパラメータです。
  * </p>
  * 
  * @author YOKOTA Takehiko
