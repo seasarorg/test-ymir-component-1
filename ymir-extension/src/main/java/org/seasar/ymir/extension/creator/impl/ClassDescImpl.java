@@ -16,7 +16,6 @@ import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 
 public class ClassDescImpl extends AbstractClassDesc {
-
     private String name_;
 
     private Class<?> superclass_;
@@ -28,7 +27,6 @@ public class ClassDescImpl extends AbstractClassDesc {
     private boolean baseClassAbstract_;
 
     public ClassDescImpl(String name) {
-
         setName(name);
     }
 
@@ -144,7 +142,8 @@ public class ClassDescImpl extends AbstractClassDesc {
             return;
         }
 
-        if (superclass_ == null || force && classDesc.getSuperclass() != null) {
+        if (classDesc.getSuperclass() != Object.class
+                && (force || superclass_ == null)) {
             setSuperclass(classDesc.getSuperclass());
         }
 
@@ -232,7 +231,6 @@ public class ClassDescImpl extends AbstractClassDesc {
 
     public void clear() {
         super.clear();
-        superclass_ = null;
         propertyDescMap_.clear();
         methodDescMap_.clear();
     }

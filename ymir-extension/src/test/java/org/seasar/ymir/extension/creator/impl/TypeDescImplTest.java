@@ -3,9 +3,7 @@ package org.seasar.ymir.extension.creator.impl;
 import junit.framework.TestCase;
 
 public class TypeDescImplTest extends TestCase {
-
     public void testGetDefaultValue() throws Exception {
-
         String actual = new TypeDescImpl("com.example.dto.TestDto[]")
                 .getDefaultValue();
         assertEquals("null", actual);
@@ -33,5 +31,12 @@ public class TypeDescImplTest extends TestCase {
 
         actual = new TypeDescImpl("boolean").getDefaultValue();
         assertEquals("false", actual);
+    }
+
+    public void testGetName_Generics対応() throws Exception {
+        TypeDescImpl target = new TypeDescImpl(
+                "java.lang.List<java.lang.String>");
+
+        assertEquals("List<String>", target.getName());
     }
 }

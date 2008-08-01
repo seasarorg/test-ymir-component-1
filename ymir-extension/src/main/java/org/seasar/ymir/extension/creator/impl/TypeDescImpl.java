@@ -5,6 +5,10 @@ import java.util.Map;
 
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
+import org.seasar.ymir.extension.creator.util.DescUtils;
+import org.seasar.ymir.extension.creator.util.type.Token;
+import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
+import org.seasar.ymir.extension.creator.util.type.TypeToken;
 
 public class TypeDescImpl implements TypeDesc {
     private static final String ARRAY_SUFFIX = "[]";
@@ -12,6 +16,8 @@ public class TypeDescImpl implements TypeDesc {
     private static final String PACKAGE_JAVA_LANG = "java.lang.";
 
     private static final String NULL_VALUE = "null";
+
+    private String name_;
 
     private ClassDesc classDesc_;
 
@@ -54,8 +60,32 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public TypeDescImpl(String typeName, boolean explicit) {
-        this(new SimpleClassDesc(getComponentName(typeName)),
+        this(new SimpleClassDesc(DescUtils
+                .getNonGenericClassName(getComponentName(typeName))),
                 isArray(typeName), explicit);
+        name_ = normalizePackage(typeName);
+    }
+
+    String normalizePackage(String typeName) {
+        if (typeName == null) {
+            return null;
+        }
+
+        TypeToken typeToken = new TypeToken(typeName);
+        typeToken.accept(new TokenVisitor() {
+            public Object visit(Token acceptor) {
+                String name = acceptor.getBaseName().replace('$', '.');
+                StringBuilder sb = new StringBuilder();
+                if (name.startsWith(PACKAGE_JAVA_LANG)) {
+                    sb.append(name.substring(PACKAGE_JAVA_LANG.length()));
+                } else {
+                    sb.append(name);
+                }
+                acceptor.setBaseName(sb.toString());
+                return null;
+            }
+        });
+        return typeToken.getAsString();
     }
 
     public TypeDescImpl(ClassDesc classDesc) {
@@ -134,6 +164,7 @@ public class TypeDescImpl implements TypeDesc {
 
     public void setClassDesc(ClassDesc classDesc) {
         classDesc_ = classDesc;
+        name_ = null;
     }
 
     public void setClassDesc(String className) {
@@ -162,17 +193,16 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public String getName() {
-        String name = classDesc_.getName().replace('$', '.');
-        StringBuilder sb = new StringBuilder();
-        if (name.startsWith(PACKAGE_JAVA_LANG)) {
-            sb.append(name.substring(PACKAGE_JAVA_LANG.length()));
+        if (name_ != null) {
+            return normalizePackage(name_);
         } else {
-            sb.append(name);
+            StringBuilder sb = new StringBuilder();
+            sb.append(normalizePackage(classDesc_.getName()));
+            if (array_) {
+                sb.append(ARRAY_SUFFIX);
+            }
+            return sb.toString();
         }
-        if (array_) {
-            sb.append(ARRAY_SUFFIX);
-        }
-        return sb.toString();
     }
 
     public String getDefaultValue() {

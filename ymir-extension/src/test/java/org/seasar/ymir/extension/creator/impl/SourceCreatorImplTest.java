@@ -268,6 +268,27 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertNull(cd.getMethodDesc(md));
     }
 
+    public void testAdjustByExistentClass_Baseクラスのメソッドの返り値型() throws Exception {
+
+        ClassDesc cd = new ClassDescImpl(
+                "org.seasar.ymir.extension.creator.impl.Merge10Page");
+        MethodDesc getMd = new MethodDescImpl("_get");
+        getMd.setReturnTypeDesc(new TypeDescImpl(Void.TYPE));
+        getMd.setParameterDescs(new ParameterDesc[0]);
+        cd.setMethodDesc(getMd);
+        MethodDesc postMd = new MethodDescImpl("_post");
+        postMd.setReturnTypeDesc(new TypeDescImpl(Void.TYPE));
+        postMd.setParameterDescs(new ParameterDesc[0]);
+        cd.setMethodDesc(postMd);
+
+        target_.adjustByExistentClass(cd);
+
+        assertEquals("Gapクラスに同じメソッドがある場合は返り値型が同じになること", "String", cd
+                .getMethodDesc(getMd).getReturnTypeDesc().getName());
+        assertEquals("Superクラスに同じメソッドがある場合は返り値型が同じになること", "String", cd
+                .getMethodDesc(postMd).getReturnTypeDesc().getName());
+    }
+
     public void testGetClassDesc_引数が0個で返り値がStringのmethodについてはボディを保存するようなBodyDescが生成されること()
             throws Exception {
 

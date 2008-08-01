@@ -566,6 +566,11 @@ public class SourceCreatorImpl implements SourceCreator {
 
         ClassDesc classDesc = newClassDesc(className);
 
+        Class<?> superclass = clazz.getSuperclass();
+        if (superclass != Object.class) {
+            classDesc.setSuperclass(superclass);
+        }
+
         AnnotationDesc[] ads = createAnnotationDescs(clazz);
         for (int i = 0; i < ads.length; i++) {
             classDesc.setAnnotationDesc(ads[i]);
@@ -926,12 +931,11 @@ public class SourceCreatorImpl implements SourceCreator {
         }
         if (baseClass != null) {
             // baseクラスが既に存在するならば再生成ということなので、親クラス情報を維持するようにする。
-            desc.setSuperclass(null);
-            if (baseClass.getSuperclass() != Object.class) {
-                baseDesc.setSuperclass(baseClass.getSuperclass());
-            } else {
-                baseDesc.setSuperclass(null);
+            Class<?> superclass = baseClass.getSuperclass();
+            if (superclass == Object.class) {
+                superclass = null;
             }
+            desc.setSuperclass(superclass);
 
             // abstractかどうかを保持するようにする。
             desc.setBaseClassAbstract(Modifier.isAbstract(baseClass
@@ -941,6 +945,8 @@ public class SourceCreatorImpl implements SourceCreator {
         // baseにあるものは必ず残す。baseになくてsuperやgapにあるものは除去する。
         ClassDesc generated = (ClassDesc) desc.clone();
         desc.clear();
+        desc.setOptionalSourceGeneratorParameter(generated
+                .getOptionalSourceGeneratorParameter());
         desc.merge(baseDesc, true);
 
         ClassDesc superDesc = getClassDesc(getClass(desc.getSuperclassName()),
@@ -967,10 +973,22 @@ public class SourceCreatorImpl implements SourceCreator {
         }
         MethodDesc[] mds = generated.getMethodDescs();
         for (int i = 0; i < mds.length; i++) {
-            if (baseDesc.getMethodDesc(mds[i]) == null
-                    && (gapDesc.getMethodDesc(mds[i]) != null || superDesc
-                            .getMethodDesc(mds[i]) != null)) {
-                generated.removeMethodDesc(mds[i]);
+            MethodDesc generatedMd = mds[i];
+            MethodDesc gapMd = gapDesc.getMethodDesc(generatedMd);
+            MethodDesc baseMd = baseDesc.getMethodDesc(generatedMd);
+            MethodDesc superMd = superDesc.getMethodDesc(generatedMd);
+            if (baseMd == null && (gapMd != null || superMd != null)) {
+                generated.removeMethodDesc(generatedMd);
+            } else if (gapMd != null
+                    && !generatedMd.getReturnTypeDesc().equals(
+                            gapMd.getReturnTypeDesc())) {
+                generatedMd.setReturnTypeDesc((TypeDesc) gapMd
+                        .getReturnTypeDesc().clone());
+            } else if (superMd != null
+                    && !generatedMd.getReturnTypeDesc().equals(
+                            superMd.getReturnTypeDesc())) {
+                generatedMd.setReturnTypeDesc((TypeDesc) superMd
+                        .getReturnTypeDesc().clone());
             }
         }
 

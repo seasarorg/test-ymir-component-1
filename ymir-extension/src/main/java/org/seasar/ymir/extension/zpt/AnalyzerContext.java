@@ -32,6 +32,7 @@ import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
+import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.zpt.YmirVariableResolver;
 
 import net.skirnir.freyja.VariableResolver;
@@ -410,6 +411,11 @@ public class AnalyzerContext extends ZptTemplateContext {
                 sourceCreator_.getRootPackageName() + ".");
     }
 
+    boolean isOuter(String typeName) {
+        return DescUtils.getNonGenericClassName(typeName).startsWith(
+                sourceCreator_.getRootPackageName() + ".");
+    }
+
     boolean isPage(ClassDesc classDesc) {
         return classDesc.isTypeOf(ClassType.PAGE) && !isOuter(classDesc);
     }
@@ -622,37 +628,40 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     public PropertyDesc adjustPropertyType(String className, PropertyDesc pd) {
-        String propertyTypeName;
-        boolean array;
+        TypeDesc td;
         PropertyTypeHint hint = getPropertyTypeHint(className, pd.getName());
         if (hint != null) {
-            propertyTypeName = hint.getTypeName();
-            array = hint.isArray();
+            String typeName = hint.getTypeName();
+            boolean array = hint.isArray();
+            if (isOuter(typeName)) {
+                td = new TypeDescImpl(array ? typeName + "[]" : typeName, true);
+            } else {
+                td = new TypeDescImpl(getTemporaryClassDesc(typeName), array,
+                        true);
+            }
         } else {
             PropertyDescriptor descriptor = getSourceCreator()
                     .getPropertyDescriptor(className, pd.getName());
-            if (descriptor != null) {
-                Class<?> propertyType;
-                array = descriptor.getPropertyType().isArray();
-                if (array) {
-                    propertyType = descriptor.getPropertyType()
-                            .getComponentType();
-                } else {
-                    propertyType = descriptor.getPropertyType();
-                }
-                propertyTypeName = propertyType.getName();
-
-                Method readMethod = descriptor.getReadMethod();
-                if (readMethod != null) {
-                    pd.setGetterName(readMethod.getName());
-                }
-            } else {
+            if (descriptor == null) {
                 // ヒントも既存クラスからの情報もなければ何もしない。
                 return pd;
             }
+
+            Class<?> propertyType;
+            boolean array = descriptor.getPropertyType().isArray();
+            if (array) {
+                propertyType = descriptor.getPropertyType().getComponentType();
+            } else {
+                propertyType = descriptor.getPropertyType();
+            }
+            Method readMethod = descriptor.getReadMethod();
+            if (readMethod != null) {
+                pd.setGetterName(readMethod.getName());
+            }
+
+            td = new TypeDescImpl(
+                    getTemporaryClassDesc(propertyType.getName()), array, true);
         }
-        TypeDesc td = new TypeDescImpl(getTemporaryClassDesc(propertyTypeName),
-                array, true);
         pd.setTypeDesc(td);
         pd.notifyUpdatingType();
         return pd;

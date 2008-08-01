@@ -32,7 +32,7 @@ public class DoUpdateTemplateAction extends DoEditTemplateAction {
 
         try {
             IOUtils.writeString(template.getOutputStream(), body, template
-                    .getEncoding(), false);
+                    .getEncoding(), true);
         } catch (IOException ex) {
             throw new IORuntimeException("Can't write template: path="
                     + template.getPath(), ex);

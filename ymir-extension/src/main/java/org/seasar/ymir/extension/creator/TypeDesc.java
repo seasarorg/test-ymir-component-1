@@ -3,7 +3,6 @@ package org.seasar.ymir.extension.creator;
 import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
 
 public interface TypeDesc extends Cloneable {
-
     String TYPE_VOID = "void";
 
     ClassDesc DEFAULT_CLASSDESC = new SimpleClassDesc(String.class.getName());
