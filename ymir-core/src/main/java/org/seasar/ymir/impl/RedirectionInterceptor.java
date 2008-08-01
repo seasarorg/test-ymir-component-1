@@ -40,17 +40,29 @@ public class RedirectionInterceptor extends AbstractYmirProcessInterceptor {
             // Cookieとしてキーを保存する。またキーが不要ならCookieを削除する。
             if (redirectionManager_.getScopeMap(false) != null) {
                 // redirectionScopeにオブジェクトが新たにバインドされているのでキーを保存する。
-                httpResponse.addCookie(new Cookie(redirectionManager_
-                        .getScopeIdKey(), redirectionManager_.getScopeId()));
+                Cookie cookie = newCookie(request, redirectionManager_
+                        .getScopeIdKey(), redirectionManager_.getScopeId());
+                httpResponse.addCookie(cookie);
             } else if (redirectionManager_.getScopeIdFromRequest() != null) {
                 // redirectionScopeにオブジェクトが新たにバインドされていない、かつ
                 // redirectionScopeのキーがリクエストに指定されているのでキーを削除する。
-                Cookie cookie = new Cookie(redirectionManager_.getScopeIdKey(),
-                        "");
+                Cookie cookie = newCookie(request, redirectionManager_
+                        .getScopeIdKey(), "");
                 cookie.setMaxAge(0);
                 getHttpServletResponse().addCookie(cookie);
             }
         }
+    }
+
+    Cookie newCookie(Request request, String name, String value) {
+        Cookie cookie = new Cookie(name, value);
+        String path = request.getContextPath();
+        if (path.length() == 0) {
+            path = "/";
+        }
+        cookie.setPath(path);
+
+        return cookie;
     }
 
     @Override
