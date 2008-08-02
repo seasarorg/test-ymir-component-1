@@ -45,4 +45,23 @@ public class ScopeAttributeITest extends PageTestCase<ScopePage> {
         assertEquals("value1", getServletContext().getAttribute("param1"));
         assertEquals("value2", getServletContext().getAttribute("param2"));
     }
+
+    public void test_Insアノテーションが正しく解釈されること() throws Exception {
+        getServletContext().setAttribute("param3", "value3");
+
+        Request request = prepareForProcessing("/scope.html",
+                Request.METHOD_GET);
+        processRequest(request);
+        ScopePage page = getPage();
+        assertEquals("value3", page.getParam3());
+    }
+
+    public void test_Outsアノテーションが正しく解釈されること() throws Exception {
+        Request request = prepareForProcessing("/scope.html",
+                Request.METHOD_GET);
+        ScopePage page = getPage();
+        page.setParam3("value3");
+        processRequest(request);
+        assertEquals("value3", getServletContext().getAttribute("param3"));
+    }
 }
