@@ -8,7 +8,7 @@ package org.seasar.ymir;
  * 
  * @author YOKOTA Takehiko
  */
-public interface PageComponent extends Acceptor<PageComponentVisitor> {
+public interface PageComponent extends Acceptor<PageComponentVisitor<?>> {
     /**
      * Pageオブジェクトを返します。
      * 

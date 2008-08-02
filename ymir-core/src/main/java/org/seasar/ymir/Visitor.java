@@ -5,12 +5,12 @@ package org.seasar.ymir;
  * 
  * @author YOKOTA Takehiko
  */
-public interface Visitor<A> {
+public interface Visitor<R, A> {
     /**
      * 指定されたAcceptorについて処理を行います。
      * 
      * @param acceptor Acceptor。
      * @return 処理結果。
      */
-    Object visit(A acceptor);
+    R visit(A acceptor);
 }

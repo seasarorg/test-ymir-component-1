@@ -370,19 +370,19 @@ public class PathMappingImpl implements PathMapping {
         Action action = null;
         if (isDispatchingByButton()) {
             // ボタンに対応するアクションを探索する。
-            action = (Action) pageComponent.accept(new PageComponentVisitor() {
+            action = pageComponent.accept(new PageComponentVisitor<Action>() {
                 @Override
-                public Object process(PageComponent pageComponent) {
+                public Action process(PageComponent pageComponent) {
                     return getActionForButton(pageComponent.getPage(),
                             pageComponent.getPageClass(), actionName, request);
                 }
             });
             if (action == null) {
                 // ボタンに対応するデフォルトアクションを探索する。
-                action = (Action) pageComponent
-                        .accept(new PageComponentVisitor() {
+                action = pageComponent
+                        .accept(new PageComponentVisitor<Action>() {
                             @Override
-                            public Object process(PageComponent pageComponent) {
+                            public Action process(PageComponent pageComponent) {
                                 return getActionForButton(pageComponent
                                         .getPage(), pageComponent
                                         .getPageClass(), ACTION_DEFAULT,
@@ -393,9 +393,9 @@ public class PathMappingImpl implements PathMapping {
         }
         if (action == null) {
             // 通常のアクションを探索する。
-            action = (Action) pageComponent.accept(new PageComponentVisitor() {
+            action = pageComponent.accept(new PageComponentVisitor<Action>() {
                 @Override
-                public Object process(PageComponent pageComponent) {
+                public Action process(PageComponent pageComponent) {
                     return getAction(pageComponent.getPage(), pageComponent
                             .getPageClass(), actionName, request);
                 }
@@ -403,9 +403,9 @@ public class PathMappingImpl implements PathMapping {
         }
         if (action == null) {
             // デフォルトアクションを探索する。
-            action = (Action) pageComponent.accept(new PageComponentVisitor() {
+            action = pageComponent.accept(new PageComponentVisitor<Action>() {
                 @Override
-                public Object process(PageComponent pageComponent) {
+                public Action process(PageComponent pageComponent) {
                     return getAction(pageComponent.getPage(), pageComponent
                             .getPageClass(), ACTION_DEFAULT, request);
                 }

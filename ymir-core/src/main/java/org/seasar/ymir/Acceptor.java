@@ -6,5 +6,5 @@ package org.seasar.ymir;
  * @author YOKOTA Takehiko
  */
 public interface Acceptor<V> {
-    Object accept(V visitor);
+    <R> R accept(V visitor);
 }

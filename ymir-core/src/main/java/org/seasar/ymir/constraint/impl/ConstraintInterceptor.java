@@ -89,7 +89,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
                 // バリデーションエラーが発生した場合は、エラー処理メソッドが存在すればそれを呼び出す。
                 // メソッドが存在しなければ何もしない（元のアクションメソッドの呼び出しをスキップする）。
-                finalAction = (Action) pageComponent
+                finalAction = pageComponent
                         .accept(new VisitorForFindingValidationFailedMethod(
                                 notes));
                 if (finalAction == null) {
@@ -431,14 +431,14 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     protected class VisitorForFindingValidationFailedMethod extends
-            PageComponentVisitor {
+            PageComponentVisitor<Action> {
         private Notes notes_;
 
         public VisitorForFindingValidationFailedMethod(Notes notes) {
             notes_ = notes;
         }
 
-        public Object process(PageComponent pageComponent) {
+        public Action process(PageComponent pageComponent) {
             Object page = pageComponent.getPage();
             Method method = MethodUtils.getMethod(page,
                     ACTION_VALIDATIONFAILED, new Class[] { Notes.class });
@@ -458,7 +458,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     protected class VisitorForFindingPermissionDeniedMethod extends
-            PageComponentVisitor {
+            PageComponentVisitor<Action> {
         private PermissionDeniedException ex_;
 
         public VisitorForFindingPermissionDeniedMethod(
@@ -466,7 +466,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             ex_ = ex;
         }
 
-        public Object process(PageComponent pageComponent) {
+        public Action process(PageComponent pageComponent) {
             Object page = pageComponent.getPage();
             Method method = MethodUtils.getMethod(page,
                     ACTION_PERMISSIONDENIED,
@@ -486,7 +486,8 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
     }
 
-    protected class VisitorForConfirmingConstraint extends PageComponentVisitor {
+    protected class VisitorForConfirmingConstraint extends
+            PageComponentVisitor<Object> {
         private Request request_;
 
         private Set<ConstraintType> suppressTypeSet_;

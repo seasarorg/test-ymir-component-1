@@ -8,12 +8,13 @@ package org.seasar.ymir;
  * 
  * @author YOKOTA Takehiko
  */
-abstract public class PageComponentVisitor implements Visitor<PageComponent> {
+abstract public class PageComponentVisitor<R> implements
+        Visitor<R, PageComponent> {
     @SuppressWarnings("unchecked")
-    public final Object visit(PageComponent pageComponent) {
+    public final R visit(PageComponent pageComponent) {
         PageComponent[] descendants = pageComponent.getDescendants();
         for (int i = 0; i < descendants.length; i++) {
-            Object processed = process(descendants[i]);
+            R processed = process(descendants[i]);
             if (processed != null) {
                 return processed;
             }
@@ -29,5 +30,5 @@ abstract public class PageComponentVisitor implements Visitor<PageComponent> {
      * @return 処理結果。
      * 処理結果がnullでない場合、この処理結果を最終的な処理結果とみなしてトラバースを終了します。
      */
-    abstract public Object process(PageComponent pageComponent);
+    abstract public R process(PageComponent pageComponent);
 }

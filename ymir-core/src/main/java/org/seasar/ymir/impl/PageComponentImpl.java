@@ -94,7 +94,8 @@ public class PageComponentImpl implements PageComponent {
         return descendants_;
     }
 
-    public Object accept(PageComponentVisitor visitor) {
-        return visitor.visit(this);
+    @SuppressWarnings("unchecked")
+    public <R> R accept(PageComponentVisitor<?> visitor) {
+        return (R) visitor.visit(this);
     }
 }

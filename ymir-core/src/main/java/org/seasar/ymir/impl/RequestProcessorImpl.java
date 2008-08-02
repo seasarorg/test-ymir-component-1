@@ -56,21 +56,21 @@ public class RequestProcessorImpl implements RequestProcessor {
 
     private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
 
-    private final PageComponentVisitor visitorForInvokingInPhasePageComponentCreated_ = new VisitorForInvoking(
+    private final PageComponentVisitor<Object> visitorForInvokingInPhasePageComponentCreated_ = new VisitorForInvoking(
             Phase.PAGECOMPONENT_CREATED);
 
-    private final PageComponentVisitor visitorForInvokingInPhaseActionInvoking_ = new VisitorForInvoking(
+    private final PageComponentVisitor<Object> visitorForInvokingInPhaseActionInvoking_ = new VisitorForInvoking(
             Phase.ACTION_INVOKING);
 
-    private final PageComponentVisitor visitorForInvokingInPhaseActionInvoked_ = new VisitorForInvoking(
+    private final PageComponentVisitor<Object> visitorForInvokingInPhaseActionInvoked_ = new VisitorForInvoking(
             Phase.ACTION_INVOKED);
 
-    private final PageComponentVisitor visitorForRendering_ = new VisitorForRendering();
+    private final PageComponentVisitor<Object> visitorForRendering_ = new VisitorForRendering();
 
-    private final PageComponentVisitor visitorForInvokingInPhaseScopeObjectOutjecting_ = new VisitorForInvoking(
+    private final PageComponentVisitor<Object> visitorForInvokingInPhaseScopeObjectOutjecting_ = new VisitorForInvoking(
             Phase.SCOPEOBJECT_OUTJECTING);
 
-    private final PageComponentVisitor visitorForInvokingInPhaseScopeObjectOutjected_ = new VisitorForInvoking(
+    private final PageComponentVisitor<Object> visitorForInvokingInPhaseScopeObjectOutjected_ = new VisitorForInvoking(
             Phase.SCOPEOBJECT_OUTJECTED);
 
     private final Logger logger_ = Logger.getLogger(getClass());
@@ -454,7 +454,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
     }
 
-    protected class VisitorForInvoking extends PageComponentVisitor {
+    protected class VisitorForInvoking extends PageComponentVisitor<Object> {
         private Phase phase_;
 
         public VisitorForInvoking(Phase phase) {
@@ -468,7 +468,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
     }
 
-    protected class VisitorForPreparing extends PageComponentVisitor {
+    protected class VisitorForPreparing extends PageComponentVisitor<Object> {
         private Request request_;
 
         public VisitorForPreparing(Request request) {
@@ -500,7 +500,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
     }
 
-    protected class VisitorForRendering extends PageComponentVisitor {
+    protected class VisitorForRendering extends PageComponentVisitor<Object> {
         public Object process(PageComponent pageComponent) {
             try {
                 invokeAction(new ActionImpl(pageComponent.getPage(),
@@ -515,7 +515,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
     }
 
-    protected class VisitorForFinishing extends PageComponentVisitor {
+    protected class VisitorForFinishing extends PageComponentVisitor<Object> {
         private Dispatch dispatch_;
 
         public VisitorForFinishing(Request request) {
