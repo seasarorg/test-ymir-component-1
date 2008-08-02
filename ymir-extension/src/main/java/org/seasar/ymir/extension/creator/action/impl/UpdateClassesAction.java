@@ -29,6 +29,10 @@ import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
+import org.seasar.ymir.extension.creator.util.DescUtils;
+import org.seasar.ymir.extension.creator.util.type.Token;
+import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
+import org.seasar.ymir.extension.creator.util.type.TypeToken;
 
 public class UpdateClassesAction extends AbstractAction implements UpdateAction {
     protected static final String PARAM_APPLY = SourceCreator.PARAM_PREFIX
@@ -37,8 +41,8 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
     protected static final String PARAMPREFIX_PROPERTYTYPE = SourceCreator.PARAM_PREFIX
             + "propertyType_";
 
-    protected static final String PARAMPREFIX_CONVERTER_PAIRCLASS = SourceCreator.PARAM_PREFIX
-            + "converter_pairClass_";
+    protected static final String PARAMPREFIX_CONVERTER_PAIRTYPENAME = SourceCreator.PARAM_PREFIX
+            + "converter_pairTypeName_";
 
     protected static final String PARAMPREFIX_CLASSNAME = SourceCreator.PARAM_PREFIX
             + "className_";
@@ -113,10 +117,9 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 dtos[i] = new ClassDescDto(classDescs[i], false);
             } else {
                 if (type == ClassType.DTO) {
-                    AnnotationDesc[] ads = getSourceCreator()
-                            .createAnnotationDescs(
-                                    getSourceCreator().getClass(
-                                            classDescs[i].getName() + "Base"));
+                    AnnotationDesc[] ads = DescUtils
+                            .newAnnotationDescs(getSourceCreator().getClass(
+                                    classDescs[i].getName() + "Base"));
                     for (AnnotationDesc ad : ads) {
                         if (AnnotatedDesc.ANNOTATION_NAME_META.equals(ad
                                 .getName())
@@ -195,12 +198,12 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         for (int i = 0; i < classDescs.length; i++) {
             String actualName = classDescs[i].getName();
             if (classDescs[i].isTypeOf(ClassType.DTO)) {
-                Class<?>[] pairClasses = toClasses(request
-                        .getParameter(PARAMPREFIX_CONVERTER_PAIRCLASS
+                String[] pairTypeNames = resolveTypeNames(request
+                        .getParameter(PARAMPREFIX_CONVERTER_PAIRTYPENAME
                                 + classNameMapping.toOriginal(actualName)));
-                if (pairClasses.length > 0) {
+                if (pairTypeNames.length > 0) {
                     classDescs[i].setAnnotationDesc(new MetaAnnotationDescImpl(
-                            "conversion", new String[0], pairClasses));
+                            "conversion", pairTypeNames, new Class[0]));
                 }
             }
 
@@ -241,30 +244,37 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 "updateClasses_update", variableMap);
     }
 
-    Class<?>[] toClasses(String classString) {
-        String[] classNames = PropertyUtils.toLines(classString, ",");
-        List<Class<?>> list = new ArrayList<Class<?>>(classNames.length);
-        for (String className : classNames) {
-            Class<?> clazz = getSourceCreator().getClass(className);
-            if (clazz != null) {
-                list.add(clazz);
-            }
+    String[] resolveTypeNames(String typeNameString) {
+        String[] typeNames = PropertyUtils.toLines(typeNameString, ",");
+        List<String> list = new ArrayList<String>(typeNames.length);
+        for (String typeName : typeNames) {
+            list.add(resolveTypeName(typeName));
         }
-        return list.toArray(new Class[0]);
+        return list.toArray(new String[0]);
     }
 
     String resolveTypeName(String typeName) {
-        if (typeName == null || typeName.indexOf('.') >= 0
-                || primitiveSet_.contains(typeName)) {
-            return typeName;
-        } else {
-            Class<?> clazz = getSourceCreator().getClass(typeName);
-            if (clazz != null) {
-                return clazz.getName();
-            } else {
-                return typeName;
-            }
+        if (typeName == null) {
+            return null;
         }
+
+        TypeToken type = new TypeToken(typeName);
+        type.accept(new TokenVisitor<Object>() {
+            public Object visit(Token acceptor) {
+                String name = DescUtils
+                        .getComponentName(acceptor.getBaseName());
+                if (name.indexOf('.') < 0 && !primitiveSet_.contains(name)) {
+                    Class<?> clazz = getSourceCreator().getClass(name);
+                    if (clazz != null) {
+                        acceptor.setBaseName(DescUtils.getClassName(clazz
+                                .getName(), DescUtils.isArray(acceptor
+                                .getBaseName())));
+                    }
+                }
+                return null;
+            }
+        });
+        return type.getAsString();
     }
 
     boolean shouldUpdate(PathMetaData pathMetaData) {

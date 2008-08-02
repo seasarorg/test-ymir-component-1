@@ -1,7 +1,11 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import static org.seasar.ymir.extension.creator.util.DescUtils.getComponentName;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
@@ -61,9 +65,9 @@ public class TypeDescImpl implements TypeDesc {
 
     public TypeDescImpl(String typeName, boolean explicit) {
         this(new SimpleClassDesc(DescUtils
-                .getNonGenericClassName(getComponentName(typeName))),
-                isArray(typeName), explicit);
-        name_ = normalizePackage(typeName);
+                .getNonGenericClassName(getComponentName(typeName.replace('$',
+                        '.')))), DescUtils.isArray(typeName), explicit);
+        name_ = normalizePackage(typeName.replace('$', '.'));
     }
 
     String normalizePackage(String typeName) {
@@ -72,14 +76,14 @@ public class TypeDescImpl implements TypeDesc {
         }
 
         TypeToken typeToken = new TypeToken(typeName);
-        typeToken.accept(new TokenVisitor() {
+        typeToken.accept(new TokenVisitor<Object>() {
             public Object visit(Token acceptor) {
-                String name = acceptor.getBaseName().replace('$', '.');
+                String baseName = acceptor.getBaseName();
                 StringBuilder sb = new StringBuilder();
-                if (name.startsWith(PACKAGE_JAVA_LANG)) {
-                    sb.append(name.substring(PACKAGE_JAVA_LANG.length()));
+                if (baseName.startsWith(PACKAGE_JAVA_LANG)) {
+                    sb.append(baseName.substring(PACKAGE_JAVA_LANG.length()));
                 } else {
-                    sb.append(name);
+                    sb.append(baseName);
                 }
                 acceptor.setBaseName(sb.toString());
                 return null;
@@ -108,18 +112,6 @@ public class TypeDescImpl implements TypeDesc {
 
     public TypeDescImpl(Class<?> clazz, boolean explicit) {
         this(new SimpleClassDesc(clazz.getName()), clazz.isArray(), explicit);
-    }
-
-    static String getComponentName(String name) {
-        if (name.endsWith(ARRAY_SUFFIX)) {
-            return name.substring(0, name.length() - ARRAY_SUFFIX.length());
-        } else {
-            return name;
-        }
-    }
-
-    static boolean isArray(String name) {
-        return name.endsWith(ARRAY_SUFFIX);
     }
 
     public Object clone() {
@@ -205,6 +197,75 @@ public class TypeDescImpl implements TypeDesc {
         }
     }
 
+    public String getShortName() {
+        if (name_ != null) {
+            return getShortTypeName(name_);
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append(classDesc_.getShortName());
+            if (array_) {
+                sb.append(ARRAY_SUFFIX);
+            }
+            return sb.toString();
+        }
+    }
+
+    String getShortTypeName(String typeName) {
+        if (typeName == null) {
+            return null;
+        }
+
+        TypeToken typeToken = new TypeToken(typeName);
+        typeToken.accept(new TokenVisitor<Object>() {
+            public Object visit(Token acceptor) {
+                acceptor.setBaseName(getShortClassName(acceptor.getBaseName()));
+                return null;
+            }
+        });
+        return typeToken.getAsString();
+    }
+
+    String getShortClassName(String className) {
+        if (className == null) {
+            return className;
+        }
+
+        int dot = className.lastIndexOf('.');
+        if (dot < 0) {
+            return className;
+        } else {
+            return className.substring(dot + 1);
+        }
+    }
+
+    public String[] getImportClassNames() {
+        if (name_ != null) {
+            return getImportClassNames(name_);
+        } else {
+            return new String[] { classDesc_.getName() };
+        }
+    }
+
+    String[] getImportClassNames(String typeName) {
+        if (typeName == null) {
+            return new String[0];
+        }
+
+        final Set<String> importClassNameList = new TreeSet<String>();
+        TypeToken typeToken = new TypeToken(typeName);
+        typeToken.accept(new TokenVisitor<Object>() {
+            public Object visit(Token acceptor) {
+                String baseName = acceptor.getBaseName();
+                if (baseName.indexOf('.') >= 0) {
+                    importClassNameList.add(DescUtils
+                            .getComponentName(baseName));
+                }
+                return null;
+            }
+        });
+        return importClassNameList.toArray(new String[0]);
+    }
+
     public String getDefaultValue() {
         if (array_) {
             return NULL_VALUE;
@@ -237,5 +298,9 @@ public class TypeDescImpl implements TypeDesc {
         } else {
             return name;
         }
+    }
+
+    public void replaceClassDesc(ClassDesc classDesc) {
+        classDesc_ = classDesc;
     }
 }

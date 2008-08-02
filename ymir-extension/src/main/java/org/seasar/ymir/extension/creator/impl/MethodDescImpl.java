@@ -1,13 +1,16 @@
 package org.seasar.ymir.extension.creator.impl;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import org.seasar.ymir.extension.creator.AbstractAnnotatedDesc;
+import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.ThrowsDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
+import org.seasar.ymir.extension.creator.util.DescUtils;
 
 public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc {
 
@@ -30,15 +33,21 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
 
     public MethodDescImpl(Method method) {
         name_ = method.getName();
-        returnTypeDesc_ = new TypeDescImpl(method.getReturnType());
-        Class<?>[] types = method.getParameterTypes();
+        returnTypeDesc_ = new TypeDescImpl(DescUtils.toString(method
+                .getGenericReturnType()));
+        Type[] types = method.getGenericParameterTypes();
         parameterDescs_ = new ParameterDesc[types.length];
         for (int i = 0; i < types.length; i++) {
-            parameterDescs_[i] = new ParameterDescImpl(types[i]);
+            parameterDescs_[i] = new ParameterDescImpl(new TypeDescImpl(
+                    DescUtils.toString(types[i])));
         }
-        types = method.getExceptionTypes();
+        types = method.getGenericExceptionTypes();
         for (int i = 0; i < types.length; i++) {
-            throwsDesc_.addThrowable(types[i]);
+            throwsDesc_.addThrowable(DescUtils.toString(types[i]));
+        }
+        AnnotationDesc[] ads = DescUtils.newAnnotationDescs(method);
+        for (int i = 0; i < ads.length; i++) {
+            setAnnotationDesc(ads[i]);
         }
     }
 

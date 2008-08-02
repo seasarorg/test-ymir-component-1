@@ -33,6 +33,12 @@ public class TypeDescImplTest extends TestCase {
         assertEquals("false", actual);
     }
 
+    public void testGetName() throws Exception {
+        TypeDescImpl target = new TypeDescImpl("java.lang.Integer");
+
+        assertEquals("Integer", target.getName());
+    }
+
     public void testGetName_Generics対応() throws Exception {
         TypeDescImpl target = new TypeDescImpl(
                 "java.lang.List<java.lang.String>");

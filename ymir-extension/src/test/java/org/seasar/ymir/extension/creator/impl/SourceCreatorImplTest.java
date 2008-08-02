@@ -444,13 +444,6 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertEquals("newValue", actual.getValue("meta"));
     }
 
-    @SuppressWarnings("deprecation")
-    public void testCreateAnnotationDesc() throws Exception {
-        AnnotationDesc[] ads = target_.createAnnotationDescs(Hoe2.class);
-        assertEquals(1, ads.length);
-        assertEquals(Deprecated.class.getName(), ads[0].getName());
-    }
-
     public void testGetBeginAnnotation() throws Exception {
         Begin actual = target_.getBeginAnnotation();
 

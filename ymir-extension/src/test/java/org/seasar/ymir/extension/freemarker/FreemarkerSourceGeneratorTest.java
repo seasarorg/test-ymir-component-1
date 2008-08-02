@@ -20,7 +20,6 @@ import org.seasar.ymir.extension.creator.impl.ParameterDescImpl;
 import org.seasar.ymir.extension.creator.impl.PropertyDescImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.extension.creator.impl.ThrowsDescImpl;
-import org.seasar.ymir.extension.creator.mock.MockSourceCreator;
 import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.test.TestCaseBase;
 
@@ -29,13 +28,32 @@ import com.example.dto.HoeDto;
 import com.example.page.TestPageBaseBase;
 
 public class FreemarkerSourceGeneratorTest extends TestCaseBase {
+    private FSourceCreatorImpl sourceCreator_;
+
     private FreemarkerSourceGenerator target_;
+
+    public static class FSourceCreatorImpl extends SourceCreatorImpl {
+        @Override
+        public ClassDesc createConverterClassDesc(ClassDesc dtoCd,
+                String[] pairTypeNames) {
+            return super.createConverterClassDesc(dtoCd, pairTypeNames);
+        }
+
+    }
 
     protected void setUp() throws Exception {
 
         super.setUp();
-        target_ = new FreemarkerSourceGenerator();
-        target_.setSourceCreator(new MockSourceCreator() {
+        sourceCreator_ = new FSourceCreatorImpl() {
+            {
+                setNamingConvention(new YmirNamingConvention());
+            }
+
+            @Override
+            protected ClassLoader getClassLoader() {
+                return getClass().getClassLoader();
+            }
+
             @Override
             public String getRootPackageName() {
                 return "com.example";
@@ -100,7 +118,9 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                     }
                 };
             }
-        });
+        };
+        target_ = new FreemarkerSourceGenerator();
+        target_.setSourceCreator(sourceCreator_);
     }
 
     private ClassDesc prepareClassDesc() {
@@ -281,35 +301,23 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Converter() throws Exception {
-        ClassDesc classDesc = new SourceCreatorImpl() {
-            {
-                setNamingConvention(new YmirNamingConvention());
-            }
-
-            public ClassDesc createConverterClassDesc(ClassDesc dtoCd,
-                    Class<?>[] pairClasses) {
-                return super.createConverterClassDesc(dtoCd, pairClasses);
-            }
-
-            @Override
-            protected ClassLoader getClassLoader() {
-                return getClass().getClassLoader();
-            }
-
-            @Override
-            public Application getApplication() {
-                return new MockApplication() {
-                    @Override
-                    public String getRootPackageName() {
-                        return "com.example";
-                    }
-                };
-            }
-        }.createConverterClassDesc(new ClassDescImpl(HoeDto.class.getName()),
-                new Class[] { Hoe.class });
+        ClassDesc classDesc = sourceCreator_.createConverterClassDesc(
+                new ClassDescImpl(HoeDto.class.getName()), new String[] {
+                    Hoe.class.getName() + "<java.util.List>",
+                    "java.lang.Object" });
         String actual = target_.generateBaseSource(classDesc);
 
         assertEquals(readResource(getClass(),
                 "testGenerateBaseSource_Converter.expected"), actual);
+    }
+
+    public void testGenerateBaseSource_Converter2_中身が空の場合() throws Exception {
+        ClassDesc classDesc = sourceCreator_.createConverterClassDesc(
+                new ClassDescImpl(HoeDto.class.getName()),
+                new String[] { "java.lang.Object" });
+        String actual = target_.generateBaseSource(classDesc);
+
+        assertEquals(readResource(getClass(),
+                "testGenerateBaseSource_Converter2.expected"), actual);
     }
 }

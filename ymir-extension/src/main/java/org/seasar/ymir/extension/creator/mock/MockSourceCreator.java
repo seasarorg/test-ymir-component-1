@@ -2,7 +2,6 @@ package org.seasar.ymir.extension.creator.mock;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
-import java.lang.reflect.AnnotatedElement;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -15,7 +14,6 @@ import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseCreator;
-import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
 import org.seasar.ymir.extension.creator.ClassDescSet;
@@ -228,10 +226,6 @@ public class MockSourceCreator implements SourceCreator {
 
     public String getTemplateEncoding() {
         return "UTF-8";
-    }
-
-    public AnnotationDesc[] createAnnotationDescs(AnnotatedElement element) {
-        return null;
     }
 
     public long getCheckedTime(Template template) {

@@ -27,6 +27,10 @@ public interface TypeDesc extends Cloneable {
 
     String getName();
 
+    String getShortName();
+
+    String[] getImportClassNames();
+
     String getDefaultValue();
 
     String getInstanceName();

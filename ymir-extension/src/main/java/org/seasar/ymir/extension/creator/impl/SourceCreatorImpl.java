@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -66,7 +64,6 @@ import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.Meta;
-import org.seasar.ymir.annotation.Metas;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.conversation.annotation.Begin;
@@ -111,6 +108,7 @@ import org.seasar.ymir.extension.creator.action.impl.DoUpdateTemplateAction;
 import org.seasar.ymir.extension.creator.action.impl.ResourceAction;
 import org.seasar.ymir.extension.creator.action.impl.SystemConsoleAction;
 import org.seasar.ymir.extension.creator.action.impl.UpdateClassesAction;
+import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.MetaUtils;
 import org.seasar.ymir.extension.creator.util.SourceCreatorUtils;
 import org.seasar.ymir.impl.YmirImpl;
@@ -146,6 +144,8 @@ public class SourceCreatorImpl implements SourceCreator {
     private static final String ID_TYPE = "int";
 
     private static final String PACKAGEPREFIX_JAVA_LANG = "java.lang.";
+
+    private static final String PACKAGEPREFIX_JAVA_UTIL = "java.util.";
 
     private static final String RESOURCE_PREAMBLE_JAVA = "org/seasar/ymir/extension/Preamble.java.txt";
 
@@ -393,10 +393,10 @@ public class SourceCreatorImpl implements SourceCreator {
         if (setting_.isConverterCreationFeatureEnabled()) {
             // Converter用のClassDescを生成する。
             for (ClassDesc dtoCd : classDescBag.getClassDescs(ClassType.DTO)) {
-                Class<?>[] pairClasses = getPairClasses(dtoCd);
-                if (pairClasses != null) {
+                String[] pairTypeNames = getPairTypeNames(dtoCd);
+                if (pairTypeNames != null) {
                     ClassDesc converterCd = createConverterClassDesc(dtoCd,
-                            pairClasses);
+                            pairTypeNames);
                     if (getClass(converterCd.getName()) == null) {
                         classDescBag.addAsCreated(converterCd);
                     } else {
@@ -448,7 +448,7 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     protected ClassDesc createConverterClassDesc(ClassDesc dtoCd,
-            Class<?>[] pairClasses) {
+            String[] pairTypeNames) {
         ClassDesc clonedDtoCd = (ClassDesc) dtoCd.clone();
         mergeWithExistentClass(clonedDtoCd);
         EntityMetaData metaData = new EntityMetaData(this, clonedDtoCd
@@ -457,12 +457,20 @@ public class SourceCreatorImpl implements SourceCreator {
         ClassDesc converterCd = metaData.getConverterClassDesc();
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("targetClassDesc", clonedDtoCd);
-        ClassDesc[] pairCds = new ClassDesc[pairClasses.length];
-        for (int i = 0; i < pairClasses.length; i++) {
-            pairCds[i] = getClassDesc(pairClasses[i], pairClasses[i].getName(),
-                    false);
+        List<TypeDesc> pairTdList = new ArrayList<TypeDesc>();
+        for (int i = 0; i < pairTypeNames.length; i++) {
+            if ("Object".equals(DescUtils.getShortName(DescUtils
+                    .getNonGenericClassName(pairTypeNames[i])))) {
+                continue;
+            }
+            TypeDescImpl td = new TypeDescImpl(pairTypeNames[i]);
+            String className = td.getClassDesc().getName();
+            td.replaceClassDesc(getClassDesc(getClass(className), className,
+                    false));
+
+            pairTdList.add(td);
         }
-        param.put("pairClassDescs", pairCds);
+        param.put("pairTypeDescs", pairTdList.toArray(new TypeDesc[0]));
         converterCd.setOptionalSourceGeneratorParameter(param);
         return converterCd;
     }
@@ -571,7 +579,7 @@ public class SourceCreatorImpl implements SourceCreator {
             classDesc.setSuperclass(superclass);
         }
 
-        AnnotationDesc[] ads = createAnnotationDescs(clazz);
+        AnnotationDesc[] ads = DescUtils.newAnnotationDescs(clazz);
         for (int i = 0; i < ads.length; i++) {
             classDesc.setAnnotationDesc(ads[i]);
         }
@@ -615,30 +623,16 @@ public class SourceCreatorImpl implements SourceCreator {
             if (mode == PropertyDesc.NONE) {
                 continue;
             }
-
-            propertyDesc.setMode(mode);
-            Class<?> propertyType = pds[i].getPropertyType();
-            if (propertyType == null) {
-                logger_.info("**** PropertyType is NULL: name=" + name);
-                continue;
-            }
-
-            TypeDesc propertyTypeDesc = propertyDesc.getTypeDesc();
-            String componentType;
-            if (propertyType.isArray()) {
-                componentType = propertyType.getComponentType().getName();
-                propertyTypeDesc.setArray(true);
-            } else {
-                componentType = propertyType.getName();
-            }
-            propertyTypeDesc.setClassDesc(new SimpleClassDesc(componentType));
             propertyDesc.setMode(mode);
 
-            ads = createAnnotationDescs(readMethod);
+            propertyDesc.setTypeDesc(DescUtils
+                    .getGenericPropertyTypeName(pds[i]));
+
+            ads = DescUtils.newAnnotationDescs(readMethod);
             for (int j = 0; j < ads.length; j++) {
                 propertyDesc.setAnnotationDescForGetter(ads[j]);
             }
-            ads = createAnnotationDescs(writeMethod);
+            ads = DescUtils.newAnnotationDescs(writeMethod);
             for (int j = 0; j < ads.length; j++) {
                 propertyDesc.setAnnotationDescForSetter(ads[j]);
             }
@@ -653,7 +647,11 @@ public class SourceCreatorImpl implements SourceCreator {
         } else {
             // 祖先クラスにあるメソッドも対象とする。ただしObjectクラスのメソッドは対象外とする。
             List<Method> methodList = new ArrayList<Method>();
-            for (Class<?> c = clazz; c != Object.class; c = c.getSuperclass()) {
+            for (Class<?> c = clazz; c != null && c != Object.class; c = c
+                    .getSuperclass()) {
+                methodList.addAll(Arrays.asList(c.getDeclaredMethods()));
+            }
+            for (Class<?> c : clazz.getInterfaces()) {
                 methodList.addAll(Arrays.asList(c.getDeclaredMethods()));
             }
             methods = methodList.toArray(new Method[0]);
@@ -665,12 +663,6 @@ public class SourceCreatorImpl implements SourceCreator {
                 continue;
             }
             MethodDesc md = new MethodDescImpl(methods[i]);
-            ads = createAnnotationDescs(methods[i]);
-            for (int j = 0; j < ads.length; j++) {
-                md.setAnnotationDesc(ads[j]);
-            }
-            Class<?> returnType = methods[i].getReturnType();
-            md.setReturnTypeDesc(returnType.getName());
             if (clazz.getName().endsWith("Base")) {
                 if (methods[i].getName().equals(
                         ConstraintInterceptor.ACTION_PERMISSIONDENIED)) {
@@ -687,7 +679,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     md.setBodyDesc(new BodyDescImpl(
                             BodyDesc.KEY_PERMISSIONDENIED,
                             new HashMap<String, Object>()));
-                } else if (returnType == String.class
+                } else if (methods[i].getReturnType() == String.class
                         && methods[i].getParameterTypes().length == 0) {
                     // Baseクラスについては、引数なしで返り値がStringのメソッドについてはボディを用意する。
                     // （他のもそうしたいが今はこれだけ）
@@ -716,8 +708,8 @@ public class SourceCreatorImpl implements SourceCreator {
                     classDesc.addProperty(name, PropertyDesc.NONE);
                     pd = classDesc.getPropertyDesc(name);
                 }
-                pd.setAnnotationDesc(createAnnotationDesc(meta));
-                pd.setTypeDesc(fields[i].getType().getName());
+                pd.setAnnotationDesc(DescUtils.newAnnotationDesc(meta));
+                pd.setTypeDesc(DescUtils.toString(fields[i].getGenericType()));
             }
         }
 
@@ -729,28 +721,6 @@ public class SourceCreatorImpl implements SourceCreator {
             return "null";
         } else {
             return StringUtils.quoteString(value, '"');
-        }
-    }
-
-    public AnnotationDesc[] createAnnotationDescs(AnnotatedElement element) {
-        if (element == null) {
-            return new AnnotationDesc[0];
-        }
-        Annotation[] annotations = element.getAnnotations();
-        AnnotationDesc[] ads = new AnnotationDesc[annotations.length];
-        for (int i = 0; i < annotations.length; i++) {
-            ads[i] = createAnnotationDesc(annotations[i]);
-        }
-        return ads;
-    }
-
-    AnnotationDesc createAnnotationDesc(Annotation annotation) {
-        if (annotation instanceof Metas) {
-            return new MetasAnnotationDescImpl((Metas) annotation);
-        } else if (annotation instanceof Meta) {
-            return new MetaAnnotationDescImpl((Meta) annotation);
-        } else {
-            return new AnnotationDescImpl(annotation);
         }
     }
 
@@ -830,13 +800,13 @@ public class SourceCreatorImpl implements SourceCreator {
         return classDescList.toArray(new ClassDesc[0]);
     }
 
-    Class<?>[] getPairClasses(ClassDesc classDesc) {
-        Class<?>[] pairClasses = classDesc.getMetaClassValues("conversion");
-        if (pairClasses == null) {
-            pairClasses = MetaUtils.getClassValue(getClass(classDesc.getName()
+    String[] getPairTypeNames(ClassDesc classDesc) {
+        String[] pairTypeNames = classDesc.getMetaValues("conversion");
+        if (pairTypeNames == null) {
+            pairTypeNames = MetaUtils.getValue(getClass(classDesc.getName()
                     + "Base"), "conversion");
         }
-        return pairClasses;
+        return pairTypeNames;
     }
 
     @SuppressWarnings("unchecked")
@@ -1141,30 +1111,37 @@ public class SourceCreatorImpl implements SourceCreator {
                     return Class.forName(PACKAGEPREFIX_JAVA_LANG + className,
                             true, cl);
                 } catch (ClassNotFoundException ex2) {
-                    ClassTraverser traverser = new ClassTraverser();
                     try {
-                        traverser.addReferenceClass(Class.forName(
-                                "org.seasar.ymir.landmark.Landmark", true,
-                                getClassLoader()));
+                        return Class.forName(PACKAGEPREFIX_JAVA_UTIL
+                                + className, true, cl);
                     } catch (ClassNotFoundException ex3) {
-                        return null;
-                    }
-                    traverser.addClassPattern(getRootPackageName(), className);
-
-                    final String[] found = new String[1];
-                    traverser
-                            .setClassHandler(new ClassTraversal.ClassHandler() {
-                                public void processClass(String packageName,
-                                        String shortClassName) {
-                                    found[0] = packageName + "."
-                                            + shortClassName;
-                                }
-                            });
-                    traverser.traverse();
-                    if (found[0] != null) {
+                        ClassTraverser traverser = new ClassTraverser();
                         try {
-                            return Class.forName(found[0], true, cl);
-                        } catch (ClassNotFoundException ignore) {
+                            traverser.addReferenceClass(Class.forName(
+                                    "org.seasar.ymir.landmark.Landmark", true,
+                                    getClassLoader()));
+                        } catch (ClassNotFoundException ex4) {
+                            return null;
+                        }
+                        traverser.addClassPattern(getRootPackageName(),
+                                className);
+
+                        final String[] found = new String[1];
+                        traverser
+                                .setClassHandler(new ClassTraversal.ClassHandler() {
+                                    public void processClass(
+                                            String packageName,
+                                            String shortClassName) {
+                                        found[0] = packageName + "."
+                                                + shortClassName;
+                                    }
+                                });
+                        traverser.traverse();
+                        if (found[0] != null) {
+                            try {
+                                return Class.forName(found[0], true, cl);
+                            } catch (ClassNotFoundException ignore) {
+                            }
                         }
                     }
                 }

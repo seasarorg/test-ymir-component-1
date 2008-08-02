@@ -4,10 +4,11 @@ import com.example.converter.Converter;
 
 import com.example.dto.HoeDto;
 import com.example.dao.Hoe;
+import java.util.List;
 
 public class HoeConverterBase extends Converter
 {
-    public HoeDto copyTo(HoeDto dto, Hoe entity)
+    public HoeDto copyTo(HoeDto dto, Hoe<List> entity)
     {
         copyAaaTo(dto, entity);
         copyCccTo(dto, entity);
@@ -16,22 +17,22 @@ public class HoeConverterBase extends Converter
         return dto;
     }
 
-    protected void copyAaaTo(HoeDto dto, Hoe entity)
+    protected void copyAaaTo(HoeDto dto, Hoe<List> entity)
     {
         dto.setAaa(convert(entity.getAaa(), String.class));
     }
 
-    protected void copyCccTo(HoeDto dto, Hoe entity)
+    protected void copyCccTo(HoeDto dto, Hoe<List> entity)
     {
         dto.setCcc(convert(entity.isCcc(), String.class));
     }
 
-    protected void copyEeeTo(HoeDto dto, Hoe entity)
+    protected void copyEeeTo(HoeDto dto, Hoe<List> entity)
     {
         dto.setEee(convert(entity.getEee(), String.class));
     }
 
-    public Hoe copyTo(Hoe entity, HoeDto dto)
+    public Hoe<List> copyTo(Hoe<List> entity, HoeDto dto)
     {
         copyAaaTo(entity, dto);
         copyBbbTo(entity, dto);
@@ -40,17 +41,17 @@ public class HoeConverterBase extends Converter
         return entity;
     }
 
-    protected void copyAaaTo(Hoe entity, HoeDto dto)
+    protected void copyAaaTo(Hoe<List> entity, HoeDto dto)
     {
         entity.setAaa(convert(dto.getAaa(), String.class));
     }
 
-    protected void copyBbbTo(Hoe entity, HoeDto dto)
+    protected void copyBbbTo(Hoe<List> entity, HoeDto dto)
     {
         entity.setBbb(convert(dto.isBbb(), String.class));
     }
 
-    protected void copyDddTo(Hoe entity, HoeDto dto)
+    protected void copyDddTo(Hoe<List> entity, HoeDto dto)
     {
         entity.setDdd(convert(dto.getDdd(), String.class));
     }

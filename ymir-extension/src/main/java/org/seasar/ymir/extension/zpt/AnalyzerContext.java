@@ -52,6 +52,8 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private static final char CHAR_ARRAY_RPAREN = ']';
 
+    private static final String ARRAY_SUFFIX = "[]";
+
     private static ClassNamePattern[] freyjaRenderClassNamePairs_;
 
     private SourceCreator sourceCreator_;
@@ -628,17 +630,15 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     public PropertyDesc adjustPropertyType(String className, PropertyDesc pd) {
-        TypeDesc td;
         PropertyTypeHint hint = getPropertyTypeHint(className, pd.getName());
+        String typeName;
         if (hint != null) {
-            String typeName = hint.getTypeName();
-            boolean array = hint.isArray();
-            if (isOuter(typeName)) {
-                td = new TypeDescImpl(array ? typeName + "[]" : typeName, true);
-            } else {
-                td = new TypeDescImpl(getTemporaryClassDesc(typeName), array,
-                        true);
+            StringBuilder sb = new StringBuilder();
+            sb.append(hint.getTypeName());
+            if (hint.isArray()) {
+                sb.append(ARRAY_SUFFIX);
             }
+            typeName = sb.toString();
         } else {
             PropertyDescriptor descriptor = getSourceCreator()
                     .getPropertyDescriptor(className, pd.getName());
@@ -647,21 +647,16 @@ public class AnalyzerContext extends ZptTemplateContext {
                 return pd;
             }
 
-            Class<?> propertyType;
-            boolean array = descriptor.getPropertyType().isArray();
-            if (array) {
-                propertyType = descriptor.getPropertyType().getComponentType();
-            } else {
-                propertyType = descriptor.getPropertyType();
-            }
             Method readMethod = descriptor.getReadMethod();
             if (readMethod != null) {
                 pd.setGetterName(readMethod.getName());
             }
 
-            td = new TypeDescImpl(
-                    getTemporaryClassDesc(propertyType.getName()), array, true);
+            typeName = DescUtils.getGenericPropertyTypeName(descriptor);
         }
+
+        TypeDescImpl td = new TypeDescImpl(typeName, true);
+        td.replaceClassDesc(getTemporaryClassDesc(td.getClassDesc().getName()));
         pd.setTypeDesc(td);
         pd.notifyUpdatingType();
         return pd;

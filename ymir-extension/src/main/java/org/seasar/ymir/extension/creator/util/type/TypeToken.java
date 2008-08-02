@@ -3,26 +3,33 @@ package org.seasar.ymir.extension.creator.util.type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TypeToken implements Token {
-    private String token_;
+import org.seasar.ymir.extension.creator.util.DescUtils;
 
-    private ConstantToken name_;
+public class TypeToken implements Token {
+    private BaseToken name_;
 
     private TypeToken[] types_;
 
     public TypeToken(String token) {
-        token_ = token;
-
         tokenize(token);
     }
 
     void tokenize(String string) {
+        String suffix;
+        if (string.endsWith(SUFFIX_ARRAY)) {
+            suffix = SUFFIX_ARRAY;
+            string = string.substring(0,
+                    string.length() - SUFFIX_ARRAY.length()).trim();
+        } else {
+            suffix = "";
+        }
+
         int idx = string.indexOf(BEGIN_TYPESPEC);
         if (idx < 0) {
-            name_ = new ConstantToken(string);
+            name_ = new BaseToken(string + suffix);
             types_ = new TypeToken[0];
         } else {
-            name_ = new ConstantToken(string.substring(0, idx));
+            name_ = new BaseToken(string.substring(0, idx) + suffix);
             types_ = tokenizeTypes(
                     string.substring(idx + 1, string.length() - 1)).toArray(
                     new TypeToken[0]);
@@ -38,6 +45,13 @@ public class TypeToken implements Token {
             if (beginTypeSpec >= 0 && beginTypeSpec < comma) {
                 int end = skipSpace(string,
                         skipTypeSpec(string, beginTypeSpec) + 1);
+
+                if (end < string.length() - SUFFIX_ARRAY.length()
+                        && SUFFIX_ARRAY.equals(string.substring(end, end
+                                + SUFFIX_ARRAY.length()))) {
+                    end += SUFFIX_ARRAY.length();
+                }
+
                 if (end < string.length() && string.charAt(end) == COMMA) {
                     comma = end;
                 } else {
@@ -77,9 +91,14 @@ public class TypeToken implements Token {
         throw new IllegalArgumentException("Illegal format: " + string);
     }
 
+    @Override
+    public String toString() {
+        return getAsString();
+    }
+
     public String getAsString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(name_.getAsString());
+        sb.append(DescUtils.getComponentName(name_.getBaseName()));
         if (types_.length > 0) {
             String delim = String.valueOf(BEGIN_TYPESPEC);
             for (TypeToken type : types_) {
@@ -88,17 +107,21 @@ public class TypeToken implements Token {
             }
             sb.append(END_TYPESPEC);
         }
+        if (DescUtils.isArray(name_.getBaseName())) {
+            sb.append(SUFFIX_ARRAY);
+        }
 
         return sb.toString();
     }
 
-    public Object accept(TokenVisitor visitor) {
-        Object result = visitor.visit(name_);
+    @SuppressWarnings("unchecked")
+    public <R> R accept(TokenVisitor<?> visitor) {
+        R result = (R) visitor.visit(name_);
         if (result != null) {
             return result;
         }
         for (TypeToken type : types_) {
-            result = visitor.visit(type);
+            result = (R) visitor.visit(type);
             if (result != null) {
                 return result;
             }

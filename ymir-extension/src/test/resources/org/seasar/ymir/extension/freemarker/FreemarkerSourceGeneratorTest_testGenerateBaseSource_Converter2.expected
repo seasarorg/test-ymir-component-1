@@ -1,0 +1,8 @@
+package com.example.converter;
+
+import com.example.converter.Converter;
+
+
+public class HoeConverterBase extends Converter
+{
+}

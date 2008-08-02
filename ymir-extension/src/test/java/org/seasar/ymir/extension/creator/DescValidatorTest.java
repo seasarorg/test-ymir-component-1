@@ -5,11 +5,9 @@ import junit.framework.TestCase;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 
 public class DescValidatorTest extends TestCase {
-
     private ClassDescSet classDescSet_ = new ClassDescSet();
 
     public void testValidate1() throws Exception {
-
         // ## Arrange ##
         TypeDesc target = new TypeDescImpl(TypeDesc.TYPE_VOID);
 
@@ -22,7 +20,6 @@ public class DescValidatorTest extends TestCase {
     }
 
     public void testValidate2() throws Exception {
-
         // ## Arrange ##
         TypeDesc target = new TypeDescImpl("int");
 
@@ -35,7 +32,6 @@ public class DescValidatorTest extends TestCase {
     }
 
     public void testValidate3() throws Exception {
-
         // ## Arrange ##
         TypeDesc target = new TypeDescImpl("String");
 
@@ -48,7 +44,6 @@ public class DescValidatorTest extends TestCase {
     }
 
     public void testValidate4() throws Exception {
-
         // ## Arrange ##
         TypeDesc target = new TypeDescImpl("java.lang.String");
 
@@ -61,7 +56,6 @@ public class DescValidatorTest extends TestCase {
     }
 
     public void testValidate5() throws Exception {
-
         // ## Arrange ##
         TypeDesc target = new TypeDescImpl("java.lang.String[]");
 
@@ -74,7 +68,6 @@ public class DescValidatorTest extends TestCase {
     }
 
     public void testValidate6() throws Exception {
-
         // ## Arrange ##
         TypeDesc target = new TypeDescImpl("java.lang.Hoehoe");
 
@@ -84,5 +77,17 @@ public class DescValidatorTest extends TestCase {
 
         // ## Assert ##
         assertFalse(actual);
+    }
+
+    public void testValidate7() throws Exception {
+        // ## Arrange ##
+        TypeDesc target = new TypeDescImpl("java.util.List<java.lang.String>");
+
+        // ## Act ##
+        boolean actual = DescValidator.validate(target, classDescSet_)
+                .isValid();
+
+        // ## Assert ##
+        assertTrue(actual);
     }
 }

@@ -2,7 +2,6 @@ package org.seasar.ymir.extension.creator;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
-import java.lang.reflect.AnnotatedElement;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -103,8 +102,6 @@ public interface SourceCreator extends Updater {
     HttpServletResponse getHttpServletResponse();
 
     String getTemplateEncoding();
-
-    AnnotationDesc[] createAnnotationDescs(AnnotatedElement element);
 
     long getCheckedTime(Template template);
 

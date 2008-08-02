@@ -1,18 +1,24 @@
 package org.seasar.ymir.extension.creator.util.type;
 
-public class ConstantToken implements Token {
+public class BaseToken implements Token {
     private String token_;
 
-    public ConstantToken(String token) {
+    public BaseToken(String token) {
         token_ = token;
+    }
+
+    @Override
+    public String toString() {
+        return token_;
     }
 
     public String getAsString() {
         return token_;
     }
 
-    public Object accept(TokenVisitor visitor) {
-        return visitor.visit(this);
+    @SuppressWarnings("unchecked")
+    public <R> R accept(TokenVisitor<?> visitor) {
+        return (R) visitor.visit(this);
     }
 
     public String getBaseName() {

@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
+import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -14,7 +15,7 @@ public class ClassDescDto {
 
     private boolean dto_;
 
-    private String pairClass_;
+    private String pairTypeName_;
 
     public ClassDescDto(ClassDesc classDesc, boolean checked) {
         name_ = classDesc.getName();
@@ -25,20 +26,7 @@ public class ClassDescDto {
         }
         checked_ = checked;
         dto_ = classDesc.isTypeOf(ClassType.DTO);
-        pairClass_ = toString(classDesc.getMetaClassValues("conversion"));
-    }
-
-    String toString(Class<?>[] classes) {
-        if (classes == null) {
-            return null;
-        }
-        StringBuilder sb = new StringBuilder();
-        String delim = "";
-        for (int i = 0; i < classes.length; i++) {
-            sb.append(delim).append(classes[i].getName().replace('$', '.'));
-            delim = ",";
-        }
-        return sb.toString();
+        pairTypeName_ = PropertyUtils.join(classDesc.getMetaValues("conversion"));
     }
 
     public boolean isChecked() {
@@ -57,7 +45,7 @@ public class ClassDescDto {
         return dto_;
     }
 
-    public String getPairClass() {
-        return pairClass_;
+    public String getPairTypeName() {
+        return pairTypeName_;
     }
 }
