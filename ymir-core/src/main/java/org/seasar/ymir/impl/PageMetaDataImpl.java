@@ -20,8 +20,10 @@ import org.seasar.ymir.PageMetaData;
 import org.seasar.ymir.Phase;
 import org.seasar.ymir.ScopeAttribute;
 import org.seasar.ymir.annotation.In;
+import org.seasar.ymir.annotation.Ins;
 import org.seasar.ymir.annotation.Invoke;
 import org.seasar.ymir.annotation.Out;
+import org.seasar.ymir.annotation.Outs;
 import org.seasar.ymir.annotation.Protected;
 import org.seasar.ymir.annotation.RequestParameter;
 import org.seasar.ymir.scope.Scope;
@@ -90,10 +92,25 @@ public class PageMetaDataImpl implements PageMetaData {
             registerForInjectionFromScope(in, method);
             shouldProtect = true;
         }
+        Ins ins = method.getAnnotation(Ins.class);
+        if (ins != null) {
+            for (In inAnno : ins.value()) {
+                registerForInjectionFromScope(inAnno, method);
+            }
+            shouldProtect = true;
+        }
 
         Out out = method.getAnnotation(Out.class);
         if (out != null) {
             registerForOutjectionToScope(out, method);
+            // パラメータをSetterで受けて@OutつきGetterでオブジェクトスコープにOutjectするケース
+            // があるため、@Outがついている場合はプロテクトしない。
+        }
+        Outs outs = method.getAnnotation(Outs.class);
+        if (outs != null) {
+            for (Out outAnno : outs.value()) {
+                registerForOutjectionToScope(outAnno, method);
+            }
             // パラメータをSetterで受けて@OutつきGetterでオブジェクトスコープにOutjectするケース
             // があるため、@Outがついている場合はプロテクトしない。
         }
