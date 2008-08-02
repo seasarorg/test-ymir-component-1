@@ -46,7 +46,7 @@ public class JSONInterceptor extends AbstractYmirProcessInterceptor {
         return action;
     }
 
-    protected PageComponentVisitor newVisitor(JSONObject jsonObject) {
+    protected PageComponentVisitor<?> newVisitor(JSONObject jsonObject) {
         return new JSONInjectionVisitor(jsonObject, typeConversionManager_);
     }
 

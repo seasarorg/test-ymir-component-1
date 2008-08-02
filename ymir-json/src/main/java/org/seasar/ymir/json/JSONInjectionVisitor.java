@@ -11,7 +11,7 @@ import org.seasar.ymir.TypeConversionManager;
 
 import net.sf.json.JSONObject;
 
-public class JSONInjectionVisitor extends PageComponentVisitor {
+public class JSONInjectionVisitor extends PageComponentVisitor<Object> {
     private JSONObject jsonObject_;
 
     private TypeConversionManager typeConversionManager_;
