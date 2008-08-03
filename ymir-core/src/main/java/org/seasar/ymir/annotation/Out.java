@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * スコープかに属性値をアウトジェクトする対象であることを表すアノテーションです。
+ * スコープに属性値をアウトジェクトする対象であることを表すアノテーションです。
  * <p>このアノテーションをPageクラスのGetterメソッドに付与することで、
  * アクションの実行後に属性値がPageオブジェクトからスコープにアウトジェクトされるようになります。
  * </p> 
