@@ -331,7 +331,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         + "<script type=\"text/javascript\" src=\"/context/__ymir__/resource/js/prototype/prototype.js\"></script>"
                         + "<script type=\"text/javascript\" src=\"/context/__ymir__/resource/js/scriptaculous/scriptaculous.js\"></script>"
                         + "<script type=\"text/javascript\" src=\"/context/__ymir__/resource/js/sourceCreator.js\"></script>"
-                        + "</head><body><div class=\"__ymir__controlPanel\">"
+                        + "</head><body><div id=\"__ymir__controlPanel\">"
                         + "<form action=\"/context/path\" method=\"post\">"
                         + "<input type=\"hidden\" name=\"__ymir__task\" value=\"systemConsole\" />"
                         + "<input type=\"hidden\" name=\"__ymir__method\" value=\"GET\" />"

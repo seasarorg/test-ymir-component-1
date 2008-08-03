@@ -1436,7 +1436,7 @@ public class SourceCreatorImpl implements SourceCreator {
         }
         if (setting_.isControlPanelEnabled()) {
             response = response.replace("</body>",
-                    "<div class=\"__ymir__controlPanel\">"
+                    "<div id=\"__ymir__controlPanel\">"
                             + createControlPanelFormHTML(getRequest())
                             + "</div></body>");
         }
