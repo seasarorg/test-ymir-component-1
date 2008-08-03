@@ -1,16 +1,3 @@
-/**
- * YmirのPageクラスをテストするためのTestCaseのベースとなるクラスです。
- * <p>Pageクラスをテストする場合はこのクラスのサブクラスとしてTestCaseを作成すると便利かもしれません。
- * </p>
- * <p>基本的にはテストメソッドの中から以下のメソッドを順番に呼び出し、
- * {@link #processRequest(Request)}の返り値や{@link #getNotes(Request)}の返り値を
- * アサーションするようにします。
- * </p>
- * <ol>
- *   <li><code>prepareForProcessing()</code></li>
- *   <li>{@link #processRequest(Request)}</li>
- * </ol>
- */
 package org.seasar.ymir.test;
 
 import java.io.IOException;
@@ -51,6 +38,19 @@ import org.seasar.ymir.test.mock.servlet.MockHttpServletResponseImpl;
 import org.seasar.ymir.test.mock.servlet.MockServletContextImpl;
 import org.seasar.ymir.util.ContainerUtils;
 
+/**
+ * YmirのPageクラスをテストするためのTestCaseのベースとなるクラスです。
+ * <p>Pageクラスをテストする場合はこのクラスのサブクラスとしてTestCaseを作成すると便利かもしれません。
+ * </p>
+ * <p>基本的にはテストメソッドの中から以下のメソッドを順番に呼び出し、
+ * {@link #processRequest(Request)}の返り値や{@link #getNotes(Request)}の返り値を
+ * アサーションするようにします。
+ * </p>
+ * <ol>
+ *   <li><code>prepareForProcessing()</code></li>
+ *   <li>{@link #processRequest(Request)}</li>
+ * </ol>
+ */
 abstract public class YmirTestCase extends TestCase {
     /** リクエストの処理が開始された直後であることを表す定数です。 */
     protected static final int STATUS_STARTED = 0;

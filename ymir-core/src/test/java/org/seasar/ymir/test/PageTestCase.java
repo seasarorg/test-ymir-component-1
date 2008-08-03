@@ -1,3 +1,5 @@
+package org.seasar.ymir.test;
+
 /**
  * YmirのPageクラスをテストするためのTestCaseのベースとなるクラスです。
  * <p>Pageクラスをテストする場合はこのクラスのサブクラスとしてTestCaseを作成すると便利かもしれません。
@@ -11,8 +13,6 @@
  *   <li>{@link #processRequest(Request)}</li>
  * </ol>
  */
-package org.seasar.ymir.test;
-
 abstract public class PageTestCase<P> extends YmirTestCase {
     /**
      * テスト対象であるPageクラスのクラスオブジェクトを返します。
