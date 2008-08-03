@@ -1,9 +1,5 @@
 package org.seasar.ymir.scope.impl;
 
-import javax.servlet.ServletContext;
-
-import org.seasar.ymir.util.ContainerUtils;
-
 /**
  * Webアプリケーション全体で有効なオブジェクトを管理するスコープを表すクラスです。
  * <p><b>同期化：</b>
@@ -19,9 +15,5 @@ public class ApplicationScope extends AbstractServletScope {
 
     public void setAttribute(String name, Object value) {
         getServletContext().setAttribute(name, value);
-    }
-
-    ServletContext getServletContext() {
-        return ContainerUtils.getServletContext(container_.getRoot());
     }
 }
