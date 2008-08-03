@@ -69,13 +69,17 @@ SourceCreator.ControlPanel = Class.create();
 Object.extend(SourceCreator.ControlPanel.prototype, {
     initialize: function() {
         this.element = $('__ymir__controlPanel');
+        this.visible = true;
+        this.inEffect = false;
 
+        var clientWidth = document.body.clientWidth;
         Element.setStyle(this.element, {
             'display': 'none',
             'position': 'absolute',
             'top': 0,
-            'left': 0,
+            'left': (clientWidth - Element.getWidth(this.element)) + 'px',
         });
+        this.hide();
 
         Event.observe(window, 'mousemove',
             this.update.bindAsEventListener(this), false);
@@ -85,12 +89,43 @@ Object.extend(SourceCreator.ControlPanel.prototype, {
         var mouseY = Event.pointerY(event);
         var clientWidth = document.body.clientWidth;
         if (mouseX > clientWidth / 2 && mouseY < 24) {
+            this.show();
+        } else {
+            this.hide();
+        }
+    },
+    show: function() {
+        if (!this.visible && !this.inEffect) {
+            this.inEffect = true;
+            var clientWidth = document.body.clientWidth;
             Element.setStyle(this.element, {
                 'left': (clientWidth - Element.getWidth(this.element)) + 'px',
             });
             Element.show(this.element);
-        } else {
-            Element.hide(this.element);
+            new Effect.Opacity(this.element, {
+                from: 0.0,
+                to: 1.0,
+                duration: 1.0,
+                afterFinish: function() {
+                    this.visible = true;
+                    this.inEffect = false;
+                }.bind(this)
+            });
+        }
+    },
+    hide: function() {
+        if (this.visible && !this.inEffect) {
+            this.inEffect = true;
+            new Effect.Opacity(this.element, {
+                from: 1.0,
+                to: 0.0,
+                duration: 1.0,
+                afterFinish: function() {
+                    Element.hide(this.element);
+                    this.visible = false;
+                    this.inEffect = false;
+                }.bind(this)
+            });
         }
     }
 });
