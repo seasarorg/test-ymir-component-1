@@ -1,10 +1,12 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
+import static org.seasar.ymir.extension.creator.SourceCreator.PREFIX_CHECKEDTIME;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -17,9 +19,11 @@ import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.WebappSourceResourceCollector;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.extension.creator.impl.PathMetaDataCollectorRule;
+import org.seasar.ymir.extension.creator.impl.TemplateCollectorRule;
 
 public class SystemConsoleAction extends AbstractAction implements UpdateAction {
     private static final String PARAM_APPLY = SourceCreator.PARAM_PREFIX
@@ -139,11 +143,19 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
         Properties prop = getSourceCreator().getSourceCreatorProperties();
         for (Enumeration<?> enm = prop.propertyNames(); enm.hasMoreElements();) {
             String name = (String) enm.nextElement();
-            if (!name.startsWith(SourceCreator.PREFIX_CHECKEDTIME)) {
-                continue;
+            if (name.startsWith(PREFIX_CHECKEDTIME)) {
+                prop.remove(name);
             }
-            prop.setProperty(name, String.valueOf(System.currentTimeMillis()));
         }
+
+        List<Template> templateList = new WebappSourceResourceCollector<Template>(
+                getSourceCreator().getWebappSourceRoot(),
+                new TemplateCollectorRule(getSourceCreator())).collect();
+        for (Template template : templateList) {
+            prop.setProperty(PREFIX_CHECKEDTIME + template.getPath(), String
+                    .valueOf(System.currentTimeMillis()));
+        }
+
         getSourceCreator().saveSourceCreatorProperties();
 
         synchronizeResources(new String[] { adjustPath(getSourceCreator()

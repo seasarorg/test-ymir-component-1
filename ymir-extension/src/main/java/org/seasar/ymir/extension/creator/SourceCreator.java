@@ -52,6 +52,12 @@ public interface SourceCreator extends Updater {
 
     File getSourceFile(String className);
 
+    /**
+     * 指定されたパスに対応するTemplateオブジェクトを返します。
+     * 
+     * @param path プロジェクトが持つWebアプリケーションのソースツリーのルート相対のパス。
+     * @return Templateオブジェクト。nullを返すことはありません。
+     */
     Template getTemplate(String path);
 
     ResponseCreator getResponseCreator();

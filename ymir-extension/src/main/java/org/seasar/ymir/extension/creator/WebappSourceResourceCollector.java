@@ -4,6 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Webアプリケーションのソースツリーのルート以下にあるリソースを収集するためのクラスです。
+ * 
+ * @author YOKOTA Takehiko
+ */
 public class WebappSourceResourceCollector<R> {
     private File webappSourceRoot_;
 
@@ -55,7 +60,20 @@ public class WebappSourceResourceCollector<R> {
         return false;
     }
 
+    /**
+     * リソース収集のためのルールを表すインタフェースです。
+     *
+     * @param <R> リソースの型。
+     * @author YOKOTA Takehiko
+     */
     public static interface Rule<R> {
+        /**
+         * 指定されたパスに対応するリソースが収集すべきリソースである場合に、
+         * 指定されたListにリソースオブジェクトを追加します。
+         * 
+         * @param path Webアプリケーションのソースツリーのルート相対のパス。
+         * @param resourceList リソースオブジェクトを格納するためのListオブジェクト。
+         */
         void add(String path, List<R> resourceList);
     }
 }
