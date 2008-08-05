@@ -9,6 +9,8 @@
     class="org.seasar.ymir.scope.impl.SessionScope" />
   <component name="requestScope"
     class="org.seasar.ymir.scope.impl.RequestScope" />
+  <component name="cookieScope"
+    class="org.seasar.ymir.scope.impl.CookieScope" />
   <component name="redirectionScope"
     class="org.seasar.ymir.redirection.impl.RedirectionScope" />
   <component name="conversationScope"
