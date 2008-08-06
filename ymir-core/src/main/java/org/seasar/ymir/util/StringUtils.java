@@ -63,6 +63,15 @@ public class StringUtils {
         return sb.toString();
     }
 
+    /**
+     * 指定された文字列が空かどうかを返します。
+     * <p>指定された文字列がnullか空文字列か空白だけからなる文字列である場合はtrueを返します。
+     * そうでない場合はfalseを返します。
+     * </p>
+     * 
+     * @param str 文字列。
+     * @return 空かどうか。
+     */
     public static boolean isEmpty(String str) {
         return str == null || str.trim().length() == 0;
     }
