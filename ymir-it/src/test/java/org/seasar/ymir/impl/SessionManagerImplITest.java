@@ -3,7 +3,7 @@ package org.seasar.ymir.impl;
 import javax.servlet.http.HttpSession;
 
 import org.seasar.ymir.Request;
-import org.seasar.ymir.SessionManager;
+import org.seasar.ymir.session.SessionManager;
 import org.seasar.ymir.test.PageTestCase;
 
 import com.example.web.SessionManagerImplPage;
@@ -18,7 +18,7 @@ public class SessionManagerImplITest extends
     public void testGetSession() throws Exception {
         SessionManager sessionManager = (SessionManager) getContainer()
                 .getComponent(SessionManager.class);
-        sessionManager.addStraddlingAttributeName("hoehoe");
+        sessionManager.addStraddlingAttributeNamePattern("hoehoe");
 
         Request request = prepareForProcessing("/sessionManagerImpl.html",
                 Request.METHOD_GET, "getSession=");
@@ -37,7 +37,7 @@ public class SessionManagerImplITest extends
     public void testInvalidate() throws Exception {
         SessionManager sessionManager = (SessionManager) getContainer()
                 .getComponent(SessionManager.class);
-        sessionManager.addStraddlingAttributeName("hoehoe");
+        sessionManager.addStraddlingAttributeNamePattern("hoehoe");
 
         Request request = prepareForProcessing("/sessionManagerImpl.html",
                 Request.METHOD_GET, "invalidate=");
@@ -51,7 +51,7 @@ public class SessionManagerImplITest extends
     public void testInvalidateAndCreateSession() throws Exception {
         SessionManager sessionManager = (SessionManager) getContainer()
                 .getComponent(SessionManager.class);
-        sessionManager.addStraddlingAttributeName("hoehoe");
+        sessionManager.addStraddlingAttributeNamePattern("hoehoe");
 
         Request request = prepareForProcessing("/sessionManagerImpl.html",
                 Request.METHOD_GET, "invalidateAndCreate=");

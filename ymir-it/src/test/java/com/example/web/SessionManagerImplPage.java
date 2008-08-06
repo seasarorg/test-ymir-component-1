@@ -1,6 +1,6 @@
 package com.example.web;
 
-import org.seasar.ymir.SessionManager;
+import org.seasar.ymir.session.SessionManager;
 
 public class SessionManagerImplPage {
     private SessionManager sessionManager_;
