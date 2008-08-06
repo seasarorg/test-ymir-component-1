@@ -151,9 +151,13 @@ public class CreateConfigurationAction extends AbstractAction implements
 
         if (getSourceCreatorSetting().isConverterCreationFeatureEnabled()) {
             getSourceCreator().writeSourceFile(
-                    "ConverterSuperClass.java",
+                    "ConverterSuperclass.java",
                     new ClassDescImpl(application.getRootPackageName()
-                            + ".converter.Converter"), false);
+                            + ".converter.ConverterBase"), false);
+            getSourceCreator().writeSourceFile(
+                    "ConverterSuperclassBase.java",
+                    new ClassDescImpl(application.getRootPackageName()
+                            + ".converter.ConverterBaseBase"), true);
         }
 
         synchronizeResources(null);
