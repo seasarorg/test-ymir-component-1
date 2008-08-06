@@ -1,5 +1,7 @@
 package org.seasar.ymir.scope.impl;
 
+import java.lang.reflect.Array;
+
 import javax.servlet.http.Cookie;
 
 /**
@@ -12,6 +14,9 @@ import javax.servlet.http.Cookie;
  * ただしこのスコープに設定しようとした値の型が{@link Cookie}クラスである場合は、
  * その値がそのままHttpServlerResponseに設定されます。
  * この時pathが無指定の場合はpathにアプリケーションのコンテキストパスが設定されます。
+ * </p>
+ * <p>このスコープに設定しようとした値が配列型の場合は、
+ * 配列のそれぞれの要素について上記のルールに基づいてCookieが設定されます。
  * </p>
  * <p><b>同期化：</b>
  * このクラスはスレッドセーフです。
@@ -33,6 +38,17 @@ public class CookieScope extends AbstractServletScope {
     }
 
     public void setAttribute(String name, Object value) {
+        if (value != null && value.getClass().isArray()) {
+            int length = Array.getLength(value);
+            for (int i = 0; i < length; i++) {
+                addCookie(name, Array.get(value, i));
+            }
+        } else {
+            addCookie(name, value);
+        }
+    }
+
+    protected void addCookie(String name, Object value) {
         Cookie cookie;
         if (value instanceof Cookie) {
             cookie = (Cookie) value;
