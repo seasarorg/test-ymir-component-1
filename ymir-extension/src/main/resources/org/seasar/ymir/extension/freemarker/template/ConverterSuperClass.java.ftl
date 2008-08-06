@@ -31,13 +31,7 @@ public class ${classDesc.shortName} {
 
     @SuppressWarnings("unchecked")
     final protected <T> T convert(Object value, Class<T> type) {
-        if (value != null && type.isAssignableFrom(value.getClass())) {
-            return (T) value;
-        } else if (type == String.class) {
-            return (T) typeConversionManager_.convert(value);
-        } else {
-            return typeConversionManager_.convert(valueOf(value), type);
-        }
+        return (T) typeConversionManager_.convert((Object) value, type);
     }
 
     final protected String valueOf(Object obj) {
