@@ -15,6 +15,8 @@ import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.Dispatcher;
 
 /**
+ * サーブレット関連のユーティリティメソッドを提供するクラスです。
+ * 
  * @author YOKOTA Takehiko
  */
 public class ServletUtils {
@@ -44,13 +46,58 @@ public class ServletUtils {
 
     private static final int PORT_HTTPS = 443;
 
+    private static final String PROTOCOL_DOMAIN_DELIMITER = "://";
+
     private ServletUtils() {
     }
 
+    /**
+     * リクエストされたURLのコンテキストパス部分を返します。
+     * <p>リクエストがforwardやincludeの処理中であっても元々のパスを返します。
+     * </p>
+     * 
+     * @param request リクエスト。
+     * @return リクエストされたURLのコンテキストパス部分。
+     */
     public static String getRequestContextPath(HttpServletRequest request) {
-        return request.getContextPath();
+        if (wasForwareded(request)) {
+            return (String) request.getAttribute(ATTR_FORWARD_CONTEXT_PATH);
+        } else {
+            return request.getContextPath();
+        }
     }
 
+    /**
+     * ディスパッチされたURLのコンテキストパス部分を返します。
+     * <p>通常はリクエストされたパス、リクエストがforwardの処理中である場合はforward先のパス、
+     * リクエストがincludeの処理中である場合はincludeしたページのパスを返します。
+     * </p>
+     * 
+     * @param request リクエスト。
+     * @return ディスパッチされたURLのコンテキストパス部分。
+     */
+    public static String getContextPath(HttpServletRequest request) {
+        Dispatcher dispatcher = getDispatcher(request);
+        if (dispatcher == Dispatcher.INCLUDE) {
+            return (String) request.getAttribute(ATTR_INCLUDE_CONTEXT_PATH);
+        } else if (dispatcher == Dispatcher.FORWARD) {
+            return (String) request.getAttribute(ATTR_FORWARD_CONTEXT_PATH);
+        } else {
+            return request.getContextPath();
+        }
+    }
+
+    /**
+     * リクエストされたURLのコンテキスト相対パス部分を返します。
+     * <p>リクエストがforwardやincludeの処理中であっても元々のパスを返します。
+     * </p>
+     * <p>パスの末尾に「/」がついている場合は取り除かれます。
+     * </p>
+     * 
+     * @param request リクエスト。
+     * @return リクエストされたURLのコンテキスト相対パス部分。
+     * @see #getNativeRequestPath(HttpServletRequest)
+     */
     public static String getRequestPath(HttpServletRequest request) {
         String path = getNativeRequestPath(request);
         if (path.endsWith("/")) {
@@ -59,24 +106,17 @@ public class ServletUtils {
         return path;
     }
 
-    public static String getNativeRequestPath(HttpServletRequest request) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(request.getServletPath());
-        String pathInfo = request.getPathInfo();
-        if (pathInfo != null) {
-            sb.append(pathInfo);
-        }
-        return sb.toString();
-    }
-
-    public static String getContextPath(HttpServletRequest request) {
-        String contextPath = getIncludeContextPath(request);
-        if (contextPath == null) {
-            contextPath = request.getContextPath();
-        }
-        return contextPath;
-    }
-
+    /**
+     * ディスパッチされたURLのURLのコンテキスト相対パス部分を返します。
+     * <p>通常はリクエストされたパス、リクエストがforwardの処理中である場合はforward先のパス、
+     * リクエストがincludeの処理中である場合はincludeしたページのパスを返します。
+     * </p>
+     * <p>パスの末尾に「/」がついている場合は取り除かれます。
+     * </p>
+     * 
+     * @param request リクエスト。
+     * @return ディスパッチされたURLのURLのコンテキスト相対パス部分。
+     */
     public static String getPath(HttpServletRequest request) {
         String path = getNativePath(request);
         if (path.endsWith("/")) {
@@ -85,6 +125,82 @@ public class ServletUtils {
         return path;
     }
 
+    /**
+     * リクエストされたURLのコンテキスト相対パス部分を返します。
+     * <p>リクエストがforwardやincludeの処理中であっても元々のパスを返します。
+     * </p>
+     * <p>パスの末尾に「/」がついていてもそのまま返します。
+     * </p>
+     * 
+     * @param request リクエスト。
+     * @return リクエストされたURLのコンテキスト相対パス部分。
+     * @see #getRequestPath(HttpServletRequest)
+     */
+    public static String getNativeRequestPath(HttpServletRequest request) {
+        StringBuilder sb = new StringBuilder();
+        String servletPath;
+        String pathInfo;
+        if (wasForwareded(request)) {
+            servletPath = (String) request
+                    .getAttribute(ATTR_FORWARD_SERVLET_PATH);
+            pathInfo = (String) request.getAttribute(ATTR_FORWARD_PATH_INFO);
+        } else {
+            servletPath = request.getServletPath();
+            pathInfo = request.getPathInfo();
+        }
+        sb.append(servletPath);
+        if (pathInfo != null) {
+            sb.append(pathInfo);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * ディスパッチされたURLのURLのコンテキスト相対パス部分を返します。
+     * <p>通常はリクエストされたパス、リクエストがforwardの処理中である場合はforward先のパス、
+     * リクエストがincludeの処理中である場合はincludeしたページのパスを返します。
+     * </p>
+     * <p>パスの末尾に「/」がついていてもそのまま返します。
+     * </p>
+     * 
+     * @param request リクエスト。
+     * @return ディスパッチされたURLのURLのコンテキスト相対パス部分。
+     */
+    public static String getNativePath(HttpServletRequest request) {
+        StringBuilder sb = new StringBuilder();
+        String servletPath;
+        String pathInfo;
+        Dispatcher dispatcher = getDispatcher(request);
+        if (dispatcher == Dispatcher.INCLUDE) {
+            servletPath = (String) request
+                    .getAttribute(ATTR_INCLUDE_SERVLET_PATH);
+            pathInfo = (String) request.getAttribute(ATTR_INCLUDE_PATH_INFO);
+        } else if (dispatcher == Dispatcher.FORWARD) {
+            servletPath = (String) request
+                    .getAttribute(ATTR_FORWARD_SERVLET_PATH);
+            pathInfo = (String) request.getAttribute(ATTR_FORWARD_PATH_INFO);
+
+        } else {
+            servletPath = request.getServletPath();
+            pathInfo = request.getPathInfo();
+        }
+        sb.append(servletPath);
+        if (pathInfo != null) {
+            sb.append(pathInfo);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * パスを正規化します。
+     * <p><code>path</code>がnullの場合はnullを返します。
+     * </p>
+     * <p><code>path</code>の末尾に「/」がついている場合は取り除いたパスを返します。
+     * </p>
+     * 
+     * @param path パス。
+     * @return 正規化されたパス。
+     */
     public static String normalizePath(String path) {
         if (path == null) {
             return null;
@@ -95,15 +211,43 @@ public class ServletUtils {
         }
     }
 
+    /**
+     * ディスパッチされたURLのクエリ文字列を返します。
+     * <p>通常はリクエストされたパスのクエリ文字列、リクエストがforwardの処理中である場合はforward先のパスのクエリ文字列、
+     * リクエストがincludeの処理中である場合はincludeしたページのパスのクエリ文字列を返します。
+     * </p>
+     * <p>クエリ文字列の開始を表す「?」は取り除かれます。
+     * </p>
+     * 
+     * @param request リクエスト。
+     * @return クエリ文字列。クエリ文字列が付与されていない場合はnull。
+     */
     public static String getQueryString(HttpServletRequest request) {
-        if (getDispatcher(request) == Dispatcher.INCLUDE) {
-            return getIncludeQueryString(request);
+        Dispatcher dispatcher = getDispatcher(request);
+        if (dispatcher == Dispatcher.INCLUDE) {
+            return (String) request.getAttribute(ATTR_INCLUDE_QUERY_STRING);
+        } else if (dispatcher == Dispatcher.FORWARD) {
+            return (String) request.getAttribute(ATTR_FORWARD_QUERY_STRING);
         } else {
             return request.getQueryString();
         }
     }
 
+    /**
+     * 指定されたパスに付与されているクエリ文字列を返します。
+     * <p><code>path</code>がnullの場合はnullを返します。
+     * </p>
+     * <p>クエリ文字列の開始を表す「?」は取り除かれます。
+     * </p>
+     * 
+     * @param path パス。
+     * @return クエリ文字列。クエリ文字列が付与されていない場合はnull。
+     */
     public static String getQueryString(String path) {
+        if (path == null) {
+            return null;
+        }
+
         int question = path.indexOf('?');
         if (question >= 0) {
             String rawQueryString = path.substring(question + 1);
@@ -117,10 +261,18 @@ public class ServletUtils {
         }
     }
 
+    /**
+     * 現在のリクエストの処理状態を表すディスパッチャを返します。
+     * 
+     * @param request リクエスト。
+     * @return ディスパッチャ。
+     */
     public static Dispatcher getDispatcher(HttpServletRequest request) {
         if (request.getAttribute(ATTR_ERROR_EXCEPTION) != null) {
             return Dispatcher.ERROR;
         } else if (request.getAttribute(ATTR_INCLUDE_CONTEXT_PATH) != null) {
+            // forward->includeの場合はforwardとincludeが両方セットされるため、includeを先に見ている。
+            // include->forwardはエラーになるので気にしなくて良い（はず）。
             return Dispatcher.INCLUDE;
         } else if (request.getAttribute(ATTR_FORWARD_CONTEXT_PATH) != null) {
             return Dispatcher.FORWARD;
@@ -129,39 +281,18 @@ public class ServletUtils {
         }
     }
 
-    static String getIncludeQueryString(HttpServletRequest request) {
-        return null;
-    }
-
-    public static String getNativePath(HttpServletRequest request) {
-        StringBuffer sb = new StringBuffer();
-        String servletPath = getIncludeServletPath(request);
-        String pathInfo;
-        if (servletPath != null) {
-            pathInfo = getIncludePathInfo(request);
-        } else {
-            servletPath = request.getServletPath();
-            pathInfo = request.getPathInfo();
-        }
-        sb.append(servletPath);
-        if (pathInfo != null) {
-            sb.append(pathInfo);
-        }
-        return sb.toString();
-    }
-
-    public static String getIncludeContextPath(HttpServletRequest request) {
-        return (String) request.getAttribute(ATTR_INCLUDE_CONTEXT_PATH);
-    }
-
-    public static String getIncludePathInfo(HttpServletRequest request) {
-        return (String) request.getAttribute(ATTR_INCLUDE_PATH_INFO);
-    }
-
-    public static String getIncludeServletPath(HttpServletRequest request) {
-        return (String) request.getAttribute(ATTR_INCLUDE_SERVLET_PATH);
-    }
-
+    /**
+     * 指定されたパスとパラメータからURIを構築して返します。
+     * <p>パラメータを保持するMapの値はStringまたはString[]型であるべきです。
+     * また値としてnullを指定することもできます。その場合そのパラメータは無視されます。
+     * </p>
+     * 
+     * @param path パス。nullを指定してはいけません。
+     * @param paramMap パラメータを持つMap。nullを指定することもできます。
+     * @param encoding パラメータをURIに付与させる際の文字エンコーディング。
+     * @return 構築したURI。
+     * @throws UnsupportedEncodingException 指定された文字エンコーディングが存在しない場合。
+     */
     public static String constructURI(String path,
             Map<String, Object> paramMap, String encoding)
             throws UnsupportedEncodingException {
@@ -172,7 +303,7 @@ public class ServletUtils {
         if (encoding == null) {
             encoding = "ISO-8859-1";
         }
-        StringBuffer sb = new StringBuffer(path);
+        StringBuilder sb = new StringBuilder(path);
         String delim = "?";
         Iterator<Map.Entry<String, Object>> itr = paramMap.entrySet()
                 .iterator();
@@ -202,10 +333,8 @@ public class ServletUtils {
         return sb.toString();
     }
 
-    public static boolean isIncluded(HttpServletRequest request) {
-
-        return (request.getAttribute(ATTR_INCLUDE_PATH_INFO) != null || request
-                .getAttribute(ATTR_INCLUDE_SERVLET_PATH) != null);
+    static boolean wasForwareded(HttpServletRequest request) {
+        return request.getAttribute(ATTR_FORWARD_CONTEXT_PATH) != null;
     }
 
     /**
@@ -237,29 +366,77 @@ public class ServletUtils {
         response.setDateHeader("Expires", 1);
     }
 
+    /**
+     * リクエストされたURLを返します。
+     * <p>リクエストがforwardやincludeの処理中であっても元々のパスを返します。
+     * </p>
+     * <p>返されるURLにはクエリ文字列も付与されます。
+     * </p>
+     * 
+     * @param request リクエスト。
+     * @return リクエストされたURL。
+     */
+    public static String getRequestURL(HttpServletRequest request) {
+        return constructRequestURL(request, request.getScheme(), request
+                .getServerPort());
+    }
+
+    /**
+     * リクエストされたURLについてプロトコルとポートを差し替えたものを返します。
+     * <p>リクエストがforwardやincludeの処理中であっても元々のパスを返します。
+     * </p>
+     * <p>返されるURLにはクエリ文字列も付与されます。
+     * </p>
+     * 
+     * @param request リクエスト。
+     * @return リクエストされたURLのプロトコルとポートを差し替えたURL。
+     */
     public static String constructRequestURL(HttpServletRequest request,
             String protocol, int port) {
         StringBuilder sb = new StringBuilder(256);
-        sb.append(protocol).append("://");
+        sb.append(protocol).append(PROTOCOL_DOMAIN_DELIMITER);
         sb.append(request.getServerName());
         if (!(PROTOCOL_HTTP.equals(protocol) && port == PORT_HTTP || PROTOCOL_HTTPS
                 .equals(protocol)
                 && port == PORT_HTTPS)) {
             sb.append(':').append(port);
         }
-        sb.append(request.getContextPath());
-        sb.append(request.getServletPath());
-        String pathInfo = request.getPathInfo();
+        String contextPath;
+        String servletPath;
+        String pathInfo;
+        String queryString;
+        if (wasForwareded(request)) {
+            contextPath = (String) request
+                    .getAttribute(ATTR_FORWARD_CONTEXT_PATH);
+            servletPath = (String) request
+                    .getAttribute(ATTR_FORWARD_SERVLET_PATH);
+            pathInfo = (String) request.getAttribute(ATTR_FORWARD_PATH_INFO);
+            queryString = (String) request
+                    .getAttribute(ATTR_FORWARD_QUERY_STRING);
+        } else {
+            contextPath = request.getContextPath();
+            servletPath = request.getServletPath();
+            pathInfo = request.getPathInfo();
+            queryString = request.getQueryString();
+        }
+        sb.append(contextPath).append(servletPath);
         if (pathInfo != null) {
             sb.append(pathInfo);
         }
-        String queryString = request.getQueryString();
         if (queryString != null) {
             sb.append('?').append(queryString);
         }
         return sb.toString();
     }
 
+    /**
+     * 指定されたクエリ文字列からパラメータを保持するMapを構築します。
+     * 
+     * @param param クエリ文字列。nullが指定された場合はこのメソッドはnullを返します。
+     * @param encoding クエリ文字列をエンコードしている文字エンコーディング。
+     * @return 構築したMapオブジェクト。
+     * @throws UnsupportedEncodingException 指定された文字エンコーディングが存在しない場合。
+     */
     public static Map<String, String[]> parseParameters(String param,
             String encoding) throws UnsupportedEncodingException {
         if (param == null) {
@@ -294,6 +471,14 @@ public class ServletUtils {
         return map;
     }
 
+    /**
+     * 指定されたパスからクエリ文字列を取り除いた部分を返します。
+     * <p>nullが指定された場合はnullを返します。
+     * </p>
+     * 
+     * @param path パス。
+     * @return パスからクエリ文字列を取り除いた部分。
+     */
     public static String getTrunk(String path) {
         if (path == null) {
             return null;
