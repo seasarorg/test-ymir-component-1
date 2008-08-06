@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.EntityMetaData;
@@ -89,9 +90,9 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
         } catch (TemplateException ex) {
             throw new RuntimeException(ex);
         } catch (FileNotFoundException ex) {
-            return null;
+            throw new IORuntimeException(ex);
         } catch (IOException ex) {
-            throw new RuntimeException(ex);
+            throw new IORuntimeException(ex);
         }
         return sw.toString();
     }

@@ -1,13 +1,13 @@
 ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
 
-import ${application.rootPackageName}.converter.Converter;
+import ${application.rootPackageName}.converter.ConverterBase;
 
 <#if pairTypeDescs?size &gt; 0>import ${targetClassDesc.name};
 </#if><#list pairTypeDescs as pairTypeDesc><#list pairTypeDesc.importClassNames as importClassName>
 import ${importClassName};
 </#list></#list>
 
-public class ${classDesc.shortName}Base extends Converter
+public class ${classDesc.shortName}Base extends ConverterBase
 {
 <#list pairTypeDescs as pairTypeDesc>
     public ${targetClassDesc.shortName} copyTo(${targetClassDesc.shortName} dto, ${pairTypeDesc.shortName} entity)
