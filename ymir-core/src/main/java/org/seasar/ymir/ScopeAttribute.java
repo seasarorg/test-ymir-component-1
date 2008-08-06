@@ -38,6 +38,8 @@ public class ScopeAttribute {
 
     private HotdeployManager hotdeployManager_;
 
+    private TypeConversionManager typeConversionManager_;
+
     private static final Logger logger_ = Logger
             .getLogger(ScopeAttribute.class);
 
@@ -70,6 +72,8 @@ public class ScopeAttribute {
         }
         hotdeployManager_ = (HotdeployManager) container_
                 .getComponent(HotdeployManager.class);
+        typeConversionManager_ = (TypeConversionManager) container_
+                .getComponent(TypeConversionManager.class);
     }
 
     /**
@@ -80,6 +84,8 @@ public class ScopeAttribute {
     public void injectTo(Object component) {
         Object value = scope_.getAttribute(name_);
         if (value != null || injectWhereNull_) {
+            value = typeConversionManager_.convert(value, writeMethod_
+                    .getParameterTypes()[0]);
             boolean removeValue = false;
             try {
                 if (value != null && YmirContext.isUnderDevelopment()) {
@@ -114,7 +120,7 @@ public class ScopeAttribute {
     }
 
     /**
-     * 指定されたコンポーネントから値を取り出してスコープに会うとジェクトします。
+     * 指定されたコンポーネントから値を取り出してスコープにアウトジェクトします。
      * 
      * @param component コンポーネント。
      */

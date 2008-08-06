@@ -11,6 +11,14 @@
     class="org.seasar.ymir.scope.impl.RequestScope" />
   <component name="cookieScope"
     class="org.seasar.ymir.scope.impl.CookieScope" />
+  <component name="requestParameterScope"
+    class="org.seasar.ymir.scope.impl.RequestParameterScope" />
+  <component name="fileRequestParameterScope"
+    class="org.seasar.ymir.scope.impl.FileRequestParameterScope" />
+  <component name="requestHeaderScope"
+    class="org.seasar.ymir.scope.impl.RequestHeaderScope" />
+  <component name="responseHeaderScope"
+    class="org.seasar.ymir.scope.impl.ResponseHeaderScope" />
   <component name="redirectionScope"
     class="org.seasar.ymir.redirection.impl.RedirectionScope" />
   <component name="conversationScope"
