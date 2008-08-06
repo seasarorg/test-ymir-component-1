@@ -50,28 +50,45 @@ public interface TypeConversionManager {
     /**
      * 指定された文字列値を型変換します。
      * 
+     * @deprecated 代わりに{@link #convert(Object, Class)}を使って下さい。
      * @param <T> 変換結果の型。
      * @param value 変換元の値。
      * @param type 変換結果の型を表すClassオブジェクト。
      * @return 変換結果。
      */
+    @Deprecated
     <T> T convert(String value, Class<T> type);
 
     /**
      * 指定された文字列の配列を型変換します。
      * 
+     * @deprecated 代わりに{@link #convert(Object, Class)}を使って下さい。
      * @param <T> 変換結果の型。
      * @param value 変換元の文字列配列。
      * @param type 変換結果の型を表すClassオブジェクト。
      * @return 変換結果。
      */
+    @Deprecated
     <T> T[] convert(String[] values, Class<T> type);
 
     /**
      * 指定された値を文字列に変換します。
-     * 
+     *
+     * @deprecated 代わりに{@link #convert(Object, Class)}を使って下さい。
      * @param value 変換元の値。
      * @return 変換結果。
      */
+    @Deprecated
     String convert(Object value);
+
+    /**
+     * 指定されたオブジェクトを型変換します。
+     * 
+     * @param <T> 変換結果の型。
+     * @param value 変換元の値。
+     * @param type 変換結果の型を表すClassオブジェクト。
+     * @return 変換結果。
+     * @since 0.9.6
+     */
+    <T> T convert(Object value, Class<T> type);
 }

@@ -496,7 +496,7 @@ public class PathMappingImpl implements PathMapping {
                     broken = true;
                 }
             }
-            parameters[i] = typeConversionManager_.convert(param,
+            parameters[i] = typeConversionManager_.convert((Object) param,
                     parameterTypes[i]);
         }
         return parameters;

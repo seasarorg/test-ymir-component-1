@@ -64,11 +64,13 @@ public class YmirTypeConversionManager extends BeanUtilsTypeConversionManager {
         return convertUtilsBean;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public <T> T convert(String value, Class<T> type) {
         return super.convert(adjust(value, type), type);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public <T> T[] convert(String[] values, Class<T> type) {
         for (int i = 0; i < values.length; i++) {
@@ -77,18 +79,17 @@ public class YmirTypeConversionManager extends BeanUtilsTypeConversionManager {
         return super.convert(values, type);
     }
 
-    String adjust(String value, Class<?> type) {
+    @Override
+    protected <T> T convertStringTo(String value, Class<T> type) {
+        return super.convertStringTo(adjust(value, type), type);
+    }
+
+    protected String adjust(String value, Class<?> type) {
         if (isNumericType(type)) {
             if ("true".equals(value)) {
                 return TRUE_NUMBER;
             } else if ("false".equals(value)) {
                 return FALSE_NUMBER;
-            }
-        } else if (type == Boolean.class) {
-            if (TRUE_NUMBER.equals(value)) {
-                return String.valueOf(true);
-            } else if (FALSE_NUMBER.equals(value)) {
-                return String.valueOf(false);
             }
         }
         return value;
