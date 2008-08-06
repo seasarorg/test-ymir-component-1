@@ -60,10 +60,9 @@ public class SessionManagerImpl implements SessionManager {
         }
     }
 
-    @SuppressWarnings("unchecked")
     Attribute[] abandonAttributes(HttpSession session) {
         List<Attribute> attributeList = new ArrayList<Attribute>();
-        for (Enumeration enm = session.getAttributeNames(); enm
+        for (Enumeration<?> enm = session.getAttributeNames(); enm
                 .hasMoreElements();) {
             String name = (String) enm.nextElement();
             if (isStraddlingAttributeName(name)) {
