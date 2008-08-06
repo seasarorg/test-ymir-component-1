@@ -22,9 +22,11 @@ import javax.servlet.http.Cookie;
 public class CookieScope extends AbstractServletScope {
     public Object getAttribute(String name) {
         Cookie[] cookies = getRequest().getCookies();
-        for (int i = 0; i < cookies.length; i++) {
-            if (name.equals(cookies[i].getName())) {
-                return cookies[i].getValue();
+        if (cookies != null) {
+            for (int i = 0; i < cookies.length; i++) {
+                if (name.equals(cookies[i].getName())) {
+                    return cookies[i].getValue();
+                }
             }
         }
         return null;
