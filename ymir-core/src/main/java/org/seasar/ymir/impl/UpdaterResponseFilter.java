@@ -25,6 +25,8 @@ public class UpdaterResponseFilter extends HttpServletResponseWrapper implements
 
     private ByteArrayOutputStream outputStream_;
 
+    private ServletOutputStream servletOutputStream_;
+
     private StringWriter writer_;
 
     private PrintWriter printWriter_;
@@ -37,12 +39,15 @@ public class UpdaterResponseFilter extends HttpServletResponseWrapper implements
 
     public ServletOutputStream getOutputStream() throws IOException {
         if (shouldBuffering()) {
-            outputStream_ = new ByteArrayOutputStream();
-            return new ServletOutputStream() {
-                public void write(int b) throws IOException {
-                    outputStream_.write(b);
-                }
-            };
+            if (servletOutputStream_ == null) {
+                outputStream_ = new ByteArrayOutputStream();
+                servletOutputStream_ = new ServletOutputStream() {
+                    public void write(int b) throws IOException {
+                        outputStream_.write(b);
+                    }
+                };
+            }
+            return servletOutputStream_;
         } else {
             return getResponse().getOutputStream();
         }
@@ -54,8 +59,10 @@ public class UpdaterResponseFilter extends HttpServletResponseWrapper implements
 
     public PrintWriter getWriter() throws IOException {
         if (shouldBuffering()) {
-            writer_ = new StringWriter();
-            printWriter_ = new PrintWriter(writer_);
+            if (printWriter_ == null) {
+                writer_ = new StringWriter();
+                printWriter_ = new PrintWriter(writer_);
+            }
             return printWriter_;
         } else {
             return getResponse().getWriter();
