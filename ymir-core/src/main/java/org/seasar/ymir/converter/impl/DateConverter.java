@@ -38,6 +38,8 @@ public class DateConverter implements Converter {
 
         if (value instanceof Date) {
             return value;
+        } else if (value instanceof Number) {
+            return new Date(((Number) value).longValue());
         }
 
         try {
