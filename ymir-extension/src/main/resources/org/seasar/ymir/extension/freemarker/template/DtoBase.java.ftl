@@ -1,7 +1,10 @@
 ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
 
+import java.io.Serializable;
+
 <#list classDesc.annotationDescs as annotationDesc>${annotationDesc.string}
 </#list>public class ${classDesc.shortName}Base
+    implements Serializable
 {
 <#list classDesc.propertyDescs as propertyDesc>
     protected ${propertyDesc.typeDesc.name} ${fieldPrefix}${propertyDesc.name}${fieldSuffix};

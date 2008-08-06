@@ -1,6 +1,9 @@
 package com.example.dto;
 
+import java.io.Serializable;
+
 public class TestDtoBase
+    implements Serializable
 {
     protected boolean param1_;
 

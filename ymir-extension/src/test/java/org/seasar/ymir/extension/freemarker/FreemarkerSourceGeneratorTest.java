@@ -42,7 +42,6 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     protected void setUp() throws Exception {
-
         super.setUp();
         sourceCreator_ = new FSourceCreatorImpl() {
             {
