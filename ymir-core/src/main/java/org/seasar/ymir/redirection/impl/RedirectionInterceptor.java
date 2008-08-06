@@ -1,4 +1,4 @@
-package org.seasar.ymir.impl;
+package org.seasar.ymir.redirection.impl;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -38,7 +38,7 @@ public class RedirectionInterceptor extends AbstractYmirProcessInterceptor {
             Request request, Response response) {
         if (!redirectionManager_.isAddScopeIdAsRequestParameter()) {
             // Cookieとしてキーを保存する。またキーが不要ならCookieを削除する。
-            if (redirectionManager_.getScopeMap(false) != null) {
+            if (redirectionManager_.existsScopeMap()) {
                 // redirectionScopeにオブジェクトが新たにバインドされているのでキーを保存する。
                 Cookie cookie = newCookie(request, redirectionManager_
                         .getScopeIdKey(), redirectionManager_.getScopeId());
@@ -67,7 +67,7 @@ public class RedirectionInterceptor extends AbstractYmirProcessInterceptor {
 
     @Override
     public String encodingRedirectURL(String url) {
-        if (redirectionManager_.getScopeMap(false) != null
+        if (redirectionManager_.existsScopeMap()
                 && redirectionManager_.isAddScopeIdAsRequestParameter()) {
             // リクエストパラメータとしてキーを保存する。
             String scopeKeyParam;

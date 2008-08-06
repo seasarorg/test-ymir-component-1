@@ -1,21 +1,24 @@
-package org.seasar.ymir.impl;
+package org.seasar.ymir.session.impl;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.seasar.framework.container.S2Container;
-import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.Attribute;
-import org.seasar.ymir.SessionManager;
+import org.seasar.ymir.session.SessionManager;
 import org.seasar.ymir.util.ContainerUtils;
 
 public class SessionManagerImpl implements SessionManager {
     private S2Container container_;
 
-    private String[] straddlingAttributeNames_ = new String[0];
+    private String straddlingAttributeNamePatternString_;
+
+    private Pattern straddlingAttributeNamePattern_;
 
     public void setContainer(S2Container container) {
         container_ = container;
@@ -57,25 +60,43 @@ public class SessionManagerImpl implements SessionManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     Attribute[] abandonAttributes(HttpSession session) {
-        String[] names = getStraddlingAttributeNames();
         List<Attribute> attributeList = new ArrayList<Attribute>();
-        for (int i = 0; i < names.length; i++) {
-            Object value = session.getAttribute(names[i]);
-            if (value != null) {
-                attributeList.add(new Attribute(names[i], value));
+        for (Enumeration enm = session.getAttributeNames(); enm
+                .hasMoreElements();) {
+            String name = (String) enm.nextElement();
+            if (isStraddlingAttributeName(name)) {
+                attributeList.add(new Attribute(name, session
+                        .getAttribute(name)));
             }
         }
         return attributeList.toArray(new Attribute[0]);
     }
 
-    public String[] getStraddlingAttributeNames() {
-        return straddlingAttributeNames_;
+    /**
+     * セッションを無効化して再作成する場合にセッションを跨いで値を保持したい属性の名前かどうかを返します。
+     * 
+     * @return セッションを跨いで値を保持したい属性の名前かどうか。
+     * @see #addStraddlingAttributeNamePattern(String)
+     */
+    boolean isStraddlingAttributeName(String name) {
+        if (straddlingAttributeNamePattern_ == null) {
+            return false;
+        } else {
+            return straddlingAttributeNamePattern_.matcher(name).matches();
+        }
     }
 
-    public void addStraddlingAttributeName(String attributeName) {
-        straddlingAttributeNames_ = (String[]) ArrayUtil.add(
-                straddlingAttributeNames_, attributeName);
+    public void addStraddlingAttributeNamePattern(String namePattern) {
+        if (straddlingAttributeNamePatternString_ == null) {
+            straddlingAttributeNamePatternString_ = namePattern;
+        } else {
+            straddlingAttributeNamePatternString_ = straddlingAttributeNamePatternString_
+                    + "|" + namePattern;
+        }
+        straddlingAttributeNamePattern_ = Pattern
+                .compile(straddlingAttributeNamePatternString_);
     }
 
     HttpServletRequest getHttpServletRequest() {

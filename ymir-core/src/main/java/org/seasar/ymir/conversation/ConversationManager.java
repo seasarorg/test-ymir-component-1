@@ -1,7 +1,5 @@
 package org.seasar.ymir.conversation;
 
-import org.seasar.ymir.Globals;
-
 /**
  * Conversationを管理するためのインタフェースです。
  * <p>Conversationに関する指定や操作は通常アノテーションを使って行ないますが、
@@ -15,16 +13,6 @@ import org.seasar.ymir.Globals;
  * @author YOKOTA Takehiko
  */
 public interface ConversationManager {
-    /**
-     * Conversation関連の属性をセッションに格納する際のキーの接頭辞です。
-     */
-    String ATTRPREFIX_CONVERSATION = Globals.IDPREFIX + "conversation.";
-
-    /**
-     * Conversationsオブジェクトをセッションに格納する際のキーです。
-     */
-    String ATTR_CONVERSATIONS = ATTRPREFIX_CONVERSATION + "conversations";
-
     /**
      * 現在のセッションに格納されているConversationsオブジェクトを返します。
      * <p>Conversationsオブジェクトが見つからなかった場合は新規に作成して

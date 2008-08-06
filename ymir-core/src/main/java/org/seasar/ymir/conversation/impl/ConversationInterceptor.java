@@ -10,12 +10,9 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Action;
-import org.seasar.ymir.LifecycleListener;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.SessionManager;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.constraint.PermissionDeniedException;
-import org.seasar.ymir.conversation.ConversationManager;
 import org.seasar.ymir.conversation.ConversationUtils;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.conversation.Globals;
@@ -29,28 +26,12 @@ import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 /**
  * Conversationスコープを実現するためのクラスです。
  */
-public class ConversationInterceptor extends AbstractYmirProcessInterceptor
-        implements LifecycleListener {
+public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
     private Configuration configuration_;
-
-    private SessionManager sessionManager_;
 
     @Binding(bindingType = BindingType.MUST)
     public void setConfiguration(Configuration configuration) {
         configuration_ = configuration;
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setSessionManager(SessionManager sessionManager) {
-        sessionManager_ = sessionManager;
-    }
-
-    public void init() {
-        sessionManager_
-                .addStraddlingAttributeName(ConversationManager.ATTR_CONVERSATIONS);
-    }
-
-    public void destroy() {
     }
 
     @Override

@@ -2,31 +2,43 @@ package org.seasar.ymir.redirection.impl;
 
 import javax.servlet.http.HttpSession;
 
-import org.seasar.framework.mock.servlet.MockHttpSessionImpl;
-
 import junit.framework.TestCase;
 
-public class RedirectionManagerImplTest extends TestCase {
-    public void testGetScopeMap_createしない場合はセッションを生成しないこと() throws Exception {
-        final boolean[] sessionCreated = new boolean[] { false };
-        RedirectionManagerImpl target_ = new RedirectionManagerImpl() {
-            @Override
-            public String getScopeId() {
-                return "scopeId";
-            }
+import org.seasar.ymir.session.impl.SessionManagerImpl;
+import org.seasar.ymir.test.mock.servlet.MockHttpServletRequestImpl;
+import org.seasar.ymir.test.mock.servlet.MockServletContextImpl;
+import org.seasar.ymir.window.impl.WindowManagerImpl;
 
+public class RedirectionManagerImplTest extends TestCase {
+    private RedirectionManagerImpl target_;
+
+    private boolean[] sessionCreated = new boolean[] { false };
+
+    @Override
+    protected void setUp() throws Exception {
+        target_ = new RedirectionManagerImpl();
+        WindowManagerImpl windowManager = new WindowManagerImpl() {
             @Override
-            HttpSession getSession(boolean create) {
-                if (create) {
-                    sessionCreated[0] = true;
-                    return new MockHttpSessionImpl(null);
-                } else {
-                    return null;
-                }
+            public String getWindowIdFromRequest() {
+                return null;
             }
         };
+        windowManager.setSessionManager(new SessionManagerImpl() {
+            @Override
+            public HttpSession getSession(boolean create) {
+                if (create) {
+                    sessionCreated[0] = true;
+                }
+                return new MockHttpServletRequestImpl(
+                        new MockServletContextImpl("/context"), "/request")
+                        .getSession(create);
+            }
+        });
+        target_.setWindowManager(windowManager);
+    }
 
-        target_.getScopeMap(false);
+    public void testGetScopeMapしただけではSessionが生成されないこと() throws Exception {
+        target_.getScopeMap("aaa", false);
 
         assertFalse(sessionCreated[0]);
     }

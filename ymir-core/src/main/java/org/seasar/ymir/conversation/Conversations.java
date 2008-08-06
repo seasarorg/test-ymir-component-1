@@ -137,6 +137,9 @@ public interface Conversations {
      * <p>sub-convresationを開始する場合は終了時の戻り先を設定しておきます。
      * sub-convresationが終了すると、予め設定しておいて戻り先に処理が戻ります。
      * </p>
+     * <p><b>[重要]</b> クラスタリング対応アプリケーションでは、
+     * <code>reenterResponse</code>にはSerializableでないオブジェクトを設定しないようにして下さい。
+     * </p>
      * 
      * @param reenterResponse 終了時の処理の戻り先を表すオブジェクト。
      */

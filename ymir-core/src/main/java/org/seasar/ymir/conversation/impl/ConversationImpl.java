@@ -1,19 +1,24 @@
 package org.seasar.ymir.conversation.impl;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.conversation.Conversation;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 
 /**
  * このクラスはスレッドセーフです。
  */
-public class ConversationImpl implements Conversation {
-    private HotdeployManager hotdeployManager_;
+public class ConversationImpl implements Conversation, Serializable {
+    private static final long serialVersionUID = -994133844419542105L;
 
-    private ApplicationManager applicationManager_;
+    private transient HotdeployManager hotdeployManager_;
+
+    private transient ApplicationManager applicationManager_;
 
     private String name_;
 
@@ -38,6 +43,17 @@ public class ConversationImpl implements Conversation {
     @Override
     public String toString() {
         return getName();
+    }
+
+    private Object readResolve() throws ObjectStreamException {
+        // transientなオブジェクトを復元する。
+        hotdeployManager_ = (HotdeployManager) YmirContext.getYmir()
+                .getApplication().getS2Container().getComponent(
+                        HotdeployManager.class);
+        applicationManager_ = (ApplicationManager) YmirContext.getYmir()
+                .getApplication().getS2Container().getComponent(
+                        ApplicationManager.class);
+        return this;
     }
 
     public String getName() {

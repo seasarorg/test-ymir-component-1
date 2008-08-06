@@ -17,7 +17,9 @@
   <component name="localeManager"
     class="org.seasar.ymir.impl.LocaleManagerImpl" />
   <component name="sessionManager"
-    class="org.seasar.ymir.impl.SessionManagerImpl" />
+    class="org.seasar.ymir.session.impl.SessionManagerImpl" />
+  <component name="windowManager"
+    class="org.seasar.ymir.window.impl.WindowManagerImpl" />
   <component name="dateManager"
     class="org.seasar.ymir.impl.DateManagerImpl" />
   <component name="redirectionManager"

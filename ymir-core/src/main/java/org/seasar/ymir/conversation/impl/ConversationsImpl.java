@@ -1,8 +1,11 @@
 package org.seasar.ymir.conversation.impl;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.LinkedList;
 
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.conversation.Conversation;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.conversation.IllegalTransitionRuntimeException;
@@ -11,10 +14,12 @@ import org.seasar.ymir.hotdeploy.HotdeployManager;
 /**
  * このクラスはスレッドセーフです。
  */
-public class ConversationsImpl implements Conversations {
-    private HotdeployManager hotdeployManager_;
+public class ConversationsImpl implements Conversations, Serializable {
+    private static final long serialVersionUID = 378981595198068349L;
 
-    private ApplicationManager applicationManager_;
+    private transient HotdeployManager hotdeployManager_;
+
+    private transient ApplicationManager applicationManager_;
 
     private LinkedList<Conversation> conversationStack_ = new LinkedList<Conversation>();
 
@@ -28,6 +33,17 @@ public class ConversationsImpl implements Conversations {
 
     public void setApplicationManager(ApplicationManager applicationManager) {
         applicationManager_ = applicationManager;
+    }
+
+    private Object readResolve() throws ObjectStreamException {
+        // transientなオブジェクトを復元する。
+        hotdeployManager_ = (HotdeployManager) YmirContext.getYmir()
+                .getApplication().getS2Container().getComponent(
+                        HotdeployManager.class);
+        applicationManager_ = (ApplicationManager) YmirContext.getYmir()
+                .getApplication().getS2Container().getComponent(
+                        ApplicationManager.class);
+        return this;
     }
 
     public synchronized Conversation getCurrentConversation() {

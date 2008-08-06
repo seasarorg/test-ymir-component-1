@@ -1,7 +1,5 @@
 package org.seasar.ymir.redirection.impl;
 
-import java.util.Map;
-
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.redirection.RedirectionManager;
@@ -26,18 +24,14 @@ public class RedirectionScope implements Scope {
     }
 
     public Object getAttribute(String name) {
-        return redirectionManager_.get(name);
+        return redirectionManager_.getScopeAttribute(name);
     }
 
     public void setAttribute(String name, Object value) {
         if (value == null) {
-            Map<String, Object> scopeMap = redirectionManager_
-                    .getScopeMap(false);
-            if (scopeMap != null) {
-                scopeMap.remove(name);
-            }
+            redirectionManager_.removeScopeAttribute(name);
         } else {
-            redirectionManager_.getScopeMap().put(name, value);
+            redirectionManager_.setScopeAttribute(name, value);
         }
     }
 }

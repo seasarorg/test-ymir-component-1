@@ -1,16 +1,22 @@
 package org.seasar.ymir.conversation.impl;
 
+import static org.seasar.ymir.conversation.Globals.APPKEY_USESESSIONSCOPEASCONVERSATIONSCOPE;
+
 import javax.servlet.http.HttpSession;
 
 import org.seasar.cms.pluggable.Configuration;
+import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.PropertyUtils;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.conversation.ConversationManager;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.conversation.annotation.Conversation;
-import org.seasar.ymir.scope.impl.AbstractServletScope;
+import org.seasar.ymir.scope.Scope;
+import org.seasar.ymir.session.SessionManager;
 
 /**
  * conversationの範囲で有効なオブジェクトを管理するスコープを表すクラスです。
@@ -20,7 +26,7 @@ import org.seasar.ymir.scope.impl.AbstractServletScope;
  * 
  * @author YOKOTA Takehiko
  */
-public class ConversationScope extends AbstractServletScope {
+public class ConversationScope implements Scope {
     public static final String ATTRPREFIX_CONVERSATION = Globals.IDPREFIX
             + "conversation.";
 
@@ -29,21 +35,43 @@ public class ConversationScope extends AbstractServletScope {
 
     private Configuration configuration_;
 
+    private ApplicationManager applicationManager_;
+
+    private SessionManager sessionManager_;
+
+    private ConversationManager conversationManager_;
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
+    }
+
     @Binding(bindingType = BindingType.MUST)
     public void setConfiguration(Configuration configuration) {
         configuration_ = configuration;
     }
 
+    @Binding(bindingType = BindingType.MUST)
+    public void setSessionManager(SessionManager sessionManager) {
+        sessionManager_ = sessionManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setConversationManager(ConversationManager conversationManager) {
+        conversationManager_ = conversationManager;
+    }
+
     public Object getAttribute(String name) {
         if (isUseSessionScopeAsConversationScope()) {
-            HttpSession session = getSession(false);
+            HttpSession session = sessionManager_.getSession(false);
             if (session == null) {
                 return null;
             } else {
                 return session.getAttribute(name);
             }
         } else {
-            Conversations conversations = getConversations();
+            Conversations conversations = conversationManager_
+                    .getConversations();
             if (conversations != null
                     && conversationNameEquals(getPageConversationName(),
                             conversations.getCurrentConversationName())) {
@@ -61,10 +89,9 @@ public class ConversationScope extends AbstractServletScope {
     }
 
     String getPageConversationName() {
-        Conversation conversation = ((Request) container_
-                .getComponent(Request.class)).getCurrentDispatch()
-                .getPageComponent().getPageClass().getAnnotation(
-                        Conversation.class);
+        Conversation conversation = ((Request) getS2Container().getComponent(
+                Request.class)).getCurrentDispatch().getPageComponent()
+                .getPageClass().getAnnotation(Conversation.class);
         if (conversation != null) {
             return conversation.name();
         } else {
@@ -72,22 +99,16 @@ public class ConversationScope extends AbstractServletScope {
         }
     }
 
-    Conversations getConversations() {
-        HttpSession session = getSession(false);
-        if (session == null) {
-            return null;
-        } else {
-            synchronized (session.getId().intern()) {
-                return (Conversations) session.getAttribute(ATTR_CONVERSATIONS);
-            }
-        }
+    S2Container getS2Container() {
+        return applicationManager_.findContextApplication().getS2Container();
     }
 
     public void setAttribute(String name, Object value) {
         if (isUseSessionScopeAsConversationScope()) {
-            getSession().setAttribute(name, value);
+            sessionManager_.getSession().setAttribute(name, value);
         } else {
-            Conversations conversations = getConversations();
+            Conversations conversations = conversationManager_
+                    .getConversations();
             if (conversations != null
                     && conversationNameEquals(getPageConversationName(),
                             conversations.getCurrentConversationName())) {
@@ -97,10 +118,7 @@ public class ConversationScope extends AbstractServletScope {
     }
 
     boolean isUseSessionScopeAsConversationScope() {
-        return PropertyUtils
-                .valueOf(
-                        configuration_
-                                .getProperty(org.seasar.ymir.conversation.Globals.APPKEY_USESESSIONSCOPEASCONVERSATIONSCOPE),
-                        false);
+        return PropertyUtils.valueOf(configuration_
+                .getProperty(APPKEY_USESESSIONSCOPEASCONVERSATIONSCOPE), false);
     }
 }

@@ -1,5 +1,7 @@
 package org.seasar.ymir;
 
+import java.io.Serializable;
+
 /**
  * 属性を表すクラスです。
  * <p>属性は、名前と値の組です。
@@ -10,7 +12,9 @@ package org.seasar.ymir;
  * 
  * @author YOKOTA Takehiko
  */
-public class Attribute {
+public class Attribute implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String name_;
 
     private Object value_;

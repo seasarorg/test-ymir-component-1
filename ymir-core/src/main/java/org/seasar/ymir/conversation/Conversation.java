@@ -57,6 +57,8 @@ public interface Conversation {
 
     /**
      * SubConversationが終了した時の戻り先を表すオブジェクトを設定します。
+     * <p><b>[重要]</b> クラスタリング対応アプリケーションではSerializableでないオブジェクトを設定しないようにして下さい。
+     * </p>
      * 
      * @param reenterResponse SubConversationが終了した時の戻り先を表すオブジェクト。
      */

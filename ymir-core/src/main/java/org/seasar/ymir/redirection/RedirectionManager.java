@@ -1,8 +1,6 @@
 package org.seasar.ymir.redirection;
 
-import java.util.Map;
-
-import org.seasar.ymir.impl.RedirectionInterceptor;
+import org.seasar.ymir.redirection.impl.RedirectionInterceptor;
 
 /**
  * RedirectionScopeに関する操作を提供するためのインタフェースです。
@@ -23,14 +21,6 @@ public interface RedirectionManager {
 
     String getScopeIdKey();
 
-    Map<String, Object> getScopeMap();
-
-    Map<String, Object> getScopeMap(boolean create);
-
-    Map<String, Object> getScopeMap(String scopeId);
-
-    Map<String, Object> getScopeMap(String scopeId, boolean create);
-
     void removeScopeMap();
 
     void removeScopeMap(String scopeId);
@@ -39,5 +29,11 @@ public interface RedirectionManager {
 
     String getScopeIdFromRequest();
 
-    Object get(String name);
+    <T> T getScopeAttribute(String name);
+
+    void setScopeAttribute(String name, Object value);
+
+    void removeScopeAttribute(String name);
+
+    boolean existsScopeMap();
 }
