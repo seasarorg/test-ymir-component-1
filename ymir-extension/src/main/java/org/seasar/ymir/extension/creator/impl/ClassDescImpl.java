@@ -191,6 +191,7 @@ public class ClassDescImpl extends AbstractClassDesc {
                 .getAnnotationDescs(), force));
     }
 
+    // Metaは自動生成機構が操作するものであって、つけたり外したりする都合上マージはしないようにしている。
     AnnotationDesc[] merge(AnnotationDesc[] ads,
             AnnotationDesc[] annotationDescs, boolean force) {
         Map<String, AnnotationDesc> adMap = new LinkedHashMap<String, AnnotationDesc>();
