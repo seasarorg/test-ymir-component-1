@@ -39,6 +39,10 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
         return "@" + getName() + getBody();
     }
 
+    public String getMetaName() {
+        return metaName_;
+    }
+
     public String getBody() {
         StringBuilder sb = new StringBuilder();
         sb.append("(name=\"").append(metaName_).append("\"");

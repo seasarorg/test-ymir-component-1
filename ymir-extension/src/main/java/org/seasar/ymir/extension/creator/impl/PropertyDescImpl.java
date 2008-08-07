@@ -157,23 +157,25 @@ public class PropertyDescImpl implements PropertyDesc, Cloneable {
         return annotationDescForGetterMap_.get(name);
     }
 
-    public AnnotationDesc[] getAnnotationDescsForGetter() {
-        return annotationDescForGetterMap_.values().toArray(
-                new AnnotationDesc[0]);
-    }
-
     public void setAnnotationDescForGetter(AnnotationDesc annotationDesc) {
         annotationDescForGetterMap_.put(annotationDesc.getName(),
                 annotationDesc);
     }
 
-    public AnnotationDesc getAnnotationDescForSetter(String name) {
-        return annotationDescForSetterMap_.get(name);
+    public AnnotationDesc[] getAnnotationDescsForGetter() {
+        return annotationDescForGetterMap_.values().toArray(
+                new AnnotationDesc[0]);
     }
 
-    public AnnotationDesc[] getAnnotationDescsForSetter() {
-        return annotationDescForSetterMap_.values().toArray(
-                new AnnotationDesc[0]);
+    public void setAnnotationDescsForGetter(AnnotationDesc[] annotationDescs) {
+        annotationDescForGetterMap_.clear();
+        for (AnnotationDesc annotationDesc : annotationDescs) {
+            setAnnotationDescForGetter(annotationDesc);
+        }
+    }
+
+    public AnnotationDesc getAnnotationDescForSetter(String name) {
+        return annotationDescForSetterMap_.get(name);
     }
 
     public void setAnnotationDescForSetter(AnnotationDesc annotationDesc) {
@@ -181,16 +183,35 @@ public class PropertyDescImpl implements PropertyDesc, Cloneable {
                 annotationDesc);
     }
 
+    public AnnotationDesc[] getAnnotationDescsForSetter() {
+        return annotationDescForSetterMap_.values().toArray(
+                new AnnotationDesc[0]);
+    }
+
+    public void setAnnotationDescsForSetter(AnnotationDesc[] annotationDescs) {
+        annotationDescForSetterMap_.clear();
+        for (AnnotationDesc annotationDesc : annotationDescs) {
+            setAnnotationDescForSetter(annotationDesc);
+        }
+    }
+
     public AnnotationDesc getAnnotationDesc(String name) {
         return annotationDescMap_.get(name);
+    }
+
+    public void setAnnotationDesc(AnnotationDesc annotationDesc) {
+        annotationDescMap_.put(annotationDesc.getName(), annotationDesc);
     }
 
     public AnnotationDesc[] getAnnotationDescs() {
         return annotationDescMap_.values().toArray(new AnnotationDesc[0]);
     }
 
-    public void setAnnotationDesc(AnnotationDesc annotationDesc) {
-        annotationDescMap_.put(annotationDesc.getName(), annotationDesc);
+    public void setAnnotationDescs(AnnotationDesc[] annotationDescs) {
+        annotationDescMap_.clear();
+        for (AnnotationDesc annotationDesc : annotationDescs) {
+            setAnnotationDesc(annotationDesc);
+        }
     }
 
     public String getMetaValueOnGetter(String name) {

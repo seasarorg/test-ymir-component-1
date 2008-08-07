@@ -46,21 +46,27 @@ public interface PropertyDesc extends Cloneable {
 
     AnnotationDesc getAnnotationDescForGetter(String name);
 
+    void setAnnotationDescForGetter(AnnotationDesc annotationDesc);
+
     AnnotationDesc[] getAnnotationDescsForGetter();
 
-    void setAnnotationDescForGetter(AnnotationDesc annotationDesc);
+    void setAnnotationDescsForGetter(AnnotationDesc[] annotationDescs);
 
     AnnotationDesc getAnnotationDescForSetter(String name);
 
+    void setAnnotationDescForSetter(AnnotationDesc annotationDesc);
+
     AnnotationDesc[] getAnnotationDescsForSetter();
 
-    void setAnnotationDescForSetter(AnnotationDesc annotationDesc);
+    void setAnnotationDescsForSetter(AnnotationDesc[] annotationDescs);
 
     AnnotationDesc getAnnotationDesc(String name);
 
+    void setAnnotationDesc(AnnotationDesc annotationDesc);
+
     AnnotationDesc[] getAnnotationDescs();
 
-    void setAnnotationDesc(AnnotationDesc annotationDesc);
+    void setAnnotationDescs(AnnotationDesc[] annotationDescs);
 
     boolean hasMetaOnGetter(String name);
 

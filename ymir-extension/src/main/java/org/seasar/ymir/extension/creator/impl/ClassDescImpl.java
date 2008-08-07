@@ -155,6 +155,14 @@ public class ClassDescImpl extends AbstractClassDesc {
             } else {
                 merge(pd.getTypeDesc(), propertyDescs[i].getTypeDesc(), force);
                 pd.addMode(propertyDescs[i].getMode());
+                pd.setAnnotationDescs(merge(pd.getAnnotationDescs(),
+                        propertyDescs[i].getAnnotationDescs(), force));
+                pd.setAnnotationDescsForGetter(merge(pd
+                        .getAnnotationDescsForGetter(), propertyDescs[i]
+                        .getAnnotationDescsForGetter(), force));
+                pd.setAnnotationDescsForSetter(merge(pd
+                        .getAnnotationDescsForSetter(), propertyDescs[i]
+                        .getAnnotationDescsForSetter(), force));
             }
         }
 
@@ -214,6 +222,7 @@ public class ClassDescImpl extends AbstractClassDesc {
 
     boolean merge(TypeDesc td, TypeDesc typeDesc, boolean force) {
         if (td.equals(typeDesc)) {
+            // force == trueの場合は強制的に上書き扱いなので、上書きしたということにするためにtrueを返すようになっている。
             return force;
         } else if (!force && !td.isExplicit() && typeDesc.isExplicit() || force
                 && (!td.isExplicit() || typeDesc.isExplicit())) {

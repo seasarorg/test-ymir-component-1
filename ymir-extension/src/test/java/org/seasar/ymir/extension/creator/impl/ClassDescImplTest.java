@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -285,5 +286,127 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
                 new MethodDescImpl("method5")).getMetaValues("a"));
         assertNotNull("メソッドのMeta系アノテーションはマージされないこと", actual.getMethodDesc(
                 new MethodDescImpl("method5")).getMetaValues("b"));
+    }
+
+    public void testMerge3_YMIR_221_プロパティのアノテーションがマージされること() throws Exception {
+        ClassDesc actual = new ClassDescImpl("com.example.page.TestPage");
+        PropertyDesc pd = new PropertyDescImpl("param1");
+        pd.setMode(PropertyDesc.READ);
+        pd.setAnnotationDesc(new MetaAnnotationDescImpl("a", new String[0],
+                new Class[0]));
+        pd.setAnnotationDesc(new AnnotationDescImpl("name1"));
+        pd.setAnnotationDescForGetter(new MetaAnnotationDescImpl("a_getter",
+                new String[0], new Class[0]));
+        pd.setAnnotationDescForGetter(new AnnotationDescImpl("name1_getter"));
+        pd.setAnnotationDescForSetter(new MetaAnnotationDescImpl("a_setter",
+                new String[0], new Class[0]));
+        pd.setAnnotationDescForSetter(new AnnotationDescImpl("name1_setter"));
+        actual.setPropertyDesc(pd);
+
+        ClassDesc cd2 = new ClassDescImpl("com.example.page.TestPage");
+        cd2.setSuperclass(TestPageBase.class);
+        pd = new PropertyDescImpl("param1");
+        pd.setTypeDesc("java.lang.Integer");
+        pd.getTypeDesc().setExplicit(true);
+        pd.setMode(PropertyDesc.WRITE);
+        pd.setAnnotationDesc(new MetaAnnotationDescImpl("b", new String[0],
+                new Class[0]));
+        pd.setAnnotationDesc(new AnnotationDescImpl("name2"));
+        pd.setAnnotationDescForGetter(new MetaAnnotationDescImpl("b_getter",
+                new String[0], new Class[0]));
+        pd.setAnnotationDescForGetter(new AnnotationDescImpl("name2_getter"));
+        pd.setAnnotationDescForSetter(new MetaAnnotationDescImpl("b_setter",
+                new String[0], new Class[0]));
+        pd.setAnnotationDescForSetter(new AnnotationDescImpl("name2_setter"));
+        cd2.setPropertyDesc(pd);
+
+        actual.merge(cd2, false);
+
+        assertEquals("Meta系アノテーションはマージされないこと", "a",
+                ((MetaAnnotationDescImpl) actual.getPropertyDesc("param1")
+                        .getAnnotationDesc(Meta.class.getName())).getMetaName());
+        assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
+                "param1").getAnnotationDesc("name1"));
+        assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
+                "param1").getAnnotationDesc("name2"));
+
+        assertEquals("Meta系アノテーションはマージされないこと", "a_getter",
+                ((MetaAnnotationDescImpl) actual.getPropertyDesc("param1")
+                        .getAnnotationDescForGetter(Meta.class.getName()))
+                        .getMetaName());
+        assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
+                "param1").getAnnotationDescForGetter("name1_getter"));
+        assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
+                "param1").getAnnotationDescForGetter("name2_getter"));
+
+        assertEquals("Meta系アノテーションはマージされないこと", "a_setter",
+                ((MetaAnnotationDescImpl) actual.getPropertyDesc("param1")
+                        .getAnnotationDescForSetter(Meta.class.getName()))
+                        .getMetaName());
+        assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
+                "param1").getAnnotationDescForSetter("name1_setter"));
+        assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
+                "param1").getAnnotationDescForSetter("name2_setter"));
+    }
+
+    public void testMerge4_YMIR_221_プロパティのアノテーションがマージされること() throws Exception {
+        ClassDesc actual = new ClassDescImpl("com.example.page.TestPage");
+        PropertyDesc pd = new PropertyDescImpl("param1");
+        pd.setMode(PropertyDesc.READ);
+        pd.setAnnotationDesc(new MetaAnnotationDescImpl("a", new String[0],
+                new Class[0]));
+        pd.setAnnotationDesc(new AnnotationDescImpl("name1"));
+        pd.setAnnotationDescForGetter(new MetaAnnotationDescImpl("a_getter",
+                new String[0], new Class[0]));
+        pd.setAnnotationDescForGetter(new AnnotationDescImpl("name1_getter"));
+        pd.setAnnotationDescForSetter(new MetaAnnotationDescImpl("a_setter",
+                new String[0], new Class[0]));
+        pd.setAnnotationDescForSetter(new AnnotationDescImpl("name1_setter"));
+        actual.setPropertyDesc(pd);
+
+        ClassDesc cd2 = new ClassDescImpl("com.example.page.TestPage");
+        cd2.setSuperclass(TestPageBase.class);
+        pd = new PropertyDescImpl("param1");
+        pd.setTypeDesc("java.lang.Integer");
+        pd.getTypeDesc().setExplicit(true);
+        pd.setMode(PropertyDesc.WRITE);
+        pd.setAnnotationDesc(new MetaAnnotationDescImpl("b", new String[0],
+                new Class[0]));
+        pd.setAnnotationDesc(new AnnotationDescImpl("name2"));
+        pd.setAnnotationDescForGetter(new MetaAnnotationDescImpl("b_getter",
+                new String[0], new Class[0]));
+        pd.setAnnotationDescForGetter(new AnnotationDescImpl("name2_getter"));
+        pd.setAnnotationDescForSetter(new MetaAnnotationDescImpl("b_setter",
+                new String[0], new Class[0]));
+        pd.setAnnotationDescForSetter(new AnnotationDescImpl("name2_setter"));
+        cd2.setPropertyDesc(pd);
+
+        actual.merge(cd2, true);
+
+        assertEquals("Meta系アノテーションはマージされないこと", "b",
+                ((MetaAnnotationDescImpl) actual.getPropertyDesc("param1")
+                        .getAnnotationDesc(Meta.class.getName())).getMetaName());
+        assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
+                "param1").getAnnotationDesc("name1"));
+        assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
+                "param1").getAnnotationDesc("name2"));
+
+        assertEquals("Meta系アノテーションはマージされないこと", "b_getter",
+                ((MetaAnnotationDescImpl) actual.getPropertyDesc("param1")
+                        .getAnnotationDescForGetter(Meta.class.getName()))
+                        .getMetaName());
+        assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
+                "param1").getAnnotationDescForGetter("name1_getter"));
+        assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
+                "param1").getAnnotationDescForGetter("name2_getter"));
+
+        assertEquals("Meta系アノテーションはマージされないこと", "b_setter",
+                ((MetaAnnotationDescImpl) actual.getPropertyDesc("param1")
+                        .getAnnotationDescForSetter(Meta.class.getName()))
+                        .getMetaName());
+        assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
+                "param1").getAnnotationDescForSetter("name1_setter"));
+        assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
+                "param1").getAnnotationDescForSetter("name2_setter"));
     }
 }
