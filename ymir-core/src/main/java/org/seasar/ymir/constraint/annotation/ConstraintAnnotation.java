@@ -16,7 +16,7 @@ import org.seasar.ymir.constraint.ConstraintType;
  * @author YOKOTA Takehiko
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target(ElementType.ANNOTATION_TYPE)
 public @interface ConstraintAnnotation {
     /**
      * 制約のタイプです。
