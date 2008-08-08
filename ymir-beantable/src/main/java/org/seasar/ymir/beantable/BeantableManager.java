@@ -21,6 +21,7 @@ import org.seasar.framework.util.ClassTraversal.ClassHandler;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.LifecycleListener;
+import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.beantable.annotation.Managed;
 
 public class BeantableManager implements LifecycleListener, HotdeployListener {
@@ -29,6 +30,8 @@ public class BeantableManager implements LifecycleListener, HotdeployListener {
     private S2Container container_;
 
     private ApplicationManager applicationManager_;
+
+    private AnnotationHandler annotationHandler_;
 
     private ClassHandler beantableClassHandler_;
 
@@ -49,6 +52,11 @@ public class BeantableManager implements LifecycleListener, HotdeployListener {
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
         applicationManager_ = applicationManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setAnnotationHandler(AnnotationHandler annotationHandler) {
+        annotationHandler_ = annotationHandler;
     }
 
     @Binding(bindingType = BindingType.MUST, value = "beantableClassHandler")
@@ -187,7 +195,8 @@ public class BeantableManager implements LifecycleListener, HotdeployListener {
     }
 
     boolean isManaged(Class<?> beanClass) {
-        Managed managed = beanClass.getAnnotation(Managed.class);
+        Managed managed = annotationHandler_.getAnnotation(beanClass,
+                Managed.class);
         return (managed != null && managed.value());
     }
 }
