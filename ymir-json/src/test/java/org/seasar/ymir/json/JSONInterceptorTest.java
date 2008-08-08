@@ -8,9 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import junit.framework.TestCase;
 
-import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageMetaData;
+import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
 import org.seasar.ymir.impl.BeanUtilsTypeConversionManager;
 import org.seasar.ymir.impl.PageComponentImpl;
 import org.seasar.ymir.impl.PageMetaDataImpl;
@@ -53,12 +53,7 @@ public class JSONInterceptorTest extends TestCase {
         PageComponent pageComponent = new PageComponentImpl(testPage,
                 TestPage.class);
         PageMetaDataImpl pageMetaData = new PageMetaDataImpl(TestPage.class,
-                null) {
-            @Override
-            protected boolean isStrictInjection(S2Container container) {
-                return true;
-            }
-        };
+                null, new AnnotationHandlerImpl(), true);
         pageComponent.setRelatedObject(PageMetaData.class, pageMetaData);
         dispatch.setPageComponent(pageComponent);
         request.enterDispatch(dispatch);
