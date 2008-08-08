@@ -31,6 +31,7 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
+import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
@@ -38,6 +39,7 @@ import org.seasar.ymir.annotation.Include;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.PermissionDeniedException;
+import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
@@ -55,6 +57,10 @@ public class RequestProcessorImpl implements RequestProcessor {
     private ApplicationManager applicationManager_;
 
     private AnnotationHandler annotationHandler_;
+
+    private HotdeployManager hotdeployManager_;
+
+    private TypeConversionManager typeConversionManager_;
 
     private PageProcessor pageProcessor_;
 
@@ -96,6 +102,17 @@ public class RequestProcessorImpl implements RequestProcessor {
     @Binding(bindingType = BindingType.MUST)
     public void setAnnotationHandler(AnnotationHandler annotationHandler) {
         annotationHandler_ = annotationHandler;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setHotdeployManager(HotdeployManager hotdeployManager) {
+        hotdeployManager_ = hotdeployManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setTypeConversionManager(
+            TypeConversionManager typeConversionManager) {
+        typeConversionManager_ = typeConversionManager;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -343,7 +360,8 @@ public class RequestProcessorImpl implements RequestProcessor {
 
         pageComponent.setRelatedObject(PageMetaData.class,
                 new PageMetaDataImpl(pageClass, getS2Container(),
-                        annotationHandler_, isStrictInjection()));
+                        annotationHandler_, hotdeployManager_,
+                        typeConversionManager_, isStrictInjection()));
 
         return pageComponent;
     }
@@ -520,7 +538,7 @@ public class RequestProcessorImpl implements RequestProcessor {
                     Phase.SCOPEOBJECT_INJECTING);
 
             // 各コンテキストが持つ属性をinjectする。
-            pageProcessor_.injectContextAttributes(page, metaData, dispatch
+            pageProcessor_.injectScopeAttributes(page, metaData, dispatch
                     .getActionName());
 
             return null;
@@ -551,7 +569,7 @@ public class RequestProcessorImpl implements RequestProcessor {
 
         public Object process(PageComponent pageComponent) {
             // 各コンテキストに属性をoutjectする。
-            pageProcessor_.outjectContextAttributes(pageComponent.getPage(),
+            pageProcessor_.outjectScopeAttributes(pageComponent.getPage(),
                     pageComponent.getRelatedObject(PageMetaData.class),
                     dispatch_.getActionName());
 

@@ -15,14 +15,18 @@ import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.PageMetaData;
 import org.seasar.ymir.Phase;
-import org.seasar.ymir.ScopeAttribute;
+import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Invoke;
 import org.seasar.ymir.annotation.Out;
+import org.seasar.ymir.annotation.Populate;
 import org.seasar.ymir.annotation.Protected;
-import org.seasar.ymir.annotation.RequestParameter;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
+import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.scope.Scope;
+import org.seasar.ymir.scope.handler.ScopeAttributeHandler;
+import org.seasar.ymir.scope.handler.impl.ScopeAttributeInjector;
+import org.seasar.ymir.scope.handler.impl.ScopeAttributeOutjector;
 import org.seasar.ymir.scope.impl.RequestScope;
 import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ClassUtils;
@@ -34,23 +38,31 @@ public class PageMetaDataImpl implements PageMetaData {
 
     private AnnotationHandler annotationHandler_;
 
+    private HotdeployManager hotdeployManager_;
+
+    private TypeConversionManager typeConversionManager_;
+
     private Set<String> protectedNameSet_ = new HashSet<String>();
 
-    private Set<String> permittedNameSet_ = new HashSet<String>();
+    private List<ScopeAttributeHandler> injectedScopeAttributeHandlerList_ = new ArrayList<ScopeAttributeHandler>();
 
-    private List<ScopeAttribute> injectedScopeAttributeList_ = new ArrayList<ScopeAttribute>();
-
-    private List<ScopeAttribute> outjectedScopeAttributeList_ = new ArrayList<ScopeAttribute>();
+    private List<ScopeAttributeHandler> outjectedScopeAttributeHandlerList_ = new ArrayList<ScopeAttributeHandler>();
 
     private Map<Phase, Method[]> methodsMap_ = new HashMap<Phase, Method[]>();
 
     private boolean strictInjection_;
 
+    private Map<String, Scope> populatedScopeMap_ = new HashMap<String, Scope>();
+
     public PageMetaDataImpl(Class<?> clazz, S2Container container,
-            AnnotationHandler annotationHandler, boolean strictInjection) {
+            AnnotationHandler annotationHandler,
+            HotdeployManager hotdeployManager,
+            TypeConversionManager typeConversionManager, boolean strictInjection) {
         class_ = clazz;
         container_ = container;
         annotationHandler_ = annotationHandler;
+        hotdeployManager_ = hotdeployManager;
+        typeConversionManager_ = typeConversionManager;
         strictInjection_ = strictInjection;
         Method[] methods = ClassUtils.getMethods(clazz);
         for (int i = 0; i < methods.length; i++) {
@@ -60,24 +72,38 @@ public class PageMetaDataImpl implements PageMetaData {
 
     public boolean isProtected(String propertyName) {
         if (strictInjection_) {
-            return !permittedNameSet_.contains(BeanUtils
-                    .getFirstSimpleSegment(propertyName));
+            return true;
         } else {
             return protectedNameSet_.contains(BeanUtils
                     .getFirstSimpleSegment(propertyName));
         }
     }
 
-    public ScopeAttribute[] getInjectedScopeAttributes() {
-        return injectedScopeAttributeList_.toArray(new ScopeAttribute[0]);
+    public Scope[] getPopulatedScopes() {
+        return populatedScopeMap_.values().toArray(new Scope[0]);
     }
 
-    public ScopeAttribute[] getOutjectedScopeAttributes() {
-        return outjectedScopeAttributeList_.toArray(new ScopeAttribute[0]);
+    public ScopeAttributeHandler[] getInjectedScopeAttributeHandlers() {
+        return injectedScopeAttributeHandlerList_
+                .toArray(new ScopeAttributeHandler[0]);
+    }
+
+    public ScopeAttributeHandler[] getOutjectedScopeAttributeHandlers() {
+        return outjectedScopeAttributeHandlerList_
+                .toArray(new ScopeAttributeHandler[0]);
     }
 
     void register(Method method) {
         boolean shouldProtect = false;
+
+        Populate[] populates = annotationHandler_.getAnnotations(method,
+                Populate.class);
+        if (populates.length > 0) {
+            shouldProtect = true;
+        }
+        for (Populate populate : populates) {
+            registerScopeToPopulate(populate);
+        }
 
         In[] ins = annotationHandler_.getAnnotations(method, In.class);
         if (ins.length > 0) {
@@ -132,13 +158,23 @@ public class PageMetaDataImpl implements PageMetaData {
             protectedNameSet_.add(BeanUtils.toPropertyName(method.getName(),
                     false));
         }
+    }
 
-        if (strictInjection_
-                && annotationHandler_.isAnnotationPresent(method,
-                        RequestParameter.class)) {
-            permittedNameSet_.add(BeanUtils.toPropertyName(method.getName(),
-                    false));
+    void registerScopeToPopulate(Populate populate) {
+        Scope scope = getScope(populate);
+        populatedScopeMap_.put(scope.getName(), scope);
+    }
+
+    Scope getScope(Populate populate) {
+        Object key;
+        if (populate.scopeName().length() > 0) {
+            key = populate.scopeName();
+        } else if (populate.value() != Scope.class) {
+            key = populate.value();
+        } else {
+            key = RequestScope.class;
         }
+        return (Scope) getComponent(key);
     }
 
     void registerForInjectionFromScope(In in, Method method) {
@@ -151,24 +187,27 @@ public class PageMetaDataImpl implements PageMetaData {
             throw new RuntimeException(
                     "Logic error: @In can annotate only public method: class="
                             + class_.getName() + ", method=" + method);
-        } else if (method.getParameterTypes().length != 1) {
+        } else if (!(method.getParameterTypes().length == 0
+                && !method.getReturnType().equals(Void.TYPE) || method
+                .getParameterTypes().length == 1)) {
             throw new RuntimeException(
                     "Logic error: @In can't annotate this method: class="
                             + class_.getName() + ", method=" + method);
         }
 
-        injectedScopeAttributeList_.add(new ScopeAttribute(container_,
+        injectedScopeAttributeHandlerList_.add(new ScopeAttributeInjector(
                 toAttributeName(method.getName(), in.name()), getScope(in),
-                method, in.injectWhereNull(), null, false, in.actionName()));
+                method, in.injectWhereNull(), in.actionName(),
+                hotdeployManager_, typeConversionManager_));
     }
 
     Scope getScope(In in) {
         Object key;
         if (in.scopeName().length() > 0) {
             key = in.scopeName();
-        } else if (in.scopeClass() != Object.class) {
+        } else if (in.scopeClass() != Scope.class) {
             key = in.scopeClass();
-        } else if (in.value() != Object.class) {
+        } else if (in.value() != Scope.class) {
             key = in.value();
         } else {
             key = RequestScope.class;
@@ -192,18 +231,19 @@ public class PageMetaDataImpl implements PageMetaData {
                             + class_.getName() + ", method=" + method);
         }
 
-        outjectedScopeAttributeList_.add(new ScopeAttribute(container_,
+        outjectedScopeAttributeHandlerList_.add(new ScopeAttributeOutjector(
                 toAttributeName(method.getName(), out.name()), getScope(out),
-                null, false, method, out.outjectWhereNull(), out.actionName()));
+                method, out.outjectWhereNull(), out.actionName(),
+                hotdeployManager_, typeConversionManager_));
     }
 
     Scope getScope(Out out) {
         Object key;
         if (out.scopeName().length() > 0) {
             key = out.scopeName();
-        } else if (out.scopeClass() != Object.class) {
+        } else if (out.scopeClass() != Scope.class) {
             key = out.scopeClass();
-        } else if (out.value() != Object.class) {
+        } else if (out.value() != Scope.class) {
             key = out.value();
         } else {
             key = RequestScope.class;

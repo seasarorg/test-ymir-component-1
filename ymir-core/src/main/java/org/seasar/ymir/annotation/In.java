@@ -5,6 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.seasar.ymir.scope.Scope;
+
 /**
  * スコープから属性値をインジェクトする対象であることを表すアノテーションです。
  * <p>このアノテーションをPageクラスのSetterメソッドに付与することで、アクションの実行に先立って
@@ -22,7 +24,7 @@ public @interface In {
      * 
      * @return スコープを表すClassオブジェクト。
      */
-    Class<?> value() default Object.class;
+    Class<? extends Scope> value() default Scope.class;
 
     /**
      * 属性名です。
@@ -40,7 +42,7 @@ public @interface In {
      * 
      * @return スコープを表すClassオブジェクト。
      */
-    Class<?> scopeClass() default Object.class;
+    Class<? extends Scope> scopeClass() default Scope.class;
 
     /**
      * スコープ名です。

@@ -4,10 +4,12 @@ import junit.framework.TestCase;
 
 import org.seasar.framework.container.factory.S2ContainerFactory;
 import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
+import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 
 public class PagePropertyMetaDataImplTest extends TestCase {
     private PageMetaDataImpl target_ = new PageMetaDataImpl(Object.class, null,
-            new AnnotationHandlerImpl(), false);
+            new AnnotationHandlerImpl(), new HotdeployManagerImpl(),
+            new YmirTypeConversionManager(), false);
 
     public void testToAttributeName() throws Exception {
         assertEquals("a", target_.toAttributeName("getA", null));
@@ -25,7 +27,8 @@ public class PagePropertyMetaDataImplTest extends TestCase {
         PageMetaDataImpl target = new PageMetaDataImpl(HoePage.class,
                 S2ContainerFactory.create(getClass().getName()
                         .replace('.', '/').concat(".dicon")),
-                new AnnotationHandlerImpl(), false);
+                new AnnotationHandlerImpl(), new HotdeployManagerImpl(),
+                new YmirTypeConversionManager(), false);
 
         assertTrue(target.isProtected("map"));
         assertTrue(target.isProtected("maps"));

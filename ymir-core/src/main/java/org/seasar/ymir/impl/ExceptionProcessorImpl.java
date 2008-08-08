@@ -14,10 +14,12 @@ import org.seasar.ymir.PageProcessor;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
+import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.handler.ExceptionHandler;
+import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.response.ForwardResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
@@ -30,6 +32,10 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     private ApplicationManager applicationManager_;
 
     private AnnotationHandler annotationHandler_;
+
+    private HotdeployManager hotdeployManager_;
+
+    private TypeConversionManager typeConversionManager_;
 
     private PageProcessor pageProcessor_;
 
@@ -50,6 +56,17 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     @Binding(bindingType = BindingType.MUST)
     public void setAnnotationHandler(AnnotationHandler annotationHandler) {
         annotationHandler_ = annotationHandler;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setHotdeployManager(HotdeployManager hotdeployManager) {
+        hotdeployManager_ = hotdeployManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setTypeConversionManager(
+            TypeConversionManager typeConversionManager) {
+        typeConversionManager_ = typeConversionManager;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -113,10 +130,10 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         // 各コンテキストが持つ属性をinjectする。
         PageMetaData pageMetaData = new PageMetaDataImpl(handlerCd
                 .getComponentClass(), container, annotationHandler_,
-                isStrictInjection());
+                hotdeployManager_, typeConversionManager_, isStrictInjection());
         // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
         // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
-        pageProcessor_.injectContextAttributes(handler, pageMetaData, null);
+        pageProcessor_.injectScopeAttributes(handler, pageMetaData, null);
 
         Response response = constructResponse(handler.handle(t));
         if (response.getType() == ResponseType.PASSTHROUGH) {
@@ -126,7 +143,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         }
 
         // 各コンテキストに属性をoutjectする。
-        pageProcessor_.outjectContextAttributes(handler, pageMetaData, null);
+        pageProcessor_.outjectScopeAttributes(handler, pageMetaData, null);
 
         // ExceptionHandlerコンポーネントをattributeとしてバインドしておく。
         request.setAttribute(ATTR_HANDLER, handler);

@@ -37,6 +37,7 @@ import org.seasar.ymir.test.mock.servlet.MockHttpServletResponse;
 import org.seasar.ymir.test.mock.servlet.MockHttpServletResponseImpl;
 import org.seasar.ymir.test.mock.servlet.MockServletContextImpl;
 import org.seasar.ymir.util.ContainerUtils;
+import org.seasar.ymir.util.ServletUtils;
 
 /**
  * YmirのPageクラスをテストするためのTestCaseのベースとなるクラスです。
@@ -246,7 +247,7 @@ abstract public class YmirTestCase extends TestCase {
 
     /**
      * Pageクラスのアクション呼び出しのための準備を行ないます。
-     * <p>リクエストパラメータとfileタイプのリクエストパラメータの指定がないとみなされます。
+     * <p>パスに「?a=b」のようにクエリ文字列を付与することでリクエストパラメータを指定することもできます。
      * </p>
      *
      * @param path リクエストパス（コンテキストパス相対）。
@@ -254,9 +255,8 @@ abstract public class YmirTestCase extends TestCase {
      * @return 構築されたRequestオブジェクト。
      */
     protected Request prepareForProcessing(String path, String httpMethod) {
-        return prepareForProcessing(path, httpMethod,
-                new HashMap<String, String[]>(),
-                new HashMap<String, FormFile[]>());
+        return prepareForProcessing(ServletUtils.getTrunk(path), httpMethod,
+                ServletUtils.getQueryString(path));
     }
 
     /**
@@ -426,6 +426,23 @@ abstract public class YmirTestCase extends TestCase {
      */
     protected Response processRequest(Request request)
             throws PermissionDeniedException, PageNotFoundException {
+        return processRequest(request, null);
+    }
+
+    /**
+     * 実際にリクエストを処理します。
+     * <p>このメソッドを呼び出す前に必ず<code>prepareForProcessing</code>
+     * メソッドを呼び出しておいて下さい。
+     * </p>
+     *
+     * @param request Requestオブジェクト。
+     * @param test リクエストの処理中に実行するテスト。nullを指定することもできます。
+     * @return 処理結果を表すResponseオブジェクト。
+     * @throws PermissionDeniedException 権限エラーが発生した場合。
+     * @throws PageNotFoundException 指定されたリクエストパスに直接アクセスすることが禁止されている場合。
+     */
+    protected Response processRequest(Request request, Test test)
+            throws PermissionDeniedException, PageNotFoundException {
         checkStatus(STATUS_PREPARED);
 
         status_ = STATUS_PROCESSED;
@@ -434,6 +451,10 @@ abstract public class YmirTestCase extends TestCase {
                 .getComponent(ThreadContext.class);
         try {
             threadContext.setComponent(Request.class, request);
+
+            if (test != null) {
+                test.doTest();
+            }
 
             return ymir_.processRequest(request);
         } finally {
@@ -497,5 +518,36 @@ abstract public class YmirTestCase extends TestCase {
     protected Notes getNotes(Request request) {
         checkStatus(STATUS_PROCESSED);
         return (Notes) request.getAttribute(RequestProcessor.ATTR_NOTES);
+    }
+
+    /**
+     * テストを表す抽象クラスです。
+     * <p>フレームワークがリクエストを処理している最中にテストを実施したい場合はこのクラスのサブクラスを作成して
+     * <p><b>同期化：</b>
+     * TODO このクラス／インタフェースがスレッドセーフかどうかについて記述して下さい。
+     * このインタフェースの実装クラスはスレッドセーフである必要はありません。
+     * このインタフェースの実装クラスはオブジェクトの内部状態を変えない操作に関してスレッドセーフである必要があります。
+     * このインタフェースの実装クラスはスレッドセーフである必要があります。
+     * このクラスはスレッドセーフです。
+     * このクラスは状態の変更を伴う場合スレッドセーフではありません。
+     * このクラスはスレッドセーフではありません。
+     * </p>
+     * 
+     * @author YOKOTA Takehiko
+     */
+    abstract public class Test {
+        protected final void doTest() {
+            try {
+                test();
+            } catch (Error e) {
+                throw e;
+            } catch (RuntimeException ex) {
+                throw ex;
+            } catch (Throwable t) {
+                throw new RuntimeException(t);
+            }
+        }
+
+        abstract protected void test() throws Throwable;
     }
 }

@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Ins;
 import org.seasar.ymir.annotation.handler.AnnotationElement;
+import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.impl.ApplicationScope;
 import org.seasar.ymir.scope.impl.SessionScope;
 
@@ -29,8 +30,8 @@ public class CollectionAnnotationElementTest extends TestCase {
                         return "";
                     }
 
-                    public Class<?> scopeClass() {
-                        return Object.class;
+                    public Class<? extends Scope> scopeClass() {
+                        return Scope.class;
                     }
 
                     public String scopeName() {
@@ -41,8 +42,12 @@ public class CollectionAnnotationElementTest extends TestCase {
                         return In.class;
                     }
 
-                    public Class<?> value() {
+                    public Class<? extends Scope> value() {
                         return SessionScope.class;
+                    }
+
+                    public boolean grouped() {
+                        return false;
                     }
                 }, new In() {
                     public String[] actionName() {
@@ -57,8 +62,8 @@ public class CollectionAnnotationElementTest extends TestCase {
                         return "";
                     }
 
-                    public Class<?> scopeClass() {
-                        return Object.class;
+                    public Class<? extends Scope> scopeClass() {
+                        return Scope.class;
                     }
 
                     public String scopeName() {
@@ -69,8 +74,12 @@ public class CollectionAnnotationElementTest extends TestCase {
                         return In.class;
                     }
 
-                    public Class<?> value() {
+                    public Class<? extends Scope> value() {
                         return ApplicationScope.class;
+                    }
+
+                    public boolean grouped() {
+                        return false;
                     }
                 } };
             }

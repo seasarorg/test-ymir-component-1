@@ -2,6 +2,9 @@ package org.seasar.ymir;
 
 import java.lang.reflect.Method;
 
+import org.seasar.ymir.scope.Scope;
+import org.seasar.ymir.scope.handler.ScopeAttributeHandler;
+
 /**
  * Pageオブジェクトに関する情報を表すインタフェースです。
  * <p>{@link PageComponent}とは異なり、主にPageオブジェクトが持つ属性やメソッドなど、
@@ -28,26 +31,33 @@ public interface PageMetaData {
     boolean isProtected(String propertyName);
 
     /**
-     * スコープから値をインジェクトする必要のある属性を返します。
+     * ポピュレーション処理を行なうべきスコープを返します。
+     * 
+     * @return ポピュレーション処理を行なうべきスコープの配列。nullを返すことはありません。
+     */
+    Scope[] getPopulatedScopes();
+
+    /**
+     * スコープから値をインジェクトする必要のある属性のためのハンドラを返します。
      * <p>フレームワークはこのメソッドが返す属性の値をスコープから取り出して、
      * Pageオブジェクトの対応するプロパティにインジェクトします。
      * </p>
      * 
-     * @return スコープから値をインジェクトする必要のある属性。nullを返すことはありません。
-     * @see PageProcessor#injectContextAttributes(Object, PageMetaData, String)
+     * @return スコープから値をインジェクトする必要のある属性のためのハンドラ。nullを返すことはありません。
+     * @see PageProcessor#injectScopeAttributes(Object, PageMetaData, String)
      */
-    ScopeAttribute[] getInjectedScopeAttributes();
+    ScopeAttributeHandler[] getInjectedScopeAttributeHandlers();
 
     /**
-     * スコープに値をアウトジェクトする必要のある属性を返します。
+     * スコープに値をアウトジェクトする必要のある属性のためのハンドラを返します。
      * <p>フレームワークはこのメソッドが返す属性の値をPageオブジェクトから取り出して、
      * 対応するスコープにアウトジェクトします。
      * </p>
      * 
-     * @return スコープに値をアウトジェクトする必要のある属性。nullを返すことはありません。
-     * @see PageProcessor#outjectContextAttributes(Object, PageMetaData, String)
+     * @return スコープに値をアウトジェクトする必要のある属性のためのハンドラ。nullを返すことはありません。
+     * @see PageProcessor#outjectScopeAttributes(Object, PageMetaData, String)
      */
-    ScopeAttribute[] getOutjectedScopeAttributes();
+    ScopeAttributeHandler[] getOutjectedScopeAttributeHandlers();
 
     /**
      * 指定されたフェーズに関連付けられているメソッドを返します。

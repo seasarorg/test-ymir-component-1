@@ -49,9 +49,9 @@ public interface PageProcessor {
      * @param page Pageオブジェクト。
      * @param metaData Pageオブジェクトに関するメタデータ。
      * @param actionName 実行するアクションの名前。
-     * @see PageMetaData#getInjectedScopeAttributes()
+     * @see PageMetaData#getInjectedScopeAttributeHandlers()
      */
-    void injectContextAttributes(Object page, PageMetaData metaData,
+    void injectScopeAttributes(Object page, PageMetaData metaData,
             String actionName);
 
     /**
@@ -60,9 +60,9 @@ public interface PageProcessor {
      * @param page Pageオブジェクト。
      * @param metaData Pageオブジェクトに関するメタデータ。
      * @param actionName 実行されたアクションの名前。
-     * @see PageMetaData#getOutjectedScopeAttributes()
+     * @see PageMetaData#getOutjectedScopeAttributeHandlers()
      */
-    void outjectContextAttributes(Object page, PageMetaData metaData,
+    void outjectScopeAttributes(Object page, PageMetaData metaData,
             String actionName);
 
     /**

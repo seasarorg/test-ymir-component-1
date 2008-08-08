@@ -1,5 +1,7 @@
 package org.seasar.ymir.scope;
 
+import java.util.Iterator;
+
 /**
  * オブジェクトを保持する領域（スコープ）を定義するためのインタフェースです。
  * <p><b>同期化：</b>
@@ -26,4 +28,20 @@ public interface Scope {
      * nullを指定すると属性をスコープから取り除きます。
      */
     void setAttribute(String name, Object value);
+
+    /**
+     * このスコープの名前を返します。
+     * <p>このメソッドは主にフレームワークがスコープを区別するために使用されます。
+     * このインタフェースの実装クラスを作成する場合、
+     * 通常は実装クラスのFQCNを返すようにして下さい。
+     * 
+     * @return スコープの名前。
+     */
+    String getName();
+
+    /**
+     * このスコープが持つ全ての属性の名前を返します。
+     * @return
+     */
+    Iterator<String> getAttributeNames();
 }

@@ -7,10 +7,12 @@ import junit.framework.TestCase;
 import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Out;
 import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
+import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 
 public class PageMetaDataImplTest extends TestCase {
     private PageMetaDataImpl targetNonStrict_ = new PageMetaDataImpl(
-            Hoe2Page.class, null, new AnnotationHandlerImpl(), false) {
+            Hoe2Page.class, null, new AnnotationHandlerImpl(),
+            new HotdeployManagerImpl(), new YmirTypeConversionManager(), false) {
         @Override
         void registerForInjectionFromScope(In in, Method method) {
         }
@@ -21,7 +23,8 @@ public class PageMetaDataImplTest extends TestCase {
     };
 
     private PageMetaDataImpl targetStrict_ = new PageMetaDataImpl(
-            Hoe2Page.class, null, new AnnotationHandlerImpl(), true) {
+            Hoe2Page.class, null, new AnnotationHandlerImpl(),
+            new HotdeployManagerImpl(), new YmirTypeConversionManager(), true) {
         @Override
         void registerForInjectionFromScope(In in, Method method) {
         }
@@ -77,14 +80,8 @@ public class PageMetaDataImplTest extends TestCase {
         assertTrue(targetStrict_.isProtected("fugafuga7"));
     }
 
-    public void testStrictInjectionの時にRequestParameterアノテーションが付与されたメソッドがプロテクトされないこと()
-            throws Exception {
-        assertFalse(targetStrict_.isProtected("fugafuga8"));
-    }
-
-    public void testネストしたパラメータについて正しくプロテクトされること() throws Exception {
-        assertTrue(targetStrict_.isProtected("aaa[0].bbb[1].ccc"));
-
-        assertFalse(targetStrict_.isProtected("bbb[0].ccc[1].ddd"));
+    public void testStrictInjectionの時は全てのメソッドがプロテクトされること() throws Exception {
+        assertTrue("@RequestParameterがついていてもプロテクトされること", targetStrict_
+                .isProtected("fugafuga8"));
     }
 }
