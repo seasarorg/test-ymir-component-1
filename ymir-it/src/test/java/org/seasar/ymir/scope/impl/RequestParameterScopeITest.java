@@ -17,7 +17,9 @@ public class RequestParameterScopeITest extends
         Request request = prepareForProcessing(
                 "/requestParameterScopeTest.html",
                 Request.METHOD_GET,
-                "injectedValue1=1&injectedValue2=2&injectedValue2=2&injectedValue3=3&injectedValue4=4&injectedValue4=4&injectedValue5=5&injectedValue6=6&injectedValue6=6");
+                "injectedValue1=1&injectedValue2=2&injectedValue2=2"
+                        + "&injectedValue3=3&injectedValue4=4&injectedValue4=4&injectedValue5=5&injectedValue6=6&injectedValue6=6"
+                        + "&dto.aaa=AAA");
         processRequest(request);
 
         RequestParameterScopeTestPage page = (RequestParameterScopeTestPage) request
@@ -33,5 +35,7 @@ public class RequestParameterScopeITest extends
         assertEquals(2, page.getInjectedValue6().length);
         assertEquals(Integer.valueOf(6), page.getInjectedValue6()[0]);
         assertEquals(Integer.valueOf(6), page.getInjectedValue6()[1]);
+        assertEquals("ネストしたパラメータも正しくインジェクションされること", "AAA", page.getDto()
+                .getAaa());
     }
 }

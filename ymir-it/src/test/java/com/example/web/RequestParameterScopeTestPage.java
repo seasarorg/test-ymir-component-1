@@ -16,6 +16,8 @@ public class RequestParameterScopeTestPage {
 
     private Integer[] injectedValue6_;
 
+    private Dto dto_;
+
     @In(RequestParameterScope.class)
     public void setInjectedValue1(String value) {
         injectedValue1_ = value;
@@ -46,6 +48,11 @@ public class RequestParameterScopeTestPage {
         injectedValue6_ = injectedValue6;
     }
 
+    @In(RequestParameterScope.class)
+    public Dto getDto() {
+        return dto_;
+    }
+
     public String getInjectedValue1() {
         return injectedValue1_;
     }
@@ -71,5 +78,17 @@ public class RequestParameterScopeTestPage {
     }
 
     public void _get() {
+    }
+
+    public static class Dto {
+        private String aaa_;
+
+        public String getAaa() {
+            return aaa_;
+        }
+
+        public void setAaa(String aaa) {
+            aaa_ = aaa;
+        }
     }
 }
