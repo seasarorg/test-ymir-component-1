@@ -15,6 +15,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
+@Collection
 public @interface Outs {
     /**
      * {@link Out}アノテーションです。

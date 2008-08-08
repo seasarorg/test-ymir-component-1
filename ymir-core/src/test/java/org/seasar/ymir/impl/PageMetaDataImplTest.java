@@ -4,18 +4,13 @@ import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
 
-import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Out;
+import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
 
 public class PageMetaDataImplTest extends TestCase {
     private PageMetaDataImpl targetNonStrict_ = new PageMetaDataImpl(
-            Hoe2Page.class, null) {
-        @Override
-        protected boolean isStrictInjection(S2Container container) {
-            return false;
-        }
-
+            Hoe2Page.class, null, new AnnotationHandlerImpl(), false) {
         @Override
         void registerForInjectionFromScope(In in, Method method) {
         }
@@ -26,12 +21,7 @@ public class PageMetaDataImplTest extends TestCase {
     };
 
     private PageMetaDataImpl targetStrict_ = new PageMetaDataImpl(
-            Hoe2Page.class, null) {
-        @Override
-        protected boolean isStrictInjection(S2Container container) {
-            return true;
-        }
-
+            Hoe2Page.class, null, new AnnotationHandlerImpl(), true) {
         @Override
         void registerForInjectionFromScope(In in, Method method) {
         }

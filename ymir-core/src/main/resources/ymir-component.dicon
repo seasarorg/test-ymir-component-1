@@ -6,6 +6,8 @@
     class="org.seasar.ymir.impl.ApplicationManagerImpl" />
   <component name="mimeTypeDetector"
     class="org.seasar.ymir.impl.ServletMimeTypeDetector" />
+  <component name="annotationHandler"
+    class="org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl" />
   <component name="messages"
     class="org.seasar.ymir.impl.MessagesImpl">
     <initMethod name="addPath">

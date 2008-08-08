@@ -5,7 +5,10 @@ import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.kvasir.util.PropertyUtils;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.ExceptionProcessor;
+import org.seasar.ymir.Globals;
 import org.seasar.ymir.PageMetaData;
 import org.seasar.ymir.PageProcessor;
 import org.seasar.ymir.Request;
@@ -13,6 +16,7 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.Ymir;
+import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.handler.ExceptionHandler;
 import org.seasar.ymir.response.ForwardResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
@@ -23,6 +27,10 @@ import org.seasar.ymir.util.ThrowableUtils;
 public class ExceptionProcessorImpl implements ExceptionProcessor {
     private Ymir ymir_;
 
+    private ApplicationManager applicationManager_;
+
+    private AnnotationHandler annotationHandler_;
+
     private PageProcessor pageProcessor_;
 
     private ResponseConstructorSelector responseConstructorSelector_;
@@ -32,6 +40,16 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
         ymir_ = ymir;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setAnnotationHandler(AnnotationHandler annotationHandler) {
+        annotationHandler_ = annotationHandler;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -94,7 +112,8 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
 
         // 各コンテキストが持つ属性をinjectする。
         PageMetaData pageMetaData = new PageMetaDataImpl(handlerCd
-                .getComponentClass(), container);
+                .getComponentClass(), container, annotationHandler_,
+                isStrictInjection());
         // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
         // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
         pageProcessor_.injectContextAttributes(handler, pageMetaData, null);
@@ -144,5 +163,12 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
 
     S2Container getS2Container() {
         return ymir_.getApplication().getS2Container();
+    }
+
+    boolean isStrictInjection() {
+        return PropertyUtils.valueOf(applicationManager_
+                .findContextApplication().getProperty(
+                        Globals.APPKEY_CORE_REQUESTPARAMETER_STRICTINJECTION),
+                false);
     }
 }

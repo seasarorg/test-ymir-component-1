@@ -63,7 +63,6 @@ public class RequestProcessorImplTest extends S2TestCase {
     }
 
     public void testFileResourceExists() throws Exception {
-
         assertTrue(target_.fileResourceExists("/file"));
         assertFalse(target_.fileResourceExists("/nonexistentfile"));
         assertFalse(target_.fileResourceExists("/dir"));

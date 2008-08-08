@@ -1,17 +1,15 @@
 package org.seasar.ymir.conversation.impl;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 
-import org.seasar.cms.pluggable.Configuration;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Action;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.conversation.ConversationUtils;
 import org.seasar.ymir.conversation.Conversations;
@@ -27,25 +25,33 @@ import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
  * Conversationスコープを実現するためのクラスです。
  */
 public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
-    private Configuration configuration_;
+    private ApplicationManager applicationManager_;
+
+    private AnnotationHandler annotationHandler_;
 
     @Binding(bindingType = BindingType.MUST)
-    public void setConfiguration(Configuration configuration) {
-        configuration_ = configuration;
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setAnnotationHandler(AnnotationHandler annotationHandler) {
+        annotationHandler_ = annotationHandler;
     }
 
     @Override
     public Action actionInvoking(Request request, Action originalAction,
             Action action) throws PermissionDeniedException {
-        Conversation annotation = request.getCurrentDispatch()
-                .getPageComponent().getPageClass().getAnnotation(
-                        Conversation.class);
+        Conversation annotation = annotationHandler_.getAnnotation(request
+                .getCurrentDispatch().getPageComponent().getPageClass(),
+                Conversation.class);
         if (annotation != null) {
             Conversations conversations = ConversationUtils.getConversations();
 
             Method actionMethod = action != null ? action.getMethodInvoker()
                     .getMethod() : null;
-            Begin begin = getAnnotation(actionMethod, Begin.class);
+            Begin begin = annotationHandler_.getAnnotation(actionMethod,
+                    Begin.class);
             if (begin != null) {
                 conversations.begin(annotation.name(), annotation.phase(),
                         begin.alwaysBegin());
@@ -62,9 +68,9 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
             conversations.join(annotation.name(), annotation.phase(),
                     annotation.followAfter());
 
-            BeginSubConversation beginSubConversation = getAnnotation(
-                    actionMethod, BeginSubConversation.class);
-            if (isAnnotationPresent(actionMethod, End.class)) {
+            BeginSubConversation beginSubConversation = annotationHandler_
+                    .getAnnotation(actionMethod, BeginSubConversation.class);
+            if (annotationHandler_.isAnnotationPresent(actionMethod, End.class)) {
                 if (beginSubConversation != null) {
                     throw new RuntimeException(
                             "Can't specify both @End and @BeginSubConversation: "
@@ -93,30 +99,13 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
         return action;
     }
 
-    <T extends Annotation> T getAnnotation(AnnotatedElement element,
-            Class<T> annotationClass) {
-        if (element != null) {
-            return element.getAnnotation(annotationClass);
-        } else {
-            return null;
-        }
-    }
-
-    boolean isAnnotationPresent(AnnotatedElement element,
-            Class<? extends Annotation> annotationType) {
-        if (element != null) {
-            return element.isAnnotationPresent(annotationType);
-        } else {
-            return false;
-        }
-    }
-
     S2Container getS2Container() {
-        return YmirContext.getYmir().getApplication().getS2Container();
+        return applicationManager_.findContextApplication().getS2Container();
     }
 
     boolean isDisableBeginCheck() {
-        return PropertyUtils.valueOf(configuration_
-                .getProperty(Globals.APPKEY_DISABLEBEGINCHECK), false);
+        return PropertyUtils.valueOf(applicationManager_
+                .findContextApplication().getProperty(
+                        Globals.APPKEY_DISABLEBEGINCHECK), false);
     }
 }

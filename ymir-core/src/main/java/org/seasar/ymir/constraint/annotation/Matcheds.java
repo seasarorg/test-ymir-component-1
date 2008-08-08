@@ -5,6 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.seasar.ymir.annotation.Collection;
+
 /**
  * {@link Matched}アノテーションを複数指定するためのアノテーションです。
  * 
@@ -12,7 +14,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.TYPE, ElementType.METHOD })
-@ConstraintsAnnotation
+@Collection
 public @interface Matcheds {
     /**
      * {@link Matched}アノテーションです。

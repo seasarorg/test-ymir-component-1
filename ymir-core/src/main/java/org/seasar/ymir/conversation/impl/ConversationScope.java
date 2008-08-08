@@ -4,7 +4,6 @@ import static org.seasar.ymir.conversation.Globals.APPKEY_USESESSIONSCOPEASCONVE
 
 import javax.servlet.http.HttpSession;
 
-import org.seasar.cms.pluggable.Configuration;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
@@ -12,6 +11,7 @@ import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.conversation.ConversationManager;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.conversation.annotation.Conversation;
@@ -33,9 +33,9 @@ public class ConversationScope implements Scope {
     public static final String ATTR_CONVERSATIONS = ATTRPREFIX_CONVERSATION
             + "conversations";
 
-    private Configuration configuration_;
-
     private ApplicationManager applicationManager_;
+
+    private AnnotationHandler annotationHandler_;
 
     private SessionManager sessionManager_;
 
@@ -47,8 +47,8 @@ public class ConversationScope implements Scope {
     }
 
     @Binding(bindingType = BindingType.MUST)
-    public void setConfiguration(Configuration configuration) {
-        configuration_ = configuration;
+    public void setAnnotationHandler(AnnotationHandler annotationHandler) {
+        annotationHandler_ = annotationHandler;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -89,9 +89,10 @@ public class ConversationScope implements Scope {
     }
 
     String getPageConversationName() {
-        Conversation conversation = ((Request) getS2Container().getComponent(
-                Request.class)).getCurrentDispatch().getPageComponent()
-                .getPageClass().getAnnotation(Conversation.class);
+        Conversation conversation = annotationHandler_
+                .getAnnotation(((Request) getS2Container().getComponent(
+                        Request.class)).getCurrentDispatch().getPageComponent()
+                        .getPageClass(), Conversation.class);
         if (conversation != null) {
             return conversation.name();
         } else {
@@ -118,7 +119,8 @@ public class ConversationScope implements Scope {
     }
 
     boolean isUseSessionScopeAsConversationScope() {
-        return PropertyUtils.valueOf(configuration_
-                .getProperty(APPKEY_USESESSIONSCOPEASCONVERSATIONSCOPE), false);
+        return PropertyUtils.valueOf(applicationManager_
+                .findContextApplication().getProperty(
+                        APPKEY_USESESSIONSCOPEASCONVERSATIONSCOPE), false);
     }
 }

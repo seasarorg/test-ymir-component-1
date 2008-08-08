@@ -8,7 +8,6 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +29,7 @@ import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.WrappingRuntimeException;
+import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.constraint.ConfirmationDecider;
 import org.seasar.ymir.constraint.Constraint;
 import org.seasar.ymir.constraint.ConstraintBundle;
@@ -38,7 +38,6 @@ import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
-import org.seasar.ymir.constraint.annotation.ConstraintsAnnotation;
 import org.seasar.ymir.constraint.annotation.SuppressConstraints;
 import org.seasar.ymir.constraint.annotation.Validator;
 import org.seasar.ymir.impl.ActionImpl;
@@ -69,9 +68,16 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
     private ApplicationManager applicationManager_;
 
+    private AnnotationHandler annotationHandler_;
+
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
         applicationManager_ = applicationManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setAnnotationHandler(AnnotationHandler annotationHandler) {
+        annotationHandler_ = annotationHandler;
     }
 
     @Override
@@ -216,15 +222,16 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
     @SuppressWarnings("deprecation")
     ConstraintType[] getSuppressConstraintsValue(Method actionMethod) {
-        SuppressConstraints suppress = actionMethod
-                .getAnnotation(SuppressConstraints.class);
+        SuppressConstraints suppress = annotationHandler_.getAnnotation(
+                actionMethod, SuppressConstraints.class);
         if (suppress != null) {
             return suppress.value();
         }
 
         // 後方互換性のため。
-        org.seasar.ymir.annotation.SuppressConstraints suppress2 = actionMethod
-                .getAnnotation(org.seasar.ymir.annotation.SuppressConstraints.class);
+        org.seasar.ymir.annotation.SuppressConstraints suppress2 = annotationHandler_
+                .getAnnotation(actionMethod,
+                        org.seasar.ymir.annotation.SuppressConstraints.class);
         if (suppress2 != null) {
             return suppress2.value();
         }
@@ -276,51 +283,8 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             return;
         }
 
-        Annotation[] annotations = element.getAnnotations();
-        List<Annotation> constraintAnnotationList = new ArrayList<Annotation>();
-        for (int i = 0; i < annotations.length; i++) {
-            Class<? extends Annotation> annotationType = annotations[i]
-                    .annotationType();
-            if (annotationType.isAnnotationPresent(ConstraintAnnotation.class)) {
-                constraintAnnotationList.add(annotations[i]);
-            } else if (annotationType
-                    .isAnnotationPresent(ConstraintsAnnotation.class)) {
-                Method method;
-                try {
-                    method = annotations[i].getClass().getMethod("value",
-                            new Class[0]);
-                } catch (SecurityException ex) {
-                    throw new RuntimeException("Annotation " + annotationType
-                            + " can be accessed to 'value' property", ex);
-                } catch (NoSuchMethodException ex) {
-                    throw new RuntimeException("Annotation " + annotationType
-                            + " must have 'value' property", ex);
-                }
-                Annotation[] as;
-                try {
-                    as = (Annotation[]) method.invoke(annotations[i],
-                            new Object[0]);
-                } catch (IllegalArgumentException ex) {
-                    throw new RuntimeException("Logic error", ex);
-                } catch (IllegalAccessException ex) {
-                    throw new RuntimeException("Annotation " + annotationType
-                            + " can be accessed to 'value' property", ex);
-                } catch (InvocationTargetException ex) {
-                    throw new RuntimeException(ex);
-                }
-                for (int j = 0; j < as.length; j++) {
-                    if (as[j].annotationType().isAnnotationPresent(
-                            ConstraintAnnotation.class)) {
-                        constraintAnnotationList.add(as[j]);
-                    }
-                }
-            }
-        }
-
-        for (Iterator<Annotation> itr = constraintAnnotationList.iterator(); itr
-                .hasNext();) {
-            Annotation annotation = itr.next();
-
+        for (Annotation annotation : annotationHandler_.getMarkedAnnotations(
+                element, ConstraintAnnotation.class)) {
             ConstraintAnnotation constraintAnnotation = annotation
                     .annotationType().getAnnotation(ConstraintAnnotation.class);
             list.add(new ConstraintBag(((Constraint) getS2Container()
@@ -375,14 +339,16 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
     @SuppressWarnings("deprecation")
     String[] getValidatorValue(Method method) {
-        Validator validator = method.getAnnotation(Validator.class);
+        Validator validator = annotationHandler_.getAnnotation(method,
+                Validator.class);
         if (validator != null) {
             return validator.value();
         }
 
         // 後方互換性のため。
-        org.seasar.ymir.annotation.Validator validator2 = method
-                .getAnnotation(org.seasar.ymir.annotation.Validator.class);
+        org.seasar.ymir.annotation.Validator validator2 = annotationHandler_
+                .getAnnotation(method,
+                        org.seasar.ymir.annotation.Validator.class);
         if (validator2 != null) {
             return validator2.value();
         }

@@ -12,11 +12,14 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.log.Logger;
+import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionNotFoundException;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
+import org.seasar.ymir.Globals;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
@@ -32,6 +35,7 @@ import org.seasar.ymir.Updater;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.Include;
+import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
@@ -47,6 +51,10 @@ public class RequestProcessorImpl implements RequestProcessor {
             .noneOf(ConstraintType.class);
 
     private Ymir ymir_;
+
+    private ApplicationManager applicationManager_;
+
+    private AnnotationHandler annotationHandler_;
 
     private PageProcessor pageProcessor_;
 
@@ -78,6 +86,16 @@ public class RequestProcessorImpl implements RequestProcessor {
     @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
         ymir_ = ymir;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setAnnotationHandler(AnnotationHandler annotationHandler) {
+        annotationHandler_ = annotationHandler;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -306,7 +324,8 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
 
         PageComponent pageComponent;
-        Include children = pageClass.getAnnotation(Include.class);
+        Include children = annotationHandler_.getAnnotation(pageClass,
+                Include.class);
         if (children != null) {
             Class<?>[] childrenClasses = children.value();
             List<PageComponent> childPageList = new ArrayList<PageComponent>();
@@ -323,9 +342,17 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
 
         pageComponent.setRelatedObject(PageMetaData.class,
-                new PageMetaDataImpl(pageClass, getS2Container()));
+                new PageMetaDataImpl(pageClass, getS2Container(),
+                        annotationHandler_, isStrictInjection()));
 
         return pageComponent;
+    }
+
+    protected boolean isStrictInjection() {
+        return PropertyUtils.valueOf(applicationManager_
+                .findContextApplication().getProperty(
+                        Globals.APPKEY_CORE_REQUESTPARAMETER_STRICTINJECTION),
+                false);
     }
 
     protected Object getPage(Object pageComponentKey) {
