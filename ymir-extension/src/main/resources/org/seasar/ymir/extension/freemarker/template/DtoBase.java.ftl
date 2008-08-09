@@ -6,6 +6,8 @@ import java.io.Serializable;
 </#list>public class ${classDesc.shortName}Base
     implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
 <#list classDesc.propertyDescs as propertyDesc>
     protected ${propertyDesc.typeDesc.name} ${fieldPrefix}${propertyDesc.name}${fieldSuffix};
 
