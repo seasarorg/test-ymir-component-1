@@ -8,12 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import junit.framework.TestCase;
 
-import org.seasar.ymir.PageComponent;
-import org.seasar.ymir.PageMetaData;
-import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
-import org.seasar.ymir.impl.BeanUtilsTypeConversionManager;
-import org.seasar.ymir.impl.PageComponentImpl;
-import org.seasar.ymir.impl.PageMetaDataImpl;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.impl.YmirTypeConversionManager;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
 import org.seasar.ymir.test.mock.servlet.MockHttpServletRequestImpl;
@@ -22,7 +18,7 @@ import org.seasar.ymir.test.mock.servlet.MockServletContextImpl;
 import net.sf.json.JSONObject;
 
 public class JSONInterceptorTest extends TestCase {
-    public void testActionInvoking() throws Exception {
+    public void testRequestCreated() throws Exception {
         final JSONObject jsonObject = new JSONObject();
         jsonObject.put("hoe", "HOE");
         jsonObject.put("fuga", "FUGA");
@@ -45,23 +41,16 @@ public class JSONInterceptorTest extends TestCase {
                 };
             }
         };
-        target.setTypeConversionManager(new BeanUtilsTypeConversionManager());
+        target.setTypeConversionManager(new YmirTypeConversionManager());
 
         MockRequest request = new MockRequest();
         MockDispatch dispatch = new MockDispatch();
-        TestPage testPage = new TestPage();
-        PageComponent pageComponent = new PageComponentImpl(testPage,
-                TestPage.class);
-        PageMetaDataImpl pageMetaData = new PageMetaDataImpl(TestPage.class,
-                null, new AnnotationHandlerImpl(), true);
-        pageComponent.setRelatedObject(PageMetaData.class, pageMetaData);
-        dispatch.setPageComponent(pageComponent);
         request.enterDispatch(dispatch);
 
-        target.actionInvoking(request, null, null);
+        Request actual = target.requestCreated(request);
 
-        assertEquals("HOE", testPage.getHoe());
-        assertNull(testPage.getFuga());
+        assertEquals("HOE", actual.getParameter("hoe"));
+        assertEquals("FUGA", actual.getParameter("fuga"));
     }
 
     public void testIsJSONRequest_requestのcontentTypeがnullの場合はfalseを返すこと()

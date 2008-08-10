@@ -12,22 +12,26 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.kvasir.util.io.IOUtils;
-import org.seasar.ymir.Action;
-import org.seasar.ymir.PageComponentVisitor;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.TypeConversionManager;
-import org.seasar.ymir.YmirContext;
-import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 
 import net.sf.json.JSONObject;
 
 public class JSONInterceptor extends AbstractYmirProcessInterceptor {
+    private ApplicationManager applicationManager_;
+
     private TypeConversionManager typeConversionManager_;
 
     private static final Set<String> CONTENT_TYPES = Collections
             .unmodifiableSet(new HashSet<String>(Arrays.asList(new String[] {
                 "text/javascript", "application/json" })));
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
+    }
 
     @Binding(bindingType = BindingType.MUST)
     public void setTypeConversionManager(
@@ -36,18 +40,13 @@ public class JSONInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public Action actionInvoking(Request request, Action originalAction,
-            Action action) throws PermissionDeniedException {
+    public Request requestCreated(Request request) {
         JSONObject jsonObject = parseJSONRequest();
-        if (jsonObject != null) {
-            request.getCurrentDispatch().getPageComponent().accept(
-                    newVisitor(jsonObject));
+        if (jsonObject == null) {
+            return request;
+        } else {
+            return new JSONRequest(request, jsonObject, typeConversionManager_);
         }
-        return action;
-    }
-
-    protected PageComponentVisitor<?> newVisitor(JSONObject jsonObject) {
-        return new JSONInjectionVisitor(jsonObject, typeConversionManager_);
     }
 
     protected JSONObject parseJSONRequest() {
@@ -80,7 +79,8 @@ public class JSONInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     HttpServletRequest getHttpServletRequest() {
-        return (HttpServletRequest) YmirContext.getYmir().getApplication()
-                .getS2Container().getComponent(HttpServletRequest.class);
+        return (HttpServletRequest) applicationManager_
+                .findContextApplication().getS2Container().getComponent(
+                        HttpServletRequest.class);
     }
 }
