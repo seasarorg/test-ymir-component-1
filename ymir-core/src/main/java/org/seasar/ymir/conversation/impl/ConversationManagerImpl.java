@@ -4,6 +4,7 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.ForTesting;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.LifecycleListener;
 import org.seasar.ymir.conversation.ConversationManager;
@@ -35,6 +36,7 @@ public class ConversationManagerImpl implements ConversationManager,
         }
     }
 
+    @ForTesting
     void setS2Container(S2Container container) {
         container_ = container;
     }
