@@ -11,7 +11,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.kvasir.util.io.IORuntimeException;
-import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.PropertyHandler;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.YmirContext;
@@ -23,7 +22,6 @@ import org.seasar.ymir.util.BeanUtils;
 /**
  * スコープから値を取り出してページにインジェクトするためのクラスです。
  * 
- * @see ComponentMetaData
  * @author YOKOTA Takehiko
  */
 public class ScopeAttributePopulator implements ScopeAttributeHandler {

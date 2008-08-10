@@ -34,6 +34,8 @@
     class="org.seasar.ymir.impl.BeanUtilsTypeConversionManager" />
   <component name="conversationManager"
     class="org.seasar.ymir.conversation.impl.ConversationManagerImpl" />
+  <component name="componentMetaDataFactory"
+    class="org.seasar.ymir.impl.ComponentMetaDataFactoryImpl" />
   <!-- HotdeployFitter -->
   <component name="listFitter"
     class="org.seasar.ymir.hotdeploy.fitter.impl.ListFitter" />

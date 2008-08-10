@@ -17,6 +17,7 @@ import org.seasar.ymir.ActionNotFoundException;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.ComponentMetaData;
+import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.MatchedPathMapping;
@@ -61,6 +62,8 @@ public class RequestProcessorImpl implements RequestProcessor {
     private TypeConversionManager typeConversionManager_;
 
     private PageProcessor pageProcessor_;
+
+    private ComponentMetaDataFactory componentMetaDataFactory_;
 
     private ResponseConstructorSelector responseConstructorSelector_;
 
@@ -116,6 +119,12 @@ public class RequestProcessorImpl implements RequestProcessor {
     @Binding(bindingType = BindingType.MUST)
     public void setPageProcessor(PageProcessor pageProcessor) {
         pageProcessor_ = pageProcessor;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setComponentMetaDataFactory(
+            ComponentMetaDataFactory componentMetaDataFactory) {
+        componentMetaDataFactory_ = componentMetaDataFactory;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -356,11 +365,6 @@ public class RequestProcessorImpl implements RequestProcessor {
             pageComponent = new PageComponentImpl(page, pageClass);
         }
 
-        pageComponent.setRelatedObject(ComponentMetaData.class,
-                new ComponentMetaDataImpl(pageClass, getS2Container(),
-                        annotationHandler_, hotdeployManager_,
-                        typeConversionManager_));
-
         return pageComponent;
     }
 
@@ -498,8 +502,9 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
 
         public Object process(PageComponent pageComponent) {
-            pageProcessor_.invokeMethods(pageComponent.getPage(), pageComponent
-                    .getRelatedObject(ComponentMetaData.class), phase_);
+            pageProcessor_.invokeMethods(pageComponent.getPage(),
+                    componentMetaDataFactory_.getInstance(pageComponent
+                            .getPageClass()), phase_);
             return null;
         }
     }
@@ -513,8 +518,8 @@ public class RequestProcessorImpl implements RequestProcessor {
 
         public Object process(PageComponent pageComponent) {
             Object page = pageComponent.getPage();
-            ComponentMetaData metaData = pageComponent
-                    .getRelatedObject(ComponentMetaData.class);
+            ComponentMetaData metaData = componentMetaDataFactory_
+                    .getInstance(pageComponent.getPageClass());
             Dispatch dispatch = request_.getCurrentDispatch();
 
             pageProcessor_.invokeMethods(page, metaData,
@@ -557,8 +562,8 @@ public class RequestProcessorImpl implements RequestProcessor {
         public Object process(PageComponent pageComponent) {
             // 各コンテキストに属性をoutjectする。
             pageProcessor_.outjectScopeAttributes(pageComponent.getPage(),
-                    pageComponent.getRelatedObject(ComponentMetaData.class),
-                    dispatch_.getActionName());
+                    componentMetaDataFactory_.getInstance(pageComponent
+                            .getPageClass()), dispatch_.getActionName());
 
             return null;
         }

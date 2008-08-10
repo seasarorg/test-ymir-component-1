@@ -6,17 +6,15 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ComponentMetaData;
+import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.PageProcessor;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
-import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.Ymir;
-import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.handler.ExceptionHandler;
-import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.response.ForwardResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
@@ -26,13 +24,9 @@ import org.seasar.ymir.util.ThrowableUtils;
 public class ExceptionProcessorImpl implements ExceptionProcessor {
     private Ymir ymir_;
 
-    private AnnotationHandler annotationHandler_;
-
-    private HotdeployManager hotdeployManager_;
-
-    private TypeConversionManager typeConversionManager_;
-
     private PageProcessor pageProcessor_;
+
+    private ComponentMetaDataFactory componentMetaDataFactory_;
 
     private ResponseConstructorSelector responseConstructorSelector_;
 
@@ -44,24 +38,14 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     }
 
     @Binding(bindingType = BindingType.MUST)
-    public void setAnnotationHandler(AnnotationHandler annotationHandler) {
-        annotationHandler_ = annotationHandler;
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setHotdeployManager(HotdeployManager hotdeployManager) {
-        hotdeployManager_ = hotdeployManager;
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setTypeConversionManager(
-            TypeConversionManager typeConversionManager) {
-        typeConversionManager_ = typeConversionManager;
-    }
-
-    @Binding(bindingType = BindingType.MUST)
     public void setPageProcessor(PageProcessor pageProcessor) {
         pageProcessor_ = pageProcessor;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setComponentMetaDataFactory(
+            ComponentMetaDataFactory componentMetaDataFactory) {
+        componentMetaDataFactory_ = componentMetaDataFactory;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -118,9 +102,8 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                 .getComponent();
 
         // 各コンテキストが持つ属性をinjectする。
-        ComponentMetaData metaData = new ComponentMetaDataImpl(handlerCd
-                .getComponentClass(), container, annotationHandler_,
-                hotdeployManager_, typeConversionManager_);
+        ComponentMetaData metaData = componentMetaDataFactory_
+                .getInstance(handlerCd.getComponentClass());
         // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
         // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
         pageProcessor_.populateScopeAttributes(handler, metaData, null);

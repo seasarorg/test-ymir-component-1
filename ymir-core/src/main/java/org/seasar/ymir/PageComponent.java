@@ -31,6 +31,7 @@ public interface PageComponent extends Acceptor<PageComponentVisitor<?>> {
      * このメソッドは、指定されたClassオブジェクトに関連付けられたオブジェクトを返します。
      * オブジェクトが関連付けられていない場合はnullを返します。
      * </p>
+     * <p><b>[注意]</b> このメソッドはYmir1.0.xで廃止されます。</p>
      * 
      * @param <T> オブジェクトの型。
      * @param clazz キーとなるClassオブジェクト。
@@ -41,6 +42,7 @@ public interface PageComponent extends Acceptor<PageComponentVisitor<?>> {
 
     /**
      * lassオブジェクトにオブジェクトを関連付けます。
+     * <p><b>[注意]</b> このメソッドはYmir1.0.xで廃止されます。</p>
      * 
      * @param <T> オブジェクトの型。
      * @param clazz キーとなるClassオブジェクト。

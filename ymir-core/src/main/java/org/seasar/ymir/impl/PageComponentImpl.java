@@ -51,11 +51,13 @@ public class PageComponentImpl implements PageComponent {
         return pageClass_;
     }
 
+    // TODO [Ymir1.0.x] 廃止する。
     @SuppressWarnings("unchecked")
     public <T> T getRelatedObject(Class<T> clazz) {
         return (T) relatedObjectMap_.get(clazz);
     }
 
+    // TODO [Ymir1.0.x] 廃止する。
     public <T> void setRelatedObject(Class<T> clazz, T object) {
         if (object != null) {
             relatedObjectMap_.put(clazz, object);

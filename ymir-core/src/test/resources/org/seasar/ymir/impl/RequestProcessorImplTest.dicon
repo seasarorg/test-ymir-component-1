@@ -91,6 +91,8 @@
   <component class="org.seasar.ymir.impl.ApplicationManagerImpl" />
   <component
     class="org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl" />
+  <component name="componentMetaDataFactory"
+    class="org.seasar.ymir.impl.ComponentMetaDataFactoryImpl" />
   <component name="sessionScope"
     class="org.seasar.ymir.scope.impl.SessionScope" />
   <component name="requestScope"

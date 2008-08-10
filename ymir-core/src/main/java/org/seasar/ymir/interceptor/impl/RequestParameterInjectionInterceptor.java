@@ -10,6 +10,7 @@ import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.ComponentMetaData;
+import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.PageComponent;
@@ -33,6 +34,8 @@ public class RequestParameterInjectionInterceptor extends
 
     private TypeConversionManager typeConversionManager_;
 
+    private ComponentMetaDataFactory componentMetaDataFactory_;
+
     private static final Log log_ = LogFactory
             .getLog(RequestParameterInjectionInterceptor.class);
 
@@ -45,6 +48,12 @@ public class RequestParameterInjectionInterceptor extends
     public void setTypeConversionManager(
             TypeConversionManager typeConversionManager) {
         typeConversionManager_ = typeConversionManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setComponentMetaDataFactory(
+            ComponentMetaDataFactory componentMetaDataFactory) {
+        componentMetaDataFactory_ = componentMetaDataFactory;
     }
 
     @Override
@@ -67,8 +76,8 @@ public class RequestParameterInjectionInterceptor extends
 
         public Object process(PageComponent pageComponent) {
             Object page = pageComponent.getPage();
-            ComponentMetaData metaData = pageComponent
-                    .getRelatedObject(ComponentMetaData.class);
+            ComponentMetaData metaData = componentMetaDataFactory_
+                    .getInstance(pageComponent.getPageClass());
 
             // リクエストパラメータをinjectする。
             injectProperties(page, metaData, request_.getParameterMap());

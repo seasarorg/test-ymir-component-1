@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 
 import org.seasar.framework.log.Logger;
 import org.seasar.kvasir.util.io.IORuntimeException;
-import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.scope.Scope;
@@ -12,7 +11,6 @@ import org.seasar.ymir.scope.Scope;
 /**
  * ページから値をスコープにアウトジェクトするためのクラスです。
  * 
- * @see ComponentMetaData
  * @author YOKOTA Takehiko
  */
 public class ScopeAttributeOutjector extends AbstractScopeAttributeHandler {
