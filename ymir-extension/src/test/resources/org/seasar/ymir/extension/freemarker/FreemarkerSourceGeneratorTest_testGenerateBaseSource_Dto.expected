@@ -5,6 +5,8 @@ import java.io.Serializable;
 public class TestDtoBase
     implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     protected boolean param1_;
 
     protected String param2_;
