@@ -3,12 +3,44 @@ package org.seasar.ymir.annotation.handler.impl;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.seasar.cms.pluggable.hotdeploy.AbstractHotdeployEventListener;
+import org.seasar.cms.pluggable.util.HotdeployEventUtils;
 import org.seasar.ymir.annotation.handler.AnnotationElements;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 
 public class AnnotationHandlerImpl implements AnnotationHandler {
+    private Map<Key, Boolean> presentMap_ = new ConcurrentHashMap<Key, Boolean>();
+
+    private Map<Key, Annotation[]> annotationsMap_ = new ConcurrentHashMap<Key, Annotation[]>();
+
+    private Map<Key, Annotation[]> markedAnnotationsMap_ = new ConcurrentHashMap<Key, Annotation[]>();
+
+    public AnnotationHandlerImpl() {
+        HotdeployEventUtils.add(new AbstractHotdeployEventListener() {
+            public void stop() {
+                presentMap_.clear();
+                annotationsMap_.clear();
+                markedAnnotationsMap_.clear();
+            }
+        });
+    }
+
     public boolean isAnnotationPresent(AnnotatedElement element,
+            Class<? extends Annotation> annotationClass) {
+        Key key = new Key(element, annotationClass);
+        Boolean present = presentMap_.get(key);
+        if (present == null) {
+            present = Boolean.valueOf(isAnnotationPresent0(element,
+                    annotationClass));
+            presentMap_.put(key, present);
+        }
+        return present.booleanValue();
+    }
+
+    protected boolean isAnnotationPresent0(AnnotatedElement element,
             Class<? extends Annotation> annotationClass) {
         if (element == null) {
             return false;
@@ -27,6 +59,18 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
     @SuppressWarnings("unchecked")
     public <T extends Annotation> T[] getAnnotations(AnnotatedElement element,
             Class<T> annotationClass) {
+        Key key = new Key(element, annotationClass);
+        Annotation[] annotations = annotationsMap_.get(key);
+        if (annotations == null) {
+            annotations = getAnnotations0(element, annotationClass);
+            annotationsMap_.put(key, annotations);
+        }
+        return (T[]) annotations;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T extends Annotation> T[] getAnnotations0(
+            AnnotatedElement element, Class<T> annotationClass) {
         if (element == null) {
             return (T[]) Array.newInstance(annotationClass, 0);
         }
@@ -52,7 +96,20 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public Annotation[] getMarkedAnnotations(AnnotatedElement element,
+            Class<? extends Annotation> metaAnnotationClass) {
+        Key key = new Key(element, metaAnnotationClass);
+        Annotation[] metaAnnotations = markedAnnotationsMap_.get(key);
+        if (metaAnnotations == null) {
+            metaAnnotations = getMarkedAnnotations0(element,
+                    metaAnnotationClass);
+            markedAnnotationsMap_.put(key, metaAnnotations);
+        }
+        return metaAnnotations;
+    }
+
+    protected Annotation[] getMarkedAnnotations0(AnnotatedElement element,
             Class<? extends Annotation> metaAnnotationClass) {
         if (element == null) {
             return new Annotation[0];
@@ -64,5 +121,32 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
             AnnotationElements.newInstance(annotation).accept(gatherer);
         }
         return gatherer.getAnnotations();
+    }
+
+    protected static class Key {
+        private AnnotatedElement element_;
+
+        private Class<? extends Annotation> annotationType_;
+
+        public Key(AnnotatedElement element,
+                Class<? extends Annotation> annotationType) {
+            element_ = element;
+            annotationType_ = annotationType;
+        }
+
+        @Override
+        public int hashCode() {
+            return element_.hashCode() + annotationType_.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null || obj.getClass() != getClass()) {
+                return false;
+            }
+            Key o = (Key) obj;
+            return o.element_ == element_
+                    && o.annotationType_ == annotationType_;
+        }
     }
 }
