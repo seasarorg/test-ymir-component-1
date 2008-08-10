@@ -2,6 +2,7 @@ package org.seasar.ymir.session.impl;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -9,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.seasar.framework.container.S2Container;
+import org.seasar.kvasir.util.collection.EnumerationIterator;
 import org.seasar.ymir.Attribute;
 import org.seasar.ymir.session.SessionManager;
 import org.seasar.ymir.util.ContainerUtils;
@@ -19,6 +21,8 @@ public class SessionManagerImpl implements SessionManager {
     private String straddlingAttributeNamePatternString_;
 
     private Pattern straddlingAttributeNamePattern_;
+
+    private AttributeListener attributeListener_ = new VoidAttributeListener();
 
     public void setContainer(S2Container container) {
         container_ = container;
@@ -55,6 +59,7 @@ public class SessionManagerImpl implements SessionManager {
 
     void populateAttributes(HttpSession session, Attribute[] attributes) {
         for (int i = 0; i < attributes.length; i++) {
+            // setした以降値を変更しないのでセッションレプリケーションsafe。
             session.setAttribute(attributes[i].getName(), attributes[i]
                     .getValue());
         }
@@ -100,5 +105,62 @@ public class SessionManagerImpl implements SessionManager {
 
     HttpServletRequest getHttpServletRequest() {
         return ContainerUtils.getHttpServletRequest(container_.getRoot());
+    }
+
+    public Object getAttribute(String name) {
+        HttpSession session = getSession(false);
+        if (session == null) {
+            return null;
+        } else {
+            attributeListener_.notifyGetAttribute(name);
+            return session.getAttribute(name);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public Iterator<String> getAttributeNames() {
+        HttpSession session = getSession(false);
+        if (session == null) {
+            return new ArrayList<String>().iterator();
+        } else {
+            return new EnumerationIterator(session.getAttributeNames());
+        }
+    }
+
+    public boolean isSessionPresent() {
+        return (getSession(false) != null);
+    }
+
+    public void removeAttribute(String name) {
+        HttpSession session = getSession(false);
+        if (session != null) {
+            synchronized (session) {
+                session.removeAttribute(name);
+            }
+        }
+    }
+
+    public void setAttribute(String name, Object value) {
+        HttpSession session = getSession();
+        synchronized (session) {
+            attributeListener_.notifySetAttribute(name);
+            session.setAttribute(name, value);
+        }
+    }
+
+    public void refreshAttribute(String name) {
+        HttpSession session = getSession(false);
+        if (session != null) {
+            synchronized (session) {
+                Object value = session.getAttribute(name);
+                if (value != null) {
+                    session.setAttribute(name, value);
+                }
+            }
+        }
+    }
+
+    public void setAttributeListener(AttributeListener attributeListener) {
+        attributeListener_ = attributeListener;
     }
 }

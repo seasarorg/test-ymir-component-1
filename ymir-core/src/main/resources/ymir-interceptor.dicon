@@ -23,4 +23,12 @@
     class="org.seasar.ymir.interceptor.impl.RequestParameterInjectionInterceptor">
     <property name="priority">100.0</property>
   </component>
+  <component name="sessionInterceptor"
+    class="org.seasar.ymir.session.impl.SessionInterceptor">
+    <!--
+      leavingRequest()内でセッションの属性値をdirtyにする可能性のあるインターセプタの
+      priorityはこのpriorityよりも小さくなくてはいけません！ 
+    -->
+    <property name="priority">10000.0</property>
+  </component>
 </components>

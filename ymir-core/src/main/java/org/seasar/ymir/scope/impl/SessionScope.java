@@ -1,11 +1,11 @@
 package org.seasar.ymir.scope.impl;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 
-import javax.servlet.http.HttpSession;
-
-import org.seasar.kvasir.util.collection.EnumerationIterator;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.scope.Scope;
+import org.seasar.ymir.session.SessionManager;
 
 /**
  * 現在のHTTPセッションの範囲で有効なオブジェクトを管理するスコープを表すクラスです。
@@ -15,28 +15,25 @@ import org.seasar.kvasir.util.collection.EnumerationIterator;
  * 
  * @author YOKOTA Takehiko
  */
-public class SessionScope extends AbstractServletScope {
+public class SessionScope implements Scope {
+    private SessionManager sessionManager_;
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setSessionManager(SessionManager sessionManager) {
+        sessionManager_ = sessionManager;
+    }
+
     public Object getAttribute(String name) {
-        HttpSession session = getSession(false);
-        if (session == null) {
-            return null;
-        } else {
-            return session.getAttribute(name);
-        }
+        return sessionManager_.getAttribute(name);
     }
 
     public void setAttribute(String name, Object value) {
-        getSession().setAttribute(name, value);
+        sessionManager_.setAttribute(name, value);
     }
 
     @SuppressWarnings("unchecked")
     public Iterator<String> getAttributeNames() {
-        HttpSession session = getSession(false);
-        if (session == null) {
-            return new ArrayList<String>().iterator();
-        } else {
-            return new EnumerationIterator(session.getAttributeNames());
-        }
+        return sessionManager_.getAttributeNames();
     }
 
     public String getName() {

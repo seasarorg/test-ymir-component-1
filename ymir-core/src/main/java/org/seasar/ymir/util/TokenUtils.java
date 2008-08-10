@@ -3,6 +3,13 @@ package org.seasar.ymir.util;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+/**
+ * このクラスはYmir1.0.xで削除されます。
+ * 
+ * @author yokota
+ */
+// TODO [Ymir1.0.x] 廃止する。その際TokenManagerImplではSessionManagerを使って
+// セッションにアクセスするように変更する。
 public class TokenUtils {
     protected TokenUtils() {
     }

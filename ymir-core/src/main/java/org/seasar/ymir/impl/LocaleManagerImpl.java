@@ -3,7 +3,6 @@ package org.seasar.ymir.impl;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
@@ -12,14 +11,22 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.LocaleManager;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.session.SessionManager;
 import org.seasar.ymir.util.ContainerUtils;
 
 public class LocaleManagerImpl implements LocaleManager {
     private ApplicationManager applicationManager_;
 
+    private SessionManager sessionManager_;
+
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
         applicationManager_ = applicationManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setSessionManager(SessionManager sessionManager) {
+        sessionManager_ = sessionManager;
     }
 
     public Locale getLocale() {
@@ -43,11 +50,8 @@ public class LocaleManagerImpl implements LocaleManager {
      */
     protected Locale findLocale(HttpServletRequest request) {
         if (request != null) {
-            Locale locale = null;
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                locale = (Locale) session.getAttribute(Globals.ATTR_LOCALE);
-            }
+            Locale locale = (Locale) sessionManager_
+                    .getAttribute(Globals.ATTR_LOCALE);
             if (locale == null) {
                 locale = request.getLocale();
             }
@@ -62,15 +66,11 @@ public class LocaleManagerImpl implements LocaleManager {
     }
 
     public void setLocale(Locale locale) {
-        setLocale(getHttpServletRequest(), locale);
+        sessionManager_.setAttribute(Globals.ATTR_LOCALE, locale);
         Request request = getRequest();
         if (request != null) {
             request.setLocale(locale);
         }
-    }
-
-    public void setLocale(HttpServletRequest request, Locale locale) {
-        request.getSession().setAttribute(Globals.ATTR_LOCALE, locale);
     }
 
     Request getRequest() {
@@ -87,13 +87,6 @@ public class LocaleManagerImpl implements LocaleManager {
     }
 
     public void removeLocale() {
-        removeLocale(getHttpServletRequest());
-    }
-
-    public void removeLocale(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.removeAttribute(Globals.ATTR_LOCALE);
-        }
+        sessionManager_.removeAttribute(Globals.ATTR_LOCALE);
     }
 }

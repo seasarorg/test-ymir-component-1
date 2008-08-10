@@ -8,6 +8,12 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.LocaleManager;
 import org.seasar.ymir.YmirContext;
 
+/**
+ * このクラスはYmir1.0.xで削除されます。
+ * 
+ * @author yokota
+ */
+//TODO [Ymir1.0.x] 廃止する。
 public class LocaleUtils {
     private static S2Container container_;
 

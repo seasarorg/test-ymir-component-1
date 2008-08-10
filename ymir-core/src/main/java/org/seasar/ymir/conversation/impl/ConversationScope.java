@@ -5,8 +5,6 @@ import static org.seasar.ymir.conversation.Globals.APPKEY_USESESSIONSCOPEASCONVE
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import javax.servlet.http.HttpSession;
-
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
@@ -66,12 +64,7 @@ public class ConversationScope implements Scope {
 
     public Object getAttribute(String name) {
         if (isUseSessionScopeAsConversationScope()) {
-            HttpSession session = sessionManager_.getSession(false);
-            if (session == null) {
-                return null;
-            } else {
-                return session.getAttribute(name);
-            }
+            return sessionManager_.getAttribute(name);
         } else {
             Conversations conversations = conversationManager_
                     .getConversations();
@@ -109,7 +102,7 @@ public class ConversationScope implements Scope {
 
     public void setAttribute(String name, Object value) {
         if (isUseSessionScopeAsConversationScope()) {
-            sessionManager_.getSession().setAttribute(name, value);
+            sessionManager_.setAttribute(name, value);
         } else {
             Conversations conversations = conversationManager_
                     .getConversations();

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
@@ -55,17 +54,16 @@ public class WindowManagerImpl implements WindowManager {
 
     @SuppressWarnings("unchecked")
     Map<String, Object> getScopeMap(String windowId, boolean create) {
-        HttpSession session = getSession(create);
-        if (session == null) {
+        if (!sessionManager_.isSessionPresent()) {
             return null;
         }
 
         String key = getKey(windowId);
-        Map<String, Object> scopeMap = (Map<String, Object>) session
+        Map<String, Object> scopeMap = (Map<String, Object>) sessionManager_
                 .getAttribute(key);
         if (scopeMap == null && create) {
             scopeMap = new HashMap<String, Object>();
-            session.setAttribute(key, scopeMap);
+            sessionManager_.setAttribute(key, scopeMap);
         }
 
         return scopeMap;
@@ -81,14 +79,6 @@ public class WindowManagerImpl implements WindowManager {
     HttpServletRequest getRequest() {
         return (HttpServletRequest) getS2Container().getComponent(
                 HttpServletRequest.class);
-    }
-
-    HttpSession getSession() {
-        return getSession(true);
-    }
-
-    HttpSession getSession(boolean create) {
-        return sessionManager_.getSession(create);
     }
 
     @SuppressWarnings("unchecked")

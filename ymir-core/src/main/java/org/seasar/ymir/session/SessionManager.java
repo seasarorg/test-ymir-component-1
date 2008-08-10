@@ -1,5 +1,7 @@
 package org.seasar.ymir.session;
 
+import java.util.Iterator;
+
 import javax.servlet.http.HttpSession;
 
 /**
@@ -68,4 +70,58 @@ public interface SessionManager {
      * @see #isStraddlingAttributeName(String)
      */
     void addStraddlingAttributeNamePattern(String namePattern);
+
+    /**
+     * 現在のセッションにバインドされている属性のうち、
+     * 指定されている名前の属性の値を返します。
+     * 
+     * @param name 属性の名前。
+     * @return 属性の値。存在しない場合はnullを返します。
+     */
+    Object getAttribute(String name);
+
+    /**
+     * 指定された名前と値を持つ属性を現在のセッションにバインドします。
+     * 
+     * @param name 属性の名前。
+     * @param value 属性の値。nullを指定すると属性が削除されます。
+     */
+    void setAttribute(String name, Object value);
+
+    /**
+     * 現在のセッションから指定された名前の属性を削除します。
+     * 
+     * @param name 属性の名前。
+     */
+    void removeAttribute(String name);
+
+    /**
+     * 現在のセッションにバインドされている全ての属性の名前のIteratorを返します。
+     * 
+     * @return Iteratorオブジェクト。
+     */
+    Iterator<String> getAttributeNames();
+
+    /**
+     * セッションが存在するかどうかを返します。
+     * 
+     * @return セッションが存在するかどうか。
+     */
+    boolean isSessionPresent();
+
+    /**
+     * 指定された名前の属性の値が外部で変更されたかもしれないことを通知します。
+     * <p>クラスタリング環境においてセッションレプリケーションが行なわれている場合、
+     * 属性の値であるオブジェクトを外部で変更した場合は
+     * そのことをサーブレットコンテナに通知する必要があります。
+     * このメソッドを呼び出すことで、指定された値の属性の値が外部で変更されたかもしれないことを
+     * フレームワークに通知することができます。
+     * </p>
+     * <p>このメソッドはフレームワークによって使用されます。
+     * 通常アプリケーションコードからこのメソッドを呼び出す必要はありません。
+     * </p>
+     * 
+     * @param name 属性の名前。
+     */
+    void refreshAttribute(String name);
 }
