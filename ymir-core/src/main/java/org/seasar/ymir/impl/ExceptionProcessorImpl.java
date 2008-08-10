@@ -5,11 +5,8 @@ import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.kvasir.util.PropertyUtils;
-import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.ExceptionProcessor;
-import org.seasar.ymir.Globals;
-import org.seasar.ymir.PageMetaData;
 import org.seasar.ymir.PageProcessor;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -29,8 +26,6 @@ import org.seasar.ymir.util.ThrowableUtils;
 public class ExceptionProcessorImpl implements ExceptionProcessor {
     private Ymir ymir_;
 
-    private ApplicationManager applicationManager_;
-
     private AnnotationHandler annotationHandler_;
 
     private HotdeployManager hotdeployManager_;
@@ -46,11 +41,6 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
         ymir_ = ymir;
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setApplicationManager(ApplicationManager applicationManager) {
-        applicationManager_ = applicationManager;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -128,12 +118,13 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                 .getComponent();
 
         // 各コンテキストが持つ属性をinjectする。
-        PageMetaData pageMetaData = new PageMetaDataImpl(handlerCd
+        ComponentMetaData metaData = new ComponentMetaDataImpl(handlerCd
                 .getComponentClass(), container, annotationHandler_,
-                hotdeployManager_, typeConversionManager_, isStrictInjection());
+                hotdeployManager_, typeConversionManager_);
         // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
         // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
-        pageProcessor_.injectScopeAttributes(handler, pageMetaData, null);
+        pageProcessor_.populateScopeAttributes(handler, metaData, null);
+        pageProcessor_.injectScopeAttributes(handler, metaData, null);
 
         Response response = constructResponse(handler.handle(t));
         if (response.getType() == ResponseType.PASSTHROUGH) {
@@ -143,7 +134,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         }
 
         // 各コンテキストに属性をoutjectする。
-        pageProcessor_.outjectScopeAttributes(handler, pageMetaData, null);
+        pageProcessor_.outjectScopeAttributes(handler, metaData, null);
 
         // ExceptionHandlerコンポーネントをattributeとしてバインドしておく。
         request.setAttribute(ATTR_HANDLER, handler);
@@ -180,12 +171,5 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
 
     S2Container getS2Container() {
         return ymir_.getApplication().getS2Container();
-    }
-
-    boolean isStrictInjection() {
-        return PropertyUtils.valueOf(applicationManager_
-                .findContextApplication().getProperty(
-                        Globals.APPKEY_CORE_REQUESTPARAMETER_STRICTINJECTION),
-                false);
     }
 }

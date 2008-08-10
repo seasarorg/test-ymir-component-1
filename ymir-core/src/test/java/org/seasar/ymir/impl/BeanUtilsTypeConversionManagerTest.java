@@ -2,6 +2,8 @@ package org.seasar.ymir.impl;
 
 import junit.framework.TestCase;
 
+import org.seasar.ymir.PropertyHandler;
+
 public class BeanUtilsTypeConversionManagerTest extends TestCase {
     private BeanUtilsTypeConversionManager target_ = new BeanUtilsTypeConversionManager();
 
@@ -63,5 +65,39 @@ public class BeanUtilsTypeConversionManagerTest extends TestCase {
 
         assertEquals("castできない場合", Byte.valueOf((byte) 1), target_
                 .convertComponent(Integer.valueOf(1), Byte.class));
+    }
+
+    public void testGetPropertyHandler() throws Exception {
+        Aaa aaa = new Aaa();
+
+        PropertyHandler actual = target_.getPropertyHandler(aaa, "bbb.ccc");
+
+        assertNotNull(actual);
+        actual.setProperty("value");
+        assertEquals("value", aaa.getBbb().getCcc());
+    }
+
+    public static class Aaa {
+        private Bbb bbb_ = new Bbb();
+
+        public Bbb getBbb() {
+            return bbb_;
+        }
+
+        public void setBbb(Bbb bbb) {
+            bbb_ = bbb;
+        }
+    }
+
+    public static class Bbb {
+        private String ccc_;
+
+        public String getCcc() {
+            return ccc_;
+        }
+
+        public void setCcc(String ccc) {
+            ccc_ = ccc;
+        }
     }
 }

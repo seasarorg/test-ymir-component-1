@@ -1,5 +1,7 @@
 package org.seasar.ymir.conversation;
 
+import java.util.Iterator;
+
 /**
  * 現在のセッションに関するconversation情報を表すインタフェースです。
  * <p><b>同期化：</b>
@@ -47,7 +49,7 @@ public interface Conversations {
     String getSuperConversationName();
 
     /**
-     * 現在のフェーズにバインドされている属性のうち、
+     * 現在のconversationにバインドされている属性のうち、
      * 指定されている名前の属性の値を返します。
      * 
      * @param name 属性の名前。
@@ -56,7 +58,7 @@ public interface Conversations {
     Object getAttribute(String name);
 
     /**
-     * 指定された名前と値を持つ属性を現在のフェーズにバインドします。
+     * 指定された名前と値を持つ属性を現在のconversationにバインドします。
      * 
      * @param name 属性の名前。
      * @param value 属性の値。nullを指定すると属性が削除されます。
@@ -144,4 +146,11 @@ public interface Conversations {
      * @param reenterResponse 終了時の処理の戻り先を表すオブジェクト。
      */
     void beginSubConversation(Object reenterResponse);
+
+    /**
+     * 現在のconversationにバインドされている全ての属性の名前のIteratorを返します。
+     * 
+     * @return Iteratorオブジェクト。
+     */
+    Iterator<String> getAttributeNames();
 }

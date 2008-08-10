@@ -67,7 +67,14 @@ public class BeanUtils {
         if (propertyName == null) {
             return null;
         }
+
         int dot = propertyName.indexOf('.');
+        int beginMap = propertyName.indexOf('(');
+        int endMap = propertyName.indexOf(')');
+        if (endMap >= 0 && beginMap >= 0
+                && (dot < 0 || dot >= 0 && dot > beginMap)) {
+            dot = propertyName.indexOf('.', endMap);
+        }
         if (dot < 0) {
             return propertyName;
         } else {

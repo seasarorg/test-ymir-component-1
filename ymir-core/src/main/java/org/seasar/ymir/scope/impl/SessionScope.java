@@ -1,6 +1,11 @@
 package org.seasar.ymir.scope.impl;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import javax.servlet.http.HttpSession;
+
+import org.seasar.kvasir.util.collection.EnumerationIterator;
 
 /**
  * 現在のHTTPセッションの範囲で有効なオブジェクトを管理するスコープを表すクラスです。
@@ -22,5 +27,19 @@ public class SessionScope extends AbstractServletScope {
 
     public void setAttribute(String name, Object value) {
         getSession().setAttribute(name, value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Iterator<String> getAttributeNames() {
+        HttpSession session = getSession(false);
+        if (session == null) {
+            return new ArrayList<String>().iterator();
+        } else {
+            return new EnumerationIterator(session.getAttributeNames());
+        }
+    }
+
+    public String getName() {
+        return SessionScope.class.getName();
     }
 }

@@ -31,6 +31,15 @@ public @interface Populate {
     Class<? extends Scope> value() default Scope.class;
 
     /**
+     * スコープを表すClassオブジェクトです。
+     * <p>{@link #scopeClass()}または{@link #scopeName()}
+     * のいずれかだけを指定するようにして下さい。
+     * 
+     * @return スコープを表すClassオブジェクト。
+     */
+    Class<? extends Scope> scopeClass() default Scope.class;
+
+    /**
      * スコープ名です。
      * <p>{@link #scopeClass()}または{@link #scopeName()}
      * のいずれかだけを指定するようにして下さい。
@@ -38,4 +47,26 @@ public @interface Populate {
      * @return スコープ名。
      */
     String scopeName() default "";
+
+    /**
+     * ポピュレートを行なうアクションの名前です。
+     * <p>このプロパティを指定した場合、
+     * リクエストに対応するアクションの名前がこのプロパティで指定したアクション名のいずれかと一致する場合だけ
+     * ポピュレートが行なわれます。
+     * このプロパティを指定しない場合は常にポピュレートが行なわれます。
+     * </p>
+     * 
+     * @return ポピュレートを行なうアクションの名前。
+     */
+    String[] actionName() default {};
+
+    /**
+     * 属性の値がnullである場合もポピュレートを行なうかどうかです。
+     * <p>このプロパティを指定しない場合は、
+     * 属性の値がnullである場合はポピュレートが行なわれません。
+     * </p>
+     * 
+     * @return 属性の値がnullである場合もポピュレートを行なうかどうか。
+     */
+    boolean populateWhereNull() default false;
 }

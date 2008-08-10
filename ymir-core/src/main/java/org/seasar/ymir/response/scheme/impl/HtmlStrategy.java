@@ -6,8 +6,8 @@ import org.seasar.ymir.response.scheme.Strategy;
 
 /**
  * このクラスは後方互換性のために存在します。通常は代わりにContentStrategyを利用すべきです。
- * 具体的には、「<code>html:XXX</code>」と書く代わりに「<code>content:XXX</code>」
- * もしくは「<code>content:text/html; charset=CCC:XXX</code>」と書くべきです。
+ * 具体的には、「<code>html:XXXX</code>」と書く代わりに「<code>content:XXXX</code>」
+ * もしくは「<code>content:text/html; charset=CCC:XXXX</code>」と書くべきです。
  * 
  * @author YOKOTA Takehiko
  */

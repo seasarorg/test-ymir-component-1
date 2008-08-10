@@ -13,7 +13,7 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.FormFile;
-import org.seasar.ymir.PageMetaData;
+import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.Phase;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.annotation.In;
@@ -27,11 +27,12 @@ import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.handler.ScopeAttributeHandler;
 import org.seasar.ymir.scope.handler.impl.ScopeAttributeInjector;
 import org.seasar.ymir.scope.handler.impl.ScopeAttributeOutjector;
+import org.seasar.ymir.scope.handler.impl.ScopeAttributePopulator;
 import org.seasar.ymir.scope.impl.RequestScope;
 import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ClassUtils;
 
-public class PageMetaDataImpl implements PageMetaData {
+public class ComponentMetaDataImpl implements ComponentMetaData {
     private Class<?> class_;
 
     private S2Container container_;
@@ -50,37 +51,32 @@ public class PageMetaDataImpl implements PageMetaData {
 
     private Map<Phase, Method[]> methodsMap_ = new HashMap<Phase, Method[]>();
 
-    private boolean strictInjection_;
+    private Map<Scope, ScopeAttributePopulator> populatedScopeAttributeHandlerMap_ = new HashMap<Scope, ScopeAttributePopulator>();
 
-    private Map<String, Scope> populatedScopeMap_ = new HashMap<String, Scope>();
-
-    public PageMetaDataImpl(Class<?> clazz, S2Container container,
+    public ComponentMetaDataImpl(Class<?> clazz, S2Container container,
             AnnotationHandler annotationHandler,
             HotdeployManager hotdeployManager,
-            TypeConversionManager typeConversionManager, boolean strictInjection) {
+            TypeConversionManager typeConversionManager) {
         class_ = clazz;
         container_ = container;
         annotationHandler_ = annotationHandler;
         hotdeployManager_ = hotdeployManager;
         typeConversionManager_ = typeConversionManager;
-        strictInjection_ = strictInjection;
         Method[] methods = ClassUtils.getMethods(clazz);
         for (int i = 0; i < methods.length; i++) {
             register(methods[i]);
         }
     }
 
+    // TODO [Ymir1.0.x] 削除する。
     public boolean isProtected(String propertyName) {
-        if (strictInjection_) {
-            return true;
-        } else {
-            return protectedNameSet_.contains(BeanUtils
-                    .getFirstSimpleSegment(propertyName));
-        }
+        return protectedNameSet_.contains(BeanUtils
+                .getFirstSimpleSegment(propertyName));
     }
 
-    public Scope[] getPopulatedScopes() {
-        return populatedScopeMap_.values().toArray(new Scope[0]);
+    public ScopeAttributeHandler[] getPopulatedScopeAttributeHandlers() {
+        return populatedScopeAttributeHandlerMap_.values().toArray(
+                new ScopeAttributeHandler[0]);
     }
 
     public ScopeAttributeHandler[] getInjectedScopeAttributeHandlers() {
@@ -102,7 +98,7 @@ public class PageMetaDataImpl implements PageMetaData {
             shouldProtect = true;
         }
         for (Populate populate : populates) {
-            registerScopeToPopulate(populate);
+            registerForPopulationFromScope(populate, method);
         }
 
         In[] ins = annotationHandler_.getAnnotations(method, In.class);
@@ -160,15 +156,27 @@ public class PageMetaDataImpl implements PageMetaData {
         }
     }
 
-    void registerScopeToPopulate(Populate populate) {
+    void registerForPopulationFromScope(Populate populate, Method method) {
         Scope scope = getScope(populate);
-        populatedScopeMap_.put(scope.getName(), scope);
+
+        ScopeAttributePopulator populator = populatedScopeAttributeHandlerMap_
+                .get(scope);
+        if (populator == null) {
+            populator = new ScopeAttributePopulator(scope, hotdeployManager_,
+                    typeConversionManager_);
+            populatedScopeAttributeHandlerMap_.put(scope, populator);
+        }
+
+        populator.addEntry(method, populate.populateWhereNull(), populate
+                .actionName());
     }
 
     Scope getScope(Populate populate) {
         Object key;
         if (populate.scopeName().length() > 0) {
             key = populate.scopeName();
+        } else if (populate.scopeClass() != Scope.class) {
+            key = populate.scopeClass();
         } else if (populate.value() != Scope.class) {
             key = populate.value();
         } else {
@@ -187,9 +195,7 @@ public class PageMetaDataImpl implements PageMetaData {
             throw new RuntimeException(
                     "Logic error: @In can annotate only public method: class="
                             + class_.getName() + ", method=" + method);
-        } else if (!(method.getParameterTypes().length == 0
-                && !method.getReturnType().equals(Void.TYPE) || method
-                .getParameterTypes().length == 1)) {
+        } else if (method.getParameterTypes().length != 1) {
             throw new RuntimeException(
                     "Logic error: @In can't annotate this method: class="
                             + class_.getName() + ", method=" + method);

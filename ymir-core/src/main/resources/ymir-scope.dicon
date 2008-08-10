@@ -13,8 +13,6 @@
     class="org.seasar.ymir.scope.impl.CookieScope" />
   <component name="requestParameterScope"
     class="org.seasar.ymir.scope.impl.RequestParameterScope" />
-  <component name="fileRequestParameterScope"
-    class="org.seasar.ymir.scope.impl.FileRequestParameterScope" />
   <component name="requestHeaderScope"
     class="org.seasar.ymir.scope.impl.RequestHeaderScope" />
   <component name="responseHeaderScope"

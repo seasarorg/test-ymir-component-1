@@ -91,4 +91,6 @@ public interface TypeConversionManager {
      * @since 0.9.6
      */
     <T> T convert(Object value, Class<T> type);
+
+    PropertyHandler getPropertyHandler(Object bean, String name);
 }

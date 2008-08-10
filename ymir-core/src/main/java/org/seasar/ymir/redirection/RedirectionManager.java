@@ -1,5 +1,7 @@
 package org.seasar.ymir.redirection;
 
+import java.util.Iterator;
+
 import org.seasar.ymir.redirection.impl.RedirectionInterceptor;
 
 /**
@@ -34,6 +36,8 @@ public interface RedirectionManager {
     void setScopeAttribute(String name, Object value);
 
     void removeScopeAttribute(String name);
+
+    Iterator<String> getScopeAttributeNames();
 
     boolean existsScopeMap();
 }

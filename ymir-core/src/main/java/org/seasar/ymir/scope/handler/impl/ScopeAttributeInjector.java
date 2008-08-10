@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 
 import org.seasar.framework.log.Logger;
 import org.seasar.kvasir.util.io.IORuntimeException;
-import org.seasar.ymir.PageMetaData;
+import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
@@ -12,10 +12,8 @@ import org.seasar.ymir.scope.Scope;
 
 /**
  * スコープから値を取り出してページにインジェクトするためのクラスです。
- * このクラスはスレッドセーフです。
- * </p>
  * 
- * @see PageMetaData
+ * @see ComponentMetaData
  * @author YOKOTA Takehiko
  */
 public class ScopeAttributeInjector extends AbstractScopeAttributeHandler {
@@ -30,7 +28,11 @@ public class ScopeAttributeInjector extends AbstractScopeAttributeHandler {
                 enabledActionNames, hotdeployManager, typeConversionManager);
     }
 
-    public void injectTo(Object component) {
+    public void injectTo(Object component, String actionName) {
+        if (!isEnabled(actionName)) {
+            return;
+        }
+
         Object value = scope_.getAttribute(name_);
         if (value != null || invokeWhereNull_) {
             value = typeConversionManager_.convert(value, method_
@@ -68,7 +70,7 @@ public class ScopeAttributeInjector extends AbstractScopeAttributeHandler {
         }
     }
 
-    public void outjectFrom(Object component) {
+    public void outjectFrom(Object component, String actionName) {
         throw new UnsupportedOperationException();
     }
 }

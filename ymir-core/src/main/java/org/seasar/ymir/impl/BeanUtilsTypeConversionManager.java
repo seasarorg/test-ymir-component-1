@@ -1,14 +1,18 @@
 package org.seasar.ymir.impl;
 
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.cms.pluggable.hotdeploy.AbstractHotdeployEventListener;
 import org.seasar.cms.pluggable.util.HotdeployEventUtils;
 import org.seasar.ymir.FormFile;
+import org.seasar.ymir.PropertyHandler;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.beanutils.FormFileArrayConverter;
 import org.seasar.ymir.beanutils.FormFileConverter;
@@ -19,6 +23,9 @@ public class BeanUtilsTypeConversionManager implements TypeConversionManager {
     private final PropertyUtilsBean propertyUtilsBean_;
 
     private final BeanUtilsBean beanUtilsBean_;
+
+    private static final Log log_ = LogFactory
+            .getLog(BeanUtilsTypeConversionManager.class);
 
     public BeanUtilsTypeConversionManager() {
         convertUtilsBean_ = prepare(newConvertUtilsBean());
@@ -156,5 +163,43 @@ public class BeanUtilsTypeConversionManager implements TypeConversionManager {
 
     protected String convertToString(Object value) {
         return convertUtilsBean_.convert(value);
+    }
+
+    public PropertyHandler getPropertyHandler(Object bean, String name) {
+        PropertyDescriptor pd;
+        try {
+            pd = propertyUtilsBean_.getPropertyDescriptor(bean, name);
+        } catch (IllegalArgumentException ex) {
+            if (log_.isDebugEnabled()) {
+                log_.debug("Can't get PropertyDescriptor: beanClass="
+                        + bean.getClass() + ", name=" + name, ex);
+            }
+            pd = null;
+        } catch (IllegalAccessException ex) {
+            if (log_.isDebugEnabled()) {
+                log_.debug("Can't get PropertyDescriptor: beanClass="
+                        + bean.getClass() + ", name=" + name, ex);
+            }
+            pd = null;
+        } catch (InvocationTargetException ex) {
+            if (log_.isDebugEnabled()) {
+                log_.debug("Can't get PropertyDescriptor: beanClass="
+                        + bean.getClass() + ", name=" + name, ex);
+            }
+            pd = null;
+        } catch (NoSuchMethodException ex) {
+            if (log_.isDebugEnabled()) {
+                log_.debug("Can't get PropertyDescriptor: beanClass="
+                        + bean.getClass() + ", name=" + name, ex);
+            }
+            pd = null;
+        }
+
+        if (pd == null) {
+            return null;
+        } else {
+            return new BeanUtilsPropertyHandler(propertyUtilsBean_, pd, bean,
+                    name);
+        }
     }
 }

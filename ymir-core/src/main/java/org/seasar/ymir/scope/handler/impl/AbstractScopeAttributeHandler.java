@@ -5,8 +5,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.seasar.framework.log.Logger;
-import org.seasar.ymir.PageMetaData;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.scope.Scope;
@@ -17,7 +18,7 @@ import org.seasar.ymir.scope.handler.ScopeAttributeHandler;
  * このクラスはスレッドセーフです。
  * </p>
  * 
- * @see PageMetaData
+ * @see ComponentMetaData
  * @author YOKOTA Takehiko
  */
 abstract public class AbstractScopeAttributeHandler implements
@@ -36,8 +37,8 @@ abstract public class AbstractScopeAttributeHandler implements
 
     protected TypeConversionManager typeConversionManager_;
 
-    private static final Logger logger_ = Logger
-            .getLogger(AbstractScopeAttributeHandler.class);
+    private static final Log log_ = LogFactory
+            .getLog(AbstractScopeAttributeHandler.class);
 
     /**
      * このクラスのオブジェクトを構築します。
@@ -68,7 +69,7 @@ abstract public class AbstractScopeAttributeHandler implements
         typeConversionManager_ = typeConversionManager;
     }
 
-    public boolean isEnabled(String actionName) {
+    protected boolean isEnabled(String actionName) {
         if (enabledActionNameSet_ == null) {
             return true;
         } else {

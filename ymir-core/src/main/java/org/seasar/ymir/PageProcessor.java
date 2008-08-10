@@ -2,14 +2,14 @@ package org.seasar.ymir;
 
 import java.util.Map;
 
-import org.seasar.ymir.PageMetaData;
+import org.seasar.ymir.ComponentMetaData;
 
 /**
  * Pageオブジェクトを処理するためのインタフェースです。
  * <p><b>同期化：</b>
  * このインタフェースの実装クラスはスレッドセーフである必要があります。
  * </p>
- * -^\\--\\\\\
+ * 
  * @author YOKOTA Takehiko
  */
 public interface PageProcessor {
@@ -19,13 +19,16 @@ public interface PageProcessor {
      * </p>
      * <p>インジェクトから保護されているプロパティには値をインジェクトしません。
      * </p>
+     * <p><b>[注意]</b> このメソッドはYmir1.0.x系では削除される予定です。
+     * </p>
      * 
      * @param page Pageオブジェクト。
      * @param metaData Pageオブジェクトに関するメタデータ。
      * @param properties インジェクトする値が格納されているMap。
-     * @see PageMetaData#isProtected(String)
+     * @see ComponentMetaData#isProtected(String)
      */
-    void injectProperties(Object page, PageMetaData metaData,
+    @Deprecated
+    void injectProperties(Object page, ComponentMetaData metaData,
             Map<String, String[]> properties);
 
     /**
@@ -34,14 +37,28 @@ public interface PageProcessor {
      * </p>
      * <p>インジェクトから保護されているプロパティには値をインジェクトしません。
      * </p>
+     * <p><b>[注意]</b> このメソッドはYmir1.0.x系では削除される予定です。
+     * </p>
      * 
      * @param page Pageオブジェクト。
      * @param metaData Pageオブジェクトに関するメタデータ。
      * @param properties インジェクトする値が格納されているMap。
-     * @see PageMetaData#isProtected(String)
+     * @see ComponentMetaData#isProtected(String)
      */
-    void injectFormFileProperties(Object page, PageMetaData metaData,
+    @Deprecated
+    void injectFormFileProperties(Object page, ComponentMetaData metaData,
             Map<String, FormFile[]> properties);
+
+    /**
+     * スコープに格納されている属性の値をPageオブジェクトのプロパティにポピュレートします。
+     * 
+     * @param page Pageオブジェクト。
+     * @param metaData Pageオブジェクトに関するメタデータ。
+     * @param actionName 実行するアクションの名前。
+     * @see ComponentMetaData#getPopulatedScopeAttributeHandlers()
+     */
+    void populateScopeAttributes(Object page, ComponentMetaData metaData,
+            String actionName);
 
     /**
      * スコープに格納されている属性の値をPageオブジェクトのプロパティにインジェクトします。
@@ -49,9 +66,9 @@ public interface PageProcessor {
      * @param page Pageオブジェクト。
      * @param metaData Pageオブジェクトに関するメタデータ。
      * @param actionName 実行するアクションの名前。
-     * @see PageMetaData#getInjectedScopeAttributeHandlers()
+     * @see ComponentMetaData#getInjectedScopeAttributeHandlers()
      */
-    void injectScopeAttributes(Object page, PageMetaData metaData,
+    void injectScopeAttributes(Object page, ComponentMetaData metaData,
             String actionName);
 
     /**
@@ -60,9 +77,9 @@ public interface PageProcessor {
      * @param page Pageオブジェクト。
      * @param metaData Pageオブジェクトに関するメタデータ。
      * @param actionName 実行されたアクションの名前。
-     * @see PageMetaData#getOutjectedScopeAttributeHandlers()
+     * @see ComponentMetaData#getOutjectedScopeAttributeHandlers()
      */
-    void outjectScopeAttributes(Object page, PageMetaData metaData,
+    void outjectScopeAttributes(Object page, ComponentMetaData metaData,
             String actionName);
 
     /**
@@ -71,7 +88,7 @@ public interface PageProcessor {
      * @param page Pageオブジェクト。
      * @param metaData Pageオブジェクトに関するメタデータ。
      * @param phase フェーズ。
-     * @see PageMetaData#getMethods(Phase)
+     * @see ComponentMetaData#getMethods(Phase)
      */
-    void invokeMethods(Object page, PageMetaData metaData, Phase phase);
+    void invokeMethods(Object page, ComponentMetaData metaData, Phase phase);
 }

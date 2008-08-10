@@ -1,6 +1,7 @@
 package org.seasar.ymir.util;
 
 import java.beans.BeanInfo;
+import java.beans.IndexedPropertyDescriptor;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.Set;
@@ -76,6 +77,8 @@ public class BeanUtilsTest extends TestCase {
 
         assertEquals("aaa", BeanUtils.getFirstSegment("aaa"));
         assertEquals("aaa[0]", BeanUtils.getFirstSegment("aaa[0].bbb[1].ccc"));
+        assertEquals("aaa(a.b.c)", BeanUtils
+                .getFirstSegment("aaa(a.b.c).bbb(d.e.f)"));
     }
 
     public void testGetFirstSimpleSegment() throws Exception {
@@ -84,5 +87,23 @@ public class BeanUtilsTest extends TestCase {
         assertEquals("aaa", BeanUtils.getFirstSimpleSegment("aaa"));
         assertEquals("aaa", BeanUtils
                 .getFirstSimpleSegment("aaa[0].bbb[1].ccc"));
+        assertEquals("aaa", BeanUtils
+                .getFirstSimpleSegment("aaa(a.b.c).bbb(d.e.f)"));
+    }
+
+    public void testname() throws Exception {
+        BeanInfo beanInfo = Introspector.getBeanInfo(AAA.class);
+        for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+            if (pd instanceof IndexedPropertyDescriptor) {
+                System.out.println(((IndexedPropertyDescriptor) pd)
+                        .getIndexedPropertyType());
+            }
+        }
+    }
+
+    public static class AAA {
+        public String getAaa(int a) {
+            return null;
+        }
     }
 }

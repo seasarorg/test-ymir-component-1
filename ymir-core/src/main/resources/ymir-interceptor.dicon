@@ -19,4 +19,8 @@
     class="org.seasar.ymir.conversation.impl.ConversationInterceptor">
     <property name="priority">100.0</property>
   </component>
+  <component name="requestParameterInjectionInterceptor"
+    class="org.seasar.ymir.interceptor.impl.RequestParameterInjectionInterceptor">
+    <property name="priority">100.0</property>
+  </component>
 </components>

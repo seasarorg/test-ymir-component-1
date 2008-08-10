@@ -452,11 +452,13 @@ abstract public class YmirTestCase extends TestCase {
         try {
             threadContext.setComponent(Request.class, request);
 
+            Response response = ymir_.processRequest(request);
+
             if (test != null) {
                 test.doTest();
             }
 
-            return ymir_.processRequest(request);
+            return response;
         } finally {
             ymir_.leaveDispatch(request);
 
@@ -523,15 +525,6 @@ abstract public class YmirTestCase extends TestCase {
     /**
      * テストを表す抽象クラスです。
      * <p>フレームワークがリクエストを処理している最中にテストを実施したい場合はこのクラスのサブクラスを作成して
-     * <p><b>同期化：</b>
-     * TODO このクラス／インタフェースがスレッドセーフかどうかについて記述して下さい。
-     * このインタフェースの実装クラスはスレッドセーフである必要はありません。
-     * このインタフェースの実装クラスはオブジェクトの内部状態を変えない操作に関してスレッドセーフである必要があります。
-     * このインタフェースの実装クラスはスレッドセーフである必要があります。
-     * このクラスはスレッドセーフです。
-     * このクラスは状態の変更を伴う場合スレッドセーフではありません。
-     * このクラスはスレッドセーフではありません。
-     * </p>
      * 
      * @author YOKOTA Takehiko
      */

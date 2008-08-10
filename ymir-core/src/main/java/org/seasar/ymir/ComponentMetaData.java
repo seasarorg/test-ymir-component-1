@@ -2,13 +2,11 @@ package org.seasar.ymir;
 
 import java.lang.reflect.Method;
 
-import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.handler.ScopeAttributeHandler;
 
 /**
- * Pageオブジェクトに関する情報を表すインタフェースです。
- * <p>{@link PageComponent}とは異なり、主にPageオブジェクトが持つ属性やメソッドなど、
- * 内部的な情報を表します。
+ * コンポーネントに関する情報を表すインタフェースです。
+ * <p>主にコンポーネントが持つ属性やメソッドなどを表します。
  * </p>
  * <p><b>同期化：</b>
  * このインタフェースの実装クラスはオブジェクトの内部状態を変えない操作に関してスレッドセーフである必要があります。
@@ -16,11 +14,13 @@ import org.seasar.ymir.scope.handler.ScopeAttributeHandler;
  * 
  * @author YOKOTA Takehiko
  */
-public interface PageMetaData {
+public interface ComponentMetaData {
     /**
      * 指定された名前のプロパティがインジェクトから保護されているかどうかを返します。
      * <p>Ymirではセキュリティ上、任意のプロパティにリクエストパラメータ等の値が自動的にインジェクトされるようにしていません。
      * このメソッドがtrueを返すプロパティにはフレームワークが値をインジェクトしません。
+     * </p>
+     * <p><b>[注意]</b> このメソッドはYmir1.0.x系では削除される予定です。
      * </p>
      * 
      * @param propertyName プロパティ名。
@@ -31,11 +31,15 @@ public interface PageMetaData {
     boolean isProtected(String propertyName);
 
     /**
-     * ポピュレーション処理を行なうべきスコープを返します。
+     * スコープから値をポピュレートする必要のある属性のためのハンドラを返します。
+     * <p>フレームワークはこのメソッドが返す属性の値をスコープから取り出して、
+     * Pageオブジェクトの対応するプロパティにポピュレートします。
+     * </p>
      * 
-     * @return ポピュレーション処理を行なうべきスコープの配列。nullを返すことはありません。
+     * @return スコープから値をポピュレートする必要のある属性のためのハンドラ。nullを返すことはありません。
+     * @see PageProcessor#populateScopeAttributes(Object, PageMetaData, String)
      */
-    Scope[] getPopulatedScopes();
+    ScopeAttributeHandler[] getPopulatedScopeAttributeHandlers();
 
     /**
      * スコープから値をインジェクトする必要のある属性のためのハンドラを返します。

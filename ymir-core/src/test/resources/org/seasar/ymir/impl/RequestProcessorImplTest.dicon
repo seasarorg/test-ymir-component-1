@@ -86,6 +86,8 @@
     class="org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl" />
   <component
     class="org.seasar.ymir.response.scheme.impl.StrategySelectorImpl" />
+  <component
+    class="org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl" />
   <component class="org.seasar.ymir.impl.ApplicationManagerImpl" />
   <component
     class="org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl" />

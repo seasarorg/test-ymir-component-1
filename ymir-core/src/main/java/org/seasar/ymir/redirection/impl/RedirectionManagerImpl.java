@@ -1,6 +1,8 @@
 package org.seasar.ymir.redirection.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
@@ -120,6 +122,20 @@ public class RedirectionManagerImpl implements RedirectionManager,
         }
 
         return (T) scopeMap.get(name);
+    }
+
+    public Iterator<String> getScopeAttributeNames() {
+        String scopeId = getScopeIdFromRequest();
+        if (scopeId == null) {
+            return new ArrayList<String>().iterator();
+        }
+
+        Map<String, Object> scopeMap = getScopeMap(scopeId, false);
+        if (scopeMap == null) {
+            return new ArrayList<String>().iterator();
+        }
+
+        return scopeMap.keySet().iterator();
     }
 
     public String getScopeIdFromRequest() {

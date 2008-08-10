@@ -1,5 +1,7 @@
 package org.seasar.ymir.conversation;
 
+import org.seasar.ymir.ForTesting;
+
 /**
  * conversationに関する定数を定義するインタフェースです。
  * 
@@ -16,6 +18,7 @@ public interface Globals extends org.seasar.ymir.Globals {
      * <p>このアプリケーションプロパティはテストコードの中で利用するために用意されています。
      * </p>
      */
+    @ForTesting
     String APPKEY_DISABLEBEGINCHECK = APPKEYPREFIX_CONVERSATION
             + "disableBeginCheck";
 
@@ -24,6 +27,7 @@ public interface Globals extends org.seasar.ymir.Globals {
      * <p>このアプリケーションプロパティはテストコードの中で利用するために用意されています。
      * </p>
      */
+    @ForTesting
     String APPKEY_USESESSIONSCOPEASCONVERSATIONSCOPE = APPKEYPREFIX_CONVERSATION
             + "useSessionScopeAsConversationScope";
 }

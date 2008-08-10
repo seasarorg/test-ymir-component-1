@@ -2,7 +2,10 @@ package org.seasar.ymir.scope.impl;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
+
+import org.seasar.kvasir.util.collection.EnumerationIterator;
 
 /**
  * リクエストヘッダをインジェクトするための仮想的なスコープを表すクラスです。
@@ -25,5 +28,14 @@ public class RequestHeaderScope extends AbstractServletScope {
     public void setAttribute(String name, Object value) {
         throw new UnsupportedOperationException(
                 "Can't set request header: name=" + name + ", value=" + value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Iterator<String> getAttributeNames() {
+        return new EnumerationIterator(getRequest().getHeaderNames());
+    }
+
+    public String getName() {
+        return RequestHeaderScope.class.getName();
     }
 }

@@ -2,6 +2,9 @@ package org.seasar.ymir.conversation.impl;
 
 import static org.seasar.ymir.conversation.Globals.APPKEY_USESESSIONSCOPEASCONVERSATIONSCOPE;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import javax.servlet.http.HttpSession;
 
 import org.seasar.framework.container.S2Container;
@@ -122,5 +125,27 @@ public class ConversationScope implements Scope {
         return PropertyUtils.valueOf(applicationManager_
                 .findContextApplication().getProperty(
                         APPKEY_USESESSIONSCOPEASCONVERSATIONSCOPE), false);
+    }
+
+    public Iterator<String> getAttributeNames() {
+        if (isUseSessionScopeAsConversationScope()) {
+            // TODO 問題があれば、SessionにConversationScopeに対応するMapを格納する
+            // ようにするなどして対処する。
+            return new ArrayList<String>().iterator();
+        } else {
+            Conversations conversations = conversationManager_
+                    .getConversations();
+            if (conversations != null
+                    && conversationNameEquals(getPageConversationName(),
+                            conversations.getCurrentConversationName())) {
+                return conversations.getAttributeNames();
+            } else {
+                return new ArrayList<String>().iterator();
+            }
+        }
+    }
+
+    public String getName() {
+        return ConversationScope.class.getName();
     }
 }

@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
  * と書けるようにすることにします。
  * また、インジェクション対象のアクションを限定できるよう、@InアノテーションのactionNameプロパティを
  * <blockquote>
- *   <code>@UserAgent(actionName="XXX")</code>
+ *   <code>@UserAgent(actionName="XXXX")</code>
  * </blockquote>
  * のように指定できるようにすることにします。
  * </p>

@@ -2,6 +2,7 @@ package org.seasar.ymir.conversation.impl;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -63,6 +64,7 @@ public class ConversationImpl implements Conversation, Serializable {
     public Object getAttribute(String name) {
         Object value = attributeMap_.get(name);
         if (applicationManager_.findContextApplication().isUnderDevelopment()) {
+            // Scope経由ではなく直接属性を取得された場合のためにこうしている。
             return hotdeployManager_.fit(value);
         } else {
             return value;
@@ -93,4 +95,7 @@ public class ConversationImpl implements Conversation, Serializable {
         reenterResponse_ = reenterResponse;
     }
 
+    public Iterator<String> getAttributeNames() {
+        return attributeMap_.keySet().iterator();
+    }
 }

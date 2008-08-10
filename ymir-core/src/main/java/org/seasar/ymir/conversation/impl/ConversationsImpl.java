@@ -2,6 +2,8 @@ package org.seasar.ymir.conversation.impl;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.seasar.ymir.ApplicationManager;
@@ -222,5 +224,13 @@ public class ConversationsImpl implements Conversations, Serializable {
 
     LinkedList<Conversation> getConversationStack() {
         return conversationStack_;
+    }
+
+    public Iterator<String> getAttributeNames() {
+        if (currentConversation_ != null) {
+            return currentConversation_.getAttributeNames();
+        } else {
+            return new ArrayList<String>().iterator();
+        }
     }
 }

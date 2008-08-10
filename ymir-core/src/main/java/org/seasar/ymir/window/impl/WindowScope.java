@@ -1,6 +1,8 @@
 package org.seasar.ymir.window.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
@@ -64,5 +66,17 @@ public class WindowScope implements Scope {
         } else {
             getSubScopeMap(true).put(name, value);
         }
+    }
+
+    public Iterator<String> getAttributeNames() {
+        Map<String, Object> subScopeMap = getSubScopeMap(false);
+        if (subScopeMap == null) {
+            return new ArrayList<String>().iterator();
+        }
+        return subScopeMap.keySet().iterator();
+    }
+
+    public String getName() {
+        return WindowScope.class.getName();
     }
 }

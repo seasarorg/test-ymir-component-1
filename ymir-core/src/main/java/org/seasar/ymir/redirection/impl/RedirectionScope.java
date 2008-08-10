@@ -1,5 +1,7 @@
 package org.seasar.ymir.redirection.impl;
 
+import java.util.Iterator;
+
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.redirection.RedirectionManager;
@@ -33,5 +35,13 @@ public class RedirectionScope implements Scope {
         } else {
             redirectionManager_.setScopeAttribute(name, value);
         }
+    }
+
+    public Iterator<String> getAttributeNames() {
+        return redirectionManager_.getScopeAttributeNames();
+    }
+
+    public String getName() {
+        return RedirectionScope.class.getName();
     }
 }

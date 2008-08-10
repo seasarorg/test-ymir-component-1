@@ -12,18 +12,16 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.log.Logger;
-import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionNotFoundException;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.AttributeContainer;
+import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
-import org.seasar.ymir.Globals;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
-import org.seasar.ymir.PageMetaData;
 import org.seasar.ymir.PageNotFoundException;
 import org.seasar.ymir.PageProcessor;
 import org.seasar.ymir.Phase;
@@ -358,19 +356,12 @@ public class RequestProcessorImpl implements RequestProcessor {
             pageComponent = new PageComponentImpl(page, pageClass);
         }
 
-        pageComponent.setRelatedObject(PageMetaData.class,
-                new PageMetaDataImpl(pageClass, getS2Container(),
+        pageComponent.setRelatedObject(ComponentMetaData.class,
+                new ComponentMetaDataImpl(pageClass, getS2Container(),
                         annotationHandler_, hotdeployManager_,
-                        typeConversionManager_, isStrictInjection()));
+                        typeConversionManager_));
 
         return pageComponent;
-    }
-
-    protected boolean isStrictInjection() {
-        return PropertyUtils.valueOf(applicationManager_
-                .findContextApplication().getProperty(
-                        Globals.APPKEY_CORE_REQUESTPARAMETER_STRICTINJECTION),
-                false);
     }
 
     protected Object getPage(Object pageComponentKey) {
@@ -508,7 +499,7 @@ public class RequestProcessorImpl implements RequestProcessor {
 
         public Object process(PageComponent pageComponent) {
             pageProcessor_.invokeMethods(pageComponent.getPage(), pageComponent
-                    .getRelatedObject(PageMetaData.class), phase_);
+                    .getRelatedObject(ComponentMetaData.class), phase_);
             return null;
         }
     }
@@ -522,20 +513,16 @@ public class RequestProcessorImpl implements RequestProcessor {
 
         public Object process(PageComponent pageComponent) {
             Object page = pageComponent.getPage();
-            PageMetaData metaData = pageComponent
-                    .getRelatedObject(PageMetaData.class);
+            ComponentMetaData metaData = pageComponent
+                    .getRelatedObject(ComponentMetaData.class);
             Dispatch dispatch = request_.getCurrentDispatch();
-
-            // リクエストパラメータをinjectする。
-            pageProcessor_.injectProperties(page, metaData, request_
-                    .getParameterMap());
-
-            // FormFileのリクエストパラメータをinjectする。
-            pageProcessor_.injectFormFileProperties(page, metaData, request_
-                    .getFileParameterMap());
 
             pageProcessor_.invokeMethods(page, metaData,
                     Phase.SCOPEOBJECT_INJECTING);
+
+            // 各コンテキストが持つ属性をpopulateする。
+            pageProcessor_.populateScopeAttributes(page, metaData, dispatch
+                    .getActionName());
 
             // 各コンテキストが持つ属性をinjectする。
             pageProcessor_.injectScopeAttributes(page, metaData, dispatch
@@ -570,7 +557,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         public Object process(PageComponent pageComponent) {
             // 各コンテキストに属性をoutjectする。
             pageProcessor_.outjectScopeAttributes(pageComponent.getPage(),
-                    pageComponent.getRelatedObject(PageMetaData.class),
+                    pageComponent.getRelatedObject(ComponentMetaData.class),
                     dispatch_.getActionName());
 
             return null;

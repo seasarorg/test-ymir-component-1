@@ -1,6 +1,9 @@
 package org.seasar.ymir.scope.impl;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.http.Cookie;
 
@@ -67,5 +70,20 @@ public class CookieScope extends AbstractServletScope {
         }
 
         getResponse().addCookie(cookie);
+    }
+
+    public Iterator<String> getAttributeNames() {
+        Cookie[] cookies = getRequest().getCookies();
+        List<String> list = new ArrayList<String>();
+        if (cookies != null) {
+            for (int i = 0; i < cookies.length; i++) {
+                list.add(cookies[i].getName());
+            }
+        }
+        return list.iterator();
+    }
+
+    public String getName() {
+        return CookieScope.class.getName();
     }
 }
