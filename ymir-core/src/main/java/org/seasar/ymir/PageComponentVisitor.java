@@ -10,7 +10,6 @@ package org.seasar.ymir;
  */
 abstract public class PageComponentVisitor<R> implements
         Visitor<R, PageComponent> {
-    @SuppressWarnings("unchecked")
     public final R visit(PageComponent pageComponent) {
         PageComponent[] descendants = pageComponent.getDescendants();
         for (int i = 0; i < descendants.length; i++) {

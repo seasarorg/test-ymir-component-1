@@ -114,12 +114,10 @@ public class WindowManagerImpl implements WindowManager {
         return applicationManager_.findContextApplication().getS2Container();
     }
 
-    @SuppressWarnings("unchecked")
     public void setScopeAttribute(String name, Object value) {
         getScopeMap(findWindowIdFromRequest(), true).put(name, value);
     }
 
-    @SuppressWarnings("unchecked")
     public void removeScopeAttribute(String name) {
         Map<String, Object> scopeMap = getScopeMap(findWindowIdFromRequest(),
                 false);

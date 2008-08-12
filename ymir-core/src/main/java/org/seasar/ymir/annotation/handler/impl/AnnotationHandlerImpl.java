@@ -96,7 +96,6 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public Annotation[] getMarkedAnnotations(AnnotatedElement element,
             Class<? extends Annotation> metaAnnotationClass) {
         Key key = new Key(element, metaAnnotationClass);

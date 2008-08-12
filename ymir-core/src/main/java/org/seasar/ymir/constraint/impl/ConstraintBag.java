@@ -41,7 +41,6 @@ public class ConstraintBag<T extends Annotation> {
         type_ = constraintAnnotation.type();
     }
 
-    @SuppressWarnings("unchecked")
     public void confirm(Object page, Request request,
             Set<ConstraintType> suppressTypeSet)
             throws ConstraintViolatedException {

@@ -35,7 +35,6 @@ public class MarkedAnnotationGatherer implements AnnotationProcessor<Void> {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     public Annotation[] getAnnotations() {
         return list_.toArray(new Annotation[0]);
     }

@@ -111,7 +111,6 @@ public class HotdeployManagerImpl implements HotdeployManager {
         return fitterBag;
     }
 
-    @SuppressWarnings("unchecked")
     void copy(Object source, Object destination) {
         if (source == null || destination == null) {
             return;

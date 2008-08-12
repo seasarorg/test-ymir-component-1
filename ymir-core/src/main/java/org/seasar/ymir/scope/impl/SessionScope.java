@@ -31,7 +31,6 @@ public class SessionScope implements Scope {
         sessionManager_.setAttribute(name, value);
     }
 
-    @SuppressWarnings("unchecked")
     public Iterator<String> getAttributeNames() {
         return sessionManager_.getAttributeNames();
     }

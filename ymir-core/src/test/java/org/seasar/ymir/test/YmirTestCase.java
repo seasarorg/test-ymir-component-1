@@ -392,7 +392,6 @@ abstract public class YmirTestCase extends TestCase {
         return request_;
     }
 
-    @SuppressWarnings("unchecked")
     protected void prepareForProcessing(String path, Dispatcher dispatcher) {
         checkStatus(STATUS_PROCESSED);
 

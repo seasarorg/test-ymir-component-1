@@ -94,7 +94,6 @@ public class HotdeployManagerImplTest extends TestCase {
                 return ArrayList.class;
             }
 
-            @SuppressWarnings("unchecked")
             public ArrayList copy(ArrayList value) {
                 for (ListIterator itr = value.listIterator(); itr.hasNext();) {
                     itr.set(hotdeployManager.fit(itr.next()));

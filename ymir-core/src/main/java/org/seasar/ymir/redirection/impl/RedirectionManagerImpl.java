@@ -96,7 +96,6 @@ public class RedirectionManagerImpl implements RedirectionManager,
         removeScopeMap(getScopeId());
     }
 
-    @SuppressWarnings("unchecked")
     public void removeScopeMap(String scopeId) {
         if (scopeId == null) {
             return;
@@ -163,12 +162,10 @@ public class RedirectionManagerImpl implements RedirectionManager,
         return applicationManager_.findContextApplication().getS2Container();
     }
 
-    @SuppressWarnings("unchecked")
     public void setScopeAttribute(String name, Object value) {
         getScopeMap(getScopeId(), true).put(name, value);
     }
 
-    @SuppressWarnings("unchecked")
     public void removeScopeAttribute(String name) {
         Map<String, Object> scopeMap = getScopeMap(getScopeId(), false);
         if (scopeMap == null) {

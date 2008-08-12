@@ -9,7 +9,6 @@ public class CollectionFitter extends AbstractFitter<Collection> {
         return Collection.class;
     }
 
-    @SuppressWarnings("unchecked")
     public Collection copy(Collection value) {
         Collection destination = newInstance(value.getClass());
         for (Iterator itr = value.iterator(); itr.hasNext();) {

@@ -9,7 +9,6 @@ public class MapFitter extends AbstractFitter<Map> {
         return Map.class;
     }
 
-    @SuppressWarnings("unchecked")
     public Map copy(Map value) {
         Map destination = newInstance(value.getClass());
         for (Iterator<Map.Entry> itr = value.entrySet().iterator(); itr
