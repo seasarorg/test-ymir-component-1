@@ -38,9 +38,13 @@ public class ConversationScopeITest extends YmirTestCase {
 
         request = prepareForProcessing("/conversationScopeITest5.html",
                 Request.METHOD_GET);
-        process(request);
-
-        Conversations conversations = ConversationUtils.getConversations();
-        assertNull(conversations.getAttribute("value"));
+        process(request, new Test() {
+            @Override
+            protected void test() throws Throwable {
+                Conversations conversations = ConversationUtils
+                        .getConversations();
+                assertNull(conversations.getAttribute("value"));
+            }
+        });
     }
 }

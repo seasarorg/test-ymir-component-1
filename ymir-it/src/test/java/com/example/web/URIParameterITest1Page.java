@@ -21,6 +21,7 @@ public class URIParameterITest1Page {
         sequence_ = sequence;
     }
 
-    public void _get() {
+    public String _get() {
+        return "forward:.";
     }
 }
