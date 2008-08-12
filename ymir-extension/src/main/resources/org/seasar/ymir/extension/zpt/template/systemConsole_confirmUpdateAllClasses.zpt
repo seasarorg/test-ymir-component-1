@@ -11,16 +11,18 @@
   <input type="hidden" name="__ymir__subTask" value="updateAllClasses" />
   <input type="hidden" name="__ymir__method" tal:attributes="value method" />
 <p>クラスを一括更新します。</p>
-<p tal:condition="classDescBag/createdClassDescs">以下のクラスが追加されます：
+<div tal:condition="classDescBag/createdClassDescs">
+<p>以下のクラスが追加されます：</p>
 <ul>
   <li tal:repeat="classDesc classDescBag/createdClassDescs"><input type="checkbox" name="__ymir__apply" tal:define="kind classDesc/kind" tal:attributes='value classDesc/name; checked not:java:kind.equals("Dao") || kind.equals("Bean")' /> <span tal:content="classDesc/name">CLASS</span></li>
 </ul>
-</p>
-<p tal:condition="classDescBag/updatedClassDescs">以下のクラスが更新されます：
+</div>
+<div tal:condition="classDescBag/updatedClassDescs">
+<p>以下のクラスが更新されます：</p>
 <ul>
   <li tal:repeat="classDesc classDescBag/updatedClassDescs"><input type="checkbox" name="__ymir__apply" tal:define="kind classDesc/kind" tal:attributes='value classDesc/name; checked not:java:kind.equals("Dao") || kind.equals("Bean")' /> <span tal:content="classDesc/name">CLASS</span></li>
 </ul>
-</p>
+</div>
 <p>よろしいですか？</p>
   <p><input id="yesButton" type="submit" value="はい" />
   <input type="button" value="戻る" onclick="history.back()" /></p>

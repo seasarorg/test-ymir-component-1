@@ -39,7 +39,7 @@
           <p><input type="text" name="__ymir__key_rootPackageName" size="64" /></p>
         </dd>
         </div>
-      </dl></p>
+      </dl>
     </dd>
     <dt>自動生成</dt>
     <dd>
@@ -95,7 +95,7 @@
             <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDxo.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 自動生成しない
           </p>
         </dd>
-      </dl></p>
+      </dl>
     </dd>
     <dt>Eclipse連携</dt>
     <dd>
@@ -115,7 +115,7 @@
         <dd><p>resourceSynchronizerプラグインの同期サーバのURLを指定して下さい。（例：<tt>http://localhost:8386/</tt>）</p>
           <p><input type="text" name="__ymir__key_extension.sourceCreator.eclipse.resourceSynchronizerURL" size="64" tal:attributes="value setting/resourceSynchronizerURL" /></p>
         </dd>
-      </dl></p>
+      </dl>
     </dd>
   </dl>
   <p><input type="submit" value=" OK " />

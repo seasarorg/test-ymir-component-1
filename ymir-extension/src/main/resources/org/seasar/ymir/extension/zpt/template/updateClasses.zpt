@@ -11,7 +11,8 @@
 <p>クラスのプロパティの型を指定する場合、java.langとjava.utilパッケージのものについてはパッケージ表記を省略しても構いません。</p>
 <p><input type="submit" value=" OK " />
   <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" /></p>
-  <p tal:condition="createdClassDescs"><strong>追加されるクラス：</strong>
+  <div tal:condition="createdClassDescs">
+  <p><strong>追加されるクラス：</strong></p>
   <ul>
     <li tal:repeat="classDesc createdClassDescs">
       <input type="checkbox" name="__ymir__apply" tal:attributes="value classDesc/name; checked classDesc/checked" />
@@ -30,8 +31,9 @@
       </table>
     </li>
   </ul>
-  </p>
-  <p tal:condition="updatedClassDescs"><strong>更新されるクラス：</strong>
+  </div>
+  <div tal:condition="updatedClassDescs">
+  <p><strong>更新されるクラス：</strong></p>
   <ul>
     <li tal:repeat="classDesc updatedClassDescs">
       <input type="checkbox" name="__ymir__apply" tal:attributes="value classDesc/name; checked classDesc/checked" />
@@ -50,7 +52,7 @@
       </table>
     </li>
   </ul>
-  </p>
+  </div>
   <p>よろしいですか？</p>
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
   <input type="hidden" name="__ymir__task" value="updateClasses" />

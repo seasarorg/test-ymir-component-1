@@ -6,21 +6,24 @@
   <body onload="document.getElementById('okButton').focus()">
 <h1>SYSTEM CONSOLE</h1>
 <p>クラスを一括更新しました。</p>
-<p tal:condition="classDescBag/createdClassDescs">以下のクラスが追加されました：
+<div tal:condition="classDescBag/createdClassDescs">
+<p>以下のクラスが追加されました：</p>
 <ul>
   <li tal:repeat="classDesc classDescBag/createdClassDescs" tal:content="classDesc/name">CLASS</li>
 </ul>
-</p>
-<p tal:condition="classDescBag/updatedClassDescs">以下のクラスが更新されました：
+</div>
+<div tal:condition="classDescBag/updatedClassDescs">
+<p>以下のクラスが更新されました：</p>
 <ul>
   <li tal:repeat="classDesc classDescBag/updatedClassDescs" tal:content="classDesc/name">CLASS</li>
 </ul>
-</p>
-<p tal:condition="classDescBag/failedClassDescs">必要な情報を取得できなかったため、以下のクラスは追加・更新できませんでした：
+</div>
+<div tal:condition="classDescBag/failedClassDescs">
+<p>必要な情報を取得できなかったため、以下のクラスは追加・更新できませんでした：</p>
 <ul>
   <li tal:repeat="classDesc classDescBag/failedClassDescs" tal:content="classDesc/name">CLASS</li>
 </ul>
-</p>
+</div>
 <p><span tal:condition="not:resourceAutoSynchronized">EclipseでプロジェクトルートをRefreshしてから、</span>以下の「OK」ボタンを押して下さい。</p>
 <form tal:attributes="method method; action request/absolutePath">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
