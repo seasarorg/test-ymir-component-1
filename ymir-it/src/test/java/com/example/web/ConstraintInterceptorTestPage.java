@@ -52,7 +52,6 @@ public class ConstraintInterceptorTestPage {
         return null;
     }
 
-    @SuppressWarnings("deprecation")
     @Validator
     public Notes validate32() {
         request_.setAttribute("validator32", "validator32");
@@ -65,7 +64,6 @@ public class ConstraintInterceptorTestPage {
         request_.setAttribute("validator4", "validator4");
     }
 
-    @SuppressWarnings("deprecation")
     @Validator
     public void validate42() throws ValidationFailedException {
         request_.setAttribute("validator42", "validator42");
@@ -78,7 +76,6 @@ public class ConstraintInterceptorTestPage {
         request_.setAttribute("param2", param2);
     }
 
-    @SuppressWarnings("deprecation")
     @Validator("_get_button6")
     public void validate52(int param1, String param2) {
         request_.setAttribute("param12", Integer.valueOf(param1));
@@ -111,7 +108,6 @@ public class ConstraintInterceptorTestPage {
     public void _get_button32() {
     }
 
-    @SuppressWarnings("deprecation")
     @SuppressConstraints
     @Fugas( { @Fuga("button4_1"), @Fuga("button4_2") })
     public void _get_button4() {
