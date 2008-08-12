@@ -28,6 +28,7 @@ import org.seasar.ymir.Path;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
@@ -414,8 +415,8 @@ abstract public class YmirTestCase extends TestCase {
 
     /**
      * 実際にリクエストを処理します。
-     * <p>このメソッドを呼び出す前に必ず<code>prepareForProcessing</code>
-     * メソッドを呼び出しておいて下さい。
+     * <p>このメソッドは{@link #processRequest(Request, org.seasar.ymir.test.YmirTestCase.Test)}
+     * でTestにnullを指定した場合と同じです。
      * </p>
      *
      * @param request Requestオブジェクト。
@@ -448,10 +449,11 @@ abstract public class YmirTestCase extends TestCase {
 
         ThreadContext threadContext = (ThreadContext) container_
                 .getComponent(ThreadContext.class);
+        Response response = null;
         try {
             threadContext.setComponent(Request.class, request);
 
-            Response response = ymir_.processRequest(request);
+            response = ymir_.processRequest(request);
 
             if (test != null) {
                 test.doTest();
@@ -461,8 +463,11 @@ abstract public class YmirTestCase extends TestCase {
         } finally {
             ymir_.leaveDispatch(request);
 
-            for (int i = 0; i < ymir_.getYmirProcessInterceptors().length; i++) {
-                ymir_.getYmirProcessInterceptors()[i].leavingRequest(request);
+            if (response != null && response.getType() != ResponseType.FORWARD) {
+                for (int i = 0; i < ymir_.getYmirProcessInterceptors().length; i++) {
+                    ymir_.getYmirProcessInterceptors()[i]
+                            .leavingRequest(request);
+                }
             }
             threadContext.setComponent(Request.class, null);
         }
@@ -470,10 +475,8 @@ abstract public class YmirTestCase extends TestCase {
 
     /**
      * 実際にリクエストを処理します。
-     * <p>リクエストを処理してレスポンスを生成し、生成したレスポンスを処理してHttpServletResponseFilterを生成して返します。
-     * </p>
-     * <p>このメソッドを呼び出す前に必ず<code>prepareForProcessing</code>
-     * メソッドを呼び出しておいて下さい。
+     * <p>このメソッドは{@link #process(Request, org.seasar.ymir.test.YmirTestCase.Test)}
+     * でTestにnullを指定した場合と同じです。
      * </p>
      *
      * @param request Requestオブジェクト。
@@ -486,22 +489,56 @@ abstract public class YmirTestCase extends TestCase {
     protected HttpServletResponseFilter process(Request request)
             throws PermissionDeniedException, PageNotFoundException,
             IOException, ServletException {
+        return process(request, null);
+    }
+
+    /**
+     * 実際にリクエストを処理します。
+     * <p>リクエストを処理してレスポンスを生成し、生成したレスポンスを処理してHttpServletResponseFilterを生成して返します。
+     * </p>
+     * <p>このメソッドを呼び出す前に必ず<code>prepareForProcessing</code>
+     * メソッドを呼び出しておいて下さい。
+     * </p>
+     *
+     * @param request Requestオブジェクト。
+     * @param test リクエストの処理中に実行するテスト。nullを指定することもできます。
+     * @return 処理結果を表すHttpServletResponseFilterオブジェクト。
+     * @throws PermissionDeniedException 権限エラーが発生した場合。
+     * @throws PageNotFoundException 指定されたリクエストパスに直接アクセスすることが禁止されている場合。
+     * @throws ServletException レスポンスの処理中にスローされることがあります。
+     * @throws IOException レスポンスの処理中にスローされることがあります。
+     */
+    protected HttpServletResponseFilter process(Request request, Test test)
+            throws PermissionDeniedException, PageNotFoundException,
+            IOException, ServletException {
         checkStatus(STATUS_PREPARED);
 
         status_ = STATUS_PROCESSED;
 
         ThreadContext threadContext = (ThreadContext) container_
                 .getComponent(ThreadContext.class);
+        Response response = null;
         try {
             threadContext.setComponent(Request.class, request);
 
-            return ymir_.processResponse(application_, httpRequest_,
-                    httpResponse_, request, ymir_.processRequest(request));
+            response = ymir_.processRequest(request);
+            HttpServletResponseFilter responseFilter = ymir_.processResponse(
+                    application_, httpRequest_, httpResponse_, request,
+                    response);
+
+            if (test != null) {
+                test.doTest();
+            }
+
+            return responseFilter;
         } finally {
             ymir_.leaveDispatch(request);
 
-            for (int i = 0; i < ymir_.getYmirProcessInterceptors().length; i++) {
-                ymir_.getYmirProcessInterceptors()[i].leavingRequest(request);
+            if (response != null && response.getType() != ResponseType.FORWARD) {
+                for (int i = 0; i < ymir_.getYmirProcessInterceptors().length; i++) {
+                    ymir_.getYmirProcessInterceptors()[i]
+                            .leavingRequest(request);
+                }
             }
             threadContext.setComponent(Request.class, null);
         }

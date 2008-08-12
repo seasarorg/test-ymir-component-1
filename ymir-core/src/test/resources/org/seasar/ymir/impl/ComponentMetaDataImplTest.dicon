@@ -10,4 +10,6 @@
     class="org.seasar.ymir.mock.MockApplicationManager" />
   <component name="typeConversionManager"
     class="org.seasar.ymir.impl.YmirTypeConversionManager" />
+  <component name="sessionManager"
+    class="org.seasar.ymir.session.impl.SessionManagerImpl" />
 </components>

@@ -52,10 +52,20 @@ public class SessionInterceptor extends AbstractYmirProcessInterceptor
     }
 
     public void notifyGetAttribute(String name) {
-        nameSets_.get().add(name);
+        Set<String> nameSet = nameSets_.get();
+        // nameSetは通常nullにはならないが、
+        // YmirTestCaseを使ったテストではこうしておいた方が都合がよいのでこうしている。
+        if (nameSet != null) {
+            nameSet.add(name);
+        }
     }
 
     public void notifySetAttribute(String name) {
-        nameSets_.get().add(name);
+        Set<String> nameSet = nameSets_.get();
+        // nameSetは通常nullにはならないが、
+        // YmirTestCaseを使ったテストではこうしておいた方が都合がよいのでこうしている。
+        if (nameSet != null) {
+            nameSet.add(name);
+        }
     }
 }

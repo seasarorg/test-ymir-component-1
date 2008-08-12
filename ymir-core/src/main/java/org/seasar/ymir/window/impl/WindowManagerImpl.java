@@ -54,10 +54,6 @@ public class WindowManagerImpl implements WindowManager {
 
     @SuppressWarnings("unchecked")
     Map<String, Object> getScopeMap(String windowId, boolean create) {
-        if (!sessionManager_.isSessionPresent()) {
-            return null;
-        }
-
         String key = getKey(windowId);
         Map<String, Object> scopeMap = (Map<String, Object>) sessionManager_
                 .getAttribute(key);
