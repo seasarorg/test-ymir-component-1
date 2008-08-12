@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.extension.creator.ClassDesc;
-import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
+import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateAnalyzer;
@@ -54,7 +54,7 @@ public class ZptAnalyzer implements TemplateAnalyzer {
     public void analyze(ServletContext servletContext,
             HttpServletRequest request, HttpServletResponse response,
             String path, String method, Map<String, ClassDesc> classDescMap,
-            Template template, String className, PropertyTypeHintBag hintBag,
+            Template template, String className, ClassCreationHintBag hintBag,
             String[] ignoreVariables) {
         Zpt zpt = getZpt();
 

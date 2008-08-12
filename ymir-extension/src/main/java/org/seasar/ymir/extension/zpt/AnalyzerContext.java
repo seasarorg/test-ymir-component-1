@@ -27,7 +27,7 @@ import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.FormDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
-import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
+import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
@@ -80,7 +80,7 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private String path_;
 
-    private PropertyTypeHintBag hintBag_;
+    private ClassCreationHintBag hintBag_;
 
     static {
         final List<ClassNamePattern> list = new ArrayList<ClassNamePattern>();
@@ -257,7 +257,7 @@ public class AnalyzerContext extends ZptTemplateContext {
     public ClassDesc getTemporaryClassDesc(String className) {
         ClassDesc classDesc = temporaryClassDescMap_.get(className);
         if (classDesc == null) {
-            classDesc = sourceCreator_.newClassDesc(className);
+            classDesc = sourceCreator_.newClassDesc(className, hintBag_);
             temporaryClassDescMap_.put(className, classDesc);
         }
         return classDesc;
@@ -616,14 +616,14 @@ public class AnalyzerContext extends ZptTemplateContext {
         path_ = path;
     }
 
-    public void setPropertyTypeHintBag(PropertyTypeHintBag hintBag) {
+    public void setPropertyTypeHintBag(ClassCreationHintBag hintBag) {
         hintBag_ = hintBag;
     }
 
     public PropertyTypeHint getPropertyTypeHint(String className,
             String propertyName) {
         if (hintBag_ != null) {
-            return hintBag_.getHint(className, propertyName);
+            return hintBag_.getPropertyTypeHint(className, propertyName);
         } else {
             return null;
         }

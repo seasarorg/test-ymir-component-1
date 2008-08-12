@@ -74,6 +74,7 @@ import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
 import org.seasar.ymir.extension.creator.ClassDescModifier;
 import org.seasar.ymir.extension.creator.ClassDescSet;
+import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.DescValidator;
 import org.seasar.ymir.extension.creator.EntityMetaData;
@@ -82,7 +83,7 @@ import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.PropertyDesc;
-import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
+import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.SourceGenerator;
@@ -377,26 +378,27 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
-            PropertyTypeHintBag hintBag, String[] ignoreVariables) {
+            ClassCreationHintBag hintBag, String[] ignoreVariables) {
         Map<String, ClassDesc> classDescMap = new LinkedHashMap<String, ClassDesc>();
         for (int i = 0; i < pathMetaDatas.length; i++) {
             gatherClassDescs(classDescMap, pathMetaDatas[i], hintBag,
                     ignoreVariables);
         }
         ClassDesc[] classDescs = addRelativeClassDescs(classDescMap.values()
-                .toArray(new ClassDesc[0]));
+                .toArray(new ClassDesc[0]), hintBag);
 
         return classifyClassDescs(classDescs);
     }
 
-    public void updateClasses(ClassDescBag classDescBag) {
+    public void updateClasses(ClassDescBag classDescBag,
+            ClassCreationHintBag hintBag) {
         if (setting_.isConverterCreationFeatureEnabled()) {
             // Converter用のClassDescを生成する。
             for (ClassDesc dtoCd : classDescBag.getClassDescs(ClassType.DTO)) {
                 String[] pairTypeNames = getPairTypeNames(dtoCd);
                 if (pairTypeNames != null) {
                     ClassDesc converterCd = createConverterClassDesc(dtoCd,
-                            pairTypeNames);
+                            pairTypeNames, hintBag);
                     if (getClass(converterCd.getName()) == null) {
                         classDescBag.addAsCreated(converterCd);
                     } else {
@@ -422,7 +424,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     continue;
                 }
 
-                EntityMetaData metaData = new EntityMetaData(this, td
+                EntityMetaData metaData = new EntityMetaData(this, null, td
                         .getClassDesc().getName());
                 boolean daoExists = addPropertyIfValid(pageClassDescs[i],
                         new TypeDescImpl(metaData.getDaoClassDesc()),
@@ -442,16 +444,34 @@ public class SourceCreatorImpl implements SourceCreator {
                     addSelectStatement(md, pds[j], metaData);
                 }
             }
+
+            // Pageの親クラスが存在しない場合は生成しておく。
+            String superclassName = pageClassDescs[i].getSuperclassName();
+            if (superclassName != null) {
+                Class<?> superclass = getClass(superclassName);
+                if (superclass == null) {
+                    ClassDesc classDesc = newClassDesc(superclassName, null);
+                    if (!isOuter(classDesc)) {
+                        writeSourceFile("PageSuperClass.java", classDesc, false);
+                        classDescBag.addAsCreated(classDesc);
+                    }
+                }
+            }
         }
 
         writeSourceFiles(classDescBag);
     }
 
+    boolean isOuter(ClassDesc classDesc) {
+        return !classDesc.getPackageName().startsWith(
+                getRootPackageName() + ".");
+    }
+
     protected ClassDesc createConverterClassDesc(ClassDesc dtoCd,
-            String[] pairTypeNames) {
+            String[] pairTypeNames, ClassCreationHintBag hintBag) {
         ClassDesc clonedDtoCd = (ClassDesc) dtoCd.clone();
         mergeWithExistentClass(clonedDtoCd);
-        EntityMetaData metaData = new EntityMetaData(this, clonedDtoCd
+        EntityMetaData metaData = new EntityMetaData(this, hintBag, clonedDtoCd
                 .getName());
 
         ClassDesc converterCd = metaData.getConverterClassDesc();
@@ -465,8 +485,7 @@ public class SourceCreatorImpl implements SourceCreator {
             }
             TypeDescImpl td = new TypeDescImpl(pairTypeNames[i]);
             String className = td.getClassDesc().getName();
-            td.replaceClassDesc(getClassDesc(getClass(className), className,
-                    false));
+            td.replaceClassDesc(getClassDesc(getClass(className), false));
 
             pairTdList.add(td);
         }
@@ -476,7 +495,7 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public void gatherClassDescs(Map<String, ClassDesc> classDescMap,
-            PathMetaData pathMetaData, PropertyTypeHintBag hintBag,
+            PathMetaData pathMetaData, ClassCreationHintBag hintBag,
             String[] ignoreVariables) {
         String path = pathMetaData.getPath();
         String method = pathMetaData.getMethod();
@@ -495,7 +514,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 && method.equalsIgnoreCase(Request.METHOD_POST)) {
             // テンプレートを解析した結果対応するPageクラスを作る必要があると
             // 見なされなかった場合でも、methodがPOSTならPageクラスを作る。
-            pageClassDesc = newClassDesc(pageClassName);
+            pageClassDesc = newClassDesc(pageClassName, hintBag);
             classDescMap.put(pageClassName, pageClassDesc);
         }
         if (pageClassDesc != null) {
@@ -555,12 +574,11 @@ public class SourceCreatorImpl implements SourceCreator {
         return classDescBag;
     }
 
-    public ClassDesc getClassDesc(Class<?> clazz, String className) {
-        return getClassDesc(clazz, className, true);
+    public ClassDesc getClassDesc(Class<?> clazz) {
+        return getClassDesc(clazz, true);
     }
 
-    public ClassDesc getClassDesc(Class<?> clazz, String className,
-            boolean onlyDeclared) {
+    public ClassDesc getClassDesc(Class<?> clazz, boolean onlyDeclared) {
         if (clazz == null) {
             return null;
         }
@@ -572,12 +590,14 @@ public class SourceCreatorImpl implements SourceCreator {
             throw new RuntimeException(ex);
         }
 
-        ClassDesc classDesc = newClassDesc(className);
+        ClassDesc classDesc = newClassDesc(clazz.getName(), null);
 
+        String superclassName = null;
         Class<?> superclass = clazz.getSuperclass();
-        if (superclass != Object.class) {
-            classDesc.setSuperclass(superclass);
+        if (superclass != null) {
+            superclassName = superclass.getName();
         }
+        classDesc.setSuperclassName(superclassName);
 
         AnnotationDesc[] ads = DescUtils.newAnnotationDescs(clazz);
         for (int i = 0; i < ads.length; i++) {
@@ -724,12 +744,14 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    ClassDesc[] addRelativeClassDescs(ClassDesc[] classDescs) {
+    ClassDesc[] addRelativeClassDescs(ClassDesc[] classDescs,
+            ClassCreationHintBag hintBag) {
         Map<String, List<ClassDesc>> pageByDtoMap = new HashMap<String, List<ClassDesc>>();
         for (int i = 0; i < classDescs.length; i++) {
             if (!classDescs[i].isTypeOf(ClassType.PAGE)) {
                 continue;
             }
+
             PropertyDesc[] pds = classDescs[i].getPropertyDescs();
             for (int j = 0; j < pds.length; j++) {
                 ClassDesc cd = pds[j].getTypeDesc().getClassDesc();
@@ -749,7 +771,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 .asList(classDescs));
         for (int i = 0; i < classDescs.length; i++) {
             if (classDescs[i].isTypeOf(ClassType.DTO)) {
-                EntityMetaData metaData = new EntityMetaData(this,
+                EntityMetaData metaData = new EntityMetaData(this, hintBag,
                         classDescs[i].getName());
 
                 if (setting_.isDaoCreationFeatureEnabled()) {
@@ -883,29 +905,29 @@ public class SourceCreatorImpl implements SourceCreator {
     public void adjustByExistentClass(ClassDesc desc) {
         String className = desc.getName();
         Class<?> clazz = getClass(className);
-        ClassDesc gapDesc = getClassDesc(clazz, className);
+        ClassDesc gapDesc = getClassDesc(clazz);
         if (gapDesc == null) {
-            gapDesc = newClassDesc(className);
+            gapDesc = newClassDesc(className, null);
         }
 
+        String baseClassName = className + "Base";
         Class<?> baseClass = (clazz != null
-                && clazz.getSuperclass().getName().equals(className + "Base") ? clazz
+                && clazz.getSuperclass().getName().equals(baseClassName) ? clazz
                 .getSuperclass()
                 : null);
         // 従属タイプのクラスの場合は既存のBaseクラスの情報とマージしなくて良い。
         ClassDesc baseDesc = desc.getType().isSubordinate() ? null
-                : getClassDesc(baseClass, className);
+                : getClassDesc(baseClass);
         if (baseDesc == null) {
-            baseDesc = newClassDesc(className);
-            baseDesc.setSuperclass(desc.getSuperclass());
+            baseDesc = newClassDesc(baseClassName, null);
+            baseDesc.setSuperclassName(desc.getSuperclassName());
         }
         if (baseClass != null) {
-            // baseクラスが既に存在するならば再生成ということなので、親クラス情報を維持するようにする。
-            Class<?> superclass = baseClass.getSuperclass();
-            if (superclass == Object.class) {
-                superclass = null;
+            if (desc.getSuperclassName() != null) {
+                // 親クラス情報は適切にdescに設定されているのでbaseクラスの情報は見ない。
+                // そのため、先でのマージのことを考えて、baseクラスの方にdescの情報をセットしておく。
+                baseDesc.setSuperclassName(desc.getSuperclassName());
             }
-            desc.setSuperclass(superclass);
 
             // abstractかどうかを保持するようにする。
             desc.setBaseClassAbstract(Modifier.isAbstract(baseClass
@@ -920,9 +942,9 @@ public class SourceCreatorImpl implements SourceCreator {
         desc.merge(baseDesc, true);
 
         ClassDesc superDesc = getClassDesc(getClass(desc.getSuperclassName()),
-                className, false);
+                false);
         if (superDesc == null) {
-            superDesc = newClassDesc(Object.class.getName());
+            superDesc = newClassDesc(Object.class.getName(), null);
         }
 
         PropertyDesc[] pds = generated.getPropertyDescs();
@@ -976,8 +998,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public void mergeWithExistentClass(ClassDesc classDesc) {
         String className = classDesc.getName();
-        classDesc.merge(getClassDesc(getClass(className), className, false),
-                false);
+        classDesc.merge(getClassDesc(getClass(className), false), false);
     }
 
     public void writeSourceFile(ClassDesc classDesc, ClassDescSet classDescSet)
@@ -1383,7 +1404,7 @@ public class SourceCreatorImpl implements SourceCreator {
         applicationManager_ = applicationManager;
     }
 
-    public ClassDesc newClassDesc(String className) {
+    public ClassDesc newClassDesc(String className, ClassCreationHintBag hintBag) {
         // booleanとかのクラスについてはSimpleClassDescを返した方が都合が良いのでこうしている。
         if (className.indexOf('.') < 0) {
             return new SimpleClassDesc(className);
@@ -1392,23 +1413,34 @@ public class SourceCreatorImpl implements SourceCreator {
         ClassDescImpl classDescImpl = new ClassDescImpl(className);
 
         // スーパークラスをセットする。
-        String superClassName = setting_.getSuperClassName(className);
-        if (superClassName != null) {
-            Class<?> superclass = getClass(superClassName);
-            if (superclass == null) {
-                throw new RuntimeException("Superclass is not found: "
-                        + superClassName);
+        String superclassName = null;
+        if (hintBag != null) {
+            ClassHint hint = hintBag.getClassHint(className);
+            if (hint != null) {
+                superclassName = hint.getSuperclassName();
             }
-            classDescImpl.setSuperclass(superclass);
-        } else if (classDescImpl.isTypeOf(ClassType.PAGE)) {
-            superClassName = setting_.getPageSuperClassName();
-            if (superClassName != null) {
-                Class<?> superClass = getClass(superClassName);
-                if (superClass == null) {
-                    throw new RuntimeException("Superclass is not found: "
-                            + superClassName);
+        }
+        if (superclassName == null) {
+            Class<?> clazz = getClass(className);
+            if (clazz != null) {
+                Class<?> superclass = clazz.getSuperclass();
+                if (superclass != null) {
+                    if (superclass.getName().endsWith("Base")) {
+                        superclass = superclass.getSuperclass();
+                    }
+                    superclassName = superclass.getName();
                 }
-                classDescImpl.setSuperclass(superClass);
+            } else {
+                superclassName = setting_.getSuperclassName(className);
+            }
+        }
+
+        if (superclassName != null) {
+            classDescImpl.setSuperclassName(superclassName);
+        } else if (classDescImpl.isTypeOf(ClassType.PAGE)) {
+            superclassName = setting_.getPageSuperclassName();
+            if (superclassName != null) {
+                classDescImpl.setSuperclassName(superclassName);
             }
         }
 

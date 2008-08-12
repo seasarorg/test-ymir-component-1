@@ -52,15 +52,11 @@ public class SimpleClassDesc extends AbstractClassDesc {
         throw new UnsupportedOperationException();
     }
 
-    public void setSuperclass(Class<?> superclass) {
+    public void setSuperclassName(String superclassName) {
         throw new UnsupportedOperationException();
     }
 
     public String getSuperclassName() {
-        throw new UnsupportedOperationException();
-    }
-
-    public Class<?> getSuperclass() {
         throw new UnsupportedOperationException();
     }
 

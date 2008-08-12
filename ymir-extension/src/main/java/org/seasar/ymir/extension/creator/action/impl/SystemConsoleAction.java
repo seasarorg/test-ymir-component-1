@@ -113,7 +113,7 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
             }
         }
 
-        getSourceCreator().updateClasses(classDescBag);
+        getSourceCreator().updateClasses(classDescBag, null);
 
         synchronizeResources(new String[] { getRootPackagePath() });
 

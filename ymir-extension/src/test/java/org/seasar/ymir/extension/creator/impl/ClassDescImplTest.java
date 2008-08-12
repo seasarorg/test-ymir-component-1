@@ -55,7 +55,7 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         actual.setMethodDesc(md);
 
         ClassDesc cd2 = new ClassDescImpl("com.example.page.TestPage");
-        cd2.setSuperclass(TestPageBase.class);
+        cd2.setSuperclassName(TestPageBase.class.getName());
         pd = new PropertyDescImpl("param1");
         pd.setTypeDesc("java.lang.Integer");
         pd.getTypeDesc().setExplicit(true);
@@ -192,7 +192,7 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         actual.setMethodDesc(md);
 
         ClassDesc cd2 = new ClassDescImpl("com.example.page.TestPage");
-        cd2.setSuperclass(TestPageBase.class);
+        cd2.setSuperclassName(TestPageBase.class.getName());
         pd = new PropertyDescImpl("param1");
         pd.setTypeDesc("java.lang.Integer");
         pd.getTypeDesc().setExplicit(true);
@@ -304,7 +304,7 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         actual.setPropertyDesc(pd);
 
         ClassDesc cd2 = new ClassDescImpl("com.example.page.TestPage");
-        cd2.setSuperclass(TestPageBase.class);
+        cd2.setSuperclassName(TestPageBase.class.getName());
         pd = new PropertyDescImpl("param1");
         pd.setTypeDesc("java.lang.Integer");
         pd.getTypeDesc().setExplicit(true);
@@ -365,7 +365,7 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         actual.setPropertyDesc(pd);
 
         ClassDesc cd2 = new ClassDescImpl("com.example.page.TestPage");
-        cd2.setSuperclass(TestPageBase.class);
+        cd2.setSuperclassName(TestPageBase.class.getName());
         pd = new PropertyDescImpl("param1");
         pd.setTypeDesc("java.lang.Integer");
         pd.getTypeDesc().setExplicit(true);

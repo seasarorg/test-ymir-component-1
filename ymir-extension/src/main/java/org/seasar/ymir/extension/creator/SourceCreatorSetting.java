@@ -146,7 +146,7 @@ public class SourceCreatorSetting {
                         + ServletUtils.normalizePath(path)), true);
     }
 
-    public String getSuperClassName(String className) {
+    public String getSuperclassName(String className) {
         Application application = sourceCreator_.getApplication();
         for (Enumeration<String> enm = application.propertyNames(); enm
                 .hasMoreElements();) {
@@ -165,7 +165,7 @@ public class SourceCreatorSetting {
         return null;
     }
 
-    public String getPageSuperClassName() {
+    public String getPageSuperclassName() {
         return getProperty(APPKEY_SOURCECREATOR_SUPERCLASS);
     }
 

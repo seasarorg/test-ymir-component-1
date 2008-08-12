@@ -8,7 +8,20 @@
 <form tal:attributes="action request/absolutePath" method="post">
 <p>テンプレート<span tal:replace="pathMetaData/template/path">TEMPLATE</span>の変更を検出しました。テンプレートに関連する以下のクラスを追加・更新します。
 追加・更新したくないものについてはチェックを外して下さい。</p>
-<p>クラスのプロパティの型を指定する場合、java.langとjava.utilパッケージのものについてはパッケージ表記を省略しても構いません。</p>
+<p>クラスのプロパティ型、Pageの親クラス、Dtoに対応するEntityクラスには以下のものを指定することができます。</p>
+<ul>
+  <li>プリミティブ型（例：boolean）</li>
+  <li>パッケージ名つきクラス名（例：com.example.dto.AaaDto）</li>
+  <li>空文字列（java.lang.Objectを指定したのと同じになります）</li>
+  <li>Genericタイプを指定した型名（例：java.util.List&lt;java.lang.String&gt;）</li>
+  <li>パッケージ名を省略したクラス名。パッケージ名が指定されなかった場合は以下の規則にしたがってクラスが見つかるまで探索します。
+    <ol>
+      <li>パッケージ名として「java.lang」「java.util」を補完</li>
+      <li>所属クラス（Pageの親クラスについてはPage、Dtoに対応するEntityクラスについてはDto、プロパティ型についてはプロパティを持つクラス）のパッケージ、その親パッケージ、…を補完</li>
+      <li>ルートパッケージ以下のクラスのうち名前が同じもの（複数ある場合は最初に見つかったもの）</li>
+    </ol>
+  </li>
+</ul>
 <p><input type="submit" value=" OK " />
   <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" /></p>
   <div tal:condition="createdClassDescs">
@@ -18,6 +31,7 @@
       <input type="checkbox" name="__ymir__apply" tal:attributes="value classDesc/name; checked classDesc/checked" />
       <span tal:condition="not:classDesc/dto" tal:content="classDesc/name">CLASS</span>
       <input tal:condition="classDesc/dto" tal:attributes="name string:__ymir__className_${classDesc/name}; value classDesc/name" size="48" />
+      <span tal:condition="classDesc/page">&nbsp;&nbsp;親クラス：<input tal:attributes="name string:__ymir__superclassName_${classDesc/name}; value classDesc/superclassName" type="text" name="__ymir__superclassName" size="48" /></span>
       <div tal:condition="converterCreated" tal:omit-tag=""><span tal:condition="classDesc/dto">&nbsp;&nbsp;対応するEntityクラス：<input tal:attributes="name string:__ymir__converter_pairTypeName_${classDesc/name}; value classDesc/pairTypeName" type="text" name="__ymir__converter_pairTypeName" size="48" /></span></div>
       <table tal:condition="classDesc/propertyDescs">
         <tr tal:repeat="propertyDesc classDesc/propertyDescs">
@@ -39,6 +53,7 @@
       <input type="checkbox" name="__ymir__apply" tal:attributes="value classDesc/name; checked classDesc/checked" />
       <span tal:condition="not:classDesc/dto" tal:content="classDesc/name">CLASS</span>
       <input tal:condition="classDesc/dto" tal:attributes="name string:__ymir__className_${classDesc/name}; value classDesc/name" size="48" />
+      <span tal:condition="classDesc/page">&nbsp;&nbsp;親クラス：<input tal:attributes="name string:__ymir__superclassName_${classDesc/name}; value classDesc/superclassName" type="text" name="__ymir__superclassName" size="48" /></span>
       <div tal:condition="converterCreated" tal:omit-tag=""><span tal:condition="classDesc/dto">&nbsp;&nbsp;対応するEntityクラス：<input tal:attributes="name string:__ymir__converter_pairTypeName_${classDesc/name}; value classDesc/pairTypeName" type="text" name="__ymir__converter_pairTypeName" size="48" /></span></div>
       <table tal:condition="classDesc/propertyDescs">
         <tr tal:repeat="propertyDesc classDesc/propertyDescs">

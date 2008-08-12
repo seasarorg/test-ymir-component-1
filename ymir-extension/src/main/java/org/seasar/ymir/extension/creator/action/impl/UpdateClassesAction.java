@@ -21,10 +21,11 @@ import org.seasar.ymir.extension.creator.AnnotatedDesc;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
+import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
-import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
+import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
@@ -46,6 +47,9 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
 
     protected static final String PARAMPREFIX_CLASSNAME = SourceCreator.PARAM_PREFIX
             + "className_";
+
+    protected static final String PARAMPREFIX_SUPERCLASSNAME = SourceCreator.PARAM_PREFIX
+            + "superclassName_";
 
     protected static final String PREFIX_CLASSCHECKED = "updateClassesAction.class.checked.";
 
@@ -148,40 +152,49 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         ClassNameMapping classNameMapping = new ClassNameMapping(request
                 .getParameterMap());
 
-        List<PropertyTypeHint> hintList = new ArrayList<PropertyTypeHint>();
+        List<PropertyTypeHint> propertyTypeHintList = new ArrayList<PropertyTypeHint>();
+        List<ClassHint> classHintList = new ArrayList<ClassHint>();
         for (Iterator<String> itr = request.getParameterNames(); itr.hasNext();) {
             String name = itr.next();
-            if (!name.startsWith(PARAMPREFIX_PROPERTYTYPE)) {
-                continue;
-            }
-            String classAndPropertyName = name
-                    .substring(PARAMPREFIX_PROPERTYTYPE.length());
-            int slash = classAndPropertyName.indexOf('/');
-            if (slash < 0) {
-                continue;
-            }
-            String actualClassName = classNameMapping
-                    .toActual(classAndPropertyName.substring(0, slash));
-            String propertyName = classAndPropertyName.substring(slash + 1);
-            String typeName = request.getParameter(name);
+            if (name.startsWith(PARAMPREFIX_PROPERTYTYPE)) {
+                String classAndPropertyName = name
+                        .substring(PARAMPREFIX_PROPERTYTYPE.length());
+                int slash = classAndPropertyName.indexOf('/');
+                if (slash < 0) {
+                    continue;
+                }
+                String actualClassName = classNameMapping
+                        .toActual(classAndPropertyName.substring(0, slash));
+                String propertyName = classAndPropertyName.substring(slash + 1);
+                String typeName = request.getParameter(name);
 
-            boolean array;
-            if (typeName.endsWith(SUFFIX_ARRAY)) {
-                array = true;
-                typeName = typeName.substring(0, typeName.length()
-                        - SUFFIX_ARRAY.length());
-            } else {
-                array = false;
+                boolean array;
+                if (typeName.endsWith(SUFFIX_ARRAY)) {
+                    array = true;
+                    typeName = typeName.substring(0, typeName.length()
+                            - SUFFIX_ARRAY.length());
+                } else {
+                    array = false;
+                }
+                typeName = resolveTypeName(typeName, actualClassName);
+                propertyTypeHintList.add(new PropertyTypeHint(actualClassName,
+                        propertyName, typeName, array));
+            } else if (name.startsWith(PARAMPREFIX_SUPERCLASSNAME)) {
+                String className = name.substring(PARAMPREFIX_SUPERCLASSNAME
+                        .length());
+                String actualClassName = classNameMapping.toActual(className);
+                String superclassName = resolveTypeName(request
+                        .getParameter(name), actualClassName);
+                classHintList
+                        .add(new ClassHint(actualClassName, superclassName));
             }
-            typeName = resolveTypeName(typeName);
-            hintList.add(new PropertyTypeHint(actualClassName, propertyName,
-                    typeName, array));
         }
 
+        ClassCreationHintBag hintBag = new ClassCreationHintBag(
+                propertyTypeHintList.toArray(new PropertyTypeHint[0]),
+                classHintList.toArray(new ClassHint[0]));
         ClassDescBag classDescBag = getSourceCreator().gatherClassDescs(
-                new PathMetaData[] { pathMetaData },
-                new PropertyTypeHintBag(hintList
-                        .toArray(new PropertyTypeHint[0])), null);
+                new PathMetaData[] { pathMetaData }, hintBag, null);
 
         String[] appliedOriginalClassNames = request
                 .getParameterValues(PARAM_APPLY);
@@ -200,7 +213,8 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             if (classDescs[i].isTypeOf(ClassType.DTO)) {
                 String[] pairTypeNames = resolveTypeNames(request
                         .getParameter(PARAMPREFIX_CONVERTER_PAIRTYPENAME
-                                + classNameMapping.toOriginal(actualName)));
+                                + classNameMapping.toOriginal(actualName)),
+                        actualName);
                 if (pairTypeNames.length > 0) {
                     classDescs[i].setAnnotationDesc(new MetaAnnotationDescImpl(
                             "conversion", pairTypeNames, new Class[0]));
@@ -218,7 +232,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         }
         getSourceCreator().saveSourceCreatorProperties();
 
-        getSourceCreator().updateClasses(classDescBag);
+        getSourceCreator().updateClasses(classDescBag, hintBag);
 
         synchronizeResources(new String[] { getRootPackagePath(),
             getPath(pathMetaData.getTemplate()) });
@@ -244,18 +258,20 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 "updateClasses_update", variableMap);
     }
 
-    String[] resolveTypeNames(String typeNameString) {
+    String[] resolveTypeNames(String typeNameString, String baseClassName) {
         String[] typeNames = PropertyUtils.toLines(typeNameString, ",");
         List<String> list = new ArrayList<String>(typeNames.length);
         for (String typeName : typeNames) {
-            list.add(resolveTypeName(typeName));
+            list.add(resolveTypeName(typeName, baseClassName));
         }
         return list.toArray(new String[0]);
     }
 
-    String resolveTypeName(String typeName) {
+    String resolveTypeName(String typeName, final String baseClassName) {
         if (typeName == null) {
             return null;
+        } else if (typeName.length() == 0) {
+            return Object.class.getName();
         }
 
         TypeToken type = new TypeToken(typeName);
@@ -264,17 +280,38 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 String name = DescUtils
                         .getComponentName(acceptor.getBaseName());
                 if (name.indexOf('.') < 0 && !primitiveSet_.contains(name)) {
-                    Class<?> clazz = getSourceCreator().getClass(name);
-                    if (clazz != null) {
-                        acceptor.setBaseName(DescUtils.getClassName(clazz
-                                .getName(), DescUtils.isArray(acceptor
-                                .getBaseName())));
+                    String className;
+                    Class<?> clazz = findClass(name, baseClassName);
+                    if (clazz == null) {
+                        clazz = getSourceCreator().getClass(name);
                     }
+                    if (clazz != null) {
+                        className = clazz.getName();
+                    } else {
+                        className = DescUtils.getPackageName(baseClassName)
+                                + "." + name;
+                    }
+                    acceptor.setBaseName(DescUtils.getClassName(className,
+                            DescUtils.isArray(acceptor.getBaseName())));
                 }
                 return null;
             }
         });
         return type.getAsString();
+    }
+
+    Class<?> findClass(String name, String baseClassName) {
+        int pre = baseClassName.length();
+        int dot;
+        while ((dot = baseClassName.lastIndexOf('.', pre)) >= 0) {
+            try {
+                return Class
+                        .forName(baseClassName.substring(0, dot + 1) + name);
+            } catch (ClassNotFoundException ignore) {
+            }
+            pre = dot - 1;
+        }
+        return null;
     }
 
     boolean shouldUpdate(PathMetaData pathMetaData) {

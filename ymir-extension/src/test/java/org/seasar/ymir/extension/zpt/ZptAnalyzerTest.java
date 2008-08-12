@@ -31,7 +31,7 @@ import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
-import org.seasar.ymir.extension.creator.PropertyTypeHintBag;
+import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
@@ -188,7 +188,7 @@ public class ZptAnalyzerTest extends TestCase {
         YmirContext.setYmir(ymir);
     }
 
-    private void act(String methodName, PropertyTypeHintBag hintBag) {
+    private void act(String methodName, ClassCreationHintBag hintBag) {
         act(methodName, CLASSNAME, hintBag, null);
     }
 
@@ -210,7 +210,7 @@ public class ZptAnalyzerTest extends TestCase {
     }
 
     private void act(final String methodName, String pageClassName,
-            PropertyTypeHintBag hintBag, String[] ignoreVariables) {
+            ClassCreationHintBag hintBag, String[] ignoreVariables) {
         target_.analyze(MOCK_SERVLETCONTEXT, MOCK_REQUEST, MOCK_RESPONSE,
                 path_, Request.METHOD_GET, classDescMap_, new Template() {
                     public InputStream getInputStream() throws IOException {
@@ -977,10 +977,10 @@ public class ZptAnalyzerTest extends TestCase {
     public void testAnalyze57_YMIR_198_プロパティの値が使われない場合でもプロパティの型はHintで指定された型になること()
             throws Exception {
 
-        PropertyTypeHintBag hintBag = new PropertyTypeHintBag(
+        ClassCreationHintBag hintBag = new ClassCreationHintBag(
                 new PropertyTypeHint[] { new PropertyTypeHint(
                         "com.example.web.IndexPage", "hoes",
-                        "com.example.dto.HoeDto", true) });
+                        "com.example.dto.HoeDto", true) }, null);
 
         act("testAnalyze57", hintBag);
 

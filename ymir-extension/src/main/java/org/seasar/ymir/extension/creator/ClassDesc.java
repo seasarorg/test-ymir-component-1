@@ -52,11 +52,9 @@ public interface ClassDesc extends AnnotatedDesc, Cloneable {
 
     void removeMethodDesc(MethodDesc methodDesc);
 
-    void setSuperclass(Class<?> superclass);
-
     String getSuperclassName();
 
-    Class<?> getSuperclass();
+    void setSuperclassName(String superclassName);
 
     boolean isBaseClassAbstract();
 

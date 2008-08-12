@@ -15,7 +15,11 @@ public class ClassDescDto {
 
     private boolean dto_;
 
+    private boolean page_;
+
     private String pairTypeName_;
+
+    private String superclassName_;
 
     public ClassDescDto(ClassDesc classDesc, boolean checked) {
         name_ = classDesc.getName();
@@ -26,7 +30,14 @@ public class ClassDescDto {
         }
         checked_ = checked;
         dto_ = classDesc.isTypeOf(ClassType.DTO);
-        pairTypeName_ = PropertyUtils.join(classDesc.getMetaValues("conversion"));
+        page_ = classDesc.isTypeOf(ClassType.PAGE);
+        pairTypeName_ = PropertyUtils.join(classDesc
+                .getMetaValues("conversion"));
+        String superclassName = classDesc.getSuperclassName();
+        if (Object.class.getName().equals(superclassName)) {
+            superclassName = null;
+        }
+        superclassName_ = superclassName;
     }
 
     public boolean isChecked() {
@@ -45,7 +56,15 @@ public class ClassDescDto {
         return dto_;
     }
 
+    public boolean isPage() {
+        return page_;
+    }
+
     public String getPairTypeName() {
         return pairTypeName_;
+    }
+
+    public String getSuperclassName() {
+        return superclassName_;
     }
 }

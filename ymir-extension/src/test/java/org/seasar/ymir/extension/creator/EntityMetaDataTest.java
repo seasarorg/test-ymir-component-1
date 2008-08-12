@@ -39,10 +39,11 @@ public class EntityMetaDataTest extends TestCase {
                 }
 
                 @Override
-                public ClassDesc newClassDesc(String className) {
+                public ClassDesc newClassDesc(String className,
+                        ClassCreationHintBag hintBag) {
                     return new ClassDescImpl(className);
                 }
-            }, "com.example.dto.sub.TestDto");
+            }, null, "com.example.dto.sub.TestDto");
 
     public void testGetEntityName() throws Exception {
         // ## Arrange ##

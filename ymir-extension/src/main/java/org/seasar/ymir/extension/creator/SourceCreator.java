@@ -81,9 +81,9 @@ public interface SourceCreator extends Updater {
     ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas);
 
     ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
-            PropertyTypeHintBag hintBag, String[] ignoreVariables);
+            ClassCreationHintBag hintBag, String[] ignoreVariables);
 
-    void updateClasses(ClassDescBag classDescBag);
+    void updateClasses(ClassDescBag classDescBag, ClassCreationHintBag hintBag);
 
     void updateClass(ClassDesc classDesc) throws InvalidClassDescException;
 
@@ -93,7 +93,7 @@ public interface SourceCreator extends Updater {
 
     void saveSourceCreatorProperties();
 
-    ClassDesc newClassDesc(String className);
+    ClassDesc newClassDesc(String className, ClassCreationHintBag hintBag);
 
     void adjustByExistentClass(ClassDesc desc);
 

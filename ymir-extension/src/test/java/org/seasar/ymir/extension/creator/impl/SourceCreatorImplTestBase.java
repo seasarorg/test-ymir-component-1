@@ -101,9 +101,9 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         container_.register(ConfigurationImpl.class);
         container_.register(ApplicationManagerImpl.class);
 
-        LocalHotdeployS2Container ondemandContainer = (LocalHotdeployS2Container) container_
+        LocalHotdeployS2Container localHotdeployS2Container = (LocalHotdeployS2Container) container_
                 .getComponent(LocalHotdeployS2Container.class);
-        ondemandContainer.addReferenceClassName(getClass().getName());
+        localHotdeployS2Container.addReferenceClassName(getClass().getName());
 
         MockRequest ymirRequest = new MockRequest();
         ymirRequest.setParameterValues("aaa", new String[] { "a&?", "b" });
@@ -127,8 +127,9 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         YmirNamingConvention namingConvention = (YmirNamingConvention) container_
                 .getComponent(YmirNamingConvention.class);
         namingConvention.addRootPackageName("com.example");
-        ondemandContainer.setCreators(new ComponentCreator[] { new PageCreator(
-                namingConvention) });
+        localHotdeployS2Container
+                .setCreators(new ComponentCreator[] { new PageCreator(
+                        namingConvention) });
 
         Configuration configuration = (Configuration) container_
                 .getComponent(Configuration.class);
@@ -139,7 +140,10 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
                 "com.example.page.TestPageBaseBase");
         configuration.setProperty(
                 SourceCreatorSetting.APPKEYPREFIX_SOURCECREATOR_SUPERCLASS
-                        + "IndexPage$", "com.example.web.IndexPageBaseBase");
+                        + "IndexPage$", "com.example.web.IndexPageBaseBaseBase");
+        configuration.setProperty(
+                SourceCreatorSetting.APPKEYPREFIX_SOURCECREATOR_SUPERCLASS
+                        + "HndexPage$", "com.example.web.HndexPageBaseBase");
         ApplicationManager applicationManager = (ApplicationManager) container_
                 .getComponent(ApplicationManager.class);
         PathMappingProviderImpl pathMappingProvider = new PathMappingProviderImpl();
@@ -148,7 +152,7 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
                         "^/([^/]+)\\.(.+)$", "${1}Page", "_${method}", "",
                         null, null, null) });
         applicationManager.setBaseApplication(new SingleApplication(context,
-                configuration, null, container_, ondemandContainer,
+                configuration, null, container_, localHotdeployS2Container,
                 pathMappingProvider));
         configuration.setProperty(AbstractApplication.KEY_WEBAPPSOURCEROOT,
                 new File(ResourceUtil.getBuildDir(getClass()), "webapp")

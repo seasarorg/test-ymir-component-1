@@ -124,4 +124,16 @@ public class DescUtils {
             return className.substring(dot + 1);
         }
     }
+
+    public static String getPackageName(String className) {
+        if (className == null) {
+            return null;
+        }
+        int dot = className.lastIndexOf('.');
+        if (dot < 0) {
+            return "";
+        } else {
+            return className.substring(0, dot);
+        }
+    }
 }

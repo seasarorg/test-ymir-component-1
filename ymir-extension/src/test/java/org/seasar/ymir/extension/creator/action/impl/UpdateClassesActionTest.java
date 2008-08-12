@@ -68,17 +68,42 @@ public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
         assertFalse(target_.shouldUpdate(pathMetaData));
     }
 
-    public void testNormalizeTypeName() throws Exception {
+    public void testResolveTypeName() throws Exception {
+        assertNull(target_.resolveTypeName(null,
+                "com.example.dto.aaa.bbb.CccDto"));
+        assertEquals("boolean", target_.resolveTypeName("boolean",
+                "com.example.dto.aaa.bbb.CccDto"));
+        assertEquals("byte", target_.resolveTypeName("byte",
+                "com.example.dto.aaa.bbb.CccDto"));
+        assertEquals("char", target_.resolveTypeName("char",
+                "com.example.dto.aaa.bbb.CccDto"));
+        assertEquals("short", target_.resolveTypeName("short",
+                "com.example.dto.aaa.bbb.CccDto"));
+        assertEquals("int", target_.resolveTypeName("int",
+                "com.example.dto.aaa.bbb.CccDto"));
+        assertEquals("long", target_.resolveTypeName("long",
+                "com.example.dto.aaa.bbb.CccDto"));
+        assertEquals("float", target_.resolveTypeName("float",
+                "com.example.dto.aaa.bbb.CccDto"));
+        assertEquals("double", target_.resolveTypeName("double",
+                "com.example.dto.aaa.bbb.CccDto"));
 
-        assertNull(target_.resolveTypeName(null));
-        assertEquals("boolean", target_.resolveTypeName("boolean"));
-        assertEquals("byte", target_.resolveTypeName("byte"));
-        assertEquals("char", target_.resolveTypeName("char"));
-        assertEquals("short", target_.resolveTypeName("short"));
-        assertEquals("int", target_.resolveTypeName("int"));
-        assertEquals("long", target_.resolveTypeName("long"));
-        assertEquals("float", target_.resolveTypeName("float"));
-        assertEquals("double", target_.resolveTypeName("double"));
-        assertEquals("java.lang.Integer", target_.resolveTypeName("Integer"));
+        assertEquals("java.lang.Integer", target_.resolveTypeName("Integer",
+                "com.example.dto.aaa.bbb.CccDto"));
+
+        assertEquals("com.example.dto.aaa.bbb.DtoBase", target_
+                .resolveTypeName("DtoBase", "com.example.dto.aaa.bbb.CccDto"));
+        assertEquals("com.example.dto.aaa.DtoBase2", target_.resolveTypeName(
+                "DtoBase2", "com.example.dto.aaa.bbb.CccDto"));
+
+        assertEquals("com.example.dto.HoeDto", target_.resolveTypeName(
+                "HoeDto", "com.example.dto.aaa.bbb.CccDto"));
+    }
+
+    public void testResolveTypeNames() throws Exception {
+        String[] actual = target_.resolveTypeNames("",
+                "com.example.dto.aaa.bbb.CccDto");
+
+        assertEquals("空文字列を指定した場合は空の配列を返すこと", 0, actual.length);
     }
 }

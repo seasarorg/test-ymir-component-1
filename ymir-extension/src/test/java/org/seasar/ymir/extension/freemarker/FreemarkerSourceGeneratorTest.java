@@ -7,6 +7,7 @@ import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.conversation.annotation.Begin;
+import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
@@ -35,8 +36,9 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     public static class FSourceCreatorImpl extends SourceCreatorImpl {
         @Override
         public ClassDesc createConverterClassDesc(ClassDesc dtoCd,
-                String[] pairTypeNames) {
-            return super.createConverterClassDesc(dtoCd, pairTypeNames);
+                String[] pairTypeNames, ClassCreationHintBag hintBag) {
+            return super
+                    .createConverterClassDesc(dtoCd, pairTypeNames, hintBag);
         }
 
     }
@@ -124,7 +126,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
 
     private ClassDesc prepareClassDesc() {
         ClassDesc classDesc = new ClassDescImpl("com.example.page.TestPage");
-        classDesc.setSuperclass(TestPageBaseBase.class);
+        classDesc.setSuperclassName(TestPageBaseBase.class.getName());
         PropertyDesc propertyDesc = new PropertyDescImpl("param1");
         propertyDesc.setTypeDesc("boolean");
         propertyDesc.setMode(PropertyDesc.READ);
@@ -173,11 +175,12 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     public void testGenerateBaseSource_Page2() throws Exception {
         ClassDesc classDesc = new SourceCreatorImpl() {
             @Override
-            public ClassDesc newClassDesc(String className) {
+            public ClassDesc newClassDesc(String className,
+                    ClassCreationHintBag bag) {
                 return new ClassDescImpl(className);
             }
-        }.getClassDesc(HoePageBase.class,
-                "org.seasar.ymir.extension.freemarker.HoePage");
+        }.getClassDesc(HoePageBase.class);
+        classDesc.setName("org.seasar.ymir.extension.freemarker.HoePage");
 
         String actual = target_.generateBaseSource(classDesc);
 
@@ -188,11 +191,12 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     public void testGenerateBaseSource_Page3() throws Exception {
         ClassDesc classDesc = new SourceCreatorImpl() {
             @Override
-            public ClassDesc newClassDesc(String className) {
+            public ClassDesc newClassDesc(String className,
+                    ClassCreationHintBag bag) {
                 return new ClassDescImpl(className);
             }
-        }.getClassDesc(Hoe3PageBase.class,
-                "org.seasar.ymir.extension.freemarker.Hoe3Page");
+        }.getClassDesc(Hoe3PageBase.class);
+        classDesc.setName("org.seasar.ymir.extension.freemarker.Hoe3Page");
 
         String actual = target_.generateBaseSource(classDesc);
 
@@ -227,11 +231,12 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     public void testGenerateBaseSource_Page5() throws Exception {
         ClassDesc classDesc = new SourceCreatorImpl() {
             @Override
-            public ClassDesc newClassDesc(String className) {
+            public ClassDesc newClassDesc(String className,
+                    ClassCreationHintBag bag) {
                 return new ClassDescImpl(className);
             }
-        }.getClassDesc(Hoe5PageBase.class,
-                "org.seasar.ymir.extension.freemarker.Hoe5Page");
+        }.getClassDesc(Hoe5PageBase.class);
+        classDesc.setName("org.seasar.ymir.extension.freemarker.Hoe5Page");
 
         ClassDesc generated = new ClassDescImpl(
                 "org.seasar.ymir.extension.freemarker.Hoe5Page");
@@ -288,11 +293,13 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     public void testGenerateBaseSource_Page6() throws Exception {
         ClassDesc classDesc = new SourceCreatorImpl() {
             @Override
-            public ClassDesc newClassDesc(String className) {
+            public ClassDesc newClassDesc(String className,
+                    ClassCreationHintBag bag) {
                 return new ClassDescImpl(className);
             }
-        }.getClassDesc(Hoe6PageBase.class,
-                "org.seasar.ymir.extension.freemarker.Hoe6Page");
+        }.getClassDesc(Hoe6PageBase.class);
+        classDesc.setName("org.seasar.ymir.extension.freemarker.Hoe6Page");
+
         String actual = target_.generateBaseSource(classDesc);
 
         assertEquals(readResource(getClass(),
@@ -303,7 +310,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         ClassDesc classDesc = sourceCreator_.createConverterClassDesc(
                 new ClassDescImpl(HoeDto.class.getName()), new String[] {
                     Hoe.class.getName() + "<java.util.List>",
-                    "java.lang.Object" });
+                    "java.lang.Object" }, null);
         String actual = target_.generateBaseSource(classDesc);
 
         assertEquals(readResource(getClass(),
@@ -313,7 +320,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     public void testGenerateBaseSource_Converter2_中身が空の場合() throws Exception {
         ClassDesc classDesc = sourceCreator_.createConverterClassDesc(
                 new ClassDescImpl(HoeDto.class.getName()),
-                new String[] { "java.lang.Object" });
+                new String[] { "java.lang.Object" }, null);
         String actual = target_.generateBaseSource(classDesc);
 
         assertEquals(readResource(getClass(),

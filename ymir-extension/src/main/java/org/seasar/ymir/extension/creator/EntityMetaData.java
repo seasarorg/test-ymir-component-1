@@ -5,6 +5,8 @@ import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
 public class EntityMetaData {
     private SourceCreator creator_;
 
+    private ClassCreationHintBag hintBag_;
+
     private String entityName_;
 
     private String dtoClassName_;
@@ -17,8 +19,10 @@ public class EntityMetaData {
 
     private String converterClassName_;
 
-    public EntityMetaData(SourceCreator creator, String className) {
+    public EntityMetaData(SourceCreator creator, ClassCreationHintBag hintBag,
+            String className) {
         creator_ = creator;
+        hintBag_ = hintBag;
         analyze(className);
     }
 
@@ -50,22 +54,22 @@ public class EntityMetaData {
     }
 
     public ClassDesc getDtoClassDesc() {
-        return creator_.newClassDesc(dtoClassName_);
+        return creator_.newClassDesc(dtoClassName_, hintBag_);
     }
 
     public ClassDesc getBeanClassDesc() {
-        return creator_.newClassDesc(beanClassName_);
+        return creator_.newClassDesc(beanClassName_, hintBag_);
     }
 
     public ClassDesc getDaoClassDesc() {
-        return creator_.newClassDesc(daoClassName_);
+        return creator_.newClassDesc(daoClassName_, hintBag_);
     }
 
     public ClassDesc getDxoClassDesc() {
-        return creator_.newClassDesc(dxoClassName_);
+        return creator_.newClassDesc(dxoClassName_, hintBag_);
     }
 
     public ClassDesc getConverterClassDesc() {
-        return creator_.newClassDesc(converterClassName_);
+        return creator_.newClassDesc(converterClassName_, hintBag_);
     }
 }

@@ -112,7 +112,7 @@ public class CreateTemplateAction extends AbstractAction implements
             synchronizeResources(new String[] { getPath(template) });
         } else if (transition != null) {
             ClassDesc classDesc = getSourceCreator().newClassDesc(
-                    pathMetaData.getClassName());
+                    pathMetaData.getClassName(), null);
             MethodDesc methodDesc = new MethodDescImpl(getSourceCreator()
                     .getActionName(request.getCurrentDispatch().getPath(),
                             method));

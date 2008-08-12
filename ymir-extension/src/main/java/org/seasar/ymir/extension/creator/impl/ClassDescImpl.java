@@ -18,7 +18,7 @@ import org.seasar.ymir.extension.creator.TypeDesc;
 public class ClassDescImpl extends AbstractClassDesc {
     private String name_;
 
-    private Class<?> superclass_;
+    private String superclassName_;
 
     private Map<String, PropertyDesc> propertyDescMap_ = new TreeMap<String, PropertyDesc>();
 
@@ -110,22 +110,11 @@ public class ClassDescImpl extends AbstractClassDesc {
     }
 
     public String getSuperclassName() {
-
-        if (superclass_ != null) {
-            return superclass_.getName();
-        } else {
-            return null;
-        }
+        return superclassName_;
     }
 
-    public Class<?> getSuperclass() {
-
-        return superclass_;
-    }
-
-    public void setSuperclass(Class<?> superclass) {
-
-        superclass_ = superclass;
+    public void setSuperclassName(String superclassName) {
+        superclassName_ = superclassName;
     }
 
     public boolean isBaseClassAbstract() {
@@ -142,9 +131,11 @@ public class ClassDescImpl extends AbstractClassDesc {
             return;
         }
 
-        if (classDesc.getSuperclass() != Object.class
-                && (force || superclass_ == null)) {
-            setSuperclass(classDesc.getSuperclass());
+        if (classDesc.getSuperclassName() != null
+                && !classDesc.getSuperclassName()
+                        .equals(Object.class.getName())
+                && (force || superclassName_ == null)) {
+            setSuperclassName(classDesc.getSuperclassName());
         }
 
         PropertyDesc[] propertyDescs = classDesc.getPropertyDescs();
