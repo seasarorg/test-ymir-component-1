@@ -1,9 +1,23 @@
 package org.seasar.ymir;
 
-import com.example.web.ScopePage;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpSession;
+
+import org.seasar.framework.mock.servlet.MockHttpServletRequest;
+import org.seasar.framework.mock.servlet.MockHttpSession;
+import org.seasar.framework.mock.servlet.MockServletContext;
 import org.seasar.ymir.test.PageTestCase;
+import org.seasar.ymir.test.mock.servlet.MockHttpServletRequestImpl;
+import org.seasar.ymir.test.mock.servlet.MockHttpSessionImpl;
+
+import com.example.web.ScopePage;
 
 public class ScopeAttributeITest extends PageTestCase<ScopePage> {
+    private List<String> setNameSet_ = new ArrayList<String>();
+
     @Override
     protected Class<ScopePage> getPageClass() {
         return ScopePage.class;
@@ -63,5 +77,46 @@ public class ScopeAttributeITest extends PageTestCase<ScopePage> {
         page.setParam3("value3");
         processRequest(request);
         assertEquals("value3", getServletContext().getAttribute("param3"));
+    }
+
+    public void test_セッションからInされたものはOutしなくてもHttpSession_setAttributeされること()
+            throws Exception {
+        Request request = prepareForProcessing("/scope2.html",
+                Request.METHOD_GET);
+        getHttpSession(true).setAttribute("string", "STRING");
+        getHttpSession().setAttribute("date", new Date());
+        setNameSet_.clear();
+        processRequest(request);
+
+        assertEquals(1, setNameSet_.size());
+        assertEquals("MutableオブジェクトだけがsetAttributeされること", "date", setNameSet_
+                .get(0));
+    }
+
+    @Override
+    protected MockHttpServletRequest newHttpServletRequest(
+            final MockServletContext application, String path,
+            MockHttpSession session) {
+        return new MockHttpServletRequestImpl(application, path, session) {
+            @Override
+            public HttpSession getSession(boolean create) {
+                if (create) {
+                    MockHttpSession session = new MockHttpSessionImpl(
+                            application, this) {
+                        private static final long serialVersionUID = 1L;
+
+                        @Override
+                        public void setAttribute(String name, Object value) {
+                            setNameSet_.add(name);
+                            super.setAttribute(name, value);
+                        }
+                    };
+                    setSession(session);
+                    return session;
+                } else {
+                    return super.getSession(create);
+                }
+            }
+        };
     }
 }
