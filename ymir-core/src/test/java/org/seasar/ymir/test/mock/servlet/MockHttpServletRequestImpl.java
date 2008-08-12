@@ -59,7 +59,11 @@ public class MockHttpServletRequestImpl extends
         return session_ != null;
     }
 
-    void clearSession() {
+    protected void setSession(MockHttpSession session) {
+        session_ = session;
+    }
+
+    protected void clearSession() {
         session_ = null;
     }
 

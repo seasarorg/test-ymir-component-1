@@ -153,11 +153,18 @@ public class SessionManagerImpl implements SessionManager {
         if (session != null) {
             synchronized (session) {
                 Object value = session.getAttribute(name);
-                if (value != null) {
+                if (value != null && !isImmutable(value)) {
                     session.setAttribute(name, value);
                 }
             }
         }
+    }
+
+    protected boolean isImmutable(Object value) {
+        return (value instanceof String || value instanceof Boolean
+                || value instanceof Character || value instanceof Byte
+                || value instanceof Short || value instanceof Integer
+                || value instanceof Long || value instanceof Float || value instanceof Double);
     }
 
     public void setAttributeListener(AttributeListener attributeListener) {

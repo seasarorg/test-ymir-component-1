@@ -196,15 +196,28 @@ abstract public class YmirTestCase extends TestCase {
 
     /**
      * 現在のHttpSessionオブジェクトを返します。
-     * <p>セッションが作成されていない場合はnullを返します。
+     * <p>このメソッドは<code>getHttpSession(false)</code>と同じです。
+     * </p>
+     * 
+     * @return 現在のHttpSessionオブジェクト。
+     * @see #getHttpSession(boolean)
+     */
+    protected MockHttpSession getHttpSession() {
+        return getHttpSession(false);
+    }
+
+    /**
+     * 現在のHttpSessionオブジェクトを返します。
+     * <p><code>create</code>がtrueの場合、セッションが作成されていなければ作成します。
      * </p>
      * <p>このメソッドは<code>prepareForProcessing</code>メソッドの呼び出し後に呼び出して下さい。
      * </p>
      * 
+     * @param create セッションを作成するかどうか。
      * @return 現在のHttpSessionオブジェクト。
      */
-    protected MockHttpSession getHttpSession() {
-        return (MockHttpSession) getHttpServletRequest().getSession(false);
+    protected MockHttpSession getHttpSession(boolean create) {
+        return (MockHttpSession) getHttpServletRequest().getSession(create);
     }
 
     /**
@@ -369,11 +382,10 @@ abstract public class YmirTestCase extends TestCase {
         if (httpRequest_ != null) {
             session = (MockHttpSession) httpRequest_.getSession(false);
         }
-        httpRequest_ = new MockHttpServletRequestImpl(application_, path,
-                session);
+        httpRequest_ = newHttpServletRequest(application_, path, session);
         httpRequest_.getParameterMap().putAll(parameterMap);
         httpRequest_.setLocale(getLocale());
-        httpResponse_ = new MockHttpServletResponseImpl(httpRequest_);
+        httpResponse_ = newHttpServletResponse(httpRequest_);
 
         ContainerUtils.setRequest(container_, httpRequest_);
         ContainerUtils.setResponse(container_, httpResponse_);
@@ -391,6 +403,16 @@ abstract public class YmirTestCase extends TestCase {
         }
         ymir_.enterDispatch(request_, path, queryString, Dispatcher.REQUEST);
         return request_;
+    }
+
+    protected MockHttpServletResponse newHttpServletResponse(
+            MockHttpServletRequest httpRequest) {
+        return new MockHttpServletResponseImpl(httpRequest);
+    }
+
+    protected MockHttpServletRequest newHttpServletRequest(
+            MockServletContext application, String path, MockHttpSession session) {
+        return new MockHttpServletRequestImpl(application, path, session);
     }
 
     protected void prepareForProcessing(String path, Dispatcher dispatcher) {
