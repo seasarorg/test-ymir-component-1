@@ -37,6 +37,7 @@ import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
 import org.seasar.ymir.extension.creator.impl.ParameterDescImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
+import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.impl.ApplicationManagerImpl;
 import org.seasar.ymir.impl.MatchedPathMappingImpl;
 import org.seasar.ymir.impl.PathMappingImpl;
@@ -179,6 +180,7 @@ public class ZptAnalyzerTest extends TestCase {
             }
         }.setS2Container(S2ContainerFactory
                 .create("org/seasar/ymir/extension/zpt/ZptAnalyzerTest.dicon"));
+        applicationManager.setHotdeployManager(new HotdeployManagerImpl());
         applicationManager.setBaseApplication(mockApplication);
         sourceCreator_.setApplicationManager(applicationManager);
         target_.setSourceCreator(sourceCreator_);

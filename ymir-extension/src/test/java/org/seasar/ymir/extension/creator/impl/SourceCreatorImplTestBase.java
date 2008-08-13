@@ -34,6 +34,7 @@ import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.freemarker.FreemarkerSourceGenerator;
 import org.seasar.ymir.extension.zpt.ZptAnalyzer;
+import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.impl.AbstractApplication;
 import org.seasar.ymir.impl.ApplicationManagerImpl;
 import org.seasar.ymir.impl.PathMappingImpl;
@@ -100,6 +101,7 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         container_.register(ZptAnalyzer.class);
         container_.register(ConfigurationImpl.class);
         container_.register(ApplicationManagerImpl.class);
+        container_.register(HotdeployManagerImpl.class);
 
         LocalHotdeployS2Container localHotdeployS2Container = (LocalHotdeployS2Container) container_
                 .getComponent(LocalHotdeployS2Container.class);
@@ -138,9 +140,11 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         configuration.setProperty(
                 SourceCreatorSetting.APPKEY_SOURCECREATOR_SUPERCLASS,
                 "com.example.page.TestPageBaseBase");
-        configuration.setProperty(
-                SourceCreatorSetting.APPKEYPREFIX_SOURCECREATOR_SUPERCLASS
-                        + "IndexPage$", "com.example.web.IndexPageBaseBaseBase");
+        configuration
+                .setProperty(
+                        SourceCreatorSetting.APPKEYPREFIX_SOURCECREATOR_SUPERCLASS
+                                + "IndexPage$",
+                        "com.example.web.IndexPageBaseBaseBase");
         configuration.setProperty(
                 SourceCreatorSetting.APPKEYPREFIX_SOURCECREATOR_SUPERCLASS
                         + "HndexPage$", "com.example.web.HndexPageBaseBase");

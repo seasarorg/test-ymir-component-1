@@ -213,9 +213,18 @@ public class SourceCreatorImpl implements SourceCreator {
                     new CreateActionAction(this)).register("createAction",
                     new CreateActionAction(this));
 
+    private boolean initialized_;
+
     public Logger logger_ = Logger.getLogger(getClass());
 
     public Response update(Request request, Response response) {
+        synchronized (this) {
+            if (!initialized_) {
+                setProjectRootIfNotDetecetd(getApplication());
+                initialized_ = true;
+            }
+        }
+
         if (!shouldUpdate()) {
             return response;
         }
@@ -229,8 +238,6 @@ public class SourceCreatorImpl implements SourceCreator {
         if (!shouldUpdate(forwardPath)) {
             return response;
         }
-
-        setProjectRootIfNotDetecetd(getApplication());
 
         Object condition = null;
         if (request.getParameter(PARAM_TASK) != null) {
