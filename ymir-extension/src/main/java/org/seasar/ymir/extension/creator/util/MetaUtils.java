@@ -31,6 +31,15 @@ public class MetaUtils {
         return null;
     }
 
+    public static String getFirstValue(AnnotatedElement element, String name) {
+        String[] value = getValue(element, name);
+        if (value == null || value.length == 0) {
+            return null;
+        } else {
+            return value[0];
+        }
+    }
+
     public static Class<?>[] getClassValue(AnnotatedElement element, String name) {
         if (element == null) {
             return null;
@@ -51,5 +60,15 @@ public class MetaUtils {
         }
 
         return null;
+    }
+
+    public static Class<?> getFirstClassValue(AnnotatedElement element,
+            String name) {
+        Class<?>[] value = getClassValue(element, name);
+        if (value == null || value.length == 0) {
+            return null;
+        } else {
+            return value[0];
+        }
     }
 }

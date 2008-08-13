@@ -958,9 +958,14 @@ public class SourceCreatorImpl implements SourceCreator {
                 removeModeFrom(pds[i], PropertyDesc.WRITE, gapDesc);
                 removeModeFrom(pds[i], PropertyDesc.WRITE, superDesc);
             }
-            if (!pds[i].isReadable() && !pds[i].isWritable()
-                    && !pds[i].hasMeta(Globals.META_NAME_PROPERTY)) {
-                generated.removePropertyDesc(pds[i].getName());
+            if (!pds[i].isReadable() && !pds[i].isWritable()) {
+                // GetterもSetterもないものは削除する。
+                // ただし@Meta(name="property")なプロパティはformのDTOのフィールドを生成するために残す。
+                // superclassがformのDTOのフィールドを持っている時は削除する。
+                if (!pds[i].hasMeta(Globals.META_NAME_PROPERTY)
+                        || isFormDtoFieldPresent(superDesc, pds[i].getName())) {
+                    generated.removePropertyDesc(pds[i].getName());
+                }
             }
         }
         MethodDesc[] mds = generated.getMethodDescs();
@@ -985,6 +990,21 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         desc.merge(generated, true);
+    }
+
+    boolean isFormDtoFieldPresent(ClassDesc cd, String name) {
+        Class<?> clazz = getClass(cd.getName());
+        if (clazz == null || clazz == Object.class) {
+            return false;
+        }
+        do {
+            for (Field field : clazz.getDeclaredFields()) {
+                if (name.equals(MetaUtils.getFirstValue(field, "property"))) {
+                    return true;
+                }
+            }
+        } while ((clazz = clazz.getSuperclass()) != Object.class);
+        return false;
     }
 
     void removeModeFrom(PropertyDesc pd, int mode, ClassDesc cd) {

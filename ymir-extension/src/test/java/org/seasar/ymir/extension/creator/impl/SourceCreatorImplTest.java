@@ -283,27 +283,6 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertNull(cd.getMethodDesc(md));
     }
 
-    public void testAdjustByExistentClass_Baseクラスのメソッドの返り値型() throws Exception {
-
-        ClassDesc cd = new ClassDescImpl(
-                "org.seasar.ymir.extension.creator.impl.Merge10Page");
-        MethodDesc getMd = new MethodDescImpl("_get");
-        getMd.setReturnTypeDesc(new TypeDescImpl(Void.TYPE));
-        getMd.setParameterDescs(new ParameterDesc[0]);
-        cd.setMethodDesc(getMd);
-        MethodDesc postMd = new MethodDescImpl("_post");
-        postMd.setReturnTypeDesc(new TypeDescImpl(Void.TYPE));
-        postMd.setParameterDescs(new ParameterDesc[0]);
-        cd.setMethodDesc(postMd);
-
-        target_.adjustByExistentClass(cd);
-
-        assertEquals("Gapクラスに同じメソッドがある場合は返り値型が同じになること", "String", cd
-                .getMethodDesc(getMd).getReturnTypeDesc().getName());
-        assertEquals("Superクラスに同じメソッドがある場合は返り値型が同じになること", "String", cd
-                .getMethodDesc(postMd).getReturnTypeDesc().getName());
-    }
-
     public void testGetClassDesc_引数が0個で返り値がStringのmethodについてはボディを保存するようなBodyDescが生成されること()
             throws Exception {
 
@@ -431,7 +410,6 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass9_BaseクラスのAnnotationが上書きされること()
             throws Exception {
-
         ClassDesc cd = new ClassDescImpl(
                 "org.seasar.ymir.extension.creator.impl.Merge9Page");
         cd.setAnnotationDesc(new MetaAnnotationDescImpl("meta",
@@ -443,6 +421,44 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 .getAnnotationDesc(Meta.class.getName());
         assertNotNull(actual);
         assertEquals("newValue", actual.getValue("meta"));
+    }
+
+    public void testAdjustByExistentClass10_Baseクラスのメソッドの返り値型()
+            throws Exception {
+
+        ClassDesc cd = new ClassDescImpl(
+                "org.seasar.ymir.extension.creator.impl.Merge10Page");
+        MethodDesc getMd = new MethodDescImpl("_get");
+        getMd.setReturnTypeDesc(new TypeDescImpl(Void.TYPE));
+        getMd.setParameterDescs(new ParameterDesc[0]);
+        cd.setMethodDesc(getMd);
+        MethodDesc postMd = new MethodDescImpl("_post");
+        postMd.setReturnTypeDesc(new TypeDescImpl(Void.TYPE));
+        postMd.setParameterDescs(new ParameterDesc[0]);
+        cd.setMethodDesc(postMd);
+
+        target_.adjustByExistentClass(cd);
+
+        assertEquals("Gapクラスに同じメソッドがある場合は返り値型が同じになること", "String", cd
+                .getMethodDesc(getMd).getReturnTypeDesc().getName());
+        assertEquals("Superクラスに同じメソッドがある場合は返り値型が同じになること", "String", cd
+                .getMethodDesc(postMd).getReturnTypeDesc().getName());
+    }
+
+    public void testAdjustByExistentClass11_FormDtoフィールドがsuperクラスにある場合はプロパティが除去されれること()
+            throws Exception {
+        ClassDesc cd = new ClassDescImpl(
+                "org.seasar.ymir.extension.creator.impl.Merge11Page");
+        PropertyDesc pd = new PropertyDescImpl("hoehoe");
+        cd.setPropertyDesc(pd);
+        pd.setAnnotationDesc(new MetaAnnotationDescImpl("property",
+                new String[] { "hoehoe" }, new Class[0]));
+        cd
+                .setSuperclassName("org.seasar.ymir.extension.creator.impl.Merge11PageBaseBase");
+
+        target_.adjustByExistentClass(cd);
+
+        assertNull(cd.getPropertyDesc("hoehoe"));
     }
 
     public void testGetBeginAnnotation() throws Exception {
@@ -466,5 +482,16 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertEquals(
                 "<form action=\"/context/path\" method=\"post\"><input type=\"hidden\" name=\"__ymir__task\" value=\"systemConsole\" /><input type=\"hidden\" name=\"__ymir__method\" value=\"GET\" /><input type=\"hidden\" name=\"aaa\" value=\"a%26%3F\" /><input type=\"hidden\" name=\"aaa\" value=\"b\" /><input type=\"hidden\" name=\"bbb\" value=\"c\" /><input type=\"submit\" value=\"[TO SYSTEM CONSOLE]\" /></form>",
                 actual);
+    }
+
+    public void testIsFormDtoFieldPresent() throws Exception {
+        assertFalse(target_.isFormDtoFieldPresent(new ClassDescImpl(
+                Object.class.getName()), "hoehoe"));
+
+        assertFalse(target_.isFormDtoFieldPresent(new ClassDescImpl(
+                Merge10Page.class.getName()), "hoehoe"));
+
+        assertTrue(target_.isFormDtoFieldPresent(new ClassDescImpl(
+                Merge11Page.class.getName()), "hoehoe"));
     }
 }
