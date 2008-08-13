@@ -85,7 +85,11 @@ public class DispatchImpl implements Dispatch {
     }
 
     public String getPageComponentName() {
-        return matched_.getPageComponentName();
+        if (matched_ != null) {
+            return matched_.getPageComponentName();
+        } else {
+            return null;
+        }
     }
 
     public PageComponent getPageComponent() {
@@ -97,7 +101,11 @@ public class DispatchImpl implements Dispatch {
     }
 
     public String getPathInfo() {
-        return matched_.getPathInfo();
+        if (matched_ != null) {
+            return matched_.getPathInfo();
+        } else {
+            return null;
+        }
     }
 
     public Map<String, String[]> getParameterMap() {
