@@ -3,8 +3,6 @@ package org.seasar.ymir.impl;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.seasar.cms.pluggable.hotdeploy.AbstractHotdeployEventListener;
-import org.seasar.cms.pluggable.util.HotdeployEventUtils;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ApplicationManager;
@@ -13,6 +11,7 @@ import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
+import org.seasar.ymir.hotdeploy.impl.AbstractHotdeployEventListener;
 
 public class ComponentMetaDataFactoryImpl implements ComponentMetaDataFactory {
     private ApplicationManager applicationManager_;
@@ -38,20 +37,20 @@ public class ComponentMetaDataFactoryImpl implements ComponentMetaDataFactory {
     @Binding(bindingType = BindingType.MUST)
     public void setHotdeployManager(HotdeployManager hotdeployManager) {
         hotdeployManager_ = hotdeployManager;
+
+        hotdeployManager_
+                .addEventListener(new AbstractHotdeployEventListener() {
+                    @Override
+                    public void stop() {
+                        metaDataMap_.clear();
+                    }
+                });
     }
 
     @Binding(bindingType = BindingType.MUST)
     public void setTypeConversionManager(
             TypeConversionManager typeConversionManager) {
         typeConversionManager_ = typeConversionManager;
-    }
-
-    public ComponentMetaDataFactoryImpl() {
-        HotdeployEventUtils.add(new AbstractHotdeployEventListener() {
-            public void stop() {
-                metaDataMap_.clear();
-            }
-        });
     }
 
     public ComponentMetaData getInstance(Class<?> clazz) {

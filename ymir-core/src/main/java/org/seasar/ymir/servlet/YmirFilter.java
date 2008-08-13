@@ -94,6 +94,16 @@ public class YmirFilter implements Filter {
             }
         }
 
+        if (dispatcher_ == Dispatcher.REQUEST) {
+            for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                if (!ymirProcessInterceptors_[i].enteringRequest(context_,
+                        httpRequest, httpResponse, path)) {
+                    chain.doFilter(req, res);
+                    return;
+                }
+            }
+        }
+
         AttributeContainer attributeContainer = new HttpServletRequestAttributeContainer(
                 httpRequest);
 

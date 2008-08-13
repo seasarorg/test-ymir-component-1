@@ -25,6 +25,12 @@ abstract public class AbstractYmirProcessInterceptor implements
         priority_ = priority;
     }
 
+    public boolean enteringRequest(ServletContext context,
+            HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+            String path) {
+        return true;
+    }
+
     public Request requestCreated(Request request) {
         return request;
     }

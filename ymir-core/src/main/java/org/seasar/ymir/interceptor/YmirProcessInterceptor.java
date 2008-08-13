@@ -34,6 +34,21 @@ public interface YmirProcessInterceptor {
     double getPriority();
 
     /**
+     * リクエストの処理を開始した際に呼び出されるメソッドです。
+     * <p>リクエストがYmirの処理対象である場合だけ呼び出されます。</p>
+     * <p>このメソッドがfalseを返した場合、リクエストの処理は中断されます。</p>
+     * 
+     * @param context ServletContextオブジェクト。
+     * @param httpRequest HttpServletRequestオブジェクト。
+     * @param httpResponse HttpServletResponseオブジェクト。
+     * @param path コンテキスト相対のリクエストパス。末尾に「/」がついている場合はそのまま渡されます。
+     * @return リクエストの処理を継続するかどうか。
+     */
+    boolean enteringRequest(ServletContext context,
+            HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+            String path);
+
+    /**
      * 現在のリクエストに関する情報を持つRequestオブジェクトをフレームワークが構築した後に、
      * Requestオブジェクトを加工できるように呼び出されるメソッドです。
      * <p>Requestオブジェクトを加工しない場合は引数で渡されたRequestオブジェクトをそのまま返すようにして下さい。

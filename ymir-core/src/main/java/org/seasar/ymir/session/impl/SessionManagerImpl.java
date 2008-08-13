@@ -9,14 +9,15 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.collection.EnumerationIterator;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Attribute;
 import org.seasar.ymir.session.SessionManager;
-import org.seasar.ymir.util.ContainerUtils;
 
 public class SessionManagerImpl implements SessionManager {
-    private S2Container container_;
+    private ApplicationManager applicationManager_;
 
     private String straddlingAttributeNamePatternString_;
 
@@ -24,8 +25,9 @@ public class SessionManagerImpl implements SessionManager {
 
     private AttributeListener attributeListener_ = new VoidAttributeListener();
 
-    public void setContainer(S2Container container) {
-        container_ = container;
+    @Binding(bindingType = BindingType.MUST)
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
     }
 
     public HttpSession getSession() {
@@ -104,7 +106,9 @@ public class SessionManagerImpl implements SessionManager {
     }
 
     HttpServletRequest getHttpServletRequest() {
-        return ContainerUtils.getHttpServletRequest(container_.getRoot());
+        return (HttpServletRequest) applicationManager_
+                .findContextApplication().getS2Container().getComponent(
+                        HttpServletRequest.class);
     }
 
     public Object getAttribute(String name) {
@@ -167,6 +171,7 @@ public class SessionManagerImpl implements SessionManager {
                 || value instanceof Long || value instanceof Float || value instanceof Double);
     }
 
+    @Binding(bindingType = BindingType.NONE)
     public void setAttributeListener(AttributeListener attributeListener) {
         attributeListener_ = attributeListener;
     }

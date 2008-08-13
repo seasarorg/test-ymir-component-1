@@ -6,26 +6,35 @@ import java.lang.reflect.Array;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.seasar.cms.pluggable.hotdeploy.AbstractHotdeployEventListener;
-import org.seasar.cms.pluggable.util.HotdeployEventUtils;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.annotation.handler.AnnotationElements;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
+import org.seasar.ymir.hotdeploy.HotdeployManager;
+import org.seasar.ymir.hotdeploy.impl.AbstractHotdeployEventListener;
 
 public class AnnotationHandlerImpl implements AnnotationHandler {
+    private HotdeployManager hotdeployManager_;
+
     private Map<Key, Boolean> presentMap_ = new ConcurrentHashMap<Key, Boolean>();
 
     private Map<Key, Annotation[]> annotationsMap_ = new ConcurrentHashMap<Key, Annotation[]>();
 
     private Map<Key, Annotation[]> markedAnnotationsMap_ = new ConcurrentHashMap<Key, Annotation[]>();
 
-    public AnnotationHandlerImpl() {
-        HotdeployEventUtils.add(new AbstractHotdeployEventListener() {
-            public void stop() {
-                presentMap_.clear();
-                annotationsMap_.clear();
-                markedAnnotationsMap_.clear();
-            }
-        });
+    @Binding(bindingType = BindingType.MUST)
+    public void setHotdeployManager(HotdeployManager hotdeployManager) {
+        hotdeployManager_ = hotdeployManager;
+
+        hotdeployManager_
+                .addEventListener(new AbstractHotdeployEventListener() {
+                    @Override
+                    public void stop() {
+                        presentMap_.clear();
+                        annotationsMap_.clear();
+                        markedAnnotationsMap_.clear();
+                    }
+                });
     }
 
     public boolean isAnnotationPresent(AnnotatedElement element,

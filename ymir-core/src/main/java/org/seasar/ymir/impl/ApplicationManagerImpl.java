@@ -1,30 +1,38 @@
 package org.seasar.ymir.impl;
 
-import org.seasar.cms.pluggable.hotdeploy.AbstractHotdeployEventListener;
-import org.seasar.cms.pluggable.util.HotdeployEventUtils;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.hotdeploy.HotdeployManager;
+import org.seasar.ymir.hotdeploy.impl.AbstractHotdeployEventListener;
 
 public class ApplicationManagerImpl implements ApplicationManager {
+    private HotdeployManager hotdeployManager_;
+
     private Application[] applications_ = new Application[0];
 
     private Application baseApplication_;
 
     private ThreadLocal<Application> application_ = new ThreadLocal<Application>();
 
+    @Binding(bindingType = BindingType.MUST)
+    public void setHotdeployManager(HotdeployManager hotdeployManager) {
+        hotdeployManager_ = hotdeployManager;
+    }
+
     public void addApplication(final Application application) {
         applications_ = (Application[]) ArrayUtil.add(applications_,
                 application);
 
-        HotdeployEventUtils.add(new AbstractHotdeployEventListener() {
-            @Override
-            public void stop() {
-                application.clear();
-            }
-        });
+        hotdeployManager_
+                .addEventListener(new AbstractHotdeployEventListener() {
+                    @Override
+                    public void stop() {
+                        application.clear();
+                    }
+                });
     }
 
     public Application[] getApplications() {

@@ -9,15 +9,19 @@ import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.seasar.cms.pluggable.hotdeploy.AbstractHotdeployEventListener;
-import org.seasar.cms.pluggable.util.HotdeployEventUtils;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.PropertyHandler;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.beanutils.FormFileArrayConverter;
 import org.seasar.ymir.beanutils.FormFileConverter;
+import org.seasar.ymir.hotdeploy.HotdeployManager;
+import org.seasar.ymir.hotdeploy.impl.AbstractHotdeployEventListener;
 
 public class BeanUtilsTypeConversionManager implements TypeConversionManager {
+    private HotdeployManager hotdeployManager_;
+
     private final ConvertUtilsBean convertUtilsBean_;
 
     private final PropertyUtilsBean propertyUtilsBean_;
@@ -27,17 +31,24 @@ public class BeanUtilsTypeConversionManager implements TypeConversionManager {
     private static final Log log_ = LogFactory
             .getLog(BeanUtilsTypeConversionManager.class);
 
+    @Binding(bindingType = BindingType.MUST)
+    public void setHotdeployManager(HotdeployManager hotdeployManager) {
+        hotdeployManager_ = hotdeployManager;
+
+        hotdeployManager_
+                .addEventListener(new AbstractHotdeployEventListener() {
+                    @Override
+                    public void stop() {
+                        propertyUtilsBean_.clearDescriptors();
+                    }
+                });
+    }
+
     public BeanUtilsTypeConversionManager() {
         convertUtilsBean_ = prepare(newConvertUtilsBean());
         propertyUtilsBean_ = prepare(newPropertyUtilsBean());
         beanUtilsBean_ = prepare(newBeanUtilsBean(convertUtilsBean_,
                 propertyUtilsBean_));
-
-        HotdeployEventUtils.add(new AbstractHotdeployEventListener() {
-            public void stop() {
-                propertyUtilsBean_.clearDescriptors();
-            }
-        });
     }
 
     protected ConvertUtilsBean newConvertUtilsBean() {

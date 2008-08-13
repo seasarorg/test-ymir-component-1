@@ -9,10 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.seasar.cms.pluggable.util.HotdeployEventUtils;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.hotdeploy.HotdeployEventListener;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.hotdeploy.fitter.HotdeployFitter;
 import org.seasar.ymir.util.ContainerUtils;
@@ -22,9 +25,11 @@ public class HotdeployManagerImpl implements HotdeployManager {
 
     private static final String CLASS_PLUGGABLEHOTDEPLOYCLASSLOADER = "org.seasar.cms.pluggable.hotdeploy.PluggableHotdeployClassLoader";
 
+    private ApplicationManager applicationManager_;
+
     private HotdeployFitter<?>[] hotdeployFitters_ = new HotdeployFitter<?>[0];
 
-    private ApplicationManager applicationManager_;
+    private HotdeployEventListener[] hotdeployEventListeners_ = new HotdeployEventListener[0];
 
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
@@ -225,5 +230,15 @@ public class HotdeployManagerImpl implements HotdeployManager {
         public HotdeployFitter<?>[] getFitters() {
             return fitters_;
         }
+    }
+
+    public void addEventListener(HotdeployEventListener listener) {
+        hotdeployEventListeners_ = (HotdeployEventListener[]) ArrayUtil.add(
+                hotdeployEventListeners_, listener);
+        HotdeployEventUtils.add(new S2HotdeployEventListenerAdapter(listener));
+    }
+
+    public HotdeployEventListener[] getEventListeners() {
+        return hotdeployEventListeners_;
     }
 }

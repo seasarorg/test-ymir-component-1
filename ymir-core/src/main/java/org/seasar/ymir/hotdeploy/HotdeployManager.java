@@ -38,4 +38,20 @@ public interface HotdeployManager {
      * @return 変換結果のオブジェクト。
      */
     Object fit(Object value);
+
+    /**
+     * イベントリスナを登録します。
+     * 
+     * @param listener イベントリスナ。nullを指定してはいけません。
+     * @since 0.9.6
+     */
+    void addEventListener(HotdeployEventListener listener);
+
+    /**
+     * 登録されているイベントリスナを返します。
+     * 
+     * @return 登録されているイベントリスナの配列。nullを返すことはありません。
+     * @since 0.9.6
+     */
+    HotdeployEventListener[] getEventListeners();
 }
