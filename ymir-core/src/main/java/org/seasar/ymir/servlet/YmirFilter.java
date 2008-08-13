@@ -57,11 +57,9 @@ public class YmirFilter implements Filter {
                 .getS2Container().getComponent(LocaleManager.class);
 
         String dispatcher = config.getInitParameter("dispatcher");
-        if (dispatcher == null) {
-            throw new ServletException(
-                    "Init-param 'dispatcher' must be specified");
+        if (dispatcher != null) {
+            dispatcher_ = Dispatcher.valueOf(dispatcher.toUpperCase());
         }
-        dispatcher_ = Dispatcher.valueOf(dispatcher.toUpperCase());
     }
 
     public void destroy() {
@@ -77,6 +75,7 @@ public class YmirFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) req;
         HttpServletResponse httpResponse = (HttpServletResponse) res;
 
+        Dispatcher dispatcher = getDispatcher(httpRequest);
         String path = ServletUtils.getNativePath(httpRequest);
         String method = httpRequest.getMethod();
 
@@ -94,7 +93,7 @@ public class YmirFilter implements Filter {
             }
         }
 
-        if (dispatcher_ == Dispatcher.REQUEST) {
+        if (dispatcher == Dispatcher.REQUEST) {
             for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
                 if (!ymirProcessInterceptors_[i].enteringRequest(context_,
                         httpRequest, httpResponse, path)) {
@@ -110,12 +109,12 @@ public class YmirFilter implements Filter {
         ThreadContext context = getThreadContext();
 
         Object backupped = null;
-        if (dispatcher_ == Dispatcher.INCLUDE) {
+        if (dispatcher == Dispatcher.INCLUDE) {
             backupped = ymir_.backupForInclusion(attributeContainer);
         }
 
         Request request;
-        if (dispatcher_ == Dispatcher.REQUEST) {
+        if (dispatcher == Dispatcher.REQUEST) {
             Map<String, FormFile[]> fileParameterMap = (Map<String, FormFile[]>) httpRequest
                     .getAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
             if (fileParameterMap != null) {
@@ -133,11 +132,11 @@ public class YmirFilter implements Filter {
             context.setComponent(Request.class, request);
         } else {
             request = (Request) context.getComponent(Request.class);
-            ymir_.updateRequest(request, httpRequest, dispatcher_);
+            ymir_.updateRequest(request, httpRequest, dispatcher);
         }
 
         ymir_.enterDispatch(request, path, ServletUtils
-                .getQueryString(httpRequest), dispatcher_, matched);
+                .getQueryString(httpRequest), dispatcher, matched);
         try {
             Response response = ymir_.processRequest(request);
 
@@ -148,7 +147,7 @@ public class YmirFilter implements Filter {
                 responseFilter.commit();
             }
         } catch (Throwable t) {
-            if (dispatcher_ == Dispatcher.REQUEST) {
+            if (dispatcher == Dispatcher.REQUEST) {
                 ymir_.processResponse(context_, httpRequest, httpResponse,
                         request, ymir_.processException(request, t));
             } else {
@@ -157,14 +156,22 @@ public class YmirFilter implements Filter {
         } finally {
             ymir_.leaveDispatch(request);
 
-            if (dispatcher_ == Dispatcher.REQUEST) {
+            if (dispatcher == Dispatcher.REQUEST) {
                 for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
                     ymirProcessInterceptors_[i].leavingRequest(request);
                 }
                 context.setComponent(Request.class, null);
-            } else if (dispatcher_ == Dispatcher.INCLUDE) {
+            } else if (dispatcher == Dispatcher.INCLUDE) {
                 ymir_.restoreForInclusion(attributeContainer, backupped);
             }
+        }
+    }
+
+    protected Dispatcher getDispatcher(HttpServletRequest request) {
+        if (dispatcher_ != null) {
+            return dispatcher_;
+        } else {
+            return ServletUtils.getDispatcher(request);
         }
     }
 
