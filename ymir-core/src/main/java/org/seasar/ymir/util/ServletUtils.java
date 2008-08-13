@@ -81,9 +81,15 @@ public class ServletUtils {
         if (dispatcher == Dispatcher.INCLUDE) {
             return (String) request.getAttribute(ATTR_INCLUDE_CONTEXT_PATH);
         } else if (dispatcher == Dispatcher.FORWARD) {
-            return (String) request.getAttribute(ATTR_FORWARD_CONTEXT_PATH);
-        } else {
             return request.getContextPath();
+        } else {
+            String contextPath = (String) request
+                    .getAttribute(ATTR_FORWARD_CONTEXT_PATH);
+            // 念のため。
+            if (contextPath == null) {
+                contextPath = request.getContextPath();
+            }
+            return contextPath;
         }
     }
 
@@ -176,13 +182,20 @@ public class ServletUtils {
                     .getAttribute(ATTR_INCLUDE_SERVLET_PATH);
             pathInfo = (String) request.getAttribute(ATTR_INCLUDE_PATH_INFO);
         } else if (dispatcher == Dispatcher.FORWARD) {
-            servletPath = (String) request
-                    .getAttribute(ATTR_FORWARD_SERVLET_PATH);
-            pathInfo = (String) request.getAttribute(ATTR_FORWARD_PATH_INFO);
-
-        } else {
             servletPath = request.getServletPath();
             pathInfo = request.getPathInfo();
+        } else {
+            servletPath = (String) request
+                    .getAttribute(ATTR_FORWARD_SERVLET_PATH);
+            // 念のため。
+            if (servletPath == null) {
+                servletPath = request.getServletPath();
+            }
+            pathInfo = (String) request.getAttribute(ATTR_FORWARD_PATH_INFO);
+            // 念のため。
+            if (pathInfo == null) {
+                pathInfo = request.getPathInfo();
+            }
         }
         sb.append(servletPath);
         if (pathInfo != null) {
@@ -227,9 +240,15 @@ public class ServletUtils {
         if (dispatcher == Dispatcher.INCLUDE) {
             return (String) request.getAttribute(ATTR_INCLUDE_QUERY_STRING);
         } else if (dispatcher == Dispatcher.FORWARD) {
-            return (String) request.getAttribute(ATTR_FORWARD_QUERY_STRING);
-        } else {
             return request.getQueryString();
+        } else {
+            String queryString = (String) request
+                    .getAttribute(ATTR_FORWARD_QUERY_STRING);
+            // 念のため。
+            if (queryString == null) {
+                queryString = request.getQueryString();
+            }
+            return queryString;
         }
     }
 
