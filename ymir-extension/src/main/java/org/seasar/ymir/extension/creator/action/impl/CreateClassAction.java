@@ -7,6 +7,7 @@ import java.util.Map;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.PathMetaData;
@@ -63,7 +64,7 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
                 .getParameter(PARAM_TRANSITIONREDIRECT));
 
         ClassDesc classDesc = getSourceCreator().newClassDesc(
-                pathMetaData.getClassName(), null);
+                pathMetaData.getClassName(), ClassType.PAGE, null);
         MethodDesc methodDesc = new MethodDescImpl(getSourceCreator()
                 .getActionName(request.getCurrentDispatch().getPath(), method));
         methodDesc.setReturnTypeDesc(String.class.getName(), true);

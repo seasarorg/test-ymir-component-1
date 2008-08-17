@@ -7,6 +7,8 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
         ClassDesc {
     private Map<String, Object> parameter_;
 
+    private ClassType type_;
+
     abstract public String getName();
 
     public Object clone() {
@@ -19,7 +21,15 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
     }
 
     public ClassType getType() {
-        return getType(getName());
+        if (type_ != null) {
+            return type_;
+        } else {
+            return getType(getName());
+        }
+    }
+
+    public void setType(ClassType type) {
+        type_ = type;
     }
 
     ClassType getType(String name) {

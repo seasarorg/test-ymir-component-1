@@ -19,14 +19,15 @@ import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
+import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassHint;
+import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
-import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.TypeDesc;
@@ -187,22 +188,26 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
     public void testNewClassDesc() throws Exception {
         assertEquals("マッチしたパターンに関連付けられているスーパークラス名がセットされていること",
                 "com.example.web.HndexPageBaseBase", target_.newClassDesc(
-                        "com.example.web.HndexPage", null).getSuperclassName());
+                        "com.example.web.HndexPage", ClassType.PAGE, null)
+                        .getSuperclassName());
 
         assertEquals(
                 "マッチするパターンが無くデフォルトのスーパークラス名が指定されている場合はデフォルトのスーパークラス名がセットされていること",
                 "com.example.page.TestPageBaseBase", target_.newClassDesc(
-                        "com.example.page.TestPage", null).getSuperclassName());
+                        "com.example.page.TestPage", ClassType.PAGE, null)
+                        .getSuperclassName());
 
         assertEquals("マッチしたパターンに関連付けられているスーパークラス名よりも実際のスーパークラス名が優先されること",
                 "com.example.web.IndexPageBaseBase", target_.newClassDesc(
-                        "com.example.web.IndexPage", null).getSuperclassName());
+                        "com.example.web.IndexPage", ClassType.PAGE, null)
+                        .getSuperclassName());
     }
 
     public void testNewClassDesc_hintが指定されていればスーパークラス名がhintを基に設定されること()
             throws Exception {
         assertEquals("com.example.web.PageBase", target_.newClassDesc(
                 "com.example.web.IndexPage",
+                ClassType.PAGE,
                 new ClassCreationHintBag(null,
                         new ClassHint[] { new ClassHint(
                                 "com.example.web.IndexPage",

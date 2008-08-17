@@ -17,6 +17,7 @@ import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
 import org.seasar.ymir.extension.creator.ClassDescSet;
+import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
@@ -171,7 +172,8 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public ClassDesc newClassDesc(String className, ClassCreationHintBag bag) {
+    public ClassDesc newClassDesc(String className, ClassType type,
+            ClassCreationHintBag bag) {
         return null;
     }
 

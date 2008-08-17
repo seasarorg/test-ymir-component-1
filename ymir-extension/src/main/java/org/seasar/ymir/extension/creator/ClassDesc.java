@@ -15,6 +15,8 @@ public interface ClassDesc extends AnnotatedDesc, Cloneable {
 
     ClassType getType();
 
+    void setType(ClassType type);
+
     boolean isTypeOf(ClassType type);
 
     String getNameBase();

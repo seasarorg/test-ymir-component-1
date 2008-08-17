@@ -8,6 +8,7 @@ import org.seasar.ymir.ActionNotFoundException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
@@ -54,7 +55,7 @@ public class CreateActionAction extends AbstractAction implements
         }
 
         ClassDesc classDesc = getSourceCreator().newClassDesc(
-                pathMetaData.getClassName(), null);
+                pathMetaData.getClassName(), ClassType.PAGE, null);
         String actionName = anfe.getActionName();
         classDesc.setMethodDesc(new MethodDescImpl(actionName));
 

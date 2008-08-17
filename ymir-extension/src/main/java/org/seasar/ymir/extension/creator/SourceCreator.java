@@ -93,7 +93,8 @@ public interface SourceCreator extends Updater {
 
     void saveSourceCreatorProperties();
 
-    ClassDesc newClassDesc(String className, ClassCreationHintBag hintBag);
+    ClassDesc newClassDesc(String className, ClassType type,
+            ClassCreationHintBag hintBag);
 
     void adjustByExistentClass(ClassDesc desc);
 

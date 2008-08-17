@@ -121,29 +121,48 @@ public class ClassDescBag {
     }
 
     public void addAsCreated(ClassDesc classDesc) {
-        getClassDescMap().put(classDesc.getName(), classDesc);
-        getClassDescMap(classDesc.getType())
-                .put(classDesc.getName(), classDesc);
+        addAsCreated(classDesc, false);
+    }
+
+    public void addAsCreated(ClassDesc classDesc, boolean done) {
+        if (!done) {
+            getClassDescMap().put(classDesc.getName(), classDesc);
+            getClassDescMap(classDesc.getType()).put(classDesc.getName(),
+                    classDesc);
+            set_.add(classDesc);
+        }
         getCreatedClassDescMap().put(classDesc.getName(), classDesc);
         getCreatedClassDescMap(classDesc.getType()).put(classDesc.getName(),
                 classDesc);
-        set_.add(classDesc);
     }
 
     public void addAsUpdated(ClassDesc classDesc) {
-        getClassDescMap().put(classDesc.getName(), classDesc);
-        getClassDescMap(classDesc.getType())
-                .put(classDesc.getName(), classDesc);
+        addAsUpdated(classDesc, false);
+    }
+
+    public void addAsUpdated(ClassDesc classDesc, boolean done) {
+        if (!done) {
+            getClassDescMap().put(classDesc.getName(), classDesc);
+            getClassDescMap(classDesc.getType()).put(classDesc.getName(),
+                    classDesc);
+            set_.add(classDesc);
+        }
         getUpdatedClassDescMap().put(classDesc.getName(), classDesc);
         getUpdatedClassDescMap(classDesc.getType()).put(classDesc.getName(),
                 classDesc);
-        set_.add(classDesc);
     }
 
     public void addAsFailed(ClassDesc classDesc, String[] lackingClassNames) {
-        getClassDescMap().put(classDesc.getName(), classDesc);
-        getClassDescMap(classDesc.getType())
-                .put(classDesc.getName(), classDesc);
+        addAsFailed(classDesc, lackingClassNames, false);
+    }
+
+    public void addAsFailed(ClassDesc classDesc, String[] lackingClassNames,
+            boolean done) {
+        if (!done) {
+            getClassDescMap().put(classDesc.getName(), classDesc);
+            getClassDescMap(classDesc.getType()).put(classDesc.getName(),
+                    classDesc);
+        }
         getFailedClassDescMap().put(classDesc.getName(), classDesc);
         getFailedClassDescMap(classDesc.getType()).put(classDesc.getName(),
                 classDesc);

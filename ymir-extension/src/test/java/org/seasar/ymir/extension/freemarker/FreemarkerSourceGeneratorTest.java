@@ -9,6 +9,7 @@ import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -175,7 +176,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     public void testGenerateBaseSource_Page2() throws Exception {
         ClassDesc classDesc = new SourceCreatorImpl() {
             @Override
-            public ClassDesc newClassDesc(String className,
+            public ClassDesc newClassDesc(String className, ClassType type,
                     ClassCreationHintBag bag) {
                 return new ClassDescImpl(className);
             }
@@ -191,7 +192,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     public void testGenerateBaseSource_Page3() throws Exception {
         ClassDesc classDesc = new SourceCreatorImpl() {
             @Override
-            public ClassDesc newClassDesc(String className,
+            public ClassDesc newClassDesc(String className, ClassType type,
                     ClassCreationHintBag bag) {
                 return new ClassDescImpl(className);
             }
@@ -231,7 +232,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     public void testGenerateBaseSource_Page5() throws Exception {
         ClassDesc classDesc = new SourceCreatorImpl() {
             @Override
-            public ClassDesc newClassDesc(String className,
+            public ClassDesc newClassDesc(String className, ClassType type,
                     ClassCreationHintBag bag) {
                 return new ClassDescImpl(className);
             }
@@ -293,7 +294,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     public void testGenerateBaseSource_Page6() throws Exception {
         ClassDesc classDesc = new SourceCreatorImpl() {
             @Override
-            public ClassDesc newClassDesc(String className,
+            public ClassDesc newClassDesc(String className, ClassType type,
                     ClassCreationHintBag bag) {
                 return new ClassDescImpl(className);
             }
