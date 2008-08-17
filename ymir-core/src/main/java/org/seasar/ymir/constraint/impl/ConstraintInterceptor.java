@@ -10,11 +10,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
@@ -40,6 +40,8 @@ import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
 import org.seasar.ymir.constraint.annotation.SuppressConstraints;
 import org.seasar.ymir.constraint.annotation.Validator;
+import org.seasar.ymir.hotdeploy.HotdeployManager;
+import org.seasar.ymir.hotdeploy.impl.AbstractHotdeployEventListener;
 import org.seasar.ymir.impl.ActionImpl;
 import org.seasar.ymir.impl.MethodInvokerImpl;
 import org.seasar.ymir.impl.VoidMethodInvoker;
@@ -70,6 +72,14 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
     private AnnotationHandler annotationHandler_;
 
+    private Map<Method, Set<ConstraintType>> suppressTypeSetMap_ = new ConcurrentHashMap<Method, Set<ConstraintType>>();
+
+    private Map<Method, ConstraintBag<?>[]> bagsForActionMap_ = new ConcurrentHashMap<Method, ConstraintBag<?>[]>();
+
+    private Map<Class<?>, ConstraintBag<?>[]> bagsForPageClassMap_ = new ConcurrentHashMap<Class<?>, ConstraintBag<?>[]>();
+
+    private Map<Class<?>, Method[]> validatorMethodsMap_ = new ConcurrentHashMap<Class<?>, Method[]>();
+
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
         applicationManager_ = applicationManager;
@@ -78,6 +88,19 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     @Binding(bindingType = BindingType.MUST)
     public void setAnnotationHandler(AnnotationHandler annotationHandler) {
         annotationHandler_ = annotationHandler;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setHotdeployManager(HotdeployManager hotdeployManager) {
+        hotdeployManager.addEventListener(new AbstractHotdeployEventListener() {
+            @Override
+            public void stop() {
+                suppressTypeSetMap_.clear();
+                bagsForActionMap_.clear();
+                bagsForPageClassMap_.clear();
+                validatorMethodsMap_.clear();
+            }
+        });
     }
 
     @Override
@@ -131,12 +154,30 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
     Notes confirmConstraint(PageComponent pageComponent, Request request)
             throws PermissionDeniedException {
+        Action action = request.getCurrentDispatch().getAction();
+        MethodInvoker actionInvoker = null;
+        Method actionMethod = null;
+        if (action != null) {
+            actionInvoker = action.getMethodInvoker();
+            if (actionInvoker != null) {
+                actionMethod = actionInvoker.getMethod();
+            }
+        }
+        Set<ConstraintType> suppressTypeSet = getSuppressTypeSet(actionMethod);
+        Notes notes = new Notes();
+
+        // 共通の制約をチェックする。
+        confirmConstraint(getConstraintBagsFromConstraintBundles(),
+                pageComponent.getPage(), request, suppressTypeSet, notes);
+
+        // アクションに関連付けられている制約をチェックする。
+        confirmConstraint(getConstraintBagsForActionMethod(actionMethod),
+                pageComponent.getPage(), request, suppressTypeSet, notes);
+
+        // それ以外の制約をチェックする。
         try {
-            Action action = request.getCurrentDispatch().getAction();
-            Method actionMethod = (action != null) ? action.getMethodInvoker()
-                    .getMethod() : null;
             VisitorForConfirmingConstraint visitor = new VisitorForConfirmingConstraint(
-                    request, getSuppressTypeSet(actionMethod));
+                    request, suppressTypeSet, notes);
             pageComponent.accept(visitor);
 
             return visitor.getNotes();
@@ -149,73 +190,22 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
     }
 
-    void confirmConstraint(Object page, Class<?> pageClass, Request request,
-            Set<ConstraintType> suppressTypeSet, Notes notes)
-            throws PermissionDeniedException {
-        List<ConstraintBag<?>> list = new ArrayList<ConstraintBag<?>>();
-
-        // 共通の制約を収集する。
-        list.addAll(Arrays.asList(getConstraintBagsFromConstraintBundles()));
-
-        // クラスとプロパティに関連付けられている制約を収集する。
-        getConstraintBagsFromPageClass(pageClass, list);
-
-        // アクションに関連付けられている制約を収集する。
-        Action action = request.getCurrentDispatch().getAction();
-        MethodInvoker actionMethodInvoker = null;
-        if (action != null) {
-            actionMethodInvoker = action.getMethodInvoker();
-            if (actionMethodInvoker != null && page == action.getTarget()) {
-                createConstraintBags(actionMethodInvoker.getMethod(),
-                        ConstraintBag.DECIDER_ALWAYS, list);
-            }
-        }
-
-        for (Iterator<ConstraintBag<?>> itr = list.iterator(); itr.hasNext();) {
-            ConstraintBag<?> bag = itr.next();
-            try {
-                bag.confirm(page, request, suppressTypeSet);
-            } catch (PermissionDeniedException ex) {
-                throw ex;
-            } catch (ValidationFailedException ex) {
-                notes.add(ex.getNotes());
-            } catch (ConstraintViolatedException ex) {
-                throw new RuntimeException("May logic error", ex);
-            }
-        }
-
-        // Validatorアノテーションがついているメソッドを実行する。
-        MethodInvoker[] validators = gatherValidators(pageClass,
-                actionMethodInvoker, suppressTypeSet);
-        for (int i = 0; i < validators.length; i++) {
-            try {
-                Object invoked = validators[i].invoke(page);
-                if (invoked instanceof Notes) {
-                    notes.add((Notes) invoked);
-                }
-            } catch (IllegalArgumentException ex) {
-                throw new RuntimeException("May logic error", ex);
-            } catch (WrappingRuntimeException ex) {
-                Throwable cause = ex.getCause();
-                if (cause instanceof ValidationFailedException) {
-                    notes.add(((ValidationFailedException) cause).getNotes());
-                } else {
-                    throw ex;
-                }
-            }
-        }
-    }
-
     Set<ConstraintType> getSuppressTypeSet(Method actionMethod) {
-        Set<ConstraintType> suppressTypeSet = EnumSet
-                .noneOf(ConstraintType.class);
-        if (actionMethod != null) {
+        if (actionMethod == null) {
+            return EnumSet.noneOf(ConstraintType.class);
+        }
+
+        Set<ConstraintType> suppressTypeSet = suppressTypeSetMap_
+                .get(actionMethod);
+        if (suppressTypeSet == null) {
+            suppressTypeSet = EnumSet.noneOf(ConstraintType.class);
             ConstraintType[] types = getSuppressConstraintsValue(actionMethod);
             if (types != null) {
                 for (int i = 0; i < types.length; i++) {
                     suppressTypeSet.add(types[i]);
                 }
             }
+            suppressTypeSetMap_.put(actionMethod, suppressTypeSet);
         }
         return suppressTypeSet;
     }
@@ -239,9 +229,23 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         return null;
     }
 
-    ConstraintBag<?>[] getConstraintBagsFromConstraintBundles() {
-        // synchronizedしていないのは、たまたま同時に呼ばれて2回ConstraintBagが生成されてしまっても実害がないから。
+    void confirmConstraint(ConstraintBag<?>[] bags, Object page,
+            Request request, Set<ConstraintType> suppressTypeSet, Notes notes)
+            throws PermissionDeniedException {
+        for (int i = 0; i < bags.length; i++) {
+            try {
+                bags[i].confirm(page, request, suppressTypeSet);
+            } catch (PermissionDeniedException ex) {
+                throw ex;
+            } catch (ValidationFailedException ex) {
+                notes.add(ex.getNotes());
+            } catch (ConstraintViolatedException ex) {
+                throw new RuntimeException("May logic error", ex);
+            }
+        }
+    }
 
+    ConstraintBag<?>[] getConstraintBagsFromConstraintBundles() {
         Application application = applicationManager_.findContextApplication();
         ConstraintBag<?>[] bags = application
                 .getRelatedObject(ConstraintBag[].class);
@@ -259,21 +263,49 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         return bags;
     }
 
-    // PropertyDescriptorのreadMethodは対象外。fieldも対象外。
-    void getConstraintBagsFromPageClass(Class<?> pageClass,
-            List<ConstraintBag<?>> list) {
-        createConstraintBags(pageClass, DECIDER_DEPENDS_ON_SUPPRESSTYPE, list);
-        BeanInfo beanInfo;
-        try {
-            beanInfo = Introspector.getBeanInfo(pageClass);
-        } catch (IntrospectionException ex) {
-            throw new RuntimeException(ex);
+    ConstraintBag<?>[] getConstraintBagsForActionMethod(Method actionMethod) {
+        if (actionMethod == null) {
+            return new ConstraintBag[0];
         }
-        PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
-        for (int i = 0; i < pds.length; i++) {
-            createConstraintBags(pds[i].getWriteMethod(),
-                    DECIDER_DEPENDS_ON_SUPPRESSTYPE, list);
+
+        ConstraintBag<?>[] bags = bagsForActionMap_.get(actionMethod);
+        if (bags == null) {
+            ArrayList<ConstraintBag<?>> list = new ArrayList<ConstraintBag<?>>();
+            createConstraintBags(actionMethod, ConstraintBag.DECIDER_ALWAYS,
+                    list);
+            bags = list.toArray(new ConstraintBag[0]);
+            bagsForActionMap_.put(actionMethod, bags);
         }
+        return bags;
+    }
+
+    ConstraintBag<?>[] getConstraintBagsForPageClass(Class<?> pageClass) {
+        ConstraintBag<?>[] bags = bagsForPageClassMap_.get(pageClass);
+        if (bags == null) {
+            ArrayList<ConstraintBag<?>> list = new ArrayList<ConstraintBag<?>>();
+
+            createConstraintBags(pageClass, DECIDER_DEPENDS_ON_SUPPRESSTYPE,
+                    list);
+
+            // fieldは対象外。
+            BeanInfo beanInfo;
+            try {
+                beanInfo = Introspector.getBeanInfo(pageClass);
+            } catch (IntrospectionException ex) {
+                throw new RuntimeException(ex);
+            }
+            PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
+            for (int i = 0; i < pds.length; i++) {
+                createConstraintBags(pds[i].getReadMethod(),
+                        DECIDER_DEPENDS_ON_SUPPRESSTYPE, list);
+                createConstraintBags(pds[i].getWriteMethod(),
+                        DECIDER_DEPENDS_ON_SUPPRESSTYPE, list);
+            }
+
+            bags = list.toArray(new ConstraintBag[0]);
+            bagsForPageClassMap_.put(pageClass, bags);
+        }
+        return bags;
     }
 
     @SuppressWarnings("unchecked")
@@ -293,23 +325,55 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
     }
 
-    MethodInvoker[] gatherValidators(Class<?> pageClass,
-            MethodInvoker actionMethodInvoker,
-            Set<ConstraintType> suppressTypeSet) {
-        List<MethodInvoker> validatorList = new ArrayList<MethodInvoker>();
+    void confirmConstraint(Object page, Class<?> pageClass, Request request,
+            Set<ConstraintType> suppressTypeSet, Notes notes)
+            throws PermissionDeniedException {
+        // クラスとプロパティに関連付けられている制約をチェックする。
+        confirmConstraint(getConstraintBagsForPageClass(pageClass), page,
+                request, suppressTypeSet, notes);
 
-        String actionName;
-        Object[] actionParameters;
-        if (actionMethodInvoker != null) {
-            actionName = actionMethodInvoker.getMethod().getName();
-            actionParameters = actionMethodInvoker.getParameters();
-        } else {
-            actionName = null;
-            actionParameters = new Object[0];
+        // Validatorアノテーションがついているメソッドを実行する。
+        if (!suppressTypeSet.contains(ConstraintType.VALIDATION)) {
+            MethodInvoker[] validators = getValidators(pageClass, request
+                    .getCurrentDispatch().getAction());
+            for (int i = 0; i < validators.length; i++) {
+                try {
+                    Object invoked = validators[i].invoke(page);
+                    if (invoked instanceof Notes) {
+                        notes.add((Notes) invoked);
+                    }
+                } catch (IllegalArgumentException ex) {
+                    throw new RuntimeException("May logic error", ex);
+                } catch (WrappingRuntimeException ex) {
+                    Throwable cause = ex.getCause();
+                    if (cause instanceof ValidationFailedException) {
+                        notes.add(((ValidationFailedException) cause)
+                                .getNotes());
+                    } else {
+                        throw ex;
+                    }
+                }
+            }
+        }
+    }
+
+    MethodInvoker[] getValidators(Class<?> pageClass, Action action) {
+        String actionName = null;
+        Object[] actionParameters = new Object[0];
+        if (action != null) {
+            MethodInvoker actionInvoker = action.getMethodInvoker();
+            if (actionInvoker != null) {
+                Method actionMethod = actionInvoker.getMethod();
+                if (actionMethod != null) {
+                    actionName = actionMethod.getName();
+                }
+                actionParameters = actionInvoker.getParameters();
+            }
         }
 
-        // バリデーションを抑制するように指定されている場合はカスタムバリデータを収集しない。
-        if (!suppressTypeSet.contains(ConstraintType.VALIDATION)) {
+        Method[] validatorMethods = validatorMethodsMap_.get(pageClass);
+        if (validatorMethods == null) {
+            List<Method> list = new ArrayList<Method>();
             Method[] methods = ClassUtils.getMethods(pageClass);
             for (int i = 0; i < methods.length; i++) {
                 String[] actionNames = getValidatorValue(methods[i]);
@@ -328,13 +392,19 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
                             continue;
                         }
                     }
-
-                    validatorList.add(createValidatorMethodInvoker(methods[i],
-                            actionParameters));
+                    list.add(methods[i]);
                 }
             }
+            validatorMethods = list.toArray(new Method[0]);
+            validatorMethodsMap_.put(pageClass, validatorMethods);
         }
-        return validatorList.toArray(new MethodInvoker[0]);
+
+        List<MethodInvoker> list = new ArrayList<MethodInvoker>();
+        for (int i = 0; i < validatorMethods.length; i++) {
+            list.add(createValidator(validatorMethods[i], actionParameters));
+        }
+
+        return list.toArray(new MethodInvoker[0]);
     }
 
     @SuppressWarnings("deprecation")
@@ -356,8 +426,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         return null;
     }
 
-    MethodInvoker createValidatorMethodInvoker(Method method,
-            Object[] actionParameters) {
+    MethodInvoker createValidator(Method method, Object[] actionParameters) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         Object[] parameters = new Object[parameterTypes.length];
         for (int i = 0; i < parameterTypes.length; i++) {
@@ -458,12 +527,13 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
         private Set<ConstraintType> suppressTypeSet_;
 
-        private Notes notes_ = new Notes();
+        private Notes notes_;
 
         public VisitorForConfirmingConstraint(Request request,
-                Set<ConstraintType> supperssTypeSet) {
+                Set<ConstraintType> suppressTypeSet, Notes notes) {
             request_ = request;
-            suppressTypeSet_ = supperssTypeSet;
+            suppressTypeSet_ = suppressTypeSet;
+            notes_ = notes;
         }
 
         public Object process(PageComponent pageComponent) {
