@@ -26,8 +26,7 @@ public class ConstraintInterceptorITest extends
         assertEquals(1, actual.getConstraintBagsFromConstraintBundles().length);
     }
 
-    public void test_アクション制約とクラス制約と共通制約を返すこと・ただしgetterの制約は含まないこと()
-            throws Exception {
+    public void test_アクション制約とクラス制約と共通制約を返すこと・getterの制約も含むこと() throws Exception {
         Request request = prepareForProcessing(
                 "/constraintInterceptorTest.html", Request.METHOD_GET,
                 "button1=");
@@ -35,9 +34,10 @@ public class ConstraintInterceptorITest extends
         Notes actual = getNotes(request);
 
         assertNotNull(actual);
-        assertEquals(7, actual.getNotes().length);
+        assertEquals(8, actual.getNotes().length);
         assertNotNull(actual.get("saru"));
         assertNotNull(actual.get("tora"));
+        assertNotNull(actual.get("fugar"));
         assertNotNull(actual.get("fuga"));
         assertNotNull(actual.get("button1"));
         assertNotNull(actual.get("bundle"));
