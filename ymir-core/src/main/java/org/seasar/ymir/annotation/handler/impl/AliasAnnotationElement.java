@@ -7,7 +7,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import org.seasar.ymir.ForTesting;
+import org.seasar.ymir.annotation.ForTesting;
 import org.seasar.ymir.annotation.handler.AnnotationElement;
 import org.seasar.ymir.annotation.handler.AnnotationElements;
 import org.seasar.ymir.annotation.handler.AnnotationProcessor;

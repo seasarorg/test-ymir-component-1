@@ -1,4 +1,4 @@
-package org.seasar.ymir;
+package org.seasar.ymir.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

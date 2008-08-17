@@ -1,6 +1,6 @@
 package org.seasar.ymir.conversation;
 
-import org.seasar.ymir.ForTesting;
+import org.seasar.ymir.annotation.ForTesting;
 
 /**
  * conversationに関する定数を定義するインタフェースです。

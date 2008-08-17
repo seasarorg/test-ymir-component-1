@@ -6,7 +6,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.seasar.ymir.ForTesting;
+import org.seasar.ymir.annotation.ForTesting;
 import org.seasar.ymir.annotation.handler.AnnotationElement;
 import org.seasar.ymir.annotation.handler.AnnotationElements;
 import org.seasar.ymir.annotation.handler.AnnotationProcessor;
