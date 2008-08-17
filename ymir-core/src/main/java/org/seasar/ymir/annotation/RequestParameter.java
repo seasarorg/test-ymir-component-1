@@ -24,6 +24,4 @@ public @interface RequestParameter {
     Populate z_alias() default @Populate(RequestParameterScope.class);
 
     String[] actionName() default {};
-
-    boolean populateWhereNull() default false;
 }
