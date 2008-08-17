@@ -44,10 +44,8 @@ public class ScopeAttributePopulator implements ScopeAttributeHandler {
         typeConversionManager_ = typeConversionManager;
     }
 
-    public void addEntry(Method method, boolean injectWhereNull,
-            String[] enabledActionNames) {
-        entryMap_.put(method, new Entry(method, injectWhereNull,
-                enabledActionNames));
+    public void addEntry(Method method, String[] enabledActionNames) {
+        entryMap_.put(method, new Entry(method, enabledActionNames));
     }
 
     public void injectTo(Object component, String actionName) {
@@ -95,14 +93,10 @@ public class ScopeAttributePopulator implements ScopeAttributeHandler {
     protected class Entry {
         private Method method_;
 
-        private boolean injectWhereNull_;
-
         private Set<String> enabledActionNameSet_;
 
-        public Entry(Method method, boolean injectWhereNull,
-                String[] enabledActionNames) {
+        public Entry(Method method, String[] enabledActionNames) {
             method_ = method;
-            injectWhereNull_ = injectWhereNull;
             if (enabledActionNames.length > 0) {
                 enabledActionNameSet_ = new HashSet<String>(Arrays
                         .asList(enabledActionNames));
@@ -117,38 +111,36 @@ public class ScopeAttributePopulator implements ScopeAttributeHandler {
             }
 
             Object value = scope_.getAttribute(name);
-            if (value != null || injectWhereNull_) {
-                value = typeConversionManager_.convert(value, handler
-                        .getPropertyType());
-                boolean removeValue = false;
-                try {
-                    if (value != null && YmirContext.isUnderDevelopment()) {
-                        // 開発時はHotdeployのせいで見かけ上型が合わないことがありうる。
-                        // そのため開発時で見かけ上型が合わない場合はオブジェクトを再構築する。
-                        // なお、value自身がHotdeployClassLoader以外から読まれたコンテナ
-                        // クラスのインスタンスで、中身がHotdeployClassLoaderから読まれたクラス
-                        // のインスタンスである場合に適切にオブジェクトを再構築できるように、
-                        // 無条件にvalueをfit()に渡すようにしている。（[#YMIR-136]）
-                        value = hotdeployManager_.fit(value);
-                    }
-                    handler.setProperty(value);
-                } catch (IllegalArgumentException ex) {
-                    // 型が合わなかった場合は値を消すようにする。
-                    removeValue = true;
-                    log_.warn("Can't populate scope attribute: scope=" + scope_
-                            + ", attribute name=" + name + ", value=" + value
-                            + ", target method=" + method_, ex);
-                } catch (Throwable t) {
-                    // Exceptionをスローしつつ値を消すようにする。
-                    removeValue = true;
-                    throw new IORuntimeException(
-                            "Can't inject scope attribute: scope=" + scope_
-                                    + ", attribute name=" + name + ", value="
-                                    + value + ", write method=" + method_, t);
-                } finally {
-                    if (removeValue) {
-                        scope_.setAttribute(name, null);
-                    }
+            value = typeConversionManager_.convert(value, handler
+                    .getPropertyType());
+            boolean removeValue = false;
+            try {
+                if (value != null && YmirContext.isUnderDevelopment()) {
+                    // 開発時はHotdeployのせいで見かけ上型が合わないことがありうる。
+                    // そのため開発時で見かけ上型が合わない場合はオブジェクトを再構築する。
+                    // なお、value自身がHotdeployClassLoader以外から読まれたコンテナ
+                    // クラスのインスタンスで、中身がHotdeployClassLoaderから読まれたクラス
+                    // のインスタンスである場合に適切にオブジェクトを再構築できるように、
+                    // 無条件にvalueをfit()に渡すようにしている。（[#YMIR-136]）
+                    value = hotdeployManager_.fit(value);
+                }
+                handler.setProperty(value);
+            } catch (IllegalArgumentException ex) {
+                // 型が合わなかった場合は値を消すようにする。
+                removeValue = true;
+                log_.warn("Can't populate scope attribute: scope=" + scope_
+                        + ", attribute name=" + name + ", value=" + value
+                        + ", target method=" + method_, ex);
+            } catch (Throwable t) {
+                // Exceptionをスローしつつ値を消すようにする。
+                removeValue = true;
+                throw new IORuntimeException(
+                        "Can't inject scope attribute: scope=" + scope_
+                                + ", attribute name=" + name + ", value="
+                                + value + ", write method=" + method_, t);
+            } finally {
+                if (removeValue) {
+                    scope_.setAttribute(name, null);
                 }
             }
         }

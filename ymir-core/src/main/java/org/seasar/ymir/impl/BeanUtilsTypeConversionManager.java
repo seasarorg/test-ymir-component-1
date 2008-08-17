@@ -177,7 +177,7 @@ public class BeanUtilsTypeConversionManager implements TypeConversionManager {
     }
 
     public PropertyHandler getPropertyHandler(Object bean, String name) {
-        PropertyDescriptor pd;
+        PropertyDescriptor pd = null;
         try {
             pd = propertyUtilsBean_.getPropertyDescriptor(bean, name);
         } catch (IllegalArgumentException ex) {
@@ -185,25 +185,21 @@ public class BeanUtilsTypeConversionManager implements TypeConversionManager {
                 log_.debug("Can't get PropertyDescriptor: beanClass="
                         + bean.getClass() + ", name=" + name, ex);
             }
-            pd = null;
         } catch (IllegalAccessException ex) {
             if (log_.isDebugEnabled()) {
                 log_.debug("Can't get PropertyDescriptor: beanClass="
                         + bean.getClass() + ", name=" + name, ex);
             }
-            pd = null;
         } catch (InvocationTargetException ex) {
             if (log_.isDebugEnabled()) {
                 log_.debug("Can't get PropertyDescriptor: beanClass="
                         + bean.getClass() + ", name=" + name, ex);
             }
-            pd = null;
         } catch (NoSuchMethodException ex) {
             if (log_.isDebugEnabled()) {
                 log_.debug("Can't get PropertyDescriptor: beanClass="
                         + bean.getClass() + ", name=" + name, ex);
             }
-            pd = null;
         }
 
         if (pd == null) {

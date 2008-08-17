@@ -43,8 +43,6 @@ public class RequestParameterScope implements Scope {
     }
 
     public void setAttribute(String name, Object value) {
-        throw new UnsupportedOperationException("Can't set parameter: name="
-                + name + ", value=" + value);
     }
 
     public Iterator<String> getAttributeNames() {

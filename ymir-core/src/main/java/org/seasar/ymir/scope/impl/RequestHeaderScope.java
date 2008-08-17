@@ -26,8 +26,6 @@ public class RequestHeaderScope extends AbstractServletScope {
     }
 
     public void setAttribute(String name, Object value) {
-        throw new UnsupportedOperationException(
-                "Can't set request header: name=" + name + ", value=" + value);
     }
 
     @SuppressWarnings("unchecked")

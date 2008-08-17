@@ -59,14 +59,4 @@ public @interface Populate {
      * @return ポピュレートを行なうアクションの名前。
      */
     String[] actionName() default {};
-
-    /**
-     * 属性の値がnullである場合もポピュレートを行なうかどうかです。
-     * <p>このプロパティを指定しない場合は、
-     * 属性の値がnullである場合はポピュレートが行なわれません。
-     * </p>
-     * 
-     * @return 属性の値がnullである場合もポピュレートを行なうかどうか。
-     */
-    boolean populateWhereNull() default false;
 }

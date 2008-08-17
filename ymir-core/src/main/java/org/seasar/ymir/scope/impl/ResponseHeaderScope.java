@@ -1,8 +1,10 @@
 package org.seasar.ymir.scope.impl;
 
 import java.lang.reflect.Array;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -41,8 +43,7 @@ public class ResponseHeaderScope extends AbstractServletScope {
     }
 
     public Object getAttribute(String name) {
-        throw new UnsupportedOperationException(
-                "Can't get response header: name=" + name);
+        return null;
     }
 
     public void setAttribute(String name, Object value) {
@@ -86,8 +87,8 @@ public class ResponseHeaderScope extends AbstractServletScope {
     }
 
     public Iterator<String> getAttributeNames() {
-        throw new UnsupportedOperationException(
-                "Can't get response header's names");
+        List<String> emptyList = Collections.emptyList();
+        return emptyList.iterator();
     }
 
     public String getName() {

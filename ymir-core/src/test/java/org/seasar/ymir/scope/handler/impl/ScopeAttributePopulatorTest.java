@@ -24,7 +24,7 @@ public class ScopeAttributePopulatorTest extends TestCase {
             }
         });
         scope_.setAttribute("bean.aaa[1].bbb(key).mapped(key)", "value");
-        target_.addEntry(Page.class.getMethod("getBean", new Class[0]), false,
+        target_.addEntry(Page.class.getMethod("getBean", new Class[0]),
                 new String[] { "_post" });
     }
 
