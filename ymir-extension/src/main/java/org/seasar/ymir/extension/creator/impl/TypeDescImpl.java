@@ -132,22 +132,14 @@ public class TypeDescImpl implements TypeDesc {
             return false;
         }
         TypeDescImpl o = (TypeDescImpl) obj;
-        if (!o.classDesc_.getName().equals(classDesc_.getName())) {
-            return false;
-        }
-        if (o.array_ != array_) {
+        if (!o.getName().equals(getName())) {
             return false;
         }
         return true;
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append(classDesc_.getName());
-        if (array_) {
-            sb.append(ARRAY_SUFFIX);
-        }
-        return sb.toString();
+        return getName();
     }
 
     public ClassDesc getClassDesc() {
@@ -182,6 +174,7 @@ public class TypeDescImpl implements TypeDesc {
     public void transcript(TypeDesc typeDesc) {
         setClassDesc(typeDesc.getClassDesc());
         setArray(typeDesc.isArray());
+        name_ = typeDesc.getName();
     }
 
     public String getName() {

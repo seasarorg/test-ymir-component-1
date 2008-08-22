@@ -1300,7 +1300,9 @@ public class SourceCreatorImpl implements SourceCreator {
         }
         PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
         for (int i = 0; i < pds.length; i++) {
-            if (pds[i].getName().equals(propertyName)) {
+            if (adjustPropertyName(pds[i].getName(), clazz,
+                    pds[i].getReadMethod(), pds[i].getWriteMethod()).equals(
+                    propertyName)) {
                 return pds[i];
             }
         }

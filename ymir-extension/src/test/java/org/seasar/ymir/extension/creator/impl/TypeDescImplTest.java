@@ -41,8 +41,17 @@ public class TypeDescImplTest extends TestCase {
 
     public void testGetName_Generics対応() throws Exception {
         TypeDescImpl target = new TypeDescImpl(
-                "java.lang.List<java.lang.String>");
+                "java.util.List<java.lang.String>");
 
-        assertEquals("List<String>", target.getName());
+        assertEquals("java.util.List<String>", target.getName());
+    }
+
+    public void testTranscript() throws Exception {
+        TypeDescImpl target = new TypeDescImpl("java.util.List<String>");
+
+        TypeDescImpl actual = new TypeDescImpl();
+        actual.transcript(target);
+
+        assertEquals("java.util.List<String>", actual.getName());
     }
 }
