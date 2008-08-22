@@ -44,6 +44,8 @@ public interface SessionManager {
      * </p>
      * <p>このメソッドは単にHttpSession#invalidate()を呼び出すのと同じです。
      * </p>
+     * 
+     * @see #invalidateAndCreateSession()
      */
     void invalidateSession();
 
@@ -55,11 +57,14 @@ public interface SessionManager {
      * <p>単にHttpSession#invalidate()を呼び出すのと異なり、
      * このメソッドではフレームワークがセッションに保持している
      * 「セッションを跨ぐ」べき属性が新たなセッションに引き継がれます。
-     * 従って、Ymirアプリケーションでセッションを無効化して新たなセッションを作成したい場合は、
-     * 通常このメソッドを使ってセッションを再作成すべきです。
+     * </p>
+     * <p>セッションを継続すべきケースでセキュリティ面などの都合からセッションを一旦無効化して新たなセッションを作成する場合などは、
+     * 通常このメソッドを使ってセッションを再作成して下さい。
+     * セッションを継続する必要がないケースでは{@link #invalidateSession()}を使って下さい。
      * </p>
      * 
      * @return 作成されたセッションオブジェクト。
+     * @see #invalidateSession()
      */
     HttpSession invalidateAndCreateSession();
 
