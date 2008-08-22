@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Request;
@@ -24,6 +25,7 @@ import org.seasar.ymir.extension.creator.ClassDescBag;
 import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.PathMetaData;
+import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
@@ -34,6 +36,7 @@ import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.type.Token;
 import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
+import org.seasar.ymir.util.BeanUtils;
 
 public class UpdateClassesAction extends AbstractAction implements UpdateAction {
     protected static final String PARAM_APPLY = SourceCreator.PARAM_PREFIX
@@ -94,6 +97,20 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             return null;
         }
 
+        Set<ClassDto> ambiguousClassSet = new TreeSet<ClassDto>();
+        for (ClassDesc cd : classDescBag.getClassDescs()) {
+            ClassDto classDto = null;
+            for (PropertyDesc pd : cd.getPropertyDescs()) {
+                if (BeanUtils.isAmbiguousPropertyName(pd.getName())) {
+                    if (classDto == null) {
+                        classDto = new ClassDto(cd.getName());
+                        ambiguousClassSet.add(classDto);
+                    }
+                    classDto.addProperty(new PropertyDto(pd.getName()));
+                }
+            }
+        }
+
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("template", pathMetaData.getTemplate());
@@ -105,6 +122,8 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 .getUpdatedClassDescs()));
         variableMap.put("converterCreated", getSourceCreatorSetting()
                 .isConverterCreationFeatureEnabled());
+        variableMap.put("ambiguousClasses", ambiguousClassSet
+                .toArray(new ClassDto[0]));
         return getSourceCreator().getResponseCreator().createResponse(
                 "updateClasses", variableMap);
     }

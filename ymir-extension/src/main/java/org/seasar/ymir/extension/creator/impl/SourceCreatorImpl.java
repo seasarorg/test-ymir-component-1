@@ -70,6 +70,7 @@ import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
+import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
 import org.seasar.ymir.extension.creator.ClassDescModifier;
@@ -83,7 +84,6 @@ import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.PropertyDesc;
-import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.SourceGenerator;
@@ -638,9 +638,10 @@ public class SourceCreatorImpl implements SourceCreator {
 
         PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
         for (int i = 0; i < pds.length; i++) {
-            String name = pds[i].getName();
             Method readMethod = pds[i].getReadMethod();
             Method writeMethod = pds[i].getWriteMethod();
+            String name = adjustPropertyName(pds[i].getName(), clazz,
+                    readMethod, writeMethod);
             if (onlyDeclared) {
                 // このクラスで定義されているプロパティだけを対象とする。
                 if (readMethod != null
@@ -766,6 +767,60 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         return classDesc;
+    }
+
+    String adjustPropertyName(String name, Class<?> clazz, Method readMethod,
+            Method writeMethod) {
+        if (name == null || name.length() < 2
+                || Character.isLowerCase(name.charAt(1))) {
+            return name;
+        }
+
+        String formName = MetaUtils.getFirstValue(readMethod, "formProperty");
+        if (formName == null) {
+            formName = MetaUtils.getFirstValue(writeMethod, "formProperty");
+        }
+        if (formName != null) {
+            String formFieldName = toFieldName(formName);
+            Field formField = findField(formFieldName, clazz);
+            if (formField != null) {
+                return adjustPropertyName(name, formField.getType(), null, null);
+            }
+        }
+
+        String fieldName = toFieldName(name);
+        String name2 = Character.toLowerCase(name.charAt(0))
+                + name.substring(1);
+        String fieldName2 = toFieldName(name2);
+        if (findField(fieldName, clazz) != null) {
+            return name;
+        } else if (findField(fieldName2, clazz) != null) {
+            return name2;
+        }
+
+        return name;
+    }
+
+    String toFieldName(String propertyName) {
+        if (propertyName == null) {
+            return null;
+        }
+        return setting_.getFieldPrefix() + propertyName
+                + setting_.getFieldSuffix();
+    }
+
+    Field findField(String fieldName, Class<?> clazz) {
+        if (fieldName == null) {
+            return null;
+        }
+        do {
+            try {
+                return clazz.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException ignore) {
+            }
+        } while ((clazz = clazz.getSuperclass()) != null
+                && clazz != Object.class);
+        return null;
     }
 
     String quote(String value) {

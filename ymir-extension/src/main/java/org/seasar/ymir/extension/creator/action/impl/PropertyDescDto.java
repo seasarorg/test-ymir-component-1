@@ -1,6 +1,7 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
 import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.util.BeanUtils;
 
 public class PropertyDescDto {
 
@@ -19,5 +20,13 @@ public class PropertyDescDto {
 
     public String getTypeName() {
         return typeName_;
+    }
+
+    public boolean isAmbiguous() {
+        return BeanUtils.isAmbiguousPropertyName(name_);
+    }
+
+    public String getNormalizedName() {
+        return BeanUtils.normalizePropertyName(name_);
     }
 }

@@ -22,6 +22,30 @@
     </ol>
   </li>
 </ul>
+<div tal:condition="ambiguousClasses">
+<p><strong>[重要] あいまいなプロパティが検出されました！</strong></p>
+<p>JavaBeans規約に照らし合わせた結果、名前があいまいなプロパティが検出されました。
+自動生成機構が正しく働かなくなるばかりか、アプリケーションが予期せぬ動作をする場合がありますので、
+自動生成を一旦キャンセルしてHTMLテンプレート中に記述されている該当プロパティの名前をリネームする等してから再度自動生成を行なうことを強くお勧めします。</p>
+<table border="1">
+  <thead>
+    <tr>
+      <th>クラス</th>
+      <th>プロパティ名</th>
+      <th>推奨されるプロパティ名</th>
+    </tr>
+  </thead>
+  <tbody>
+    <div tal:repeat="class ambiguousClasses" tal:omit-tag="">
+    <tr tal:repeat="property class/properties">
+      <td tal:condition="repeat/property/start" tal:attributes="rowspan repeat/property/length" tal:content="class/name">CLASSNAME</td>
+      <td tal:content="property/name">NAME</td>
+      <td><strong tal:content="property/normalizedName">NORMALIZEDNAME</strong></td>
+    </tr>
+    </div>
+  </tbody>
+</table>
+</div>
 <p><input type="submit" value=" OK " />
   <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" /></p>
   <div tal:condition="createdClassDescs">

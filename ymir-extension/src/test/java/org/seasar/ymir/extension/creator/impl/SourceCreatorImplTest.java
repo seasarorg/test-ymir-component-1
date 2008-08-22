@@ -499,4 +499,43 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertTrue(target_.isFormDtoFieldPresent(new ClassDescImpl(
                 Merge11Page.class.getName()), "hoehoe"));
     }
+
+    public void testGetClassDesc_YMIR_226_aNameのようなプロパティを正しく検出できること1()
+            throws Exception {
+        ClassDesc actual = target_.getClassDesc(new Object() {
+            private String aName_;
+
+            public String getAName() {
+                return aName_;
+            }
+
+            public void setAName(String aName) {
+                aName_ = aName;
+            }
+        }.getClass(), null, true);
+
+        assertNull(actual.getPropertyDesc("AName"));
+        assertNotNull(actual.getPropertyDesc("aName"));
+    }
+
+    public void testGetClassDesc_YMIR_226_aNameのようなプロパティを正しく検出できること2()
+            throws Exception {
+        ClassDesc actual = target_.getClassDesc(new Object() {
+            @org.seasar.ymir.annotation.Meta(name = "property", value = "hoehoe")
+            protected HoehoeDto hoehoe_ = new HoehoeDto();
+
+            @org.seasar.ymir.annotation.Meta(name = "formProperty", value = "hoehoe")
+            public String getAName() {
+                return hoehoe_.getAName();
+            }
+
+            @org.seasar.ymir.annotation.Meta(name = "formProperty", value = "hoehoe")
+            public void setAName(String aName) {
+                hoehoe_.setAName(aName);
+            }
+        }.getClass(), null, true);
+
+        assertNull(actual.getPropertyDesc("AName"));
+        assertNotNull(actual.getPropertyDesc("aName"));
+    }
 }

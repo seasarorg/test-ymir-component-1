@@ -75,7 +75,6 @@ public class ClassDescImpl extends AbstractClassDesc {
     }
 
     public void setPropertyDesc(PropertyDesc propertyDesc) {
-
         propertyDescMap_.put(propertyDesc.getName(), propertyDesc);
     }
 
@@ -144,16 +143,7 @@ public class ClassDescImpl extends AbstractClassDesc {
             if (pd == null) {
                 setPropertyDesc((PropertyDesc) propertyDescs[i].clone());
             } else {
-                merge(pd.getTypeDesc(), propertyDescs[i].getTypeDesc(), force);
-                pd.addMode(propertyDescs[i].getMode());
-                pd.setAnnotationDescs(merge(pd.getAnnotationDescs(),
-                        propertyDescs[i].getAnnotationDescs(), force));
-                pd.setAnnotationDescsForGetter(merge(pd
-                        .getAnnotationDescsForGetter(), propertyDescs[i]
-                        .getAnnotationDescsForGetter(), force));
-                pd.setAnnotationDescsForSetter(merge(pd
-                        .getAnnotationDescsForSetter(), propertyDescs[i]
-                        .getAnnotationDescsForSetter(), force));
+                mergetPropertyDesc(pd, propertyDescs[i], force);
             }
         }
 
@@ -180,6 +170,19 @@ public class ClassDescImpl extends AbstractClassDesc {
 
         setAnnotationDescs(merge(getAnnotationDescs(), classDesc
                 .getAnnotationDescs(), force));
+    }
+
+    void mergetPropertyDesc(PropertyDesc pd1, PropertyDesc pd2, boolean force) {
+        merge(pd1.getTypeDesc(), pd2.getTypeDesc(), force);
+        pd1.addMode(pd2.getMode());
+        pd1.setAnnotationDescs(merge(pd1.getAnnotationDescs(), pd2
+                .getAnnotationDescs(), force));
+        pd1.setAnnotationDescsForGetter(merge(
+                pd1.getAnnotationDescsForGetter(), pd2
+                        .getAnnotationDescsForGetter(), force));
+        pd1.setAnnotationDescsForSetter(merge(
+                pd1.getAnnotationDescsForSetter(), pd2
+                        .getAnnotationDescsForSetter(), force));
     }
 
     // Metaは自動生成機構が操作するものであって、つけたり外したりする都合上マージはしないようにしている。
