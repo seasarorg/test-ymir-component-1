@@ -1,9 +1,9 @@
 package org.seasar.ymir.util;
 
 import java.beans.BeanInfo;
-import java.beans.IndexedPropertyDescriptor;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -26,6 +26,31 @@ public class BeanUtilsTest extends TestCase {
         assertEquals("長さが1のプロパティ名は小文字になる", "u", actual[3]);
         assertEquals("uRL", actual[4]);
         assertEquals("プロパティ名は2文字目が大文字なら1文字目は変換されない", "url", actual[5]);
+    }
+
+    public void testSpike2() throws Exception {
+        BeanInfo beanInfo = Introspector.getBeanInfo(new Object() {
+            public boolean isHoe() {
+                return false;
+            }
+
+            public boolean getHoe() {
+                return false;
+            }
+
+            public void setHoe(boolean hoe) {
+            }
+        }.getClass());
+        Method method = null;
+        PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
+        for (int i = 0; i < pds.length; i++) {
+            if ("hoe".equals(pds[i].getName())) {
+                method = pds[i].getReadMethod();
+            }
+        }
+
+        assertNotNull(method);
+        assertEquals("isHoe", method.getName());
     }
 
     public static class Hoe {
@@ -91,19 +116,25 @@ public class BeanUtilsTest extends TestCase {
                 .getFirstSimpleSegment("aaa(a.b.c).bbb(d.e.f)"));
     }
 
-    public void testname() throws Exception {
-        BeanInfo beanInfo = Introspector.getBeanInfo(AAA.class);
-        for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-            if (pd instanceof IndexedPropertyDescriptor) {
-                System.out.println(((IndexedPropertyDescriptor) pd)
-                        .getIndexedPropertyType());
-            }
-        }
+    public void testIsAmbiguousPropertyName() throws Exception {
+        assertFalse(BeanUtils.isAmbiguousPropertyName(null));
+        assertFalse(BeanUtils.isAmbiguousPropertyName(""));
+        assertFalse(BeanUtils.isAmbiguousPropertyName("a"));
+        assertFalse(BeanUtils.isAmbiguousPropertyName("abc"));
+        assertFalse(BeanUtils.isAmbiguousPropertyName("URL"));
+        assertTrue(BeanUtils.isAmbiguousPropertyName("A"));
+        assertTrue(BeanUtils.isAmbiguousPropertyName("Abc"));
+        assertTrue(BeanUtils.isAmbiguousPropertyName("uRL"));
     }
 
-    public static class AAA {
-        public String getAaa(int a) {
-            return null;
-        }
+    public void testNormalizePropertyName() throws Exception {
+        assertNull(BeanUtils.normalizePropertyName(null));
+        assertEquals("", BeanUtils.normalizePropertyName(""));
+        assertEquals("a", BeanUtils.normalizePropertyName("a"));
+        assertEquals("abc", BeanUtils.normalizePropertyName("abc"));
+        assertEquals("URL", BeanUtils.normalizePropertyName("URL"));
+        assertEquals("a", BeanUtils.normalizePropertyName("A"));
+        assertEquals("abc", BeanUtils.normalizePropertyName("Abc"));
+        assertEquals("URL", BeanUtils.normalizePropertyName("uRL"));
     }
 }

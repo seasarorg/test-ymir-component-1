@@ -78,4 +78,30 @@ public class BeanUtils {
     public static boolean isSingleSegment(String propertyName) {
         return propertyName.indexOf('.') < 0;
     }
+
+    public static boolean isAmbiguousPropertyName(String propertyName) {
+        if (propertyName == null || propertyName.length() == 0) {
+            return false;
+        } else if (propertyName.length() >= 2
+                && Character.isUpperCase(propertyName.charAt(1))) {
+            return Character.isLowerCase(propertyName.charAt(0));
+        } else {
+            return Character.isUpperCase(propertyName.charAt(0));
+        }
+    }
+
+    public static String normalizePropertyName(String propertyName) {
+        if (!isAmbiguousPropertyName(propertyName)) {
+            return propertyName;
+        } else {
+            if (propertyName.length() >= 2
+                    && Character.isUpperCase(propertyName.charAt(1))) {
+                return Character.toUpperCase(propertyName.charAt(0))
+                        + propertyName.substring(1);
+            } else {
+                return Character.toLowerCase(propertyName.charAt(0))
+                        + propertyName.substring(1);
+            }
+        }
+    }
 }
