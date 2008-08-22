@@ -58,7 +58,8 @@ public class ObjectResponseConstructor implements ResponseConstructor<Object> {
                 return responseConstructorSelector_
                         .getResponseConstructor(clazz);
             }
-            interfaceSet.addAll(Arrays.asList(clazz.getInterfaces()));
+            Class<?>[] interfaces = clazz.getInterfaces();
+            interfaceSet.addAll(Arrays.asList(interfaces));
         } else {
             Class<?> type = clazz;
             do {
@@ -66,7 +67,8 @@ public class ObjectResponseConstructor implements ResponseConstructor<Object> {
                     return responseConstructorSelector_
                             .getResponseConstructor(type);
                 }
-                interfaceSet.addAll(Arrays.asList(type.getInterfaces()));
+                Class<?>[] interfaces = type.getInterfaces();
+                interfaceSet.addAll(Arrays.asList(interfaces));
             } while ((type = type.getSuperclass()) != Object.class);
         }
 

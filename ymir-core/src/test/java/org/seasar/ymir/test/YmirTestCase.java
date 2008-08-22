@@ -553,6 +553,10 @@ abstract public class YmirTestCase extends TestCase {
             }
 
             return responseFilter;
+        } catch (Throwable t) {
+            ymir_.processResponse(application_, httpRequest_, httpResponse_,
+                    request, ymir_.processException(request, t));
+            return null;
         } finally {
             ymir_.leaveDispatch(request);
 

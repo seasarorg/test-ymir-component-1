@@ -28,6 +28,9 @@
   <component name="default_pageNotFoundExceptionHandler"
     class="org.seasar.ymir.handler.impl.PageNotFoundExceptionHandler"
     instance="request" />
+  <component name="default_actionNotFoundExceptionHandler"
+    class="org.seasar.ymir.handler.impl.ActionNotFoundExceptionHandler"
+    instance="request" />
   <component name="default_permissionDeniedExceptionHandler"
     class="org.seasar.ymir.handler.impl.PermissionDeniedExceptionHandler"
     instance="request" />

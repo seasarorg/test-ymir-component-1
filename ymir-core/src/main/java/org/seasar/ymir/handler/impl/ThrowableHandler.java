@@ -5,7 +5,6 @@ import org.seasar.ymir.handler.ExceptionHandler;
 
 public class ThrowableHandler implements ExceptionHandler<Throwable> {
     public String handle(Throwable t) {
-
         if (t instanceof Error) {
             throw (Error) t;
         } else if (t instanceof RuntimeException) {
