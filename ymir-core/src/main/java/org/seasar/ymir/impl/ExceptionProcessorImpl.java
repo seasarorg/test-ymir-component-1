@@ -1,5 +1,7 @@
 package org.seasar.ymir.impl;
 
+import java.beans.Introspector;
+
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
@@ -18,7 +20,6 @@ import org.seasar.ymir.handler.ExceptionHandler;
 import org.seasar.ymir.response.ForwardResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
-import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ThrowableUtils;
 
 public class ExceptionProcessorImpl implements ExceptionProcessor {
@@ -138,7 +139,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     }
 
     String getComponentName(Class<?> clazz) {
-        return BeanUtils.changeWithPropertyNameRule(getClassShortName(clazz))
+        return Introspector.decapitalize(getClassShortName(clazz))
                 + SUFFIX_HANDLER;
     }
 

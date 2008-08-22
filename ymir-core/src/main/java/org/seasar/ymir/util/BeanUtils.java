@@ -1,5 +1,7 @@
 package org.seasar.ymir.util;
 
+import java.beans.Introspector;
+
 public class BeanUtils {
     private static final String PREFIX_SET = "set";
 
@@ -35,17 +37,8 @@ public class BeanUtils {
                 }
             }
         }
-        return changeWithPropertyNameRule(name);
-    }
-
-    public static String changeWithPropertyNameRule(String name) {
-        if (name == null || name.length() == 0) {
-            return null;
-        } else if (name.length() > 1 && Character.isUpperCase(name.charAt(1))) {
-            return name;
-        } else {
-            return Character.toLowerCase(name.charAt(0)) + name.substring(1);
-        }
+        return name != null && name.length() == 0 ? null : Introspector
+                .decapitalize(name);
     }
 
     public static String getFirstSimpleSegment(String propertyName) {
