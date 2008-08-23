@@ -38,9 +38,9 @@ public class ServletUtils {
 
     public static final String ATTR_ERROR_EXCEPTION = "javax.servlet.error.exception";
 
-    public static final String PROTOCOL_HTTP = "http";
+    public static final String SCHEME_HTTP = "http";
 
-    public static final String PROTOCOL_HTTPS = "https";
+    public static final String SCHEME_HTTPS = "https";
 
     public static final int PORT_HTTP = 80;
 
@@ -389,18 +389,18 @@ public class ServletUtils {
      * 完全なURLを構築して返します。
      * 
      * @param request リクエスト。
-     * @param protocol プロトコル。
+     * @param scheme スキーム。
      * @param port ポート。
      * @param absolutePath ドメイン相対パス。
      * @return 構築したURL。
      */
     public static String constructURL(HttpServletRequest request,
-            String protocol, int port, String absolutePath) {
+            String scheme, int port, String absolutePath) {
         StringBuilder sb = new StringBuilder(256);
-        sb.append(protocol).append(PROTOCOL_DOMAIN_DELIMITER);
+        sb.append(scheme).append(PROTOCOL_DOMAIN_DELIMITER);
         sb.append(request.getServerName());
-        if (!(PROTOCOL_HTTP.equals(protocol) && port == PORT_HTTP || PROTOCOL_HTTPS
-                .equals(protocol)
+        if (!(SCHEME_HTTP.equals(scheme) && port == PORT_HTTP || SCHEME_HTTPS
+                .equals(scheme)
                 && port == PORT_HTTPS)) {
             sb.append(':').append(port);
         }
@@ -425,24 +425,24 @@ public class ServletUtils {
     }
 
     /**
-     * リクエストされたURLについてプロトコルとポートを差し替えたものを返します。
+     * リクエストされたURLについてスキームとポートを差し替えたものを返します。
      * <p>リクエストがforwardやincludeの処理中であっても元々のパスを返します。
      * </p>
      * <p>返されるURLにはクエリ文字列も付与されます。
      * </p>
      * 
      * @param request リクエスト。
-     * @param protocol プロトコル。
+     * @param scheme スキーム。
      * @param port ポート。
      * @return リクエストされたURLのプロトコルとポートを差し替えたURL。
      */
     public static String constructRequestURL(HttpServletRequest request,
-            String protocol, int port) {
+            String scheme, int port) {
         StringBuilder sb = new StringBuilder(256);
-        sb.append(protocol).append(PROTOCOL_DOMAIN_DELIMITER);
+        sb.append(scheme).append(PROTOCOL_DOMAIN_DELIMITER);
         sb.append(request.getServerName());
-        if (!(PROTOCOL_HTTP.equals(protocol) && port == PORT_HTTP || PROTOCOL_HTTPS
-                .equals(protocol)
+        if (!(SCHEME_HTTP.equals(scheme) && port == PORT_HTTP || SCHEME_HTTPS
+                .equals(scheme)
                 && port == PORT_HTTPS)) {
             sb.append(':').append(port);
         }
