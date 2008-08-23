@@ -15,6 +15,7 @@ import org.seasar.ymir.PropertyHandler;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
+import org.seasar.ymir.impl.SetterPropertyHandler;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.handler.ScopeAttributeHandler;
 import org.seasar.ymir.util.BeanUtils;
@@ -34,7 +35,9 @@ public class ScopeAttributePopulator implements ScopeAttributeHandler {
 
     private TypeConversionManager typeConversionManager_;
 
-    private Map<Method, Entry> entryMap_ = new HashMap<Method, Entry>();
+    private Map<Method, Entry> entryByMethodMap_ = new HashMap<Method, Entry>();
+
+    private Map<String, Entry> entryByNameMap_ = new HashMap<String, Entry>();
 
     public ScopeAttributePopulator(Scope scope,
             HotdeployManager hotdeployManager,
@@ -45,7 +48,12 @@ public class ScopeAttributePopulator implements ScopeAttributeHandler {
     }
 
     public void addEntry(Method method, String[] enabledActionNames) {
-        entryMap_.put(method, new Entry(method, enabledActionNames));
+        entryByMethodMap_.put(method, new Entry(method, enabledActionNames,
+                true));
+    }
+
+    public void addEntry(String name, Method method, String[] enabledActionNames) {
+        entryByNameMap_.put(name, new Entry(method, enabledActionNames, false));
     }
 
     public void injectTo(Object component, String actionName) {
@@ -64,6 +72,11 @@ public class ScopeAttributePopulator implements ScopeAttributeHandler {
     }
 
     Entry getEntry(Object component, String name) {
+        Entry entry = entryByNameMap_.get(name);
+        if (entry != null) {
+            return entry;
+        }
+
         String segment = BeanUtils.getFirstSegment(name);
         PropertyHandler handler = typeConversionManager_.getPropertyHandler(
                 component, segment);
@@ -83,7 +96,7 @@ public class ScopeAttributePopulator implements ScopeAttributeHandler {
             return null;
         }
 
-        return entryMap_.get(method);
+        return entryByMethodMap_.get(method);
     }
 
     public void outjectFrom(Object component, String actionName) {
@@ -95,17 +108,25 @@ public class ScopeAttributePopulator implements ScopeAttributeHandler {
 
         private Set<String> enabledActionNameSet_;
 
-        public Entry(Method method, String[] enabledActionNames) {
+        private boolean passive_;
+
+        public Entry(Method method, String[] enabledActionNames, boolean passive) {
             method_ = method;
             if (enabledActionNames.length > 0) {
                 enabledActionNameSet_ = new HashSet<String>(Arrays
                         .asList(enabledActionNames));
             }
+            passive_ = passive;
         }
 
         public void injectTo(Object component, String name) {
-            PropertyHandler handler = typeConversionManager_
-                    .getPropertyHandler(component, name);
+            PropertyHandler handler = null;
+            if (passive_) {
+                handler = typeConversionManager_.getPropertyHandler(component,
+                        name);
+            } else {
+                handler = new SetterPropertyHandler(component, method_);
+            }
             if (handler == null) {
                 return;
             }

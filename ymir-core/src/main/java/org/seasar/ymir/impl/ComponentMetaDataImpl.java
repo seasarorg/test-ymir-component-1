@@ -167,7 +167,11 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
             populatedScopeAttributeHandlerMap_.put(scope, populator);
         }
 
-        populator.addEntry(method, populate.actionName());
+        if (populate.name().length() == 0) {
+            populator.addEntry(method, populate.actionName());
+        } else {
+            populator.addEntry(populate.name(), method, populate.actionName());
+        }
     }
 
     Scope getScope(Populate populate) {

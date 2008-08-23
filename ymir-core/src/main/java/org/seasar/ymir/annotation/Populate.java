@@ -31,6 +31,22 @@ public @interface Populate {
     Class<? extends Scope> value() default Scope.class;
 
     /**
+     * 属性名です。
+     * <p>指定した場合、アノテーションを付与したメソッドは指定した属性名の属性値をポピュレートする
+     * ために使用されます。
+     * 指定しなかった場合は、Apache Commons BeanUtilsのプロパティ名規則に従って
+     * 属性名からメソッドが探索され、見つかったメソッドがPopulateアノテーションを持っていれば
+     * 属性値がポピュレートされます。
+     * </p>
+     * <p>属性名を指定したPopulateアノテーションは、
+     * 引数を1つだけ取るメソッドにしか指定してはいけません。
+     * </p>
+     * 
+     * @return 属性名。
+     */
+    String name() default "";
+
+    /**
      * スコープを表すClassオブジェクトです。
      * <p>{@link #scopeClass()}または{@link #scopeName()}
      * のいずれかだけを指定するようにして下さい。

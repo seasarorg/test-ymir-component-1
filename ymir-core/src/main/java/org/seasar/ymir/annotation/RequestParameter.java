@@ -23,5 +23,7 @@ import org.seasar.ymir.scope.impl.RequestParameterScope;
 public @interface RequestParameter {
     Populate z_alias() default @Populate(RequestParameterScope.class);
 
+    String name() default "";
+
     String[] actionName() default {};
 }
