@@ -44,6 +44,8 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
         }
     };
 
+    private static final Pair<?>[] EMPTY_PAIRS = new Pair<?>[0];
+
     private AnnotationHandler annotationHandler_;
 
     private ApplicationManager applicationManager_;
@@ -120,7 +122,7 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
     @Override
     public Action actionInvoking(Request request, Action originalAction,
             Action action) throws PermissionDeniedException {
-        Pair<?>[] pairs = getPlugins(request, action);
+        Pair<?>[] pairs = getPairs(request, action);
         pairs_.set(pairs);
         for (int i = 0; i < pairs.length; i++) {
             action = pairs[i].actionInvoking(request, originalAction, action);
@@ -128,7 +130,7 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
         return action;
     }
 
-    Pair<?>[] getPlugins(Request request, Action action) {
+    Pair<?>[] getPairs(Request request, Action action) {
         Pair<?>[] pairsForClass = getPairs(request.getCurrentDispatch()
                 .getPageComponent().getPageClass());
         if (action == null) {
@@ -136,6 +138,10 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
         }
 
         Method method = action.getMethodInvoker().getMethod();
+        if (method == null) {
+            return pairsForClass;
+        }
+
         Pair<?>[] pairsForMethod = pairsByMethodMap_.get(method);
         if (pairsForMethod == null) {
             pairsForMethod = createPairs(method);
@@ -162,18 +168,26 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
 
     @Override
     public Response responseCreated(Response response) {
-        Pair<?>[] pairs = pairs_.get();
+        Pair<?>[] pairs = getPairs();
         for (int i = 0; i < pairs.length; i++) {
             response = pairs[i].responseCreated(response);
         }
         return response;
     }
 
+    Pair<?>[] getPairs() {
+        Pair<?>[] pairs = pairs_.get();
+        if (pairs == null) {
+            pairs = EMPTY_PAIRS;
+        }
+        return pairs;
+    }
+
     @Override
     public void responseProcessingStarted(ServletContext context,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             Request request, Response response) {
-        Pair<?>[] pairs = pairs_.get();
+        Pair<?>[] pairs = getPairs();
         for (int i = 0; i < pairs.length; i++) {
             pairs[i].responseProcessingStarted(context, httpRequest,
                     httpResponse, request, response);
@@ -182,7 +196,7 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
 
     @Override
     public String encodingRedirectURL(String url) {
-        Pair<?>[] pairs = pairs_.get();
+        Pair<?>[] pairs = getPairs();
         for (int i = 0; i < pairs.length; i++) {
             url = pairs[i].encodingRedirectURL(url);
         }
@@ -191,7 +205,7 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
 
     @Override
     public void leavingRequest(Request request) {
-        Pair<?>[] pairs = pairs_.get();
+        Pair<?>[] pairs = getPairs();
         for (int i = 0; i < pairs.length; i++) {
             pairs[i].leavingRequest(request);
         }
@@ -200,7 +214,7 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
     @Override
     public void leftRequest() {
         try {
-            Pair<?>[] pairs = pairs_.get();
+            Pair<?>[] pairs = getPairs();
             for (int i = 0; i < pairs.length; i++) {
                 pairs[i].leftRequest();
             }
