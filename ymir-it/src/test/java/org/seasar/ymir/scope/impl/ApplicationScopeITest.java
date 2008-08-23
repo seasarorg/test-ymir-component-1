@@ -1,5 +1,8 @@
 package org.seasar.ymir.scope.impl;
 
+import static org.seasar.ymir.Globals.APPKEY_CORE_REQUESTPARAMETER_STRICTINJECTION;
+
+import org.seasar.cms.pluggable.Configuration;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.test.PageTestCase;
@@ -11,6 +14,12 @@ public class ApplicationScopeITest extends
     @Override
     protected Class<ApplicationScopeTestPage> getPageClass() {
         return ApplicationScopeTestPage.class;
+    }
+
+    @Override
+    protected void setUpConfiguration(Configuration configuration) {
+        configuration.setProperty(APPKEY_CORE_REQUESTPARAMETER_STRICTINJECTION,
+                "true");
     }
 
     public void test() throws Exception {
