@@ -26,16 +26,6 @@ abstract public class AbstractPlugin<A extends Annotation> implements Plugin<A> 
         priority_ = priority;
     }
 
-    public boolean enteringRequest(ServletContext context,
-            HttpServletRequest httpRequest, HttpServletResponse httpResponse,
-            String path, A annotataion) {
-        return true;
-    }
-
-    public Request requestCreated(Request request, A annotataion) {
-        return request;
-    }
-
     public PageComponent pageComponentCreated(Request request,
             PageComponent pageComponent, A annotataion) {
         return pageComponent;
