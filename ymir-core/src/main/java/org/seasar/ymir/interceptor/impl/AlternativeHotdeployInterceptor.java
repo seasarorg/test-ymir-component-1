@@ -4,14 +4,12 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.hotdeploy.HotdeployEventListener;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
-import org.seasar.ymir.hotdeploy.impl.AbstractHotdeployEventListener;
 
 /**
  * JavaRebelのような、S2以外のHOT Deploy機構を利用する際にHOT Deployイベントに関する処理を行なうインターセプタです。
@@ -19,7 +17,8 @@ import org.seasar.ymir.hotdeploy.impl.AbstractHotdeployEventListener;
  * <code>s2container.disableHotdeploy=true</code>
  * というエントリを追加してS2のHOT Deploy機能を無効化した上でこのインターセプタをapp.dicon等に登録して下さい。
  * </p>
- * <p>S2のHOT Deployを利用する場合はこのインターセプタを登録しないで下さい。
+ * <p><strong>[注意]</strong> S2のHOT Deployを利用する場合は
+ * このインターセプタを登録しないで下さい。
  * HotdeployEventListenerのメソッドが2回呼ばれてしまいます。
  * </p>
  * 
@@ -33,16 +32,6 @@ public class AlternativeHotdeployInterceptor extends
     @Binding(bindingType = BindingType.MUST)
     public void setHotdeployManager(HotdeployManager hotdeployManager) {
         hotdeployManager_ = hotdeployManager;
-
-        hotdeployManager_
-                .addEventListener(new AbstractHotdeployEventListener() {
-                    @Override
-                    public void stop() {
-                        // アプリケーションコードやフレームワークコードからstaticメソッド呼び出しをしている場合もあると思われるので
-                        // クリアするようなイベントリスナを登録しておく。
-                        PropertyUtils.clearDescriptors();
-                    }
-                });
     }
 
     @Override

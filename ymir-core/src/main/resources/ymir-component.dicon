@@ -4,6 +4,8 @@
 <components>
   <component name="applicationManager"
     class="org.seasar.ymir.impl.ApplicationManagerImpl" />
+  <component name="cacheManager"
+    class="org.seasar.ymir.cache.impl.CacheManagerImpl" />
   <component name="mimeTypeDetector"
     class="org.seasar.ymir.impl.ServletMimeTypeDetector" />
   <component name="annotationHandler"

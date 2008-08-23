@@ -4,37 +4,25 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.annotation.handler.AnnotationElements;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
-import org.seasar.ymir.hotdeploy.HotdeployManager;
-import org.seasar.ymir.hotdeploy.impl.AbstractHotdeployEventListener;
+import org.seasar.ymir.cache.CacheManager;
 
 public class AnnotationHandlerImpl implements AnnotationHandler {
-    private HotdeployManager hotdeployManager_;
+    private Map<Key, Boolean> presentMap_;
 
-    private Map<Key, Boolean> presentMap_ = new ConcurrentHashMap<Key, Boolean>();
+    private Map<Key, Annotation[]> annotationsMap_;
 
-    private Map<Key, Annotation[]> annotationsMap_ = new ConcurrentHashMap<Key, Annotation[]>();
-
-    private Map<Key, Annotation[]> markedAnnotationsMap_ = new ConcurrentHashMap<Key, Annotation[]>();
+    private Map<Key, Annotation[]> markedAnnotationsMap_;
 
     @Binding(bindingType = BindingType.MUST)
-    public void setHotdeployManager(HotdeployManager hotdeployManager) {
-        hotdeployManager_ = hotdeployManager;
-
-        hotdeployManager_
-                .addEventListener(new AbstractHotdeployEventListener() {
-                    @Override
-                    public void stop() {
-                        presentMap_.clear();
-                        annotationsMap_.clear();
-                        markedAnnotationsMap_.clear();
-                    }
-                });
+    public void setCacheManager(CacheManager cacheManager) {
+        presentMap_ = cacheManager.newMap();
+        annotationsMap_ = cacheManager.newMap();
+        markedAnnotationsMap_ = cacheManager.newMap();
     }
 
     public boolean isAnnotationPresent(AnnotatedElement element,

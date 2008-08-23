@@ -7,6 +7,7 @@ import org.seasar.framework.container.impl.S2ContainerImpl;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.annotation.MapParameter;
 import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
+import org.seasar.ymir.cache.impl.CacheManagerImpl;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.scope.impl.MapScope;
 
@@ -28,8 +29,13 @@ public class PageProcessorImplTest extends TestCase {
         S2Container container = new S2ContainerImpl();
         container.register(MapScope.class);
         mapScope_ = (MapScope) container.getComponent(MapScope.class);
+        AnnotationHandlerImpl annotationHandlerImpl = new AnnotationHandlerImpl();
+        HotdeployManagerImpl hotdeployManager = new HotdeployManagerImpl();
+        CacheManagerImpl cacheManager = new CacheManagerImpl();
+        cacheManager.setHotdeployManager(hotdeployManager);
+        annotationHandlerImpl.setCacheManager(cacheManager);
         metaData_ = new ComponentMetaDataImpl(Page.class, container,
-                new AnnotationHandlerImpl(), new HotdeployManagerImpl(),
+                annotationHandlerImpl, hotdeployManager,
                 new YmirTypeConversionManager());
     }
 

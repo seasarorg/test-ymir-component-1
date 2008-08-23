@@ -89,6 +89,7 @@
   <component
     class="org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl" />
   <component class="org.seasar.ymir.impl.ApplicationManagerImpl" />
+  <component class="org.seasar.ymir.cache.impl.CacheManagerImpl" />
   <component
     class="org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl" />
   <component name="sessionManager"

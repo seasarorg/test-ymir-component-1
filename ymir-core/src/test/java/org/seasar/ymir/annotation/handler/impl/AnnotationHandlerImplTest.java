@@ -5,6 +5,8 @@ import java.util.Comparator;
 
 import junit.framework.TestCase;
 
+import org.seasar.ymir.cache.impl.CacheManagerImpl;
+import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.impl.Hoe;
 import org.seasar.ymir.impl.HoeAlias;
 import org.seasar.ymir.impl.HoeAliass;
@@ -12,6 +14,13 @@ import org.seasar.ymir.impl.HoeHolder;
 
 public class AnnotationHandlerImplTest extends TestCase {
     private AnnotationHandlerImpl target_ = new AnnotationHandlerImpl();
+
+    @Override
+    protected void setUp() throws Exception {
+        CacheManagerImpl cacheManager = new CacheManagerImpl();
+        cacheManager.setHotdeployManager(new HotdeployManagerImpl());
+        target_.setCacheManager(cacheManager);
+    }
 
     @HoeAliass(@HoeAlias)
     public void testIsAnnotationPresent() throws Exception {

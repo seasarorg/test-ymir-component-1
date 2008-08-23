@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -22,9 +21,8 @@ import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
+import org.seasar.ymir.cache.CacheManager;
 import org.seasar.ymir.constraint.PermissionDeniedException;
-import org.seasar.ymir.hotdeploy.HotdeployManager;
-import org.seasar.ymir.hotdeploy.impl.AbstractHotdeployEventListener;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.plugin.Plugin;
 import org.seasar.ymir.plugin.annotation.PluginAnnotation;
@@ -50,9 +48,9 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
 
     private ApplicationManager applicationManager_;
 
-    protected Map<Class<?>, Pair<?>[]> pairsByClassMap_ = new ConcurrentHashMap<Class<?>, Pair<?>[]>();
+    protected Map<Class<?>, Pair<?>[]> pairsByClassMap_;
 
-    protected Map<Method, Pair<?>[]> pairsByMethodMap_ = new ConcurrentHashMap<Method, Pair<?>[]>();
+    protected Map<Method, Pair<?>[]> pairsByMethodMap_;
 
     private ThreadLocal<Pair<?>[]> pairs_ = new ThreadLocal<Pair<?>[]>();
 
@@ -67,14 +65,9 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Binding(bindingType = BindingType.MUST)
-    public void setHotdeployManager(HotdeployManager hotdeployManager) {
-        hotdeployManager.addEventListener(new AbstractHotdeployEventListener() {
-            @Override
-            public void stop() {
-                pairsByClassMap_.clear();
-                pairsByMethodMap_.clear();
-            }
-        });
+    public void setCacheManager(CacheManager cacheManager) {
+        pairsByClassMap_ = cacheManager.newMap();
+        pairsByMethodMap_ = cacheManager.newMap();
     }
 
     @Override

@@ -6,6 +6,7 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.S2ContainerFactory;
 import org.seasar.framework.container.impl.S2ContainerImpl;
 import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
+import org.seasar.ymir.cache.impl.CacheManagerImpl;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.scope.impl.RequestParameterScope;
 import org.seasar.ymir.scope.impl.SessionScope;
@@ -13,13 +14,22 @@ import org.seasar.ymir.scope.impl.SessionScope;
 public class ComponentMetaDataImplTest extends TestCase {
     private ComponentMetaDataImpl target_;
 
+    private AnnotationHandlerImpl annotationHandler_;
+
+    private HotdeployManagerImpl hotdeployManager_;
+
     @Override
     protected void setUp() throws Exception {
         S2Container container = new S2ContainerImpl();
         container.register(RequestParameterScope.class);
         container.register(SessionScope.class);
+        annotationHandler_ = new AnnotationHandlerImpl();
+        hotdeployManager_ = new HotdeployManagerImpl();
+        CacheManagerImpl cacheManager = new CacheManagerImpl();
+        cacheManager.setHotdeployManager(hotdeployManager_);
+        annotationHandler_.setCacheManager(cacheManager);
         target_ = new ComponentMetaDataImpl(Hoe2Page.class, container,
-                new AnnotationHandlerImpl(), new HotdeployManagerImpl(),
+                annotationHandler_, hotdeployManager_,
                 new YmirTypeConversionManager()) {
         };
     }
@@ -75,7 +85,7 @@ public class ComponentMetaDataImplTest extends TestCase {
         ComponentMetaDataImpl target = new ComponentMetaDataImpl(HoePage.class,
                 S2ContainerFactory.create(getClass().getName()
                         .replace('.', '/').concat(".dicon")),
-                new AnnotationHandlerImpl(), new HotdeployManagerImpl(),
+                annotationHandler_, hotdeployManager_,
                 new YmirTypeConversionManager());
 
         assertTrue(target.isProtected("map"));

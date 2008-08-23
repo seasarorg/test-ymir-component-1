@@ -1,7 +1,6 @@
 package org.seasar.ymir.impl;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
@@ -10,8 +9,8 @@ import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
+import org.seasar.ymir.cache.CacheManager;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
-import org.seasar.ymir.hotdeploy.impl.AbstractHotdeployEventListener;
 
 public class ComponentMetaDataFactoryImpl implements ComponentMetaDataFactory {
     private ApplicationManager applicationManager_;
@@ -22,7 +21,7 @@ public class ComponentMetaDataFactoryImpl implements ComponentMetaDataFactory {
 
     private TypeConversionManager typeConversionManager_;
 
-    private Map<Class<?>, ComponentMetaData> metaDataMap_ = new ConcurrentHashMap<Class<?>, ComponentMetaData>();
+    private Map<Class<?>, ComponentMetaData> metaDataMap_;
 
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
@@ -35,16 +34,13 @@ public class ComponentMetaDataFactoryImpl implements ComponentMetaDataFactory {
     }
 
     @Binding(bindingType = BindingType.MUST)
+    public void setCacheManager(CacheManager cacheManager) {
+        metaDataMap_ = cacheManager.newMap();
+    }
+
+    @Binding(bindingType = BindingType.MUST)
     public void setHotdeployManager(HotdeployManager hotdeployManager) {
         hotdeployManager_ = hotdeployManager;
-
-        hotdeployManager_
-                .addEventListener(new AbstractHotdeployEventListener() {
-                    @Override
-                    public void stop() {
-                        metaDataMap_.clear();
-                    }
-                });
     }
 
     @Binding(bindingType = BindingType.MUST)

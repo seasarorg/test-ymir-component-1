@@ -14,7 +14,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
@@ -30,6 +29,7 @@ import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
+import org.seasar.ymir.cache.CacheManager;
 import org.seasar.ymir.constraint.ConfirmationDecider;
 import org.seasar.ymir.constraint.Constraint;
 import org.seasar.ymir.constraint.ConstraintBundle;
@@ -40,8 +40,6 @@ import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
 import org.seasar.ymir.constraint.annotation.SuppressConstraints;
 import org.seasar.ymir.constraint.annotation.Validator;
-import org.seasar.ymir.hotdeploy.HotdeployManager;
-import org.seasar.ymir.hotdeploy.impl.AbstractHotdeployEventListener;
 import org.seasar.ymir.impl.ActionImpl;
 import org.seasar.ymir.impl.MethodInvokerImpl;
 import org.seasar.ymir.impl.VoidMethodInvoker;
@@ -72,13 +70,13 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
     private AnnotationHandler annotationHandler_;
 
-    private Map<Method, Set<ConstraintType>> suppressTypeSetMap_ = new ConcurrentHashMap<Method, Set<ConstraintType>>();
+    private Map<Method, Set<ConstraintType>> suppressTypeSetMap_;
 
-    private Map<Method, ConstraintBag<?>[]> bagsForActionMap_ = new ConcurrentHashMap<Method, ConstraintBag<?>[]>();
+    private Map<Method, ConstraintBag<?>[]> bagsForActionMap_;
 
-    private Map<Class<?>, ConstraintBag<?>[]> bagsForPageClassMap_ = new ConcurrentHashMap<Class<?>, ConstraintBag<?>[]>();
+    private Map<Class<?>, ConstraintBag<?>[]> bagsForPageClassMap_;
 
-    private Map<Class<?>, Method[]> validatorMethodsMap_ = new ConcurrentHashMap<Class<?>, Method[]>();
+    private Map<Class<?>, Method[]> validatorMethodsMap_;
 
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
@@ -91,16 +89,11 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Binding(bindingType = BindingType.MUST)
-    public void setHotdeployManager(HotdeployManager hotdeployManager) {
-        hotdeployManager.addEventListener(new AbstractHotdeployEventListener() {
-            @Override
-            public void stop() {
-                suppressTypeSetMap_.clear();
-                bagsForActionMap_.clear();
-                bagsForPageClassMap_.clear();
-                validatorMethodsMap_.clear();
-            }
-        });
+    public void setCacheManager(CacheManager cacheManager) {
+        suppressTypeSetMap_ = cacheManager.newMap();
+        bagsForActionMap_ = cacheManager.newMap();
+        bagsForPageClassMap_ = cacheManager.newMap();
+        validatorMethodsMap_ = cacheManager.newMap();
     }
 
     @Override
