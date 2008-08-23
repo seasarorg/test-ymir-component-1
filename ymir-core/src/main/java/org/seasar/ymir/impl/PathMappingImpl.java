@@ -2,6 +2,7 @@ package org.seasar.ymir.impl;
 
 import static org.seasar.ymir.RequestProcessor.ACTION_DEFAULT;
 
+import java.beans.Introspector;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -230,6 +231,7 @@ public class PathMappingImpl implements PathMapping {
                 prop.put(String.valueOf(j), matched);
                 prop.put(j + "u", upper(matched));
                 prop.put(j + "l", lower(matched));
+                prop.put(j + "d", decapitalize(matched));
             }
             prop.put("`", path.substring(0, matcher.start()));
             prop.put("&", path.substring(matcher.start(), matcher.end()));
@@ -263,6 +265,10 @@ public class PathMappingImpl implements PathMapping {
         } else {
             return Character.toLowerCase(str.charAt(0)) + str.substring(1);
         }
+    }
+
+    String decapitalize(String str) {
+        return Introspector.decapitalize(str);
     }
 
     public String getPageComponentName(VariableResolver resolver) {
