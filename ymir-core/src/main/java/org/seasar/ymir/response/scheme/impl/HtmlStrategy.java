@@ -11,17 +11,15 @@ import org.seasar.ymir.response.scheme.Strategy;
  * 
  * @author YOKOTA Takehiko
  */
+@Deprecated
 public class HtmlStrategy implements Strategy {
-
     public static final String SCHEME = "html";
 
     public String getScheme() {
-
         return SCHEME;
     }
 
     public Response constructResponse(String path, Object component) {
-
         return new SelfContainedResponse(path);
     }
 }

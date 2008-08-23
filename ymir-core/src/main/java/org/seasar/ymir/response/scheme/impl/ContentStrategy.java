@@ -5,16 +5,13 @@ import org.seasar.ymir.response.SelfContainedResponse;
 import org.seasar.ymir.response.scheme.Strategy;
 
 public class ContentStrategy implements Strategy {
-
     public static final String SCHEME = "content";
 
     public String getScheme() {
-
         return SCHEME;
     }
 
     public Response constructResponse(String path, Object component) {
-
         String contentType = SelfContainedResponse.DEFAULT_ASCII_CONTENTTYPE;
         String contentBody = path;
         ;

@@ -4,7 +4,7 @@ import org.seasar.ymir.response.RedirectResponse;
 import org.seasar.ymir.response.TransitionResponse;
 
 public class RedirectStrategy extends AbstractTransitionStrategy {
-    private static final String SCHEME = "redirect";
+    public static final String SCHEME = "redirect";
 
     @Override
     public TransitionResponse newResponse() {

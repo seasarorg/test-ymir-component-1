@@ -9,11 +9,9 @@ import org.seasar.ymir.response.scheme.Strategy;
 import org.seasar.ymir.response.scheme.StrategySelector;
 
 public class StrategySelectorImpl implements StrategySelector {
-
     private Map<String, Strategy> strategies_ = new HashMap<String, Strategy>();
 
     public Strategy getStrategy(String scheme) {
-
         Strategy strategy = strategies_.get(scheme);
         if (strategy != null) {
             return strategy;
@@ -24,13 +22,11 @@ public class StrategySelectorImpl implements StrategySelector {
     }
 
     public void add(Strategy strategy) {
-
         strategies_.put(strategy.getScheme(), strategy);
     }
 
     @Binding(value = "@org.seasar.ymir.util.ContainerUtils@findAllComponents(container, @org.seasar.ymir.response.scheme.Strategy@class)", bindingType = BindingType.MUST)
     public void setStrategies(Strategy[] strategies) {
-
         for (int i = 0; i < strategies.length; i++) {
             add(strategies[i]);
         }

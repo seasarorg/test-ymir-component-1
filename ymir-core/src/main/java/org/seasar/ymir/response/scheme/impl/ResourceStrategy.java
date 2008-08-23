@@ -9,23 +9,19 @@ import org.seasar.ymir.response.SelfContainedResponse;
 import org.seasar.ymir.response.scheme.Strategy;
 
 public class ResourceStrategy implements Strategy {
-
     public static final String SCHEME = "resource";
 
     private MimeTypeDetector detector_;
 
     public void setMimeTypeDetector(MimeTypeDetector detector) {
-
         detector_ = detector;
     }
 
     public String getScheme() {
-
         return SCHEME;
     }
 
     public Response constructResponse(String path, Object component) {
-
         InputStream in = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(path);
         if (in == null) {
