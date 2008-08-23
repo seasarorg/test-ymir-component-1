@@ -93,76 +93,85 @@ public class YmirFilter implements Filter {
             }
         }
 
-        if (dispatcher == Dispatcher.REQUEST) {
-            for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                if (!ymirProcessInterceptors_[i].enteringRequest(context_,
-                        httpRequest, httpResponse, path)) {
-                    chain.doFilter(req, res);
-                    return;
-                }
-            }
-        }
-
-        AttributeContainer attributeContainer = new HttpServletRequestAttributeContainer(
-                httpRequest);
-
-        ThreadContext context = getThreadContext();
-
-        Object backupped = null;
-        if (dispatcher == Dispatcher.INCLUDE) {
-            backupped = ymir_.backupForInclusion(attributeContainer);
-        }
-
-        Request request;
-        if (dispatcher == Dispatcher.REQUEST) {
-            Map<String, FormFile[]> fileParameterMap = (Map<String, FormFile[]>) httpRequest
-                    .getAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
-            if (fileParameterMap != null) {
-                httpRequest
-                        .removeAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
-            } else {
-                fileParameterMap = new HashMap<String, FormFile[]>();
-            }
-
-            request = ymir_.prepareForProcessing(ServletUtils
-                    .getContextPath(httpRequest), method, httpRequest
-                    .getCharacterEncoding(), httpRequest.getParameterMap(),
-                    fileParameterMap, attributeContainer, localeManager_
-                            .getLocale());
-            context.setComponent(Request.class, request);
-        } else {
-            request = (Request) context.getComponent(Request.class);
-            ymir_.updateRequest(request, httpRequest, dispatcher);
-        }
-
-        ymir_.enterDispatch(request, path, ServletUtils
-                .getQueryString(httpRequest), dispatcher, matched);
         try {
-            Response response = ymir_.processRequest(request);
-
-            HttpServletResponseFilter responseFilter = ymir_.processResponse(
-                    context_, httpRequest, httpResponse, request, response);
-            if (responseFilter != null) {
-                chain.doFilter(httpRequest, responseFilter);
-                responseFilter.commit();
-            }
-        } catch (Throwable t) {
-            if (dispatcher == Dispatcher.REQUEST) {
-                ymir_.processResponse(context_, httpRequest, httpResponse,
-                        request, ymir_.processException(request, t));
-            } else {
-                rethrow(t);
-            }
-        } finally {
-            ymir_.leaveDispatch(request);
-
             if (dispatcher == Dispatcher.REQUEST) {
                 for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                    ymirProcessInterceptors_[i].leavingRequest(request);
+                    if (!ymirProcessInterceptors_[i].enteringRequest(context_,
+                            httpRequest, httpResponse, path)) {
+                        chain.doFilter(req, res);
+                        return;
+                    }
                 }
-                context.setComponent(Request.class, null);
-            } else if (dispatcher == Dispatcher.INCLUDE) {
-                ymir_.restoreForInclusion(attributeContainer, backupped);
+            }
+
+            AttributeContainer attributeContainer = new HttpServletRequestAttributeContainer(
+                    httpRequest);
+
+            ThreadContext context = getThreadContext();
+
+            Object backupped = null;
+            if (dispatcher == Dispatcher.INCLUDE) {
+                backupped = ymir_.backupForInclusion(attributeContainer);
+            }
+
+            Request request;
+            if (dispatcher == Dispatcher.REQUEST) {
+                Map<String, FormFile[]> fileParameterMap = (Map<String, FormFile[]>) httpRequest
+                        .getAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
+                if (fileParameterMap != null) {
+                    httpRequest
+                            .removeAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
+                } else {
+                    fileParameterMap = new HashMap<String, FormFile[]>();
+                }
+
+                request = ymir_.prepareForProcessing(ServletUtils
+                        .getContextPath(httpRequest), method, httpRequest
+                        .getCharacterEncoding(), httpRequest.getParameterMap(),
+                        fileParameterMap, attributeContainer, localeManager_
+                                .getLocale());
+                context.setComponent(Request.class, request);
+            } else {
+                request = (Request) context.getComponent(Request.class);
+                ymir_.updateRequest(request, httpRequest, dispatcher);
+            }
+
+            ymir_.enterDispatch(request, path, ServletUtils
+                    .getQueryString(httpRequest), dispatcher, matched);
+            try {
+                Response response = ymir_.processRequest(request);
+
+                HttpServletResponseFilter responseFilter = ymir_
+                        .processResponse(context_, httpRequest, httpResponse,
+                                request, response);
+                if (responseFilter != null) {
+                    chain.doFilter(httpRequest, responseFilter);
+                    responseFilter.commit();
+                }
+            } catch (Throwable t) {
+                if (dispatcher == Dispatcher.REQUEST) {
+                    ymir_.processResponse(context_, httpRequest, httpResponse,
+                            request, ymir_.processException(request, t));
+                } else {
+                    rethrow(t);
+                }
+            } finally {
+                ymir_.leaveDispatch(request);
+
+                if (dispatcher == Dispatcher.REQUEST) {
+                    for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                        ymirProcessInterceptors_[i].leavingRequest(request);
+                    }
+                    context.setComponent(Request.class, null);
+                } else if (dispatcher == Dispatcher.INCLUDE) {
+                    ymir_.restoreForInclusion(attributeContainer, backupped);
+                }
+            }
+        } finally {
+            if (dispatcher == Dispatcher.REQUEST) {
+                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                    ymirProcessInterceptors_[i].leftRequest();
+                }
             }
         }
     }

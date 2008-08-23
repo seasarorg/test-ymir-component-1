@@ -38,13 +38,13 @@ public class ServletUtils {
 
     public static final String ATTR_ERROR_EXCEPTION = "javax.servlet.error.exception";
 
-    private static final String PROTOCOL_HTTP = "http";
+    public static final String PROTOCOL_HTTP = "http";
 
-    private static final String PROTOCOL_HTTPS = "https";
+    public static final String PROTOCOL_HTTPS = "https";
 
-    private static final int PORT_HTTP = 80;
+    public static final int PORT_HTTP = 80;
 
-    private static final int PORT_HTTPS = 443;
+    public static final int PORT_HTTPS = 443;
 
     private static final String PROTOCOL_DOMAIN_DELIMITER = "://";
 
@@ -386,6 +386,30 @@ public class ServletUtils {
     }
 
     /**
+     * 完全なURLを構築して返します。
+     * 
+     * @param request リクエスト。
+     * @param protocol プロトコル。
+     * @param port ポート。
+     * @param absolutePath ドメイン相対パス。
+     * @return 構築したURL。
+     */
+    public static String constructURL(HttpServletRequest request,
+            String protocol, int port, String absolutePath) {
+        StringBuilder sb = new StringBuilder(256);
+        sb.append(protocol).append(PROTOCOL_DOMAIN_DELIMITER);
+        sb.append(request.getServerName());
+        if (!(PROTOCOL_HTTP.equals(protocol) && port == PORT_HTTP || PROTOCOL_HTTPS
+                .equals(protocol)
+                && port == PORT_HTTPS)) {
+            sb.append(':').append(port);
+        }
+        sb.append(absolutePath);
+
+        return sb.toString();
+    }
+
+    /**
      * リクエストされたURLを返します。
      * <p>リクエストがforwardやincludeの処理中であっても元々のパスを返します。
      * </p>
@@ -408,6 +432,8 @@ public class ServletUtils {
      * </p>
      * 
      * @param request リクエスト。
+     * @param protocol プロトコル。
+     * @param port ポート。
      * @return リクエストされたURLのプロトコルとポートを差し替えたURL。
      */
     public static String constructRequestURL(HttpServletRequest request,

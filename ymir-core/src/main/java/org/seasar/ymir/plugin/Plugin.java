@@ -1,4 +1,6 @@
-package org.seasar.ymir.interceptor;
+package org.seasar.ymir.plugin;
+
+import java.lang.annotation.Annotation;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -12,54 +14,23 @@ import org.seasar.ymir.ResponseProcessor;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 
 /**
- * Ymirの処理の途中で独自の処理を挟み込むためのインタフェースです。
- * <p>Ymirの処理の途中で独自の処理を挟み込みたい場合、
- * このインタフェースの実装クラスをコンテナにコンポーネント登録して下さい。
- * </p>
- * <p><b>同期化：</b>
- * このインタフェースの実装クラスはスレッドセーフである必要があります。
- * </p>
+ * 特定のPageの処理時にフレームワークのリクエスト処理のライフサイクル毎に
+ * 別処理を挟み込むためのプラグイン機構において、
+ * 挟み込まれる処理を規定するためのインタフェースです。
  * 
- * @author YOKOTA Takehiko
+ * @since 0.9.6
+ * @author yokota
  */
-public interface YmirProcessInterceptor {
+public interface Plugin<A extends Annotation> {
     /**
-     * このインターセプタの優先順位を返します。
-     * <p>インターセプタは優先順位の高い（＝数値の小さい）順に登録されて実行されます。
-     * 他のインターセプタよりも優先的に、または後に実行したい場合はこの数値を調整して下さい。
+     * このプラグインの優先順位を返します。
+     * <p>プラグインは優先順位の高い（＝数値の小さい）順に登録されて実行されます。
+     * 他のプラグインよりも優先的に、または後に実行したい場合はこの数値を調整して下さい。
      * </p>
      * 
      * @return 優先順位。
      */
     double getPriority();
-
-    /**
-     * リクエストの処理を開始した際に呼び出されるメソッドです。
-     * <p>リクエストがYmirの処理対象である場合だけ呼び出されます。</p>
-     * <p>このメソッドがfalseを返した場合はリクエストの処理は中断され、
-     * フィルタチェインの次のフィルタに処理が委譲されます。
-     * </p>
-     * 
-     * @param context ServletContextオブジェクト。
-     * @param httpRequest HttpServletRequestオブジェクト。
-     * @param httpResponse HttpServletResponseオブジェクト。
-     * @param path コンテキスト相対のリクエストパス。末尾に「/」がついている場合はそのまま渡されます。
-     * @return リクエストの処理を継続するかどうか。
-     */
-    boolean enteringRequest(ServletContext context,
-            HttpServletRequest httpRequest, HttpServletResponse httpResponse,
-            String path);
-
-    /**
-     * 現在のリクエストに関する情報を持つRequestオブジェクトをフレームワークが構築した後に、
-     * Requestオブジェクトを加工できるように呼び出されるメソッドです。
-     * <p>Requestオブジェクトを加工しない場合は引数で渡されたRequestオブジェクトをそのまま返すようにして下さい。
-     * </p>
-     * 
-     * @param request フレームワークによって構築されたRequestオブジェクト。
-     * @return Requestオブジェクト。
-     */
-    Request requestCreated(Request request);
 
     /**
      * 現在のリクエストに対応するPageComponentオブジェクトをフレームワークが構築した際に、
@@ -69,10 +40,11 @@ public interface YmirProcessInterceptor {
      * 
      * @param request 現在のRequestオブジェクト。
      * @param pageComponent フレームワークによって構築されたPageComponentオブジェクト。
+     * @param annotation プラグイン実行のトリガとなったアノテーション。
      * @return PageComponentオブジェクト。
      */
     PageComponent pageComponentCreated(Request request,
-            PageComponent pageComponent);
+            PageComponent pageComponent, A annotation);
 
     /**
      * 現在のリクエストに対応するアクションが実行される前に、
@@ -84,11 +56,12 @@ public interface YmirProcessInterceptor {
      * @param originalAction フレームワークが構築した元もとのActionオブジェクト。
      * @param action 現在のActionオブジェクト。他のYmirProcessInterceptorによって、
      * 元もとのActionではないものに差し替えられていることがあります。
+     * @param annotation プラグイン実行のトリガとなったアノテーション。
      * @return Actionオブジェクト。
      * @throws PermissionDeniedException 権限エラーが発生した場合。
      */
-    Action actionInvoking(Request request, Action originalAction, Action action)
-            throws PermissionDeniedException;
+    Action actionInvoking(Request request, Action originalAction,
+            Action action, A annotation) throws PermissionDeniedException;
 
     /**
      * フレームワークがResponseオブジェクトを構築した際に、
@@ -97,9 +70,10 @@ public interface YmirProcessInterceptor {
      * </p>
      * 
      * @param response フレームワークによって構築されたResponseオブジェクト。
+     * @param annotation プラグイン実行のトリガとなったアノテーション。
      * @return Responseオブジェクト。
      */
-    Response responseCreated(Response response);
+    Response responseCreated(Response response, A annotation);
 
     /**
      * {@link ResponseProcessor#process(ServletContext, HttpServletRequest, HttpServletResponse, Request, Response)}
@@ -110,10 +84,11 @@ public interface YmirProcessInterceptor {
      * @param httpResponse HttpServletResponseオブジェクト。
      * @param request Requestオブジェクト。
      * @param response Responseオブジェクト。
+     * @param annotation プラグイン実行のトリガとなったアノテーション。
      */
     void responseProcessingStarted(ServletContext context,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
-            Request request, Response response);
+            Request request, Response response, A annotation);
 
     /**
      * リダイレクト先のURLを加工できるように呼び出されるメソッドです。
@@ -124,22 +99,23 @@ public interface YmirProcessInterceptor {
      * </p>
      *
      * @param url URL。
+     * @param annotation プラグイン実行のトリガとなったアノテーション。
      * @return 加工後のURL。
      */
-    String encodingRedirectURL(String url);
+    String encodingRedirectURL(String url, A annotation);
 
     /**
      * フレームワークがHTTPリクエストの処理を完了する直前に呼び出されるメソッドです。
      * 
      * @param request Requestオブジェクト。
+     * @param annotation プラグイン実行のトリガとなったアノテーション。
      */
-    void leavingRequest(Request request);
+    void leavingRequest(Request request, A annotation);
 
     /**
      * フレームワークがHTTPリクエストの処理を完了した後に呼び出されるメソッドです。
-     * <p>このメソッドは{@link #enteringRequest(ServletContext, HttpServletRequest, HttpServletResponse, String)}
-     * が呼び出されたならば必ず呼び出されることが保証されています。
-     * </p>
+     * 
+     * @param annotation プラグイン実行のトリガとなったアノテーション。
      */
-    void leftRequest();
+    void leftRequest(A annotation);
 }

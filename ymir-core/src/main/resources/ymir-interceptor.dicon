@@ -7,6 +7,10 @@
     class="org.seasar.ymir.constraint.impl.ConstraintInterceptor">
     <property name="priority">50.0</property>
   </component>
+  <component name="pluginInterceptor"
+    class="org.seasar.ymir.plugin.impl.PluginInterceptor">
+    <property name="priority">100.0</property>
+  </component>
   <component name="windowInterceptor"
     class="org.seasar.ymir.window.impl.WindowInterceptor">
     <property name="priority">100.0</property>

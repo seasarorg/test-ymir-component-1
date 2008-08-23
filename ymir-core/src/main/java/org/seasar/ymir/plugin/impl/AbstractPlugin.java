@@ -1,4 +1,6 @@
-package org.seasar.ymir.interceptor.impl;
+package org.seasar.ymir.plugin.impl;
+
+import java.lang.annotation.Annotation;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -9,10 +11,9 @@ import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.constraint.PermissionDeniedException;
-import org.seasar.ymir.interceptor.YmirProcessInterceptor;
+import org.seasar.ymir.plugin.Plugin;
 
-abstract public class AbstractYmirProcessInterceptor implements
-        YmirProcessInterceptor {
+abstract public class AbstractPlugin<A extends Annotation> implements Plugin<A> {
     public static final double PRIORITY_DEFAULT = 100.;
 
     private double priority_ = PRIORITY_DEFAULT;
@@ -27,40 +28,40 @@ abstract public class AbstractYmirProcessInterceptor implements
 
     public boolean enteringRequest(ServletContext context,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
-            String path) {
+            String path, A annotataion) {
         return true;
     }
 
-    public Request requestCreated(Request request) {
+    public Request requestCreated(Request request, A annotataion) {
         return request;
     }
 
     public PageComponent pageComponentCreated(Request request,
-            PageComponent pageComponent) {
+            PageComponent pageComponent, A annotataion) {
         return pageComponent;
     }
 
     public Action actionInvoking(Request request, Action originalAction,
-            Action action) throws PermissionDeniedException {
+            Action action, A annotataion) throws PermissionDeniedException {
         return action;
     }
 
-    public Response responseCreated(Response response) {
+    public Response responseCreated(Response response, A annotataion) {
         return response;
     }
 
     public void responseProcessingStarted(ServletContext context,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
-            Request request, Response response) {
+            Request request, Response response, A annotataion) {
     }
 
-    public String encodingRedirectURL(String url) {
+    public String encodingRedirectURL(String url, A annotataion) {
         return url;
     }
 
-    public void leavingRequest(Request request) {
+    public void leavingRequest(Request request, A annotataion) {
     }
 
-    public void leftRequest() {
+    public void leftRequest(A annotataion) {
     }
 }
