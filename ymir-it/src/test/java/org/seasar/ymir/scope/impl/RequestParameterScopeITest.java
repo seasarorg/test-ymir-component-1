@@ -26,7 +26,8 @@ public class RequestParameterScopeITest extends
                 "/requestParameterScopeITest.html",
                 Request.METHOD_GET,
                 "injectedValue1=1&injectedValue2=2&injectedValue2=2"
-                        + "&injectedValue3=3&injectedValue4=4&injectedValue4=4&injectedValue5=5&injectedValue6=6&injectedValue6=6");
+                        + "&injectedValue3=3&injectedValue4=4&injectedValue4=4&injectedValue5=5&injectedValue6=6&injectedValue6=6"
+                        + "&i7=7");
         processRequest(request);
 
         RequestParameterScopeITestPage page = getPage();
@@ -41,5 +42,6 @@ public class RequestParameterScopeITest extends
         assertEquals(2, page.getInjectedValue6().length);
         assertEquals(Integer.valueOf(6), page.getInjectedValue6()[0]);
         assertEquals(Integer.valueOf(6), page.getInjectedValue6()[1]);
+        assertEquals("7", page.getInjectedValue7());
     }
 }

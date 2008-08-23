@@ -1,6 +1,7 @@
 package com.example.web;
 
 import org.seasar.ymir.annotation.In;
+import org.seasar.ymir.annotation.RequestParameter;
 import org.seasar.ymir.scope.impl.RequestParameterScope;
 
 public class RequestParameterScopeITestPage {
@@ -15,6 +16,8 @@ public class RequestParameterScopeITestPage {
     private Integer injectedValue5_;
 
     private Integer[] injectedValue6_;
+
+    private String injectedValue7_;
 
     @In(RequestParameterScope.class)
     public void setInjectedValue1(String value) {
@@ -46,6 +49,11 @@ public class RequestParameterScopeITestPage {
         injectedValue6_ = injectedValue6;
     }
 
+    @RequestParameter(name = "i7")
+    public void setInjectedValue7(String injectedValue7) {
+        injectedValue7_ = injectedValue7;
+    }
+
     public String getInjectedValue1() {
         return injectedValue1_;
     }
@@ -68,6 +76,10 @@ public class RequestParameterScopeITestPage {
 
     public Integer[] getInjectedValue6() {
         return injectedValue6_;
+    }
+
+    public String getInjectedValue7() {
+        return injectedValue7_;
     }
 
     public void _get() {
