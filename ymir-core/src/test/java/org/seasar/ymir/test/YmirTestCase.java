@@ -13,6 +13,7 @@ import junit.framework.TestCase;
 
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.cms.pluggable.ThreadContext;
+import org.seasar.cms.pluggable.impl.ConfigurationImpl;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.mock.servlet.MockHttpServletRequest;
@@ -184,6 +185,31 @@ abstract public class YmirTestCase extends TestCase {
     }
 
     /**
+     * テスト時に追加で読み込ませたい設定ファイルのパスを返します。
+     * <p>テスト時に設定ファイルを追加で読み込ませたい場合はこのメソッドをオーバライドして下さい。
+     * </p>
+     *
+     * @return 設定ファイルのパスの配列。nullを返してはいけません。
+     */
+    protected String[] getAdditionalConfigPaths() {
+        return new String[0];
+    }
+
+    /**
+     * テストのための設定を追加します。
+     * <p>テストのための設定を追加したい場合はこのメソッドをオーバライドして下さい。
+     * </p>
+     * <p>このメソッドの呼び出しは{@link #getAdditionalConfigPaths()}が返す
+     * 追加の設定ファイルの読み込みよりも後です。
+     * </p>
+     * 
+     * @param configuration Configurationオブジェクト。
+     * @see #getAdditionalConfigPaths()
+     */
+    protected void setUpConfiguration(Configuration configuration) {
+    }
+
+    /**
      * 現在のHttpServletRequestオブジェクトを返します。
      * <p>このメソッドは<code>prepareForProcessing</code>メソッドの呼び出し後に呼び出して下さい。
      * </p>
@@ -241,7 +267,19 @@ abstract public class YmirTestCase extends TestCase {
         application_.setInitParameter(YmirListener.CONFIG_PATH_KEY,
                 "ymir.dicon");
 
-        ymirListener_ = new YmirListener();
+        ymirListener_ = new YmirListener() {
+            @Override
+            protected void preInit(ServletContextEvent sce) {
+                ConfigurationImpl configuration = (ConfigurationImpl) SingletonS2ContainerFactory
+                        .getContainer().getComponent(ConfigurationImpl.class);
+                for (String configPath : getAdditionalConfigPaths()) {
+                    configuration.load(configPath);
+                }
+                setUpConfiguration(configuration);
+
+                super.preInit(sce);
+            }
+        };
         ymirListener_.contextInitialized(new ServletContextEvent(application_));
 
         container_ = SingletonS2ContainerFactory.getContainer();
