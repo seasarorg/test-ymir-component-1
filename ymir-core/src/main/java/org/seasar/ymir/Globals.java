@@ -43,6 +43,7 @@ public interface Globals {
      * 明示的に{@link RequestParameter}アノテーションが指定されているSetter
      * にだけインジェクトするかどうかを指定するためのアプリケーションプロパティのキーです。
      */
+    // TODO ymir-1.0.xでは廃止する。
     String APPKEY_CORE_REQUESTPARAMETER_STRICTINJECTION = APPKEYPREFIX_CORE
             + "requestParameter.strictInjection";
 }
