@@ -206,6 +206,7 @@ public class SourceCreatorSetting {
                 DEFAULT_SOURCECREATOR_FIELDSUFFIX);
     }
 
+    // TODO ymir-1.0.xではデフォルトをtrueにする。
     public boolean isUsingFreyjaRenderClasses() {
         return PropertyUtils
                 .valueOf(
@@ -213,6 +214,7 @@ public class SourceCreatorSetting {
                         false);
     }
 
+    // TODO ymir-1.0.xではデフォルトをtrueにする。
     public boolean isFormDtoCreationFeatureEnabled() {
         return PropertyUtils.valueOf(
                 getProperty(APPKEY_SOURCECREATOR_FEATURE_CREATEFORMDTO_ENABLE),
