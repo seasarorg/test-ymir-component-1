@@ -40,22 +40,22 @@ public class RedirectionInterceptor extends AbstractYmirProcessInterceptor {
             // Cookieとしてキーを保存する。またキーが不要ならCookieを削除する。
             if (redirectionManager_.existsScopeMap()) {
                 // redirectionScopeにオブジェクトが新たにバインドされているのでキーを保存する。
-                Cookie cookie = newCookie(request, redirectionManager_
-                        .getScopeIdKey(), redirectionManager_.getScopeId());
+                Cookie cookie = newCookieForScopeId(request,
+                        redirectionManager_.getScopeId());
                 httpResponse.addCookie(cookie);
             } else if (redirectionManager_.getScopeIdFromRequest() != null) {
                 // redirectionScopeにオブジェクトが新たにバインドされていない、かつ
                 // redirectionScopeのキーがリクエストに指定されているのでキーを削除する。
-                Cookie cookie = newCookie(request, redirectionManager_
-                        .getScopeIdKey(), "");
+                Cookie cookie = newCookieForScopeId(request, "");
                 cookie.setMaxAge(0);
                 getHttpServletResponse().addCookie(cookie);
             }
         }
     }
 
-    Cookie newCookie(Request request, String name, String value) {
-        Cookie cookie = new Cookie(name, value);
+    Cookie newCookieForScopeId(Request request, String value) {
+        Cookie cookie = new Cookie(redirectionManager_
+                .getCookieNameForScopeId(), value);
         String path = request.getContextPath();
         if (path.length() == 0) {
             path = "/";
@@ -72,7 +72,8 @@ public class RedirectionInterceptor extends AbstractYmirProcessInterceptor {
             // リクエストパラメータとしてキーを保存する。
             String scopeKeyParam;
             try {
-                scopeKeyParam = redirectionManager_.getScopeIdKey()
+                scopeKeyParam = redirectionManager_
+                        .getRequestParameterNameForScopeId()
                         + "="
                         + URLEncoder.encode(redirectionManager_.getScopeId(),
                                 "UTF-8");

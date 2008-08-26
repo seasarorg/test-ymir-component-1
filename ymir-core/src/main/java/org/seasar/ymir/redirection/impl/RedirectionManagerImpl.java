@@ -66,8 +66,18 @@ public class RedirectionManagerImpl implements RedirectionManager,
         scopeIdKey_ = scopeIdKey;
     }
 
-    public String getScopeIdKey() {
+    public String getRequestParameterNameForScopeId() {
         return scopeIdKey_;
+    }
+
+    public String getCookieNameForScopeId() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(scopeIdKey_);
+        String windowId = windowManager_.getWindowIdFromRequest();
+        if (windowId != null) {
+            sb.append(".").append(windowId);
+        }
+        return sb.toString();
     }
 
     public String getScopeId() {
@@ -139,23 +149,26 @@ public class RedirectionManagerImpl implements RedirectionManager,
 
     public String getScopeIdFromRequest() {
         S2Container container = getS2Container();
-        if (!addScopeIdAsRequestParameter_) {
+        if (addScopeIdAsRequestParameter_) {
+            // リクエストパラメータから取り出す。
+            return ((Request) container.getComponent(Request.class))
+                    .getParameter(getRequestParameterNameForScopeId());
+        } else {
             // Cookieから取り出す。
+            String cookieName = getCookieNameForScopeId();
             HttpServletRequest httpRequest = (HttpServletRequest) container
                     .getComponent(HttpServletRequest.class);
             Cookie[] cookies = httpRequest.getCookies();
             if (cookies != null) {
                 for (int i = 0; i < cookies.length; i++) {
-                    if (getScopeIdKey().equals(cookies[i].getName())) {
+                    if (cookieName.equals(cookies[i].getName())) {
                         return cookies[i].getValue();
                     }
                 }
             }
-        }
 
-        // リクエストパラメータから取り出す。
-        return ((Request) container.getComponent(Request.class))
-                .getParameter(getScopeIdKey());
+            return null;
+        }
     }
 
     S2Container getS2Container() {
