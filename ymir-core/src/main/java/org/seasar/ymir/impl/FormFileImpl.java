@@ -15,6 +15,8 @@ import org.seasar.ymir.FormFile;
  * @author YOKOTA Takehiko
  */
 public class FormFileImpl implements FormFile {
+    private static final long serialVersionUID = 1L;
+
     private FileItem fileItem_;
 
     public FormFileImpl(FileItem fileItem) {
@@ -50,7 +52,7 @@ public class FormFileImpl implements FormFile {
     }
 
     public String getString(String encoding)
-        throws UnsupportedEncodingException {
+            throws UnsupportedEncodingException {
         return fileItem_.getString(encoding);
     }
 
