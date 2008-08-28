@@ -1,5 +1,6 @@
 package org.seasar.ymir.hotdeploy.impl;
 
+import java.beans.Introspector;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -9,9 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.seasar.cms.pluggable.util.HotdeployEventUtils;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.framework.container.annotation.tiger.InitMethod;
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
@@ -39,6 +42,20 @@ public class HotdeployManagerImpl implements HotdeployManager {
     @Binding(bindingType = BindingType.MAY)
     public void setHotdeployFitters(HotdeployFitter<?>[] hotdeployFitters) {
         hotdeployFitters_ = hotdeployFitters;
+    }
+
+    @InitMethod
+    public void init() {
+        addEventListener(new AbstractHotdeployEventListener() {
+            @Override
+            public void stop() {
+                // アプリケーションコードやフレームワークコードからstaticメソッド呼び出しをしている場合もあると思われるので
+                // クリアするようなイベントリスナを登録しておく。
+                PropertyUtils.clearDescriptors();
+
+                Introspector.flushCaches();
+            }
+        });
     }
 
     /**

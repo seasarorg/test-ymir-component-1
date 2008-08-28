@@ -1,6 +1,5 @@
 package org.seasar.ymir.impl;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.util.ArrayUtil;
@@ -21,16 +20,6 @@ public class ApplicationManagerImpl implements ApplicationManager {
     @Binding(bindingType = BindingType.MUST)
     public void setHotdeployManager(HotdeployManager hotdeployManager) {
         hotdeployManager_ = hotdeployManager;
-
-        hotdeployManager_
-                .addEventListener(new AbstractHotdeployEventListener() {
-                    @Override
-                    public void stop() {
-                        // アプリケーションコードやフレームワークコードからstaticメソッド呼び出しをしている場合もあると思われるので
-                        // クリアするようなイベントリスナを登録しておく。
-                        PropertyUtils.clearDescriptors();
-                    }
-                });
     }
 
     public void addApplication(final Application application) {
