@@ -5,8 +5,6 @@ import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
@@ -134,7 +132,7 @@ public class CreateConfigurationAction extends AbstractAction implements
             FileOutputStream fos = null;
             try {
                 fos = new FileOutputStream(file);
-                writeHeader(fos, null);
+                SourceCreatorUtils.writeHeader(fos, null);
                 orderedProp.store(fos);
             } catch (IOException ex) {
                 throw new RuntimeException("Can't write property file: "
@@ -168,17 +166,5 @@ public class CreateConfigurationAction extends AbstractAction implements
         variableMap.put("parameters", getParameters(request));
         return getSourceCreator().getResponseCreator().createResponse(
                 "createConfiguration_create", variableMap);
-    }
-
-    void writeHeader(OutputStream out, String header) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        sb.append("#");
-        if (header != null) {
-            sb.append(header);
-        } else {
-            sb.append(new Date());
-        }
-        out.write(sb.append(System.getProperty("line.separator")).toString()
-                .getBytes("ISO-8859-1"));
     }
 }

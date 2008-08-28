@@ -2,6 +2,7 @@ package org.seasar.ymir.extension.creator.action.impl;
 
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,6 +40,9 @@ import org.seasar.ymir.extension.creator.util.type.TypeToken;
 import org.seasar.ymir.util.BeanUtils;
 
 public class UpdateClassesAction extends AbstractAction implements UpdateAction {
+    protected static final String PARAM_BUTTON_IGNORE = SourceCreator.PARAM_PREFIX
+            + "button_ignore";
+
     protected static final String PARAM_APPLY = SourceCreator.PARAM_PREFIX
             + "apply";
 
@@ -163,6 +167,12 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
     }
 
     Response actUpdate(Request request, PathMetaData pathMetaData) {
+        if (request.getParameter(PARAM_BUTTON_IGNORE) != null) {
+            getSourceCreator().getSourceCreatorSetting()
+                    .setSourceCreatorEnabledWith(request.getPath(), false);
+            return null;
+        }
+
         String method = request.getParameter(PARAM_METHOD);
         if (method == null) {
             return null;
@@ -397,5 +407,12 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 toOriginalClassNameMap_.put(actualClassName, originalClassName);
             }
         }
+    }
+
+//    @SuppressWarnings({"serial","unchecked","finally","fallthrough","all"})
+    @SuppressWarnings("all")
+    public static class Hoe implements Serializable {
+        @SuppressWarnings("serial")
+        private List list;
     }
 }

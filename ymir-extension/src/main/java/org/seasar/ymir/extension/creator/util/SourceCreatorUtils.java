@@ -3,6 +3,8 @@ package org.seasar.ymir.extension.creator.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Date;
 import java.util.LinkedHashMap;
 
 import org.seasar.kvasir.util.collection.MapProperties;
@@ -29,6 +31,19 @@ public class SourceCreatorUtils {
             }
         }
         return prop;
+    }
+
+    public static void writeHeader(OutputStream out, String header)
+            throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("#");
+        if (header != null) {
+            sb.append(header);
+        } else {
+            sb.append(new Date());
+        }
+        out.write(sb.append(System.getProperty("line.separator")).toString()
+                .getBytes("ISO-8859-1"));
     }
 
     public static String getOriginalProjectRoot(Application application) {

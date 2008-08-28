@@ -1,5 +1,8 @@
 package org.seasar.ymir.extension.creator;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -8,7 +11,9 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.kvasir.util.PropertyUtils;
+import org.seasar.kvasir.util.collection.MapProperties;
 import org.seasar.ymir.Application;
+import org.seasar.ymir.extension.creator.util.SourceCreatorUtils;
 import org.seasar.ymir.util.ServletUtils;
 
 public class SourceCreatorSetting {
@@ -72,6 +77,56 @@ public class SourceCreatorSetting {
 
     protected String getProperty(String key, String defaultValue) {
         return sourceCreator_.getApplication().getProperty(key, defaultValue);
+    }
+
+    protected void setProperty(String key, String value) {
+        sourceCreator_.getApplication().setProperty(key, value);
+        save(key);
+    }
+
+    protected void removeProperty(String key) {
+        sourceCreator_.getApplication().removeProperty(key);
+        save(key);
+    }
+
+    protected void save(String... keys) {
+        if (keys.length == 0) {
+            return;
+        }
+
+        Application application = sourceCreator_.getApplication();
+        MapProperties orderedProp = SourceCreatorUtils
+                .readAppPropertiesInOrder(application);
+        for (String key : keys) {
+            String value = application.getProperty(key);
+            if (value == null) {
+                orderedProp.removeProperty(key);
+            } else {
+                orderedProp.setProperty(key, value);
+            }
+        }
+
+        String propertiesFilePath = application.getDefaultPropertiesFilePath();
+        if (propertiesFilePath != null) {
+            File file = new File(propertiesFilePath);
+            file.getParentFile().mkdirs();
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream(file);
+                SourceCreatorUtils.writeHeader(fos, null);
+                orderedProp.store(fos);
+            } catch (IOException ex) {
+                throw new RuntimeException("Can't write property file: "
+                        + file.getAbsolutePath());
+            } finally {
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (IOException ignore) {
+                    }
+                }
+            }
+        }
     }
 
     public boolean isResourceSynchronized() {
@@ -144,6 +199,16 @@ public class SourceCreatorSetting {
         return PropertyUtils.valueOf(
                 getProperty(APPKEYPREFIX_SOURCECREATOR_ENABLE
                         + ServletUtils.normalizePath(path)), true);
+    }
+
+    public void setSourceCreatorEnabledWith(String path, boolean enabled) {
+        if (enabled) {
+            removeProperty(APPKEYPREFIX_SOURCECREATOR_ENABLE
+                    + ServletUtils.normalizePath(path));
+        } else {
+            setProperty(APPKEYPREFIX_SOURCECREATOR_ENABLE
+                    + ServletUtils.normalizePath(path), String.valueOf(enabled));
+        }
     }
 
     public String getSuperclassName(String className) {

@@ -46,8 +46,10 @@
   </tbody>
 </table>
 </div>
+<p>自動生成を行なう場合は「OK」ボタンを、今回は自動生成を行なわない場合は「スキップ」ボタンを、今回は自動生成を行なわずに今後もこのテンプレートを自動生成の対象外にする場合は「無視」ボタンを押して下さい。</p>
 <p><input type="submit" value=" OK " />
-  <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" /></p>
+  <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" />
+  <input id="skipButton" type="submit" name="__ymir__button_ignore" value="無視" /></p>
   <div tal:condition="createdClassDescs">
   <p><strong>追加されるクラス：</strong></p>
   <ul>
@@ -92,13 +94,13 @@
     </li>
   </ul>
   </div>
-  <p>よろしいですか？</p>
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
   <input type="hidden" name="__ymir__task" value="updateClasses" />
   <input type="hidden" name="__ymir__subTask" value="update" />
   <input type="hidden" name="__ymir__method" tal:attributes="value request/method" />
   <input type="submit" value=" OK " />
   <input type="submit" name="__ymir__button_skip" value="スキップ" />
+  <input id="skipButton" type="submit" name="__ymir__button_ignore" value="無視" /></p>
 </form>
   </body>
 </html>
