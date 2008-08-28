@@ -58,7 +58,6 @@ public class SingleApplication extends AbstractApplication {
         return config_.getProperty(key, defaultValue);
     }
 
-    @SuppressWarnings("unchecked")
     public Enumeration<String> propertyNames() {
         return config_.propertyNames();
     }

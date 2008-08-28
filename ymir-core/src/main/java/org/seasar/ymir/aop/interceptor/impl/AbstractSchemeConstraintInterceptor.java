@@ -12,6 +12,8 @@ import org.seasar.ymir.util.ServletUtils;
 
 abstract public class AbstractSchemeConstraintInterceptor extends
         AbstractInterceptor {
+    private static final long serialVersionUID = 1L;
+
     private ApplicationManager applicationManager_;
 
     @Binding(bindingType = BindingType.MUST)
