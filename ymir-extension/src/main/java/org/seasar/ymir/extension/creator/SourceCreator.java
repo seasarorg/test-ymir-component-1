@@ -12,6 +12,7 @@ import org.seasar.ymir.Application;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.Updater;
+import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
 
 public interface SourceCreator extends Updater {
     String PARAM_PREFIX = "__ymir__";
@@ -45,8 +46,6 @@ public interface SourceCreator extends Updater {
     boolean isDenied(String path, String method);
 
     String getComponentName(String path, String method);
-
-    String getActionName(String path, String method);
 
     String getClassName(String componentName);
 
@@ -117,4 +116,6 @@ public interface SourceCreator extends Updater {
     String getJavaPreamble();
 
     SourceCreatorSetting getSourceCreatorSetting();
+
+    ExtraPathMapping getExtraPathMapping(String path, String method);
 }

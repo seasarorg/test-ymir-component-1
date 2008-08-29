@@ -1,5 +1,9 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import static org.seasar.ymir.extension.Globals.META_NAME_ACTIONTYPE;
+import static org.seasar.ymir.extension.Globals.META_VALUE_ACTIONTYPE_RENDER;
+import static org.seasar.ymir.extension.creator.util.SourceCreatorUtils.newPageComponent;
+import static org.seasar.ymir.extension.creator.util.SourceCreatorUtils.newRequest;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.beans.BeanInfo;
@@ -40,6 +44,7 @@ import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.convention.NamingConvention;
 import org.seasar.framework.log.Logger;
@@ -57,8 +62,8 @@ import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.MessageNotFoundRuntimeException;
 import org.seasar.ymir.MessagesNotFoundRuntimeException;
 import org.seasar.ymir.Notes;
+import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.ResponseType;
@@ -109,6 +114,10 @@ import org.seasar.ymir.extension.creator.action.impl.DoUpdateTemplateAction;
 import org.seasar.ymir.extension.creator.action.impl.ResourceAction;
 import org.seasar.ymir.extension.creator.action.impl.SystemConsoleAction;
 import org.seasar.ymir.extension.creator.action.impl.UpdateClassesAction;
+import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
+import org.seasar.ymir.extension.creator.mapping.PathMappingExtraData;
+import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
+import org.seasar.ymir.extension.creator.mapping.impl.ExtraPathMappingImpl;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.MetaUtils;
 import org.seasar.ymir.extension.creator.util.SourceCreatorUtils;
@@ -150,6 +159,8 @@ public class SourceCreatorImpl implements SourceCreator {
 
     private static final String RESOURCE_PREAMBLE_JAVA = "org/seasar/ymir/extension/Preamble.java.txt";
 
+    private static final String BODY_RENDER = "_render";
+
     private YmirImpl ymir_;
 
     private NamingConvention namingConvention_;
@@ -172,6 +183,8 @@ public class SourceCreatorImpl implements SourceCreator {
             this);
 
     private SourceCreatorSetting setting_ = new SourceCreatorSetting(this);
+
+    private Map<Class<? extends PathMapping>, PathMappingExtraData<?>> pathMappingExtraDataMap_ = new HashMap<Class<? extends PathMapping>, PathMappingExtraData<?>>();
 
     private ActionSelector<UpdateAction> actionSelector_ = new ActionSelector<UpdateAction>()
             .register(
@@ -216,6 +229,59 @@ public class SourceCreatorImpl implements SourceCreator {
     private boolean initialized_;
 
     public Logger logger_ = Logger.getLogger(getClass());
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setTemplateAnalyzer(TemplateAnalyzer analyzer) {
+        analyzer_ = analyzer;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setNamingConvention(NamingConvention namingConvention) {
+        namingConvention_ = namingConvention;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setYmir(Ymir ymir) {
+        if (ymir instanceof YmirImpl) {
+            ymir_ = (YmirImpl) ymir;
+        } else {
+            throw new ComponentNotFoundRuntimeException("YmirImpl");
+        }
+    }
+
+    @Binding(value = "@org.seasar.ymir.util.ContainerUtils@findAllComponents(container, @org.seasar.ymir.extension.creator.ClassDescModifier@class)", bindingType = BindingType.MUST)
+    public void setClassDescModifiers(ClassDescModifier[] classDescModifiers) {
+        classDescModifiers_ = classDescModifiers;
+    }
+
+    @Binding(bindingType = BindingType.MAY)
+    public void setSourceEncoding(String sourceEncoding) {
+        sourceEncoding_ = sourceEncoding;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setSourceGenerator(SourceGenerator sourceGenerator) {
+        sourceGenerator_ = sourceGenerator;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setResponseCreator(ResponseCreator responseCreator) {
+        responseCreator_ = responseCreator;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
+    }
+
+    @Binding(value = "@org.seasar.ymir.util.ContainerUtils@findAllComponents(container, @org.seasar.ymir.extension.creator.mapping.PathMappingExtraData@class)", bindingType = BindingType.MUST)
+    public void setPathMappingExtraDatas(
+            PathMappingExtraData<?>[] pathMappingExtraDatas) {
+        for (int i = 0; i < pathMappingExtraDatas.length; i++) {
+            pathMappingExtraDataMap_.put(pathMappingExtraDatas[i]
+                    .getPathMappingClass(), pathMappingExtraDatas[i]);
+        }
+    }
 
     public Response update(Request request, Response response) {
         synchronized (this) {
@@ -443,12 +509,19 @@ public class SourceCreatorImpl implements SourceCreator {
                         .getConverterClassDesc()), PropertyDesc.WRITE,
                         classDescSet);
 
-                MethodDesc md = pageClassDescs[i]
-                        .getMethodDesc(new MethodDescImpl(
-                                RequestProcessor.METHOD_RENDER));
-                if (md != null && td.isArray() && pds[j].isReadable()
-                        && daoExists && dxoExists) {
-                    addSelectStatement(md, pds[j], metaData);
+                if (pds[j].isReadable() && td.isArray() && daoExists
+                        && dxoExists) {
+                    MethodDesc methodDesc = null;
+                    for (MethodDesc md : pageClassDescs[i].getMethodDescs()) {
+                        if (META_VALUE_ACTIONTYPE_RENDER.equals(md
+                                .getMetaFirstValue(META_NAME_ACTIONTYPE))) {
+                            methodDesc = md;
+                            break;
+                        }
+                    }
+                    if (methodDesc != null) {
+                        addSelectStatement(methodDesc, pds[j], metaData);
+                    }
                 }
             }
 
@@ -527,11 +600,19 @@ public class SourceCreatorImpl implements SourceCreator {
         }
         if (pageClassDesc != null) {
             // アクションメソッドを追加する。
-            pageClassDesc.setMethodDesc(new MethodDescImpl(getActionName(path,
-                    method)));
-            // _render()を追加する。
-            pageClassDesc.setMethodDesc(new MethodDescImpl(
-                    RequestProcessor.METHOD_RENDER));
+            MethodDesc actionMethodDesc = newActionMethodDescUnlessExists(
+                    pageClassName, path, method);
+            if (actionMethodDesc != null) {
+                pageClassDesc.setMethodDesc(actionMethodDesc);
+            }
+            MethodDesc renderMethodDesc = getExtraPathMapping(path, method)
+                    .newRenderActionMethodDesc(new ActionSelectorSeedImpl());
+            renderMethodDesc
+                    .setAnnotationDesc(new MetaAnnotationDescImpl(
+                            META_NAME_ACTIONTYPE,
+                            new String[] { META_VALUE_ACTIONTYPE_RENDER },
+                            new Class[0]));
+            pageClassDesc.setMethodDesc(renderMethodDesc);
             // _validationFailed(Notes)を追加する。
             MethodDescImpl methodDesc = new MethodDescImpl(
                     ConstraintInterceptor.ACTION_VALIDATIONFAILED);
@@ -554,6 +635,20 @@ public class SourceCreatorImpl implements SourceCreator {
                     getBeginAnnotation()));
             pageClassDesc.setMethodDesc(methodDesc);
         }
+    }
+
+    MethodDesc newActionMethodDescUnlessExists(String pageClassName,
+            String path, String method) {
+        Class<?> pageClass = getClass(pageClassName);
+        if (pageClass != null) {
+            if (ymir_.findMatchedPathMapping(path, method)
+                    .getAction(newPageComponent(pageClass),
+                            newRequest(path, method, null)) != null) {
+                return null;
+            }
+        }
+        return getExtraPathMapping(path, method).newActionMethodDesc(
+                new ActionSelectorSeedImpl());
     }
 
     @Begin
@@ -910,7 +1005,7 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     String[] getPairTypeNames(ClassDesc classDesc) {
-        String[] pairTypeNames = classDesc.getMetaValues("conversion");
+        String[] pairTypeNames = classDesc.getMetaValue("conversion");
         if (pairTypeNames == null) {
             pairTypeNames = MetaUtils.getValue(getClass(classDesc.getName()
                     + "Base"), "conversion");
@@ -925,7 +1020,7 @@ public class SourceCreatorImpl implements SourceCreator {
         Map<String, Object> root = new HashMap<String, Object>();
         root.put("entityMetaData", metaData);
         if (bodyDesc == null) {
-            bodyDesc = new BodyDescImpl(RequestProcessor.METHOD_RENDER, root);
+            bodyDesc = new BodyDescImpl(BODY_RENDER, root);
         } else {
             bodyDesc.setRoot(root);
         }
@@ -1201,19 +1296,6 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    public String getActionName(String path, String method) {
-        if (path == null) {
-            return null;
-        }
-        MatchedPathMapping matched = ymir_.findMatchedPathMapping(path, method);
-        if (matched == null) {
-            return null;
-        } else {
-            return matched.getPathMapping().getActionName(
-                    matched.getVariableResolver());
-        }
-    }
-
     public String getClassName(String componentName) {
         if (componentName != null) {
             LocalHotdeployS2Container hotdeployContainer = getApplication()
@@ -1376,18 +1458,6 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    public void setNamingConvention(NamingConvention namingConvention) {
-        namingConvention_ = namingConvention;
-    }
-
-    public void setYmir(Ymir ymir) {
-        if (ymir instanceof YmirImpl) {
-            ymir_ = (YmirImpl) ymir;
-        } else {
-            throw new ComponentNotFoundRuntimeException("YmirImpl");
-        }
-    }
-
     public File getSourceDirectory() {
         String sourceDirectory = getApplication().getSourceDirectory();
         if (sourceDirectory != null) {
@@ -1414,20 +1484,8 @@ public class SourceCreatorImpl implements SourceCreator {
         return analyzer_;
     }
 
-    public void setTemplateAnalyzer(TemplateAnalyzer analyzer) {
-        analyzer_ = analyzer;
-    }
-
-    public void setClassDescModifiers(ClassDescModifier[] classDescModifiers) {
-        classDescModifiers_ = classDescModifiers;
-    }
-
     public String getSourceEncoding() {
         return sourceEncoding_;
-    }
-
-    public void setSourceEncoding(String sourceEncoding) {
-        sourceEncoding_ = sourceEncoding;
     }
 
     public String getRootPackageName() {
@@ -1463,16 +1521,8 @@ public class SourceCreatorImpl implements SourceCreator {
         return sourceGenerator_;
     }
 
-    public void setSourceGenerator(SourceGenerator sourceGenerator) {
-        sourceGenerator_ = sourceGenerator;
-    }
-
     public ResponseCreator getResponseCreator() {
         return responseCreator_;
-    }
-
-    public void setResponseCreator(ResponseCreator responseCreator) {
-        responseCreator_ = responseCreator;
     }
 
     public Application getApplication() {
@@ -1508,10 +1558,6 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public void registerUpdateAction(Object condition, UpdateAction updateAction) {
         actionSelector_.register(condition, updateAction);
-    }
-
-    public void setApplicationManager(ApplicationManager applicationManager) {
-        applicationManager_ = applicationManager;
     }
 
     public ClassDesc newClassDesc(String className, ClassType type,
@@ -1665,5 +1711,23 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public SourceCreatorSetting getSourceCreatorSetting() {
         return setting_;
+    }
+
+    public ExtraPathMapping getExtraPathMapping(String path, String method) {
+        MatchedPathMapping mapping = findMatchedPathMapping(path, method);
+        if (mapping == null) {
+            return null;
+        }
+
+        Class<?> pathMappingClass = mapping.getPathMapping().getClass();
+        PathMappingExtraData<?> pathMappingExtraData = pathMappingExtraDataMap_
+                .get(pathMappingClass);
+        if (pathMappingExtraData == null) {
+            throw new RuntimeException("PathMappingExtraData not found."
+                    + " Please register PathMappingExtraData Component: "
+                    + pathMappingClass.getName());
+        }
+        return new ExtraPathMappingImpl(pathMappingExtraData, mapping, path,
+                method);
     }
 }

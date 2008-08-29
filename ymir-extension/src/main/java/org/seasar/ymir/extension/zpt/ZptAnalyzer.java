@@ -44,11 +44,52 @@ public class ZptAnalyzer implements TemplateAnalyzer {
         setTemplateEvaluator(zpt_.getTemplateEvaluator());
     }
 
+    @Binding(bindingType = BindingType.MUST)
+    public void setSourceCreator(SourceCreator sourceCreator) {
+        sourceCreator_ = sourceCreator;
+    }
+
+    /**
+     * テンプレートの解析に用いるTemplateEvaluatorを設定します。
+     *
+     * @param templateEvaluator TemplateEvaluatorオブジェクト。
+     * nullを指定することはできません。
+     */
+    @Binding(bindingType = BindingType.NONE)
+    public void setTemplateEvaluator(TemplateEvaluator templateEvaluator) {
+        TagEvaluator tagEvaluator = templateEvaluator.getTagEvaluator();
+        if (tagEvaluator instanceof TagEvaluatorWrapper) {
+            ((TagEvaluatorWrapper) tagEvaluator)
+                    .setTagEvaluator(newAnalyzerTalTagEvaluator());
+        } else {
+            tagEvaluator = newAnalyzerTalTagEvaluator();
+        }
+        ExpressionEvaluator expressionEvaluator = templateEvaluator
+                .getExpressionEvaluator();
+        if (expressionEvaluator instanceof TalesExpressionEvaluator) {
+            TalesExpressionEvaluator evaluator = ((TalesExpressionEvaluator) expressionEvaluator);
+            evaluator.addTypePrefix(TYPE_NOT,
+                    new AnalyzerNotTypePrefixHandler()).addTypePrefix(
+                    TYPE_PAGE,
+                    new AnalyzerPageTypePrefixHandler(
+                            (PageTypePrefixHandler) evaluator
+                                    .getTypePrefixHandler(TYPE_PAGE)));
+            evaluator.addPathResolver(new AnalyzerPathResolver());
+        }
+        evaluator_ = new TemplateEvaluatorImpl(templateEvaluator
+                .getTemplateParser(), tagEvaluator, expressionEvaluator,
+                templateEvaluator.getTagRenderer());
+    }
+
     synchronized Zpt getZpt() {
         if (zpt_ == null) {
             setZpt(new DefaultZpt());
         }
         return zpt_;
+    }
+
+    AnalyzerTalTagEvaluator newAnalyzerTalTagEvaluator() {
+        return new AnalyzerTalTagEvaluator();
     }
 
     public void analyze(ServletContext servletContext,
@@ -100,45 +141,5 @@ public class ZptAnalyzer implements TemplateAnalyzer {
                 }
             }
         }
-    }
-
-    public void setSourceCreator(SourceCreator sourceCreator) {
-        sourceCreator_ = sourceCreator;
-    }
-
-    /**
-     * テンプレートの解析に用いるTemplateEvaluatorを設定します。
-     *
-     * @param templateEvaluator TemplateEvaluatorオブジェクト。
-     * nullを指定することはできません。
-     */
-    @Binding(bindingType = BindingType.NONE)
-    public void setTemplateEvaluator(TemplateEvaluator templateEvaluator) {
-        TagEvaluator tagEvaluator = templateEvaluator.getTagEvaluator();
-        if (tagEvaluator instanceof TagEvaluatorWrapper) {
-            ((TagEvaluatorWrapper) tagEvaluator)
-                    .setTagEvaluator(newAnalyzerTalTagEvaluator());
-        } else {
-            tagEvaluator = newAnalyzerTalTagEvaluator();
-        }
-        ExpressionEvaluator expressionEvaluator = templateEvaluator
-                .getExpressionEvaluator();
-        if (expressionEvaluator instanceof TalesExpressionEvaluator) {
-            TalesExpressionEvaluator evaluator = ((TalesExpressionEvaluator) expressionEvaluator);
-            evaluator.addTypePrefix(TYPE_NOT,
-                    new AnalyzerNotTypePrefixHandler()).addTypePrefix(
-                    TYPE_PAGE,
-                    new AnalyzerPageTypePrefixHandler(
-                            (PageTypePrefixHandler) evaluator
-                                    .getTypePrefixHandler(TYPE_PAGE)));
-            evaluator.addPathResolver(new AnalyzerPathResolver());
-        }
-        evaluator_ = new TemplateEvaluatorImpl(templateEvaluator
-                .getTemplateParser(), tagEvaluator, expressionEvaluator,
-                templateEvaluator.getTagRenderer());
-    }
-
-    AnalyzerTalTagEvaluator newAnalyzerTalTagEvaluator() {
-        return new AnalyzerTalTagEvaluator();
     }
 }

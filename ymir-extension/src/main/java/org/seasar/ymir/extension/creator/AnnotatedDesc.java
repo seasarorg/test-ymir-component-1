@@ -14,11 +14,11 @@ public interface AnnotatedDesc {
 
     AnnotationDesc[] getAnnotationDescs();
 
-    String getMetaValue(String name);
+    String getMetaFirstValue(String name);
 
-    String[] getMetaValues(String name);
+    String[] getMetaValue(String name);
 
-    Class<?>[] getMetaClassValues(String name);
+    Class<?>[] getMetaClassValue(String name);
 
     boolean hasMeta(String name);
 }

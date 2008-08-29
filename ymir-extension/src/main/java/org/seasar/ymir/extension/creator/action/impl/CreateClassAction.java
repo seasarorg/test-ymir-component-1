@@ -14,7 +14,7 @@ import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.extension.creator.impl.BodyDescImpl;
-import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
+import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 
 public class CreateClassAction extends AbstractAction implements UpdateAction {
     private static final String PARAM_TRANSITION = SourceCreator.PARAM_PREFIX
@@ -41,8 +41,11 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
     }
 
     Response actDefault(Request request, PathMetaData pathMetaData) {
-        String actionName = getSourceCreator().getActionName(
-                request.getCurrentDispatch().getPath(), request.getMethod());
+        String path = request.getCurrentDispatch().getPath();
+        String method = request.getMethod();
+        String actionName = getSourceCreator()
+                .getExtraPathMapping(path, method).newActionMethodDesc(
+                        new ActionSelectorSeedImpl()).getName();
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
@@ -65,17 +68,18 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
 
         ClassDesc classDesc = getSourceCreator().newClassDesc(
                 pathMetaData.getClassName(), ClassType.PAGE, null);
-        MethodDesc methodDesc = new MethodDescImpl(getSourceCreator()
-                .getActionName(request.getCurrentDispatch().getPath(), method));
-        methodDesc.setReturnTypeDesc(String.class.getName(), true);
+        String path = request.getCurrentDispatch().getPath();
+        MethodDesc actionMethodDesc = getSourceCreator().getExtraPathMapping(path,
+                method).newActionMethodDesc(new ActionSelectorSeedImpl());
+        actionMethodDesc.setReturnTypeDesc(String.class.getName(), true);
         if (transition != null && transition.trim().length() > 0) {
             if (redirect) {
                 transition = "redirect:" + transition;
             }
-            methodDesc.setBodyDesc(new BodyDescImpl("return "
+            actionMethodDesc.setBodyDesc(new BodyDescImpl("return "
                     + quote(transition.trim()) + ";"));
         }
-        classDesc.setMethodDesc(methodDesc);
+        classDesc.setMethodDesc(actionMethodDesc);
 
         String[] lackingClassNames = null;
         try {

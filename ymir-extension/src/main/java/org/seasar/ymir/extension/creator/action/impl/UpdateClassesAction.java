@@ -17,10 +17,10 @@ import java.util.TreeSet;
 
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.AnnotatedDesc;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
+import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
 import org.seasar.ymir.extension.creator.ClassHint;
@@ -28,11 +28,12 @@ import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
-import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
+import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
+import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.type.Token;
 import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
@@ -266,21 +267,26 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         synchronizeResources(new String[] { getRootPackagePath(),
             getPath(pathMetaData.getTemplate()) });
 
+        String path = request.getCurrentDispatch().getPath();
+        ExtraPathMapping mapping = getSourceCreator().getExtraPathMapping(path,
+                method);
+
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("method", method);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("pathMetaData", pathMetaData);
         variableMap.put("classDescBag", classDescBag);
-        variableMap.put("actionName", getSourceCreator().getActionName(
-                request.getCurrentDispatch().getPath(), method));
+        variableMap.put("actionName", mapping.newActionMethodDesc(
+                new ActionSelectorSeedImpl()).getName());
         variableMap.put("suggestionExists", Boolean
                 .valueOf(classDescBag.getClassDescMap(ClassType.PAGE).size()
                         + classDescBag.getCreatedClassDescMap(ClassType.BEAN)
                                 .size() > 0));
         variableMap.put("pageClassDescs", classDescBag
                 .getClassDescs(ClassType.PAGE));
-        variableMap.put("renderActionName", RequestProcessor.METHOD_RENDER);
+        variableMap.put("renderActionName", mapping.newRenderActionMethodDesc(
+                new ActionSelectorSeedImpl()).getName());
         variableMap.put("createdBeanClassDescs", classDescBag
                 .getCreatedClassDescs(ClassType.BEAN));
         return getSourceCreator().getResponseCreator().createResponse(
@@ -409,7 +415,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         }
     }
 
-//    @SuppressWarnings({"serial","unchecked","finally","fallthrough","all"})
+    //    @SuppressWarnings({"serial","unchecked","finally","fallthrough","all"})
     @SuppressWarnings("all")
     public static class Hoe implements Serializable {
         @SuppressWarnings("serial")

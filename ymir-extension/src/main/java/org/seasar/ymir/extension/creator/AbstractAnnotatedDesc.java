@@ -115,7 +115,7 @@ public class AbstractAnnotatedDesc implements AnnotatedDesc {
         }
     }
 
-    public String getMetaValue(String name) {
+    public String getMetaFirstValue(String name) {
         MetaAnnotationDesc metas = (MetaAnnotationDesc) annotationDescMap_
                 .get(ANNOTATION_NAME_METAS);
         if (metas != null) {
@@ -133,10 +133,10 @@ public class AbstractAnnotatedDesc implements AnnotatedDesc {
     }
 
     public boolean hasMeta(String name) {
-        return (getMetaValue(name) != null);
+        return (getMetaFirstValue(name) != null);
     }
 
-    public String[] getMetaValues(String name) {
+    public String[] getMetaValue(String name) {
         MetaAnnotationDesc metas = (MetaAnnotationDesc) annotationDescMap_
                 .get(ANNOTATION_NAME_METAS);
         if (metas != null) {
@@ -156,7 +156,7 @@ public class AbstractAnnotatedDesc implements AnnotatedDesc {
         return null;
     }
 
-    public Class<?>[] getMetaClassValues(String name) {
+    public Class<?>[] getMetaClassValue(String name) {
         MetaAnnotationDesc metas = (MetaAnnotationDesc) annotationDescMap_
                 .get(ANNOTATION_NAME_METAS);
         if (metas != null) {

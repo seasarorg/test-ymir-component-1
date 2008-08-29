@@ -146,9 +146,9 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         assertNotNull("メソッドのMeta系でないアノテーションはマージされること", actual.getMethodDesc(
                 new MethodDescImpl("method5")).getAnnotationDesc("name2"));
         assertNotNull("メソッドのMeta系アノテーションはマージされないこと", actual.getMethodDesc(
-                new MethodDescImpl("method5")).getMetaValues("a"));
+                new MethodDescImpl("method5")).getMetaValue("a"));
         assertNull("メソッドのMeta系アノテーションはマージされないこと", actual.getMethodDesc(
-                new MethodDescImpl("method5")).getMetaValues("b"));
+                new MethodDescImpl("method5")).getMetaValue("b"));
     }
 
     public void testMerge2() throws Exception {
@@ -283,9 +283,9 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         assertNotNull("メソッドのMeta系でないアノテーションはマージされること", actual.getMethodDesc(
                 new MethodDescImpl("method5")).getAnnotationDesc("name2"));
         assertNull("メソッドのMeta系アノテーションはマージされないこと", actual.getMethodDesc(
-                new MethodDescImpl("method5")).getMetaValues("a"));
+                new MethodDescImpl("method5")).getMetaValue("a"));
         assertNotNull("メソッドのMeta系アノテーションはマージされないこと", actual.getMethodDesc(
-                new MethodDescImpl("method5")).getMetaValues("b"));
+                new MethodDescImpl("method5")).getMetaValue("b"));
     }
 
     public void testMerge3_YMIR_221_プロパティのアノテーションがマージされること() throws Exception {

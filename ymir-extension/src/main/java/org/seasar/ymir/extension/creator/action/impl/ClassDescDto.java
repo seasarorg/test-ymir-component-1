@@ -32,7 +32,7 @@ public class ClassDescDto {
         dto_ = classDesc.isTypeOf(ClassType.DTO);
         page_ = classDesc.isTypeOf(ClassType.PAGE);
         pairTypeName_ = PropertyUtils.join(classDesc
-                .getMetaValues("conversion"));
+                .getMetaValue("conversion"));
         String superclassName = classDesc.getSuperclassName();
         if (Object.class.getName().equals(superclassName)) {
             superclassName = null;

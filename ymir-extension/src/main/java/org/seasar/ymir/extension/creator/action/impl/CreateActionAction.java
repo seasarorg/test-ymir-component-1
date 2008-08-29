@@ -10,10 +10,11 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
+import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.action.UpdateByExceptionAction;
-import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
+import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 
 public class CreateActionAction extends AbstractAction implements
         UpdateByExceptionAction {
@@ -37,11 +38,15 @@ public class CreateActionAction extends AbstractAction implements
     Response actDefault(Request request, PathMetaData pathMetaData, Throwable t) {
         ActionNotFoundException anfe = (ActionNotFoundException) t;
 
+        String actionName = getSourceCreator().getExtraPathMapping(
+                anfe.getPath(), anfe.getMethod()).newActionMethodDesc(
+                new ActionSelectorSeedImpl()).getName();
+
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("pathMetaData", pathMetaData);
-        variableMap.put("actionName", anfe.getActionName());
+        variableMap.put("actionName", actionName);
         return getSourceCreator().getResponseCreator().createResponse(
                 "createAction", variableMap);
     }
@@ -56,8 +61,10 @@ public class CreateActionAction extends AbstractAction implements
 
         ClassDesc classDesc = getSourceCreator().newClassDesc(
                 pathMetaData.getClassName(), ClassType.PAGE, null);
-        String actionName = anfe.getActionName();
-        classDesc.setMethodDesc(new MethodDescImpl(actionName));
+        MethodDesc actionMethodDesc = getSourceCreator().getExtraPathMapping(
+                anfe.getPath(), anfe.getMethod()).newActionMethodDesc(
+                new ActionSelectorSeedImpl());
+        classDesc.setMethodDesc(actionMethodDesc);
 
         String[] lackingClassNames = null;
         try {
@@ -72,7 +79,7 @@ public class CreateActionAction extends AbstractAction implements
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("pathMetaData", pathMetaData);
-        variableMap.put("actionName", anfe.getActionName());
+        variableMap.put("actionName", actionMethodDesc);
         variableMap.put("lackingClassNames", lackingClassNames);
         return getSourceCreator().getResponseCreator().createResponse(
                 "createAction_create", variableMap);

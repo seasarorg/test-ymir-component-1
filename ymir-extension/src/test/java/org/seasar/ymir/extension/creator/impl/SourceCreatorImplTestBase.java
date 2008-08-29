@@ -32,6 +32,8 @@ import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
+import org.seasar.ymir.extension.creator.mapping.PathMappingExtraData;
+import org.seasar.ymir.extension.creator.mapping.impl.PathMappingImplExtraData;
 import org.seasar.ymir.extension.freemarker.FreemarkerSourceGenerator;
 import org.seasar.ymir.extension.zpt.ZptAnalyzer;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
@@ -172,6 +174,8 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         FreemarkerSourceGenerator sourceGenerator = new FreemarkerSourceGenerator();
         sourceGenerator.setSourceCreator(target_);
         target_.setSourceGenerator(sourceGenerator);
+        target_
+                .setPathMappingExtraDatas(new PathMappingExtraData<?>[] { new PathMappingImplExtraData() });
 
         YmirContext.setYmir((Ymir) container_.getComponent(Ymir.class));
         SingletonPluggableContainerFactory.init();

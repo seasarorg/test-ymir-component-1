@@ -21,8 +21,8 @@ import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.impl.AnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.FormDescImpl;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
-import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
+import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 import org.seasar.ymir.util.BeanUtils;
 
 import net.skirnir.freyja.Attribute;
@@ -71,7 +71,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             analyzerContext.setFormDesc(registerTransitionClassDesc(
                     analyzerContext, attrMap, runtimeAttributeNameSet,
                     "action", getAttributeValue(attrMap, "method", "GET")
-                            .toUpperCase()));
+                            .toUpperCase(), true));
             try {
                 return super.evaluate(context, name, attrs, body);
             } finally {
@@ -97,10 +97,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         && ("submit".equals(type) || "button".equals(type) || "image"
                                 .equals(type)) || "button".equals(name)
                         && ("submit".equals(type) || "button".equals(type))) {
-                    if (formDesc.isDispatchingByRequestParameter()) {
-                        formDesc.setActionMethodDesc(getAttributeValue(attrMap,
-                                "name", null));
-                    }
+                    formDesc.setActionMethodDesc(getAttributeValue(attrMap,
+                            "name", null));
                     break;
                 }
 
@@ -168,9 +166,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             return returned;
         } else {
             registerTransitionClassDesc(analyzerContext, attrMap,
-                    runtimeAttributeNameSet, "href", "GET");
+                    runtimeAttributeNameSet, "href", "GET", false);
             registerTransitionClassDesc(analyzerContext, attrMap,
-                    runtimeAttributeNameSet, "src", "GET");
+                    runtimeAttributeNameSet, "src", "GET", false);
         }
 
         return super.evaluate(context, name, attrs, body);
@@ -253,7 +251,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
 
     FormDesc registerTransitionClassDesc(AnalyzerContext analyzerContext,
             Map<String, Attribute> attrMap,
-            Set<String> runtimeAttributeNameSet, String attrName, String method) {
+            Set<String> runtimeAttributeNameSet, String attrName,
+            String method, boolean form) {
         SourceCreator creator = analyzerContext.getSourceCreator();
         String url = getAttributeValue(attrMap, attrName, null);
         if ("#".equals(url)) {
@@ -274,11 +273,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         if (className == null) {
             return null;
         }
-        String actionName = matched.getActionName();
         ClassDesc classDesc = analyzerContext.getTemporaryClassDesc(className);
-        boolean dispatchingByParameter = matched.getPathMapping()
-                .isDispatchingByButton();
-        classDesc.setMethodDesc(new MethodDescImpl(actionName));
         for (Iterator<String> itr = path.getParameterMap().keySet().iterator(); itr
                 .hasNext();) {
             String name = itr.next();
@@ -301,29 +296,40 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     propertyDesc);
             propertyDesc.notifyUpdatingType();
         }
-        ClassDesc dtoClassDesc = null;
-        String formName = null;
-        if (analyzerContext.getSourceCreator().getSourceCreatorSetting()
-                .isFormDtoCreationFeatureEnabled()
-                && !runtimeAttributeNameSet.contains("name")) {
-            String name = getAttributeValue(attrMap, "name", null);
-            if (AnalyzerUtils.isValidVariableName(name)) {
-                formName = name;
-                dtoClassDesc = analyzerContext
-                        .getTemporaryClassDesc(analyzerContext
-                                .fromPropertyNameToClassName(classDesc, name));
-                PropertyDesc propertyDesc = classDesc.addProperty(name,
-                        PropertyDesc.NONE);
-                propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
-                        org.seasar.ymir.extension.Globals.META_NAME_PROPERTY,
-                        new String[] { name }, new Class[0]));
-                propertyDesc.setTypeDesc(new TypeDescImpl(dtoClassDesc));
-                classDesc.setPropertyDesc(propertyDesc);
-            }
-        }
 
-        return new FormDescImpl(classDesc, dtoClassDesc, actionName, formName,
-                dispatchingByParameter, method);
+        if (form) {
+            ClassDesc dtoClassDesc = null;
+            String formName = null;
+            if (creator.getSourceCreatorSetting()
+                    .isFormDtoCreationFeatureEnabled()
+                    && !runtimeAttributeNameSet.contains("name")) {
+                String name = getAttributeValue(attrMap, "name", null);
+                if (AnalyzerUtils.isValidVariableName(name)) {
+                    formName = name;
+                    dtoClassDesc = analyzerContext
+                            .getTemporaryClassDesc(analyzerContext
+                                    .fromPropertyNameToClassName(classDesc,
+                                            name));
+                    PropertyDesc propertyDesc = classDesc.addProperty(name,
+                            PropertyDesc.NONE);
+                    propertyDesc
+                            .setAnnotationDesc(new MetaAnnotationDescImpl(
+                                    org.seasar.ymir.extension.Globals.META_NAME_PROPERTY,
+                                    new String[] { name }, new Class[0]));
+                    propertyDesc.setTypeDesc(new TypeDescImpl(dtoClassDesc));
+                    classDesc.setPropertyDesc(propertyDesc);
+                }
+            }
+
+            return new FormDescImpl(creator, classDesc, dtoClassDesc, formName,
+                    path.getTrunk(), method);
+        } else {
+            classDesc.setMethodDesc(creator.getExtraPathMapping(
+                    path.getTrunk(), method).newActionMethodDesc(
+                    new ActionSelectorSeedImpl()));
+
+            return null;
+        }
     }
 
     Path constructPath(String basePath, String pathWithParameters) {

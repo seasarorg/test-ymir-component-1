@@ -26,17 +26,19 @@ import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.annotation.RequestParameter;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
+import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
-import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
 import org.seasar.ymir.extension.creator.impl.ParameterDescImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
+import org.seasar.ymir.extension.creator.mapping.PathMappingExtraData;
+import org.seasar.ymir.extension.creator.mapping.impl.PathMappingImplExtraData;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.impl.ApplicationManagerImpl;
 import org.seasar.ymir.impl.MatchedPathMappingImpl;
@@ -134,17 +136,6 @@ public class ZptAnalyzerTest extends TestCase {
             }
 
             @Override
-            public String getActionName(String path, String method) {
-                MatchedPathMapping matched = findMatchedPathMapping(path,
-                        method);
-                if (matched == null) {
-                    return null;
-                } else {
-                    return matched.getActionName();
-                }
-            }
-
-            @Override
             public String getRootPackageName() {
                 return "com.example";
             }
@@ -183,6 +174,8 @@ public class ZptAnalyzerTest extends TestCase {
         applicationManager.setHotdeployManager(new HotdeployManagerImpl());
         applicationManager.setBaseApplication(mockApplication);
         sourceCreator_.setApplicationManager(applicationManager);
+        sourceCreator_
+                .setPathMappingExtraDatas(new PathMappingExtraData<?>[] { new PathMappingImplExtraData() });
         target_.setSourceCreator(sourceCreator_);
 
         YmirImpl ymir = new YmirImpl();
@@ -476,27 +469,20 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc cd = getClassDesc("com.example.web.UpdatePage");
         assertNotNull(cd);
-        assertNull(
-                "dispatchingByRequestParameterがtrueであるようなPathMappingにactionのパスがマッチする場合はbuttonのnameに対応するプロパティのgetter/setterは生成されないこと",
-                cd.getPropertyDesc("button"));
-        assertNull(
-                "dispatchingByRequestParameterがtrueであるようなPathMappingにactionのパスがマッチする場合はimageのnameに対応するプロパティのgetter/setterは生成されないこと",
-                cd.getPropertyDesc("image"));
-        assertNull(
-                "dispatchingByRequestParameterがtrueであるようなPathMappingにactionのパスがマッチする場合はsubmitのnameに対応するプロパティのgetter/setterは生成されないこと",
-                cd.getPropertyDesc("submit"));
-        assertNotNull(
-                "dispatchingByRequestParameterがtrueである場合でも、デフォルトのアクションメソッドは生成されること",
-                cd.getMethodDesc(new MethodDescImpl("POST")));
-        assertNotNull(
-                "dispatchingByRequestParameterがtrueであるようなPathMappingにactionのパスがマッチする場合はbuttonのnameに対応するアクションメソッドが生成されること",
-                cd.getMethodDesc(new MethodDescImpl("POST_button")));
-        assertNotNull(
-                "dispatchingByRequestParameterがtrueであるようなPathMappingにactionのパスがマッチする場合はimageのnameに対応するアクションメソッドが生成されること",
-                cd.getMethodDesc(new MethodDescImpl("POST_image")));
-        assertNotNull(
-                "dispatchingByRequestParameterがtrueであるようなPathMappingにactionのパスがマッチする場合はsubmitのnameに対応するアクションメソッドが生成されること",
-                cd.getMethodDesc(new MethodDescImpl("POST_submit")));
+        assertNull("buttonのnameに対応するプロパティのgetter/setterは生成されないこと", cd
+                .getPropertyDesc("button"));
+        assertNull("imageのnameに対応するプロパティのgetter/setterは生成されないこと", cd
+                .getPropertyDesc("image"));
+        assertNull("submitのnameに対応するプロパティのgetter/setterは生成されないこと", cd
+                .getPropertyDesc("submit"));
+        assertNotNull("対応するメソッドがないボタンがある場合はデフォルトのアクションメソッドが生成されること", cd
+                .getMethodDesc(new MethodDescImpl("POST")));
+        assertNotNull("buttonのnameに対応するアクションメソッドが生成されること", cd
+                .getMethodDesc(new MethodDescImpl("POST_button")));
+        assertNotNull("imageのnameに対応するアクションメソッドが生成されること", cd
+                .getMethodDesc(new MethodDescImpl("POST_image")));
+        assertNotNull("submitのnameに対応するアクションメソッドが生成されること", cd
+                .getMethodDesc(new MethodDescImpl("POST_submit")));
         assertNotNull("nameが実行時に決まるようなタグでもstring定数なら自動生成対象になること", cd
                 .getMethodDesc(new MethodDescImpl("POST_submit2")));
         assertNull("nameが実行時に決まるようなタグでパラメータを持つものは無視されること", cd
@@ -996,49 +982,38 @@ public class ZptAnalyzerTest extends TestCase {
 
         act("testAnalyze58");
 
-        ClassDesc indexCd = getClassDesc(CLASSNAME);
-        MethodDesc md = indexCd.getMethodDesc(new MethodDescImpl("POST"));
-        assertNotNull("dispatchingByRequestParameterがfalseである場合はPOSTが存在すること",
-                md);
-
         ClassDesc updateCd = getClassDesc("com.example.web.UpdatePage");
-        md = updateCd.getMethodDesc(new MethodDescImpl("POST"));
-        assertNull(
-                "dispatchingByRequestParameterがtrueである場合でもsubmit等がない場合はPOSTが存在しないこと",
-                md);
+        MethodDesc md = updateCd.getMethodDesc(new MethodDescImpl("POST"));
+        assertNull("submit等がない場合はPOSTが作られないこと", md);
 
         ClassDesc update2Cd = getClassDesc("com.example.web.Update2Page");
         md = update2Cd.getMethodDesc(new MethodDescImpl("GET"));
-        assertNotNull(
-                "dispatchingByRequestParameterがtrueである場合でもHTTPメソッドがGETである場合はPOSTが存在すること",
-                md);
+        assertNull("[#YMIR-207] HTTPメソッドがGETである場合でもGETが作られないこと", md);
+
+        ClassDesc indexCd = getClassDesc("com.example.web.IndexPage");
+        md = indexCd.getMethodDesc(new MethodDescImpl("POST"));
+        assertNotNull("nameつきsubmitしかなくてもポストバックの場合はPOSTが作られること", md);
 
         ClassDesc update3Cd = getClassDesc("com.example.web.Update3Page");
         md = update3Cd.getMethodDesc(new MethodDescImpl("POST"));
-        assertNull(
-                "dispatchingByRequestParameterがtrueである場合でnameを持つsubmit等がある場合はPOSTが存在しないこと",
-                md);
+        assertNull("nameを持つsubmit等がある場合はPOSTが作られないこと", md);
 
         ClassDesc update4Cd = getClassDesc("com.example.web.Update4Page");
         md = update4Cd.getMethodDesc(new MethodDescImpl("POST"));
-        assertNotNull(
-                "dispatchingByRequestParameterがtrueである場合でも適切なnameを持つsubmit等がない場合はPOSTが存在すること",
-                md);
+        assertNotNull("適切なnameを持つsubmit等がない場合はPOSTが作られること", md);
 
         ClassDesc update5Cd = getClassDesc("com.example.web.Update5Page");
         md = update5Cd.getMethodDesc(new MethodDescImpl("POST"));
-        assertNotNull(
-                "dispatchingByRequestParameterがtrueである場合でもnameを持たないsubmit等がある場合はPOSTが存在すること",
-                md);
+        assertNotNull("nameを持たないsubmit等がある場合はPOSTが作られること", md);
 
         ClassDesc update6Cd = getClassDesc("com.example.web.Update6Page");
         md = update6Cd.getMethodDesc(new MethodDescImpl("POST"));
         assertNotNull(
-                "適切なnameを持つsubmit等があっても適切なnameを持つsubmit等がない場合はPOSTが存在すること", md);
+                "適切なnameを持つsubmit等があっても適切なnameを持つsubmit等がない場合はPOSTが作られること", md);
 
         ClassDesc update7Cd = getClassDesc("com.example.web.Update7Page");
         md = update7Cd.getMethodDesc(new MethodDescImpl("POST"));
         assertNotNull(
-                "適切なnameを持つsubmit等があってもnameを持たないsubmit等がある場合はPOSTが存在すること", md);
+                "適切なnameを持つsubmit等があってもnameを持たないsubmit等がある場合はPOSTが作られること", md);
     }
 }

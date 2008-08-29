@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
@@ -15,8 +16,9 @@ import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.extension.creator.impl.BodyDescImpl;
-import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
-import org.seasar.ymir.impl.RequestProcessorImpl;
+import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
+import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
+import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 
 public class CreateClassAndTemplateAction extends AbstractAction implements
         UpdateAction {
@@ -91,14 +93,22 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
 
         ClassDesc classDesc = getSourceCreator().newClassDesc(
                 pathMetaData.getClassName(), ClassType.PAGE, null);
-        MethodDesc methodDesc = new MethodDescImpl(getSourceCreator()
-                .getActionName(request.getCurrentDispatch().getPath(), method));
+        String path = request.getCurrentDispatch().getPath();
+        ExtraPathMapping mapping = getSourceCreator().getExtraPathMapping(path,
+                method);
+        MethodDesc methodDesc = mapping
+                .newActionMethodDesc(new ActionSelectorSeedImpl());
         methodDesc.setReturnTypeDesc(String.class.getName(), true);
         methodDesc.setBodyDesc(new BodyDescImpl("return "
                 + quote("redirect:" + redirectPath) + ";"));
         classDesc.setMethodDesc(methodDesc);
-        classDesc.setMethodDesc(new MethodDescImpl(
-                RequestProcessorImpl.METHOD_RENDER));
+        MethodDesc renderMethodDesc = mapping
+                .newRenderActionMethodDesc(new ActionSelectorSeedImpl());
+        renderMethodDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_ACTIONTYPE,
+                new String[] { Globals.META_VALUE_ACTIONTYPE_RENDER },
+                new Class[0]));
+        classDesc.setMethodDesc(renderMethodDesc);
 
         String[] lackingClassNames = null;
         try {

@@ -5,10 +5,22 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.seasar.kvasir.util.collection.MapProperties;
 import org.seasar.ymir.Application;
+import org.seasar.ymir.Dispatch;
+import org.seasar.ymir.DispatchWrapper;
+import org.seasar.ymir.Dispatcher;
+import org.seasar.ymir.FormFile;
+import org.seasar.ymir.PageComponent;
+import org.seasar.ymir.Request;
+import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.impl.DispatchImpl;
+import org.seasar.ymir.impl.PageComponentImpl;
+import org.seasar.ymir.impl.RequestImpl;
 import org.seasar.ymir.impl.SingleApplication;
 
 public class SourceCreatorUtils {
@@ -68,4 +80,48 @@ public class SourceCreatorUtils {
         }
     }
 
+    public static Request newRequest(final String path, final String method,
+            Map<String, String[]> parameterMap) {
+        if (parameterMap == null) {
+            parameterMap = new HashMap<String, String[]>();
+        }
+        final Map<String, FormFile[]> fileParameterMap = new HashMap<String, FormFile[]>();
+        Request request = (Request) YmirContext.getYmir().getApplication()
+                .getS2Container().getComponent(Request.class);
+        if (request != null) {
+            return new ParameterReplacedRequestWrapper(request, parameterMap,
+                    fileParameterMap) {
+                @Override
+                public String getMethod() {
+                    return method;
+                }
+
+                @Override
+                public Dispatch getCurrentDispatch() {
+                    return new DispatchWrapper(getCurrentDispatch()) {
+                        @Override
+                        public String getPath() {
+                            return path;
+                        }
+                    };
+                }
+            };
+        } else {
+            RequestImpl created = new RequestImpl(null, method, "UTF-8",
+                    parameterMap, fileParameterMap, null, null);
+            created.enterDispatch(new DispatchImpl(null, path, null,
+                    Dispatcher.REQUEST, null));
+            return created;
+        }
+    }
+
+    public static PageComponent newPageComponent(Class<?> pageClass) {
+        try {
+            return new PageComponentImpl(pageClass.newInstance(), pageClass);
+        } catch (InstantiationException ex) {
+            throw new RuntimeException(ex);
+        } catch (IllegalAccessException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }

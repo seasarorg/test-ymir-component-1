@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -22,6 +24,11 @@ import freemarker.template.TemplateException;
 
 public class FreemarkerSourceGenerator implements SourceGenerator {
     private SourceCreator sourceCreator_;
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setSourceCreator(SourceCreator sourceCreator) {
+        sourceCreator_ = sourceCreator;
+    }
 
     public String generateGapSource(ClassDesc classDesc) {
         if (classDesc == null) {
@@ -95,9 +102,5 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
             throw new IORuntimeException(ex);
         }
         return sw.toString();
-    }
-
-    public void setSourceCreator(SourceCreator sourceCreator) {
-        sourceCreator_ = sourceCreator;
     }
 }

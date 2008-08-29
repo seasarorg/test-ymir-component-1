@@ -27,10 +27,6 @@ public class LazyPathMetaData implements PathMetaData {
 
     private boolean classNameLoaded_;
 
-    private String actionName_;
-
-    private boolean actionNameLoaded_;
-
     private File sourceFile_;
 
     private boolean sourceFileLoaded_;
@@ -113,14 +109,6 @@ public class LazyPathMetaData implements PathMetaData {
             classNameLoaded_ = true;
         }
         return className_;
-    }
-
-    public String getActionName() {
-        if (!actionNameLoaded_) {
-            actionName_ = sourceCreator_.getActionName(path_, method_);
-            actionNameLoaded_ = true;
-        }
-        return actionName_;
     }
 
     public File getBaseSourceFile() {

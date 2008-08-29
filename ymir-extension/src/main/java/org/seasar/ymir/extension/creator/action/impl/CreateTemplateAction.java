@@ -4,11 +4,11 @@ import static org.seasar.ymir.extension.creator.SourceCreator.PARAM_PREFIX;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.seasar.kvasir.util.io.IOUtils;
+import org.seasar.ymir.Action;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -20,7 +20,8 @@ import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.extension.creator.impl.BodyDescImpl;
-import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
+import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
+import org.seasar.ymir.extension.creator.util.SourceCreatorUtils;
 
 public class CreateTemplateAction extends AbstractAction implements
         UpdateAction {
@@ -56,9 +57,14 @@ public class CreateTemplateAction extends AbstractAction implements
         Class<?> pageClass = getSourceCreator().getClass(
                 pathMetaData.getClassName());
         if (pageClass != null) {
-            Method actionMethod = getActionMethod(pageClass, pathMetaData
-                    .getActionName());
-            if (actionMethod == null) {
+            String path = pathMetaData.getPath();
+            String method = pathMetaData.getMethod();
+            Request newRequest = SourceCreatorUtils.newRequest(path, method,
+                    null);
+            Action action = getSourceCreator().findMatchedPathMapping(path,
+                    method).getAction(
+                    SourceCreatorUtils.newPageComponent(pageClass), newRequest);
+            if (action == null) {
                 actionMethodNotFound = true;
             }
         }
@@ -79,16 +85,6 @@ public class CreateTemplateAction extends AbstractAction implements
         variableMap.put("actionMethodNotFound", actionMethodNotFound);
         return getSourceCreator().getResponseCreator().createResponse(
                 "createTemplate", variableMap);
-    }
-
-    Method getActionMethod(Class<?> pageClass, String actionName) {
-        try {
-            return pageClass.getMethod(actionName, new Class[0]);
-        } catch (SecurityException ex) {
-            return null;
-        } catch (NoSuchMethodException ex) {
-            return null;
-        }
     }
 
     Response actCreate(Request request, PathMetaData pathMetaData) {
@@ -114,16 +110,17 @@ public class CreateTemplateAction extends AbstractAction implements
         } else if (transition != null) {
             ClassDesc classDesc = getSourceCreator().newClassDesc(
                     pathMetaData.getClassName(), ClassType.PAGE, null);
-            MethodDesc methodDesc = new MethodDescImpl(getSourceCreator()
-                    .getActionName(request.getCurrentDispatch().getPath(),
-                            method));
-            methodDesc.setReturnTypeDesc(String.class.getName(), true);
+            String path = request.getCurrentDispatch().getPath();
+            MethodDesc actionMethodDesc = getSourceCreator()
+                    .getExtraPathMapping(path, method).newActionMethodDesc(
+                            new ActionSelectorSeedImpl());
+            actionMethodDesc.setReturnTypeDesc(String.class.getName(), true);
             if (redirect) {
                 transition = "redirect:" + transition;
             }
-            methodDesc.setBodyDesc(new BodyDescImpl("return "
+            actionMethodDesc.setBodyDesc(new BodyDescImpl("return "
                     + quote(transition.trim()) + ";"));
-            classDesc.setMethodDesc(methodDesc);
+            classDesc.setMethodDesc(actionMethodDesc);
             getSourceCreator().adjustByExistentClass(classDesc);
             try {
                 getSourceCreator().writeSourceFile(classDesc, null);
