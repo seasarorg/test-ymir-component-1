@@ -40,6 +40,12 @@ public interface ExceptionProcessor {
     String ATTR_HANDLER = "handler";
 
     /**
+     * スローされた例外を画面テンプレート等から取得できるように
+     * {@link Request}オブジェクトに属性として設定する際の属性名です。
+     */
+    String ATTR_EXCEPTION = "exception";
+
+    /**
      * 指定された例外を処理します。
      * 
      * @param request Requestオブジェクト。

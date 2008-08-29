@@ -120,8 +120,9 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         // 各コンテキストに属性をoutjectする。
         pageProcessor_.outjectScopeAttributes(handler, metaData, null);
 
-        // ExceptionHandlerコンポーネントをattributeとしてバインドしておく。
+        // ExceptionHandlerコンポーネントと例外オブジェクトをattributeとしてバインドしておく。
         request.setAttribute(ATTR_HANDLER, handler);
+        request.setAttribute(ATTR_EXCEPTION, t);
 
         return response;
     }
