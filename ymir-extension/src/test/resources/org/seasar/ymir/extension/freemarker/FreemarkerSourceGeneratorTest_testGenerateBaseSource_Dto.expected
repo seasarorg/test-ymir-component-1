@@ -35,7 +35,7 @@ public class TestDtoBase
         append(sb.append("param1="), param1_).append(", ");
         append(sb.append("param2="), param2_).append(", ");
         append(sb.append("param3="), param3_).append(", ");
-        append(sb.append("param4="), param4_)
+        append(sb.append("param4="), param4_);
         sb.append(')');
         return toString(sb);
     }
@@ -44,12 +44,12 @@ public class TestDtoBase
     {
         if (obj != null && obj.getClass().isArray()) {
             sb.append('{');
-            int len = Array.getLength(obj);
+            int len = java.lang.reflect.Array.getLength(obj);
             String delim = "";
             for (int i = 0; i < len; i++) {
                 sb.append(delim);
                 delim = ", ";
-                append(sb, Array.get(obj, i));
+                append(sb, java.lang.reflect.Array.get(obj, i));
             }
             sb.append('}');
         } else {

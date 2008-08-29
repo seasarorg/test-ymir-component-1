@@ -28,7 +28,7 @@ import java.io.Serializable;
     public String toString()
     {
         StringBuilder sb = new StringBuilder().append('(');<#list classDesc.propertyDescs as propertyDesc>
-        append(sb.append("${propertyDesc.name}="), ${fieldPrefix}${propertyDesc.name}${fieldSuffix})<#if propertyDesc_has_next>.append(", ");</#if></#list>
+        append(sb.append("${propertyDesc.name}="), ${fieldPrefix}${propertyDesc.name}${fieldSuffix})<#if propertyDesc_has_next>.append(", ")</#if>;</#list>
         sb.append(')');
         return toString(sb);
     }
@@ -37,12 +37,12 @@ import java.io.Serializable;
     {
         if (obj != null && obj.getClass().isArray()) {
             sb.append('{');
-            int len = Array.getLength(obj);
+            int len = java.lang.reflect.Array.getLength(obj);
             String delim = "";
             for (int i = 0; i < len; i++) {
                 sb.append(delim);
                 delim = ", ";
-                append(sb, Array.get(obj, i));
+                append(sb, java.lang.reflect.Array.get(obj, i));
             }
             sb.append('}');
         } else {
