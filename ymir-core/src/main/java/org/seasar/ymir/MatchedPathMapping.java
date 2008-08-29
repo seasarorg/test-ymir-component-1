@@ -42,6 +42,7 @@ public interface MatchedPathMapping {
      * 
      * @return パスに対応するアクションの名前。
      */
+    @Deprecated
     String getActionName();
 
     /**
@@ -81,4 +82,16 @@ public interface MatchedPathMapping {
      * @return Actionオブジェクト。nullを返すこともあります。
      */
     Action getAction(PageComponent pageComponent, Request request);
+
+    /**
+     * レンダアクションを表すActionオブジェクトを構築して返します。
+     * アクションメソッドが見つからなかった場合はnullを返します。
+     * 
+     * @param pageComponent パスに対応するPageComponent。
+     * @param request 現在のRequest。
+     * @return Actionオブジェクト。nullを返すこともあります。
+     * @since 0.9.6
+     * @see #getRenderActionName()
+     */
+    Action getRenderAction(PageComponent pageComponent, Request request);
 }

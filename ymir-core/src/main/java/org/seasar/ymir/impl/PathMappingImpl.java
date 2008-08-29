@@ -1,11 +1,13 @@
 package org.seasar.ymir.impl;
 
-import static org.seasar.ymir.RequestProcessor.ACTION_DEFAULT;
+import static org.seasar.ymir.util.RegexUtils.toRegexPattern;
 
 import java.beans.Introspector;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -47,15 +49,14 @@ public class PathMappingImpl implements PathMapping {
 
     public static final String KEY_BUTTONNAMEPATTERN = "buttonNamePattern";
 
-    private static final char PARAM_PREFIX_CHAR = '[';
+    private static final Pattern PATTERN_PLACEHOLDER = Pattern
+            .compile("\\$\\{[^}]*\\}");
 
-    private static final char PARAM_SUFFIX_CHAR = ']';
+    private static final String PATTRENSTR_PLACEHOLDER_REGEX = ".*";
 
-    private static final String PARAM_PREFIX = String
-            .valueOf(PARAM_PREFIX_CHAR);
+    public static final String ACTION_RENDER = "_render";
 
-    private static final String PARAM_SUFFIX = String
-            .valueOf(PARAM_SUFFIX_CHAR);
+    private static final String ACTION_DEFAULT = "_default";
 
     private TextTemplateEvaluator evaluator_ = new SimpleTextTemplateEvaluator();
 
@@ -78,6 +79,8 @@ public class PathMappingImpl implements PathMapping {
     private String buttonNamePatternStringForDispatching_;
 
     private boolean denied_;
+
+    private Pattern pageComponentNameTemplatePattern_;
 
     private TypeConversionManager typeConversionManager_;
 
@@ -121,7 +124,7 @@ public class PathMappingImpl implements PathMapping {
             String parameterTemplate) {
         denied_ = denied;
         pattern_ = Pattern.compile(patternString);
-        pageComponentNameTemplate_ = pageComponentNameTemplate;
+        setPageComponentNameTemplate(pageComponentNameTemplate);
         actionNameTemplate_ = actionNameTemplate;
         pathInfoTemplate_ = pathInfoTemplate;
         if (defaultReturnValue instanceof String) {
@@ -137,14 +140,34 @@ public class PathMappingImpl implements PathMapping {
         parameterTemplate_ = parameterTemplate;
     }
 
+    private void setPageComponentNameTemplate(String pageComponentNameTemplate) {
+        pageComponentNameTemplate_ = pageComponentNameTemplate;
+        pageComponentNameTemplatePattern_ = pageComponentNameTemplate_ != null ? Pattern
+                .compile(getTemplatePattern(pageComponentNameTemplate_))
+                : null;
+    }
+
+    String getTemplatePattern(String template) {
+        Matcher matcher = PATTERN_PLACEHOLDER.matcher(template);
+        StringBuilder sb = new StringBuilder();
+        int pre = 0;
+        while (matcher.find(pre)) {
+            sb.append(toRegexPattern(template.substring(pre, matcher.start())))
+                    .append(PATTRENSTR_PLACEHOLDER_REGEX);
+            pre = matcher.end();
+        }
+        sb.append(toRegexPattern(template.substring(pre)));
+        return sb.toString();
+    }
+
     public PathMappingImpl(Map<String, Object> map) {
         denied_ = PropertyUtils.valueOf(map.get(KEY_DENIED), false);
         map.remove(KEY_DENIED);
         pattern_ = Pattern.compile(PropertyUtils.valueOf(map.get(KEY_PATTERN),
                 (String) null));
         map.remove(KEY_PATTERN);
-        pageComponentNameTemplate_ = PropertyUtils.valueOf(map
-                .get(KEY_PAGECOMPONENTNAME_TEMPLATE), (String) null);
+        setPageComponentNameTemplate(PropertyUtils.valueOf(map
+                .get(KEY_PAGECOMPONENTNAME_TEMPLATE), (String) null));
         map.remove(KEY_PAGECOMPONENTNAME_TEMPLATE);
         actionNameTemplate_ = PropertyUtils.valueOf(map
                 .get(KEY_ACTIONNAME_TEMPLATE), (String) null);
@@ -275,6 +298,12 @@ public class PathMappingImpl implements PathMapping {
         return evaluate(pageComponentNameTemplate_, resolver);
     }
 
+    /**
+     * パスに対応するアクションの名前を返します。
+     * 
+     * @param resolver {@link #match(String, String)}が返す{@link VariableResolver}オブジェクト。
+     * @return アクションの名前。
+     */
     public String getActionName(VariableResolver resolver) {
         return evaluate(actionNameTemplate_, resolver);
     }
@@ -356,6 +385,24 @@ public class PathMappingImpl implements PathMapping {
         return null;
     }
 
+    /**
+     * リクエストパラメータによるディスパッチを行なうかどうかを返します。
+     * <p>このメソッドの返り値がtrueの場合、
+     * コンポーネントが持つメソッドのうち、
+     * アクション名とリクエストパラメータを
+     * 「<code>_</code>」で連結したものと同じ名前のメソッドが呼び出されます。
+     * 例えばコンポーネントのメソッドとして「<code>_post_update</code>」という名前のものと
+     * 「<code>_post_replace</code>」という名前のものがある場合、
+     * リクエストに対応するアクション名が「<code>_post</code>」でかつ
+     * リクエストパラメータに「<code>update</code>」というものが含まれている場合は
+     * 「<code>_post_update</code>」が呼び出されます。
+     * （なお、「<code>_post_XXXX</code>」形式のメソッドが存在しない場合は
+     * 「<code>_post</code>」メソッドが呼び出されます。）
+     * </p>
+     *
+     * @return リクエストパラメータによるディスパッチを行なうかどうか。
+     */
+    // TODO [YMIR-1.0] 廃止する。
     public boolean isDispatchingByButton() {
         return (buttonNamePatternForDispatching_ != null);
     }
@@ -372,31 +419,30 @@ public class PathMappingImpl implements PathMapping {
     public Action getAction(PageComponent pageComponent, final Request request,
             VariableResolver resolver) {
         final String actionName = getActionName(resolver);
+        final String defaultActionName = getDefaultActionName();
 
-        Action action = null;
-        if (isDispatchingByButton()) {
-            // ボタンに対応するアクションを探索する。
+        // ボタンに対応するアクションを探索する。
+        Action action = pageComponent
+                .accept(new PageComponentVisitor<Action>() {
+                    @Override
+                    public Action process(PageComponent pageComponent) {
+                        return getActionForButton(pageComponent.getPage(),
+                                pageComponent.getPageClass(), actionName,
+                                request);
+                    }
+                });
+        if (action == null) {
+            // ボタンに対応するデフォルトアクションを探索する。
             action = pageComponent.accept(new PageComponentVisitor<Action>() {
                 @Override
                 public Action process(PageComponent pageComponent) {
                     return getActionForButton(pageComponent.getPage(),
-                            pageComponent.getPageClass(), actionName, request);
+                            pageComponent.getPageClass(), defaultActionName,
+                            request);
                 }
             });
-            if (action == null) {
-                // ボタンに対応するデフォルトアクションを探索する。
-                action = pageComponent
-                        .accept(new PageComponentVisitor<Action>() {
-                            @Override
-                            public Action process(PageComponent pageComponent) {
-                                return getActionForButton(pageComponent
-                                        .getPage(), pageComponent
-                                        .getPageClass(), ACTION_DEFAULT,
-                                        request);
-                            }
-                        });
-            }
         }
+
         if (action == null) {
             // 通常のアクションを探索する。
             action = pageComponent.accept(new PageComponentVisitor<Action>() {
@@ -413,7 +459,7 @@ public class PathMappingImpl implements PathMapping {
                 @Override
                 public Action process(PageComponent pageComponent) {
                     return getAction(pageComponent.getPage(), pageComponent
-                            .getPageClass(), ACTION_DEFAULT, request);
+                            .getPageClass(), defaultActionName, request);
                 }
             });
         }
@@ -454,56 +500,35 @@ public class PathMappingImpl implements PathMapping {
             return null;
         }
 
-        if (request.getParameter(buttonName) != null
-                || request.getParameter(buttonName + ".x") != null) {
-            return new ActionImpl(page, new MethodInvokerImpl(method,
-                    new Object[0]));
-        } else {
-            return createActionWithParameters(method, buttonName, request, page);
-        }
+        return createActionWithParameters(method, buttonName, request, page);
     }
 
     Action createActionWithParameters(Method method, String buttonName,
             Request request, Object page) {
-        String prefix = buttonName + PARAM_PREFIX;
         Class<?>[] parameterTypes = method.getParameterTypes();
         for (Iterator<String> itr = request.getParameterNames(); itr.hasNext();) {
             String pname = itr.next();
-            if (pname.startsWith(prefix)) {
-                return new ActionImpl(page, new MethodInvokerImpl(method,
-                        parseParameters(pname.substring(buttonName.length()),
-                                parameterTypes)));
+            if (!pname.startsWith(buttonName)) {
+                continue;
             }
+
+            Button button = new Button(pname);
+            if (!button.isValid() || !buttonName.equals(button.getName())) {
+                continue;
+            }
+
+            return new ActionImpl(page, new MethodInvokerImpl(method,
+                    createParameters(button.getParameters(), parameterTypes)));
         }
         return null;
     }
 
-    Object[] parseParameters(String string, Class<?>[] parameterTypes) {
+    Object[] createParameters(String[] rawParameters, Class<?>[] parameterTypes) {
         Object[] parameters = new Object[parameterTypes.length];
-        int prefix = 0;
-        boolean broken = false;
         for (int i = 0; i < parameterTypes.length; i++) {
-            String param;
-            if (broken) {
-                param = null;
-            } else {
-                if (prefix < string.length()
-                        && string.charAt(prefix) == PARAM_PREFIX_CHAR) {
-                    int suffix = string.indexOf(PARAM_SUFFIX_CHAR, prefix + 1);
-                    if (suffix >= 0) {
-                        param = string.substring(prefix + 1, suffix);
-                        prefix = suffix + 1;
-                    } else {
-                        param = null;
-                        broken = true;
-                    }
-                } else {
-                    param = null;
-                    broken = true;
-                }
-            }
-            parameters[i] = typeConversionManager_.convert((Object) param,
-                    parameterTypes[i]);
+            parameters[i] = typeConversionManager_.convert(
+                    (Object) (i < rawParameters.length ? rawParameters[i]
+                            : null), parameterTypes[i]);
         }
         return parameters;
     }
@@ -519,6 +544,112 @@ public class PathMappingImpl implements PathMapping {
                     new Object[0]));
         } else {
             return null;
+        }
+    }
+
+    /**
+     * 指定されたPageコンポーネント名がこのPathMappingによってパスからマップされ得るかを返します。
+     * 
+     * @param pageComponentName Pageのコンポーネント名。
+     * @return 指定されたPageコンポーネント名がこのPathMappingによってパスからマップされ得るか。
+     * @since 0.9.6
+     */
+    boolean mapsToPageComponentName(String pageComponentName) {
+        if (pageComponentName == null) {
+            return false;
+        }
+
+        return pageComponentNameTemplatePattern_.matcher(pageComponentName)
+                .matches();
+    }
+
+    public Action getRenderAction(PageComponent pageComponent, Request request,
+            VariableResolver resolver) {
+        Method method = MethodUtils.getMethod(pageComponent.getPageClass(),
+                ACTION_RENDER);
+        if (method == null) {
+            return null;
+        }
+
+        return new ActionImpl(pageComponent.getPage(), new MethodInvokerImpl(
+                method, new Object[0]));
+    }
+
+    protected String getDefaultActionName() {
+        return ACTION_DEFAULT;
+    }
+
+    public static class Button {
+        private static final Pattern PATTERN = Pattern
+                .compile("([a-zA-Z_][a-zA-Z_0-9]*)((\\[[^]]*\\])*)");
+
+        private static final char PARAM_PREFIX_CHAR = '[';
+
+        private static final char PARAM_SUFFIX_CHAR = ']';
+
+        private static final String PARAM_PREFIX = String
+                .valueOf(PARAM_PREFIX_CHAR);
+
+        private static final String PARAM_SUFFIX = String
+                .valueOf(PARAM_SUFFIX_CHAR);
+
+        private String rawName_;
+
+        private String name_;
+
+        private String[] parameters_;
+
+        private boolean valid_;
+
+        public Button(String rawName) {
+            rawName_ = rawName;
+
+            String name;
+            if (rawName.endsWith(".x") || rawName.endsWith(".y")) {
+                name = rawName
+                        .substring(0, rawName.length() - 2/*=".x".length()*/);
+            } else {
+                name = rawName;
+            }
+
+            Matcher matcher = PATTERN.matcher(name);
+            if (!matcher.matches()) {
+                return;
+            }
+
+            name_ = matcher.group(1);
+            parameters_ = parseParameters(matcher.group(2));
+            valid_ = true;
+        }
+
+        String[] parseParameters(String parametersString) {
+            List<String> list = new ArrayList<String>();
+            if (parametersString.length() > 0) {
+                for (StringTokenizer st = new StringTokenizer(
+                        parametersString
+                                .substring(1/*=PARAM_PREFIX.length()*/,
+                                        parametersString.length() - 1/*=PARAM_SUFFIX.length()*/),
+                        PARAM_SUFFIX + PARAM_PREFIX); st.hasMoreTokens();) {
+                    list.add(st.nextToken());
+                }
+            }
+            return list.toArray(new String[0]);
+        }
+
+        public boolean isValid() {
+            return valid_;
+        }
+
+        public String getRawName() {
+            return rawName_;
+        }
+
+        public String getName() {
+            return name_;
+        }
+
+        public String[] getParameters() {
+            return parameters_;
         }
     }
 }

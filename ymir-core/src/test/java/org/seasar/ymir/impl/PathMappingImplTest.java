@@ -10,6 +10,7 @@ import org.seasar.ymir.Action;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.impl.PathMappingImpl.Button;
 import org.seasar.ymir.mock.MockRequest;
 
 public class PathMappingImplTest extends TestCase {
@@ -22,7 +23,7 @@ public class PathMappingImplTest extends TestCase {
         target_ = new PathMappingImpl("^/([a-zA-Z][a-zA-Z0-9]*)\\.(html|do)$",
                 "${1}Page", "_${method}", "", "/${1}.html",
                 "^_([a-zA-Z][a-zA-Z0-9]*)$", null);
-        target_.setTypeConversionManager(new BeanUtilsTypeConversionManager());
+        target_.setTypeConversionManager(new YmirTypeConversionManager());
     }
 
     public void testGetAction_親のボタン用アクション・子のボタン用のアクション・親の通常アクション・子の通常アクションの順で探索すること()
@@ -43,21 +44,6 @@ public class PathMappingImplTest extends TestCase {
         assertNotNull(action);
         assertSame(child4Page, action.getTarget());
         assertEquals("_post_search", action.getName());
-    }
-
-    public void testParseParameters() throws Exception {
-        Object[] actual = target_.parseParameters("[1][test][hoe]",
-                new Class[] { Integer.TYPE, String.class, Integer.TYPE,
-                    Integer.TYPE, String.class });
-
-        assertNotNull(actual);
-        assertEquals(5, actual.length);
-        int idx = 0;
-        assertEquals(Integer.valueOf(1), actual[idx++]);
-        assertEquals("test", actual[idx++]);
-        assertEquals(Integer.valueOf(0), actual[idx++]);
-        assertEquals(Integer.valueOf(0), actual[idx++]);
-        assertNull(actual[idx++]);
     }
 
     public void test_複数パラメータつきアクションのためのActionオブジェクトを生成できること() throws Exception {
@@ -155,5 +141,67 @@ public class PathMappingImplTest extends TestCase {
 
         assertEquals("science&technology", actual.get("category")[0]);
         assertEquals("15", actual.get("sequence")[0]);
+    }
+
+    public void testMapsToPageComponentName() throws Exception {
+        PathMappingImpl target = new PathMappingImpl(
+                "^/([^/]*)/([^/]*)\\.html$", "${1}Pag${2}e", "_${method}", "",
+                "", "^_([a-zA-Z][a-zA-Z0-9]*)$", null);
+
+        assertFalse(target.mapsToPageComponentName(null));
+        assertFalse(target.mapsToPageComponentName("saru"));
+        assertTrue(target.mapsToPageComponentName("Page"));
+        assertTrue(target.mapsToPageComponentName("saruPage"));
+    }
+
+    public void testButton1() throws Exception {
+        Button button = new Button("abc");
+        assertTrue(button.isValid());
+        assertEquals("abc", button.getName());
+        assertEquals(0, button.getParameters().length);
+    }
+
+    public void testButton2() throws Exception {
+        Button button = new Button("abc[1][2]");
+        assertTrue(button.isValid());
+        assertEquals("abc", button.getName());
+        assertEquals(2, button.getParameters().length);
+        int idx = 0;
+        assertEquals("1", button.getParameters()[idx++]);
+        assertEquals("2", button.getParameters()[idx++]);
+    }
+
+    public void testButton3() throws Exception {
+        Button button = new Button("abc*");
+        assertFalse(button.isValid());
+    }
+
+    public void testButton4() throws Exception {
+        Button button = new Button("abc.x");
+        assertTrue(button.isValid());
+        assertEquals("abc", button.getName());
+        assertEquals(0, button.getParameters().length);
+    }
+
+    public void testButton5() throws Exception {
+        Button button = new Button("abc.y");
+        assertTrue(button.isValid());
+        assertEquals("abc", button.getName());
+        assertEquals(0, button.getParameters().length);
+    }
+
+    public void testButton6() throws Exception {
+        Button button = new Button("abc.z");
+        assertFalse(button.isValid());
+    }
+
+    public void testButton7() throws Exception {
+        Button button = new Button("abc[1][2].x");
+        assertTrue(button.isValid());
+        assertEquals("abc", button.getName());
+        assertEquals(2, button.getParameters().length);
+        int idx = 0;
+        assertEquals("1", button.getParameters()[idx++]);
+        assertEquals("2", button.getParameters()[idx++]);
     }
 }

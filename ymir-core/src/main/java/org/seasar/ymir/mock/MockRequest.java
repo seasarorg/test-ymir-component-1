@@ -27,8 +27,6 @@ public class MockRequest extends RequestWrapper {
 
     private Map<String, FormFile[]> fileParameterMap_ = new HashMap<String, FormFile[]>();
 
-    private boolean dispatchingByRequestParameter_;
-
     private boolean dispatchingByParameter_;
 
     private Locale locale_;
@@ -71,12 +69,9 @@ public class MockRequest extends RequestWrapper {
         }
     }
 
+    // TODO [YMIR-1.0] 削除する。
     public boolean isDispatchingByParameter() {
         return dispatchingByParameter_;
-    }
-
-    public boolean isDispatchingByRequestParameter() {
-        return dispatchingByRequestParameter_;
     }
 
     public boolean isMatched() {
@@ -134,12 +129,6 @@ public class MockRequest extends RequestWrapper {
 
     public MockRequest setDispatchingByParameter(boolean dispatchingByParameter) {
         dispatchingByParameter_ = dispatchingByParameter;
-        return this;
-    }
-
-    public MockRequest setDispatchingByRequestParameter(
-            boolean dispatchingByRequestParameter) {
-        dispatchingByRequestParameter_ = dispatchingByRequestParameter;
         return this;
     }
 

@@ -43,6 +43,8 @@ public class MatchedPathMappingImpl implements MatchedPathMapping {
         return pathMapping_.getPageComponentName(variableResolver_);
     }
 
+    // TODO [YMIR-1.0] 廃止する。
+    @SuppressWarnings("deprecation")
     public String getActionName() {
         return pathMapping_.getActionName(variableResolver_);
     }
@@ -67,5 +69,10 @@ public class MatchedPathMappingImpl implements MatchedPathMapping {
     public Action getAction(PageComponent pageComponent, Request request) {
         return pathMapping_
                 .getAction(pageComponent, request, variableResolver_);
+    }
+
+    public Action getRenderAction(PageComponent pageComponent, Request request) {
+        return pathMapping_.getRenderAction(pageComponent, request,
+                variableResolver_);
     }
 }

@@ -198,6 +198,9 @@ public class YmirImpl implements Ymir {
         request.leaveDispatch();
     }
 
+    // TODO [YMIR-1.0] PageNotFoundExceptionをRuntimException化。
+    // ActionNotFoundExceptionも。PageNotとActionNotはBadRequestRuntimeExceptionの子Exceptionにする。
+    // org.seasar.ymirパッケージ内のクラスについてはPermissionDeniedをthrowsから外す。
     public Response processRequest(final Request request)
             throws PageNotFoundException, PermissionDeniedException {
         Response response = requestProcessor_.process(request);

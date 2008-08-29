@@ -26,11 +26,13 @@ public interface RequestProcessor {
     /**
      * アクション名に対応するメソッドがない場合のデフォルトのアクション名です。
      */
+    @Deprecated
     String ACTION_DEFAULT = "_default";
 
     /**
      * レンダリングのためにフレームワークによって呼び出されるメソッドの名前です。
      */
+    @Deprecated
     String METHOD_RENDER = "_render";
 
     /**

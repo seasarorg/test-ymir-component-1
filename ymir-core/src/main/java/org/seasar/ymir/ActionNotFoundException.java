@@ -11,10 +11,12 @@ package org.seasar.ymir;
 public class ActionNotFoundException extends PageNotFoundException {
     private static final long serialVersionUID = 5885040967668460745L;
 
-    private String actionName_;
+    private String method_;
 
     /**
      * このクラスのオブジェクトを構築します。
+     * 
+     * @param path ページのパス。
      */
     public ActionNotFoundException(String path) {
         super(path);
@@ -23,30 +25,31 @@ public class ActionNotFoundException extends PageNotFoundException {
     /**
      * このクラスのオブジェクトを構築します。
      * 
-     * @param actionName アクション名。
+     * @param path ページのパス。
+     * @param method HTTPメソッド名。
      */
-    public ActionNotFoundException(String path, String actionName) {
+    public ActionNotFoundException(String path, String method) {
         super(path);
-        setActionName(actionName);
+        setMethod(method);
     }
 
     /**
-     * アクション名を返します。
+     * HTTPメソッド名を返します。
      * 
-     * @return アクション名。
+     * @return HTTPメソッド名。
      */
-    public String getActionName() {
-        return actionName_;
+    public String getMethod() {
+        return method_;
     }
 
     /**
-     * アクション名を設定します。
+     * HTTPメソッド名を設定します。
      * 
-     * @param actionName アクション名。
+     * @param method HTTPメソッド名。
      * @return このオブジェクト自身。
      */
-    public ActionNotFoundException setActionName(String actionName) {
-        actionName_ = actionName;
+    public ActionNotFoundException setMethod(String method) {
+        method_ = method;
         return this;
     }
 }

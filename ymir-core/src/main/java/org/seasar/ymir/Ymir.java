@@ -202,7 +202,7 @@ public interface Ymir {
      * </p>
      * 
      * @param path パス。末尾に「/」がついていてもついていなくても構いません。
-     * @param method HTTPメソッド。
+     * @param method HTTPメソッド。全て大文字である必要があります。
      * @return 構築したMatchedPathMappingオブジェクト。
      */
     MatchedPathMapping findMatchedPathMapping(String path, String method);

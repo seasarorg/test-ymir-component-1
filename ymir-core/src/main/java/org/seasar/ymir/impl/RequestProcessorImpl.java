@@ -43,7 +43,6 @@ import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
-import org.seasar.ymir.util.MethodUtils;
 import org.seasar.ymir.util.ServletUtils;
 import org.seasar.ymir.util.YmirUtils;
 
@@ -79,8 +78,6 @@ public class RequestProcessorImpl implements RequestProcessor {
 
     private final PageComponentVisitor<Object> visitorForInvokingInPhaseActionInvoked_ = new VisitorForInvoking(
             Phase.ACTION_INVOKED);
-
-    private final PageComponentVisitor<Object> visitorForRendering_ = new VisitorForRendering();
 
     private final PageComponentVisitor<Object> visitorForInvokingInPhaseScopeObjectOutjecting_ = new VisitorForInvoking(
             Phase.SCOPEOBJECT_OUTJECTING);
@@ -248,7 +245,7 @@ public class RequestProcessorImpl implements RequestProcessor {
                     // これは、forward先のパスに対応するPageクラスでは_render()だけ
                     // 呼びたい場合にアクションメソッドを省略できるようにするため。
                     throw new ActionNotFoundException(dispatch.getPath(),
-                            dispatch.getMatchedPathMapping().getActionName());
+                            request.getMethod());
                 }
                 dispatch.setAction(action);
 
@@ -287,7 +284,7 @@ public class RequestProcessorImpl implements RequestProcessor {
                         }
                     }
                     if (renderShouldBeCalled) {
-                        pageComponent.accept(visitorForRendering_);
+                        pageComponent.accept(new VisitorForRendering(request));
                     }
                 }
 
@@ -538,12 +535,18 @@ public class RequestProcessorImpl implements RequestProcessor {
     }
 
     protected class VisitorForRendering extends PageComponentVisitor<Object> {
+        private Request request_;
+
+        private MatchedPathMapping matched_;
+
+        public VisitorForRendering(Request request) {
+            request_ = request;
+            matched_ = request_.getCurrentDispatch().getMatchedPathMapping();
+        }
+
         public Object process(PageComponent pageComponent) {
             try {
-                invokeAction(new ActionImpl(pageComponent.getPage(),
-                        new MethodInvokerImpl(MethodUtils.getMethod(
-                                pageComponent.getPageClass(), METHOD_RENDER),
-                                new Object[0])));
+                invokeAction(matched_.getRenderAction(pageComponent, request_));
 
                 return null;
             } catch (PermissionDeniedException ex) {

@@ -10,7 +10,7 @@ import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 
 public class MockMatchedPathMapping implements MatchedPathMapping {
-    private Action action_ = null;
+    private Action action_;
 
     private String actionName_;
 
@@ -29,6 +29,12 @@ public class MockMatchedPathMapping implements MatchedPathMapping {
     private boolean denied_;
 
     private boolean dispatchingByParameter_;
+
+    private String renderActionName_;
+
+    private Action renderAction_;
+
+    private String defaultActionName_;
 
     public Action getAction(PageComponent pageComponent, Request request) {
         return action_;
@@ -108,6 +114,7 @@ public class MockMatchedPathMapping implements MatchedPathMapping {
         return denied_;
     }
 
+    // TODO [YMIR-1.0] 削除する。
     public boolean isDispatchingByParameter() {
         return dispatchingByParameter_;
     }
@@ -121,5 +128,29 @@ public class MockMatchedPathMapping implements MatchedPathMapping {
     public MockMatchedPathMapping setDenied(boolean denied) {
         denied_ = denied;
         return this;
+    }
+
+    public String getRenderActionName() {
+        return renderActionName_;
+    }
+
+    public void setRenderActionName(String renderActionName) {
+        renderActionName_ = renderActionName;
+    }
+
+    public Action getRenderAction(PageComponent pageComponent, Request request) {
+        return renderAction_;
+    }
+
+    public void setRenderAction(Action renderAction) {
+        renderAction_ = renderAction;
+    }
+
+    public String getDefaultActionName() {
+        return defaultActionName_;
+    }
+
+    public void setDefaultActionName(String defaultActionName) {
+        defaultActionName_ = defaultActionName;
     }
 }
