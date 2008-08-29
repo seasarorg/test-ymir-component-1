@@ -520,6 +520,8 @@ public class SourceCreatorImpl implements SourceCreator {
                         }
                     }
                     if (methodDesc != null) {
+                        // TODO [YMIR-1.0] SELECTするコードの生成を廃止する。
+                        // おそらくあわせてMETA_NAME_ACTIONTYPE,META_VALUE_ACTIONTYPE_RENDERも廃止することになる。
                         addSelectStatement(methodDesc, pds[j], metaData);
                     }
                 }
