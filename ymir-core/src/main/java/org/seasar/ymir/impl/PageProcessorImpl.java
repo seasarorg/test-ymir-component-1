@@ -114,7 +114,7 @@ public class PageProcessorImpl implements PageProcessor {
                 } catch (IllegalAccessException ex) {
                     throw new RuntimeException(ex);
                 } catch (InvocationTargetException ex) {
-                    throw new WrappingRuntimeException(ex.getCause());
+                    throw new WrappingRuntimeException(ex.getTargetException());
                 }
             }
         }

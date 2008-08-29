@@ -45,7 +45,8 @@ public interface Action {
      * </p>
      * 
      * @return 実行結果。
+     * @throws WrappingRuntimeException メソッド実行に失敗した場合。
      * @see #shouldInvoke()
      */
-    Object invoke();
+    Object invoke() throws WrappingRuntimeException;
 }

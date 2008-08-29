@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import org.seasar.ymir.Action;
 import org.seasar.ymir.MethodInvoker;
+import org.seasar.ymir.WrappingRuntimeException;
 
 public class ActionImpl implements Action {
     private Object target_;
@@ -39,7 +40,7 @@ public class ActionImpl implements Action {
         }
     }
 
-    public Object invoke() {
+    public Object invoke() throws WrappingRuntimeException {
         return methodInvoker_.invoke(target_);
     }
 
