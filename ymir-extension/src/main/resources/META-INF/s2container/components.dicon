@@ -8,6 +8,7 @@
   <component class="org.seasar.ymir.extension.zpt.ZptAnalyzer" />
   <component
     class="org.seasar.ymir.extension.freemarker.FreemarkerSourceGenerator" />
+  <component class="org.seasar.ymir.extension.zpt.ZptResponseCreator" />
   <component
-    class="org.seasar.ymir.extension.zpt.ZptResponseCreator" />
+    class="org.seasar.ymir.extension.creator.mapping.impl.PathMappingImplExtraData" />
 </components>
