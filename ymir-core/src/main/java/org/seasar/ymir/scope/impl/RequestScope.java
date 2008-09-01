@@ -13,11 +13,19 @@ import org.seasar.kvasir.util.collection.EnumerationIterator;
  * @author YOKOTA Takehiko
  */
 public class RequestScope extends AbstractServletScope {
-    public Object getAttribute(String name) {
+    public Object getAttribute(String name, Class<?> type) {
+        if (name == null) {
+            return null;
+        }
+
         return getRequest().getAttribute(name);
     }
 
     public void setAttribute(String name, Object value) {
+        if (name == null) {
+            return;
+        }
+
         getRequest().setAttribute(name, value);
     }
 

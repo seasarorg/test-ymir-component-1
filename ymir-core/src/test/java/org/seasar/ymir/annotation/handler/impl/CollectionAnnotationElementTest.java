@@ -26,6 +26,10 @@ public class CollectionAnnotationElementTest extends TestCase {
                         return false;
                     }
 
+                    public boolean required() {
+                        return false;
+                    }
+
                     public String name() {
                         return "";
                     }
@@ -55,6 +59,10 @@ public class CollectionAnnotationElementTest extends TestCase {
                     }
 
                     public boolean injectWhereNull() {
+                        return false;
+                    }
+
+                    public boolean required() {
                         return false;
                     }
 

@@ -131,7 +131,7 @@ public class ScopeAttributePopulator implements ScopeAttributeHandler {
                 return;
             }
 
-            Object value = scope_.getAttribute(name);
+            Object value = scope_.getAttribute(name, null);
             value = typeConversionManager_.convert(value, handler
                     .getPropertyType());
             boolean removeValue = false;

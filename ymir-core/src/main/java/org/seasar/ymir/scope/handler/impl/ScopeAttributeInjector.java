@@ -7,6 +7,7 @@ import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
+import org.seasar.ymir.scope.AttributeNotFoundRuntimeException;
 import org.seasar.ymir.scope.Scope;
 
 /**
@@ -18,20 +19,33 @@ public class ScopeAttributeInjector extends AbstractScopeAttributeHandler {
     private static final Logger logger_ = Logger
             .getLogger(ScopeAttributeInjector.class);
 
-    public ScopeAttributeInjector(String name, Scope scope,
-            Method injectionMethod, boolean injectWhereNull,
+    private Class<?> type_;
+
+    private boolean required_;
+
+    public ScopeAttributeInjector(String name, Class<?> type, Scope scope,
+            Method injectionMethod, boolean injectWhereNull, boolean required,
             String[] enabledActionNames, HotdeployManager hotdeployManager,
             TypeConversionManager typeConversionManager) {
         super(name, scope, injectionMethod, injectWhereNull,
                 enabledActionNames, hotdeployManager, typeConversionManager);
+        type_ = type;
+        required_ = required;
     }
 
-    public void injectTo(Object component, String actionName) {
+    public void injectTo(Object component, String actionName)
+            throws AttributeNotFoundRuntimeException {
         if (!isEnabled(actionName)) {
             return;
         }
 
-        Object value = scope_.getAttribute(name_);
+        Object value = scope_.getAttribute(name_, type_);
+        if (required_ && value == null) {
+            throw new AttributeNotFoundRuntimeException("Attribute (name="
+                    + name_ + ", type=" + type_ + ") not found: method="
+                    + method_ + ", component=" + component).setName(name_)
+                    .setType(type_).setMethod(method_).setComponent(component);
+        }
         if (value != null || invokeWhereNull_) {
             value = typeConversionManager_.convert(value, method_
                     .getParameterTypes()[0]);

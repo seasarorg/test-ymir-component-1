@@ -17,6 +17,8 @@
     class="org.seasar.ymir.scope.impl.RequestHeaderScope" />
   <component name="responseHeaderScope"
     class="org.seasar.ymir.scope.impl.ResponseHeaderScope" />
+  <component name="componentScope"
+    class="org.seasar.ymir.scope.impl.ComponentScope" />
   <component name="redirectionScope"
     class="org.seasar.ymir.redirection.impl.RedirectionScope" />
   <component name="conversationScope"

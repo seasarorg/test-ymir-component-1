@@ -1,5 +1,7 @@
 package org.seasar.ymir.scope.handler;
 
+import org.seasar.ymir.scope.AttributeNotFoundRuntimeException;
+
 /**
  * スコープに格納される属性を扱うためのインタフェースです。
  * <p><b>同期化：</b>
@@ -15,8 +17,10 @@ public interface ScopeAttributeHandler {
      * 
      * @param component コンポーネント。
      * @param actionName 現在のリクエストに対応するアクションの名前。
+     * @throws AttributeNotFoundRuntimeException 属性が必須である場合に属性が存在しなかった場合。
      */
-    void injectTo(Object component, String actionName);
+    void injectTo(Object component, String actionName)
+            throws AttributeNotFoundRuntimeException;
 
     /**
      * 指定されたコンポーネントから値を取り出してスコープにアウトジェクトします。

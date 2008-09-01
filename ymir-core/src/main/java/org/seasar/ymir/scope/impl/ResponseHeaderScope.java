@@ -42,11 +42,15 @@ public class ResponseHeaderScope extends AbstractServletScope {
         typeConversionManager_ = typeConversionManager;
     }
 
-    public Object getAttribute(String name) {
+    public Object getAttribute(String name, Class<?> type) {
         return null;
     }
 
     public void setAttribute(String name, Object value) {
+        if (name == null) {
+            return;
+        }
+
         HttpServletResponse response = getResponse();
         if (value == null) {
             ;

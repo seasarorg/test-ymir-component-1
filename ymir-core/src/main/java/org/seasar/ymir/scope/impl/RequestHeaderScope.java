@@ -16,7 +16,11 @@ import org.seasar.kvasir.util.collection.EnumerationIterator;
  * @author YOKOTA Takehiko
  */
 public class RequestHeaderScope extends AbstractServletScope {
-    public Object getAttribute(String name) {
+    public Object getAttribute(String name, Class<?> type) {
+        if (name == null) {
+            return null;
+        }
+
         List<String> list = new ArrayList<String>();
         for (Enumeration<?> enm = getRequest().getHeaders(name); enm
                 .hasMoreElements();) {

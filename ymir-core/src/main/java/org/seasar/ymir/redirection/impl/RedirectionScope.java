@@ -25,11 +25,19 @@ public class RedirectionScope implements Scope {
         redirectionManager_ = redirectionManager;
     }
 
-    public Object getAttribute(String name) {
+    public Object getAttribute(String name, Class<?> type) {
+        if (name == null) {
+            return null;
+        }
+
         return redirectionManager_.getScopeAttribute(name);
     }
 
     public void setAttribute(String name, Object value) {
+        if (name == null) {
+            return;
+        }
+
         if (value == null) {
             redirectionManager_.removeScopeAttribute(name);
         } else {

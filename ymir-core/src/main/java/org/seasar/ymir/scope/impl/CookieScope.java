@@ -28,7 +28,11 @@ import javax.servlet.http.Cookie;
  * @author YOKOTA Takehiko
  */
 public class CookieScope extends AbstractServletScope {
-    public Object getAttribute(String name) {
+    public Object getAttribute(String name, Class<?> type) {
+        if (name == null) {
+            return null;
+        }
+
         Cookie[] cookies = getRequest().getCookies();
         if (cookies != null) {
             for (int i = 0; i < cookies.length; i++) {
@@ -41,6 +45,10 @@ public class CookieScope extends AbstractServletScope {
     }
 
     public void setAttribute(String name, Object value) {
+        if (name == null) {
+            return;
+        }
+
         if (value != null && value.getClass().isArray()) {
             int length = Array.getLength(value);
             for (int i = 0; i < length; i++) {

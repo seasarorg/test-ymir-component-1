@@ -62,7 +62,11 @@ public class ConversationScope implements Scope {
         conversationManager_ = conversationManager;
     }
 
-    public Object getAttribute(String name) {
+    public Object getAttribute(String name, Class<?> type) {
+        if (name == null) {
+            return null;
+        }
+
         if (isUseSessionScopeAsConversationScope()) {
             return sessionManager_.getAttribute(name);
         } else {
@@ -101,6 +105,10 @@ public class ConversationScope implements Scope {
     }
 
     public void setAttribute(String name, Object value) {
+        if (name == null) {
+            return;
+        }
+
         if (isUseSessionScopeAsConversationScope()) {
             sessionManager_.setAttribute(name, value);
         } else {

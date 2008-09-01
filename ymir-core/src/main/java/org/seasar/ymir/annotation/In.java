@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.seasar.ymir.scope.AttributeNotFoundRuntimeException;
 import org.seasar.ymir.scope.Scope;
 
 /**
@@ -74,4 +75,14 @@ public @interface In {
      * @return 属性の値がnullである場合もインジェクトを行なうかどうか。
      */
     boolean injectWhereNull() default false;
+
+    /**
+     * 属性の値が非nullである必要があるかどうかです。
+     * <p>このプロパティをtrueにすると、属性の値がnullである場合は
+     * {@link AttributeNotFoundRuntimeException}がスローされます。
+     * </p>
+     * 
+     * @return 属性の値が非nullである必要があるかどうか。
+     */
+    boolean required() default false;
 }

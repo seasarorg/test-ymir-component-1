@@ -23,11 +23,19 @@ public class SessionScope implements Scope {
         sessionManager_ = sessionManager;
     }
 
-    public Object getAttribute(String name) {
+    public Object getAttribute(String name, Class<?> type) {
+        if (name == null) {
+            return null;
+        }
+
         return sessionManager_.getAttribute(name);
     }
 
     public void setAttribute(String name, Object value) {
+        if (name == null) {
+            return;
+        }
+
         sessionManager_.setAttribute(name, value);
     }
 

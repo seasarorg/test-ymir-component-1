@@ -205,8 +205,9 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
         }
 
         injectedScopeAttributeHandlerList_.add(new ScopeAttributeInjector(
-                toAttributeName(method.getName(), in.name()), getScope(in),
-                method, in.injectWhereNull(), in.actionName(),
+                toAttributeName(method.getName(), in.name()), method
+                        .getParameterTypes()[0], getScope(in), method, in
+                        .injectWhereNull(), in.required(), in.actionName(),
                 hotdeployManager_, typeConversionManager_));
     }
 

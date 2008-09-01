@@ -28,7 +28,11 @@ public class RequestParameterScope implements Scope {
         container_ = container;
     }
 
-    public Object getAttribute(String name) {
+    public Object getAttribute(String name, Class<?> type) {
+        if (name == null) {
+            return null;
+        }
+
         Request request = getRequest();
         FormFile[] fileValues = request.getFileParameterValues(name);
         if (fileValues != null) {

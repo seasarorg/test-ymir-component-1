@@ -30,7 +30,11 @@ public class WindowScope implements Scope {
         windowManager_ = windowManager;
     }
 
-    public Object getAttribute(String name) {
+    public Object getAttribute(String name, Class<?> type) {
+        if (name == null) {
+            return null;
+        }
+
         Map<String, Object> subScopeMap = getSubScopeMap(false);
         if (subScopeMap == null) {
             return null;
@@ -54,6 +58,10 @@ public class WindowScope implements Scope {
     }
 
     public void setAttribute(String name, Object value) {
+        if (name == null) {
+            return;
+        }
+
         if (value == null) {
             Map<String, Object> subScopeMap = getSubScopeMap(false);
             if (subScopeMap == null) {
