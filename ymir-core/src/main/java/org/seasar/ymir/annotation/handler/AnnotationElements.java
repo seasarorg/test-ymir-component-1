@@ -3,6 +3,9 @@ package org.seasar.ymir.annotation.handler;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.seasar.ymir.annotation.Alias;
 import org.seasar.ymir.annotation.Collection;
@@ -45,5 +48,15 @@ public class AnnotationElements {
         } catch (InvocationTargetException ex) {
             throw new RuntimeException(ex.getTargetException());
         }
+    }
+
+    public static String[] getPropertyNames(
+            Class<? extends Annotation> annotationType) {
+        List<String> list = new ArrayList<String>();
+        for (Method method : annotationType.getDeclaredMethods()) {
+            list.add(method.getName());
+        }
+        Collections.sort(list);
+        return list.toArray(new String[0]);
     }
 }

@@ -13,7 +13,7 @@ import org.seasar.ymir.annotation.handler.AnnotationElements;
 import org.seasar.ymir.annotation.handler.AnnotationProcessor;
 
 public class AliasAnnotationElement extends AbstractAnnotationElement {
-    private static final String PROP_ALIAS = "z_alias";
+    public static final String PROP_ALIAS = "z_alias";
 
     private static final String PROP_ANNOTATIONTYPE = "annotationType";
 

@@ -4,107 +4,79 @@ import java.lang.annotation.Annotation;
 
 import junit.framework.TestCase;
 
-import org.seasar.ymir.annotation.In;
-import org.seasar.ymir.annotation.Ins;
 import org.seasar.ymir.annotation.handler.AnnotationElement;
-import org.seasar.ymir.scope.Scope;
-import org.seasar.ymir.scope.impl.ApplicationScope;
-import org.seasar.ymir.scope.impl.SessionScope;
 
 public class CollectionAnnotationElementTest extends TestCase {
     private CollectionAnnotationElement target_ = new CollectionAnnotationElement();
 
     public void testExpand() throws Exception {
-        Ins ins = new Ins() {
-            public In[] value() {
-                return new In[] { new In() {
-                    public String[] actionName() {
-                        return new String[0];
-                    }
+        HoeFuga hoeFuga = new HoeFuga() {
+            public Class<? extends Annotation> annotationType() {
+                return HoeFuga.class;
+            }
 
-                    public boolean injectWhereNull() {
-                        return false;
-                    }
-
-                    public boolean required() {
-                        return false;
-                    }
-
-                    public String name() {
-                        return "";
-                    }
-
-                    public Class<? extends Scope> scopeClass() {
-                        return Scope.class;
-                    }
-
-                    public String scopeName() {
-                        return "";
-                    }
-
+            public Hoe[] abc() {
+                return new Hoe[] { new Hoe() {
                     public Class<? extends Annotation> annotationType() {
-                        return In.class;
+                        return Hoe.class;
                     }
 
-                    public Class<? extends Scope> value() {
-                        return SessionScope.class;
+                    public int value() {
+                        return 1;
                     }
-
-                    public boolean grouped() {
-                        return false;
-                    }
-                }, new In() {
-                    public String[] actionName() {
-                        return new String[0];
-                    }
-
-                    public boolean injectWhereNull() {
-                        return false;
-                    }
-
-                    public boolean required() {
-                        return false;
-                    }
-
-                    public String name() {
-                        return "";
-                    }
-
-                    public Class<? extends Scope> scopeClass() {
-                        return Scope.class;
-                    }
-
-                    public String scopeName() {
-                        return "";
-                    }
-
+                }, new Hoe() {
                     public Class<? extends Annotation> annotationType() {
-                        return In.class;
+                        return Hoe.class;
                     }
 
-                    public Class<? extends Scope> value() {
-                        return ApplicationScope.class;
-                    }
-
-                    public boolean grouped() {
-                        return false;
+                    public int value() {
+                        return 2;
                     }
                 } };
             }
 
-            public Class<? extends Annotation> annotationType() {
-                return Ins.class;
+            public Fuga value() {
+                return new Fuga() {
+                    public Class<? extends Annotation> annotationType() {
+                        return Fuga.class;
+                    }
+
+                    public int value() {
+                        return 0;
+                    }
+                };
+            }
+
+            public Hoe[] zzz() {
+                return new Hoe[] { new Hoe() {
+                    public Class<? extends Annotation> annotationType() {
+                        return Hoe.class;
+                    }
+
+                    public int value() {
+                        return 3;
+                    }
+                }, new Hoe() {
+                    public Class<? extends Annotation> annotationType() {
+                        return Hoe.class;
+                    }
+
+                    public int value() {
+                        return 4;
+                    }
+                } };
             }
         };
 
-        target_.expand(ins);
+        target_.expand(hoeFuga);
         AnnotationElement[] actual = target_.getExpandedElements();
 
-        assertEquals(2, actual.length);
+        assertEquals(5, actual.length);
         int idx = 0;
-        assertEquals(SessionScope.class, ((In) actual[idx++].getAnnotation())
-                .value());
-        assertEquals(ApplicationScope.class, ((In) actual[idx++]
-                .getAnnotation()).value());
+        assertEquals(1, ((Hoe) actual[idx++].getAnnotation()).value());
+        assertEquals(2, ((Hoe) actual[idx++].getAnnotation()).value());
+        assertEquals(0, ((Fuga) actual[idx++].getAnnotation()).value());
+        assertEquals(3, ((Hoe) actual[idx++].getAnnotation()).value());
+        assertEquals(4, ((Hoe) actual[idx++].getAnnotation()).value());
     }
 }

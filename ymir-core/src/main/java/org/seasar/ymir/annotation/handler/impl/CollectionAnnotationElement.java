@@ -1,5 +1,6 @@
 package org.seasar.ymir.annotation.handler.impl;
 
+import static org.seasar.ymir.annotation.handler.AnnotationElements.getPropertyNames;
 import static org.seasar.ymir.annotation.handler.AnnotationElements.getPropertyValue;
 
 import java.lang.annotation.Annotation;
@@ -12,8 +13,6 @@ import org.seasar.ymir.annotation.handler.AnnotationElements;
 import org.seasar.ymir.annotation.handler.AnnotationProcessor;
 
 public class CollectionAnnotationElement extends AbstractAnnotationElement {
-    private static final String PROP_COLLECTION = "value";
-
     private AnnotationElement[] expandedElements_;
 
     public CollectionAnnotationElement(Annotation annotation) {
@@ -28,24 +27,29 @@ public class CollectionAnnotationElement extends AbstractAnnotationElement {
     }
 
     void expand(Annotation collectionAnnotation) {
-        Annotation[] value;
-        try {
-            value = getPropertyValue(collectionAnnotation, PROP_COLLECTION);
-        } catch (ClassCastException ex) {
-            throw new IllegalArgumentException(
-                    "Type of '"
-                            + PROP_COLLECTION
-                            + "' property must be an array of a subclass of Annotation: "
-                            + collectionAnnotation, ex);
-        }
-        if (value == null) {
-            throw new RuntimeException("Collection annotation must have '"
-                    + PROP_COLLECTION + "' property: " + collectionAnnotation);
-        }
-
         List<AnnotationElement> list = new ArrayList<AnnotationElement>();
-        for (Annotation anno : value) {
-            list.add(AnnotationElements.newInstance(anno));
+        for (String name : getPropertyNames(collectionAnnotation
+                .annotationType())) {
+            Object value = getPropertyValue(collectionAnnotation, name);
+            Class<? extends Object> valueClass = value.getClass();
+            boolean array = valueClass.isArray();
+            Class<?> componentType = array ? valueClass.getComponentType()
+                    : valueClass;
+            if (!Annotation.class.isAssignableFrom(componentType)) {
+                throw new IllegalArgumentException(
+                        "Type of '"
+                                + name
+                                + "' property must be an instance or an array of annotation: "
+                                + collectionAnnotation);
+            }
+
+            if (array) {
+                for (Annotation anno : (Annotation[]) value) {
+                    list.add(AnnotationElements.newInstance(anno));
+                }
+            } else {
+                list.add(AnnotationElements.newInstance((Annotation) value));
+            }
         }
         expandedElements_ = list.toArray(new AnnotationElement[0]);
     }
