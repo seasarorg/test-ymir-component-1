@@ -461,6 +461,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         if (path.length() == 0 || path.equals("/")) {
             return false;
         }
+        // TODO なぜgetResource(normalized)としないのだろう…。調査しよう。
         String normalized = ServletUtils.normalizePath(path);
         Set<String> resourceSet = getServletContext().getResourcePaths(
                 normalized.substring(0, normalized.lastIndexOf('/') + 1));

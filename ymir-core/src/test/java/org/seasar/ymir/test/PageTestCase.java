@@ -13,6 +13,7 @@ package org.seasar.ymir.test;
  *   <li>{@link #processRequest(Request)}</li>
  * </ol>
  */
+// TODO [YMIR-1.0] YmirTestCase, PageTestCase, 各種Mockをymir-testingプロジェクトに分けたい。
 abstract public class PageTestCase<P> extends YmirTestCase {
     /**
      * テスト対象であるPageクラスのクラスオブジェクトを返します。

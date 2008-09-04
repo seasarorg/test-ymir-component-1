@@ -1,6 +1,8 @@
 package org.seasar.ymir.test;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -18,8 +20,9 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.mock.servlet.MockHttpServletRequest;
 import org.seasar.framework.mock.servlet.MockHttpSession;
-import org.seasar.framework.mock.servlet.MockServletContext;
 import org.seasar.framework.util.ArrayUtil;
+import org.seasar.kvasir.util.ClassUtils;
+import org.seasar.kvasir.util.io.impl.FileResource;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpServletResponseFilter;
@@ -37,6 +40,7 @@ import org.seasar.ymir.servlet.YmirListener;
 import org.seasar.ymir.test.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.ymir.test.mock.servlet.MockHttpServletResponse;
 import org.seasar.ymir.test.mock.servlet.MockHttpServletResponseImpl;
+import org.seasar.ymir.test.mock.servlet.MockServletContext;
 import org.seasar.ymir.test.mock.servlet.MockServletContextImpl;
 import org.seasar.ymir.util.ContainerUtils;
 import org.seasar.ymir.util.ServletUtils;
@@ -64,6 +68,8 @@ abstract public class YmirTestCase extends TestCase {
     /** リクエストの処理が完了していることを表す定数です。 */
     protected static final int STATUS_PROCESSED = 2;
 
+    private static final String DEFAULT_WEBAPPROOT = "src/main/webapp";
+
     private YmirListener ymirListener_;
 
     private S2Container container_;
@@ -81,6 +87,8 @@ abstract public class YmirTestCase extends TestCase {
     private MockHttpServletResponse httpResponse_;
 
     private Request request_;
+
+    private String webappRoot_ = DEFAULT_WEBAPPROOT;
 
     /**
      * テストに使用されるServletContextオブジェクトを返します。
@@ -140,6 +148,10 @@ abstract public class YmirTestCase extends TestCase {
      */
     protected void setLocale(Locale locale) {
         locale_ = locale;
+    }
+
+    protected void setWebappRoot(String webappRoot) {
+        webappRoot_ = webappRoot;
     }
 
     /**
@@ -264,6 +276,13 @@ abstract public class YmirTestCase extends TestCase {
      */
     public void setUp() {
         application_ = new MockServletContextImpl(getContextPath());
+        URL resource = getClass().getClassLoader()
+                .getResource("app.properties");
+        if (resource == null) {
+            throw new RuntimeException("'app.properties' not found.");
+        }
+        application_.setRoot(new FileResource(findWebappRoot(ClassUtils
+                .getFileOfResource(resource).getParentFile())));
         application_.setInitParameter(YmirListener.CONFIG_PATH_KEY,
                 "ymir.dicon");
 
@@ -284,6 +303,20 @@ abstract public class YmirTestCase extends TestCase {
 
         container_ = SingletonS2ContainerFactory.getContainer();
         ymir_ = (Ymir) container_.getComponent(Ymir.class);
+    }
+
+    File findWebappRoot(File dir) {
+        return new File(findProjectRoot(dir), webappRoot_);
+    }
+
+    File findProjectRoot(final File file) {
+        File f = file;
+        do {
+            if (new File(f, "pom.xml").exists()) {
+                return f;
+            }
+        } while ((f = f.getParentFile()) != null);
+        return file;
     }
 
     /**
@@ -448,8 +481,10 @@ abstract public class YmirTestCase extends TestCase {
         return new MockHttpServletResponseImpl(httpRequest);
     }
 
+    // TODO [YMIR-1.0] 引数をYmirのMockServletContextにしよう。
     protected MockHttpServletRequest newHttpServletRequest(
-            MockServletContext application, String path, MockHttpSession session) {
+            org.seasar.framework.mock.servlet.MockServletContext application,
+            String path, MockHttpSession session) {
         return new MockHttpServletRequestImpl(application, path, session);
     }
 
