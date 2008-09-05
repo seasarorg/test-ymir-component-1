@@ -70,7 +70,7 @@
     <dependency>
       <groupId>org.seasar.ymir</groupId>
       <artifactId>ymir-extension</artifactId>
-      <version>0.9.6-SNAPSHOT</version>
+      <version>0.9.6</version>
       <exclusions>
         <exclusion>
           <groupId>org.seasar.container</groupId>
@@ -121,12 +121,12 @@
     <dependency>
       <groupId>org.seasar.cms.s2-pluggable</groupId>
       <artifactId>s2.3-pluggable</artifactId>
-      <version>0.0.9-SNAPSHOT</version>
+      <version>0.0.9</version>
     </dependency>
     <dependency>
       <groupId>org.seasar.cms.s2-classbuilder</groupId>
       <artifactId>s2.3-classbuilder</artifactId>
-      <version>0.0.6-SNAPSHOT</version>
+      <version>0.0.6</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
