@@ -5,6 +5,7 @@
   </head>
   <body>
 <h1>SYSTEM NOTIFICATION</h1>
+<div tal:condition="not:pathMetaData/template/directory">
 <p>リクエストされたパス<span tal:replace="request/path">PATH</span>に対応するテンプレート<span tal:replace="pathMetaData/template/path">TEMPLTATE</span>が見つかりませんでした。</p>
 <p>テンプレートを作成する場合は「作成」ボタンを押して下さい。</p>
 <form tal:attributes="action request/absolutePath" method="post">
@@ -12,11 +13,17 @@
   <input type="hidden" name="__ymir__task" value="createTemplate" />
   <input type="hidden" name="__ymir__subTask" value="create" />
   <input type="hidden" name="__ymir__method" tal:attributes="value request/method" />
-  <p><textarea name="__ymir__template" cols="80" rows="25" tal:content="template"></textarea></p>
+  <p><textarea name="__ymir__template" cols="80" rows="25" tal:content="templateSource"></textarea></p>
   <p><input type="submit" value="作成" />
   <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" /></p>
 </form>
 <p>既に存在しているテンプレートに処理をフォワードさせたい場合や別のパスに処理をリダイレクトさせたい場合は、下のフォームに遷移先のパス（コンテキスト相対）を入力した上で「設定」ボタンを押して下さい。</p>
+</div>
+<div tal:condition="pathMetaData/template/directory">
+<p>リクエストされたパス<span tal:replace="request/path">PATH</span>に対応するPageクラス<span tal:replace="pathMetaData/className">CLASSNAME</span>が見つかりませんでしたので、クラスを作成します。</p>
+<p>既に存在しているテンプレートに処理をフォワードさせたい場合や別のパスに処理をリダイレクトさせたい場合は、下のフォームに遷移先のパス（コンテキスト相対）を入力した上で「設定」ボタンを押して下さい。
+遷移先がない場合は何も指定する必要はありません。</p>
+</div>
 <form tal:attributes="action request/absolutePath" method="post">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
   <input type="hidden" name="__ymir__task" value="createTemplate" />

@@ -64,4 +64,14 @@ public interface Template {
      * @return テンプレートの文字エンコーディング。
      */
     String getEncoding();
+
+    /**
+     * このテンプレートがディレクトリパスに紐づいているかどうかを返します。
+     * <p>テンプレートがディレクトリパスに紐づいている場合は{@link #getInputStream()}や
+     * {@link #getOutputStream()}を呼び出してはいけません。
+     * </p>
+     * 
+     * @return このテンプレートがディレクトリパスに紐づいているかどうか。
+     */
+    boolean isDirectory();
 }

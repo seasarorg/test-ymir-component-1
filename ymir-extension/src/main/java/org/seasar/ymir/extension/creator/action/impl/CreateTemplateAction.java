@@ -69,19 +69,19 @@ public class CreateTemplateAction extends AbstractAction implements
             }
         }
 
-        String template = getSourceCreator().getSourceGenerator()
-                .generateTemplateSource(
-                        getSuffix(pathMetaData.getTemplate().getName()),
-                        new HashMap<String, Object>());
-        if (template == null) {
-            template = "";
+        Template template = pathMetaData.getTemplate();
+        String templateSource = "";
+        if (!template.isDirectory()) {
+            templateSource = getSourceCreator().getSourceGenerator()
+                    .generateTemplateSource(getSuffix(template.getName()),
+                            new HashMap<String, Object>());
         }
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("pathMetaData", pathMetaData);
-        variableMap.put("template", template);
+        variableMap.put("templateSource", templateSource);
         variableMap.put("actionMethodNotFound", actionMethodNotFound);
         return getSourceCreator().getResponseCreator().createResponse(
                 "createTemplate", variableMap);

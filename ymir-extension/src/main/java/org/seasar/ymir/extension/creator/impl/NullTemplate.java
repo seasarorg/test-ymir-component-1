@@ -40,4 +40,8 @@ public class NullTemplate implements Template {
     public String getEncoding() {
         return "UTF-8";
     }
+
+    public boolean isDirectory() {
+        return false;
+    }
 }

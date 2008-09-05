@@ -236,6 +236,10 @@ public class ZptAnalyzerTest extends TestCase {
                     public String getEncoding() {
                         return "UTF-8";
                     }
+
+                    public boolean isDirectory() {
+                        return false;
+                    }
                 }, pageClassName, hintBag, ignoreVariables);
     }
 

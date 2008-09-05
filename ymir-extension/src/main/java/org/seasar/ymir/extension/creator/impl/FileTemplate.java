@@ -59,4 +59,8 @@ public class FileTemplate implements Template {
     public String getEncoding() {
         return encoding_;
     }
+
+    public boolean isDirectory() {
+        return file_.isDirectory();
+    }
 }
