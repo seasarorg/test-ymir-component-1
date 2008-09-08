@@ -17,7 +17,6 @@ import org.seasar.ymir.scope.Scope;
  * このクラスはスレッドセーフです。
  * </p>
  * 
- * @see FileRequestParameterScope
  * @author YOKOTA Takehiko
  */
 public class RequestParameterScope implements Scope {
