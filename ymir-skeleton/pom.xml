@@ -29,9 +29,8 @@
             </goals>
             <configuration>
               <descriptors>
-                <descriptor>src/main/assembly/skeleton.xml</descriptor>
+                <descriptor>src/main/assembly/archive.xml</descriptor>
               </descriptors>
-              <appendAssemblyId>false</appendAssemblyId>
             </configuration>
           </execution>
         </executions>
