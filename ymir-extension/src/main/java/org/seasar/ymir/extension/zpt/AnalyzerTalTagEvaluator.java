@@ -108,12 +108,14 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     break;
                 }
 
-                if ("input".equals(name)) {
-                    if ("file".equals(type)) {
-                        propertyDesc.getTypeDesc().setClassDesc(
-                                FormFile.class.getName());
-                    } else if ("radio".equals(type)) {
-                        propertyDesc.getTypeDesc().setArray(false);
+                if (!propertyDesc.getTypeDesc().isExplicit()) {
+                    if ("input".equals(name)) {
+                        if ("file".equals(type)) {
+                            propertyDesc.getTypeDesc().setClassDesc(
+                                    FormFile.class.getName());
+                        } else if ("radio".equals(type)) {
+                            propertyDesc.getTypeDesc().setArray(false);
+                        }
                     }
                 }
 

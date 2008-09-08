@@ -28,6 +28,7 @@ import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -1019,5 +1020,20 @@ public class ZptAnalyzerTest extends TestCase {
         md = update7Cd.getMethodDesc(new MethodDescImpl("POST"));
         assertNotNull(
                 "適切なnameを持つsubmit等があってもnameを持たないsubmit等がある場合はPOSTが作られること", md);
+    }
+
+    public void testAnalyze59_YMIR_243_fileパラメータの型を明示的に指定することができること()
+            throws Exception {
+
+        ClassCreationHintBag bag = new ClassCreationHintBag(
+                new PropertyTypeHint[] { new PropertyTypeHint(CLASSNAME,
+                        "file", "java.lang.String", false) }, new ClassHint[0]);
+        act("testAnalyze59", CLASSNAME, bag, null);
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        assertNotNull(cd);
+        PropertyDesc pd = cd.getPropertyDesc("file");
+        assertNotNull(pd);
+        assertEquals("String", pd.getTypeDesc().getName());
     }
 }
