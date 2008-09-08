@@ -80,4 +80,15 @@ public class ClassUtils {
             return false;
         }
     }
+
+    public static Class<?> toComponentType(Class<?> clazz) {
+        if (clazz == null) {
+            return null;
+        }
+        if (clazz.isArray()) {
+            return clazz.getComponentType();
+        } else {
+            return clazz;
+        }
+    }
 }

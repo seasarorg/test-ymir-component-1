@@ -9,6 +9,7 @@ import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.scope.AttributeNotFoundRuntimeException;
 import org.seasar.ymir.scope.Scope;
+import org.seasar.ymir.util.ClassUtils;
 
 /**
  * スコープから値を取り出してページにインジェクトするためのクラスです。
@@ -21,6 +22,8 @@ public class ScopeAttributeInjector extends AbstractScopeAttributeHandler {
 
     private Class<?> type_;
 
+    private Class<?> componentType_;
+
     private boolean required_;
 
     public ScopeAttributeInjector(String name, Class<?> type, Scope scope,
@@ -30,6 +33,7 @@ public class ScopeAttributeInjector extends AbstractScopeAttributeHandler {
         super(name, scope, injectionMethod, injectWhereNull,
                 enabledActionNames, hotdeployManager, typeConversionManager);
         type_ = type;
+        componentType_ = ClassUtils.toComponentType(type);
         required_ = required;
     }
 
@@ -39,7 +43,7 @@ public class ScopeAttributeInjector extends AbstractScopeAttributeHandler {
             return;
         }
 
-        Object value = scope_.getAttribute(name_, type_);
+        Object value = scope_.getAttribute(name_, componentType_);
         if (required_ && value == null) {
             throw new AttributeNotFoundRuntimeException("Attribute (name="
                     + name_ + ", type=" + type_ + ") not found: method="
@@ -47,8 +51,7 @@ public class ScopeAttributeInjector extends AbstractScopeAttributeHandler {
                     .setType(type_).setMethod(method_).setComponent(component);
         }
         if (value != null || invokeWhereNull_) {
-            value = typeConversionManager_.convert(value, method_
-                    .getParameterTypes()[0]);
+            value = typeConversionManager_.convert(value, type_);
             boolean removeValue = false;
             try {
                 if (value != null && YmirContext.isUnderDevelopment()) {

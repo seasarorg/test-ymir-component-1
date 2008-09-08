@@ -19,6 +19,7 @@ import org.seasar.ymir.impl.SetterPropertyHandler;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.handler.ScopeAttributeHandler;
 import org.seasar.ymir.util.BeanUtils;
+import org.seasar.ymir.util.ClassUtils;
 
 /**
  * スコープから値を取り出してページにインジェクトするためのクラスです。
@@ -131,7 +132,8 @@ public class ScopeAttributePopulator implements ScopeAttributeHandler {
                 return;
             }
 
-            Object value = scope_.getAttribute(name, null);
+            Object value = scope_.getAttribute(name, ClassUtils
+                    .toComponentType(handler.getPropertyType()));
             value = typeConversionManager_.convert(value, handler
                     .getPropertyType());
             boolean removeValue = false;
