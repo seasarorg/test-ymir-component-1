@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.seasar.ymir.annotation.Alias;
+import org.seasar.ymir.annotation.handler.impl.AliasAnnotationElement;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 
 public class AnnotationDescImpl implements AnnotationDesc {
@@ -22,7 +24,7 @@ public class AnnotationDescImpl implements AnnotationDesc {
     }
 
     void analyze(Annotation annotation) {
-        Class<?> type = annotation.annotationType();
+        Class<? extends Annotation> type = annotation.annotationType();
         name_ = type.getName();
 
         Method[] methods = type.getDeclaredMethods();
@@ -37,6 +39,9 @@ public class AnnotationDescImpl implements AnnotationDesc {
                         }
                     });
             for (int i = 0; i < methods.length; i++) {
+                if (shouldIgnore(type, methods[i].getName())) {
+                    continue;
+                }
                 methodSet.add(methods[i]);
                 if ("value".equals(methods[i].getName())) {
                     hasValueMethod = true;
@@ -64,6 +69,16 @@ public class AnnotationDescImpl implements AnnotationDesc {
             sb.append(")");
             body_ = sb.toString();
         }
+    }
+
+    boolean shouldIgnore(Class<? extends Annotation> annotatonType,
+            String methodName) {
+        if (annotatonType.isAnnotationPresent(Alias.class)
+                && methodName.equals(AliasAnnotationElement.PROP_ALIAS)) {
+            return true;
+        }
+
+        return false;
     }
 
     void append(StringBuilder sb, String name, Class<?> type, Object value,
