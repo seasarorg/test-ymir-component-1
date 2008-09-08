@@ -13,6 +13,9 @@ import org.seasar.ymir.util.ServletUtils;
  * ディスパッチに関する情報は{@link Dispatch}インタフェースで表され、
  * {@link #getCurrentDispatch()}などのメソッドで取得することができます。
  * </p>
+ * <p><b>同期化：</b>
+ * このインタフェースの実装クラスはスレッドセーフである必要はありません。
+ * </p>
  * 
  * @author YOKOTA Takehiko
  * @see Dispatch
@@ -195,6 +198,44 @@ public interface Request extends AttributeContainer {
      * @return Mapオブジェクト。
      */
     Map<String, FormFile[]> getFileParameterMap();
+
+    /**
+     * 指定された名前の拡張リクエストパラメータの値を返します。
+     * <p>指定された名前の拡張リクエストパラメータが存在しない場合はnullを返します。
+     * </p>
+     *
+     * @param name 拡張リクエストパラメータ名。
+     * @return 値。
+     * @since 1.0.0
+     */
+    Object getExtendedParameter(String name);
+
+    /**
+     * 指定された名前の拡張リクエストパラメータの値を返します。
+     * <p>指定された名前の拡張リクエストパラメータが存在しない場合は
+     * <code>defaultValue</code>を返します。
+     * </p>
+     *
+     * @param name 拡張リクエストパラメータ名。
+     * @param defaultValue デフォルトの値。
+     * @return 値。
+     * @since 1.0.0
+     */
+    Object getExtendedParameter(String name, Object defaultValue);
+
+    /**
+     * 全ての拡張リクエストパラメータの名前のIteratorを返します。
+     *
+     * @return Iteratorオブジェクト。
+     */
+    Iterator<String> getExtendedParameterNames();
+
+    /**
+     * 全ての拡張リクエストパラメータを格納しているMapを返します。
+     *
+     * @return Mapオブジェクト。
+     */
+    Map<String, Object> getExtendedParameterMap();
 
     /**
      * リクエストスコープのオブジェクトを保持するためのAttributeContainerを返します。

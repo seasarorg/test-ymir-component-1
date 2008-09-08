@@ -1,16 +1,23 @@
-package org.seasar.ymir;
+package org.seasar.ymir.util;
 
 import java.util.Map;
 
-public class DispatchWrapper implements Dispatch {
+import org.seasar.ymir.Action;
+import org.seasar.ymir.Dispatch;
+import org.seasar.ymir.Dispatcher;
+import org.seasar.ymir.FrameworkDispatch;
+import org.seasar.ymir.MatchedPathMapping;
+import org.seasar.ymir.PageComponent;
+import org.seasar.ymir.impl.DispatchImpl;
+
+class FrameworkDispatchImpl implements FrameworkDispatch {
     private Dispatch dispatch_;
 
-    public DispatchWrapper(Dispatch dispatch) {
-        dispatch_ = dispatch;
-    }
+    private DispatchImpl original_;
 
-    public Dispatch getDispatch() {
-        return dispatch_;
+    FrameworkDispatchImpl(Dispatch dispatch) {
+        dispatch_ = dispatch;
+        original_ = YmirUtils.unwrapDispatch(dispatch);
     }
 
     public String getAbsolutePath() {
@@ -63,5 +70,13 @@ public class DispatchWrapper implements Dispatch {
 
     public boolean isMatched() {
         return dispatch_.isMatched();
+    }
+
+    public void setAction(Action action) {
+        original_.setAction(action);
+    }
+
+    public void setPageComponent(PageComponent pageComponent) {
+        original_.setPageComponent(pageComponent);
     }
 }

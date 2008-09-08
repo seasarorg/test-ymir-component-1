@@ -1,5 +1,6 @@
 package org.seasar.ymir.impl;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,9 +11,9 @@ import java.util.Map;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.FormFile;
-import org.seasar.ymir.Request;
+import org.seasar.ymir.FrameworkRequest;
 
-public class RequestImpl implements Request {
+public class RequestImpl implements FrameworkRequest {
     private String contextPath_;
 
     private String method_;
@@ -22,6 +23,8 @@ public class RequestImpl implements Request {
     private Map<String, String[]> queryParameterMap_;
 
     private Map<String, FormFile[]> fileParameterMap_;
+
+    private Map<String, Object> extendedParameterMap_ = Collections.emptyMap();
 
     private Map<String, String[]> parameterMap_;
 
@@ -149,8 +152,24 @@ public class RequestImpl implements Request {
         return fileParameterMap_;
     }
 
-    public void setFileParameterMap(Map<String, FormFile[]> fileParameterMap) {
-        fileParameterMap_ = fileParameterMap;
+    public Object getExtendedParameter(String name) {
+        return null;
+    }
+
+    public Object getExtendedParameter(String name, Object defaultValue) {
+        return null;
+    }
+
+    public Iterator<String> getExtendedParameterNames() {
+        return null;
+    }
+
+    public Map<String, Object> getExtendedParameterMap() {
+        return extendedParameterMap_;
+    }
+
+    public void setExtendedParameterMap(Map<String, Object> extendedParameterMap) {
+        extendedParameterMap_ = extendedParameterMap;
     }
 
     public AttributeContainer getAttributeContainer() {

@@ -4,12 +4,12 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.seasar.ymir.Action;
-import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
+import org.seasar.ymir.FrameworkDispatch;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 
-public class DispatchImpl implements Dispatch {
+public class DispatchImpl implements FrameworkDispatch {
     private String contextPath_;
 
     private String path_;

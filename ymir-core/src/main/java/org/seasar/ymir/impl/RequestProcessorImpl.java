@@ -20,6 +20,7 @@ import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
+import org.seasar.ymir.FrameworkDispatch;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
@@ -217,7 +218,8 @@ public class RequestProcessorImpl implements RequestProcessor {
 
     protected Response processRequestAndForward(final Request request)
             throws PageNotFoundException, PermissionDeniedException {
-        Dispatch dispatch = request.getCurrentDispatch();
+        FrameworkDispatch dispatch = YmirUtils.toFrameworkDispatch(request
+                .getCurrentDispatch());
 
         Response response = new PassthroughResponse();
 

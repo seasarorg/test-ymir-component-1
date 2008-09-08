@@ -32,7 +32,6 @@ import org.seasar.ymir.PageNotFoundException;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
-import org.seasar.ymir.RequestWrapper;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseProcessor;
 import org.seasar.ymir.Ymir;
@@ -131,7 +130,7 @@ public class YmirImpl implements Ymir {
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             request = ymirProcessInterceptors_[i].requestCreated(request);
         }
-        return request;
+        return YmirUtils.toFrameworkRequest(request);
     }
 
     String correctMethod(final String method,
@@ -300,7 +299,7 @@ public class YmirImpl implements Ymir {
             return;
         }
 
-        RequestImpl unwrappedRequest = unwrapRequest(request);
+        RequestImpl unwrappedRequest = YmirUtils.unwrapRequest(request);
         Map<String, String[]> parameterMap = httpRequest.getParameterMap();
         Response response = (Response) request.getAttribute(ATTR_RESPONSE);
         if (!response.isSubordinate()) {
@@ -326,20 +325,7 @@ public class YmirImpl implements Ymir {
     }
 
     protected RequestImpl getUnwrappedRequest() {
-        return unwrapRequest(((Request) getThreadContext().getComponent(
-                Request.class)));
-    }
-
-    RequestImpl unwrapRequest(Request request) {
-        while (request instanceof RequestWrapper) {
-            request = ((RequestWrapper) request).getRequest();
-        }
-        try {
-            return (RequestImpl) request;
-        } catch (ClassCastException ex) {
-            throw new RuntimeException(
-                    "Must give the original Request instance or an instance of RequestWrapper to Ymir",
-                    ex);
-        }
+        return YmirUtils.unwrapRequest(((Request) getThreadContext()
+                .getComponent(Request.class)));
     }
 }

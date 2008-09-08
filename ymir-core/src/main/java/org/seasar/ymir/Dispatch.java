@@ -62,17 +62,6 @@ public interface Dispatch {
     PageComponent getPageComponent();
 
     /**
-     * パスに対応するPageコンポーネントを設定します。
-     * <p>このメソッドはパスに対応するPageコンポーネントを生成した段階でPageコンポーネントを
-     * Requestオブジェクトにセットするために用いられます。
-     * アプリケーションはこのメソッドを呼び出さないようにして下さい。
-     * </p>
-     * 
-     * @param componentClass Pageコンポーネント。
-     */
-    void setPageComponent(PageComponent pageComponent);
-
-    /**
      * リクエストを処理するアクションを返します。
      * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
      *
@@ -87,17 +76,6 @@ public interface Dispatch {
      * @return アクション名。
      */
     String getActionName();
-
-    /**
-     * アクションを設定します。
-     * <p>このメソッドは実際に呼び出されるアクションが決定した段階でアクションを
-     * Requestオブジェクトにセットするために用いられます。
-     * アプリケーションはこのメソッドを呼び出さないようにして下さい。
-     * </p>
-     * 
-     * @param action アクション。
-     */
-    void setAction(Action action);
 
     /**
      * パスに連結されているpathInfo情報を返します。
