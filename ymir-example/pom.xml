@@ -28,9 +28,8 @@
             </goals>
             <configuration>
               <descriptors>
-                <descriptor>src/main/assembly/project.xml</descriptor>
+                <descriptor>src/main/assembly/archive.xml</descriptor>
               </descriptors>
-              <appendAssemblyId>false</appendAssemblyId>
             </configuration>
           </execution>
         </executions>
