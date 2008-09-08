@@ -259,9 +259,10 @@ public class RequestProcessorImpl implements RequestProcessor {
                             request, action, actualAction);
                 }
 
-                response = normalizeResponse(adjustResponse(dispatch,
-                        invokeAction(actualAction), pageComponent), dispatch
-                        .getPath());
+                response = normalizeResponse(
+                        adjustResponse(dispatch, invokeAction(actualAction),
+                                actualAction != null ? actualAction.getTarget()
+                                        : null), dispatch.getPath());
 
                 pageComponent.accept(visitorForInvokingInPhaseActionInvoked_);
 
@@ -307,7 +308,7 @@ public class RequestProcessorImpl implements RequestProcessor {
                 // デフォルト値からResponseを作るようにしている。
                 // （例えば、リクエストパス名がテンプレートパス名ではない場合に、リクエストパス名で
                 // テンプレートが作られてしまうとうれしくない。）
-                response = normalizeResponse(constructDefaultResponse(dispatch,
+                response = normalizeResponse(adjustResponse(dispatch, response,
                         null), dispatch.getPath());
             }
 
@@ -429,8 +430,13 @@ public class RequestProcessorImpl implements RequestProcessor {
     }
 
     Response adjustResponse(Dispatch dispatch, Response response, Object page) {
-        if (response.getType() == ResponseType.PASSTHROUGH) {
-            response = constructDefaultResponse(dispatch, page);
+        if (response.getType() == ResponseType.PASSTHROUGH
+                && !fileResourceExists(dispatch.getPath())) {
+            Object returnValue = dispatch.getMatchedPathMapping()
+                    .getDefaultReturnValue();
+            if (returnValue != null) {
+                response = constructResponse(page, Object.class, returnValue);
+            }
         }
 
         if (logger_.isDebugEnabled()) {
@@ -440,41 +446,35 @@ public class RequestProcessorImpl implements RequestProcessor {
         return response;
     }
 
-    Response constructDefaultResponse(Dispatch dispatch, Object page) {
-        if (fileResourceExists(dispatch.getPath())) {
-            // パスに対応するテンプレートファイルが存在する場合はパススルーする。
-            return new PassthroughResponse();
-        } else {
-            Object returnValue = dispatch.getMatchedPathMapping()
-                    .getDefaultReturnValue();
-            if (returnValue != null) {
-                return constructResponse(page, returnValue.getClass(),
-                        returnValue);
-            } else {
-                return new PassthroughResponse();
-            }
-        }
-    }
-
     @SuppressWarnings("unchecked")
     boolean fileResourceExists(String path) {
-        if (path.length() == 0 || path.equals("/")) {
+        if (path.length() == 0 || path.endsWith("/")) {
             return false;
         }
-        // TODO なぜgetResource(normalized)としないのだろう…。調査しよう。
-        String normalized = ServletUtils.normalizePath(path);
-        Set<String> resourceSet = getServletContext().getResourcePaths(
-                normalized.substring(0, normalized.lastIndexOf('/') + 1));
-        return (resourceSet != null && resourceSet.contains(normalized));
+
+        Set pathSet = getServletContext().getResourcePaths(
+                path.substring(0, path.lastIndexOf('/') + 1));
+        if (pathSet == null) {
+            // 親ディレクトリがないので子もないはず。
+            return false;
+        } else {
+            // ServletContext.getResource(String)だとディレクトリかどうか分からない。
+            // 例えば /aaa/bbb というディレクトリがある場合、Tomcat5.5.26では
+            // getResource("/aaa/bbb")がnon null値を返す。
+            // このメソッドでは指定されたpathに対応するリソースが存在してかつそれがファイル（＝ディレクトリではない）
+            // である場合にtrueを返したいので、getResource(String)ではまずい。
+            return pathSet.contains(path);
+        }
     }
 
     @SuppressWarnings("unchecked")
-    Response constructResponse(Object page, Class<?> type, Object returnValue) {
+    Response constructResponse(Object page, Class<?> returnType,
+            Object returnValue) {
         ResponseConstructor<?> constructor = responseConstructorSelector_
-                .getResponseConstructor(type);
+                .getResponseConstructor(returnType);
         if (constructor == null) {
             throw new ComponentNotFoundRuntimeException(
-                    "Can't find ResponseConstructor for type '" + type
+                    "Can't find ResponseConstructor for type '" + returnType
                             + "' in ResponseConstructorSelector");
         }
 
