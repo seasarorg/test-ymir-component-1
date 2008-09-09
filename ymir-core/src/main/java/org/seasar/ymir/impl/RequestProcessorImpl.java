@@ -16,7 +16,6 @@ import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionNotFoundException;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.AttributeContainer;
-import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
@@ -502,9 +501,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
 
         public Object process(PageComponent pageComponent) {
-            pageProcessor_.invokeMethods(pageComponent.getPage(),
-                    componentMetaDataFactory_.getInstance(pageComponent
-                            .getPageClass()), phase_);
+            pageProcessor_.invokeMethods(pageComponent, phase_);
             return null;
         }
     }
@@ -517,20 +514,17 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
 
         public Object process(PageComponent pageComponent) {
-            Object page = pageComponent.getPage();
-            ComponentMetaData metaData = componentMetaDataFactory_
-                    .getInstance(pageComponent.getPageClass());
             Dispatch dispatch = request_.getCurrentDispatch();
 
-            pageProcessor_.invokeMethods(page, metaData,
+            pageProcessor_.invokeMethods(pageComponent,
                     Phase.SCOPEOBJECT_INJECTING);
 
             // 各コンテキストが持つ属性をpopulateする。
-            pageProcessor_.populateScopeAttributes(page, metaData, dispatch
+            pageProcessor_.populateScopeAttributes(pageComponent, dispatch
                     .getActionName());
 
             // 各コンテキストが持つ属性をinjectする。
-            pageProcessor_.injectScopeAttributes(page, metaData, dispatch
+            pageProcessor_.injectScopeAttributes(pageComponent, dispatch
                     .getActionName());
 
             return null;
@@ -567,10 +561,8 @@ public class RequestProcessorImpl implements RequestProcessor {
 
         public Object process(PageComponent pageComponent) {
             // 各コンテキストに属性をoutjectする。
-            pageProcessor_.outjectScopeAttributes(pageComponent.getPage(),
-                    componentMetaDataFactory_.getInstance(pageComponent
-                            .getPageClass()), dispatch_.getActionName());
-
+            pageProcessor_.outjectScopeAttributes(pageComponent, dispatch_
+                    .getActionName());
             return null;
         }
     }

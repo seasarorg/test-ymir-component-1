@@ -51,44 +51,44 @@ public interface PageProcessor {
 
     /**
      * スコープに格納されている属性の値をPageオブジェクトのプロパティにポピュレートします。
+     * <p>子孫Pageについては処理は行なわれません。
+     * </p>
      * 
-     * @param page Pageオブジェクト。
-     * @param metaData Pageオブジェクトに関するメタデータ。
+     * @param pageComponent PageComponentオブジェクト。
      * @param actionName 実行するアクションの名前。
-     * @see ComponentMetaData#getPopulatedScopeAttributeHandlers()
      */
-    void populateScopeAttributes(Object page, ComponentMetaData metaData,
-            String actionName);
+    void populateScopeAttributes(PageComponent pageComponent, String actionName);
 
     /**
      * スコープに格納されている属性の値をPageオブジェクトのプロパティにインジェクトします。
+     * <p>子孫Pageについては処理は行なわれません。
+     * </p>
      * 
-     * @param page Pageオブジェクト。
+     * @param pageComponent PageComponentオブジェクト。
      * @param metaData Pageオブジェクトに関するメタデータ。
      * @param actionName 実行するアクションの名前。
      * @see ComponentMetaData#getInjectedScopeAttributeHandlers()
      */
-    void injectScopeAttributes(Object page, ComponentMetaData metaData,
-            String actionName);
+    void injectScopeAttributes(PageComponent pageComponent, String actionName);
 
     /**
      * スコープに対してPageオブジェクトのプロパティから値をアウトジェクトします。
+     * <p>子孫Pageについては処理は行なわれません。
+     * </p>
      * 
-     * @param page Pageオブジェクト。
+     * @param pageComponent PageComponentオブジェクト。
      * @param metaData Pageオブジェクトに関するメタデータ。
      * @param actionName 実行されたアクションの名前。
-     * @see ComponentMetaData#getOutjectedScopeAttributeHandlers()
      */
-    void outjectScopeAttributes(Object page, ComponentMetaData metaData,
-            String actionName);
+    void outjectScopeAttributes(PageComponent pageComponent, String actionName);
 
     /**
      * Pageオブジェクトについて、指定されたフェーズに関連付けられているメソッドを実行します。
+     * <p>子孫Pageについては処理は行なわれません。
+     * </p>
      * 
-     * @param page Pageオブジェクト。
-     * @param metaData Pageオブジェクトに関するメタデータ。
+     * @param pageComponent PageComponentオブジェクト。
      * @param phase フェーズ。
-     * @see ComponentMetaData#getMethods(Phase)
      */
-    void invokeMethods(Object page, ComponentMetaData metaData, Phase phase);
+    void invokeMethods(PageComponent pageComponent, Phase phase);
 }

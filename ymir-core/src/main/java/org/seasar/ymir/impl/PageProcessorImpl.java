@@ -10,7 +10,9 @@ import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ComponentMetaData;
+import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.FormFile;
+import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageProcessor;
 import org.seasar.ymir.Phase;
 import org.seasar.ymir.TypeConversionManager;
@@ -18,9 +20,17 @@ import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.scope.handler.ScopeAttributeHandler;
 
 public class PageProcessorImpl implements PageProcessor {
+    private ComponentMetaDataFactory componentMetaDataFactory_;
+
     private TypeConversionManager typeConversionManager_;
 
     private static final Log log_ = LogFactory.getLog(PageProcessorImpl.class);
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setComponentMetaDataFactory(
+            ComponentMetaDataFactory componentMetaDataFactory) {
+        componentMetaDataFactory_ = componentMetaDataFactory;
+    }
 
     @Binding(bindingType = BindingType.MUST)
     public void setTypeConversionManager(
@@ -74,40 +84,47 @@ public class PageProcessorImpl implements PageProcessor {
         }
     }
 
-    public void populateScopeAttributes(Object page,
-            ComponentMetaData metaData, String actionName) {
+    public void populateScopeAttributes(PageComponent pageComponent,
+            String actionName) {
+        ComponentMetaData metaData = componentMetaDataFactory_
+                .getInstance(pageComponent.getPageClass());
         ScopeAttributeHandler[] handlers = metaData
                 .getPopulatedScopeAttributeHandlers();
         for (int i = 0; i < handlers.length; i++) {
-            handlers[i].injectTo(page, actionName);
+            handlers[i].injectTo(pageComponent.getPage(), actionName);
         }
     }
 
-    public void injectScopeAttributes(Object page, ComponentMetaData metaData,
+    public void injectScopeAttributes(PageComponent pageComponent,
             String actionName) {
+        ComponentMetaData metaData = componentMetaDataFactory_
+                .getInstance(pageComponent.getPageClass());
         ScopeAttributeHandler[] handlers = metaData
                 .getInjectedScopeAttributeHandlers();
         for (int i = 0; i < handlers.length; i++) {
-            handlers[i].injectTo(page, actionName);
+            handlers[i].injectTo(pageComponent.getPage(), actionName);
         }
     }
 
-    public void outjectScopeAttributes(Object page, ComponentMetaData metaData,
+    public void outjectScopeAttributes(PageComponent pageComponent,
             String actionName) {
+        ComponentMetaData metaData = componentMetaDataFactory_
+                .getInstance(pageComponent.getPageClass());
         ScopeAttributeHandler[] attributes = metaData
                 .getOutjectedScopeAttributeHandlers();
         for (int i = 0; i < attributes.length; i++) {
-            attributes[i].outjectFrom(page, actionName);
+            attributes[i].outjectFrom(pageComponent.getPage(), actionName);
         }
     }
 
-    public void invokeMethods(Object page, ComponentMetaData metaData,
-            Phase phase) {
+    public void invokeMethods(PageComponent pageComponent, Phase phase) {
+        ComponentMetaData metaData = componentMetaDataFactory_
+                .getInstance(pageComponent.getPageClass());
         Method[] methods = metaData.getMethods(phase);
         if (methods != null) {
             for (int i = 0; i < methods.length; i++) {
                 try {
-                    methods[i].invoke(page, new Object[0]);
+                    methods[i].invoke(pageComponent.getPage(), new Object[0]);
                 } catch (IllegalArgumentException ex) {
                     throw new RuntimeException(
                             "Can't invoke method with parameters", ex);
