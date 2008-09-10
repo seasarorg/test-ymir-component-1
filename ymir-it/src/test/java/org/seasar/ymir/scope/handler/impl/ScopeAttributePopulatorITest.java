@@ -6,7 +6,7 @@ import org.seasar.cms.pluggable.Configuration;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.TypeConversionManager;
-import org.seasar.ymir.hotdeploy.HotdeployManager;
+import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.impl.RequestParameterScope;
 import org.seasar.ymir.test.YmirTestCase;
 
@@ -20,10 +20,10 @@ public class ScopeAttributePopulatorITest extends YmirTestCase {
                 "true");
     }
 
-    public void testInjectTo_ネストしたBeanに属性値をインジェクションできること() throws Exception {
-        final ScopeAttributePopulator target = new ScopeAttributePopulator(
+    public void testPopulateTo_ネストしたBeanに属性値をインジェクションできること() throws Exception {
+        final ScopeAttributePopulatorImpl target = new ScopeAttributePopulatorImpl(
                 getComponent(RequestParameterScope.class),
-                getComponent(HotdeployManager.class),
+                getComponent(ScopeManager.class),
                 getComponent(TypeConversionManager.class));
         target.addEntry(ScopeAttributePopulatorTestPage.class.getMethod(
                 "getAaa", new Class[0]), new String[0]);
@@ -34,7 +34,7 @@ public class ScopeAttributePopulatorITest extends YmirTestCase {
             @Override
             protected void test() throws Throwable {
                 Object page = request.getAttribute(RequestProcessor.ATTR_SELF);
-                target.injectTo(page, null);
+                target.populateTo(page, null);
             }
         });
 
