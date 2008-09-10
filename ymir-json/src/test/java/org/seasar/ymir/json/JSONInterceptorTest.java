@@ -8,8 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import junit.framework.TestCase;
 
-import org.seasar.ymir.Request;
-import org.seasar.ymir.impl.YmirTypeConversionManager;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
 import org.seasar.ymir.test.mock.servlet.MockHttpServletRequestImpl;
@@ -41,16 +39,15 @@ public class JSONInterceptorTest extends TestCase {
                 };
             }
         };
-        target.setTypeConversionManager(new YmirTypeConversionManager());
 
         MockRequest request = new MockRequest();
         MockDispatch dispatch = new MockDispatch();
         request.enterDispatch(dispatch);
 
-        Request actual = target.requestCreated(request);
+        target.requestCreated(request);
 
-        assertEquals("HOE", actual.getParameter("hoe"));
-        assertEquals("FUGA", actual.getParameter("fuga"));
+        assertEquals("HOE", request.getExtendedParameter("hoe"));
+        assertEquals("FUGA", request.getExtendedParameter("fuga"));
     }
 
     public void testIsJSONRequest_requestのcontentTypeがnullの場合はfalseを返すこと()
