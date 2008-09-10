@@ -153,15 +153,20 @@ public class RequestImpl implements FrameworkRequest {
     }
 
     public Object getExtendedParameter(String name) {
-        return null;
+        return extendedParameterMap_.get(name);
     }
 
     public Object getExtendedParameter(String name, Object defaultValue) {
-        return null;
+        Object value = extendedParameterMap_.get(name);
+        if (value != null) {
+            return value;
+        } else {
+            return defaultValue;
+        }
     }
 
     public Iterator<String> getExtendedParameterNames() {
-        return null;
+        return extendedParameterMap_.keySet().iterator();
     }
 
     public Map<String, Object> getExtendedParameterMap() {
