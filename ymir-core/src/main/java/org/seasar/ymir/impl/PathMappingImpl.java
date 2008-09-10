@@ -24,13 +24,13 @@ import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.kvasir.util.el.impl.MapVariableResolver;
 import org.seasar.kvasir.util.el.impl.SimpleTextTemplateEvaluator;
 import org.seasar.ymir.Action;
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.util.ClassUtils;
-import org.seasar.ymir.util.MethodUtils;
 
 public class PathMappingImpl implements PathMapping {
     public static final String KEY_DENIED = "denied";
@@ -81,6 +81,8 @@ public class PathMappingImpl implements PathMapping {
     private boolean denied_;
 
     private Pattern pageComponentNameTemplatePattern_;
+
+    private ActionManager actionManager_;
 
     private TypeConversionManager typeConversionManager_;
 
@@ -204,6 +206,11 @@ public class PathMappingImpl implements PathMapping {
             }
             throw new IllegalArgumentException(sb.toString());
         }
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setActionManager(ActionManager actionManager) {
+        actionManager_ = actionManager;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -517,7 +524,7 @@ public class PathMappingImpl implements PathMapping {
                 continue;
             }
 
-            return new ActionImpl(page, new MethodInvokerImpl(method,
+            return actionManager_.newAction(page, new MethodInvokerImpl(method,
                     createParameters(button.getParameters(), parameterTypes)));
         }
         return null;
@@ -535,12 +542,13 @@ public class PathMappingImpl implements PathMapping {
 
     protected Action getAction(Object page, Class<?> pageClass,
             String actionName, Request request) {
-        Method method = MethodUtils.getMethod(pageClass, actionName);
+        Method method = ClassUtils.getMethod(pageClass, actionName,
+                new Class<?>[0]);
         if (method != null) {
             if (logger_.isDebugEnabled()) {
                 logger_.debug("getAction: Found: " + method);
             }
-            return new ActionImpl(page, new MethodInvokerImpl(method,
+            return actionManager_.newAction(page, new MethodInvokerImpl(method,
                     new Object[0]));
         } else {
             return null;
@@ -565,14 +573,14 @@ public class PathMappingImpl implements PathMapping {
 
     public Action getRenderAction(PageComponent pageComponent, Request request,
             VariableResolver resolver) {
-        Method method = MethodUtils.getMethod(pageComponent.getPageClass(),
-                ACTION_RENDER);
+        Method method = ClassUtils.getMethod(pageComponent.getPageClass(),
+                ACTION_RENDER, new Class<?>[0]);
         if (method == null) {
             return null;
         }
 
-        return new ActionImpl(pageComponent.getPage(), new MethodInvokerImpl(
-                method, new Object[0]));
+        return actionManager_.newAction(pageComponent.getPage(),
+                new MethodInvokerImpl(method, new Object[0]));
     }
 
     protected String getDefaultActionName() {

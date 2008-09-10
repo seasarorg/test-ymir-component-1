@@ -23,11 +23,32 @@ public class CacheManagerImpl implements CacheManager {
 
     private boolean isSynchronized_ = true;
 
+    /**
+     * 生成するMapのクラスを設定します。
+     * <p>このメソッドを呼び出した場合は、
+     * {@link #setSynchronized(boolean)}メソッドを呼び出して
+     * Mapクラスが同期化されているかどうかを指定して下さい。
+     * </p>
+     * 
+     * @param mapClass Mapクラス。
+     * @see #setSynchronized(boolean)
+     */
     @Binding(bindingType = BindingType.MAY)
     public void setMapClass(Class<? extends Map<?, ?>> mapClass) {
         mapClass_ = mapClass;
     }
 
+    /**
+     * 生成するMapクラスが同期化されているかどうかを設定します。
+     * <p>{@link #setMapClass(Class)}メソッドで設定するMapクラスが同期化されている場合は
+     * このメソッドでtrueを指定して下さい。
+     * 同期化されていないMapクラスを設定した場合は
+     * このメソッドでfalseを指定して下さい。
+     * </p>
+     * 
+     * @param isSynchronized Mapクラスが同期化されているかどうか。
+     * @see #setMapClass(Class)
+     */
     @Binding(bindingType = BindingType.MAY)
     public void setSynchronized(boolean isSynchronized) {
         isSynchronized_ = isSynchronized;

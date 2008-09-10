@@ -25,10 +25,10 @@ abstract public class AbstractYmirProcessInterceptor implements
         priority_ = priority;
     }
 
-    public boolean enteringRequest(ServletContext context,
+    public Response enteringRequest(ServletContext context,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             String path) {
-        return true;
+        return null;
     }
 
     public Request requestCreated(Request request) {
@@ -62,5 +62,9 @@ abstract public class AbstractYmirProcessInterceptor implements
     }
 
     public void leftRequest() {
+    }
+
+    public Response exceptionProcessingStarted(Request request, Throwable t) {
+        return null;
     }
 }

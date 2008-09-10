@@ -3,6 +3,7 @@ package org.seasar.ymir.annotation.handler.impl;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
@@ -72,8 +73,14 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
             return (T[]) Array.newInstance(annotationClass, 0);
         }
 
+        return getAnnotations0(element.getAnnotations(), annotationClass);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T extends Annotation> T[] getAnnotations0(
+            Annotation[] annotations, Class<T> annotationClass) {
         AnnotationGatherer gatherer = new AnnotationGatherer(annotationClass);
-        for (Annotation annotation : element.getAnnotations()) {
+        for (Annotation annotation : annotations) {
             AnnotationElements.newInstance(annotation).accept(gatherer);
         }
         return (T[]) gatherer.getAnnotations();
@@ -119,20 +126,41 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
         return gatherer.getAnnotations();
     }
 
+    @SuppressWarnings("unchecked")
+    public <T extends Annotation> T[] getParameterAnnotations(Method method,
+            int index, Class<T> annotationClass) {
+        Key key = new Key(method, index, annotationClass);
+        Annotation[] annotations = annotationsMap_.get(key);
+        if (annotations == null) {
+            annotations = getAnnotations0(
+                    method.getParameterAnnotations()[index], annotationClass);
+            annotationsMap_.put(key, annotations);
+        }
+        return (T[]) annotations;
+    }
+
     protected static class Key {
         private AnnotatedElement element_;
+
+        private int index_;
 
         private Class<? extends Annotation> annotationType_;
 
         public Key(AnnotatedElement element,
                 Class<? extends Annotation> annotationType) {
+            this(element, -1, annotationType);
+        }
+
+        public Key(AnnotatedElement element, int index,
+                Class<? extends Annotation> annotationType) {
             element_ = element;
+            index_ = index;
             annotationType_ = annotationType;
         }
 
         @Override
         public int hashCode() {
-            return element_.hashCode() + annotationType_.hashCode();
+            return element_.hashCode() + index_ + annotationType_.hashCode();
         }
 
         @Override
@@ -141,8 +169,14 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
                 return false;
             }
             Key o = (Key) obj;
-            return o.element_ == element_
+            return o.element_ == element_ && o.index_ == index_
                     && o.annotationType_ == annotationType_;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + element_ + ", " + index_ + ", " + annotationType_
+                    + ")";
         }
     }
 }

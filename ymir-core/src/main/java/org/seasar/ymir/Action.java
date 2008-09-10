@@ -49,4 +49,11 @@ public interface Action {
      * @see #shouldInvoke()
      */
     Object invoke() throws WrappingRuntimeException;
+
+    /**
+     * アクションの実行結果の型を表すClassオブジェクトを返します。
+     * 
+     * @return アクションの実行結果の型を表すClassオブジェクト。
+     */
+    Class<? extends Object> getReturnType();
 }

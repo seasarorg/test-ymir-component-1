@@ -1,8 +1,8 @@
 package org.seasar.ymir.conversation.impl;
 
 import org.seasar.ymir.MethodInvoker;
+import org.seasar.ymir.MethodInvokerWrapper;
 import org.seasar.ymir.conversation.ConversationUtils;
-import org.seasar.ymir.impl.MethodInvokerWrapper;
 
 public class EndConversationMethodInvoker extends MethodInvokerWrapper {
     public EndConversationMethodInvoker(MethodInvoker methodInvoker) {

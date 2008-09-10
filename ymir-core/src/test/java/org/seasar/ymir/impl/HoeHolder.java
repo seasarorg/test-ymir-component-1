@@ -11,4 +11,11 @@ import org.seasar.ymir.constraint.annotation.Requireds;
 @Requireds(@Required)
 @RequiredAlias
 public class HoeHolder {
+    public void hoe(@Hoe("1")
+    @HoeAlias("2")
+    @HoeAliass( { @HoeAlias("3"), @HoeAlias("4") })
+    @HoeAliasAlias("5")
+    @RequiredAlias
+    String param) {
+    }
 }

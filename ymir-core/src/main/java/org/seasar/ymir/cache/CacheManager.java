@@ -13,9 +13,13 @@ import org.seasar.ymir.hotdeploy.HotdeployManager;
 public interface CacheManager {
     /**
      * キャッシュ用のMapを生成して返します。
+     * <p>このメソッドが返すMapはキャッシュ用であり、一度登録されたエントリがいつまでも
+     * 登録されて続けている保証はありません。
+     * </p>
      * <p>生成したMapは自動的に{@link HotdeployManager}に登録され、
      * HOT Deploy有効時には毎リクエスト終了毎に内容が自動的にクリアされるようになります。
      * </p>
+     * <p>返されるMapは同期化されています。</p>
      * <p>返されるMapはキーや値としてnullを指定してはいけないMapである可能性があります。
      * </p>
      * 

@@ -4,17 +4,17 @@ import junit.framework.TestCase;
 
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.impl.S2ContainerImpl;
+import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.annotation.MapParameter;
 import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
 import org.seasar.ymir.cache.impl.CacheManagerImpl;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.scope.impl.MapScope;
+import org.seasar.ymir.scope.impl.ScopeManagerImpl;
 
 public class PageProcessorImplTest extends TestCase {
     private PageProcessorImpl target_;
-
-    private ComponentMetaDataImpl metaData_;
 
     private MapScope mapScope_;
 
@@ -31,12 +31,27 @@ public class PageProcessorImplTest extends TestCase {
         mapScope_ = (MapScope) container.getComponent(MapScope.class);
         AnnotationHandlerImpl annotationHandlerImpl = new AnnotationHandlerImpl();
         HotdeployManagerImpl hotdeployManager = new HotdeployManagerImpl();
+        YmirTypeConversionManager typeConversionManager = new YmirTypeConversionManager();
+        ScopeManagerImpl scopeManager = new ScopeManagerImpl();
+        scopeManager.setHotdeployManager(hotdeployManager);
+        scopeManager.setTypeConversionManager(typeConversionManager);
         CacheManagerImpl cacheManager = new CacheManagerImpl();
         cacheManager.setHotdeployManager(hotdeployManager);
         annotationHandlerImpl.setCacheManager(cacheManager);
-        metaData_ = new ComponentMetaDataImpl(Page.class, container,
-                annotationHandlerImpl, hotdeployManager,
-                new YmirTypeConversionManager());
+        final ComponentMetaDataImpl metaData = new ComponentMetaDataImpl(
+                Page.class, container, annotationHandlerImpl, scopeManager,
+                typeConversionManager);
+        ComponentMetaDataFactoryImpl componentMetaDataFactory = new ComponentMetaDataFactoryImpl() {
+            @Override
+            public ComponentMetaData getInstance(Class<?> clazz) {
+                if (clazz == Page.class) {
+                    return metaData;
+                } else {
+                    return super.getInstance(clazz);
+                }
+            }
+        };
+        target_.setComponentMetaDataFactory(componentMetaDataFactory);
     }
 
     public void testPopulateScopeAttributes() throws Exception {
@@ -45,7 +60,8 @@ public class PageProcessorImplTest extends TestCase {
         mapScope_.setAttribute("bean3.aaa[1].bbb(key).mapped(key)", "value3");
         Page page = new Page();
 
-        target_.populateScopeAttributes(page, metaData_, "_get");
+        target_.populateScopeAttributes(
+                new PageComponentImpl(page, Page.class), "_get");
 
         assertNull(page.getBean1().getAaa(1).getBbb("key").getMapped("key"));
         assertNull(page.getBean2().getAaa(1).getBbb("key").getMapped("key"));
@@ -54,7 +70,8 @@ public class PageProcessorImplTest extends TestCase {
 
         page = new Page();
 
-        target_.populateScopeAttributes(page, metaData_, "_post");
+        target_.populateScopeAttributes(
+                new PageComponentImpl(page, Page.class), "_post");
 
         assertNull(page.getBean1().getAaa(1).getBbb("key").getMapped("key"));
         assertEquals("value2", page.getBean2().getAaa(1).getBbb("key")

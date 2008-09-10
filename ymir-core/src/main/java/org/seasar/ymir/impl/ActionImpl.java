@@ -47,4 +47,8 @@ public class ActionImpl implements Action {
     public boolean shouldInvoke() {
         return methodInvoker_.shouldInvoke();
     }
+
+    public Class<? extends Object> getReturnType() {
+        return methodInvoker_.getReturnType();
+    }
 }

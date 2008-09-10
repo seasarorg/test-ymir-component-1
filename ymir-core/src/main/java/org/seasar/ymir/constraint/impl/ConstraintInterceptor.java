@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +21,10 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Action;
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.PageComponent;
@@ -40,13 +43,10 @@ import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
 import org.seasar.ymir.constraint.annotation.SuppressConstraints;
 import org.seasar.ymir.constraint.annotation.Validator;
-import org.seasar.ymir.impl.ActionImpl;
 import org.seasar.ymir.impl.MethodInvokerImpl;
-import org.seasar.ymir.impl.VoidMethodInvoker;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.ContainerUtils;
-import org.seasar.ymir.util.MethodUtils;
 
 /**
  * 制約チェックを行なうためのInterceptorです。
@@ -66,9 +66,11 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     static final Set<ConstraintType> EMPTY_SUPPRESSTYPESET = EnumSet
             .noneOf(ConstraintType.class);
 
-    private ApplicationManager applicationManager_;
+    private ActionManager actionManager_;
 
     private AnnotationHandler annotationHandler_;
+
+    private ApplicationManager applicationManager_;
 
     private Map<Method, Set<ConstraintType>> suppressTypeSetMap_;
 
@@ -79,13 +81,18 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     private Map<Class<?>, Method[]> validatorMethodsMap_;
 
     @Binding(bindingType = BindingType.MUST)
-    public void setApplicationManager(ApplicationManager applicationManager) {
-        applicationManager_ = applicationManager;
+    public void setActionManager(ActionManager actionManager) {
+        actionManager_ = actionManager;
     }
 
     @Binding(bindingType = BindingType.MUST)
     public void setAnnotationHandler(AnnotationHandler annotationHandler) {
         annotationHandler_ = annotationHandler;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -115,9 +122,8 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
                         .accept(new VisitorForFindingValidationFailedMethod(
                                 notes));
                 if (finalAction == null) {
-                    finalAction = new ActionImpl(pageComponent.getPage(),
-                            VoidMethodInvoker.INSTANCE);
-
+                    finalAction = actionManager_.newVoidAction(pageComponent
+                            .getPage());
                 }
             } else {
                 finalAction = action;
@@ -468,19 +474,18 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
         public Action process(PageComponent pageComponent) {
             Object page = pageComponent.getPage();
-            Method method = MethodUtils.getMethod(page,
-                    ACTION_VALIDATIONFAILED, new Class[] { Notes.class });
-            if (method != null) {
-                return new ActionImpl(page, new MethodInvokerImpl(method,
-                        new Object[] { notes_ }));
+            Method[] methods = ClassUtils.getMethods(page,
+                    ACTION_VALIDATIONFAILED);
+            if (methods.length == 1) {
+                return actionManager_.newAction(page, pageComponent
+                        .getPageClass(), methods[0], new Object[] { notes_ });
+            } else if (methods.length == 0) {
+                return null;
             } else {
-                method = MethodUtils.getMethod(page, ACTION_VALIDATIONFAILED);
-                if (method != null) {
-                    return new ActionImpl(page, new MethodInvokerImpl(method,
-                            new Object[0]));
-                } else {
-                    return null;
-                }
+                throw new IllegalClientCodeRuntimeException("Method '"
+                        + ACTION_VALIDATIONFAILED + "' must be single: class="
+                        + pageComponent.getPageClass() + ", method="
+                        + Arrays.asList(methods));
             }
         }
     }
@@ -496,20 +501,18 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
         public Action process(PageComponent pageComponent) {
             Object page = pageComponent.getPage();
-            Method method = MethodUtils.getMethod(page,
-                    ACTION_PERMISSIONDENIED,
-                    new Class[] { PermissionDeniedException.class });
-            if (method != null) {
-                return new ActionImpl(page, new MethodInvokerImpl(method,
-                        new Object[] { ex_ }));
+            Method[] methods = ClassUtils.getMethods(page,
+                    ACTION_PERMISSIONDENIED);
+            if (methods.length == 1) {
+                return actionManager_.newAction(page, pageComponent
+                        .getPageClass(), methods[0], new Object[] { ex_ });
+            } else if (methods.length == 0) {
+                return null;
             } else {
-                method = MethodUtils.getMethod(page, ACTION_PERMISSIONDENIED);
-                if (method != null) {
-                    return new ActionImpl(page, new MethodInvokerImpl(method,
-                            new Object[0]));
-                } else {
-                    return null;
-                }
+                throw new IllegalClientCodeRuntimeException("Method '"
+                        + ACTION_PERMISSIONDENIED + "' must be single: class="
+                        + pageComponent.getPageClass() + ", method="
+                        + Arrays.asList(methods));
             }
         }
     }

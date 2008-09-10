@@ -16,7 +16,7 @@ import java.util.Map;
  * @author YOKOTA Takehiko
  */
 public class RequestWrapper implements Request {
-    private Request request_;
+    protected Request request_;
 
     public RequestWrapper(Request request) {
         request_ = request;

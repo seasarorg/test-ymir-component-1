@@ -67,7 +67,7 @@ public interface PageProcessor {
      * @param pageComponent PageComponentオブジェクト。
      * @param metaData Pageオブジェクトに関するメタデータ。
      * @param actionName 実行するアクションの名前。
-     * @see ComponentMetaData#getInjectedScopeAttributeHandlers()
+     * @see ComponentMetaData#getScopeAttributeInjectors()
      */
     void injectScopeAttributes(PageComponent pageComponent, String actionName);
 

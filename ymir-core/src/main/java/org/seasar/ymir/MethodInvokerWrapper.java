@@ -1,14 +1,17 @@
-package org.seasar.ymir.impl;
+package org.seasar.ymir;
 
 import java.lang.reflect.Method;
 
-import org.seasar.ymir.MethodInvoker;
 
 public class MethodInvokerWrapper implements MethodInvoker {
     protected MethodInvoker methodInvoker_;
 
     public MethodInvokerWrapper(MethodInvoker methodInvoker) {
         methodInvoker_ = methodInvoker;
+    }
+
+    public MethodInvoker getMethodInvoker() {
+        return methodInvoker_;
     }
 
     public Method getMethod() {

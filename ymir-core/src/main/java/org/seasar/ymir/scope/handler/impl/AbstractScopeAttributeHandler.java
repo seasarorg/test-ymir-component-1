@@ -7,10 +7,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.seasar.ymir.TypeConversionManager;
-import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.scope.Scope;
-import org.seasar.ymir.scope.handler.ScopeAttributeHandler;
 
 /**
  * スコープに格納される属性を扱うための抽象クラスです。
@@ -19,8 +16,7 @@ import org.seasar.ymir.scope.handler.ScopeAttributeHandler;
  * 
  * @author YOKOTA Takehiko
  */
-abstract public class AbstractScopeAttributeHandler implements
-        ScopeAttributeHandler {
+abstract public class AbstractScopeAttributeHandler {
     protected String name_;
 
     protected Scope scope_;
@@ -30,10 +26,6 @@ abstract public class AbstractScopeAttributeHandler implements
     protected Set<String> enabledActionNameSet_;
 
     protected boolean invokeWhereNull_;
-
-    protected HotdeployManager hotdeployManager_;
-
-    protected TypeConversionManager typeConversionManager_;
 
     private static final Log log_ = LogFactory
             .getLog(AbstractScopeAttributeHandler.class);
@@ -48,13 +40,9 @@ abstract public class AbstractScopeAttributeHandler implements
      * @param invokeWhereNull 属性値がnullであった場合でもPageオブジェクトに対してインジェクト／アウトジェクト操作を行なうかどうか。
      * @param enabledActionNames 属性が有効であるようなアクションの名前。
      * どのアクション呼び出しの時にこの属性に関する操作を行なうかを表します。
-     * @param hotdeployManager {@link HotdeployManager}。
-     * @param typeConversionManager {@link TypeConversionManager}。
      */
     protected AbstractScopeAttributeHandler(String name, Scope scope,
-            Method method, boolean invokeWhereNull,
-            String[] enabledActionNames, HotdeployManager hotdeployManager,
-            TypeConversionManager typeConversionManager) {
+            Method method, boolean invokeWhereNull, String[] enabledActionNames) {
         name_ = name;
         scope_ = scope;
         method_ = method;
@@ -63,8 +51,6 @@ abstract public class AbstractScopeAttributeHandler implements
             enabledActionNameSet_ = new HashSet<String>(Arrays
                     .asList(enabledActionNames));
         }
-        hotdeployManager_ = hotdeployManager;
-        typeConversionManager_ = typeConversionManager;
     }
 
     protected boolean isEnabled(String actionName) {

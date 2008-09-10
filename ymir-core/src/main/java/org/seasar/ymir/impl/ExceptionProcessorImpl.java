@@ -7,9 +7,9 @@ import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.ExceptionProcessor;
+import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageProcessor;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -17,10 +17,12 @@ import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.handler.ExceptionHandler;
+import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.response.ForwardResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
 import org.seasar.ymir.util.ThrowableUtils;
+import org.seasar.ymir.util.YmirUtils;
 
 public class ExceptionProcessorImpl implements ExceptionProcessor {
     private Ymir ymir_;
@@ -32,6 +34,8 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     private ResponseConstructorSelector responseConstructorSelector_;
 
     private Updater[] updaters_ = new Updater[0];
+
+    private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
 
     @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
@@ -59,9 +63,24 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         updaters_ = updaters;
     }
 
+    @Binding(value = "@org.seasar.ymir.util.ContainerUtils@findAllComponents(container, @org.seasar.ymir.interceptor.YmirProcessInterceptor@class)", bindingType = BindingType.MUST)
+    public void setYmirProcessInterceptors(
+            final YmirProcessInterceptor[] ymirProcessInterceptors) {
+        ymirProcessInterceptors_ = ymirProcessInterceptors;
+        YmirUtils.sortYmirProcessInterceptors(ymirProcessInterceptors_);
+    }
+
     @SuppressWarnings("unchecked")
     public Response process(Request request, Throwable t) {
         t = ThrowableUtils.unwrap(t);
+
+        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+            Response response = ymirProcessInterceptors_[i]
+                    .exceptionProcessingStarted(request, t);
+            if (response != null) {
+                return response;
+            }
+        }
 
         if (ymir_.isUnderDevelopment()) {
             for (int i = 0; i < updaters_.length; i++) {
@@ -103,12 +122,12 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                 .getComponent();
 
         // 各コンテキストが持つ属性をinjectする。
-        ComponentMetaData metaData = componentMetaDataFactory_
-                .getInstance(handlerCd.getComponentClass());
+        PageComponent pageComponent = new PageComponentImpl(handler, handlerCd
+                .getComponentClass());
         // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
         // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
-        pageProcessor_.populateScopeAttributes(handler, metaData, null);
-        pageProcessor_.injectScopeAttributes(handler, metaData, null);
+        pageProcessor_.populateScopeAttributes(pageComponent, null);
+        pageProcessor_.injectScopeAttributes(pageComponent, null);
 
         Response response = constructResponse(handler.handle(t));
         if (response.getType() == ResponseType.PASSTHROUGH) {
@@ -118,7 +137,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         }
 
         // 各コンテキストに属性をoutjectする。
-        pageProcessor_.outjectScopeAttributes(handler, metaData, null);
+        pageProcessor_.outjectScopeAttributes(pageComponent, null);
 
         // ExceptionHandlerコンポーネントと例外オブジェクトをattributeとしてバインドしておく。
         request.setAttribute(ATTR_HANDLER, handler);

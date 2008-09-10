@@ -81,6 +81,37 @@ public class ClassUtils {
         }
     }
 
+    public static Method[] getMethods(Object object, String methodName) {
+        return getMethods(object.getClass(), methodName);
+    }
+
+    public static Method getMethod(Object object, String methodName,
+            Class<?>[] parameterTypes) {
+        return getMethod(object.getClass(), methodName, parameterTypes);
+    }
+
+    public static Method[] getMethods(Class<?> clazz, String methodName) {
+        Method[] methods = getMethods(clazz);
+        List<Method> list = new ArrayList<Method>();
+        for (int i = 0; i < methods.length; i++) {
+            if (methodName.equals(methods[i].getName())) {
+                list.add(methods[i]);
+            }
+        }
+        return list.toArray(new Method[0]);
+    }
+
+    public static Method getMethod(Class<?> clazz, String methodName,
+            Class<?>[] parameterTypes) {
+        try {
+            return clazz.getMethod(methodName, parameterTypes);
+        } catch (SecurityException ex) {
+            return null;
+        } catch (NoSuchMethodException ex) {
+            return null;
+        }
+    }
+
     public static Class<?> toComponentType(Class<?> clazz) {
         if (clazz == null) {
             return null;

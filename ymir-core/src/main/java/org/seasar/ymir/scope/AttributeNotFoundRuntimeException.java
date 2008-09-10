@@ -63,4 +63,26 @@ public class AttributeNotFoundRuntimeException extends RuntimeException {
         component_ = component;
         return this;
     }
+
+    @Override
+    public String getMessage() {
+        String message = super.getMessage();
+        if (message == null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Attribute (name=").append(name_).append(", type=")
+                    .append(type_).append(") not found");
+
+            String delim = ": ";
+            if (method_ != null) {
+                sb.append(delim).append("method=").append(method_);
+                delim = ", ";
+            }
+            if (component_ != null) {
+                sb.append(delim).append("component=").append(component_);
+                delim = ", ";
+            }
+            message = sb.toString();
+        }
+        return message;
+    }
 }

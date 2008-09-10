@@ -24,6 +24,7 @@ public class PathMappingImplTest extends TestCase {
                 "${1}Page", "_${method}", "", "/${1}.html",
                 "^_([a-zA-Z][a-zA-Z0-9]*)$", null);
         target_.setTypeConversionManager(new YmirTypeConversionManager());
+        target_.setActionManager(new ActionManagerImpl());
     }
 
     public void testGetAction_親のボタン用アクション・子のボタン用のアクション・親の通常アクション・子の通常アクションの順で探索すること()

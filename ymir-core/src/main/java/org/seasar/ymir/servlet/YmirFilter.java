@@ -94,12 +94,13 @@ public class YmirFilter implements Filter {
         }
 
         try {
+            Response response = null;
             if (dispatcher == Dispatcher.REQUEST) {
                 for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                    if (!ymirProcessInterceptors_[i].enteringRequest(context_,
-                            httpRequest, httpResponse, path)) {
-                        chain.doFilter(req, res);
-                        return;
+                    response = ymirProcessInterceptors_[i].enteringRequest(
+                            context_, httpRequest, httpResponse, path);
+                    if (response != null) {
+                        break;
                     }
                 }
             }
@@ -139,7 +140,9 @@ public class YmirFilter implements Filter {
             ymir_.enterDispatch(request, path, ServletUtils
                     .getQueryString(httpRequest), dispatcher, matched);
             try {
-                Response response = ymir_.processRequest(request);
+                if (response == null) {
+                    response = ymir_.processRequest(request);
+                }
 
                 HttpServletResponseFilter responseFilter = ymir_
                         .processResponse(context_, httpRequest, httpResponse,

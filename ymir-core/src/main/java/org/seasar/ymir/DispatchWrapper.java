@@ -3,7 +3,7 @@ package org.seasar.ymir;
 import java.util.Map;
 
 public class DispatchWrapper implements Dispatch {
-    private Dispatch dispatch_;
+    protected Dispatch dispatch_;
 
     public DispatchWrapper(Dispatch dispatch) {
         dispatch_ = dispatch;

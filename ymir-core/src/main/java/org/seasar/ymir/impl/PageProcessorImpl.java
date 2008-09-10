@@ -17,7 +17,9 @@ import org.seasar.ymir.PageProcessor;
 import org.seasar.ymir.Phase;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.WrappingRuntimeException;
-import org.seasar.ymir.scope.handler.ScopeAttributeHandler;
+import org.seasar.ymir.scope.handler.ScopeAttributeInjector;
+import org.seasar.ymir.scope.handler.ScopeAttributeOutjector;
+import org.seasar.ymir.scope.handler.ScopeAttributePopulator;
 
 public class PageProcessorImpl implements PageProcessor {
     private ComponentMetaDataFactory componentMetaDataFactory_;
@@ -88,10 +90,10 @@ public class PageProcessorImpl implements PageProcessor {
             String actionName) {
         ComponentMetaData metaData = componentMetaDataFactory_
                 .getInstance(pageComponent.getPageClass());
-        ScopeAttributeHandler[] handlers = metaData
-                .getPopulatedScopeAttributeHandlers();
-        for (int i = 0; i < handlers.length; i++) {
-            handlers[i].injectTo(pageComponent.getPage(), actionName);
+        ScopeAttributePopulator[] populators = metaData
+                .getScopeAttributePopulators();
+        for (int i = 0; i < populators.length; i++) {
+            populators[i].populateTo(pageComponent.getPage(), actionName);
         }
     }
 
@@ -99,10 +101,10 @@ public class PageProcessorImpl implements PageProcessor {
             String actionName) {
         ComponentMetaData metaData = componentMetaDataFactory_
                 .getInstance(pageComponent.getPageClass());
-        ScopeAttributeHandler[] handlers = metaData
-                .getInjectedScopeAttributeHandlers();
-        for (int i = 0; i < handlers.length; i++) {
-            handlers[i].injectTo(pageComponent.getPage(), actionName);
+        ScopeAttributeInjector[] injectors = metaData
+                .getScopeAttributeInjectors();
+        for (int i = 0; i < injectors.length; i++) {
+            injectors[i].injectTo(pageComponent.getPage(), actionName);
         }
     }
 
@@ -110,10 +112,10 @@ public class PageProcessorImpl implements PageProcessor {
             String actionName) {
         ComponentMetaData metaData = componentMetaDataFactory_
                 .getInstance(pageComponent.getPageClass());
-        ScopeAttributeHandler[] attributes = metaData
-                .getOutjectedScopeAttributeHandlers();
-        for (int i = 0; i < attributes.length; i++) {
-            attributes[i].outjectFrom(pageComponent.getPage(), actionName);
+        ScopeAttributeOutjector[] outjectors = metaData
+                .getScopeAttributeOutjectors();
+        for (int i = 0; i < outjectors.length; i++) {
+            outjectors[i].outjectFrom(pageComponent.getPage(), actionName);
         }
     }
 

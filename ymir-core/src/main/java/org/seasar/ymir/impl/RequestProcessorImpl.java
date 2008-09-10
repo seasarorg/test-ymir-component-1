@@ -237,8 +237,18 @@ public class RequestProcessorImpl implements RequestProcessor {
                 }
 
                 // リクエストに対応するアクションを決定する。
-                Action action = dispatch.getMatchedPathMapping().getAction(
-                        pageComponent, request);
+
+                Action originalAction = dispatch.getMatchedPathMapping()
+                        .getAction(pageComponent, request);
+                dispatch.setAction(originalAction);
+
+                Action action = originalAction;
+                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                    action = ymirProcessInterceptors_[i].actionInvoking(
+                            request, originalAction, action);
+                    dispatch.setAction(action);
+                }
+
                 if (action == null
                         && dispatch.getDispatcher() == Dispatcher.REQUEST) {
                     // リクエストに対応するアクションが存在しない場合はリクエストを受け付けない。
@@ -248,22 +258,14 @@ public class RequestProcessorImpl implements RequestProcessor {
                     throw new ActionNotFoundException(dispatch.getPath(),
                             request.getMethod());
                 }
-                dispatch.setAction(action);
 
                 pageComponent.accept(new VisitorForPreparing(request));
 
                 pageComponent.accept(visitorForInvokingInPhaseActionInvoking_);
 
-                Action actualAction = action;
-                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                    actualAction = ymirProcessInterceptors_[i].actionInvoking(
-                            request, action, actualAction);
-                }
-
-                response = normalizeResponse(
-                        adjustResponse(dispatch, invokeAction(actualAction),
-                                actualAction != null ? actualAction.getTarget()
-                                        : null), dispatch.getPath());
+                response = normalizeResponse(adjustResponse(dispatch,
+                        invokeAction(action), action != null ? action
+                                .getTarget() : null), dispatch.getPath());
 
                 pageComponent.accept(visitorForInvokingInPhaseActionInvoked_);
 
@@ -421,7 +423,7 @@ public class RequestProcessorImpl implements RequestProcessor {
                         + action.getMethodInvoker());
             }
             response = constructResponse(action.getTarget(), action
-                    .getMethodInvoker().getReturnType(), action.invoke());
+                    .getReturnType(), action.invoke());
             if (logger_.isDebugEnabled()) {
                 logger_.debug("RESPONSE: " + response);
             }

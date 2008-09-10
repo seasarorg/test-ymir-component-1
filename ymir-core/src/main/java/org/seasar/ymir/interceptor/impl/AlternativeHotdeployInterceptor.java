@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.hotdeploy.HotdeployEventListener;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
@@ -35,7 +36,7 @@ public class AlternativeHotdeployInterceptor extends
     }
 
     @Override
-    public boolean enteringRequest(ServletContext context,
+    public Response enteringRequest(ServletContext context,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             String path) {
         if (isUnderDevelopment()) {
@@ -44,7 +45,7 @@ public class AlternativeHotdeployInterceptor extends
                 listener.start();
             }
         }
-        return true;
+        return null;
     }
 
     boolean isUnderDevelopment() {

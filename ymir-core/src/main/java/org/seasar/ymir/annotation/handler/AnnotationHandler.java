@@ -2,6 +2,7 @@ package org.seasar.ymir.annotation.handler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
 
 import org.seasar.ymir.annotation.Alias;
 import org.seasar.ymir.annotation.Collection;
@@ -82,4 +83,21 @@ public interface AnnotationHandler {
      */
     Annotation[] getMarkedAnnotations(AnnotatedElement element,
             Class<? extends Annotation> metaAnnotationClass);
+
+    /**
+     * メソッドの引数に付与されているアノテーションのうち、指定された型と合致するアノテーションを返します。
+     * <p>コレクションアノテーションやエイリアスアノテーションはともに展開されて返されます。
+     * このため{@link AnnotatedElement#getAnnotation(Class)}とは異なり、
+     * 同一型のアノテーションが複数返されることがあります。
+     * なお返される順序は不定です。
+     * </p>
+     * <p>要素がnullである場合や該当するアノテーションが存在しない場合は空の配列を返します。</p>
+     * 
+     * @param method メソッド。nullを指定してはいけません。
+     * @param index 何番目の引数か。0オリジンです。
+     * @param annotationClass アノテーション型。nullを指定してはいけません。
+     * @return 指定された型と合致するアノテーションの配列。存在しない場合は空の配列を返します。
+     */
+    <T extends Annotation> T[] getParameterAnnotations(Method method,
+            int index, Class<T> annotationClass);
 }

@@ -101,6 +101,10 @@
   <component name="requestScope"
     class="org.seasar.ymir.scope.impl.RequestScope" />
   <component class="org.seasar.ymir.impl.TypeConversionManagerImpl" />
+  <component name="scopeManager"
+    class="org.seasar.ymir.scope.impl.ScopeManagerImpl" />
+  <component name="actionManager"
+    class="org.seasar.ymir.impl.ActionManagerImpl" />
   <!-- FOR TEST -->
   <component name="parentPage" class="org.seasar.ymir.impl.ParentPage" />
   <component name="child1Page" class="org.seasar.ymir.impl.Child1Page" />

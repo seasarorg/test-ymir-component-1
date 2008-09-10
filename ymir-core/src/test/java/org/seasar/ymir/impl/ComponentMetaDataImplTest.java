@@ -9,6 +9,7 @@ import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
 import org.seasar.ymir.cache.impl.CacheManagerImpl;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.scope.impl.RequestParameterScope;
+import org.seasar.ymir.scope.impl.ScopeManagerImpl;
 import org.seasar.ymir.scope.impl.SessionScope;
 
 public class ComponentMetaDataImplTest extends TestCase {
@@ -16,7 +17,11 @@ public class ComponentMetaDataImplTest extends TestCase {
 
     private AnnotationHandlerImpl annotationHandler_;
 
-    private HotdeployManagerImpl hotdeployManager_;
+    HotdeployManagerImpl hotdeployManager_;
+
+    private ScopeManagerImpl scopeManager_;
+
+    private YmirTypeConversionManager typeConversionManager_;
 
     @Override
     protected void setUp() throws Exception {
@@ -24,13 +29,16 @@ public class ComponentMetaDataImplTest extends TestCase {
         container.register(RequestParameterScope.class);
         container.register(SessionScope.class);
         annotationHandler_ = new AnnotationHandlerImpl();
+        typeConversionManager_ = new YmirTypeConversionManager();
         hotdeployManager_ = new HotdeployManagerImpl();
+        scopeManager_ = new ScopeManagerImpl();
+        scopeManager_.setHotdeployManager(hotdeployManager_);
+        scopeManager_.setTypeConversionManager(typeConversionManager_);
         CacheManagerImpl cacheManager = new CacheManagerImpl();
         cacheManager.setHotdeployManager(hotdeployManager_);
         annotationHandler_.setCacheManager(cacheManager);
         target_ = new ComponentMetaDataImpl(Hoe2Page.class, container,
-                annotationHandler_, hotdeployManager_,
-                new YmirTypeConversionManager()) {
+                annotationHandler_, scopeManager_, typeConversionManager_) {
         };
     }
 
@@ -85,8 +93,7 @@ public class ComponentMetaDataImplTest extends TestCase {
         ComponentMetaDataImpl target = new ComponentMetaDataImpl(HoePage.class,
                 S2ContainerFactory.create(getClass().getName()
                         .replace('.', '/').concat(".dicon")),
-                annotationHandler_, hotdeployManager_,
-                new YmirTypeConversionManager());
+                annotationHandler_, scopeManager_, typeConversionManager_);
 
         assertTrue(target.isProtected("map"));
         assertTrue(target.isProtected("maps"));

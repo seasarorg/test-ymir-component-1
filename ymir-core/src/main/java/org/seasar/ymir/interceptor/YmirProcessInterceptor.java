@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.ymir.Action;
+import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -36,17 +37,17 @@ public interface YmirProcessInterceptor {
     /**
      * リクエストの処理を開始した際に呼び出されるメソッドです。
      * <p>リクエストがYmirの処理対象である場合だけ呼び出されます。</p>
-     * <p>このメソッドがfalseを返した場合はリクエストの処理は中断され、
-     * フィルタチェインの次のフィルタに処理が委譲されます。
+     * <p>このメソッドが非nullを返した場合は、
+     * フレームワークは通常のリクエスト処理をスキップして返されたレスポンスを処理します。
      * </p>
      * 
      * @param context ServletContextオブジェクト。
      * @param httpRequest HttpServletRequestオブジェクト。
      * @param httpResponse HttpServletResponseオブジェクト。
      * @param path コンテキスト相対のリクエストパス。末尾に「/」がついている場合はそのまま渡されます。
-     * @return リクエストの処理を継続するかどうか。
+     * @return レスポンスオブジェクト。
      */
-    boolean enteringRequest(ServletContext context,
+    Response enteringRequest(ServletContext context,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             String path);
 
@@ -84,7 +85,8 @@ public interface YmirProcessInterceptor {
      * @param originalAction フレームワークが構築した元もとのActionオブジェクト。
      * @param action 現在のActionオブジェクト。他のYmirProcessInterceptorによって、
      * 元もとのActionではないものに差し替えられていることがあります。
-     * @return Actionオブジェクト。
+     * nullであることもあります。
+     * @return Actionオブジェクト。nullを返すこともできます。
      * @throws PermissionDeniedException 権限エラーが発生した場合。
      */
     Action actionInvoking(Request request, Action originalAction, Action action)
@@ -142,4 +144,19 @@ public interface YmirProcessInterceptor {
      * </p>
      */
     void leftRequest();
+
+    /**
+     * {@link ExceptionProcessor#process(Request, Throwable)}
+     * メソッドによってExceptionの処理が開始された際に呼び出されるメソッドです。
+     * <p>nullを返した場合は処理が継続されます。
+     * nullでないResponseオブジェクトを返した場合はそのResponseオブジェクトを返り値として
+     * {@link ExceptionProcessor#process(Request, Throwable)}の処理を終了します。
+     * </p>
+     * 
+     * @param request Requestオブジェクト。
+     * @param t スローされた例外オブジェクト。
+     * @return Responseオブジェクト。
+     * @since 1.0.0
+     */
+    Response exceptionProcessingStarted(Request request, Throwable t);
 }

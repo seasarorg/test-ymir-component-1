@@ -44,4 +44,23 @@ public class AnnotationHandlerImplTest extends TestCase {
         assertEquals("4", actual[idx++].value());
         assertEquals("5", actual[idx++].value());
     }
+
+    public void testGetParameterAnnotations() throws Exception {
+        Hoe[] actual = target_.getParameterAnnotations(HoeHolder.class
+                .getMethod("hoe", new Class<?>[] { String.class }), 0,
+                Hoe.class);
+        Arrays.sort(actual, new Comparator<Hoe>() {
+            public int compare(Hoe o1, Hoe o2) {
+                return o1.value().compareTo(o2.value());
+            }
+        });
+
+        assertEquals(5, actual.length);
+        int idx = 0;
+        assertEquals("1", actual[idx++].value());
+        assertEquals("2", actual[idx++].value());
+        assertEquals("3", actual[idx++].value());
+        assertEquals("4", actual[idx++].value());
+        assertEquals("5", actual[idx++].value());
+    }
 }

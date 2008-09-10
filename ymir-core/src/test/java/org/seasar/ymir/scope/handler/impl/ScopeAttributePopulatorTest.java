@@ -8,12 +8,10 @@ import org.seasar.ymir.impl.Bean;
 import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.impl.YmirTypeConversionManager;
 import org.seasar.ymir.scope.impl.MapScope;
+import org.seasar.ymir.scope.impl.ScopeManagerImpl;
 
 public class ScopeAttributePopulatorTest extends TestCase {
-    private MapScope scope_ = new MapScope();
-
-    private ScopeAttributePopulator target_ = new ScopeAttributePopulator(
-            scope_, new HotdeployManagerImpl(), new YmirTypeConversionManager());
+    private ScopeAttributePopulatorImpl target_;
 
     @Override
     protected void setUp() throws Exception {
@@ -23,18 +21,27 @@ public class ScopeAttributePopulatorTest extends TestCase {
                 return false;
             }
         });
-        scope_.setAttribute("bean.aaa[1].bbb(key).mapped(key)", "value");
+
+        MapScope scope = new MapScope();
+        YmirTypeConversionManager typeConversionManager = new YmirTypeConversionManager();
+        ScopeManagerImpl scopeManager = new ScopeManagerImpl();
+        scopeManager.setHotdeployManager(new HotdeployManagerImpl());
+        scopeManager.setTypeConversionManager(typeConversionManager);
+        target_ = new ScopeAttributePopulatorImpl(scope, scopeManager,
+                typeConversionManager);
+
+        scope.setAttribute("bean.aaa[1].bbb(key).mapped(key)", "value");
         target_.addEntry(Page.class.getMethod("getBean", new Class[0]),
                 new String[] { "_post" });
     }
 
-    public void testInjectTo() throws Exception {
+    public void testPopulateTo() throws Exception {
         Page page = new Page();
-        target_.injectTo(page, "_get");
+        target_.populateTo(page, "_get");
 
         assertNull(page.getBean().getAaa(1).getBbb("key").getMapped("key"));
 
-        target_.injectTo(page, "_post");
+        target_.populateTo(page, "_post");
 
         assertEquals("value", page.getBean().getAaa(1).getBbb("key").getMapped(
                 "key"));

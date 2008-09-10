@@ -16,7 +16,6 @@ public class YmirConventionTest extends TestCase {
      * 標準のマッピングをテストします。
      */
     public void testMapping() throws Exception {
-
         S2Container container = S2ContainerFactory.create("mapping.dicon");
         PathMappingProvider provider = (PathMappingProvider) container
                 .getComponent(PathMappingProvider.class);
@@ -33,16 +32,15 @@ public class YmirConventionTest extends TestCase {
         assertNotNull(matched);
         assertEquals("articlePage", matched.getPageComponentName());
 
-        matched = match("/article/update.do", "POST", mappings);
+        matched = match("/article/update.html", "POST", mappings);
         assertNotNull(matched);
-        assertEquals("articlePage", matched.getPageComponentName());
+        assertEquals("article_updatePage", matched.getPageComponentName());
 
-        matched = match("/article/_update.do", "POST", mappings);
+        matched = match("/article/_update.html", "POST", mappings);
         assertNull(matched);
     }
 
     public void testFromComponentNameToClassName() throws Exception {
-
         YmirNamingConvention convention = new YmirNamingConvention();
         convention.addRootPackageName("org.seasar.ymir");
         PageCreator creator = new PageCreator(convention);

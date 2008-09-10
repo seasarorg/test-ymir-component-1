@@ -12,8 +12,9 @@ import java.util.Set;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.util.ArrayUtil;
-import org.seasar.ymir.FormFile;
 import org.seasar.ymir.ComponentMetaData;
+import org.seasar.ymir.FormFile;
+import org.seasar.ymir.MethodNotFoundRuntimeException;
 import org.seasar.ymir.Phase;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.annotation.In;
@@ -21,13 +22,19 @@ import org.seasar.ymir.annotation.Invoke;
 import org.seasar.ymir.annotation.Out;
 import org.seasar.ymir.annotation.Populate;
 import org.seasar.ymir.annotation.Protected;
+import org.seasar.ymir.annotation.Resolve;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
-import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.scope.Scope;
-import org.seasar.ymir.scope.handler.ScopeAttributeHandler;
-import org.seasar.ymir.scope.handler.impl.ScopeAttributeInjector;
-import org.seasar.ymir.scope.handler.impl.ScopeAttributeOutjector;
-import org.seasar.ymir.scope.handler.impl.ScopeAttributePopulator;
+import org.seasar.ymir.scope.ScopeManager;
+import org.seasar.ymir.scope.handler.ScopeAttributeInjector;
+import org.seasar.ymir.scope.handler.ScopeAttributeOutjector;
+import org.seasar.ymir.scope.handler.ScopeAttributePopulator;
+import org.seasar.ymir.scope.handler.ScopeAttributeResolver;
+import org.seasar.ymir.scope.handler.impl.ScopeAttributeInjectorImpl;
+import org.seasar.ymir.scope.handler.impl.ScopeAttributeOutjectorImpl;
+import org.seasar.ymir.scope.handler.impl.ScopeAttributePopulatorImpl;
+import org.seasar.ymir.scope.handler.impl.ScopeAttributeResolverImpl;
+import org.seasar.ymir.scope.impl.ComponentScope;
 import org.seasar.ymir.scope.impl.RequestScope;
 import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ClassUtils;
@@ -39,28 +46,29 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
 
     private AnnotationHandler annotationHandler_;
 
-    private HotdeployManager hotdeployManager_;
+    private ScopeManager scopeManager_;
 
     private TypeConversionManager typeConversionManager_;
 
     private Set<String> protectedNameSet_ = new HashSet<String>();
 
-    private List<ScopeAttributeHandler> injectedScopeAttributeHandlerList_ = new ArrayList<ScopeAttributeHandler>();
+    private List<ScopeAttributeInjector> scopeAttributeInjectorList_ = new ArrayList<ScopeAttributeInjector>();
 
-    private List<ScopeAttributeHandler> outjectedScopeAttributeHandlerList_ = new ArrayList<ScopeAttributeHandler>();
+    private List<ScopeAttributeOutjector> scopeAttributeOutjectorList_ = new ArrayList<ScopeAttributeOutjector>();
 
     private Map<Phase, Method[]> methodsMap_ = new HashMap<Phase, Method[]>();
 
-    private Map<Scope, ScopeAttributePopulator> populatedScopeAttributeHandlerMap_ = new HashMap<Scope, ScopeAttributePopulator>();
+    private Map<Scope, ScopeAttributePopulatorImpl> scopeAttributePopulatorMap_ = new HashMap<Scope, ScopeAttributePopulatorImpl>();
+
+    private Map<Method, ScopeAttributeResolver[]> scopeAttributeResolversMap_ = new HashMap<Method, ScopeAttributeResolver[]>();
 
     public ComponentMetaDataImpl(Class<?> clazz, S2Container container,
-            AnnotationHandler annotationHandler,
-            HotdeployManager hotdeployManager,
+            AnnotationHandler annotationHandler, ScopeManager scopeManager,
             TypeConversionManager typeConversionManager) {
         class_ = clazz;
         container_ = container;
         annotationHandler_ = annotationHandler;
-        hotdeployManager_ = hotdeployManager;
+        scopeManager_ = scopeManager;
         typeConversionManager_ = typeConversionManager;
         Method[] methods = ClassUtils.getMethods(clazz);
         for (int i = 0; i < methods.length; i++) {
@@ -74,19 +82,19 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
                 .getFirstSimpleSegment(propertyName));
     }
 
-    public ScopeAttributeHandler[] getPopulatedScopeAttributeHandlers() {
-        return populatedScopeAttributeHandlerMap_.values().toArray(
-                new ScopeAttributeHandler[0]);
+    public ScopeAttributePopulator[] getScopeAttributePopulators() {
+        return scopeAttributePopulatorMap_.values().toArray(
+                new ScopeAttributePopulator[0]);
     }
 
-    public ScopeAttributeHandler[] getInjectedScopeAttributeHandlers() {
-        return injectedScopeAttributeHandlerList_
-                .toArray(new ScopeAttributeHandler[0]);
+    public ScopeAttributeInjector[] getScopeAttributeInjectors() {
+        return scopeAttributeInjectorList_
+                .toArray(new ScopeAttributeInjector[0]);
     }
 
-    public ScopeAttributeHandler[] getOutjectedScopeAttributeHandlers() {
-        return outjectedScopeAttributeHandlerList_
-                .toArray(new ScopeAttributeHandler[0]);
+    public ScopeAttributeOutjector[] getScopeAttributeOutjectors() {
+        return scopeAttributeOutjectorList_
+                .toArray(new ScopeAttributeOutjector[0]);
     }
 
     void register(Method method) {
@@ -154,17 +162,35 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
             protectedNameSet_.add(BeanUtils.toPropertyName(method.getName(),
                     false));
         }
+
+        // メソッドの引数についてScopeAttributeResolverを生成して登録する。
+        ScopeAttributeResolver[] resolvers = new ScopeAttributeResolver[types.length];
+        for (int i = 0; i < types.length; i++) {
+            ScopeAttributeResolverImpl resolver = null;
+            Resolve[] is = annotationHandler_.getParameterAnnotations(method,
+                    i, Resolve.class);
+            if (is.length > 0) {
+                resolver = new ScopeAttributeResolverImpl(types[i],
+                        scopeManager_, typeConversionManager_);
+                for (int j = 0; j < is.length; j++) {
+                    resolver.addEntry(getScope(is[j]), is[j].value(), is[j]
+                            .required());
+                }
+            }
+            resolvers[i] = resolver;
+        }
+        scopeAttributeResolversMap_.put(method, resolvers);
     }
 
     void registerForPopulationFromScope(Populate populate, Method method) {
         Scope scope = getScope(populate);
 
-        ScopeAttributePopulator populator = populatedScopeAttributeHandlerMap_
+        ScopeAttributePopulatorImpl populator = scopeAttributePopulatorMap_
                 .get(scope);
         if (populator == null) {
-            populator = new ScopeAttributePopulator(scope, hotdeployManager_,
+            populator = new ScopeAttributePopulatorImpl(scope, scopeManager_,
                     typeConversionManager_);
-            populatedScopeAttributeHandlerMap_.put(scope, populator);
+            scopeAttributePopulatorMap_.put(scope, populator);
         }
 
         if (populate.name().length() == 0) {
@@ -204,11 +230,11 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
                             + class_.getName() + ", method=" + method);
         }
 
-        injectedScopeAttributeHandlerList_.add(new ScopeAttributeInjector(
+        scopeAttributeInjectorList_.add(new ScopeAttributeInjectorImpl(
                 toAttributeName(method.getName(), in.name()), method
                         .getParameterTypes()[0], getScope(in), method, in
                         .injectWhereNull(), in.required(), in.actionName(),
-                hotdeployManager_, typeConversionManager_));
+                scopeManager_));
     }
 
     Scope getScope(In in) {
@@ -221,6 +247,18 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
             key = in.value();
         } else {
             key = RequestScope.class;
+        }
+        return (Scope) getComponent(key);
+    }
+
+    Scope getScope(Resolve resolve) {
+        Object key;
+        if (resolve.scopeName().length() > 0) {
+            key = resolve.scopeName();
+        } else if (resolve.scopeClass() != Scope.class) {
+            key = resolve.scopeClass();
+        } else {
+            key = ComponentScope.class;
         }
         return (Scope) getComponent(key);
     }
@@ -241,10 +279,9 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
                             + class_.getName() + ", method=" + method);
         }
 
-        outjectedScopeAttributeHandlerList_.add(new ScopeAttributeOutjector(
+        scopeAttributeOutjectorList_.add(new ScopeAttributeOutjectorImpl(
                 toAttributeName(method.getName(), out.name()), getScope(out),
-                method, out.outjectWhereNull(), out.actionName(),
-                hotdeployManager_, typeConversionManager_));
+                method, out.outjectWhereNull(), out.actionName()));
     }
 
     Scope getScope(Out out) {
@@ -275,5 +312,16 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
 
     public Method[] getMethods(Phase phase) {
         return methodsMap_.get(phase);
+    }
+
+    public ScopeAttributeResolver[] getScopeAttributeResolversForParameters(
+            Method method) throws MethodNotFoundRuntimeException {
+        ScopeAttributeResolver[] resolvers = scopeAttributeResolversMap_
+                .get(method);
+        if (resolvers != null) {
+            return resolvers;
+        } else {
+            throw new MethodNotFoundRuntimeException().setMethod(method);
+        }
     }
 }

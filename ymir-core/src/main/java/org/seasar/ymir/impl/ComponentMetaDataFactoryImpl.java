@@ -10,14 +10,14 @@ import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.cache.CacheManager;
-import org.seasar.ymir.hotdeploy.HotdeployManager;
+import org.seasar.ymir.scope.ScopeManager;
 
 public class ComponentMetaDataFactoryImpl implements ComponentMetaDataFactory {
     private ApplicationManager applicationManager_;
 
     private AnnotationHandler annotationHandler_;
 
-    private HotdeployManager hotdeployManager_;
+    private ScopeManager scopeManager_;
 
     private TypeConversionManager typeConversionManager_;
 
@@ -39,8 +39,8 @@ public class ComponentMetaDataFactoryImpl implements ComponentMetaDataFactory {
     }
 
     @Binding(bindingType = BindingType.MUST)
-    public void setHotdeployManager(HotdeployManager hotdeployManager) {
-        hotdeployManager_ = hotdeployManager;
+    public void setScopeManager(ScopeManager scopeManager) {
+        scopeManager_ = scopeManager;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -61,6 +61,6 @@ public class ComponentMetaDataFactoryImpl implements ComponentMetaDataFactory {
     protected ComponentMetaData newInstance(Class<?> clazz) {
         return new ComponentMetaDataImpl(clazz, applicationManager_
                 .findContextApplication().getS2Container(), annotationHandler_,
-                hotdeployManager_, typeConversionManager_);
+                scopeManager_, typeConversionManager_);
     }
 }

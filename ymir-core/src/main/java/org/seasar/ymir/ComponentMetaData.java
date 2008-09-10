@@ -2,7 +2,10 @@ package org.seasar.ymir;
 
 import java.lang.reflect.Method;
 
-import org.seasar.ymir.scope.handler.ScopeAttributeHandler;
+import org.seasar.ymir.scope.handler.ScopeAttributeResolver;
+import org.seasar.ymir.scope.handler.ScopeAttributeInjector;
+import org.seasar.ymir.scope.handler.ScopeAttributeOutjector;
+import org.seasar.ymir.scope.handler.ScopeAttributePopulator;
 
 /**
  * コンポーネントに関する情報を表すインタフェースです。
@@ -39,7 +42,7 @@ public interface ComponentMetaData {
      * @return スコープから値をポピュレートする必要のある属性のためのハンドラ。nullを返すことはありません。
      * @see PageProcessor#populateScopeAttributes(Object, PageMetaData, String)
      */
-    ScopeAttributeHandler[] getPopulatedScopeAttributeHandlers();
+    ScopeAttributePopulator[] getScopeAttributePopulators();
 
     /**
      * スコープから値をインジェクトする必要のある属性のためのハンドラを返します。
@@ -50,7 +53,7 @@ public interface ComponentMetaData {
      * @return スコープから値をインジェクトする必要のある属性のためのハンドラ。nullを返すことはありません。
      * @see PageProcessor#injectScopeAttributes(Object, PageMetaData, String)
      */
-    ScopeAttributeHandler[] getInjectedScopeAttributeHandlers();
+    ScopeAttributeInjector[] getScopeAttributeInjectors();
 
     /**
      * スコープに値をアウトジェクトする必要のある属性のためのハンドラを返します。
@@ -61,7 +64,7 @@ public interface ComponentMetaData {
      * @return スコープに値をアウトジェクトする必要のある属性のためのハンドラ。nullを返すことはありません。
      * @see PageProcessor#outjectScopeAttributes(Object, PageMetaData, String)
      */
-    ScopeAttributeHandler[] getOutjectedScopeAttributeHandlers();
+    ScopeAttributeOutjector[] getScopeAttributeOutjectors();
 
     /**
      * 指定されたフェーズに関連付けられているメソッドを返します。
@@ -74,4 +77,19 @@ public interface ComponentMetaData {
      * @see PageProcessor#invokeMethods(Object, PageMetaData, Phase)
      */
     Method[] getMethods(Phase phase);
+
+    /**
+     * 指定されたメソッドの引数についてのリゾルバを返します。
+     * <p>返される配列の大きさはメソッドの引数の個数と同じです。
+     * </p>
+     * <p>リゾルバがバインドされていない引数については、
+     * 配列の対応する要素はnullになっています。
+     * </p>
+     * 
+     * @param method メソッド。
+     * @return リゾルバの配列。
+     * @throws MethodNotFoundRuntimeException 指定されたメソッドがこのメタデータに対応するクラスのメソッドではない場合。
+     */
+    ScopeAttributeResolver[] getScopeAttributeResolversForParameters(
+            Method method) throws MethodNotFoundRuntimeException;
 }

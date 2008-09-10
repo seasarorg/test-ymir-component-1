@@ -130,7 +130,7 @@ public class YmirImpl implements Ymir {
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             request = ymirProcessInterceptors_[i].requestCreated(request);
         }
-        return YmirUtils.toFrameworkRequest(request);
+        return request;
     }
 
     String correctMethod(final String method,

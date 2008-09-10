@@ -13,26 +13,19 @@ import org.apache.commons.logging.LogFactory;
 import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.ymir.PropertyHandler;
 import org.seasar.ymir.TypeConversionManager;
-import org.seasar.ymir.YmirContext;
-import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.impl.SetterPropertyHandler;
 import org.seasar.ymir.scope.Scope;
-import org.seasar.ymir.scope.handler.ScopeAttributeHandler;
+import org.seasar.ymir.scope.ScopeManager;
+import org.seasar.ymir.scope.handler.ScopeAttributePopulator;
 import org.seasar.ymir.util.BeanUtils;
-import org.seasar.ymir.util.ClassUtils;
 
-/**
- * スコープから値を取り出してページにインジェクトするためのクラスです。
- * 
- * @author YOKOTA Takehiko
- */
-public class ScopeAttributePopulator implements ScopeAttributeHandler {
+public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
     private static final Log log_ = LogFactory
-            .getLog(ScopeAttributePopulator.class);
+            .getLog(ScopeAttributePopulatorImpl.class);
 
     private Scope scope_;
 
-    private HotdeployManager hotdeployManager_;
+    private ScopeManager scopeManager_;
 
     private TypeConversionManager typeConversionManager_;
 
@@ -40,11 +33,10 @@ public class ScopeAttributePopulator implements ScopeAttributeHandler {
 
     private Map<String, Entry> entryByNameMap_ = new HashMap<String, Entry>();
 
-    public ScopeAttributePopulator(Scope scope,
-            HotdeployManager hotdeployManager,
+    public ScopeAttributePopulatorImpl(Scope scope, ScopeManager scopeManager,
             TypeConversionManager typeConversionManager) {
         scope_ = scope;
-        hotdeployManager_ = hotdeployManager;
+        scopeManager_ = scopeManager;
         typeConversionManager_ = typeConversionManager;
     }
 
@@ -57,7 +49,7 @@ public class ScopeAttributePopulator implements ScopeAttributeHandler {
         entryByNameMap_.put(name, new Entry(method, enabledActionNames, false));
     }
 
-    public void injectTo(Object component, String actionName) {
+    public void populateTo(Object component, String actionName) {
         for (Iterator<String> itr = scope_.getAttributeNames(); itr.hasNext();) {
             String name = itr.next();
             Entry entry = getEntry(component, name);
@@ -100,10 +92,6 @@ public class ScopeAttributePopulator implements ScopeAttributeHandler {
         return entryByMethodMap_.get(method);
     }
 
-    public void outjectFrom(Object component, String actionName) {
-        throw new UnsupportedOperationException();
-    }
-
     protected class Entry {
         private Method method_;
 
@@ -132,38 +120,24 @@ public class ScopeAttributePopulator implements ScopeAttributeHandler {
                 return;
             }
 
-            Object value = scope_.getAttribute(name, ClassUtils
-                    .toComponentType(handler.getPropertyType()));
-            value = typeConversionManager_.convert(value, handler
-                    .getPropertyType());
-            boolean removeValue = false;
-            try {
-                if (value != null && YmirContext.isUnderDevelopment()) {
-                    // 開発時はHotdeployのせいで見かけ上型が合わないことがありうる。
-                    // そのため開発時で見かけ上型が合わない場合はオブジェクトを再構築する。
-                    // なお、value自身がHotdeployClassLoader以外から読まれたコンテナ
-                    // クラスのインスタンスで、中身がHotdeployClassLoaderから読まれたクラス
-                    // のインスタンスである場合に適切にオブジェクトを再構築できるように、
-                    // 無条件にvalueをfit()に渡すようにしている。（[#YMIR-136]）
-                    value = hotdeployManager_.fit(value);
-                }
-                handler.setProperty(value);
-            } catch (IllegalArgumentException ex) {
-                // 型が合わなかった場合は値を消すようにする。
-                removeValue = true;
-                log_.warn("Can't populate scope attribute: scope=" + scope_
-                        + ", attribute name=" + name + ", value=" + value
-                        + ", target method=" + method_, ex);
-            } catch (Throwable t) {
-                // Exceptionをスローしつつ値を消すようにする。
-                removeValue = true;
-                throw new IORuntimeException(
-                        "Can't inject scope attribute: scope=" + scope_
-                                + ", attribute name=" + name + ", value="
-                                + value + ", write method=" + method_, t);
-            } finally {
-                if (removeValue) {
-                    scope_.setAttribute(name, null);
+            Object value = scopeManager_.getAttribute(scope_, name, handler
+                    .getPropertyType(), false, true);
+
+            if (value != null) {
+                boolean removeValue = false;
+                try {
+                    handler.setProperty(value);
+                } catch (Throwable t) {
+                    // Exceptionをスローしつつ値を消すようにする。
+                    removeValue = true;
+                    throw new IORuntimeException(
+                            "Can't inject scope attribute: scope=" + scope_
+                                    + ", attribute name=" + name + ", value="
+                                    + value + ", write method=" + method_, t);
+                } finally {
+                    if (removeValue) {
+                        scope_.setAttribute(name, null);
+                    }
                 }
             }
         }

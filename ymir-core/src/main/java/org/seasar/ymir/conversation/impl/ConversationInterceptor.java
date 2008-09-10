@@ -7,6 +7,7 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Action;
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
@@ -18,16 +19,22 @@ import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.conversation.annotation.BeginSubConversation;
 import org.seasar.ymir.conversation.annotation.Conversation;
 import org.seasar.ymir.conversation.annotation.End;
-import org.seasar.ymir.impl.ActionImpl;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 
 /**
  * Conversationスコープを実現するためのクラスです。
  */
 public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
+    private ActionManager actionManager_;
+
     private ApplicationManager applicationManager_;
 
     private AnnotationHandler annotationHandler_;
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setActionManager(ActionManager actionManager) {
+        actionManager_ = actionManager;
+    }
 
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
@@ -77,19 +84,19 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
                                     + actionMethod.getName());
                 }
                 if (conversations.isInSubConversation()
-                        && !action.getMethodInvoker().getReturnType()
-                                .isAssignableFrom(String.class)) {
+                        && !action.getReturnType().isAssignableFrom(
+                                String.class)) {
                     throw new RuntimeException(
                             "@End must annote a method whose return type is assignable from String: "
                                     + action.getTarget().getClass().getName()
                                     + "#" + action.getName() + "()");
                 }
-                action = new ActionImpl(action.getTarget(),
+                action = actionManager_.newAction(action.getTarget(),
                         new EndConversationMethodInvoker(action
                                 .getMethodInvoker()));
             } else {
                 if (beginSubConversation != null) {
-                    action = new ActionImpl(action.getTarget(),
+                    action = actionManager_.newAction(action.getTarget(),
                             new BeginSubConversationMethodInvoker(action
                                     .getMethodInvoker(), beginSubConversation));
                 }

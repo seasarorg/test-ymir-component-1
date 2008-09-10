@@ -38,6 +38,10 @@
     class="org.seasar.ymir.conversation.impl.ConversationManagerImpl" />
   <component name="componentMetaDataFactory"
     class="org.seasar.ymir.impl.ComponentMetaDataFactoryImpl" />
+  <component name="scopeManager"
+    class="org.seasar.ymir.scope.impl.ScopeManagerImpl" />
+  <component name="actionManager"
+    class="org.seasar.ymir.impl.ActionManagerImpl" />
   <!-- HotdeployFitter -->
   <component name="listFitter"
     class="org.seasar.ymir.hotdeploy.fitter.impl.ListFitter" />
