@@ -36,8 +36,4 @@ public class RequestHeaderScope extends AbstractServletScope {
     public Iterator<String> getAttributeNames() {
         return new EnumerationIterator(getRequest().getHeaderNames());
     }
-
-    public String getName() {
-        return RequestHeaderScope.class.getName();
-    }
 }

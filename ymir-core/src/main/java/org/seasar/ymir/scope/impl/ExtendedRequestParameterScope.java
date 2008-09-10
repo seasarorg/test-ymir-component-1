@@ -45,8 +45,4 @@ public class ExtendedRequestParameterScope implements Scope {
     public Iterator<String> getAttributeNames() {
         return getRequest().getExtendedParameterNames();
     }
-
-    public String getName() {
-        return ExtendedRequestParameterScope.class.getName();
-    }
 }

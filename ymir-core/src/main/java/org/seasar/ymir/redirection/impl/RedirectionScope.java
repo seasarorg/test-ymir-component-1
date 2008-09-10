@@ -48,8 +48,4 @@ public class RedirectionScope implements Scope {
     public Iterator<String> getAttributeNames() {
         return redirectionManager_.getScopeAttributeNames();
     }
-
-    public String getName() {
-        return RedirectionScope.class.getName();
-    }
 }

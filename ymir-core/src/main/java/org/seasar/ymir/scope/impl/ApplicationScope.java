@@ -33,8 +33,4 @@ public class ApplicationScope extends AbstractServletScope {
     public Iterator<String> getAttributeNames() {
         return new EnumerationIterator(getServletContext().getAttributeNames());
     }
-
-    public String getName() {
-        return ApplicationScope.class.getName();
-    }
 }

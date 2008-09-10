@@ -39,10 +39,6 @@ public class ComponentScope implements Scope {
         return new ArrayList<String>().iterator();
     }
 
-    public String getName() {
-        return ComponentScope.class.getName();
-    }
-
     public void setAttribute(String name, Object value) {
     }
 

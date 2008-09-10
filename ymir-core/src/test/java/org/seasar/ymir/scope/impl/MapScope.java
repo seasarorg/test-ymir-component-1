@@ -21,10 +21,6 @@ public class MapScope implements Scope {
         return map_.keySet().iterator();
     }
 
-    public String getName() {
-        return MapScope.class.getName();
-    }
-
     public void setAttribute(String name, Object value) {
         if (name == null) {
             return;

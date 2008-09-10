@@ -90,8 +90,4 @@ public class CookieScope extends AbstractServletScope {
         }
         return list.iterator();
     }
-
-    public String getName() {
-        return CookieScope.class.getName();
-    }
 }

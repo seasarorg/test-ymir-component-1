@@ -33,8 +33,4 @@ public class RequestScope extends AbstractServletScope {
     public Iterator<String> getAttributeNames() {
         return new EnumerationIterator(getRequest().getAttributeNames());
     }
-
-    public String getName() {
-        return SessionScope.class.getName();
-    }
 }

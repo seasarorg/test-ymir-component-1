@@ -69,8 +69,4 @@ public class RequestParameterScope implements Scope {
         }
         return list.iterator();
     }
-
-    public String getName() {
-        return RequestParameterScope.class.getName();
-    }
 }

@@ -83,8 +83,4 @@ public class WindowScope implements Scope {
         }
         return subScopeMap.keySet().iterator();
     }
-
-    public String getName() {
-        return WindowScope.class.getName();
-    }
 }

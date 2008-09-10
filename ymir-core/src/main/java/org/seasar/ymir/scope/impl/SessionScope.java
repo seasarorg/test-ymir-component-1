@@ -42,8 +42,4 @@ public class SessionScope implements Scope {
     public Iterator<String> getAttributeNames() {
         return sessionManager_.getAttributeNames();
     }
-
-    public String getName() {
-        return SessionScope.class.getName();
-    }
 }

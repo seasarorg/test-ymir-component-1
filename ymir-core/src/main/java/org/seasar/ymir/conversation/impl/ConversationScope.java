@@ -145,8 +145,4 @@ public class ConversationScope implements Scope {
             }
         }
     }
-
-    public String getName() {
-        return ConversationScope.class.getName();
-    }
 }

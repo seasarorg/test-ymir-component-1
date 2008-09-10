@@ -94,8 +94,4 @@ public class ResponseHeaderScope extends AbstractServletScope {
         List<String> emptyList = Collections.emptyList();
         return emptyList.iterator();
     }
-
-    public String getName() {
-        return ResponseHeaderScope.class.getName();
-    }
 }
