@@ -244,5 +244,6 @@
     <module>../ymir-skeleton</module>
     <module>../ymir-example</module>
     <module>../ymir-json</module>
+    <module>../ymir-amf</module>
   </modules>
 </project>
