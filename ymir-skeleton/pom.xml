@@ -10,11 +10,10 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.seasar.ymir.skeleton</groupId>
-  <artifactId>ymir-skeleton</artifactId>
-  <name>Ymir Skeleton</name>
+  <artifactId>ymir-skeleton-generic</artifactId>
+  <name>Ymir Generic Skeleton</name>
   <description>
-    This is a project to generate Ymir application skeleton to start
-    developing Ymir application smoothly.
+    This is a project to generate a generic Ymir application skeleton.
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
@@ -28,6 +27,7 @@
               <goal>single</goal>
             </goals>
             <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
               <descriptors>
                 <descriptor>src/main/assembly/archive.xml</descriptor>
               </descriptors>
