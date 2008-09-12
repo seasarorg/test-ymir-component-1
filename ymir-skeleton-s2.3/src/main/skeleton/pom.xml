@@ -4,14 +4,12 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>ymir-skeleton</groupId>
-  <artifactId>ymir-skeleton-s2.3</artifactId>
+  <groupId>${groupId}</groupId>
+  <artifactId>${artifactId}</artifactId>
   <packaging>war</packaging>
-  <name>Application Skeleton</name>
-  <version>0.0.1</version>
-  <description>
-    A web application skeleton of Ymir with extension.
-  </description>
+  <name>${artifactId}</name>
+  <version>${version}</version>
+  <description></description>
   <build>
     <defaultGoal>package</defaultGoal>
     <pluginManagement>
@@ -28,11 +26,11 @@
           <artifactId>maven-war-plugin</artifactId>
           <configuration>
             <warSourceDirectory>
-              ${basedir}/src/main/web-resource
+              ${r"${basedir}"}/src/main/web-resource
             </warSourceDirectory>
             <webResources>
               <resource>
-                <directory>${basedir}/src/main/webapp</directory>
+                <directory>${r"${basedir}"}/src/main/webapp</directory>
                 <excludes>
                   <exclude>WEB-INF/classes/</exclude>
                   <exclude>WEB-INF/lib/</exclude>
@@ -127,6 +125,16 @@
       <groupId>org.seasar.cms.s2-classbuilder</groupId>
       <artifactId>s2.3-classbuilder</artifactId>
       <version>0.0.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.container</groupId>
+      <artifactId>s2-extension</artifactId>
+      <version>2.3.23</version>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.container</groupId>
+      <artifactId>s2-tiger</artifactId>
+      <version>2.3.23</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>

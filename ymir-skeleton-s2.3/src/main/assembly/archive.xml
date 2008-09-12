@@ -1,22 +1,18 @@
 <assembly>
   <id>archive</id>
   <formats>
-    <format>tar.gz</format>
-    <format>zip</format>
-    <format>tar.bz2</format>
+    <format>jar</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
       <directory>src/main/skeleton</directory>
-      <outputDirectory>ymir-skeleton-s2.3</outputDirectory>
+      <outputDirectory></outputDirectory>
     </fileSet>
   </fileSets>
   <dependencySets>
     <dependencySet>
-      <outputDirectory>
-        ymir-skeleton-s2.3/src/main/webapp/WEB-INF/lib
-      </outputDirectory>
+      <outputDirectory>src/main/webapp/WEB-INF/lib</outputDirectory>
       <scope>runtime</scope>
     </dependencySet>
   </dependencySets>

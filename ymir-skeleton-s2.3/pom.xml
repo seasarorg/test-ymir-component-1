@@ -10,11 +10,10 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.seasar.ymir.skeleton</groupId>
-  <artifactId>ymir-skeleton-s2.3</artifactId>
-  <name>Ymir Skeleton for Seasar2.3</name>
+  <artifactId>ymir-skeleton-generic-s2.3</artifactId>
+  <name>Ymir Generic Skeleton for Seasar2.3</name>
   <description>
-    This is a project to generate Ymir application skeleton to start
-    developing Ymir application smoothly.
+    This is a project to generate a generic Ymir application skeleton.
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
@@ -28,6 +27,7 @@
               <goal>single</goal>
             </goals>
             <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
               <descriptors>
                 <descriptor>src/main/assembly/archive.xml</descriptor>
               </descriptors>
@@ -57,6 +57,30 @@
       <groupId>org.seasar.ymir</groupId>
       <artifactId>ymir-extension</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.seasar.container</groupId>
+          <artifactId>s2-extension</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.seasar.container</groupId>
+          <artifactId>s2-tiger</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.seasar.dao</groupId>
+          <artifactId>s2-dao-tiger</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.container</groupId>
+      <artifactId>s2-extension</artifactId>
+      <version>2.3.23</version>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.container</groupId>
+      <artifactId>s2-tiger</artifactId>
+      <version>2.3.23</version>
     </dependency>
     <dependency>
       <groupId>org.seasar.dao</groupId>
