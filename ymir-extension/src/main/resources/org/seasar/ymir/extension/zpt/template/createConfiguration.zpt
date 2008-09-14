@@ -74,13 +74,6 @@
             <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createFormDto.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 自動生成しない
           </p>
         </dd>
-        <dt>extension.sourceCreator.feature.createConverter.enable</dt>
-        <dd><p>DTOとエンティティクラスの相互変換を行なうためのConverterクラスを自動生成するかどうかを指定して下さい。</p>
-          <p tal:define="flag setting/converterCreationFeatureEnabled">
-            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="true" tal:attributes="checked flag" /> 自動生成する
-            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 自動生成しない
-          </p>
-        </dd>
         <dt>extension.sourceCreator.feature.createDao.enable</dt>
         <dd><p>S2Dao用のDaoクラスとBeanクラスを自動生成するかどうかを指定して下さい。</p>
           <p tal:define="flag setting/daoCreationFeatureEnabled">
@@ -93,6 +86,13 @@
           <p tal:define="flag setting/dxoCreationFeatureEnabled">
             <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDxo.enable" value="true" tal:attributes="checked flag" /> 自動生成する
             <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createDxo.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 自動生成しない
+          </p>
+        </dd>
+        <dt>extension.sourceCreator.feature.createConverter.enable</dt>
+        <dd><p>DTOとエンティティクラスの相互変換を行なうためのConverterクラスを自動生成するかどうかを指定して下さい。</p>
+          <p tal:define="flag setting/converterCreationFeatureEnabled">
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="true" tal:attributes="checked flag" /> 自動生成する
+            <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 自動生成しない
           </p>
         </dd>
       </dl>
