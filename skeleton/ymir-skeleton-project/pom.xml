@@ -42,7 +42,7 @@
     </pluginRepository>
   </pluginRepositories>
   <modules>
-    <module>ymir-skeleton-generic</module>
-    <module>ymir-skeleton-generic-s2.3</module>
+    <module>../ymir-skeleton-generic</module>
+    <module>../ymir-skeleton-generic-s2.3</module>
   </modules>
 </project>

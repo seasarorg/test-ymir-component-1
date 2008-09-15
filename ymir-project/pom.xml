@@ -241,8 +241,8 @@
     <module>../ymir-it</module>
     <module>../ymir-beantable</module>
     <module>../ymir-extension</module>
-    <module>../skeleton</module>
-    <module>../example</module>
+    <module>../skeleton/ymir-skeleton-project</module>
+    <module>../example/ymir-example-project</module>
     <module>../ymir-json</module>
     <module>../ymir-amf</module>
   </modules>
