@@ -325,6 +325,9 @@ public class NewProjectWizard extends Wizard implements INewWizard {
         if (Platform.getBundle(Globals.BUNDLENAME_TOMCATPLUGIN) != null) {
             newNatureList.add(Globals.NATURE_ID_TOMCAT);
         }
+        if (Platform.getBundle(Globals.BUNDLENAME_WEBLAUNCHER) != null) {
+            newNatureList.add(Globals.NATURE_ID_WEBLAUNCHER);
+        }
         if (m2eclipseBundled) {
             newNatureList.add(Globals.NATURE_ID_M2ECLIPSE);
             command = description.newCommand();

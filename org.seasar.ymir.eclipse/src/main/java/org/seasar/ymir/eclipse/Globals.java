@@ -28,4 +28,8 @@ public interface Globals {
     String PATH_SRC_MAIN_JAVA = "src/main/java";
 
     String PATH_SRC_MAIN_RESOURCES = "src/main/resources";
+
+    String BUNDLENAME_WEBLAUNCHER = "werkzeugkasten.weblauncher";
+
+    String NATURE_ID_WEBLAUNCHER = BUNDLENAME_WEBLAUNCHER + ".nature";
 }

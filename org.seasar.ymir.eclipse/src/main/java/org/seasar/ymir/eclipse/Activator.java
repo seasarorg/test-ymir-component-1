@@ -59,6 +59,8 @@ public class Activator extends AbstractUIPlugin {
 
     private static final String SUFFIX_PROPERTIES = ".properties";
 
+    private static final String SUFFIX_PREFS = ".prefs";
+
     private static final String SUFFIX_JAVA = ".java";
 
     private static final char PATH_DELIMITER_CHAR = '/';
@@ -287,7 +289,7 @@ public class Activator extends AbstractUIPlugin {
             name = path.substring(slash + 1);
         }
         return name.startsWith(PREFIX_ECLIPSE_SETTING) || name.endsWith(SUFFIX_XML) || name.endsWith(SUFFIX_DICON)
-                || name.endsWith(SUFFIX_PROPERTIES) || name.endsWith(SUFFIX_JAVA);
+                || name.endsWith(SUFFIX_PROPERTIES) || name.endsWith(SUFFIX_PREFS) || name.endsWith(SUFFIX_JAVA);
     }
 
     private void mkdirs(IResource container, IProgressMonitor monitor) throws CoreException {
