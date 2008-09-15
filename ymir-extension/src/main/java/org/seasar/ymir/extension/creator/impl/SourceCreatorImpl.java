@@ -535,7 +535,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     ClassDesc classDesc = newClassDesc(superclassName,
                             ClassType.PAGE, null);
                     if (!isOuter(classDesc)) {
-                        writeSourceFile("PageSuperClass.java", classDesc, false);
+                        writeSourceFile("PageSuperclass.java", classDesc, false);
                         classDescBag.addAsCreated(classDesc, true);
                     }
                 }
