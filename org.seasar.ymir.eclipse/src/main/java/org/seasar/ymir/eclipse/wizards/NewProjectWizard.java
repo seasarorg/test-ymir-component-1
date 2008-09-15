@@ -35,7 +35,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
@@ -60,21 +59,19 @@ import werkzeugkasten.mvnhack.repository.Artifact;
  */
 
 public class NewProjectWizard extends Wizard implements INewWizard {
-    private static final String PATH_APP_PROPERTIES = Globals.PATH_SRC_MAIN_RESOURCES + "/app.properties";
+    private static final String PATH_APP_PROPERTIES = Globals.PATH_SRC_MAIN_RESOURCES + "/app.properties"; //$NON-NLS-1$
 
-    private static final String PLACEHOLDER_WEBAPP = "%WEBAPP%";
+    private static final String PLACEHOLDER_WEBAPP = "%WEBAPP%"; //$NON-NLS-1$
 
     private static final char PACKAGE_DELIMITER = '.';
 
-    private static final String CREATESUPERCLASS_KEY_PACKAGENAME = "packageName";
+    private static final String CREATESUPERCLASS_KEY_PACKAGENAME = "packageName"; //$NON-NLS-1$
 
-    private static final String CREATESUPERCLASS_KEY_CLASSSHORTNAME = "classShortName";
+    private static final String CREATESUPERCLASS_KEY_CLASSSHORTNAME = "classShortName"; //$NON-NLS-1$
 
-    private static final String TEMPLATEPATH_SUPERCLASS = "templates/Superclass.java.ftl";
+    private static final String TEMPLATEPATH_SUPERCLASS = "templates/Superclass.java.ftl"; //$NON-NLS-1$
 
-    private static final String PATH_DELIMITER = "/";
-
-    private ISelection selection;
+    private static final String PATH_DELIMITER = "/"; //$NON-NLS-1$
 
     private NewProjectWizardFirstPage firstPage;
 
@@ -139,7 +136,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
             return false;
         } catch (InvocationTargetException e) {
             Throwable realException = e.getTargetException();
-            MessageDialog.openError(getShell(), "Error", realException.getMessage());
+            MessageDialog.openError(getShell(), "Error", realException.getMessage()); //$NON-NLS-1$
             return false;
         }
         return true;
@@ -166,15 +163,15 @@ public class NewProjectWizard extends Wizard implements INewWizard {
     }
 
     private String resolveDatabaseURL(String databaseURL) {
-        return databaseURL.replace(PLACEHOLDER_WEBAPP, "../src/main/webapp");
+        return databaseURL.replace(PLACEHOLDER_WEBAPP, "../src/main/webapp"); //$NON-NLS-1$
     }
 
     private String resolveDatabaseURLForYmir(String databaseURL) {
         int placeHolder = databaseURL.indexOf(PLACEHOLDER_WEBAPP);
         if (placeHolder < 0) {
-            return "\"" + databaseURL + "\"";
+            return "\"" + databaseURL + "\""; //$NON-NLS-1$ //$NON-NLS-2$
         } else {
-            return "\"" + databaseURL.substring(0, placeHolder) + "\" + application.getRealPath(\"\") + \""
+            return "\"" + databaseURL.substring(0, placeHolder) + "\" + application.getRealPath(\"\") + \"" //$NON-NLS-1$ //$NON-NLS-2$
                     + databaseURL.substring(placeHolder + PLACEHOLDER_WEBAPP.length());
         }
     }
@@ -212,7 +209,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
     private void createProject(IProject project, IPath locationPath, String projectGroupId, String projectArtifactId,
             String projectVersion, Artifact skeletonArtifact, Map<String, Object> parameterMap,
             Properties applicationProperties, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask("Creating Ymir project", 5);
+        monitor.beginTask(Messages.getString("NewProjectWizard.12"), 5); //$NON-NLS-1$
         try {
             if (!project.exists()) {
                 IProjectDescription desc = project.getWorkspace().newProjectDescription(project.getName());
@@ -237,7 +234,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
                 Activator.getDefault().expandSkeleton(project, skeletonArtifact, parameterMap,
                         new SubProgressMonitor(monitor, 1));
             } catch (IOException ex) {
-                throwCoreException("アプリケーションスケルトンの展開に失敗しました", ex);
+                throwCoreException(Messages.getString("NewProjectWizard.13"), ex); //$NON-NLS-1$
                 return;
             }
             if (monitor.isCanceled()) {
@@ -257,13 +254,13 @@ public class NewProjectWizard extends Wizard implements INewWizard {
     }
 
     private void createSuperclass(IProject project, String superclass, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask("Create superclass", 2);
+        monitor.beginTask(Messages.getString("NewProjectWizard.14"), 2); //$NON-NLS-1$
         try {
             if (superclass == null) {
                 return;
             }
-            IFile file = project.getFile(Globals.PATH_SRC_MAIN_JAVA + "/"
-                    + superclass.replace('.', '/').concat(".java"));
+            IFile file = project.getFile(Globals.PATH_SRC_MAIN_JAVA + "/" //$NON-NLS-1$
+                    + superclass.replace('.', '/').concat(".java")); //$NON-NLS-1$
             if (file.exists()) {
                 return;
             }
@@ -272,7 +269,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
             String classShortName;
             int dot = superclass.lastIndexOf(PACKAGE_DELIMITER);
             if (dot < 0) {
-                packageName = "";
+                packageName = ""; //$NON-NLS-1$
                 classShortName = superclass;
             } else {
                 packageName = superclass.substring(0, dot);
@@ -285,7 +282,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
             try {
                 body = Activator.getDefault().evaluateTemplate(TEMPLATEPATH_SUPERCLASS, map);
             } catch (IOException ex) {
-                throwCoreException("Can't evaluate template: " + TEMPLATEPATH_SUPERCLASS, ex);
+                throwCoreException(Messages.getString("NewProjectWizard.18") + TEMPLATEPATH_SUPERCLASS, ex); //$NON-NLS-1$
                 return;
             }
             monitor.worked(1);
@@ -301,7 +298,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
     private void setUpProject(IProject project, Properties applicationProperties, IProgressMonitor monitor)
             throws CoreException {
-        monitor.beginTask("Set up project", 3);
+        monitor.beginTask(Messages.getString("NewProjectWizard.19"), 3); //$NON-NLS-1$
 
         boolean m2eclipseBundled = (Platform.getBundle(Globals.BUNDLENAME_M2ECLIPSE) != null);
         if (m2eclipseBundled) {
@@ -353,7 +350,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
     private void updateApplicationProperties(IProject project, Properties applicationProperties,
             IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask("Update application properties", 1);
+        monitor.beginTask(Messages.getString("NewProjectWizard.20"), 1); //$NON-NLS-1$
 
         IFile file = project.getFile(PATH_APP_PROPERTIES);
         if (!file.exists()) {
@@ -366,7 +363,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
             is = file.getContents();
             prop.load(is);
         } catch (IOException ex) {
-            throwCoreException("Can't open " + PATH_APP_PROPERTIES, ex);
+            throwCoreException("Can't open " + PATH_APP_PROPERTIES, ex); //$NON-NLS-1$
             return;
         } finally {
             if (is != null) {
@@ -386,7 +383,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
         try {
             prop.store(baos, null);
         } catch (IOException ex) {
-            throwCoreException("Can't happen!", ex);
+            throwCoreException("Can't happen!", ex); //$NON-NLS-1$
             return;
         }
 
@@ -396,7 +393,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
     private void setUpClasspathForM2Eclipse(IJavaProject javaProject, IProgressMonitor monitor)
             throws JavaModelException {
-        monitor.beginTask("Set up classpath", 1);
+        monitor.beginTask(Messages.getString("NewProjectWizard.23"), 1); //$NON-NLS-1$
 
         List<IClasspathEntry> newEntryList = new ArrayList<IClasspathEntry>();
         boolean existsM2EclipseContainer = false;
@@ -424,7 +421,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
     }
 
     private void setUpClasspath(IJavaProject javaProject, IProgressMonitor monitor) throws JavaModelException {
-        monitor.beginTask("Set up classpath", 1);
+        monitor.beginTask(Messages.getString("NewProjectWizard.23"), 1); //$NON-NLS-1$
 
         List<IClasspathEntry> newEntryList = new ArrayList<IClasspathEntry>();
         for (IClasspathEntry entry : javaProject.getRawClasspath()) {
@@ -456,21 +453,12 @@ public class NewProjectWizard extends Wizard implements INewWizard {
         description.setNatureIds(set.toArray(new String[0]));
     }
 
-    /**
-     * We will initialize file contents with a sample text.
-     */
-
-    private InputStream openContentStream() {
-        String contents = "This is the initial file contents for *.mpe file that should be word-sorted in the Preview page of the multi-page editor";
-        return new ByteArrayInputStream(contents.getBytes());
-    }
-
     private void throwCoreException(String message) throws CoreException {
         throwCoreException(message, null);
     }
 
     private void throwCoreException(String message, Throwable cause) throws CoreException {
-        IStatus status = new Status(IStatus.ERROR, "org.seasar.ymir.eclipse", IStatus.OK, message, cause);
+        IStatus status = new Status(IStatus.ERROR, "org.seasar.ymir.eclipse", IStatus.OK, message, cause); //$NON-NLS-1$
         throw new CoreException(status);
     }
 
@@ -480,7 +468,6 @@ public class NewProjectWizard extends Wizard implements INewWizard {
      * @see IWorkbenchWizard#init(IWorkbench, IStructuredSelection)
      */
     public void init(IWorkbench workbench, IStructuredSelection selection) {
-        this.selection = selection;
     }
 
     public String getRootPackageName() {

@@ -56,10 +56,10 @@ public class NewProjectWizardFirstPage extends WizardNewProjectCreationPage {
     private Text projectVersionField;
 
     public NewProjectWizardFirstPage() {
-        super("NewProjectWizardFirstPage");
+        super("NewProjectWizardFirstPage"); //$NON-NLS-1$
 
-        setTitle("Ymirプロジェクトの作成");
-        setDescription("Ymirプロジェクトを作成します。");
+        setTitle(Messages.getString("NewProjectWizardFirstPage.1")); //$NON-NLS-1$
+        setDescription(Messages.getString("NewProjectWizardFirstPage.2")); //$NON-NLS-1$
     }
 
     /**
@@ -100,10 +100,10 @@ public class NewProjectWizardFirstPage extends WizardNewProjectCreationPage {
         layout.numColumns = 2;
         group.setLayout(layout);
         group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        group.setText("プロジェクト情報");
+        group.setText(Messages.getString("NewProjectWizardFirstPage.3")); //$NON-NLS-1$
 
         Label rootPackageNameLabel = new Label(group, SWT.NONE);
-        rootPackageNameLabel.setText("ルートパッケージ名");
+        rootPackageNameLabel.setText(Messages.getString("NewProjectWizardFirstPage.4")); //$NON-NLS-1$
 
         rootPackageNameField = new Text(group, SWT.BORDER);
         GridData data = new GridData(GridData.FILL_HORIZONTAL);
@@ -119,7 +119,7 @@ public class NewProjectWizardFirstPage extends WizardNewProjectCreationPage {
         });
 
         projectGroupIdLabel = new Label(group, SWT.NONE);
-        projectGroupIdLabel.setText("グループID");
+        projectGroupIdLabel.setText(Messages.getString("NewProjectWizardFirstPage.5")); //$NON-NLS-1$
 
         projectGroupIdField = new Text(group, SWT.BORDER);
         data = new GridData(GridData.FILL_HORIZONTAL);
@@ -129,7 +129,7 @@ public class NewProjectWizardFirstPage extends WizardNewProjectCreationPage {
 
         new Label(group, SWT.NONE);
         useRootPackageNameAsProjectGroupIdField = new Button(group, SWT.CHECK | SWT.LEFT);
-        useRootPackageNameAsProjectGroupIdField.setText("グループIDとしてルートパッケージ名を使う");
+        useRootPackageNameAsProjectGroupIdField.setText(Messages.getString("NewProjectWizardFirstPage.6")); //$NON-NLS-1$
         useRootPackageNameAsProjectGroupIdField.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 boolean enabled = !useRootPackageNameAsProjectGroupIdField.getSelection();
@@ -139,7 +139,7 @@ public class NewProjectWizardFirstPage extends WizardNewProjectCreationPage {
         });
 
         projectArtifactIdLabel = new Label(group, SWT.NONE);
-        projectArtifactIdLabel.setText("アーティファクトID");
+        projectArtifactIdLabel.setText(Messages.getString("NewProjectWizardFirstPage.7")); //$NON-NLS-1$
 
         projectArtifactIdField = new Text(group, SWT.BORDER);
         data = new GridData(GridData.FILL_HORIZONTAL);
@@ -149,7 +149,7 @@ public class NewProjectWizardFirstPage extends WizardNewProjectCreationPage {
 
         new Label(group, SWT.NONE);
         useProjectNameAsProjectArtifactIdField = new Button(group, SWT.CHECK | SWT.LEFT);
-        useProjectNameAsProjectArtifactIdField.setText("アーティファクトIDとしてプロジェクト名を使う");
+        useProjectNameAsProjectArtifactIdField.setText(Messages.getString("NewProjectWizardFirstPage.8")); //$NON-NLS-1$
         useProjectNameAsProjectArtifactIdField.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 boolean enabled = !useProjectNameAsProjectArtifactIdField.getSelection();
@@ -159,7 +159,7 @@ public class NewProjectWizardFirstPage extends WizardNewProjectCreationPage {
         });
 
         Label projectVersionLabel = new Label(group, SWT.NONE);
-        projectVersionLabel.setText("バージョン");
+        projectVersionLabel.setText(Messages.getString("NewProjectWizardFirstPage.9")); //$NON-NLS-1$
 
         projectVersionField = new Text(group, SWT.BORDER);
         data = new GridData(GridData.FILL_HORIZONTAL);
@@ -227,7 +227,7 @@ public class NewProjectWizardFirstPage extends WizardNewProjectCreationPage {
         useProjectNameAsProjectArtifactIdField.setSelection(true);
         projectArtifactIdLabel.setEnabled(false);
         projectArtifactIdField.setEnabled(false);
-        projectVersionField.setText("0.0.1-SNAPSHOT");
+        projectVersionField.setText("0.0.1-SNAPSHOT"); //$NON-NLS-1$
 
         setPageComplete(validatePage());
     }

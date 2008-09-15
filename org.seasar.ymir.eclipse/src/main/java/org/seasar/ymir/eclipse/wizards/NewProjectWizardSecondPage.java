@@ -31,12 +31,6 @@ import werkzeugkasten.mvnhack.repository.Artifact;
  */
 
 public class NewProjectWizardSecondPage extends WizardPage {
-    private Listener validationListener = new Listener() {
-        public void handleEvent(Event event) {
-            setPageComplete(validatePage());
-        }
-    };
-
     boolean initialized;
 
     private SkeletonEntry[] entries;
@@ -73,10 +67,10 @@ public class NewProjectWizardSecondPage extends WizardPage {
      * @param pageName
      */
     public NewProjectWizardSecondPage() {
-        super("NewProjectWizardSecondPage");
+        super("NewProjectWizardSecondPage"); //$NON-NLS-1$
 
-        setTitle("プロジェクトスケルトンの指定");
-        setDescription("プロジェクトの雛形であるプロジェクトスケルトンを指定して下さい。");
+        setTitle(Messages.getString("NewProjectWizardSecondPage.1")); //$NON-NLS-1$
+        setDescription(Messages.getString("NewProjectWizardSecondPage.2")); //$NON-NLS-1$
     }
 
     /**
@@ -91,7 +85,7 @@ public class NewProjectWizardSecondPage extends WizardPage {
 
         createSkeletonInformationControl(composite);
 
-        setErrorMessage("スケルトンアーカイブを取得するために「スケルトンアーカイブを取得する」ボタンを押して下さい。");
+        setErrorMessage(Messages.getString("NewProjectWizardSecondPage.3")); //$NON-NLS-1$
         setMessage(null);
     }
 
@@ -99,10 +93,10 @@ public class NewProjectWizardSecondPage extends WizardPage {
         Group group = new Group(parent, SWT.NONE);
         group.setLayout(new GridLayout());
         group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        group.setText("プロジェクトスケルトン");
+        group.setText(Messages.getString("NewProjectWizardSecondPage.4")); //$NON-NLS-1$
 
         skeletonListLabel = new Label(group, SWT.NONE);
-        skeletonListLabel.setText("使用可能なスケルトン");
+        skeletonListLabel.setText(Messages.getString("NewProjectWizardSecondPage.5")); //$NON-NLS-1$
 
         Composite composite = new Composite(group, SWT.NULL);
         composite.setFont(group.getFont());
@@ -148,7 +142,7 @@ public class NewProjectWizardSecondPage extends WizardPage {
         data = new GridData();
         data.horizontalSpan = 2;
         specifySkeletonIdField.setLayoutData(data);
-        specifySkeletonIdField.setText("スケルトンのIDを指定する");
+        specifySkeletonIdField.setText(Messages.getString("NewProjectWizardSecondPage.6")); //$NON-NLS-1$
         specifySkeletonIdField.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 boolean enabled = specifySkeletonIdField.getSelection();
@@ -170,7 +164,7 @@ public class NewProjectWizardSecondPage extends WizardPage {
         });
 
         skeletonGroupIdLabel = new Label(composite, SWT.NONE);
-        skeletonGroupIdLabel.setText("グループID");
+        skeletonGroupIdLabel.setText(Messages.getString("NewProjectWizardSecondPage.7")); //$NON-NLS-1$
 
         skeletonGroupIdField = new Text(composite, SWT.BORDER);
         data = new GridData(GridData.FILL_HORIZONTAL);
@@ -184,7 +178,7 @@ public class NewProjectWizardSecondPage extends WizardPage {
         });
 
         skeletonArtifactIdLabel = new Label(composite, SWT.NONE);
-        skeletonArtifactIdLabel.setText("アーティファクトID");
+        skeletonArtifactIdLabel.setText(Messages.getString("NewProjectWizardSecondPage.8")); //$NON-NLS-1$
 
         skeletonArtifactIdField = new Text(composite, SWT.BORDER);
         data = new GridData(GridData.FILL_HORIZONTAL);
@@ -198,7 +192,7 @@ public class NewProjectWizardSecondPage extends WizardPage {
         });
 
         skeletonVersionLabel = new Label(composite, SWT.NONE);
-        skeletonVersionLabel.setText("バージョン");
+        skeletonVersionLabel.setText(Messages.getString("NewProjectWizardSecondPage.9")); //$NON-NLS-1$
 
         skeletonVersionField = new Text(composite, SWT.BORDER);
         data = new GridData(GridData.FILL_HORIZONTAL);
@@ -214,7 +208,7 @@ public class NewProjectWizardSecondPage extends WizardPage {
         new Label(composite, SWT.NONE);
 
         useLatestVersionField = new Button(composite, SWT.CHECK | SWT.LEFT);
-        useLatestVersionField.setText("最新のバージョンを使用する");
+        useLatestVersionField.setText(Messages.getString("NewProjectWizardSecondPage.10")); //$NON-NLS-1$
         useLatestVersionField.addListener(SWT.Selection, new Listener() {
             public void handleEvent(Event event) {
                 boolean enabled = useLatestVersionField.getSelection();
@@ -227,7 +221,7 @@ public class NewProjectWizardSecondPage extends WizardPage {
         });
 
         resolveSkeletonArtifactButton = new Button(parent, SWT.PUSH);
-        resolveSkeletonArtifactButton.setText("スケルトンアーカイブを取得する");
+        resolveSkeletonArtifactButton.setText(Messages.getString("NewProjectWizardSecondPage.11")); //$NON-NLS-1$
         resolveSkeletonArtifactButton.setData(new GridData(GridData.HORIZONTAL_ALIGN_CENTER));
         resolveSkeletonArtifactButton.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -238,7 +232,7 @@ public class NewProjectWizardSecondPage extends WizardPage {
                 if (success) {
                     setErrorMessage(null);
                 } else {
-                    setErrorMessage("条件に合致するスケルトンアーカイブが見つかりませんでした。条件を変えて再度「スケルトンアーカイブを取得する」ボタンを押して下さい。");
+                    setErrorMessage(Messages.getString("NewProjectWizardSecondPage.12")); //$NON-NLS-1$
                 }
 
                 setPageComplete(validatePage());
@@ -324,7 +318,7 @@ public class NewProjectWizardSecondPage extends WizardPage {
         } else {
             int index = skeletonListField.getSelectionIndex();
             if (index == -1) {
-                return "";
+                return ""; //$NON-NLS-1$
             } else {
                 return entries[index].getGroupId();
             }
@@ -337,7 +331,7 @@ public class NewProjectWizardSecondPage extends WizardPage {
         } else {
             int index = skeletonListField.getSelectionIndex();
             if (index == -1) {
-                return "";
+                return ""; //$NON-NLS-1$
             } else {
                 return entries[index].getArtifactId();
             }
@@ -347,12 +341,12 @@ public class NewProjectWizardSecondPage extends WizardPage {
     private String getSkeletonVersion() {
         if (specifySkeletonIdField.getSelection()) {
             if (useLatestVersionField.getSelection()) {
-                return "";
+                return ""; //$NON-NLS-1$
             } else {
                 return skeletonVersionField.getText();
             }
         } else {
-            return "";
+            return ""; //$NON-NLS-1$
         }
     }
 

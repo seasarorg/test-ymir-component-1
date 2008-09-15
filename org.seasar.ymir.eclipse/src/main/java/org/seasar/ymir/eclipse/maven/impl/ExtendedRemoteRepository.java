@@ -10,11 +10,8 @@ import werkzeugkasten.mvnhack.repository.impl.RemoteRepository;
 public class ExtendedRemoteRepository extends RemoteRepository implements ExtendedRepository {
     private static final Object NAME_MAVEN_METADATA = "maven-metadata.xml";
 
-    private String url;
-
     public ExtendedRemoteRepository(String url, ArtifactBuilder builder) {
         super(url, builder);
-        this.url = url;
     }
 
     public URL getMetadataLocation(String groupId, String artifactId) {

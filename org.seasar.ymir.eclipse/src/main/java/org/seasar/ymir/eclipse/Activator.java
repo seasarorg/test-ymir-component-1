@@ -47,21 +47,21 @@ import freemarker.template.TemplateException;
 public class Activator extends AbstractUIPlugin {
 
     // The plug-in ID
-    public static final String PLUGIN_ID = "org.seasar.ymir.eclipse";
+    public static final String PLUGIN_ID = "org.seasar.ymir.eclipse"; //$NON-NLS-1$
 
-    private static final String PATH_META_INF = "META-INF/";
+    private static final String PATH_META_INF = "META-INF/"; //$NON-NLS-1$
 
-    private static final String PREFIX_ECLIPSE_SETTING = ".";
+    private static final String PREFIX_ECLIPSE_SETTING = "."; //$NON-NLS-1$
 
-    private static final String SUFFIX_XML = ".xml";
+    private static final String SUFFIX_XML = ".xml"; //$NON-NLS-1$
 
-    private static final String SUFFIX_DICON = ".dicon";
+    private static final String SUFFIX_DICON = ".dicon"; //$NON-NLS-1$
 
-    private static final String SUFFIX_PROPERTIES = ".properties";
+    private static final String SUFFIX_PROPERTIES = ".properties"; //$NON-NLS-1$
 
-    private static final String SUFFIX_PREFS = ".prefs";
+    private static final String SUFFIX_PREFS = ".prefs"; //$NON-NLS-1$
 
-    private static final String SUFFIX_JAVA = ".java";
+    private static final String SUFFIX_JAVA = ".java"; //$NON-NLS-1$
 
     private static final char PATH_DELIMITER_CHAR = '/';
 
@@ -126,11 +126,10 @@ public class Activator extends AbstractUIPlugin {
     }
 
     private void setUpSkeletonEntries() {
-        skeletonEntries = new SkeletonEntry[] {
-                new SkeletonEntry("ymir-skeleton-generic", "Ymir+ZPT+S2Dao",
-                        "テンプレートエンジンにはFreyja ZPTエンジンを使用します。データベースアクセスにはS2Daoを使用します。"),
-                new SkeletonEntry("ymir-skeleton-dbflute", "Ymir+ZPT+DBFlute",
-                        "テンプレートエンジンにはFreyja ZPTエンジンを使用します。データベースアクセスにはDBFluteを使用します。"), };
+        skeletonEntries = new SkeletonEntry[] { new SkeletonEntry("ymir-skeleton-generic", "Ymir+ZPT+S2Dao", //$NON-NLS-1$ //$NON-NLS-2$
+                Messages.getString("Activator.10")), //$NON-NLS-1$
+                new SkeletonEntry("ymir-skeleton-dbflute", "Ymir+ZPT+DBFlute", //$NON-NLS-1$ //$NON-NLS-2$
+                        Messages.getString("Activator.13")), }; //$NON-NLS-1$
     }
 
     public SkeletonEntry[] getSkeletonEntries() {
@@ -154,7 +153,7 @@ public class Activator extends AbstractUIPlugin {
 
     public Artifact resolveArtifact(String groupId, String artifactId, String version, IProgressMonitor monitor)
             throws ArtifactNotFoundException {
-        monitor.beginTask("Resolve project skeleton artifact", 1);
+        monitor.beginTask(Messages.getString("Activator.14"), 1); //$NON-NLS-1$
         try {
             return resolveArtifact(groupId, artifactId, version);
         } finally {
@@ -173,14 +172,14 @@ public class Activator extends AbstractUIPlugin {
 
     public void expandSkeleton(IProject project, Artifact artifact, Map<String, Object> parameterMap,
             IProgressMonitor monitor) throws IOException, CoreException {
-        monitor.beginTask("Expand project skeleton", 1);
+        monitor.beginTask(Messages.getString("Activator.15"), 1); //$NON-NLS-1$
 
-        URL artifactURL = artifactResolver.getURL(artifact, "jar");
+        URL artifactURL = artifactResolver.getURL(artifact, "jar"); //$NON-NLS-1$
         if (artifactURL == null) {
             return;
         }
 
-        File artifactFile = File.createTempFile("ymir", ".jar");
+        File artifactFile = File.createTempFile("ymir", ".jar"); //$NON-NLS-1$ //$NON-NLS-2$
         artifactFile.deleteOnExit();
         InputStream is = null;
         OutputStream os = null;
@@ -230,7 +229,7 @@ public class Activator extends AbstractUIPlugin {
             JarFile jarFile, IProgressMonitor monitor) throws IOException, CoreException {
         if (shouldIgnore(path)) {
             return;
-        } else if (path.endsWith("/")) {
+        } else if (path.endsWith("/")) { //$NON-NLS-1$
             mkdirs(project.getFolder(resolvePath(path, cfg, parameterMap)), new SubProgressMonitor(monitor, 1));
         } else {
             InputStream in;
@@ -267,7 +266,7 @@ public class Activator extends AbstractUIPlugin {
     private String resolvePath(String path, Configuration cfg, Map<String, Object> parameterMap) throws IOException {
         try {
             StringWriter sw = new StringWriter();
-            new Template("pathName", new StringReader(path), cfg).process(parameterMap, sw);
+            new Template("pathName", new StringReader(path), cfg).process(parameterMap, sw); //$NON-NLS-1$
             return sw.toString();
         } catch (TemplateException ex) {
             IOException ioex = new IOException();
@@ -316,12 +315,12 @@ public class Activator extends AbstractUIPlugin {
     }
 
     public void writeFile(IFile file, String body, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask("Write file", 2);
+        monitor.beginTask(Messages.getString("Activator.21"), 2); //$NON-NLS-1$
         InputStream is;
         try {
             is = new ByteArrayInputStream(body.getBytes(Globals.ENCODING));
         } catch (UnsupportedEncodingException ex) {
-            throw new RuntimeException("Can't happen!", ex);
+            throw new RuntimeException("Can't happen!", ex); //$NON-NLS-1$
         }
         if (file.exists()) {
             file.setContents(is, false, false, new SubProgressMonitor(monitor, 2));

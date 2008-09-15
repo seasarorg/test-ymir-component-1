@@ -24,7 +24,7 @@ import org.seasar.ymir.eclipse.Globals;
  */
 
 public class NewProjectWizardFourthPage extends WizardPage {
-    private static final String PAGEBASE = ".ymir.PageBase";
+    private static final String PAGEBASE = ".ymir.PageBase"; //$NON-NLS-1$
 
     private ModifyListener validationListener = new ModifyListener() {
         public void modifyText(ModifyEvent e) {
@@ -64,10 +64,10 @@ public class NewProjectWizardFourthPage extends WizardPage {
      * @param pageName
      */
     public NewProjectWizardFourthPage() {
-        super("NewProjectWizardFourthPage");
+        super("NewProjectWizardFourthPage"); //$NON-NLS-1$
 
-        setTitle("プロジェクトの詳細設定の指定");
-        setDescription("プロジェクトの詳細設定を指定して下さい。");
+        setTitle(Messages.getString("NewProjectWizardFourthPage.2")); //$NON-NLS-1$
+        setDescription(Messages.getString("NewProjectWizardFourthPage.3")); //$NON-NLS-1$
     }
 
     /**
@@ -93,13 +93,13 @@ public class NewProjectWizardFourthPage extends WizardPage {
         layout.numColumns = 2;
         group.setLayout(layout);
         group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        group.setText("自動生成");
+        group.setText(Messages.getString("NewProjectWizardFourthPage.4")); //$NON-NLS-1$
 
         specifySuperclassField = new Button(group, SWT.CHECK | SWT.LEFT);
         GridData data = new GridData(GridData.FILL_HORIZONTAL);
         data.horizontalSpan = 2;
         specifySuperclassField.setLayoutData(data);
-        specifySuperclassField.setText("Pageクラスの共通の親クラスを指定する");
+        specifySuperclassField.setText(Messages.getString("NewProjectWizardFourthPage.5")); //$NON-NLS-1$
         specifySuperclassField.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -110,7 +110,7 @@ public class NewProjectWizardFourthPage extends WizardPage {
         });
 
         superclassLabel = new Label(group, SWT.NONE);
-        superclassLabel.setText("Pageクラスの共通の親クラス");
+        superclassLabel.setText(Messages.getString("NewProjectWizardFourthPage.6")); //$NON-NLS-1$
 
         superclassField = new Text(group, SWT.BORDER);
         data = new GridData(GridData.FILL_HORIZONTAL);
@@ -121,37 +121,37 @@ public class NewProjectWizardFourthPage extends WizardPage {
         data = new GridData(GridData.FILL_HORIZONTAL);
         data.horizontalSpan = 2;
         usingFreyjaRenderClassField.setLayoutData(data);
-        usingFreyjaRenderClassField.setText("Freyjaのレンダリングクラスが使える場合はDTOクラスを生成しない");
+        usingFreyjaRenderClassField.setText(Messages.getString("NewProjectWizardFourthPage.7")); //$NON-NLS-1$
 
         beantableEnabledField = new Button(group, SWT.CHECK | SWT.LEFT);
         data = new GridData(GridData.FILL_HORIZONTAL);
         data.horizontalSpan = 2;
         beantableEnabledField.setLayoutData(data);
-        beantableEnabledField.setText("Beantable機能を利用する");
+        beantableEnabledField.setText(Messages.getString("NewProjectWizardFourthPage.8")); //$NON-NLS-1$
 
         formDtoCreationFeatureEnabledField = new Button(group, SWT.CHECK | SWT.LEFT);
         data = new GridData(GridData.FILL_HORIZONTAL);
         data.horizontalSpan = 2;
         formDtoCreationFeatureEnabledField.setLayoutData(data);
-        formDtoCreationFeatureEnabledField.setText("formタグのname属性と同じ名前でformに対応するDTOクラスを生成する");
+        formDtoCreationFeatureEnabledField.setText(Messages.getString("NewProjectWizardFourthPage.9")); //$NON-NLS-1$
 
         daoCreationFeatureEnabledField = new Button(group, SWT.CHECK | SWT.LEFT);
         data = new GridData(GridData.FILL_HORIZONTAL);
         data.horizontalSpan = 2;
         daoCreationFeatureEnabledField.setLayoutData(data);
-        daoCreationFeatureEnabledField.setText("S2Dao用のDaoクラスとエンティティクラスを自動生成する");
+        daoCreationFeatureEnabledField.setText(Messages.getString("NewProjectWizardFourthPage.10")); //$NON-NLS-1$
 
         dxoCreationFeatureEnabledField = new Button(group, SWT.CHECK | SWT.LEFT);
         data = new GridData(GridData.FILL_HORIZONTAL);
         data.horizontalSpan = 2;
         dxoCreationFeatureEnabledField.setLayoutData(data);
-        dxoCreationFeatureEnabledField.setText("S2Dxo用のDxoクラスを自動生成する");
+        dxoCreationFeatureEnabledField.setText(Messages.getString("NewProjectWizardFourthPage.11")); //$NON-NLS-1$
 
         converterCreationFeatureEnabledField = new Button(group, SWT.CHECK | SWT.LEFT);
         data = new GridData(GridData.FILL_HORIZONTAL);
         data.horizontalSpan = 2;
         converterCreationFeatureEnabledField.setLayoutData(data);
-        converterCreationFeatureEnabledField.setText("DTOとエンティティの相互変換を行なうためのConverterクラスを自動生成する");
+        converterCreationFeatureEnabledField.setText(Messages.getString("NewProjectWizardFourthPage.12")); //$NON-NLS-1$
     }
 
     void createEclipseCooperationInformationControl(Composite parent) {
@@ -160,13 +160,13 @@ public class NewProjectWizardFourthPage extends WizardPage {
         layout.numColumns = 2;
         group.setLayout(layout);
         group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        group.setText("Eclipse連携");
+        group.setText(Messages.getString("NewProjectWizardFourthPage.13")); //$NON-NLS-1$
 
         eclipseEnabledField = new Button(group, SWT.CHECK | SWT.LEFT);
         GridData data = new GridData(GridData.FILL_HORIZONTAL);
         data.horizontalSpan = 2;
         eclipseEnabledField.setLayoutData(data);
-        eclipseEnabledField.setText("ResourceSynchronizerを使って更新リソースの自動的に同期させる");
+        eclipseEnabledField.setText(Messages.getString("NewProjectWizardFourthPage.14")); //$NON-NLS-1$
         eclipseEnabledField.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 boolean enabled = eclipseEnabledField.getSelection();
@@ -176,7 +176,7 @@ public class NewProjectWizardFourthPage extends WizardPage {
         });
 
         resourceSynchronizerURLLabel = new Label(group, SWT.NONE);
-        resourceSynchronizerURLLabel.setText("同期サーバのURL");
+        resourceSynchronizerURLLabel.setText(Messages.getString("NewProjectWizardFourthPage.15")); //$NON-NLS-1$
 
         resourceSynchronizerURLField = new Text(group, SWT.BORDER);
         data = new GridData(GridData.FILL_HORIZONTAL);
@@ -215,7 +215,7 @@ public class NewProjectWizardFourthPage extends WizardPage {
         eclipseEnabledField.setSelection(eclipseEnabled);
         resourceSynchronizerURLLabel.setEnabled(eclipseEnabled);
         resourceSynchronizerURLField.setEnabled(eclipseEnabled);
-        resourceSynchronizerURLField.setText("http://localhost:8386/");
+        resourceSynchronizerURLField.setText("http://localhost:8386/"); //$NON-NLS-1$
 
         setPageComplete(validatePage());
     }
@@ -228,7 +228,7 @@ public class NewProjectWizardFourthPage extends WizardPage {
         if (specifySuperclassField.getSelection()) {
             return superclassField.getText();
         } else {
-            return "";
+            return ""; //$NON-NLS-1$
         }
     }
 

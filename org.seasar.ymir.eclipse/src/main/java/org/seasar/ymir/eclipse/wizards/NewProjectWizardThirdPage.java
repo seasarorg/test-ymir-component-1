@@ -56,10 +56,10 @@ public class NewProjectWizardThirdPage extends WizardPage {
      * @param pageName
      */
     public NewProjectWizardThirdPage() {
-        super("NewProjectWizardThirdPage");
+        super("NewProjectWizardThirdPage"); //$NON-NLS-1$
 
-        setTitle("プロジェクト設定の指定");
-        setDescription("プロジェクトの各種設定を指定して下さい。");
+        setTitle(Messages.getString("NewProjectWizardThirdPage.1")); //$NON-NLS-1$
+        setDescription(Messages.getString("NewProjectWizardThirdPage.2")); //$NON-NLS-1$
     }
 
     /**
@@ -85,10 +85,10 @@ public class NewProjectWizardThirdPage extends WizardPage {
         layout.numColumns = 2;
         group.setLayout(layout);
         group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        group.setText("ビュー");
+        group.setText(Messages.getString("NewProjectWizardThirdPage.3")); //$NON-NLS-1$
 
         Label encodingLabel = new Label(group, SWT.NONE);
-        encodingLabel.setText("文字エンコーディング");
+        encodingLabel.setText(Messages.getString("NewProjectWizardThirdPage.4")); //$NON-NLS-1$
 
         viewEncodingField = new Text(group, SWT.BORDER);
         GridData data = new GridData(GridData.FILL_HORIZONTAL);
@@ -99,7 +99,7 @@ public class NewProjectWizardThirdPage extends WizardPage {
 
     void createDatabaseInformationControl(Composite parent) {
         useDatabaseField = new Button(parent, SWT.CHECK | SWT.LEFT);
-        useDatabaseField.setText("データベースと接続する");
+        useDatabaseField.setText(Messages.getString("NewProjectWizardThirdPage.5")); //$NON-NLS-1$
         useDatabaseField.addListener(SWT.Selection, validationListener);
         useDatabaseField.addListener(SWT.Selection, new Listener() {
             public void handleEvent(Event event) {
@@ -120,10 +120,10 @@ public class NewProjectWizardThirdPage extends WizardPage {
         layout.numColumns = 2;
         databaseGroup.setLayout(layout);
         databaseGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        databaseGroup.setText("データベース");
+        databaseGroup.setText(Messages.getString("NewProjectWizardThirdPage.6")); //$NON-NLS-1$
 
         databaseDriverClassNameLabel = new Label(databaseGroup, SWT.NONE);
-        databaseDriverClassNameLabel.setText("ドライバクラス");
+        databaseDriverClassNameLabel.setText(Messages.getString("NewProjectWizardThirdPage.7")); //$NON-NLS-1$
 
         databaseDriverClassNameField = new Text(databaseGroup, SWT.BORDER);
         GridData data = new GridData(GridData.FILL_HORIZONTAL);
@@ -132,7 +132,7 @@ public class NewProjectWizardThirdPage extends WizardPage {
         databaseDriverClassNameField.addListener(SWT.Modify, validationListener);
 
         databaseURLLabel = new Label(databaseGroup, SWT.NONE);
-        databaseURLLabel.setText("接続URL");
+        databaseURLLabel.setText(Messages.getString("NewProjectWizardThirdPage.8")); //$NON-NLS-1$
 
         databaseURLField = new Text(databaseGroup, SWT.BORDER);
         data = new GridData(GridData.FILL_HORIZONTAL);
@@ -141,7 +141,7 @@ public class NewProjectWizardThirdPage extends WizardPage {
         databaseURLField.addListener(SWT.Modify, validationListener);
 
         databaseUserLabel = new Label(databaseGroup, SWT.NONE);
-        databaseUserLabel.setText("接続ユーザ");
+        databaseUserLabel.setText(Messages.getString("NewProjectWizardThirdPage.9")); //$NON-NLS-1$
 
         databaseUserField = new Text(databaseGroup, SWT.BORDER);
         data = new GridData(GridData.FILL_HORIZONTAL);
@@ -149,7 +149,7 @@ public class NewProjectWizardThirdPage extends WizardPage {
         databaseUserField.setLayoutData(data);
 
         databasePasswordLabel = new Label(databaseGroup, SWT.NONE);
-        databasePasswordLabel.setText("接続パスワード");
+        databasePasswordLabel.setText(Messages.getString("NewProjectWizardThirdPage.10")); //$NON-NLS-1$
 
         databasePasswordField = new Text(databaseGroup, SWT.BORDER);
         data = new GridData(GridData.FILL_HORIZONTAL);
@@ -185,12 +185,12 @@ public class NewProjectWizardThirdPage extends WizardPage {
     }
 
     void setDefaultValues() {
-        viewEncodingField.setText("UTF-8");
+        viewEncodingField.setText("UTF-8"); //$NON-NLS-1$
         useDatabaseField.setSelection(true);
-        databaseDriverClassNameField.setText("org.h2.Driver");
-        databaseURLField.setText("jdbc:h2:file:%WEBAPP%/WEB-INF/h2/h2");
-        databaseUserField.setText("sa");
-        databasePasswordField.setText("");
+        databaseDriverClassNameField.setText("org.h2.Driver"); //$NON-NLS-1$
+        databaseURLField.setText("jdbc:h2:file:%WEBAPP%/WEB-INF/h2/h2"); //$NON-NLS-1$
+        databaseUserField.setText("sa"); //$NON-NLS-1$
+        databasePasswordField.setText(""); //$NON-NLS-1$
 
         setPageComplete(validatePage());
     }
@@ -207,7 +207,7 @@ public class NewProjectWizardThirdPage extends WizardPage {
         if (isUseDatabase()) {
             return databaseDriverClassNameField.getText();
         } else {
-            return "";
+            return ""; //$NON-NLS-1$
         }
     }
 
@@ -215,7 +215,7 @@ public class NewProjectWizardThirdPage extends WizardPage {
         if (isUseDatabase()) {
             return databaseURLField.getText();
         } else {
-            return "";
+            return ""; //$NON-NLS-1$
         }
     }
 
@@ -223,7 +223,7 @@ public class NewProjectWizardThirdPage extends WizardPage {
         if (isUseDatabase()) {
             return databaseUserField.getText();
         } else {
-            return "";
+            return ""; //$NON-NLS-1$
         }
     }
 
@@ -231,7 +231,7 @@ public class NewProjectWizardThirdPage extends WizardPage {
         if (isUseDatabase()) {
             return databasePasswordField.getText();
         } else {
-            return "";
+            return ""; //$NON-NLS-1$
         }
     }
 }

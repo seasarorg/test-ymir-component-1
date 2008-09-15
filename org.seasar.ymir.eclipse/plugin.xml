@@ -4,18 +4,17 @@
 
    <extension
          point="org.eclipse.ui.newWizards">
-      <category
-            name="%newWizard.name"
-            id="org.seasar.ymir.eclipse">
-      </category>
       <wizard
             category="org.eclipse.jdt.ui.java"
             class="org.seasar.ymir.eclipse.wizards.NewProjectWizard"
             finalPerspective="org.eclipse.jdt.ui.JavaPerspective"
             icon="icons/newYmirProject.gif"
             id="org.seasar.ymir.eclipse.wizards.NewProjectWizard"
-            name="Ymir Project"
+            name="%newWizard.name"
             project="true">
+         <description>
+            %newWizard.description
+         </description>
       </wizard>
    </extension>
    <extension
