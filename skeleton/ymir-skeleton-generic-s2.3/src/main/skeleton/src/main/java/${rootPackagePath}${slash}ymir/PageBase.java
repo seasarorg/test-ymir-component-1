@@ -1,4 +1,4 @@
-package org.seasar.ymir.mine;
+package ${rootPackageName}.ymir;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;

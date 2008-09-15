@@ -1,6 +1,6 @@
-package org.seasar.ymir.mine;
+package ${rootPackageName}.ymir;
 
-import static org.seasar.ymir.mine.PageUtils.SCHEME_PROCEED;
+import static ${rootPackageName}.ymir.PageUtils.SCHEME_PROCEED;
 
 public class Proceed {
     protected Proceed() {

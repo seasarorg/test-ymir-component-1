@@ -1,4 +1,4 @@
-package org.seasar.ymir.mine;
+package ${rootPackageName}.ymir;
 
 import org.seasar.ymir.Messages;
 import org.seasar.ymir.Ymir;

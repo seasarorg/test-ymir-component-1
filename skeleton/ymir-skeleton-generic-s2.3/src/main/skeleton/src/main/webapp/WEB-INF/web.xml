@@ -3,7 +3,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
   version="2.4">
-  <display-name>Application Skeleton</display-name>
+  <display-name>${projectName}</display-name>
   <context-param>
     <param-name>org.seasar.framework.container.configPath</param-name>
     <param-value>ymir.dicon</param-value>
@@ -15,7 +15,7 @@
     </filter-class>
     <init-param>
       <param-name>encoding</param-name>
-      <param-value>UTF-8</param-value>
+      <param-value>${viewEncoding}</param-value>
     </init-param>
   </filter>
   <filter>
@@ -95,19 +95,19 @@
     </init-param>
     <init-param>
       <param-name>pageEncoding</param-name>
-      <param-value>UTF-8</param-value>
+      <param-value>${viewEncoding}</param-value>
     </init-param>
     <init-param>
       <param-name>requestEncoding</param-name>
-      <param-value>UTF-8</param-value>
+      <param-value>${viewEncoding}</param-value>
     </init-param>
     <init-param>
       <param-name>responseEncoding</param-name>
-      <param-value>UTF-8</param-value>
+      <param-value>${viewEncoding}</param-value>
     </init-param>
     <init-param>
       <param-name>contentType</param-name>
-      <param-value>text/html; charset=UTF-8</param-value>
+      <param-value>text/html; charset=${viewEncoding}</param-value>
     </init-param>
     <init-param>
       <param-name>transcriptVariablesToRequest</param-name>
@@ -116,6 +116,16 @@
     <init-param>
       <param-name>variableResolverFactory</param-name>
       <param-value></param-value>
+    </init-param>
+    <init-param>
+      <param-name>useShiftJISInsteadOfWindows31J</param-name>
+      <param-value><#if viewEncoding == "Windows-31J">true<#else>false</#if></param-value>
+    </init-param>
+    <init-param>
+      <param-name>
+        tagEvaluator.render.overwrite-content-type-meta-tag
+      </param-name>
+      <param-value><#if viewEncoding == "Windows-31J">true<#else>false</#if></param-value>
     </init-param>
   </servlet>
   <servlet-mapping>

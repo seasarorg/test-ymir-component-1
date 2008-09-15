@@ -1,6 +1,6 @@
-package org.seasar.ymir.mine;
+package ${rootPackageName}.ymir;
 
-import static org.seasar.ymir.mine.PageUtils.SCHEME_FORWARD;
+import static ${rootPackageName}.ymir.PageUtils.SCHEME_FORWARD;
 
 public class Forward {
     protected Forward() {

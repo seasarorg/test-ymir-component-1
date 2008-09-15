@@ -3,5 +3,22 @@
   "http://www.seasar.org/dtd/components24.dtd">
 <components namespace="jdbc">
   <component name="xaDataSource"
+<#if useDatabase>
+    class="org.seasar.extension.dbcp.impl.XADataSourceImpl">
+    <property name="driverClassName">
+      "${databaseDriverClassName}"
+    </property>
+    <property name="URL">
+      ${databaseURLForYmir}
+    </property>
+    <property name="user">
+      "${databaseUser}"
+    </property>
+    <property name="password">
+      "${databasePassword}"
+    </property>
+  </component>
+<#else>
     class="org.seasar.cms.database.sql.VoidDataSource" />
+</#if>
 </components>

@@ -7,7 +7,7 @@
   <groupId>${groupId}</groupId>
   <artifactId>${artifactId}</artifactId>
   <packaging>war</packaging>
-  <name>${artifactId}</name>
+  <name>${projectName}</name>
   <version>${version}</version>
   <description></description>
   <build>
@@ -134,6 +134,12 @@
       <artifactId>junit</artifactId>
       <version>3.8.2</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>1.0.75</version>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
 </project>

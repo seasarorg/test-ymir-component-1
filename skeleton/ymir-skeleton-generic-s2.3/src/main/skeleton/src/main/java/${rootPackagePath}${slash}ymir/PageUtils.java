@@ -1,4 +1,4 @@
-package org.seasar.ymir.mine;
+package ${rootPackageName}.ymir;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
