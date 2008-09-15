@@ -172,7 +172,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
             return "\"" + databaseURL + "\""; //$NON-NLS-1$ //$NON-NLS-2$
         } else {
             return "\"" + databaseURL.substring(0, placeHolder) + "\" + application.getRealPath(\"\") + \"" //$NON-NLS-1$ //$NON-NLS-2$
-                    + databaseURL.substring(placeHolder + PLACEHOLDER_WEBAPP.length());
+                    + databaseURL.substring(placeHolder + PLACEHOLDER_WEBAPP.length()) + "\"";
         }
     }
 
