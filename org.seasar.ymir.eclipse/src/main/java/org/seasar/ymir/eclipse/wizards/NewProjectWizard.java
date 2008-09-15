@@ -1,15 +1,23 @@
 package org.seasar.ymir.eclipse.wizards;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import org.eclipse.core.resources.ICommand;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
@@ -17,10 +25,14 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
@@ -30,8 +42,9 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
 import org.seasar.ymir.eclipse.Activator;
-import org.seasar.ymir.eclipse.ArtifactNotFoundException;
+import org.seasar.ymir.eclipse.ApplicationPropertiesKeys;
 import org.seasar.ymir.eclipse.Globals;
+import org.seasar.ymir.eclipse.ParameterKeys;
 
 import werkzeugkasten.mvnhack.repository.Artifact;
 
@@ -47,11 +60,29 @@ import werkzeugkasten.mvnhack.repository.Artifact;
  */
 
 public class NewProjectWizard extends Wizard implements INewWizard {
-    private NewProjectWizardFirstPage firstPage;
+    private static final String PATH_APP_PROPERTIES = Globals.PATH_SRC_MAIN_RESOURCES + "/app.properties";
+
+    private static final String PLACEHOLDER_WEBAPP = "%WEBAPP%";
+
+    private static final char PACKAGE_DELIMITER = '.';
+
+    private static final String CREATESUPERCLASS_KEY_PACKAGENAME = "packageName";
+
+    private static final String CREATESUPERCLASS_KEY_CLASSSHORTNAME = "classShortName";
+
+    private static final String TEMPLATEPATH_SUPERCLASS = "templates/Superclass.java.ftl";
+
+    private static final String PATH_DELIMITER = "/";
 
     private ISelection selection;
 
+    private NewProjectWizardFirstPage firstPage;
+
     private NewProjectWizardSecondPage secondPage;
+
+    private NewProjectWizardThirdPage thirdPage;
+
+    private NewProjectWizardFourthPage fourthPage;
 
     /**
      * Constructor for NewProjectWizard.
@@ -70,6 +101,10 @@ public class NewProjectWizard extends Wizard implements INewWizard {
         addPage(firstPage);
         secondPage = new NewProjectWizardSecondPage();
         addPage(secondPage);
+        thirdPage = new NewProjectWizardThirdPage();
+        addPage(thirdPage);
+        fourthPage = new NewProjectWizardFourthPage();
+        addPage(fourthPage);
     }
 
     /**
@@ -83,14 +118,14 @@ public class NewProjectWizard extends Wizard implements INewWizard {
         final String projectGroupId = firstPage.getProjectGroupId();
         final String projectArtifactId = firstPage.getProjectArtifactId();
         final String projectVersion = firstPage.getProjectVersion();
-        final String skeletonGroupId = secondPage.getSkeletonGroupId();
-        final String skeletonArtifactId = secondPage.getSkeletonArtifactId();
-        final String skeletonVersion = secondPage.getSkeletonVersion();
+        final Artifact skeletonArtifact = secondPage.getSkeletonArtifact();
+        final Map<String, Object> parameterMap = createParameterMap();
+        final Properties applicationProperties = createApplicationProperties();
         IRunnableWithProgress op = new IRunnableWithProgress() {
             public void run(IProgressMonitor monitor) throws InvocationTargetException {
                 try {
                     createProject(project, locationPath, projectGroupId, projectArtifactId, projectVersion,
-                            skeletonGroupId, skeletonArtifactId, skeletonVersion, monitor);
+                            skeletonArtifact, parameterMap, applicationProperties, monitor);
                 } catch (CoreException e) {
                     throw new InvocationTargetException(e);
                 } finally {
@@ -110,74 +145,173 @@ public class NewProjectWizard extends Wizard implements INewWizard {
         return true;
     }
 
-    /**
-     * The worker method. It will find the container, create the
-     * file if missing or just replace its contents, and open
-     * the editor on the newly created file.
-     * 
-     * @param skeletonVersion 
-     * @param skeletonArtifactId 
-     * @param skeletonGroupId 
-     * @param projectVersion 
-     * @param locationPath 
-     * @param project 
-     */
+    private Map<String, Object> createParameterMap() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put(ParameterKeys.SLASH, PATH_DELIMITER);
+        map.put(ParameterKeys.PROJECT_NAME, firstPage.getProjectName());
+        map.put(ParameterKeys.ROOT_PACKAGE_NAME, firstPage.getRootPackageName());
+        map.put(ParameterKeys.ROOT_PACKAGE_PATH, firstPage.getRootPackageName().replace('.', '/'));
+        map.put(ParameterKeys.GROUP_ID, firstPage.getProjectGroupId());
+        map.put(ParameterKeys.ARTIFACT_ID, firstPage.getProjectArtifactId());
+        map.put(ParameterKeys.VERSION, firstPage.getProjectVersion());
+        map.put(ParameterKeys.VIEW_ENCODING, thirdPage.getViewEncoding());
+        map.put(ParameterKeys.USE_DATABASE, thirdPage.isUseDatabase());
+        map.put(ParameterKeys.DATABASE_DRIVER_CLASS_NAME, thirdPage.getDatabaseDriverClassName());
+        map.put(ParameterKeys.DATABASE_URL, resolveDatabaseURL(thirdPage.getDatabaseURL()));
+        map.put(ParameterKeys.DATABASE_URL_FOR_YMIR, resolveDatabaseURLForYmir(thirdPage.getDatabaseURL()));
+        map.put(ParameterKeys.DATABASE_USER, thirdPage.getDatabaseUser());
+        map.put(ParameterKeys.DATABASE_PASSWORD, thirdPage.getDatabasePassword());
 
-    private void createProject(IProject project, IPath locationPath, String projectGroupId, String projectArtifactId,
-            String projectVersion, String skeletonGroupId, String skeletonArtifactId, String skeletonVersion,
-            IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask("Creating Ymir project", 5);
+        return map;
+    }
 
-        Artifact artifact = null;
-        try {
-            artifact = Activator.getDefault().resolveArtifact(skeletonGroupId, skeletonArtifactId, skeletonVersion,
-                    new SubProgressMonitor(monitor, 1));
-        } catch (ArtifactNotFoundException ex) {
-            throwCoreException("アプリケーションスケルトンが見つかりませんでした: groupId=" + skeletonGroupId + ", artifactId="
-                    + skeletonArtifactId + ", version=" + skeletonVersion, ex);
-        }
-        if (monitor.isCanceled()) {
-            throw new OperationCanceledException();
-        }
+    private String resolveDatabaseURL(String databaseURL) {
+        return databaseURL.replace(PLACEHOLDER_WEBAPP, "../src/main/webapp");
+    }
 
-        if (!project.exists()) {
-            IProjectDescription desc = project.getWorkspace().newProjectDescription(project.getName());
-            if (Platform.getLocation().equals(locationPath)) {
-                locationPath = null;
-            }
-            desc.setLocation(locationPath);
-            project.create(desc, new SubProgressMonitor(monitor, 1));
+    private String resolveDatabaseURLForYmir(String databaseURL) {
+        int placeHolder = databaseURL.indexOf(PLACEHOLDER_WEBAPP);
+        if (placeHolder < 0) {
+            return "\"" + databaseURL + "\"";
         } else {
-            monitor.worked(1);
-        }
-        if (monitor.isCanceled()) {
-            throw new OperationCanceledException();
-        }
-
-        project.open(new SubProgressMonitor(monitor, 1));
-        if (monitor.isCanceled()) {
-            throw new OperationCanceledException();
-        }
-
-        try {
-            Activator.getDefault().expandSkeleton(project, artifact,
-                    createParameterMap(project.getName(), projectGroupId, projectArtifactId, projectVersion),
-                    new SubProgressMonitor(monitor, 1));
-        } catch (IOException ex) {
-            throwCoreException("アプリケーションスケルトンの展開に失敗しました", ex);
-        }
-        if (monitor.isCanceled()) {
-            throw new OperationCanceledException();
-        }
-
-        setUpProjectDescription(project, new SubProgressMonitor(monitor, 1));
-        if (monitor.isCanceled()) {
-            throw new OperationCanceledException();
+            return "\"" + databaseURL.substring(0, placeHolder) + "\" + application.getRealPath(\"\") + \""
+                    + databaseURL.substring(placeHolder + PLACEHOLDER_WEBAPP.length());
         }
     }
 
-    void setUpProjectDescription(IProject project, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask("Set up project description", 1);
+    private Properties createApplicationProperties() {
+        Properties prop = new Properties();
+        prop.setProperty(ApplicationPropertiesKeys.ROOT_PACKAGE_NAME, firstPage.getRootPackageName());
+        String value = fourthPage.getSuperclass();
+        if (value != null && value.length() > 0) {
+            prop.setProperty(ApplicationPropertiesKeys.SUPERCLASS, value);
+        }
+        prop.setProperty(ApplicationPropertiesKeys.USING_FREYJA_RENDER_CLASS, String.valueOf(fourthPage
+                .isUsingFreyjaRenderClass()));
+        prop.setProperty(ApplicationPropertiesKeys.BEANTABLE_ENABLED, String.valueOf(fourthPage.isBeantableEnabled()));
+        prop.setProperty(ApplicationPropertiesKeys.FORM_DTO_CREATION_FEATURE_ENABLED, String.valueOf(fourthPage
+                .isFormDtoCreationFeatureEnabled()));
+        prop.setProperty(ApplicationPropertiesKeys.CONVERTER_CREATION_FEATURE_ENABLED, String.valueOf(fourthPage
+                .isConverterCreationFeatureEnabled()));
+        prop.setProperty(ApplicationPropertiesKeys.DAO_CREATION_FEATURE_ENABLED, String.valueOf(fourthPage
+                .isDaoCreationFeatureEnabled()));
+        prop.setProperty(ApplicationPropertiesKeys.DXO_CREATION_FEATURE_ENABLED, String.valueOf(fourthPage
+                .isDxoCreationFeatureEnabled()));
+        boolean eclipseEnabled = fourthPage.isEclipseEnabled();
+        prop.setProperty(ApplicationPropertiesKeys.ECLIPSE_ENABLED, String.valueOf(eclipseEnabled));
+        if (eclipseEnabled) {
+            value = fourthPage.getResourceSynchronizerURL();
+            if (value != null && value.length() > 0) {
+                prop.setProperty(ApplicationPropertiesKeys.RESOURCE_SYNCHRONIZER_URL, value);
+            }
+        }
+
+        return prop;
+    }
+
+    private void createProject(IProject project, IPath locationPath, String projectGroupId, String projectArtifactId,
+            String projectVersion, Artifact skeletonArtifact, Map<String, Object> parameterMap,
+            Properties applicationProperties, IProgressMonitor monitor) throws CoreException {
+        monitor.beginTask("Creating Ymir project", 5);
+        try {
+            if (!project.exists()) {
+                IProjectDescription desc = project.getWorkspace().newProjectDescription(project.getName());
+                if (Platform.getLocation().equals(locationPath)) {
+                    locationPath = null;
+                }
+                desc.setLocation(locationPath);
+                project.create(desc, new SubProgressMonitor(monitor, 1));
+            } else {
+                monitor.worked(1);
+            }
+            if (monitor.isCanceled()) {
+                throw new OperationCanceledException();
+            }
+
+            project.open(new SubProgressMonitor(monitor, 1));
+            if (monitor.isCanceled()) {
+                throw new OperationCanceledException();
+            }
+
+            try {
+                Activator.getDefault().expandSkeleton(project, skeletonArtifact, parameterMap,
+                        new SubProgressMonitor(monitor, 1));
+            } catch (IOException ex) {
+                throwCoreException("アプリケーションスケルトンの展開に失敗しました", ex);
+                return;
+            }
+            if (monitor.isCanceled()) {
+                throw new OperationCanceledException();
+            }
+
+            createSuperclass(project, applicationProperties.getProperty(ApplicationPropertiesKeys.SUPERCLASS),
+                    new SubProgressMonitor(monitor, 1));
+            if (monitor.isCanceled()) {
+                throw new OperationCanceledException();
+            }
+
+            setUpProject(project, applicationProperties, new SubProgressMonitor(monitor, 1));
+        } finally {
+            monitor.done();
+        }
+    }
+
+    private void createSuperclass(IProject project, String superclass, IProgressMonitor monitor) throws CoreException {
+        monitor.beginTask("Create superclass", 2);
+        try {
+            if (superclass == null) {
+                return;
+            }
+            IFile file = project.getFile(Globals.PATH_SRC_MAIN_JAVA + "/"
+                    + superclass.replace('.', '/').concat(".java"));
+            if (file.exists()) {
+                return;
+            }
+
+            String packageName;
+            String classShortName;
+            int dot = superclass.lastIndexOf(PACKAGE_DELIMITER);
+            if (dot < 0) {
+                packageName = "";
+                classShortName = superclass;
+            } else {
+                packageName = superclass.substring(0, dot);
+                classShortName = superclass.substring(dot + 1);
+            }
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put(CREATESUPERCLASS_KEY_PACKAGENAME, packageName);
+            map.put(CREATESUPERCLASS_KEY_CLASSSHORTNAME, classShortName);
+            String body;
+            try {
+                body = Activator.getDefault().evaluateTemplate(TEMPLATEPATH_SUPERCLASS, map);
+            } catch (IOException ex) {
+                throwCoreException("Can't evaluate template: " + TEMPLATEPATH_SUPERCLASS, ex);
+                return;
+            }
+            monitor.worked(1);
+            if (monitor.isCanceled()) {
+                throw new OperationCanceledException();
+            }
+
+            Activator.getDefault().writeFile(file, body, new SubProgressMonitor(monitor, 1));
+        } finally {
+            monitor.done();
+        }
+    }
+
+    private void setUpProject(IProject project, Properties applicationProperties, IProgressMonitor monitor)
+            throws CoreException {
+        monitor.beginTask("Set up project", 3);
+
+        boolean m2eclipseBundled = (Platform.getBundle(Globals.BUNDLENAME_M2ECLIPSE) != null);
+        if (m2eclipseBundled) {
+            setUpClasspathForM2Eclipse(JavaCore.create(project), new SubProgressMonitor(monitor, 1));
+        } else {
+            setUpClasspath(JavaCore.create(project), new SubProgressMonitor(monitor, 1));
+        }
+        if (monitor.isCanceled()) {
+            throw new OperationCanceledException();
+        }
 
         IProjectDescription description = project.getDescription();
 
@@ -191,7 +325,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
         if (Platform.getBundle(Globals.BUNDLENAME_TOMCATPLUGIN) != null) {
             newNatureList.add(Globals.NATURE_ID_TOMCAT);
         }
-        if (Platform.getBundle(Globals.BUNDLENAME_M2ECLIPSE) != null) {
+        if (m2eclipseBundled) {
             newNatureList.add(Globals.NATURE_ID_M2ECLIPSE);
             command = description.newCommand();
             command.setBuilderName(Globals.BUILDER_ID_M2ECLIPSE);
@@ -203,22 +337,120 @@ public class NewProjectWizard extends Wizard implements INewWizard {
             command.setBuilderName(Globals.BUILDER_ID_WEBINFLIB);
             newBuilderList.add(command);
         }
-        String[] newNatures = newNatureList.toArray(new String[0]);
-        description.setNatureIds(newNatures);
-        ICommand[] newBuilders = newBuilderList.toArray(new ICommand[0]);
-        description.setBuildSpec(newBuilders);
+        addNatures(description, newNatureList);
+        addBuilders(description, newBuilderList);
 
-        project.setDescription(description, monitor);
+        project.setDescription(description, new SubProgressMonitor(monitor, 1));
+        if (monitor.isCanceled()) {
+            throw new OperationCanceledException();
+        }
+
+        updateApplicationProperties(project, applicationProperties, new SubProgressMonitor(monitor, 1));
     }
 
-    Map<String, String> createParameterMap(String projectName, String projectGroupId, String projectArtifactId,
-            String projectVersion) {
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("projectName", projectName);
-        map.put("groupId", projectGroupId);
-        map.put("artifactId", projectArtifactId);
-        map.put("version", projectVersion);
-        return map;
+    private void updateApplicationProperties(IProject project, Properties applicationProperties,
+            IProgressMonitor monitor) throws CoreException {
+        monitor.beginTask("Update application properties", 1);
+
+        IFile file = project.getFile(PATH_APP_PROPERTIES);
+        if (!file.exists()) {
+            return;
+        }
+
+        Properties prop = new Properties();
+        InputStream is = null;
+        try {
+            is = file.getContents();
+            prop.load(is);
+        } catch (IOException ex) {
+            throwCoreException("Can't open " + PATH_APP_PROPERTIES, ex);
+            return;
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+
+        for (Enumeration<?> enm = applicationProperties.propertyNames(); enm.hasMoreElements();) {
+            String name = (String) enm.nextElement();
+            prop.setProperty(name, applicationProperties.getProperty(name));
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            prop.store(baos, null);
+        } catch (IOException ex) {
+            throwCoreException("Can't happen!", ex);
+            return;
+        }
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        file.setContents(bais, false, false, new SubProgressMonitor(monitor, 1));
+    }
+
+    private void setUpClasspathForM2Eclipse(IJavaProject javaProject, IProgressMonitor monitor)
+            throws JavaModelException {
+        monitor.beginTask("Set up classpath", 1);
+
+        List<IClasspathEntry> newEntryList = new ArrayList<IClasspathEntry>();
+        boolean existsM2EclipseContainer = false;
+        for (IClasspathEntry entry : javaProject.getRawClasspath()) {
+            int kind = entry.getEntryKind();
+            String path = entry.getPath().toPortableString();
+            if (kind == IClasspathEntry.CPE_LIBRARY || kind == IClasspathEntry.CPE_PROJECT
+                    || kind == IClasspathEntry.CPE_VARIABLE) {
+                continue;
+            }
+            if (kind == IClasspathEntry.CPE_CONTAINER) {
+                if (Globals.CLASSPATH_CONTAINER_M2ECLIPSE.equals(path)) {
+                    existsM2EclipseContainer = true;
+                } else if (!path.startsWith(Globals.CLASSPATH_CONTAEINR_JRE)) {
+                    continue;
+                }
+            }
+            newEntryList.add(entry);
+        }
+        if (!existsM2EclipseContainer) {
+            newEntryList.add(JavaCore.newContainerEntry(new Path(Globals.CLASSPATH_CONTAINER_M2ECLIPSE)));
+        }
+
+        javaProject.setRawClasspath(newEntryList.toArray(new IClasspathEntry[0]), new SubProgressMonitor(monitor, 1));
+    }
+
+    private void setUpClasspath(IJavaProject javaProject, IProgressMonitor monitor) throws JavaModelException {
+        monitor.beginTask("Set up classpath", 1);
+
+        List<IClasspathEntry> newEntryList = new ArrayList<IClasspathEntry>();
+        for (IClasspathEntry entry : javaProject.getRawClasspath()) {
+            int kind = entry.getEntryKind();
+            String path = entry.getPath().toPortableString();
+            if (kind == IClasspathEntry.CPE_CONTAINER && Globals.CLASSPATH_CONTAINER_M2ECLIPSE.equals(path)) {
+                continue;
+            }
+            newEntryList.add(entry);
+        }
+        javaProject.setRawClasspath(newEntryList.toArray(new IClasspathEntry[0]), new SubProgressMonitor(monitor, 1));
+    }
+
+    private void addBuilders(IProjectDescription description, List<ICommand> newBuilderList) {
+        Map<String, ICommand> map = new LinkedHashMap<String, ICommand>();
+        for (ICommand builder : description.getBuildSpec()) {
+            map.put(builder.getBuilderName(), builder);
+        }
+        for (ICommand builder : newBuilderList) {
+            map.put(builder.getBuilderName(), builder);
+        }
+        description.setBuildSpec(map.values().toArray(new ICommand[0]));
+    }
+
+    private void addNatures(IProjectDescription description, List<String> newNatureList) {
+        Set<String> set = new LinkedHashSet<String>();
+        set.addAll(Arrays.asList(description.getNatureIds()));
+        set.addAll(newNatureList);
+        description.setNatureIds(set.toArray(new String[0]));
     }
 
     /**
@@ -246,5 +478,9 @@ public class NewProjectWizard extends Wizard implements INewWizard {
      */
     public void init(IWorkbench workbench, IStructuredSelection selection) {
         this.selection = selection;
+    }
+
+    public String getRootPackageName() {
+        return firstPage.getRootPackageName();
     }
 }

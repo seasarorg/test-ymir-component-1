@@ -12,7 +12,7 @@
             category="org.eclipse.jdt.ui.java"
             class="org.seasar.ymir.eclipse.wizards.NewProjectWizard"
             finalPerspective="org.eclipse.jdt.ui.JavaPerspective"
-            icon="icons/sample.gif"
+            icon="icons/newYmirProject.gif"
             id="org.seasar.ymir.eclipse.wizards.NewProjectWizard"
             name="Ymir Project"
             project="true">

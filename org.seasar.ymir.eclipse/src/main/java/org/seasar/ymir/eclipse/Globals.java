@@ -16,4 +16,16 @@ public interface Globals {
     String NATURE_ID_MAVEN2ADDITIONAL = BUNDLENAME_MAVEN2ADDITIONAL + ".mavenAdditionalNature";
 
     String BUILDER_ID_WEBINFLIB = BUNDLENAME_MAVEN2ADDITIONAL + ".webinfLibBuilder";
+
+    String CLASSPATH_CONTAINER_M2ECLIPSE = BUNDLENAME_M2ECLIPSE + ".MAVEN2_CLASSPATH_CONTAINER";
+
+    String CLASSPATH_CONTAEINR_JRE = "org.eclipse.jdt.launching.JRE_CONTAINER";
+
+    String ENCODING = "UTF-8";
+
+    String BUNDLENAME_RESOURCESYNCHRONIZER = "org.seasar.resource.synchronizer";
+
+    String PATH_SRC_MAIN_JAVA = "src/main/java";
+
+    String PATH_SRC_MAIN_RESOURCES = "src/main/resources";
 }

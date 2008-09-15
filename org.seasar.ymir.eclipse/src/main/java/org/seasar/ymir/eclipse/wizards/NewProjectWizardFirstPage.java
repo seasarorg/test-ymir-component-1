@@ -4,6 +4,8 @@ import java.io.File;
 
 import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -11,10 +13,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 
@@ -25,27 +25,35 @@ import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
  */
 
 public class NewProjectWizardFirstPage extends WizardNewProjectCreationPage {
+    private ModifyListener validationListener = new ModifyListener() {
+        public void modifyText(ModifyEvent e) {
+            setPageComplete(validatePage());
+        }
+    };
+
+    private boolean initialized;
+
     private Text projectNameField;
 
     private Text locationPathField;
 
     private String initialLocationPath;
 
+    private Text rootPackageNameField;
+
+    private Label projectGroupIdLabel;
+
     private Text projectGroupIdField;
 
-    private Text projectArtifactIdField;
-
-    private Text projectVersionField;
-
-    private Button useProjectNameAsArtifactIdButton;
+    private Button useRootPackageNameAsProjectGroupIdField;
 
     private Label projectArtifactIdLabel;
 
-    private Listener mustFieldListener = new Listener() {
-        public void handleEvent(Event e) {
-            setPageComplete(validatePage());
-        }
-    };
+    private Text projectArtifactIdField;
+
+    private Button useProjectNameAsProjectArtifactIdField;
+
+    private Text projectVersionField;
 
     public NewProjectWizardFirstPage() {
         super("NewProjectWizardFirstPage");
@@ -66,8 +74,8 @@ public class NewProjectWizardFirstPage extends WizardNewProjectCreationPage {
         projectNameField = null;
         locationPathField = null;
         findProjectNameFieldAndLocationPathField(composite);
-        projectNameField.addListener(SWT.Modify, new Listener() {
-            public void handleEvent(Event e) {
+        projectNameField.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
                 if (!locationPathField.isEnabled()) {
                     String projectName = projectNameField.getText().trim();
                     String locationPath;
@@ -79,13 +87,11 @@ public class NewProjectWizardFirstPage extends WizardNewProjectCreationPage {
                     locationPathField.setText(locationPath);
                 }
 
-                if (!projectArtifactIdField.isEnabled()) {
+                if (useProjectNameAsProjectArtifactIdField.getSelection()) {
                     projectArtifactIdField.setText(projectNameField.getText().trim());
                 }
             }
         });
-
-        setDefaultValues();
     }
 
     void createProjectInformationControl(Composite parent) {
@@ -96,48 +102,70 @@ public class NewProjectWizardFirstPage extends WizardNewProjectCreationPage {
         group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         group.setText("プロジェクト情報");
 
-        Label groupIdLabel = new Label(group, SWT.NONE);
-        groupIdLabel.setText("グループID");
+        Label rootPackageNameLabel = new Label(group, SWT.NONE);
+        rootPackageNameLabel.setText("ルートパッケージ名");
 
-        projectGroupIdField = new Text(group, SWT.BORDER);
+        rootPackageNameField = new Text(group, SWT.BORDER);
         GridData data = new GridData(GridData.FILL_HORIZONTAL);
         data.widthHint = 250;
+        rootPackageNameField.setLayoutData(data);
+        rootPackageNameField.addModifyListener(validationListener);
+        rootPackageNameField.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                if (useRootPackageNameAsProjectGroupIdField.getSelection()) {
+                    projectGroupIdField.setText(rootPackageNameField.getText().trim());
+                }
+            }
+        });
+
+        projectGroupIdLabel = new Label(group, SWT.NONE);
+        projectGroupIdLabel.setText("グループID");
+
+        projectGroupIdField = new Text(group, SWT.BORDER);
+        data = new GridData(GridData.FILL_HORIZONTAL);
+        data.widthHint = 250;
         projectGroupIdField.setLayoutData(data);
-        projectGroupIdField.addListener(SWT.Modify, mustFieldListener);
+        projectGroupIdField.addModifyListener(validationListener);
+
+        new Label(group, SWT.NONE);
+        useRootPackageNameAsProjectGroupIdField = new Button(group, SWT.CHECK | SWT.LEFT);
+        useRootPackageNameAsProjectGroupIdField.setText("グループIDとしてルートパッケージ名を使う");
+        useRootPackageNameAsProjectGroupIdField.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                boolean enabled = !useRootPackageNameAsProjectGroupIdField.getSelection();
+                projectGroupIdLabel.setEnabled(enabled);
+                projectGroupIdField.setEnabled(enabled);
+            }
+        });
 
         projectArtifactIdLabel = new Label(group, SWT.NONE);
         projectArtifactIdLabel.setText("アーティファクトID");
-        projectArtifactIdLabel.setEnabled(false);
 
         projectArtifactIdField = new Text(group, SWT.BORDER);
         data = new GridData(GridData.FILL_HORIZONTAL);
         data.widthHint = 250;
         projectArtifactIdField.setLayoutData(data);
-        projectArtifactIdField.addListener(SWT.Modify, mustFieldListener);
-        projectArtifactIdField.setEnabled(false);
+        projectArtifactIdField.addModifyListener(validationListener);
 
-        Label label = new Label(group, SWT.NONE);
-        label.setText("");
-
-        useProjectNameAsArtifactIdButton = new Button(group, SWT.CHECK | SWT.RIGHT);
-        useProjectNameAsArtifactIdButton.setText("アーティファクトIDとしてプロジェクト名を使う");
-        useProjectNameAsArtifactIdButton.setSelection(true);
-        useProjectNameAsArtifactIdButton.addSelectionListener(new SelectionAdapter() {
+        new Label(group, SWT.NONE);
+        useProjectNameAsProjectArtifactIdField = new Button(group, SWT.CHECK | SWT.LEFT);
+        useProjectNameAsProjectArtifactIdField.setText("アーティファクトIDとしてプロジェクト名を使う");
+        useProjectNameAsProjectArtifactIdField.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                boolean enabled = !useProjectNameAsArtifactIdButton.getSelection();
+                boolean enabled = !useProjectNameAsProjectArtifactIdField.getSelection();
                 projectArtifactIdLabel.setEnabled(enabled);
                 projectArtifactIdField.setEnabled(enabled);
             }
         });
 
-        Label versionLabel = new Label(group, SWT.NONE);
-        versionLabel.setText("バージョン");
+        Label projectVersionLabel = new Label(group, SWT.NONE);
+        projectVersionLabel.setText("バージョン");
 
         projectVersionField = new Text(group, SWT.BORDER);
         data = new GridData(GridData.FILL_HORIZONTAL);
         data.widthHint = 250;
         projectVersionField.setLayoutData(data);
-        projectVersionField.addListener(SWT.Modify, mustFieldListener);
+        projectVersionField.addModifyListener(validationListener);
     }
 
     private boolean findProjectNameFieldAndLocationPathField(Composite composite) {
@@ -167,6 +195,9 @@ public class NewProjectWizardFirstPage extends WizardNewProjectCreationPage {
             return false;
         }
 
+        if (getRootPackageName().length() == 0) {
+            return false;
+        }
         if (getProjectGroupId().length() == 0) {
             return false;
         }
@@ -180,12 +211,29 @@ public class NewProjectWizardFirstPage extends WizardNewProjectCreationPage {
         return true;
     }
 
+    @Override
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        if (!initialized) {
+            setDefaultValues();
+            initialized = true;
+        }
+    }
+
     void setDefaultValues() {
-        projectGroupIdField.setText("com.example");
-        projectArtifactIdField.setText("");
+        useRootPackageNameAsProjectGroupIdField.setSelection(true);
+        projectGroupIdLabel.setEnabled(false);
+        projectGroupIdField.setEnabled(false);
+        useProjectNameAsProjectArtifactIdField.setSelection(true);
+        projectArtifactIdLabel.setEnabled(false);
+        projectArtifactIdField.setEnabled(false);
         projectVersionField.setText("0.0.1-SNAPSHOT");
 
         setPageComplete(validatePage());
+    }
+
+    public String getRootPackageName() {
+        return rootPackageNameField.getText();
     }
 
     public String getProjectGroupId() {
