@@ -1,0 +1,28 @@
+<assembly>
+  <id>archive</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>src/main/skeleton</directory>
+      <outputDirectory></outputDirectory>
+      <excludes>
+        <exclude>**/ymir-*.jar</exclude>
+      </excludes>
+    </fileSet>
+  </fileSets>
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>src/main/webapp/WEB-INF/lib</outputDirectory>
+      <scope>runtime</scope>
+      <includes>
+        <include>ymir-*.jar</include>
+      </includes>
+      <excludes>
+        <exclude>ymir-skeleton-*.jar</exclude>
+      </excludes>
+    </dependencySet>
+  </dependencySets>
+</assembly>
