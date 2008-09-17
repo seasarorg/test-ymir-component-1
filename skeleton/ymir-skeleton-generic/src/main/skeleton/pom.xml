@@ -18,9 +18,9 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
             <encoding>UTF-8</encoding>
-            <source>1.5</source>
-            <target>1.5</target>
-          </configuration>
+<#if JREVersion != "">            <source>${JREVersion}</source>
+            <target>${JREVersion}</target>
+</#if>          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-war-plugin</artifactId>
