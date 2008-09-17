@@ -1,0 +1,245 @@
+#set ($myClassName = "${glBehaviorWritableAbstractName}")
+
+using System;
+using System.Collections;
+
+using ${glPackageBaseCommon};
+using ${glPackageBaseCommonCBean};
+using ${glPackageBaseCommonDBMeta};
+using ${glPackageBaseCommonHelper};
+using ${glPackageBaseCommonException};
+
+namespace ${glPackageBaseCommonBhv} {
+
+    public abstract class $myClassName : ${glBehaviorReadableAbstractName}, ${glBehaviorWritableInterfaceName} {
+
+        // ===============================================================================
+        //                                                                      Definition
+        //                                                                      ==========
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        // ===============================================================================
+        //                                                                   Entity Update
+        //                                                                   =============
+        public virtual void Create(${glEntityInterfaceName} entity) {
+            AssertEntityNotNull(entity);
+            CallCreate(entity);
+        }
+
+        public virtual void Modify(${glEntityInterfaceName} entity) {
+            AssertEntityNotNull(entity);
+            int modifiedCount = CallModify(entity);
+            AssertUpdatedEntity(entity, modifiedCount);
+        }
+
+        protected static void AssertUpdatedEntity(${glEntityInterfaceName} entity, int updatedCount) {
+            if (updatedCount == 0) {
+                String msg = "The entity was Not Found! it has already been deleted: entity=" + entity;
+                throw new ${glEntityAlreadyDeletedException}(msg);
+            }
+            if (updatedCount > 1) {
+                String msg = "The entity was Too Many! it has been duplicated. It should be the only one! But the updatedCount=" + updatedCount;
+                msg = msg + ": entity=" + entity;
+                throw new ${glEntityDuplicatedException}(msg);
+            }
+        }
+
+        public virtual void Remove(${glEntityInterfaceName} entity) {
+            AssertEntityNotNull(entity);
+            int removedCount = CallRemove(entity);
+            AssertDeletedEntity(entity, removedCount);
+        }
+
+        protected static void AssertDeletedEntity(${glEntityInterfaceName} entity, int deletedCount) {
+            if (deletedCount == 0) {
+                String msg = "The entity was Not Found! it has already been deleted: entity=" + entity;
+                throw new ${glEntityAlreadyDeletedException}(msg);
+            }
+            if (deletedCount > 1) {
+                String msg = "The entity was Too Many! it has been duplicated. It should be the only one! But the deletedCount=" + deletedCount;
+                msg = msg + ": entity=" + entity;
+                throw new ${glEntityDuplicatedException}(msg);
+            }
+        }
+
+        // ===============================================================================
+        //                                                                 Delegate Method
+        //                                                                 ===============
+        // -------------------------------------------------
+        //                                            Create
+        //                                            ------
+        protected virtual bool ProcessBeforeInsert(${glEntityInterfaceName} entity) {
+            AssertEntityNotNull(entity);// If this table use identity, the entity does not have primary-key.
+            FrameworkFilterEntityOfInsert(entity);
+            FilterEntityOfInsert(entity);
+            AssertEntityOfInsert(entity);
+            return true;
+        }
+
+        protected virtual int CallCreate(${glEntityInterfaceName} entity) {
+            if (!ProcessBeforeInsert(entity)) { return 1; }
+            return DoCallCreate(entity);
+        }
+
+        protected virtual void FrameworkFilterEntityOfInsert(${glEntityInterfaceName} targetEntity) {
+            InjectSequenceToPrimaryKeyIfNeeds(targetEntity);
+            SetupCommonColumnOfInsertIfNeeds(targetEntity);
+        }
+		
+        protected void InjectSequenceToPrimaryKeyIfNeeds(${glEntityInterfaceName} entity) {
+            ${glDBMetaInterfaceName} dbmeta = entity.DBMeta;
+            if (!dbmeta.HasSequence || dbmeta.HasTwoOrMorePrimaryKeys || entity.HasPrimaryKeyValue) {
+                return;
+            }
+            SetupNextValueToPrimaryKey(entity);
+        }
+        protected virtual void SetupNextValueToPrimaryKey(${glEntityInterfaceName} entity) {// Expect Override of Sub Class!
+        }
+
+        protected virtual void SetupCommonColumnOfInsertIfNeeds(${glEntityInterfaceName} targetEntity) {
+#if ($database.isExistCommonColumnSetupElement())
+            if (!IsEntityDefinedCommonColumn(targetEntity)) {
+                return;
+            }
+            ${glEntityDefinedCommonColumnInterfaceName} entity = (${glEntityDefinedCommonColumnInterfaceName})targetEntity;
+            if (!entity.CanCommonColumnAutoSetup()) {
+                return;
+            }
+            if (_log.IsDebugEnabled) {
+                _log.Debug("...Filtering entity of INSERT about the column columns of " + this.TableDbName);
+            }
+#foreach ($columnName in ${database.commonColumnNameList})
+  #set ($entityCommonColumnMap = ${database.CommonColumnMap})
+  #set ($columnType = ${entityCommonColumnMap.get(${columnName})})
+  #set ($javaNative = ${database.convertJavaNativeByJdbcType(${columnType})})
+  #set ($javaName = ${database.convertJavaNameByJdbcNameAsColumn(${columnName})})
+  #set ($uncapitalisedJavaName = ${database.convertUncapitalisedJavaNameByJdbcNameAsColumn(${columnName})})
+  #if (${database.containsValidColumnNameKeyCommonColumnSetupBeforeInsertInterceptorLogicMap(${columnName})})
+    #set ($logic = ${database.getCommonColumnSetupBeforeInsertInterceptorLogicByColumnName(${columnName})})
+    #if ($database.isCommonColumnSetupInvokingLogic($logic))
+      #set ($filteredLogic = $database.removeCommonColumnSetupInvokingMark($logic))
+
+            ${filteredLogic}
+    #else
+
+            ${javaNative} ${uncapitalisedJavaName} = ${logic};
+            entity.${javaName} = ${uncapitalisedJavaName};
+    #end
+  #end
+#end
+#end
+
+        }
+
+        protected virtual void FilterEntityOfInsert(${glEntityInterfaceName} targetEntity) {
+        }
+
+        protected virtual void AssertEntityOfInsert(${glEntityInterfaceName} entity) {
+        }
+
+        protected abstract int DoCallCreate(${glEntityInterfaceName} entity);
+
+        // -------------------------------------------------
+        //                                            Modify
+        //                                            ------
+        protected virtual bool ProcessBeforeUpdate(${glEntityInterfaceName} entity) {
+            AssertEntityNotNullAndHasPrimaryKeyValue(entity);
+            FrameworkFilterEntityOfUpdate(entity);
+            FilterEntityOfUpdate(entity);
+            AssertEntityOfUpdate(entity);
+            return true;
+        }
+
+        protected virtual int CallModify(${glEntityInterfaceName} entity) {
+            if (!ProcessBeforeUpdate(entity)) { return 1; }
+            return DoCallModify(entity);
+        }
+
+        protected virtual void FrameworkFilterEntityOfUpdate(${glEntityInterfaceName} targetEntity) {
+            SetupCommonColumnOfUpdateIfNeeds(targetEntity);
+        }
+
+        protected virtual void SetupCommonColumnOfUpdateIfNeeds(${glEntityInterfaceName} targetEntity) {
+#if ($database.isExistCommonColumnSetupElement())
+            if (!IsEntityDefinedCommonColumn(targetEntity)) {
+                return;
+            }
+            ${glEntityDefinedCommonColumnInterfaceName} entity = (${glEntityDefinedCommonColumnInterfaceName})targetEntity;
+            if (!entity.CanCommonColumnAutoSetup()) {
+                return;
+            }
+            if (_log.IsDebugEnabled) {
+                _log.Debug("...Filtering entity of UPDATE about the column columns of " + this.TableDbName);
+            }
+#foreach ($columnName in ${database.commonColumnNameList})
+  #set ($entityCommonColumnMap = ${database.CommonColumnMap})
+  #set ($columnType = ${entityCommonColumnMap.get(${columnName})})
+  #set ($javaNative = ${database.convertJavaNativeByJdbcType(${columnType})})
+  #set ($javaName = ${database.convertJavaNameByJdbcNameAsColumn(${columnName})})
+  #set ($uncapitalisedJavaName = ${database.convertUncapitalisedJavaNameByJdbcNameAsColumn(${columnName})})
+  #if (${database.containsValidColumnNameKeyCommonColumnSetupBeforeUpdateInterceptorLogicMap(${columnName})})
+    #set ($logic = ${database.getCommonColumnSetupBeforeUpdateInterceptorLogicByColumnName(${columnName})})
+    #if ($database.isCommonColumnSetupInvokingLogic($logic))
+      #set ($filteredLogic = $database.removeCommonColumnSetupInvokingMark($logic))
+
+            ${filteredLogic}
+    #else
+
+            ${javaNative} ${uncapitalisedJavaName} = ${logic};
+            entity.${javaName} = ${uncapitalisedJavaName};
+    #end
+  #end
+#end
+#end
+        }
+
+        protected virtual void FilterEntityOfUpdate(${glPackageBaseCommon}.${glEntityInterfaceName} targetEntity) {
+        }
+
+        protected virtual void AssertEntityOfUpdate(${glPackageBaseCommon}.${glEntityInterfaceName} entity) {
+        }
+
+        protected abstract int DoCallModify(${glEntityInterfaceName} entity);
+
+        // -------------------------------------------------
+        //                                            Remove
+        //                                            ------
+        protected virtual bool ProcessBeforeDelete(${glEntityInterfaceName} entity) {
+            AssertEntityNotNullAndHasPrimaryKeyValue(entity);
+            FrameworkFilterEntityOfDelete(entity);
+            FilterEntityOfDelete(entity);
+            AssertEntityOfDelete(entity);
+            return true;
+        }
+
+        protected virtual int CallRemove(${glEntityInterfaceName} entity) {
+            if (!ProcessBeforeDelete(entity)) { return 1; }
+            return DoCallRemove(entity);
+        }
+
+        protected virtual void FrameworkFilterEntityOfDelete(${glEntityInterfaceName} targetEntity) {
+        }
+
+        protected virtual void FilterEntityOfDelete(${glEntityInterfaceName} targetEntity) {
+        }
+
+        protected virtual void AssertEntityOfDelete(${glEntityInterfaceName} entity) {
+        }
+
+        protected abstract int DoCallRemove(${glEntityInterfaceName} entity);
+
+        // -------------------------------------------------
+        //                                            Helper
+        //                                            ------
+        protected virtual bool IsEntityDefinedCommonColumn(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (obj is ${glEntityDefinedCommonColumnInterfaceName}) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+}

@@ -1,0 +1,150 @@
+
+using System;
+using System.Data;
+using Seasar.Extension.ADO;
+using Seasar.Extension.ADO.Types;
+using Seasar.Framework.Exceptions;
+using Seasar.Framework.Util;
+
+using ${glPackageBaseCommon};
+using ${glPackageBaseCommonUtil};
+using ${glPackageBaseCommonS2DaoInternalUtil};
+
+namespace ${glPackageBaseCommonS2DaoInternalSqlHandler} {
+
+    public class ${glInternalBasicHandler} {
+
+        // ===============================================================================
+        //                                                                       Attribute
+        //                                                                       =========
+        private IDataSource _dataSource;
+        private String _sql;
+        private ICommandFactory _commandFactory;
+
+        // ===============================================================================
+        //                                                                     Constructor
+        //                                                                     ===========
+        public ${glInternalBasicHandler}(IDataSource ds, String sql, ICommandFactory commandFactory) {
+            DataSource = ds;
+            Sql = sql;
+            CommandFactory = commandFactory;
+        }
+
+        // ===============================================================================
+        //                                                                    Common Logic
+        //                                                                    ============
+        protected virtual void BindArgs(IDbCommand command, object[] args, Type[] argTypes) {
+            if (args == null) return;
+            string[] argNames = _commandFactory.GetArgNames(command, args);
+            for (int i = 0; i < args.Length; ++i) {
+                IValueType valueType = ValueTypes.GetValueType(argTypes[i]);
+                try {
+                    valueType.BindValue(command, argNames[i], args[i]);
+                } catch (Exception e) {
+                    throw new SQLRuntimeException(e);
+                }
+            }
+        }
+
+        protected virtual Type[] GetArgTypes(object[] args) {
+            if (args == null) {
+                return null;
+            }
+            Type[] argTypes = new Type[args.Length];
+            for (int i = 0; i < args.Length; ++i) {
+                object arg = args[i];
+                if (arg != null) {
+                    argTypes[i] = arg.GetType();
+                }
+            }
+            return argTypes;
+        }
+
+        protected virtual string GetCompleteSql(object[] args) {
+            return ${glInternalBindVariableUtil}.GetCompleteSql(_sql, args);
+        }
+
+        protected virtual String GetBindVariableText(Object bindVariable) {
+            return ${glInternalBindVariableUtil}.GetBindVariableText(bindVariable);
+        }
+
+        protected virtual void LogSql(Object[] args, Type[] argTypes) {
+            if (QLog.IsLogEnabled()) {
+                String completeSql = GetCompleteSql(args);
+                if (IsContainsLineSeparatorInSql()) {
+                    QLog.Log(GetLineSeparator() + completeSql);
+                } else {
+                    QLog.Log(completeSql);
+                }
+            }
+        }
+
+        protected bool IsContainsLineSeparatorInSql() {
+            return Sql != null ? Sql.Contains(GetLineSeparator()) : false;
+        }
+
+        // ===============================================================================
+        //                                                               ADO.NET Delegator
+        //                                                               =================
+        protected virtual Object ExecuteScalar(IDbCommand cmd, Object resource) {
+            return CommandFactory.ExecuteScalar(DataSource, cmd);
+        }
+
+        protected virtual int ExecuteUpdate(IDbCommand cmd, Object resource) {
+            return CommandFactory.ExecuteNonQuery(DataSource, cmd);
+        }
+
+        protected virtual void Close(IDbConnection conn) {
+            DataSource.CloseConnection(conn);
+        }
+
+        protected virtual void Close(IDbCommand cmd) {
+            CommandUtil.Close(cmd);
+        }
+
+        protected virtual void Close(IDataReader dataReader) {
+            DataReaderUtil.Close(dataReader);
+        }
+
+        protected IDbConnection Connection {
+            get {
+                if (_dataSource == null) {
+                    throw new SystemException("The dataSource should not be null at InternalBasicHandler!");
+                }
+                return DataSourceUtil.GetConnection(_dataSource);
+            }
+        }
+
+        protected virtual IDbCommand Command(IDbConnection connection) {
+            if (_sql == null) {
+                throw new SystemException("The sql should not be null at InternalBasicHandler!!");
+            }
+            return _commandFactory.CreateCommand(connection, _sql);
+        }
+
+        // ===============================================================================
+        //                                                                  General Helper
+        //                                                                  ==============
+        protected String GetLineSeparator() {
+            return SimpleSystemUtil.GetLineSeparator();
+        }
+
+        // ===============================================================================
+        //                                                                        Accessor
+        //                                                                        ========
+        public IDataSource DataSource {
+            get { return _dataSource; }
+            set { _dataSource = value; }
+        }
+
+        public String Sql {
+            get { return _sql; }
+            set { _sql = value; }
+        }
+
+        public ICommandFactory CommandFactory {
+            get { return _commandFactory; }
+            set { _commandFactory = value; }
+        }
+    }
+}

@@ -1,0 +1,254 @@
+
+using System;
+using System.Data;
+using System.Collections;
+using System.Reflection;
+using System.Text;
+
+using Seasar.Framework.Util;
+using Seasar.Extension.ADO;
+using Seasar.Extension.ADO.Impl;
+using Seasar.Dao;
+using Seasar.Dao.Impl;
+
+using ${glPackageBaseCommonJavaLike};
+
+namespace ${glPackageBaseCommonS2Dao} {
+
+    public class ${glS2DaoMetaDataFactoryImpl} : Seasar.Dao.IDaoMetaDataFactory {
+
+        private readonly Hashtable _daoMetaDataCache = new Hashtable();
+        protected readonly IDataSource _dataSource;
+        protected readonly ICommandFactory _commandFactory;
+        protected readonly IDataReaderFactory _dataReaderFactory;
+        protected readonly IAnnotationReaderFactory _readerFactory;
+        protected IDatabaseMetaData _dbMetaData;
+        protected string _sqlFileEncoding = Encoding.Default.WebName;
+        protected string[] _insertPrefixes;
+        protected string[] _updatePrefixes;
+        protected string[] _deletePrefixes;
+		protected Map<Type, IBeanMetaData> _beanMetaDataCacheMap = new HashMap<Type, IBeanMetaData>();
+
+        public ${glS2DaoMetaDataFactoryImpl}(IDataSource dataSource,
+            ICommandFactory commandFactory, IAnnotationReaderFactory readerFactory,
+            IDataReaderFactory dataReaderFactory) {
+            _dataSource = dataSource;
+            _commandFactory = commandFactory;
+            _readerFactory = readerFactory;
+            _dataReaderFactory = dataReaderFactory;
+        }
+
+        public IDatabaseMetaData DBMetaData {
+            set { _dbMetaData = value; }
+        }
+
+        public string[] InsertPrefixes {
+            set { _insertPrefixes = value; }
+        }
+
+        public string[] UpdatePrefixes {
+            set { _updatePrefixes = value; }
+        }
+
+        public string[] DeletePrefixes {
+            set { _deletePrefixes = value; }
+        }
+
+        public string SqlFileEncoding {
+            set { _sqlFileEncoding = value; }
+        }
+
+        public IDaoMetaData GetDaoMetaData(Type daoType) {
+            lock (this) {
+                string key = daoType.FullName;
+                IDaoMetaData dmd = (IDaoMetaData)_daoMetaDataCache[key];
+                if (dmd != null) {
+                    return dmd;
+                }
+                dmd = CreateDaoMetaData(daoType);
+                _daoMetaDataCache[key] = dmd;
+                return dmd;
+            }
+        }
+
+        protected virtual IDaoMetaData CreateDaoMetaData(Type daoType) {
+            ${glS2DaoMetaDataExtension} dmd = NewDaoMetaDataExtension();
+            dmd.DaoType = daoType;
+            dmd.DataSource = _dataSource;
+            dmd.CommandFactory = _commandFactory;
+            dmd.DataReaderFactory = _dataReaderFactory;
+            dmd.DataReaderHandlerFactory = CreateInternalDataReaderHandlerFactory();
+            dmd.AnnotationReaderFactory = _readerFactory;
+            if (_dbMetaData == null) {
+                _dbMetaData = new DatabaseMetaDataImpl(_dataSource);
+            }
+            dmd.DatabaseMetaData = _dbMetaData;
+            if (_sqlFileEncoding != null) {
+                dmd.SqlFileEncoding = _sqlFileEncoding;
+            }
+            if (_insertPrefixes != null) {
+                dmd.InsertPrefixes = _insertPrefixes;
+            }
+            if (_updatePrefixes != null) {
+                dmd.UpdatePrefixes = _updatePrefixes;
+            }
+            if (_deletePrefixes != null) {
+                dmd.DeletePrefixes = _deletePrefixes;
+            }
+			dmd.BeanMetaDataCacheMap = _beanMetaDataCacheMap;
+            dmd.Initialize();
+            return dmd;
+        }
+
+        protected virtual ${glS2DaoMetaDataExtension} NewDaoMetaDataExtension() {
+            return new ${glS2DaoMetaDataExtension}();
+        }
+
+        protected virtual InternalDataReaderHandlerFactory CreateInternalDataReaderHandlerFactory() {
+            return new InternalDataReaderHandlerFactory();
+        }
+    }
+	
+    public class InternalDataReaderHandlerFactory : IDataReaderHandlerFactory {
+        public virtual IDataReaderHandler GetResultSetHandler(Type beanType, IBeanMetaData bmd, MethodInfo mi) {
+            Type retType = mi.ReturnType;
+            if (typeof(DataSet).IsAssignableFrom(retType)) {
+                return CreateBeanDataSetMetaDataDataReaderHandler(bmd, retType);
+            } else if (typeof(DataTable).IsAssignableFrom(retType)) {
+                return CreateBeanDataTableMetaDataDataReaderHandler(bmd, retType);
+            } else if (retType.IsArray) {
+                Type elementType = retType.GetElementType();
+                if (AssignTypeUtil.IsSimpleType(elementType)) {
+                    return CreateObjectArrayDataReaderHandler(elementType);
+                } else {
+                    return CreateBeanArrayMetaDataDataReaderHandler(bmd);
+                }
+            } else if (AssignTypeUtil.IsList(retType)) {
+                if (AssignTypeUtil.IsSimpleType(beanType)) {
+                    return CreateObjectListDataReaderHandler();
+                } else {
+                    return CreateBeanListMetaDataDataReaderHandler(bmd);
+                }
+            } else if (IsBeanTypeAssignable(beanType, retType)) {
+                return CreateBeanMetaDataDataReaderHandler(bmd);
+            } else if (AssignTypeUtil.IsGenericList(retType)) {
+                Type elementType = retType.GetGenericArguments()[0];
+                if (AssignTypeUtil.IsSimpleType(elementType)) {
+                    return CreateObjectGenericListDataReaderHandler(elementType);
+                } else {
+                    return CreateBeanGenericListMetaDataDataReaderHandler(bmd);
+                }
+            } else {
+                return CreateObjectDataReaderHandler();
+            }
+        }
+
+        protected virtual ObjectGenericListDataReaderHandler CreateObjectGenericListDataReaderHandler(Type elementType) {
+            return new ObjectGenericListDataReaderHandler(elementType);
+        }
+
+        protected virtual ObjectListDataReaderHandler CreateObjectListDataReaderHandler() {
+            return new ObjectListDataReaderHandler();
+        }
+
+        protected virtual ObjectArrayDataReaderHandler CreateObjectArrayDataReaderHandler(Type elementType) {
+            return new ObjectArrayDataReaderHandler(elementType);
+        }
+
+        protected virtual BeanDataSetMetaDataDataReaderHandler CreateBeanDataSetMetaDataDataReaderHandler(IBeanMetaData bmd, Type returnType) {
+            return new BeanDataSetMetaDataDataReaderHandler(returnType);
+        }
+
+        protected virtual BeanDataTableMetaDataDataReaderHandler CreateBeanDataTableMetaDataDataReaderHandler(IBeanMetaData bmd, Type returnType) {
+            return new BeanDataTableMetaDataDataReaderHandler(returnType);
+        }
+
+        protected virtual BeanListMetaDataDataReaderHandler CreateBeanListMetaDataDataReaderHandler(IBeanMetaData bmd) {
+            return new BeanListMetaDataDataReaderHandler(bmd, CreateRowCreator(), CreateRelationRowCreator());
+        }
+
+        protected virtual BeanMetaDataDataReaderHandler CreateBeanMetaDataDataReaderHandler(IBeanMetaData bmd) {
+            return new BeanMetaDataDataReaderHandler(bmd, CreateRowCreator(), CreateRelationRowCreator());
+        }
+
+        protected virtual BeanArrayMetaDataDataReaderHandler CreateBeanArrayMetaDataDataReaderHandler(IBeanMetaData bmd) {
+            return new BeanArrayMetaDataDataReaderHandler(bmd, CreateRowCreator(), CreateRelationRowCreator());
+        }
+
+        protected virtual BeanGenericListMetaDataDataReaderHandler CreateBeanGenericListMetaDataDataReaderHandler(IBeanMetaData bmd) {
+            return new BeanGenericListMetaDataDataReaderHandler(bmd, CreateRowCreator(), CreateRelationRowCreator());
+        }
+
+        protected virtual ObjectDataReaderHandler CreateObjectDataReaderHandler() {
+            return new ObjectDataReaderHandler();
+        }
+
+        protected virtual IRowCreator CreateRowCreator() {
+            return new RowCreatorExtension();
+        }
+
+        protected virtual IRelationRowCreator CreateRelationRowCreator() {
+            return new RelationRowCreatorExtension();
+        }
+
+        protected virtual bool IsBeanTypeAssignable(Type beanType, Type type) {
+            return beanType.IsAssignableFrom(type) || type.IsAssignableFrom(beanType);
+        }
+    }
+
+    public class ProcedureMetaData {
+        protected String _procedureName;
+        protected LinkedHashMap<String, ProcedureParameterType> parameterTypeMap = new LinkedHashMap<String, ProcedureParameterType>();
+        protected Type _returnType;
+        public String ProcedureName { get {
+            return _procedureName;
+        } set {
+            _procedureName = value;
+        }}
+        public ProcedureParameterType GetParameterType(int index) {
+            return parameterTypeMap.get(index);
+        }
+        public ProcedureParameterType GetParameterType(String parameterName) {
+            return parameterTypeMap.get(parameterName.ToLower());
+        }
+        public int ParameterTypeSize { get {
+            return parameterTypeMap.size();
+        }}
+        public bool HasReturnParameterType { get {
+            return _returnType != null;
+        }}
+        public Type ReturnParameterType { get {
+            return _returnType;
+        }}
+        public void addParameterType(ProcedureParameterType parameterType) {
+            String name = parameterType.ParameterName;
+            parameterTypeMap.put(name.ToLower(), parameterType);
+            if (parameterType.IsReturnType) {
+                _returnType = parameterType.ParameterPropertyType;
+            }
+        }
+    }
+
+    public class ProcedureParameterType {
+        protected String _parameterName;
+        protected PropertyInfo _parameterProperty;
+        protected Type _parameterPropertyType;
+        protected ParameterDirection _parameterDirectionType;
+        protected bool _inType;
+        protected bool _outType;
+        protected bool _returnType;
+        public Object GetValue(Object dto) {
+            return _parameterProperty.GetValue(dto, null);
+        }
+        public void SetValue(Object dto, Object value) {
+            _parameterProperty.SetValue(dto, value, null);
+        }
+        public String ParameterName { get { return _parameterName; } set { _parameterName = value; } }
+        public PropertyInfo ParameterProperty { get { return _parameterProperty; } set { _parameterProperty = value; } }
+        public Type ParameterPropertyType { get { return _parameterPropertyType; } set { _parameterPropertyType = value; } }
+        public ParameterDirection ParameterDirectionType { get { return _parameterDirectionType; } set { _parameterDirectionType = value; } }
+        public bool IsInType { get { return _inType; } set { _inType = value; } }
+        public bool IsOutType { get { return _outType; } set { _outType = value; } }
+        public bool IsReturnType { get { return _returnType; } set { _returnType = value; } }
+    }
+}

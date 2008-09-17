@@ -1,0 +1,17 @@
+
+using System;
+
+using Seasar.Quill.Attrs;
+using ${glPackageBaseCommonBhv};
+
+namespace ${glPackageBaseCommon} {
+
+    [Implementation(typeof(${glCacheBehaviorSelectorName}))]
+    public interface ${glBehaviorSelectorInterfaceName} {
+        BEHAVIOR Select<BEHAVIOR>() where BEHAVIOR : ${glBehaviorReadableInterfaceName};
+        ${glBehaviorReadableInterfaceName} ByName(String tableFlexibleName);
+
+        [System.Obsolete("Please use Select<BEHAVIOR>()")]
+        BEHAVIOR Select<BEHAVIOR>(Type behaviorType) where BEHAVIOR : ${glBehaviorReadableInterfaceName};
+    }
+}

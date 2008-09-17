@@ -1,0 +1,54 @@
+#set ($myClassName = "${glConditionKeyName}LessThan")
+
+using System;
+
+using ${glPackageBaseCommonCValue};
+using ${glPackageBaseCommonCOption};
+using ${glPackageBaseCommonJavaLike};
+
+namespace ${glPackageBaseCommonCKey} {
+
+public class ${myClassName} : ${glConditionKeyName} {
+
+    private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+    public ${myClassName}() {
+        _conditionKey = "lessThan";
+        _operand = "<";
+    }
+
+    public override bool isValidRegistration(${glConditionValueName} conditionValue, Object value, String callerName) {
+        if (value == null) {
+            return false;
+        }
+        Object valueObject = conditionValue.LessThan;
+        if (valueObject != null && valueObject.Equals(value)) {
+            _log.Warn("The value has already registered at " + callerName + ": " + valueObject + " = " + value);
+            return false;
+        }
+        return true;
+    }
+
+    protected override void doAddWhereClause(List<String> conditionList, String columnName, ${glConditionValueName} value) {
+        if (value.LessThan == null) {
+            return;
+        }
+        Object valueObject = value.LessThan;
+        conditionList.add(buildBindClause(columnName, value.getLessThanLocation()));
+    }
+
+    protected override void doAddWhereClause(List<String> conditionList, String columnName, ${glConditionValueName} value, ${glConditionOptionInterfaceName} option) {
+        throw new UnsupportedOperationException("doAddWhereClause with condition-option is unsupported!!!");
+    }
+
+    protected override void doSetupConditionValue(${glConditionValueName} conditionValue, Object value, String location) {
+        conditionValue.LessThan = value;
+        conditionValue.setLessThanLocation(location);
+    }
+
+    protected override void doSetupConditionValue(${glConditionValueName} conditionValue, Object value, String location, ${glConditionOptionInterfaceName} option) {
+        throw new UnsupportedOperationException("doSetupConditionValue with condition-option is unsupported!!!");
+    }
+}
+	
+}

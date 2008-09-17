@@ -1,0 +1,283 @@
+#set ($myClassName = "${glConditionValueName}")
+
+using System;
+using System.Text;
+
+using ${glPackageBaseCommonCOption};
+using ${glPackageBaseCommonJavaLike};
+
+namespace ${glPackageBaseCommonCValue} {
+
+[System.Serializable]
+public class ${myClassName} {
+
+    protected Object _equalValue;
+
+    public Object Equal {
+        get { return _equalValue; }
+        set { _equalValue = value; }
+    }
+
+    protected String _equalLocation;
+
+    public String getEqualLocation() {
+        return _equalLocation;
+    }
+
+    public ${myClassName} setEqualLocation(String location) {
+        _equalLocation = location;
+        return this;
+    }
+
+    protected Object _notEqualValue;
+
+    public Object NotEqual {
+        get { return _notEqualValue; }
+        set { _notEqualValue = value; }
+    }
+
+    protected String _notEqualLocation;
+
+    public String getNotEqualLocation() {
+        return _notEqualLocation;
+    }
+
+    public ${myClassName} setNotEqualLocation(String location) {
+        _notEqualLocation = location;
+        return this;
+    }
+
+    protected Object _greaterThanValue;
+
+    public Object GreaterThan {
+        get { return _greaterThanValue; }
+        set { _greaterThanValue = value; }
+    }
+
+    protected String _greaterThanLocation;
+
+    public String getGreaterThanLocation() {
+        return _greaterThanLocation;
+    }
+
+    public ${myClassName} setGreaterThanLocation(String location) {
+        _greaterThanLocation = location;
+        return this;
+    }
+
+    protected Object _lessThanValue;
+
+    public Object LessThan {
+        get { return _lessThanValue; }
+        set { _lessThanValue = value; }
+    }
+
+    protected String _lessThanLocation;
+
+    public String getLessThanLocation() {
+        return _lessThanLocation;
+    }
+
+    public ${myClassName} setLessThanLocation(String location) {
+        _lessThanLocation = location;
+        return this;
+    }
+
+    protected Object _greaterEqualValue;
+
+    public Object GreaterEqual {
+        get { return _greaterEqualValue; }
+        set { _greaterEqualValue = value; }
+    }
+
+    protected String _greaterEqualLocation;
+
+    public String getGreaterEqualLocation() {
+        return _greaterEqualLocation;
+    }
+
+    public ${myClassName} setGreaterEqualLocation(String location) {
+        _greaterEqualLocation = location;
+        return this;
+    }
+
+    protected Object _lessEqualValue;
+
+    public Object LessEqual {
+        get { return _lessEqualValue; }
+        set { _lessEqualValue = value; }
+    }
+
+    protected String _lessEqualLocation;
+
+    public String getLessEqualLocation() {
+        return _lessEqualLocation;
+    }
+
+    public ${myClassName} setLessEqualLocation(String location) {
+        _lessEqualLocation = location;
+        return this;
+    }
+
+    protected Object _prefixSearch;
+
+    public Object PrefixSearch {
+        get { return _prefixSearch; }
+        set { _prefixSearch = value; }
+    }
+
+    protected String _prefixSearchLocation;
+
+    public String getPrefixSearchLocation() {
+        return _prefixSearchLocation;
+    }
+
+    public ${myClassName} setPrefixSearchLocation(String location) {
+        _prefixSearchLocation = location;
+        return this;
+    }
+
+    // ===================================================================================
+    //                                                                         Like Search
+    //                                                                         ===========
+    protected List<LikeSearchValue> _likeSearch;
+    protected List<LikeSearchValue> _likeSearch4Spare;
+
+    public String LikeSearch { get {
+        if (_likeSearch == null) {
+            return null;
+        }
+        if (_likeSearch.isEmpty() && !_likeSearch4Spare.isEmpty()) {
+            for (int index=0; index < _likeSearch4Spare.size(); index++) {
+                _likeSearch.add(_likeSearch4Spare.get(index));
+            }
+        }
+        LikeSearchValue likeSearchValue = (LikeSearchValue)_likeSearch.remove(0);
+        return likeSearchValue.generateRealValue();
+    }}
+
+    public ${myClassName} setLikeSearch(String value, ${glConditionOptionLikeSearchName} option) {
+        if (_likeSearch == null) {
+            _likeSearch = new ArrayList<LikeSearchValue>();
+            _likeSearch4Spare= new ArrayList<LikeSearchValue>();
+        }
+        if (_likeSearch.isEmpty() && !_likeSearch4Spare.isEmpty()) {
+            for (int index=0; index < _likeSearch4Spare.size(); index++) {
+                _likeSearch.add(_likeSearch4Spare.get(index));
+            }
+        }
+        LikeSearchValue likeSearchValue = new LikeSearchValue(value, option);
+        _likeSearch.add(likeSearchValue);
+        _likeSearch4Spare.add(likeSearchValue);
+        return this;
+    }
+
+    protected String _likeSearchLocation;
+
+    public String getLikeSearchLocation() {
+        return _likeSearchLocation;
+    }
+
+    public ${myClassName} setLikeSearchLocation(String location) {
+        _likeSearchLocation = location;
+        return this;
+    }
+
+    protected class LikeSearchValue {
+        protected String _value;
+        protected ${glConditionOptionLikeSearchName} _option;
+        public LikeSearchValue(String value, ${glConditionOptionLikeSearchName} option) {
+            _value = value;
+            _option = option;
+        }
+        public String getValue() {
+            return _value;
+        }
+        public ${glConditionOptionLikeSearchName} getOption() {
+            return _option;
+        }
+        public String generateRealValue() {
+            if (_option == null) {
+                return _value;
+            }
+            return _option.generateRealValue(_value);
+        }
+    }
+
+    // ===================================================================================
+    //                                                                            In Scope
+    //                                                                            ========
+    protected System.Collections.IList _inScope;
+
+    public System.Collections.IList InScope {
+        get { return _inScope; }
+        set { _inScope = value; }
+    }
+
+    protected String _inScopeLocation;
+
+    public String getInScopeLocation() {
+        return _inScopeLocation;
+    }
+
+    public ${myClassName} setInScopeLocation(String location) {
+        _inScopeLocation = location;
+        return this;
+    }
+
+    protected System.Collections.IList _notInScope;
+
+    public System.Collections.IList NotInScope {
+        get { return _notInScope; }
+        set { _notInScope = value; }
+    }
+
+    protected String _notInScopeLocation;
+
+    public String getNotInScopeLocation() {
+        return _notInScopeLocation;
+    }
+
+    public ${myClassName} setNotInScopeLocation(String location) {
+        _notInScopeLocation = location;
+        return this;
+    }
+
+    protected Object _isNullValue;
+
+    public Object IsNull {
+        get { return _isNullValue; }
+        set { _isNullValue = value; }
+    }
+
+    protected String _isNullLocation;
+
+    public String getIsNullLocation() {
+        return _isNullLocation;
+    }
+
+    public ${myClassName} setIsNullLocation(String location) {
+        _isNullLocation = location;
+        return this;
+    }
+
+    protected Object _isNotNullValue;
+
+    public Object IsNotNull {
+        get { return _isNotNullValue; }
+        set { _isNotNullValue = value; }
+    }
+
+    protected String _isNotNullLocation;
+
+    public String getIsNotNullLocation() {
+        return _isNotNullLocation;
+    }
+
+    public ${myClassName} setIsNotNullLocation(String location) {
+        _isNotNullLocation = location;
+        return this;
+    }
+}
+	
+}
