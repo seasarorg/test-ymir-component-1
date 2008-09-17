@@ -19,7 +19,6 @@
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/freyja-1.0.10.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/geronimo-ejb_3.0_spec-1.0.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/geronimo-jta_1.1_spec-1.0.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/h2-1.0.75.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/janino-2.4.3.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/javassist-3.4.ga.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/kvasir-util-3.0.0-RC3.jar"/>
