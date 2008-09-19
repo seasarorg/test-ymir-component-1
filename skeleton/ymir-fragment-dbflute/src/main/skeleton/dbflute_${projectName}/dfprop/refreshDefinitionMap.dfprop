@@ -1,0 +1,4 @@
+map:{
+    ; projectName = ${projectName}
+    ; requestUrl = <#if resourceSynchronizerURL != "">${resourceSynchronizerURL}<#else>http://localhost:8386/</#if>
+}
