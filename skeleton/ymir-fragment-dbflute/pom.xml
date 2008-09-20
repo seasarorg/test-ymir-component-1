@@ -11,9 +11,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.seasar.ymir.skeleton</groupId>
   <artifactId>ymir-fragment-dbflute</artifactId>
-  <name>Ymir Generic Skeleton</name>
+  <name>Ymir DBFlute Fragment</name>
   <description>
-    This is a project to generate a generic Ymir application skeleton.
+    This is a project to generate a DBFlute fragment.
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
@@ -52,11 +52,4 @@
       <url>http://maven.seasar.org/maven2-snapshot</url>
     </repository>
   </repositories>
-  <dependencies>
-    <dependency>
-      <groupId>org.seasar.ymir</groupId>
-      <artifactId>ymir-extension</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-    </dependency>
-  </dependencies>
 </project>
