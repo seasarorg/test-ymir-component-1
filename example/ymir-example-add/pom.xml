@@ -10,7 +10,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.seasar.ymir.example</groupId>
-  <artifactId>ymir-fragment-add</artifactId>
+  <artifactId>ymir-example-add</artifactId>
   <name>Ymir Add Example Fragment</name>
   <description>
     This is a project to generate an add example fragment.
