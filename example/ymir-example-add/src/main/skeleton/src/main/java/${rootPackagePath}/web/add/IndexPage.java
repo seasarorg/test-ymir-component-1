@@ -1,8 +1,8 @@
-package com.example.web;
+package ${rootPackageName}.web.add;
 
 import org.seasar.ymir.constraint.annotation.Required;
 
-public class AddPage extends AddPageBase {
+public class IndexPage extends IndexPageBase {
     @Override
     @Required( { "left", "right" })
     public void _post() {

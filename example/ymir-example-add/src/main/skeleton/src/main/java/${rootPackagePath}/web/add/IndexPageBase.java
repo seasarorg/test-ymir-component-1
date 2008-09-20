@@ -1,6 +1,6 @@
-package com.example.web;
+package ${rootPackageName}.web.add;
 
-public class AddPageBase
+public class IndexPageBase
 {
     protected Integer left_;
 

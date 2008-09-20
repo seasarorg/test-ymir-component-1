@@ -11,8 +11,8 @@
   <ul tal:condition="notes">
     <li tal:repeat="note notes/notes" tal:content="note/%value">MESSAGE</li>
   </ul>
-  <form action="" method="post">
-    <p><input tal:attributes="value request/parameter(left)" type="text" name="left" value="LEFT" /> + <input tal:attributes="value request/parameter(right)" type="text" name="right" value="RIGHT" /> = <span tal:replace="self/result | string:?">RESULT</span></p>
+  <form action="./index.html" method="post">
+    <p><input tal:attributes="value left" type="text" name="left" value="LEFT" /> + <input tal:attributes="value request/parameter(right)" type="text" name="right" value="RIGHT" /> = <span tal:replace="self/result | string:?">RESULT</span></p>
     <p><input type="submit" value="計算する" /></p>
   </form>
 </body>
