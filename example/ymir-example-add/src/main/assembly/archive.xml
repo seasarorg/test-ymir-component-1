@@ -1,23 +1,16 @@
 <assembly>
   <id>archive</id>
   <formats>
-    <format>tar.gz</format>
-    <format>zip</format>
-    <format>tar.bz2</format>
+    <format>jar</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
-      <directory>src/main/project</directory>
-      <outputDirectory>ymir-example</outputDirectory>
+      <directory>src/main/skeleton</directory>
+      <outputDirectory></outputDirectory>
+      <excludes>
+        <exclude>**/ymir-*.jar</exclude>
+      </excludes>
     </fileSet>
   </fileSets>
-  <dependencySets>
-    <dependencySet>
-      <outputDirectory>
-        ymir-example/src/main/webapp/WEB-INF/lib
-      </outputDirectory>
-      <scope>runtime</scope>
-    </dependencySet>
-  </dependencySets>
 </assembly>

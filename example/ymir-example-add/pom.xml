@@ -10,10 +10,10 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.seasar.ymir.example</groupId>
-  <artifactId>ymir-example-add</artifactId>
-  <name>Ymir Add Example</name>
+  <artifactId>ymir-fragment-add</artifactId>
+  <name>Ymir Add Example Fragment</name>
   <description>
-    This is an add example of Ymir application project.
+    This is a project to generate an add example fragment.
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
@@ -27,6 +27,7 @@
               <goal>single</goal>
             </goals>
             <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
               <descriptors>
                 <descriptor>src/main/assembly/archive.xml</descriptor>
               </descriptors>
@@ -51,4 +52,11 @@
       <url>http://maven.seasar.org/maven2-snapshot</url>
     </repository>
   </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>org.seasar.ymir</groupId>
+      <artifactId>ymir-extension</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
 </project>
