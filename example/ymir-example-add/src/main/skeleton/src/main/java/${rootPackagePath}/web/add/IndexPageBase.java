@@ -1,5 +1,7 @@
 package ${rootPackageName}.web.add;
 
+import org.seasar.ymir.annotation.RequestParameter;
+
 public class IndexPageBase
 {
     protected Integer left_;
@@ -14,6 +16,7 @@ public class IndexPageBase
         return left_;
     }
 
+    @RequestParameter
     public void setLeft(Integer left)
     {
         left_ = left;
@@ -29,6 +32,7 @@ public class IndexPageBase
         return right_;
     }
 
+    @RequestParameter
     public void setRight(Integer right)
     {
         right_ = right;
