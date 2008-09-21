@@ -48,7 +48,7 @@ public class IndexPageBase
 
     }
 
-    public void _render()
+    public void _prerender()
     {
 
     }
