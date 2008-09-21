@@ -25,9 +25,6 @@ public class YmirDiconTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         SingletonPluggableContainerFactory.destroy();
-        // TODO s2-pluggable-0.0.7以降は不要。
-        SingletonS2ContainerFactory.setContainer(null);
-
         super.tearDown();
     }
 
