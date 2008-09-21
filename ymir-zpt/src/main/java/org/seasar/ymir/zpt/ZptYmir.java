@@ -19,7 +19,6 @@ import net.skirnir.freyja.webapp.FreyjaServlet;
 public class ZptYmir extends YmirImpl {
     @Override
     public Object backupForInclusion(AttributeContainer attributeContainer) {
-        // TODO Auto-generated method stub
         return new Backupped(super.backupForInclusion(attributeContainer),
                 attributeContainer
                         .getAttribute(FreyjaServlet.ATTR_RESPONSECONTENTTYPE),
