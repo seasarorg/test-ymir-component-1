@@ -1,0 +1,22 @@
+<assembly>
+  <id>archive</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>src/main/skeleton</directory>
+      <outputDirectory></outputDirectory>
+    </fileSet>
+  </fileSets>
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>src/main/webapp/WEB-INF/lib</outputDirectory>
+      <scope>runtime</scope>
+      <excludes>
+        <exclude>${artifactId}-*.jar</exclude>
+      </excludes>
+    </dependencySet>
+  </dependencySets>
+</assembly>
