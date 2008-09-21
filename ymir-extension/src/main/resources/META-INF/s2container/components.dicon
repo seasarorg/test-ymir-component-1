@@ -11,4 +11,6 @@
   <component class="org.seasar.ymir.extension.zpt.ZptResponseCreator" />
   <component
     class="org.seasar.ymir.extension.creator.mapping.impl.PathMappingImplExtraData" />
+  <component
+    class="org.seasar.ymir.extension.creator.mapping.impl.YmirPathMappingExtraData" />
 </components>

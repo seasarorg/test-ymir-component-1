@@ -33,17 +33,17 @@ import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.mapping.PathMappingExtraData;
-import org.seasar.ymir.extension.creator.mapping.impl.PathMappingImplExtraData;
+import org.seasar.ymir.extension.creator.mapping.impl.YmirPathMappingExtraData;
 import org.seasar.ymir.extension.freemarker.FreemarkerSourceGenerator;
 import org.seasar.ymir.extension.zpt.ZptAnalyzer;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.impl.AbstractApplication;
 import org.seasar.ymir.impl.ApplicationManagerImpl;
-import org.seasar.ymir.impl.PathMappingImpl;
 import org.seasar.ymir.impl.PathMappingProviderImpl;
 import org.seasar.ymir.impl.RequestProcessorImpl;
 import org.seasar.ymir.impl.SingleApplication;
 import org.seasar.ymir.impl.YmirImpl;
+import org.seasar.ymir.impl.YmirPathMapping;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
 import org.seasar.ymir.test.TestCaseBase;
@@ -154,9 +154,8 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
                 .getComponent(ApplicationManager.class);
         PathMappingProviderImpl pathMappingProvider = new PathMappingProviderImpl();
         pathMappingProvider
-                .setPathMappings(new PathMapping[] { new PathMappingImpl(
-                        "^/([^/]+)\\.(.+)$", "${1}Page", "_${method}", "",
-                        null, null, null) });
+                .setPathMappings(new PathMapping[] { new YmirPathMapping(
+                        "/([^/]+)\\.(.+)", "${1}Page") });
         applicationManager.setBaseApplication(new SingleApplication(context,
                 configuration, null, container_, localHotdeployS2Container,
                 pathMappingProvider));
@@ -175,7 +174,7 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         sourceGenerator.setSourceCreator(target_);
         target_.setSourceGenerator(sourceGenerator);
         target_
-                .setPathMappingExtraDatas(new PathMappingExtraData<?>[] { new PathMappingImplExtraData() });
+                .setPathMappingExtraDatas(new PathMappingExtraData<?>[] { new YmirPathMappingExtraData() });
 
         YmirContext.setYmir((Ymir) container_.getComponent(Ymir.class));
         SingletonPluggableContainerFactory.init();

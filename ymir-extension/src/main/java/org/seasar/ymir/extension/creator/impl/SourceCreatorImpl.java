@@ -1721,13 +1721,16 @@ public class SourceCreatorImpl implements SourceCreator {
             return null;
         }
 
-        Class<?> pathMappingClass = mapping.getPathMapping().getClass();
-        PathMappingExtraData<?> pathMappingExtraData = pathMappingExtraDataMap_
-                .get(pathMappingClass);
+        Class<?> clazz = mapping.getPathMapping().getClass();
+        PathMappingExtraData<?> pathMappingExtraData;
+        do {
+            pathMappingExtraData = pathMappingExtraDataMap_.get(clazz);
+            clazz = clazz.getSuperclass();
+        } while (pathMappingExtraData == null && clazz != Object.class);
         if (pathMappingExtraData == null) {
             throw new RuntimeException("PathMappingExtraData not found."
                     + " Please register PathMappingExtraData Component: "
-                    + pathMappingClass.getName());
+                    + clazz.getName());
         }
         return new ExtraPathMappingImpl(pathMappingExtraData, mapping, path,
                 method);

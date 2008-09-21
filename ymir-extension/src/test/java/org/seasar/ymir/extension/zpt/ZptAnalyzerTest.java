@@ -39,12 +39,12 @@ import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
 import org.seasar.ymir.extension.creator.impl.ParameterDescImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.extension.creator.mapping.PathMappingExtraData;
-import org.seasar.ymir.extension.creator.mapping.impl.PathMappingImplExtraData;
+import org.seasar.ymir.extension.creator.mapping.impl.YmirPathMappingExtraData;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.impl.ApplicationManagerImpl;
 import org.seasar.ymir.impl.MatchedPathMappingImpl;
-import org.seasar.ymir.impl.PathMappingImpl;
 import org.seasar.ymir.impl.YmirImpl;
+import org.seasar.ymir.impl.YmirPathMapping;
 import org.seasar.ymir.mock.MockApplication;
 
 import com.example.dto.SaruDto;
@@ -56,10 +56,10 @@ public class ZptAnalyzerTest extends TestCase {
     private static final String CLASSNAME = "com.example.web.IndexPage";
 
     private PathMapping[] mappings_ = new PathMapping[] {
-        new PathMappingImpl("^/([^/]+)\\.(.+)$", "${1}Page", "${METHOD}", "",
-                null, null, null),
-        new PathMappingImpl("^/[^/]+/(.+)\\.(.+)$", "${1}Page", "${METHOD}",
-                "", null, "_(.+)$", null), };
+        new YmirPathMapping("/([^/]+)\\.(.+)", "${1}Page", "${METHOD}", "",
+                null),
+        new YmirPathMapping("/[^/]+/(.+)\\.(.+)", "${1}Page", "${METHOD}", "",
+                null), };
 
     private ZptAnalyzer target_;
 
@@ -176,7 +176,7 @@ public class ZptAnalyzerTest extends TestCase {
         applicationManager.setBaseApplication(mockApplication);
         sourceCreator_.setApplicationManager(applicationManager);
         sourceCreator_
-                .setPathMappingExtraDatas(new PathMappingExtraData<?>[] { new PathMappingImplExtraData() });
+                .setPathMappingExtraDatas(new PathMappingExtraData<?>[] { new YmirPathMappingExtraData() });
         target_.setSourceCreator(sourceCreator_);
 
         YmirImpl ymir = new YmirImpl();
@@ -350,8 +350,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull(cd.getPropertyDesc("submit2"));
 
         MethodDesc md = cd.getMethodDesc(new MethodDescImpl("POST"));
-        assertNotNull(md);
-        assertEquals("void", md.getReturnTypeDesc().getName());
+        assertNull("YmirPathMappingではnameつきボタンがある場合はPOSTアクションメソッドは生成されないこと", md);
     }
 
     /*
@@ -996,8 +995,10 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull("[#YMIR-207] HTTPメソッドがGETである場合でもGETが作られないこと", md);
 
         ClassDesc indexCd = getClassDesc("com.example.web.IndexPage");
-        md = indexCd.getMethodDesc(new MethodDescImpl("POST"));
-        assertNotNull("nameつきsubmitしかなくてもポストバックの場合はPOSTが作られること", md);
+        md = indexCd.getMethodDesc(new MethodDescImpl("GET"));
+        assertNull(
+                "nameつきsubmitしかない場合でもポストバックの時はGETが作られるが、HTMLテンプレートの解析処理では作られない",
+                md);
 
         ClassDesc update3Cd = getClassDesc("com.example.web.Update3Page");
         md = update3Cd.getMethodDesc(new MethodDescImpl("POST"));

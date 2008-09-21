@@ -2,6 +2,8 @@ package org.seasar.ymir.extension.creator.mapping.impl;
 
 import junit.framework.TestCase;
 
+@Deprecated
+@SuppressWarnings("deprecation")
 public class PathMappingImplExtraDataTest extends TestCase {
     private PathMappingImplExtraData target_ = new PathMappingImplExtraData();
 

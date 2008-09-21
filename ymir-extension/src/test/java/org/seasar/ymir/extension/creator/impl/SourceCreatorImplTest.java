@@ -135,7 +135,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         MethodDesc md = actual[0].getMethodDesc(new MethodDescImpl("_get"));
         assertNotNull(md);
         assertEquals(TypeDesc.TYPE_VOID, md.getReturnTypeDesc().getName());
-        assertNotNull(actual[0].getMethodDesc(new MethodDescImpl("_render")));
+        assertNotNull(actual[0].getMethodDesc(new MethodDescImpl("_prerender")));
         assertEquals("Integer", actual[0].getPropertyDesc("result")
                 .getTypeDesc().getName());
         md = new MethodDescImpl("_validationFailed");

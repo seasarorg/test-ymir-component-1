@@ -12,21 +12,18 @@ import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
 import org.seasar.ymir.extension.creator.impl.ParameterDescImpl;
 import org.seasar.ymir.extension.creator.mapping.ActionSelectorSeed;
 import org.seasar.ymir.extension.creator.mapping.PathMappingExtraData;
-import org.seasar.ymir.impl.PathMappingImpl;
-import org.seasar.ymir.impl.PathMappingImpl.Button;
+import org.seasar.ymir.impl.YmirPathMapping;
+import org.seasar.ymir.impl.YmirPathMapping.Button;
 
-@Deprecated
-@SuppressWarnings("deprecation")
-public class PathMappingImplExtraData implements
-        PathMappingExtraData<PathMappingImpl> {
-    public Class<PathMappingImpl> getPathMappingClass() {
-        return PathMappingImpl.class;
+public class YmirPathMappingExtraData implements
+        PathMappingExtraData<YmirPathMapping> {
+    public Class<YmirPathMapping> getPathMappingClass() {
+        return YmirPathMapping.class;
     }
 
-    public MethodDesc newActionMethodDesc(PathMappingImpl pathMapping,
+    public MethodDesc newActionMethodDesc(YmirPathMapping pathMapping,
             VariableResolver resolver, String path, String method,
             ActionSelectorSeed seed) {
-
         StringBuilder sb = new StringBuilder();
         sb.append(pathMapping.getActionName(resolver));
 
@@ -122,9 +119,9 @@ public class PathMappingImplExtraData implements
         return sb.toString();
     }
 
-    public MethodDesc newRenderActionMethodDesc(PathMappingImpl pathMapping,
+    public MethodDesc newRenderActionMethodDesc(YmirPathMapping pathMapping,
             VariableResolver resolver, String path, String method,
             ActionSelectorSeed seed) {
-        return new MethodDescImpl(PathMappingImpl.ACTION_RENDER);
+        return new MethodDescImpl(YmirPathMapping.ACTION_PRERENDER);
     }
 }
