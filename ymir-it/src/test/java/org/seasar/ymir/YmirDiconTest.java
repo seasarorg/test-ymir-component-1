@@ -5,7 +5,6 @@ import junit.framework.TestCase;
 import org.seasar.cms.pluggable.SingletonPluggableContainerFactory;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.customizer.AspectCustomizer;
-import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.ymir.creator.PageCreator;
 
 public class YmirDiconTest extends TestCase {
