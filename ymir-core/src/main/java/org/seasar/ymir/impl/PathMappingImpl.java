@@ -32,6 +32,12 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.util.ClassUtils;
 
+/**
+ * @deprecated このメソッドは互換性のために残されています。
+ * 新しくアプリケーションを構築する場合は代わりに{@link YmirPathMapping}
+ * の使用を検討して下さい。
+ * @author yokota
+ */
 public class PathMappingImpl implements PathMapping {
     public static final String KEY_DENIED = "denied";
 

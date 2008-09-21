@@ -53,7 +53,7 @@ public class YmirPathMapping implements PathMapping {
 
     private static final String PATTRENSTR_PLACEHOLDER_REGEX = ".*";
 
-    public static final String ACTION_PRERENDER = "_preRender";
+    public static final String ACTION_PRERENDER = "_prerender";
 
     private static final String ACTION_DEFAULT = "_default";
 
@@ -96,6 +96,20 @@ public class YmirPathMapping implements PathMapping {
             String pageComponentNameTemplate) {
         this(denied, patternString, pageComponentNameTemplate,
                 DEFAULT_ACTIONNAMETEMPLATE, null, null);
+    }
+
+    public YmirPathMapping(String patternString,
+            String pageComponentNameTemplate, String pathInfoTemplate,
+            String parameterTemplate) {
+        this(false, patternString, pageComponentNameTemplate,
+                DEFAULT_ACTIONNAMETEMPLATE, pathInfoTemplate, parameterTemplate);
+    }
+
+    public YmirPathMapping(boolean denied, String patternString,
+            String pageComponentNameTemplate, String pathInfoTemplate,
+            String parameterTemplate) {
+        this(denied, patternString, pageComponentNameTemplate,
+                DEFAULT_ACTIONNAMETEMPLATE, pathInfoTemplate, parameterTemplate);
     }
 
     public YmirPathMapping(String patternString,

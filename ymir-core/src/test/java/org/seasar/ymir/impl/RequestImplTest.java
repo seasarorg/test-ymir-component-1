@@ -36,8 +36,8 @@ public class RequestImplTest extends TestCase {
                 queryParameterMap_, new HashMap<String, FormFile[]>(), null,
                 Locale.JAPAN);
 
-        PathMapping pathMapping = new PathMappingImpl("^/[a-zA-Z_]+.html$",
-                "indexPage", "index", null, null, null,
+        PathMapping pathMapping = new YmirPathMapping("/[a-zA-Z_]+.html",
+                "indexPage", "index", null,
                 "param=value_u1;param=value_u2;param2=value2_u");
 
         target_.enterDispatch(new DispatchImpl(target_.getContextPath(), path,
