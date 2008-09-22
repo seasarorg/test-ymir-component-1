@@ -1,5 +1,0 @@
-baseDir=/${projectName}/src/main/webapp
-contextName=/${projectName}
-eclipse.preferences.version=1
-isDebug=false
-webType=Tomcat6
