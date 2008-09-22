@@ -18,7 +18,7 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
             <encoding>UTF-8</encoding>
-${r"<#if JREVersion != \"\">"}            <source>${r"${JREVersion}"}</source>
+${r"<#if"} JREVersion != "">            <source>${r"${JREVersion}"}</source>
             <target>${r"${JREVersion}"}</target>
 ${r"</#if>"}          </configuration>
         </plugin>
@@ -26,11 +26,11 @@ ${r"</#if>"}          </configuration>
           <artifactId>maven-war-plugin</artifactId>
           <configuration>
             <warSourceDirectory>
-              ${r"${r\"${basedir}\"}"}/src/main/web-resource
+              ${r"$"}{r"${r"$"}{basedir}"}/src/main/web-resource
             </warSourceDirectory>
             <webResources>
               <resource>
-                <directory>${r"${r\"${basedir}\"}"}/src/main/webapp</directory>
+                <directory>${r"$"}{r"${r"$"}{basedir}"}/src/main/webapp</directory>
                 <excludes>
                   <exclude>WEB-INF/classes/</exclude>
                   <exclude>WEB-INF/lib/</exclude>
@@ -65,5 +65,5 @@ ${r"</#if>"}          </configuration>
     </pluginRepository>
   </pluginRepositories>
   <dependencies>
-${r"<#if dependencies != \"\">${dependencies}</#if>"}  </dependencies>
+${r"<#if"} dependencies != "">${r"$"}{dependencies}${r"</#if>"}  </dependencies>
 </project>
