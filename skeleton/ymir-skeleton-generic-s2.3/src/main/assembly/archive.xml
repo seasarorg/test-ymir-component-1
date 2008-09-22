@@ -21,7 +21,7 @@
         <include>ymir-*.jar</include>
       </includes>
       <excludes>
-        <exclude>ymir-skeleton-*.jar</exclude>
+        <exclude>ymir-skeleton-generic-s2.3-*.jar</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>
