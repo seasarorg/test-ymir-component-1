@@ -12,7 +12,7 @@
   <artifactId>${artifactId}</artifactId>
   <name>${projectName}</name>
   <description>
-    This is a project to generate a Vili skeleton.
+    This is a project to generate a Vili project skeleton.
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
