@@ -4,33 +4,37 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>${r"${groupId}"}</groupId>
-  <artifactId>${r"${artifactId}"}</artifactId>
+  <groupId>${r"$"}{groupId}</groupId>
+  <artifactId>${r"$"}{artifactId}</artifactId>
   <packaging>war</packaging>
-  <name>${r"${projectName}"}</name>
-  <version>${r"${version}"}</version>
+  <name>${r"$"}{projectName}</name>
+  <version>${r"$"}{version}</version>
   <description></description>
   <build>
     <defaultGoal>package</defaultGoal>
+    <outputDirectory>${r"$"}{r"$"}{basedir}/${r"$"}{r"$"}{target.dir}/classes</outputDirectory>
+    <testOutputDirectory>
+      ${r"$"}{r"$"}{basedir}/${r"$"}{r"$"}{target.dir}/test-classes
+    </testOutputDirectory>
     <pluginManagement>
       <plugins>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
             <encoding>UTF-8</encoding>
-${r"<#if"} JREVersion != "">            <source>${r"${JREVersion}"}</source>
-            <target>${r"${JREVersion}"}</target>
+${r"<#if"} JREVersion != "">            <source>${r"$"}{JREVersion}</source>
+            <target>${r"$"}{JREVersion}</target>
 ${r"</#if>"}          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-war-plugin</artifactId>
           <configuration>
             <warSourceDirectory>
-              ${r"$"}{r"${r"$"}{basedir}"}/src/main/web-resource
+              ${r"$"}{r"$"}{basedir}/src/main/web-resource
             </warSourceDirectory>
             <webResources>
               <resource>
-                <directory>${r"$"}{r"${r"$"}{basedir}"}/src/main/webapp</directory>
+                <directory>${r"$"}{r"$"}{basedir}/src/main/webapp</directory>
                 <excludes>
                   <exclude>WEB-INF/classes/</exclude>
                   <exclude>WEB-INF/lib/</exclude>
@@ -42,6 +46,17 @@ ${r"</#if>"}          </configuration>
       </plugins>
     </pluginManagement>
   </build>
+  <properties>
+    <target.dir>target</target.dir>
+  </properties>
+  <profiles>
+    <profile>
+      <id>eclipse-folders</id>
+      <properties>
+        <target.dir>build</target.dir>
+      </properties>
+    </profile>
+  </profiles>
   <repositories>
     <repository>
       <id>www.seasar.org</id>
