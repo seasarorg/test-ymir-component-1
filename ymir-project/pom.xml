@@ -116,6 +116,10 @@
         <version>1.0-beta-2</version>
       </extension>
     </extensions>
+    <outputDirectory>${basedir}/${target.dir}/classes</outputDirectory>
+    <testOutputDirectory>
+      ${basedir}/${target.dir}/test-classes
+    </testOutputDirectory>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -161,6 +165,17 @@
       </plugins>
     </pluginManagement>
   </build>
+  <properties>
+    <target.dir>target</target.dir>
+  </properties>
+  <profiles>
+    <profile>
+      <id>eclipse-folders</id>
+      <properties>
+        <target.dir>build</target.dir>
+      </properties>
+    </profile>
+  </profiles>
   <scm>
     <connection>
       scm:svn:https://www.seasar.org/svn/sandbox/ymir/trunk/${project.artifactId}
