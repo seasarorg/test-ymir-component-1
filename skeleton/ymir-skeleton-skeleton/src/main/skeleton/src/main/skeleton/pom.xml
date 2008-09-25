@@ -12,9 +12,9 @@
   <description></description>
   <build>
     <defaultGoal>package</defaultGoal>
-    <outputDirectory>${r"$"}{r"$"}{basedir}/${r"$"}{r"$"}{target.dir}/classes</outputDirectory>
+    <outputDirectory>${r"$"}{r"$"}{basedir}/${r"$"}{r"$"}{target.dir.src}/classes</outputDirectory>
     <testOutputDirectory>
-      ${r"$"}{r"$"}{basedir}/${r"$"}{r"$"}{target.dir}/test-classes
+      ${r"$"}{r"$"}{basedir}/${r"$"}{r"$"}{target.dir.test}/test-classes
     </testOutputDirectory>
     <pluginManagement>
       <plugins>
@@ -47,13 +47,15 @@ ${r"</#if>"}          </configuration>
     </pluginManagement>
   </build>
   <properties>
-    <target.dir>target</target.dir>
+    <target.dir.src>target</target.dir.src>
+    <target.dir.test>target</target.dir.test>
   </properties>
   <profiles>
     <profile>
       <id>eclipse-folders</id>
       <properties>
-        <target.dir>build</target.dir>
+        <target.dir.src>src/main/webapp/WEB-INF</target.dir.src>
+        <target.dir.test>build</target.dir.test>
       </properties>
     </profile>
   </profiles>
