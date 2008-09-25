@@ -28,6 +28,10 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
 
     public boolean isAnnotationPresent(AnnotatedElement element,
             Class<? extends Annotation> annotationClass) {
+        if (element == null) {
+            return false;
+        }
+
         Key key = new Key(element, annotationClass);
         Boolean present = presentMap_.get(key);
         if (present == null) {
@@ -40,10 +44,6 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
 
     protected boolean isAnnotationPresent0(AnnotatedElement element,
             Class<? extends Annotation> annotationClass) {
-        if (element == null) {
-            return false;
-        }
-
         AnnotationExistenceChecker checker = new AnnotationExistenceChecker(
                 annotationClass);
         for (Annotation annotation : element.getAnnotations()) {
@@ -57,6 +57,10 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
     @SuppressWarnings("unchecked")
     public <T extends Annotation> T[] getAnnotations(AnnotatedElement element,
             Class<T> annotationClass) {
+        if (element == null) {
+            return (T[]) Array.newInstance(annotationClass, 0);
+        }
+
         Key key = new Key(element, annotationClass);
         Annotation[] annotations = annotationsMap_.get(key);
         if (annotations == null) {
@@ -69,10 +73,6 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
     @SuppressWarnings("unchecked")
     protected <T extends Annotation> T[] getAnnotations0(
             AnnotatedElement element, Class<T> annotationClass) {
-        if (element == null) {
-            return (T[]) Array.newInstance(annotationClass, 0);
-        }
-
         return getAnnotations0(element.getAnnotations(), annotationClass);
     }
 
@@ -102,25 +102,31 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
 
     public Annotation[] getMarkedAnnotations(AnnotatedElement element,
             Class<? extends Annotation> metaAnnotationClass) {
-        Key key = new Key(element, metaAnnotationClass);
-        Annotation[] metaAnnotations = markedAnnotationsMap_.get(key);
-        if (metaAnnotations == null) {
-            metaAnnotations = getMarkedAnnotations0(element,
-                    metaAnnotationClass);
-            markedAnnotationsMap_.put(key, metaAnnotations);
-        }
-        return metaAnnotations;
-    }
-
-    protected Annotation[] getMarkedAnnotations0(AnnotatedElement element,
-            Class<? extends Annotation> metaAnnotationClass) {
         if (element == null) {
             return new Annotation[0];
         }
 
+        Key key = new Key(element, metaAnnotationClass);
+        Annotation[] markedAnnotations = markedAnnotationsMap_.get(key);
+        if (markedAnnotations == null) {
+            markedAnnotations = getMarkedAnnotations0(element,
+                    metaAnnotationClass);
+            markedAnnotationsMap_.put(key, markedAnnotations);
+        }
+        return markedAnnotations;
+    }
+
+    protected Annotation[] getMarkedAnnotations0(AnnotatedElement element,
+            Class<? extends Annotation> metaAnnotationClass) {
+        return getMarkedAnnotations0(element.getAnnotations(),
+                metaAnnotationClass);
+    }
+
+    protected Annotation[] getMarkedAnnotations0(Annotation[] annotations,
+            Class<? extends Annotation> metaAnnotationClass) {
         MarkedAnnotationGatherer gatherer = new MarkedAnnotationGatherer(
                 metaAnnotationClass);
-        for (Annotation annotation : element.getAnnotations()) {
+        for (Annotation annotation : annotations) {
             AnnotationElements.newInstance(annotation).accept(gatherer);
         }
         return gatherer.getAnnotations();
@@ -129,6 +135,10 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
     @SuppressWarnings("unchecked")
     public <T extends Annotation> T[] getParameterAnnotations(Method method,
             int index, Class<T> annotationClass) {
+        if (method == null) {
+            return (T[]) Array.newInstance(annotationClass, 0);
+        }
+
         Key key = new Key(method, index, annotationClass);
         Annotation[] annotations = annotationsMap_.get(key);
         if (annotations == null) {
@@ -137,6 +147,22 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
             annotationsMap_.put(key, annotations);
         }
         return (T[]) annotations;
+    }
+
+    public Annotation[] getMarkedParameterAnnotations(Method method, int index,
+            Class<? extends Annotation> metaAnnotationClass) {
+        if (method == null) {
+            return new Annotation[0];
+        }
+
+        Key key = new Key(method, index, metaAnnotationClass);
+        Annotation[] markedAnnotations = markedAnnotationsMap_.get(key);
+        if (markedAnnotations == null) {
+            markedAnnotations = getMarkedAnnotations0(method
+                    .getParameterAnnotations()[index], metaAnnotationClass);
+            markedAnnotationsMap_.put(key, markedAnnotations);
+        }
+        return markedAnnotations;
     }
 
     protected static class Key {

@@ -13,6 +13,8 @@ import org.apache.commons.logging.LogFactory;
 import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.ymir.PropertyHandler;
 import org.seasar.ymir.TypeConversionManager;
+import org.seasar.ymir.annotation.Conversion;
+import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.impl.SetterPropertyHandler;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.ScopeManager;
@@ -25,6 +27,8 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
 
     private Scope scope_;
 
+    private AnnotationHandler annotationHandler_;
+
     private ScopeManager scopeManager_;
 
     private TypeConversionManager typeConversionManager_;
@@ -33,9 +37,11 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
 
     private Map<String, Entry> entryByNameMap_ = new HashMap<String, Entry>();
 
-    public ScopeAttributePopulatorImpl(Scope scope, ScopeManager scopeManager,
+    public ScopeAttributePopulatorImpl(Scope scope,
+            AnnotationHandler annotationHandler, ScopeManager scopeManager,
             TypeConversionManager typeConversionManager) {
         scope_ = scope;
+        annotationHandler_ = annotationHandler;
         scopeManager_ = scopeManager;
         typeConversionManager_ = typeConversionManager;
     }
@@ -121,7 +127,9 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
             }
 
             Object value = scopeManager_.getAttribute(scope_, name, handler
-                    .getPropertyType(), false, true);
+                    .getPropertyType(), annotationHandler_
+                    .getMarkedParameterAnnotations(handler.getWriteMethod(), 0,
+                            Conversion.class), false, true);
 
             if (value != null) {
                 boolean removeValue = false;

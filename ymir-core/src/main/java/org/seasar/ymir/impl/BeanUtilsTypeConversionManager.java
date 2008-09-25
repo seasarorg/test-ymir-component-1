@@ -1,6 +1,7 @@
 package org.seasar.ymir.impl;
 
 import java.beans.PropertyDescriptor;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 
@@ -119,8 +120,12 @@ public class BeanUtilsTypeConversionManager implements TypeConversionManager {
         return convertUtilsBean_.convert(value);
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T convert(Object value, Class<T> type) {
+        return convert(value, type, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T convert(Object value, Class<T> type, Annotation[] hint) {
         if (value == null) {
             return convert((String) null, type);
         }

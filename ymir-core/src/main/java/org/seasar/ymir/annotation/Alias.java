@@ -42,7 +42,6 @@ import java.lang.annotation.Target;
  * </ul>
  * </p>
  * 
- * @see Final
  * @since 0.9.6
  * @author YOKOTA Takehiko
  */

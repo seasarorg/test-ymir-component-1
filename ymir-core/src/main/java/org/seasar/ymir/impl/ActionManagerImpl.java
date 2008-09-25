@@ -9,12 +9,21 @@ import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.TypeConversionManager;
+import org.seasar.ymir.annotation.Conversion;
+import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.scope.handler.ScopeAttributeResolver;
 
 public class ActionManagerImpl implements ActionManager {
+    private AnnotationHandler annotationHandler_;
+
     private ComponentMetaDataFactory componentMetaDataFactory_;
 
     private TypeConversionManager typeConversionManager_;
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setAnnotationHandler(AnnotationHandler annotationHandler) {
+        annotationHandler_ = annotationHandler;
+    }
 
     @Binding(bindingType = BindingType.MUST)
     public void setComponentMetaDataFactory(
@@ -58,7 +67,9 @@ public class ActionManagerImpl implements ActionManager {
                 if (buttonParamsIdx < extendedParams.length) {
                     value = extendedParams[buttonParamsIdx++];
                 }
-                params[i] = typeConversionManager_.convert(value, types[i]);
+                params[i] = typeConversionManager_.convert(value, types[i],
+                        annotationHandler_.getMarkedParameterAnnotations(
+                                method, i, Conversion.class));
             }
         }
         return new MethodInvokerImpl(method, params);

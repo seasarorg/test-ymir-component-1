@@ -93,11 +93,26 @@ public interface AnnotationHandler {
      * </p>
      * <p>要素がnullである場合や該当するアノテーションが存在しない場合は空の配列を返します。</p>
      * 
-     * @param method メソッド。nullを指定してはいけません。
+     * @param method メソッド。nullを指定することもできます。
      * @param index 何番目の引数か。0オリジンです。
      * @param annotationClass アノテーション型。nullを指定してはいけません。
      * @return 指定された型と合致するアノテーションの配列。存在しない場合は空の配列を返します。
      */
     <T extends Annotation> T[] getParameterAnnotations(Method method,
             int index, Class<T> annotationClass);
+
+    /**
+     * メソッドの引数に付与されているアノテーションのうち、指定されたメタアノテーションが付与されているアノテーションを返します。
+     * <p>コレクションアノテーションやエイリアスアノテーションはともに展開されて返されます。
+     * </p>
+     * <p>要素がnullである場合や該当するアノテーションが存在しない場合は空の配列を返します。</p>
+     * 
+     * @param method メソッド。nullを指定することもできます。
+     * @param index 何番目の引数か。0オリジンです。
+     * @param annotationClass メタアノテーション型。nullを指定してはいけません。
+     * @return 指定されたメタアノテーションが付与されているアノテーションの配列。存在しない場合は空の配列を返します。
+     * @since 1.0.0
+     */
+    Annotation[] getMarkedParameterAnnotations(Method method, int index,
+            Class<? extends Annotation> metaAnnotationClass);
 }

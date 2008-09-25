@@ -1,5 +1,7 @@
 package org.seasar.ymir.scope.impl;
 
+import java.lang.annotation.Annotation;
+
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.TypeConversionManager;
@@ -30,6 +32,14 @@ public class ScopeManagerImpl implements ScopeManager {
             boolean required,
             boolean convertNullToDefaultValueWhereTypeIsPrimitive)
             throws AttributeNotFoundRuntimeException {
+        return getAttribute(scope, name, type, null, required,
+                convertNullToDefaultValueWhereTypeIsPrimitive);
+    }
+
+    public <T> T getAttribute(Scope scope, String name, Class<T> type,
+            Annotation[] hint, boolean required,
+            boolean convertNullToDefaultValueWhereTypeIsPrimitive)
+            throws AttributeNotFoundRuntimeException {
         Class<?> componentType = ClassUtils.toComponentType(type);
         Object value = scope.getAttribute(name, componentType);
         if (required && value == null) {
@@ -51,6 +61,6 @@ public class ScopeManagerImpl implements ScopeManager {
             return null;
         }
 
-        return typeConversionManager_.convert(value, type);
+        return typeConversionManager_.convert(value, type, hint);
     }
 }

@@ -7,10 +7,18 @@ import junit.framework.TestCase;
 
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.Action;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.TypeConversionManager;
+import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
+import org.seasar.ymir.cache.impl.CacheManagerImpl;
+import org.seasar.ymir.hotdeploy.HotdeployManager;
+import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.impl.PathMappingImpl.Button;
+import org.seasar.ymir.mock.MockApplication;
+import org.seasar.ymir.mock.MockApplicationManager;
 import org.seasar.ymir.mock.MockRequest;
 
 @Deprecated
@@ -25,8 +33,25 @@ public class PathMappingImplTest extends TestCase {
         target_ = new PathMappingImpl("^/([a-zA-Z][a-zA-Z0-9]*)\\.(html|do)$",
                 "${1}Page", "_${method}", "", "/${1}.html",
                 "^_([a-zA-Z][a-zA-Z0-9]*)$", null);
-        target_.setTypeConversionManager(new YmirTypeConversionManager());
-        target_.setActionManager(new ActionManagerImpl());
+        ActionManagerImpl actionManager = new ActionManagerImpl();
+        TypeConversionManager typeConversionManager = new YmirTypeConversionManager();
+        actionManager.setTypeConversionManager(typeConversionManager);
+        ComponentMetaDataFactoryImpl componentMetaDataFactory = new ComponentMetaDataFactoryImpl();
+        CacheManagerImpl cacheManager = new CacheManagerImpl();
+        HotdeployManager hotdeployManager = new HotdeployManagerImpl();
+        cacheManager.setHotdeployManager(hotdeployManager);
+        AnnotationHandlerImpl annotationHandler = new AnnotationHandlerImpl();
+        annotationHandler.setCacheManager(cacheManager);
+        componentMetaDataFactory.setAnnotationHandler(annotationHandler);
+        ApplicationManager applicationManager = new MockApplicationManager();
+        applicationManager.setContextApplication(new MockApplication());
+        componentMetaDataFactory.setApplicationManager(applicationManager);
+        componentMetaDataFactory.setCacheManager(cacheManager);
+        actionManager.setComponentMetaDataFactory(componentMetaDataFactory);
+        actionManager.setAnnotationHandler(annotationHandler);
+        target_.setActionManager(actionManager);
+        target_.setAnnotationHandler(annotationHandler);
+        target_.setTypeConversionManager(typeConversionManager);
     }
 
     public void testGetAction_親のボタン用アクション・子のボタン用のアクション・親の通常アクション・子の通常アクションの順で探索すること()

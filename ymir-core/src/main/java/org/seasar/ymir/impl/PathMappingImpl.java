@@ -30,6 +30,8 @@ import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.TypeConversionManager;
+import org.seasar.ymir.annotation.Conversion;
+import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.util.ClassUtils;
 
 /**
@@ -89,6 +91,8 @@ public class PathMappingImpl implements PathMapping {
     private Pattern pageComponentNameTemplatePattern_;
 
     private ActionManager actionManager_;
+
+    private AnnotationHandler annotationHandler_;
 
     private TypeConversionManager typeConversionManager_;
 
@@ -217,6 +221,11 @@ public class PathMappingImpl implements PathMapping {
     @Binding(bindingType = BindingType.MUST)
     public void setActionManager(ActionManager actionManager) {
         actionManager_ = actionManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setAnnotationHandler(AnnotationHandler annotationHandler) {
+        annotationHandler_ = annotationHandler;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -531,17 +540,21 @@ public class PathMappingImpl implements PathMapping {
             }
 
             return actionManager_.newAction(page, new MethodInvokerImpl(method,
-                    createParameters(button.getParameters(), parameterTypes)));
+                    createParameters(button.getParameters(), parameterTypes,
+                            method)));
         }
         return null;
     }
 
-    Object[] createParameters(String[] rawParameters, Class<?>[] parameterTypes) {
+    Object[] createParameters(String[] rawParameters,
+            Class<?>[] parameterTypes, Method method) {
         Object[] parameters = new Object[parameterTypes.length];
         for (int i = 0; i < parameterTypes.length; i++) {
             parameters[i] = typeConversionManager_.convert(
                     (Object) (i < rawParameters.length ? rawParameters[i]
-                            : null), parameterTypes[i]);
+                            : null), parameterTypes[i], annotationHandler_
+                            .getMarkedParameterAnnotations(method, i,
+                                    Conversion.class));
         }
         return parameters;
     }

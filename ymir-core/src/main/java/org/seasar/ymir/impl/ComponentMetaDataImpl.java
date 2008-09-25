@@ -17,6 +17,7 @@ import org.seasar.ymir.FormFile;
 import org.seasar.ymir.MethodNotFoundRuntimeException;
 import org.seasar.ymir.Phase;
 import org.seasar.ymir.TypeConversionManager;
+import org.seasar.ymir.annotation.Conversion;
 import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Invoke;
 import org.seasar.ymir.annotation.Out;
@@ -171,7 +172,9 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
                     i, Resolve.class);
             if (is.length > 0) {
                 resolver = new ScopeAttributeResolverImpl(types[i],
-                        scopeManager_, typeConversionManager_);
+                        annotationHandler_.getMarkedParameterAnnotations(
+                                method, i, Conversion.class), scopeManager_,
+                        typeConversionManager_);
                 for (int j = 0; j < is.length; j++) {
                     resolver.addEntry(getScope(is[j]), is[j].value(), is[j]
                             .required());
@@ -188,8 +191,8 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
         ScopeAttributePopulatorImpl populator = scopeAttributePopulatorMap_
                 .get(scope);
         if (populator == null) {
-            populator = new ScopeAttributePopulatorImpl(scope, scopeManager_,
-                    typeConversionManager_);
+            populator = new ScopeAttributePopulatorImpl(scope,
+                    annotationHandler_, scopeManager_, typeConversionManager_);
             scopeAttributePopulatorMap_.put(scope, populator);
         }
 
@@ -232,7 +235,9 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
 
         scopeAttributeInjectorList_.add(new ScopeAttributeInjectorImpl(
                 toAttributeName(method.getName(), in.name()), method
-                        .getParameterTypes()[0], getScope(in), method, in
+                        .getParameterTypes()[0], annotationHandler_
+                        .getMarkedParameterAnnotations(method, 0,
+                                Conversion.class), getScope(in), method, in
                         .injectWhereNull(), in.required(), in.actionName(),
                 scopeManager_));
     }

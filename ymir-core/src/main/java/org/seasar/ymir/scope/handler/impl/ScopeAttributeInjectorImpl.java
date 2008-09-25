@@ -1,5 +1,6 @@
 package org.seasar.ymir.scope.handler.impl;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.seasar.framework.log.Logger;
@@ -17,17 +18,21 @@ public class ScopeAttributeInjectorImpl extends AbstractScopeAttributeHandler
 
     private Class<?> type_;
 
+    private Annotation[] hint_;
+
     private Class<?> componentType_;
 
     private boolean required_;
 
     private ScopeManager scopeManager_;
 
-    public ScopeAttributeInjectorImpl(String name, Class<?> type, Scope scope,
-            Method injectionMethod, boolean injectWhereNull, boolean required,
+    public ScopeAttributeInjectorImpl(String name, Class<?> type,
+            Annotation[] hint, Scope scope, Method injectionMethod,
+            boolean injectWhereNull, boolean required,
             String[] enabledActionNames, ScopeManager scopeManager) {
         super(name, scope, injectionMethod, injectWhereNull, enabledActionNames);
         type_ = type;
+        hint_ = hint;
         componentType_ = ClassUtils.toComponentType(type);
         required_ = required;
         scopeManager_ = scopeManager;
@@ -41,8 +46,8 @@ public class ScopeAttributeInjectorImpl extends AbstractScopeAttributeHandler
 
         Object value;
         try {
-            value = scopeManager_.getAttribute(scope_, name_, type_, required_,
-                    invokeWhereNull_);
+            value = scopeManager_.getAttribute(scope_, name_, type_, null,
+                    required_, invokeWhereNull_);
         } catch (AttributeNotFoundRuntimeException ex) {
             throw ex.setMethod(method_).setComponent(component);
         }

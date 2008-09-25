@@ -3,6 +3,8 @@ package org.seasar.ymir.scope.handler.impl;
 import junit.framework.TestCase;
 
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
+import org.seasar.ymir.cache.impl.CacheManagerImpl;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.impl.Bean;
 import org.seasar.ymir.impl.YmirImpl;
@@ -24,11 +26,16 @@ public class ScopeAttributePopulatorTest extends TestCase {
 
         MapScope scope = new MapScope();
         YmirTypeConversionManager typeConversionManager = new YmirTypeConversionManager();
+        AnnotationHandlerImpl annotationHandler = new AnnotationHandlerImpl();
+        CacheManagerImpl cacheManager = new CacheManagerImpl();
+        HotdeployManagerImpl hotdeployManager = new HotdeployManagerImpl();
+        cacheManager.setHotdeployManager(hotdeployManager);
+        annotationHandler.setCacheManager(cacheManager);
         ScopeManagerImpl scopeManager = new ScopeManagerImpl();
-        scopeManager.setHotdeployManager(new HotdeployManagerImpl());
+        scopeManager.setHotdeployManager(hotdeployManager);
         scopeManager.setTypeConversionManager(typeConversionManager);
-        target_ = new ScopeAttributePopulatorImpl(scope, scopeManager,
-                typeConversionManager);
+        target_ = new ScopeAttributePopulatorImpl(scope, annotationHandler,
+                scopeManager, typeConversionManager);
 
         scope.setAttribute("bean.aaa[1].bbb(key).mapped(key)", "value");
         target_.addEntry(Page.class.getMethod("getBean", new Class[0]),

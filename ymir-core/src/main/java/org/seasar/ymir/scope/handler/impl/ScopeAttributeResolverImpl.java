@@ -1,5 +1,7 @@
 package org.seasar.ymir.scope.handler.impl;
 
+import java.lang.annotation.Annotation;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.util.ArrayUtil;
@@ -15,15 +17,19 @@ public class ScopeAttributeResolverImpl implements ScopeAttributeResolver {
 
     private Class<?> type_;
 
+    private Annotation[] hint_;
+
     private ScopeManager scopeManager_;
 
     private TypeConversionManager typeConversionManager_;
 
     private Entry[] entries_ = new Entry[0];
 
-    public ScopeAttributeResolverImpl(Class<?> type, ScopeManager scopeManager,
+    public ScopeAttributeResolverImpl(Class<?> type, Annotation[] hint,
+            ScopeManager scopeManager,
             TypeConversionManager typeConversionManager) {
         type_ = type;
+        hint_ = hint;
         scopeManager_ = scopeManager;
         typeConversionManager_ = typeConversionManager;
     }
@@ -40,7 +46,7 @@ public class ScopeAttributeResolverImpl implements ScopeAttributeResolver {
                 return value;
             }
         }
-        return typeConversionManager_.convert((Object) null, type_);
+        return typeConversionManager_.convert((Object) null, type_, hint_);
     }
 
     protected class Entry {
@@ -57,8 +63,8 @@ public class ScopeAttributeResolverImpl implements ScopeAttributeResolver {
         }
 
         public Object getValue() throws AttributeNotFoundRuntimeException {
-            return scopeManager_.getAttribute(scope_, name_, type_, required_,
-                    false);
+            return scopeManager_.getAttribute(scope_, name_, type_, hint_,
+                    required_, false);
         }
     }
 }

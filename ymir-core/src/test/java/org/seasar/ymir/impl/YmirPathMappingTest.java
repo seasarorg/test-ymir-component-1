@@ -45,6 +45,7 @@ public class YmirPathMappingTest extends TestCase {
         componentMetaDataFactory.setApplicationManager(applicationManager);
         componentMetaDataFactory.setCacheManager(cacheManager);
         actionManager.setComponentMetaDataFactory(componentMetaDataFactory);
+        actionManager.setAnnotationHandler(annotationHandler);
         target_.setActionManager(actionManager);
     }
 
