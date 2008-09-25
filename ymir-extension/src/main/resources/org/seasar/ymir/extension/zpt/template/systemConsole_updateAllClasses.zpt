@@ -1,6 +1,6 @@
 <html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta tal:attributes="content string:text/html;; charset=${templateEncoding}" http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>SYSTEM CONSOLE</title>
   </head>
   <body onload="document.getElementById('okButton').focus()">

@@ -18,6 +18,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.io.IOUtils;
+import org.seasar.ymir.Application;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
@@ -111,8 +112,10 @@ abstract public class AbstractAction {
     protected Map<String, Object> newVariableMap() {
         Map<String, Object> variableMap = new HashMap<String, Object>();
 
+        Application application = getSourceCreator().getApplication();
         variableMap.put("resourceAutoSynchronized", getSourceCreatorSetting()
                 .isResourceSynchronized());
+        variableMap.put("templateEncoding", application.getTemplateEncoding());
 
         return variableMap;
     }

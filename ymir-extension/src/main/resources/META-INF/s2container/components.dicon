@@ -3,6 +3,7 @@
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
   <include path="global.dicon" />
+  <include path="ymir-component.dicon" />
   <component
     class="org.seasar.ymir.extension.creator.impl.SourceCreatorImpl" />
   <component class="org.seasar.ymir.extension.zpt.ZptAnalyzer" />

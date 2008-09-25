@@ -6,6 +6,9 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.response.SelfContainedResponse;
@@ -19,13 +22,19 @@ import net.skirnir.freyja.zpt.MetalTagEvaluator;
 import net.skirnir.freyja.zpt.tales.TalesExpressionEvaluator;
 
 public class ZptResponseCreator implements ResponseCreator {
-
     private static final String TEMPLATE_PREFIX = "template/";
 
     private static final String TEMPLATE_SUFFIX = ".zpt";
 
-    private TemplateEvaluator evaluator_ = new TemplateEvaluatorImpl(
+    private ApplicationManager applicationManager_;
+
+    private final TemplateEvaluator evaluator_ = new TemplateEvaluatorImpl(
             new MetalTagEvaluator(), new TalesExpressionEvaluator());
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
+    }
 
     public Response createResponse(String templateName,
             Map<String, Object> variableMap) {
@@ -50,9 +59,15 @@ public class ZptResponseCreator implements ResponseCreator {
         }
         try {
             return new SelfContainedResponse(evaluator_.evaluate(context,
-                    new InputStreamReader(templateURL.openStream(), "UTF-8")));
+                    new InputStreamReader(templateURL.openStream(), "UTF-8")),
+                    "text/html; charset=" + getEncoding());
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    String getEncoding() {
+        return applicationManager_.findContextApplication()
+                .getTemplateEncoding();
     }
 }
