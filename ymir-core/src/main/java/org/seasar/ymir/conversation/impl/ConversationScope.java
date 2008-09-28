@@ -130,7 +130,7 @@ public class ConversationScope implements Scope {
 
     public Iterator<String> getAttributeNames() {
         if (isUseSessionScopeAsConversationScope()) {
-            // TODO 問題があれば、SessionにConversationScopeに対応するMapを格納する
+            // XXX 問題があれば、SessionにConversationScopeに対応するMapを格納する
             // ようにするなどして対処する。
             return new ArrayList<String>().iterator();
         } else {

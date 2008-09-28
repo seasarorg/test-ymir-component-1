@@ -13,7 +13,7 @@ import org.seasar.ymir.YmirContext;
  * 
  * @author yokota
  */
-//TODO [Ymir1.0.x] 廃止する。
+//TODO [YMIR-1.0][#YMIR-258] 廃止する。
 public class LocaleUtils {
     private static S2Container container_;
 

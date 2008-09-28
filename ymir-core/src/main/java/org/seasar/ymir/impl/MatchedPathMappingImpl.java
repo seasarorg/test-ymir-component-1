@@ -43,7 +43,7 @@ public class MatchedPathMappingImpl implements MatchedPathMapping {
         return pathMapping_.getPageComponentName(variableResolver_);
     }
 
-    // TODO [YMIR-1.0] 廃止する。
+    // TODO [YMIR-1.0][#YMIR-256] 廃止する。
     @SuppressWarnings("deprecation")
     public String getActionName() {
         return pathMapping_.getActionName(variableResolver_);

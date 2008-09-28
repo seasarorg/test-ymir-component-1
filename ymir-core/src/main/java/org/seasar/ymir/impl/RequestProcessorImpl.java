@@ -484,7 +484,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
         try {
             if (page != null) {
-                // TODO request.getComponentClass().getClassLoader()にすべきか？
+                // XXX request.getComponentClass().getClassLoader()にすべきか？
                 Thread.currentThread().setContextClassLoader(
                         page.getClass().getClassLoader());
             }

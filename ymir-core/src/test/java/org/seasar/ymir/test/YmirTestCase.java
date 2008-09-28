@@ -481,7 +481,7 @@ abstract public class YmirTestCase extends TestCase {
         return new MockHttpServletResponseImpl(httpRequest);
     }
 
-    // TODO [YMIR-1.0] 引数をYmirのMockServletContextにしよう。
+    // TODO [YMIR-1.0][#YMIR-257] 引数をYmirのMockServletContextにしよう。
     protected MockHttpServletRequest newHttpServletRequest(
             org.seasar.framework.mock.servlet.MockServletContext application,
             String path, MockHttpSession session) {

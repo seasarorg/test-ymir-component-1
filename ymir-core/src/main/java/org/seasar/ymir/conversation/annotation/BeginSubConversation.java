@@ -18,7 +18,7 @@ import org.seasar.ymir.conversation.Conversations;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface BeginSubConversation {
-    // TODO 互換性のため残しているが、いつかなくす。
+    // TODO [YMIR-1.0][#YMIR-258] なくす。
     String name() default "";
 
     /**

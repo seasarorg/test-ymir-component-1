@@ -8,8 +8,8 @@ import javax.servlet.http.HttpSession;
  * 
  * @author yokota
  */
-// TODO [Ymir1.0.x] 廃止する。その際TokenManagerImplではSessionManagerを使って
-// セッションにアクセスするように変更する。
+// TODO [YMIR-1.0][#YMIR-258] 廃止する。
+// TODO [YMIR-1.0][#YMIR-259] TokenManagerImplではSessionManagerを使ってセッションにアクセスするように変更する。
 public class TokenUtils {
     protected TokenUtils() {
     }

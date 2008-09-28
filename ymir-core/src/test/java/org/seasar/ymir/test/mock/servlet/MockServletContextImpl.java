@@ -31,7 +31,7 @@ public class MockServletContextImpl extends
         return new MockRequestDispatcherImpl(path);
     }
 
-    // FIXME Seasar-2.4.17の不具合回避のためのworkaround。Seasar-2.4.18からは不要。
+    // TODO [YMIR-1.0][#YMIR-252] Seasar-2.4.17の不具合回避のためのworkaround。Seasar-2.4.18からは不要。
     @Override
     protected String adjustPath(String path) {
         if (path != null && path.length() > 0 && path.charAt(0) == '/') {

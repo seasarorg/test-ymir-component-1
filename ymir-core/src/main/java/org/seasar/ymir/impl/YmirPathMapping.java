@@ -373,7 +373,7 @@ public class YmirPathMapping implements PathMapping {
      *
      * @return リクエストパラメータによるディスパッチを行なうかどうか。
      */
-    // TODO [YMIR-1.0] 廃止する。
+    // TODO [YMIR-1.0][#YMIR-256] 廃止する。
     public boolean isDispatchingByButton() {
         return (buttonNamePatternForDispatching_ != null);
     }

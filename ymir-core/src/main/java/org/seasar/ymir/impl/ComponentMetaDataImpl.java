@@ -77,7 +77,7 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
         }
     }
 
-    // TODO [Ymir1.0.x] 削除する。
+    // TODO [YMIR-1.0][#YMIR-258] 削除する。
     public boolean isProtected(String propertyName) {
         return protectedNameSet_.contains(BeanUtils
                 .getFirstSimpleSegment(propertyName));

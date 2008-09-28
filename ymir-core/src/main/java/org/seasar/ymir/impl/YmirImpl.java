@@ -197,7 +197,7 @@ public class YmirImpl implements Ymir {
         request.leaveDispatch();
     }
 
-    // TODO [YMIR-1.0] PageNotFoundExceptionをRuntimException化。
+    // TODO [YMIR-1.0][#YMIR-253]PageNotFoundExceptionをRuntimException化。
     // ActionNotFoundExceptionも。PageNotとActionNotはBadRequestRuntimeExceptionの子Exceptionにする。
     // org.seasar.ymirパッケージ内のクラスについてはPermissionDeniedをthrowsから外す。
     public Response processRequest(final Request request)
@@ -242,7 +242,7 @@ public class YmirImpl implements Ymir {
     }
 
     public Object backupForInclusion(final AttributeContainer attributeContainer) {
-        // FIXME Objectの配列というのもイマイチ…。
+        // XXX Objectの配列というのもイマイチ…。
         return new Object[] {
             requestProcessor_.backupForInclusion(attributeContainer),
             getUnwrappedRequest().getParameterMap() };
