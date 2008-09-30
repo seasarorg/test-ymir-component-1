@@ -10,8 +10,8 @@ import junit.framework.TestCase;
 
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
-import org.seasar.ymir.test.mock.servlet.MockHttpServletRequestImpl;
-import org.seasar.ymir.test.mock.servlet.MockServletContextImpl;
+import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
+import org.seasar.ymir.mock.servlet.MockServletContextImpl;
 
 import net.sf.json.JSONObject;
 

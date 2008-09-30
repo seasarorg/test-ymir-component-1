@@ -54,10 +54,9 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>ymir-core</artifactId>
+      <artifactId>ymir-testing</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
-      <classifier>tests</classifier>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
