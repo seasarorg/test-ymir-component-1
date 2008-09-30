@@ -2,6 +2,8 @@ package com.example.web;
 
 import java.util.Locale;
 
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.LocaleManager;
 
 public class LocaleManagerImplPage {
@@ -9,6 +11,7 @@ public class LocaleManagerImplPage {
 
     private Locale locale_;
 
+    @Binding(bindingType = BindingType.MUST)
     public void setLocaleManager(LocaleManager localeManager) {
         localeManager_ = localeManager;
     }

@@ -1,5 +1,7 @@
 package com.example.web;
 
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.AppDiconComponent;
 
 public class HoePage {
@@ -9,6 +11,7 @@ public class HoePage {
         return appDiconComponent_;
     }
 
+    @Binding(bindingType = BindingType.MUST)
     public void setAppDiconComponent(AppDiconComponent appDiconComponent) {
         appDiconComponent_ = appDiconComponent;
     }

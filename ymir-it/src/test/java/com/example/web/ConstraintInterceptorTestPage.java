@@ -1,5 +1,7 @@
 package com.example.web;
 
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Note;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
@@ -18,6 +20,7 @@ public class ConstraintInterceptorTestPage {
 
     private String fuga_;
 
+    @Binding(bindingType = BindingType.MUST)
     public void setRequest(Request request) {
         request_ = request;
     }

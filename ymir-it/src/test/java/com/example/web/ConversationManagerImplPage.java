@@ -1,5 +1,7 @@
 package com.example.web;
 
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.conversation.ConversationManager;
 import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.conversation.annotation.Conversation;
@@ -8,6 +10,7 @@ import org.seasar.ymir.conversation.annotation.Conversation;
 public class ConversationManagerImplPage {
     private ConversationManager conversationManager_;
 
+    @Binding(bindingType = BindingType.MUST)
     public void setConversationManager(ConversationManager conversationManager) {
         conversationManager_ = conversationManager;
     }

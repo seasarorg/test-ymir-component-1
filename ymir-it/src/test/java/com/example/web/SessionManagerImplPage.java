@@ -1,10 +1,13 @@
 package com.example.web;
 
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.session.SessionManager;
 
 public class SessionManagerImplPage {
     private SessionManager sessionManager_;
 
+    @Binding(bindingType = BindingType.MUST)
     public void setSessionManager(SessionManager sessionManager) {
         sessionManager_ = sessionManager;
     }
