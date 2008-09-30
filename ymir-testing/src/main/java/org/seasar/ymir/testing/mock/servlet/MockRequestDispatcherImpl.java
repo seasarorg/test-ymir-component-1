@@ -1,4 +1,4 @@
-package org.seasar.ymir.test.mock.servlet;
+package org.seasar.ymir.testing.mock.servlet;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,7 +13,8 @@ import javax.servlet.ServletResponse;
 import org.seasar.ymir.util.ServletUtils;
 
 public class MockRequestDispatcherImpl extends
-        org.seasar.framework.mock.servlet.MockRequestDispatcherImpl {
+        org.seasar.framework.mock.servlet.MockRequestDispatcherImpl implements
+        MockRequestDispatcher {
     private String path_;
 
     public MockRequestDispatcherImpl(String path) {

@@ -1,6 +1,5 @@
 package org.seasar.ymir.testing;
 
-
 /**
  * YmirのPageクラスをテストするためのTestCaseのベースとなるクラスです。
  * <p>Pageクラスをテストする場合はこのクラスのサブクラスとしてTestCaseを作成すると便利かもしれません。

@@ -1,9 +1,10 @@
-package org.seasar.ymir.test.mock.servlet;
+package org.seasar.ymir.testing.mock.servlet;
 
 import javax.servlet.ServletContext;
 
 public class MockHttpSessionImpl extends
-        org.seasar.framework.mock.servlet.MockHttpSessionImpl {
+        org.seasar.framework.mock.servlet.MockHttpSessionImpl implements
+        MockHttpSession {
 
     private static final long serialVersionUID = 1L;
 

@@ -1,4 +1,4 @@
-package org.seasar.ymir.test.mock.servlet;
+package org.seasar.ymir.testing.mock.servlet;
 
 import java.io.IOException;
 

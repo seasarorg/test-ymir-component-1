@@ -1,13 +1,12 @@
-package org.seasar.ymir.test.mock.servlet;
+package org.seasar.ymir.testing.mock.servlet;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
-import org.seasar.framework.mock.servlet.MockHttpSession;
-
 public class MockHttpServletRequestImpl extends
-        org.seasar.framework.mock.servlet.MockHttpServletRequestImpl {
+        org.seasar.framework.mock.servlet.MockHttpServletRequestImpl implements
+        MockHttpServletRequest {
     private ServletContext servletContext_;
 
     private MockHttpSession session_;
