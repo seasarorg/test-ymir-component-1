@@ -1,4 +1,4 @@
-package org.seasar.ymir.test.constraint;
+package org.seasar.ymir.testing.constraint;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
