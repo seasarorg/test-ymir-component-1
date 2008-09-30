@@ -116,9 +116,6 @@ public class YmirPathMappingTest extends TestCase {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put(YmirPathMapping.KEY_ACTIONNAME_TEMPLATE,
                 "actionNameTemplateValue");
-        map
-                .put(YmirPathMapping.KEY_BUTTONNAMEPATTERN,
-                        "buttonNamePatternValue");
         map.put(YmirPathMapping.KEY_DENIED, "true");
         map.put(YmirPathMapping.KEY_PAGECOMPONENTNAME_TEMPLATE,
                 "pageComponentNameTemplateValue");
@@ -131,8 +128,6 @@ public class YmirPathMappingTest extends TestCase {
                 new HashMap<String, Object>(map));
 
         assertEquals("actionNameTemplateValue", target.getActionNameTemplate());
-        assertEquals("buttonNamePatternValue", target
-                .getButtonNamePatternStringForDispatching());
         assertTrue(target.isDenied());
         assertEquals("pageComponentNameTemplateValue", target
                 .getPageComponentNameTemplate());

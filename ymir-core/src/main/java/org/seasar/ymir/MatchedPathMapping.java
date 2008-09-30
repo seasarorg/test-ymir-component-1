@@ -36,16 +36,6 @@ public interface MatchedPathMapping {
     String getPageComponentName();
 
     /**
-     * パスに対応するアクションの名前を返します。
-     * <p>このアクション名に対応するメソッドがPageコンポーネントに存在するとは限りません。
-     * </p>
-     * 
-     * @return パスに対応するアクションの名前。
-     */
-    @Deprecated
-    String getActionName();
-
-    /**
      * パスから取り出したpathInfo情報を返します。
      * 
      * @return パスから取り出したpathInfo情報。

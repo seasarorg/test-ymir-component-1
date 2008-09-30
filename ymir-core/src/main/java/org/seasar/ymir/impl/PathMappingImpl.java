@@ -408,28 +408,6 @@ public class PathMappingImpl implements PathMapping {
     }
 
     /**
-     * リクエストパラメータによるディスパッチを行なうかどうかを返します。
-     * <p>このメソッドの返り値がtrueの場合、
-     * コンポーネントが持つメソッドのうち、
-     * アクション名とリクエストパラメータを
-     * 「<code>_</code>」で連結したものと同じ名前のメソッドが呼び出されます。
-     * 例えばコンポーネントのメソッドとして「<code>_post_update</code>」という名前のものと
-     * 「<code>_post_replace</code>」という名前のものがある場合、
-     * リクエストに対応するアクション名が「<code>_post</code>」でかつ
-     * リクエストパラメータに「<code>update</code>」というものが含まれている場合は
-     * 「<code>_post_update</code>」が呼び出されます。
-     * （なお、「<code>_post_XXXX</code>」形式のメソッドが存在しない場合は
-     * 「<code>_post</code>」メソッドが呼び出されます。）
-     * </p>
-     *
-     * @return リクエストパラメータによるディスパッチを行なうかどうか。
-     */
-    // TODO [YMIR-1.0][#YMIR-256] 廃止する。
-    public boolean isDispatchingByButton() {
-        return (buttonNamePatternForDispatching_ != null);
-    }
-
-    /**
      * アクションメソッドを実行するためのActionを構築して返します。
      * <p>実行すべきアクションメソッドが見つからなかった場合はnullを返します。</p>
      * 

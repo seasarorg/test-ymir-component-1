@@ -114,11 +114,6 @@ public class MockMatchedPathMapping implements MatchedPathMapping {
         return denied_;
     }
 
-    // TODO [YMIR-1.0][#YMIR-256] 削除する。
-    public boolean isDispatchingByParameter() {
-        return dispatchingByParameter_;
-    }
-
     public MockMatchedPathMapping setDispatchingByParameter(
             boolean dispatchingByParameter) {
         dispatchingByParameter_ = dispatchingByParameter;

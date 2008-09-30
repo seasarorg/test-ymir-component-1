@@ -36,15 +36,6 @@ public interface PathMapping {
     String getPageComponentName(VariableResolver resolver);
 
     /**
-     * パスに対応するアクションの名前を返します。
-     * 
-     * @param resolver {@link #match(String, String)}が返す{@link VariableResolver}オブジェクト。
-     * @return アクションの名前。
-     */
-    @Deprecated
-    String getActionName(VariableResolver resolver);
-
-    /**
      * パスが持つpathInfo文字列を返します。
      * 
      * @param resolver {@link #match(String, String)}が返す{@link VariableResolver}オブジェクト。
@@ -82,26 +73,6 @@ public interface PathMapping {
      * @return パスへの直接アクセスが禁止されているかどうか。
      */
     boolean isDenied();
-
-    /**
-     * リクエストパラメータによるディスパッチを行なうかどうかを返します。
-     * <p>このメソッドの返り値がtrueの場合、
-     * コンポーネントが持つメソッドのうち、
-     * アクション名とリクエストパラメータを
-     * 「<code>_</code>」で連結したものと同じ名前のメソッドが呼び出されます。
-     * 例えばコンポーネントのメソッドとして「<code>_post_update</code>」という名前のものと
-     * 「<code>_post_replace</code>」という名前のものがある場合、
-     * リクエストに対応するアクション名が「<code>_post</code>」でかつ
-     * リクエストパラメータに「<code>update</code>」というものが含まれている場合は
-     * 「<code>_post_update</code>」が呼び出されます。
-     * （なお、「<code>_post_XXXX</code>」形式のメソッドが存在しない場合は
-     * 「<code>_post</code>」メソッドが呼び出されます。）
-     * </p>
-     *
-     * @return リクエストパラメータによるディスパッチを行なうかどうか。
-     */
-    @Deprecated
-    boolean isDispatchingByButton();
 
     /**
      * 実行すべきアクションを表すActionオブジェクトを構築して返します。

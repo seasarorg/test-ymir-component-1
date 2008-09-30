@@ -46,8 +46,6 @@ public class YmirPathMapping implements PathMapping {
 
     public static final String KEY_PARAMETER_TEMPLATE = "parameterTemplate";
 
-    public static final String KEY_BUTTONNAMEPATTERN = "buttonNamePattern";
-
     private static final Pattern PATTERN_PLACEHOLDER = Pattern
             .compile("\\$\\{[^}]*\\}");
 
@@ -55,11 +53,11 @@ public class YmirPathMapping implements PathMapping {
 
     public static final String ACTION_PRERENDER = "_prerender";
 
-    private static final String ACTION_DEFAULT = "_default";
+    public static final String ACTION_DEFAULT = "_default";
 
-    private static final String DEFAULT_BUTTONNAMEPATTERNSTRINGFORDISPATCHING = "_([a-zA-Z][a-zA-Z0-9]*)";
+    public static final String BUTTONNAMEPATTERNSTRINGFORDISPATCHING = "_([a-zA-Z][a-zA-Z0-9]*)";
 
-    private static final String DEFAULT_ACTIONNAMETEMPLATE = "_${method}";
+    public static final String DEFAULT_ACTIONNAMETEMPLATE = "_${method}";
 
     private TextTemplateEvaluator evaluator_ = new SimpleTextTemplateEvaluator();
 
@@ -73,10 +71,8 @@ public class YmirPathMapping implements PathMapping {
 
     private String parameterTemplate_;
 
-    private String buttonNamePatternStringForDispatching_ = DEFAULT_BUTTONNAMEPATTERNSTRINGFORDISPATCHING;
-
     private Pattern buttonNamePatternForDispatching_ = Pattern
-            .compile(buttonNamePatternStringForDispatching_);
+            .compile(BUTTONNAMEPATTERNSTRINGFORDISPATCHING);
 
     private boolean denied_;
 
@@ -165,14 +161,6 @@ public class YmirPathMapping implements PathMapping {
         pathInfoTemplate_ = PropertyUtils.valueOf(map
                 .get(KEY_PATHINFO_TEMPLATE), (String) null);
         map.remove(KEY_PATHINFO_TEMPLATE);
-        String buttonNamePatternStringForDispatching = PropertyUtils.valueOf(
-                map.get(KEY_BUTTONNAMEPATTERN), (String) null);
-        map.remove(KEY_BUTTONNAMEPATTERN);
-        if (buttonNamePatternStringForDispatching != null) {
-            buttonNamePatternStringForDispatching_ = buttonNamePatternStringForDispatching;
-            buttonNamePatternForDispatching_ = Pattern
-                    .compile(buttonNamePatternStringForDispatching);
-        }
         parameterTemplate_ = PropertyUtils.valueOf(map
                 .get(KEY_PARAMETER_TEMPLATE), (String) null);
         map.remove(KEY_PARAMETER_TEMPLATE);
@@ -212,10 +200,6 @@ public class YmirPathMapping implements PathMapping {
 
     public Pattern getPattern() {
         return pattern_;
-    }
-
-    public String getButtonNamePatternStringForDispatching() {
-        return buttonNamePatternStringForDispatching_;
     }
 
     public VariableResolver match(String path, String method) {
@@ -343,39 +327,10 @@ public class YmirPathMapping implements PathMapping {
         if (buttonNamePatternForDispatching_ != null) {
             Matcher matcher = buttonNamePatternForDispatching_.matcher(name);
             if (matcher.find()) {
-                if (matcher.groupCount() > 0) {
-                    return matcher.group(1);
-                } else {
-                    // 「()」が指定されていない。
-                    throw new IllegalArgumentException(
-                            "parameter pattern must have ( ) specification: "
-                                    + buttonNamePatternStringForDispatching_);
-                }
+                return matcher.group(1);
             }
         }
         return null;
-    }
-
-    /**
-     * リクエストパラメータによるディスパッチを行なうかどうかを返します。
-     * <p>このメソッドの返り値がtrueの場合、
-     * コンポーネントが持つメソッドのうち、
-     * アクション名とリクエストパラメータを
-     * 「<code>_</code>」で連結したものと同じ名前のメソッドが呼び出されます。
-     * 例えばコンポーネントのメソッドとして「<code>_post_update</code>」という名前のものと
-     * 「<code>_post_replace</code>」という名前のものがある場合、
-     * リクエストに対応するアクション名が「<code>_post</code>」でかつ
-     * リクエストパラメータに「<code>update</code>」というものが含まれている場合は
-     * 「<code>_post_update</code>」が呼び出されます。
-     * （なお、「<code>_post_XXXX</code>」形式のメソッドが存在しない場合は
-     * 「<code>_post</code>」メソッドが呼び出されます。）
-     * </p>
-     *
-     * @return リクエストパラメータによるディスパッチを行なうかどうか。
-     */
-    // TODO [YMIR-1.0][#YMIR-256] 廃止する。
-    public boolean isDispatchingByButton() {
-        return (buttonNamePatternForDispatching_ != null);
     }
 
     /**
