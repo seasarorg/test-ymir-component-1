@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
+  "http://www.seasar.org/dtd/components24.dtd">
+<components>
+  <include path="global.dicon" />
+  <!-- mapping.dicon -->
+  <component class="org.seasar.ymir.impl.PathMappingProviderImpl">
+    <property name="pathMappings">
+      @org.seasar.cms.pluggable.util.ContainerUtils@findLocalComponents(container,
+      @org.seasar.ymir.PathMapping@class)
+    </property>
+  </component>
+  <component class="org.seasar.ymir.impl.PathMappingImpl">
+    <arg>"^/article\\.done$"</arg>
+    <arg>"articlePage"</arg>
+    <arg>"_${method}"</arg>
+    <arg>""</arg>
+    <arg>"/article.do"</arg>
+    <arg>null</arg>
+  </component>
+  <component class="org.seasar.ymir.impl.PathMappingImpl">
+    <arg>"^/article\\.do$"</arg>
+    <arg>"articlePage"</arg>
+    <arg>"_${method}"</arg>
+    <arg>""</arg>
+    <arg>"/article.html"</arg>
+    <arg>null</arg>
+  </component>
+  <component class="org.seasar.ymir.impl.PathMappingImpl">
+    <arg>"^/article\\.html$"</arg>
+    <arg>"articlePage"</arg>
+    <arg>"_${method}"</arg>
+    <arg>""</arg>
+    <arg>"/article.html"</arg>
+    <arg>null</arg>
+  </component>
+  <component name="articlePage"
+    class="org.seasar.ymir.impl.ArticlePage" />
+
+  <!-- ymir.dicon -->
+  <component
+    class="org.seasar.framework.container.autoregister.ComponentAutoRegister">
+    <initMethod name="addReferenceClass">
+      <arg>@org.seasar.ymir.Ymir@class</arg>
+    </initMethod>
+    <initMethod name="addClassPattern">
+      <arg>"org.seasar.ymir.response.constructor.impl"</arg>
+      <arg>".*ResponseConstructor"</arg>
+    </initMethod>
+    <initMethod name="addIgnoreClassPattern">
+      <arg>"org.seasar.ymir.response.constructor.impl"</arg>
+      <arg>"Abstract.*"</arg>
+    </initMethod>
+    <initMethod name="addClassPattern">
+      <arg>"org.seasar.ymir.response.scheme.impl"</arg>
+      <arg>".*Strategy"</arg>
+    </initMethod>
+    <initMethod name="addIgnoreClassPattern">
+      <arg>"org.seasar.ymir.response.scheme.impl"</arg>
+      <arg>"Abstract.*"</arg>
+    </initMethod>
+    <initMethod name="registerAll" />
+  </component>
+  <component
+    class="org.seasar.ymir.container.RequestComponentDefFactory" />
+  <component class="org.seasar.ymir.impl.YmirImpl">
+    <property name="lifecycleListeners" bindingType="none">
+      <meta name="delayed">
+        @org.seasar.cms.pluggable.util.PluggableUtils@findAscendantComponents(container,
+        @org.seasar.ymir.LifecycleListener@class)
+      </meta>
+    </property>
+  </component>
+  <component class="org.seasar.ymir.impl.RequestProcessorImpl">
+    <property name="updaters" bindingType="none">
+      <meta name="delayed">
+        @org.seasar.cms.pluggable.util.PluggableUtils@findAscendantComponents(container,
+        @org.seasar.ymir.Updater@class)
+      </meta>
+    </property>
+  </component>
+  <component class="org.seasar.ymir.impl.PageProcessorImpl" />
+  <component class="org.seasar.ymir.impl.ResponseProcessorImpl" />
+  <component class="org.seasar.ymir.impl.ExceptionProcessorImpl" />
+  <component
+    class="org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl" />
+  <component
+    class="org.seasar.ymir.response.scheme.impl.StrategySelectorImpl" />
+  <component
+    class="org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl" />
+  <component class="org.seasar.ymir.impl.ApplicationManagerImpl" />
+  <component class="org.seasar.ymir.cache.impl.CacheManagerImpl" />
+  <component
+    class="org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl" />
+  <component name="sessionManager"
+    class="org.seasar.ymir.session.impl.SessionManagerImpl" />
+  <component name="componentMetaDataFactory"
+    class="org.seasar.ymir.impl.ComponentMetaDataFactoryImpl" />
+  <component name="sessionScope"
+    class="org.seasar.ymir.scope.impl.SessionScope" />
+  <component name="requestScope"
+    class="org.seasar.ymir.scope.impl.RequestScope" />
+  <component class="org.seasar.ymir.impl.TypeConversionManagerImpl" />
+  <component name="scopeManager"
+    class="org.seasar.ymir.scope.impl.ScopeManagerImpl" />
+  <component name="actionManager"
+    class="org.seasar.ymir.impl.ActionManagerImpl" />
+  <!-- FOR TEST -->
+  <component name="parentPage" class="org.seasar.ymir.impl.ParentPage" />
+  <component name="child1Page" class="org.seasar.ymir.impl.Child1Page" />
+  <component name="child2Page" class="org.seasar.ymir.impl.Child2Page" />
+  <component name="child3Page" class="org.seasar.ymir.impl.Child3Page" />
+</components>

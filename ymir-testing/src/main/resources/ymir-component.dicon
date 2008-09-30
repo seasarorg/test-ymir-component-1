@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
+  "http://www.seasar.org/dtd/components24.dtd">
+<components>
+  <component name="applicationManager"
+    class="org.seasar.ymir.impl.ApplicationManagerImpl" />
+  <component name="cacheManager"
+    class="org.seasar.ymir.cache.impl.CacheManagerImpl" />
+  <component name="mimeTypeDetector"
+    class="org.seasar.ymir.impl.ServletMimeTypeDetector" />
+  <component name="annotationHandler"
+    class="org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl" />
+  <component name="messages"
+    class="org.seasar.ymir.impl.MessagesImpl">
+    <initMethod name="addPath">
+      <arg>"messages.xproperties"</arg>
+    </initMethod>
+  </component>
+  <component name="noteRenderer"
+    class="org.seasar.ymir.impl.NoteRendererImpl" />
+  <component name="localeManager"
+    class="org.seasar.ymir.impl.LocaleManagerImpl" />
+  <component name="sessionManager"
+    class="org.seasar.ymir.session.impl.SessionManagerImpl" />
+  <component name="windowManager"
+    class="org.seasar.ymir.window.impl.WindowManagerImpl" />
+  <component name="dateManager"
+    class="org.seasar.ymir.impl.DateManagerImpl" />
+  <component name="redirectionManager"
+    class="org.seasar.ymir.redirection.impl.RedirectionManagerImpl" />
+  <component name="tokenManager"
+    class="org.seasar.ymir.impl.TokenManagerImpl" />
+  <component name="hotdeployManager"
+    class="org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl" />
+  <component name="typeConversionManager"
+    class="org.seasar.ymir.impl.BeanUtilsTypeConversionManager" />
+  <component name="conversationManager"
+    class="org.seasar.ymir.conversation.impl.ConversationManagerImpl" />
+  <component name="componentMetaDataFactory"
+    class="org.seasar.ymir.impl.ComponentMetaDataFactoryImpl" />
+  <component name="scopeManager"
+    class="org.seasar.ymir.scope.impl.ScopeManagerImpl" />
+  <component name="actionManager"
+    class="org.seasar.ymir.impl.ActionManagerImpl" />
+  <!-- HotdeployFitter -->
+  <component name="listFitter"
+    class="org.seasar.ymir.hotdeploy.fitter.impl.ListFitter" />
+  <component name="mapFitter"
+    class="org.seasar.ymir.hotdeploy.fitter.impl.MapFitter" />
+  <component name="collectionFitter"
+    class="org.seasar.ymir.hotdeploy.fitter.impl.CollectionFitter" />
+</components>

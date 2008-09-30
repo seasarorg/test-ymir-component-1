@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
+  "http://www.seasar.org/dtd/components24.dtd">
+<components>
+  <component name="sessionScope"
+    class="org.seasar.ymir.scope.impl.SessionScope" />
+  <component name="hotdeployManager"
+    class="org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl" />
+  <component name="applicationManager"
+    class="org.seasar.ymir.mock.MockApplicationManager" />
+  <component name="typeConversionManager"
+    class="org.seasar.ymir.impl.YmirTypeConversionManager" />
+  <component name="sessionManager"
+    class="org.seasar.ymir.session.impl.SessionManagerImpl" />
+</components>

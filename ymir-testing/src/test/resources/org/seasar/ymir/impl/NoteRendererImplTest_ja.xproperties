@@ -1,0 +1,10 @@
+_.note.parameter.segment.direction=r
+_.note.parameter.head=
+_.note.parameter.delimiter=の
+_.note.parameter.tail=
+_.note.parameter.segment.template={2}番目の{0}
+
+template=エラー：{0}が不正です。
+label.a=エー
+label.b=ビー
+label.c=シー

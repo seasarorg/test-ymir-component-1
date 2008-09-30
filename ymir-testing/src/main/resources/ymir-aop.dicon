@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
+  "http://www.seasar.org/dtd/components24.dtd">
+<components>
+  <include path="ymir-component.dicon" />
+  <component name="HTTPInterceptor"
+    class="org.seasar.ymir.aop.interceptor.impl.HTTPInterceptor" />
+  <component name="HTTPSInterceptor"
+    class="org.seasar.ymir.aop.interceptor.impl.HTTPSInterceptor" />
+</components>

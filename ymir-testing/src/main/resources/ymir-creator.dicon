@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
+  "http://www.seasar.org/dtd/components24.dtd">
+<components>
+  <include path="ymir-customizer.dicon" />
+  <component name="constraintCreator"
+    class="org.seasar.ymir.creator.ConstraintCreator" />
+  <component name="converterCreator"
+    class="org.seasar.ymir.creator.ConverterCreator" />
+  <component name="daoCreator"
+    class="org.seasar.framework.container.creator.DaoCreator" />
+  <component name="dxoCreator"
+    class="org.seasar.framework.container.creator.DxoCreator" />
+  <component name="exceptionHandlerCreator"
+    class="org.seasar.ymir.creator.ExceptionHandlerCreator" />
+  <component name="helperCreator"
+    class="org.seasar.ymir.creator.HelperCreator" />
+  <component name="interceptorCreator"
+    class="org.seasar.framework.container.creator.InterceptorCreator" />
+  <component name="logicCreator"
+    class="org.seasar.ymir.creator.LogicCreator" />
+  <component name="pageCreator"
+    class="org.seasar.ymir.creator.PageCreator" />
+  <component name="serviceCreator"
+    class="org.seasar.ymir.creator.ServiceCreator" />
+</components>
