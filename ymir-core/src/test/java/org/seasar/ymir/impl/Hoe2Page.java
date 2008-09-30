@@ -6,7 +6,6 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Out;
-import org.seasar.ymir.annotation.Protected;
 import org.seasar.ymir.annotation.RequestParameter;
 import org.seasar.ymir.scope.impl.SessionScope;
 
@@ -24,7 +23,6 @@ public class Hoe2Page {
     public void setHoehoe3(String hoehoe3) {
     }
 
-    @Protected
     public void setHoehoe4(String hoehoe4) {
     }
 
@@ -50,7 +48,6 @@ public class Hoe2Page {
     public void setFugafuga3(String fugafuga3) {
     }
 
-    @Protected
     public void setFugafuga4(String fugafuga4) {
     }
 

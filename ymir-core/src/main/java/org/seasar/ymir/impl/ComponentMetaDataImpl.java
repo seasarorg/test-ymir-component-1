@@ -4,16 +4,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.seasar.framework.container.S2Container;
-import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.ComponentMetaData;
-import org.seasar.ymir.FormFile;
 import org.seasar.ymir.MethodNotFoundRuntimeException;
 import org.seasar.ymir.Phase;
 import org.seasar.ymir.TypeConversionManager;
@@ -22,7 +18,6 @@ import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Invoke;
 import org.seasar.ymir.annotation.Out;
 import org.seasar.ymir.annotation.Populate;
-import org.seasar.ymir.annotation.Protected;
 import org.seasar.ymir.annotation.Resolve;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.scope.Scope;
@@ -50,8 +45,6 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
     private ScopeManager scopeManager_;
 
     private TypeConversionManager typeConversionManager_;
-
-    private Set<String> protectedNameSet_ = new HashSet<String>();
 
     private List<ScopeAttributeInjector> scopeAttributeInjectorList_ = new ArrayList<ScopeAttributeInjector>();
 
@@ -93,29 +86,16 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
     }
 
     void register(Method method) {
-        boolean shouldProtect = false;
-
-        Populate[] populates = annotationHandler_.getAnnotations(method,
-                Populate.class);
-        if (populates.length > 0) {
-            shouldProtect = true;
-        }
-        for (Populate populate : populates) {
+        for (Populate populate : annotationHandler_.getAnnotations(method,
+                Populate.class)) {
             registerForPopulationFromScope(populate, method);
         }
 
-        In[] ins = annotationHandler_.getAnnotations(method, In.class);
-        if (ins.length > 0) {
-            shouldProtect = true;
-        }
-        for (In in : ins) {
+        for (In in : annotationHandler_.getAnnotations(method, In.class)) {
             registerForInjectionFromScope(in, method);
         }
 
-        Out[] outs = annotationHandler_.getAnnotations(method, Out.class);
-        // パラメータをSetterで受けて@OutつきGetterでオブジェクトスコープにOutjectするケース
-        // があるため、@Outがついている場合はプロテクトしない。
-        for (Out out : outs) {
+        for (Out out : annotationHandler_.getAnnotations(method, Out.class)) {
             registerForOutjectionToScope(out, method);
         }
 
@@ -135,30 +115,8 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
             methodsMap_.put(phase, methods);
         }
 
-        if (annotationHandler_.isAnnotationPresent(method, Binding.class)
-                || annotationHandler_.isAnnotationPresent(method,
-                        Protected.class)) {
-            shouldProtect = true;
-        }
-
-        Class<?>[] types = method.getParameterTypes();
-        if (method.getName().startsWith("set")
-                && types.length == 1
-                && (!FormFile.class.isAssignableFrom(types[0])
-                        && types[0].isInterface() || types[0].isArray()
-                        && !FormFile.class.isAssignableFrom(types[0]
-                                .getComponentType())
-                        && types[0].getComponentType().isInterface())) {
-            // S2Container用のsetterとみなしてプロテクトする。
-            shouldProtect = true;
-        }
-
-        if (shouldProtect) {
-            protectedNameSet_.add(BeanUtils.toPropertyName(method.getName(),
-                    false));
-        }
-
         // メソッドの引数についてScopeAttributeResolverを生成して登録する。
+        Class<?>[] types = method.getParameterTypes();
         ScopeAttributeResolver[] resolvers = new ScopeAttributeResolver[types.length];
         for (int i = 0; i < types.length; i++) {
             ScopeAttributeResolverImpl resolver = null;
