@@ -15,7 +15,7 @@
       <outputDirectory>src/main/webapp/WEB-INF/lib</outputDirectory>
       <scope>runtime</scope>
       <excludes>
-        <exclude>${artifactId}-*.jar</exclude>
+        <exclude>${artifactId}*.jar</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>
