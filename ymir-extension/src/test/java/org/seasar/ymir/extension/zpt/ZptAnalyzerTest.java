@@ -844,13 +844,8 @@ public class ZptAnalyzerTest extends TestCase {
                 .getMetaValueOnSetter(Globals.META_NAME_FORMPROPERTY));
     }
 
-    public void testAnalyze49_strictInjectionモードではRequestParameterアノテーションが付与されること()
+    public void testAnalyze49_RequestParameterアノテーションが付与されること()
             throws Exception {
-
-        sourceCreator_.getApplication().setProperty(
-                Globals.APPKEY_CORE_REQUESTPARAMETER_STRICTINJECTION,
-                String.valueOf(true));
-
         act("testAnalyze49");
 
         ClassDesc cd = getClassDesc(CLASSNAME);
