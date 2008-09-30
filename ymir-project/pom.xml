@@ -252,8 +252,9 @@
   </distributionManagement>
   <modules>
     <module>../ymir-core</module>
-    <module>../ymir-zpt</module>
+    <module>../ymir-testing</module>
     <module>../ymir-it</module>
+    <module>../ymir-zpt</module>
     <module>../ymir-beantable</module>
     <module>../ymir-extension</module>
     <module>../skeleton/ymir-skeleton-project</module>
