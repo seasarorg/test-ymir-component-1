@@ -9,7 +9,7 @@ import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.impl.RequestParameterScope;
-import org.seasar.ymir.test.YmirTestCase;
+import org.seasar.ymir.testing.YmirTestCase;
 
 import com.example.web.ScopeAttributePopulatorTest2Page;
 import com.example.web.ScopeAttributePopulatorTestPage;

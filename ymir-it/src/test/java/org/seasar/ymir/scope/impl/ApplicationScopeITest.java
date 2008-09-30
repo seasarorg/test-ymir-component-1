@@ -5,7 +5,7 @@ import static org.seasar.ymir.Globals.APPKEY_CORE_REQUESTPARAMETER_STRICTINJECTI
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
-import org.seasar.ymir.test.PageTestCase;
+import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.ApplicationScopeTestPage;
 

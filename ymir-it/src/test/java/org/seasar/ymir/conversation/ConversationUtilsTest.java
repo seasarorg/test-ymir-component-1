@@ -1,7 +1,7 @@
 package org.seasar.ymir.conversation;
 
 import org.seasar.ymir.Request;
-import org.seasar.ymir.test.YmirTestCase;
+import org.seasar.ymir.testing.YmirTestCase;
 
 public class ConversationUtilsTest extends YmirTestCase {
     public void test() throws Exception {

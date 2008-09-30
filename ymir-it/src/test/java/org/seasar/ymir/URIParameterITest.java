@@ -1,6 +1,6 @@
 package org.seasar.ymir;
 
-import org.seasar.ymir.test.YmirTestCase;
+import org.seasar.ymir.testing.YmirTestCase;
 
 import com.example.web.URIParameterITest1Page;
 import com.example.web.URIParameterITest2Page;

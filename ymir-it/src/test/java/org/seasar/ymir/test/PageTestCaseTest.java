@@ -1,6 +1,7 @@
 package org.seasar.ymir.test;
 
 import org.seasar.ymir.Request;
+import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.PageTestCaseTestPage;
 

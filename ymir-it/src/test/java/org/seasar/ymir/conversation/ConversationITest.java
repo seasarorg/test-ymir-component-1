@@ -1,7 +1,7 @@
 package org.seasar.ymir.conversation;
 
 import org.seasar.ymir.Request;
-import org.seasar.ymir.test.YmirTestCase;
+import org.seasar.ymir.testing.YmirTestCase;
 
 import com.example.web.Conversation2Phase2Page;
 

@@ -1,6 +1,6 @@
 package org.seasar.ymir;
 
-import org.seasar.ymir.test.YmirTestCase;
+import org.seasar.ymir.testing.YmirTestCase;
 
 import com.example.web.ForwardResponseITest2Page;
 import com.example.web.ForwardResponseITest4Page;

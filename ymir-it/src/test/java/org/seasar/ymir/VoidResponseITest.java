@@ -1,9 +1,6 @@
 package org.seasar.ymir;
 
-import org.seasar.ymir.Request;
-import org.seasar.ymir.Response;
-import org.seasar.ymir.ResponseType;
-import org.seasar.ymir.test.PageTestCase;
+import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.VoidResponseITestPage;
 

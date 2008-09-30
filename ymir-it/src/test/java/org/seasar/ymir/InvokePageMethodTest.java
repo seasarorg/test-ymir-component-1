@@ -2,7 +2,7 @@ package org.seasar.ymir;
 
 import java.util.List;
 
-import org.seasar.ymir.test.PageTestCase;
+import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.InvokePageMethodTestPage;
 

@@ -1,7 +1,8 @@
 package org.seasar.ymir;
 
+import org.seasar.ymir.testing.PageTestCase;
+
 import com.example.web.HoePage;
-import org.seasar.ymir.test.PageTestCase;
 
 public class AppDiconITest extends PageTestCase<HoePage> {
     @Override

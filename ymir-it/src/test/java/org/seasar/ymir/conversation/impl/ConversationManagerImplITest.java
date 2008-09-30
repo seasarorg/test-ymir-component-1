@@ -2,7 +2,7 @@ package org.seasar.ymir.conversation.impl;
 
 import org.seasar.ymir.Request;
 import org.seasar.ymir.conversation.Conversation;
-import org.seasar.ymir.test.PageTestCase;
+import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.ConversationManagerImplPage;
 

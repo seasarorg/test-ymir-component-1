@@ -1,7 +1,7 @@
 package org.seasar.ymir.hotdeploy.impl;
 
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
-import org.seasar.ymir.test.PageTestCase;
+import org.seasar.ymir.testing.PageTestCase;
 
 public class HotdeployManagerImplITest extends PageTestCase<Object> {
     @Override

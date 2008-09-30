@@ -2,7 +2,7 @@ package org.seasar.ymir.aop.annotation;
 
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
-import org.seasar.ymir.test.PageTestCase;
+import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.HTTPSPage;
 

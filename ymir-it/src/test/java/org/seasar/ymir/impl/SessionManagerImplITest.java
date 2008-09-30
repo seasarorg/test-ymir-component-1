@@ -4,7 +4,7 @@ import javax.servlet.http.HttpSession;
 
 import org.seasar.ymir.Request;
 import org.seasar.ymir.session.SessionManager;
-import org.seasar.ymir.test.PageTestCase;
+import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.SessionManagerImplPage;
 

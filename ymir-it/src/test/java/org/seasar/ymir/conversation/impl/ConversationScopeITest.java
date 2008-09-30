@@ -3,7 +3,7 @@ package org.seasar.ymir.conversation.impl;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.conversation.ConversationUtils;
 import org.seasar.ymir.conversation.Conversations;
-import org.seasar.ymir.test.YmirTestCase;
+import org.seasar.ymir.testing.YmirTestCase;
 
 import com.example.web.ConversationScopeITest3Page;
 

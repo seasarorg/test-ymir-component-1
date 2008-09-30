@@ -6,12 +6,12 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
-import org.seasar.framework.mock.servlet.MockHttpServletRequest;
-import org.seasar.framework.mock.servlet.MockHttpSession;
-import org.seasar.framework.mock.servlet.MockServletContext;
-import org.seasar.ymir.test.PageTestCase;
-import org.seasar.ymir.test.mock.servlet.MockHttpServletRequestImpl;
-import org.seasar.ymir.test.mock.servlet.MockHttpSessionImpl;
+import org.seasar.ymir.mock.servlet.MockHttpServletRequest;
+import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
+import org.seasar.ymir.mock.servlet.MockHttpSession;
+import org.seasar.ymir.mock.servlet.MockHttpSessionImpl;
+import org.seasar.ymir.mock.servlet.MockServletContext;
+import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.ScopePage;
 
