@@ -1,5 +1,7 @@
 
 using System;
+using System.Reflection;
+
 using Seasar.Quill;
 
 using ${glPackageBaseCommon};
@@ -12,30 +14,41 @@ namespace ${glPackageBaseCommon} {
 
     public class ${glCacheBehaviorSelectorName} : ${glBehaviorSelectorInterfaceName} {
 
-        // ===================================================================================
-        //                                                                          Initialize
-        //                                                                          ==========
-        // public void InitializeConditionBeanMetaData() {
-        //     Map<String, ${glDBMetaInterfaceName}> dbmetaMap = ${glDBMetaInstanceHandlerName}.getDBMetaMap();
-        //     Collection<${glDBMetaInterfaceName}> dbmetas = dbmetaMap.values();
-        //     DateTime before = 0;
-        //     if (_log.IsDebugEnabled) {
-        //         before = DateTime.Now;
-        //         _log.Debug("/= = = = = = = = = = = = = = = = = initializeConditionBeanMetaData()");
-        //     }
-        //     for (${glDBMetaInterfaceName} dbmeta : dbmetas) {
-        //         ${glBehaviorReadableInterfaceName} bhv = byName(dbmeta.getTableDbName());
-        //         ${glDaoReadableInterfaceName} dao = bhv.getDaoReadable();
-        //         if (_log.IsDebugEnabled) {
-        //             _log.Debug("[" + dbmeta.TableDbName + "]");
-        //         }
-        //         dao.InitializeDaoMetaData("selectList");
-        //     }
-        //     if (_log.IsDebugEnabled) {
-        //         DateTime after = DateTime.Now;
-        //         _log.Debug("= = = = = = = = = =/ [" + ${glTraceViewUtilName}.convertToPerformanceView(after - before) + "]");
-        //     }
-        // }
+        // ===============================================================================
+        //                                                                      Definition
+        //                                                                      ==========
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        // ===============================================================================
+        //                                                                       Attribute
+        //                                                                       =========
+        protected ${glDaoSelectorInterfaceName} _daoSelector;
+
+        // ===============================================================================
+        //                                                                      Initialize
+        //                                                                      ==========
+        public void InitializeConditionBeanMetaData() {
+            Map<String, ${glDBMetaInterfaceName}> dbmetaMap = ${glDBMetaInstanceHandlerName}.GetDBMetaMap();
+            Collection<${glDBMetaInterfaceName}> dbmetas = dbmetaMap.values();
+            DateTime? before = null;
+            if (_log.IsInfoEnabled) {
+                before = DateTime.Now;
+                _log.Info("/= = = = = = = = = = = = = = = = = InitializeConditionBeanMetaData()");
+            }
+            foreach (${glDBMetaInterfaceName} dbmeta in dbmetas) {
+                ${glDaoReadableInterfaceName} dao = DaoSelector.ByName(dbmeta.TableDbName);
+                MethodInfo method = dao.GetType().GetMethod("InitializeDaoMetaData");
+                if (method == null) {
+                    continue;
+                }
+                method.Invoke(dao, new Object[] {"SelectList"});
+            }
+            if (_log.IsInfoEnabled) {
+                DateTime after = DateTime.Now;
+                _log.Info("Initialized Count: " + dbmetas.size());
+                _log.Info("= = = = = = = = = =/ [" + ${glTraceViewUtilName}.ConvertToPerformanceView(before.Value, after) + "]");
+            }
+        }
     
         // ===============================================================================
         //                                                                  Implementation
@@ -57,17 +70,6 @@ namespace ${glPackageBaseCommon} {
             return InternalSelect<${glBehaviorReadableInterfaceName}>(GetBehaviorType(dbmeta));
         }
 
-        [System.Obsolete("Please use Select<BEHAVIOR>()")]
-        public virtual BEHAVIOR Select<BEHAVIOR>(Type behaviorType) where BEHAVIOR : ${glBehaviorReadableInterfaceName} {
-            QuillComponent component = QuillInjector.GetInstance().Container.GetComponent(behaviorType);
-            BEHAVIOR bhv = (BEHAVIOR)component.GetComponentObject(behaviorType);
-            if (bhv.IsInitialized) {
-                return bhv;
-            }
-            QuillInjector.GetInstance().Inject(bhv);
-            return bhv;
-        }
-
         protected virtual BEHAVIOR InternalSelect<BEHAVIOR>(Type behaviorType) where BEHAVIOR : ${glBehaviorReadableInterfaceName} {
             QuillComponent component = QuillInjector.GetInstance().Container.GetComponent(behaviorType);
             BEHAVIOR bhv = (BEHAVIOR)component.GetComponentObject(behaviorType);
@@ -87,8 +89,7 @@ namespace ${glPackageBaseCommon} {
                 String msg = "The dbmeta.BehaviorTypeName should not return null: dbmeta=" + dbmeta;
                 throw new SystemException(msg);
             }
-            Seasar.Framework.Xml.S2Section config = Seasar.Framework.Xml.S2SectionHandler.GetS2Section();
-            return ForName(behaviorTypeName, config.Assemblys);
+            return ForName(behaviorTypeName, AppDomain.CurrentDomain.GetAssemblies());
         }
 
         protected static Type ForName(string className, System.Collections.IList assemblys) {
@@ -134,6 +135,14 @@ namespace ${glPackageBaseCommon} {
                 String msg = "The value should not be empty: variableName=" + variableName + " value=" + value;
                 throw new SystemException(msg);
             }
+        }
+
+        // ===============================================================================
+        //                                                                        Accessor
+        //                                                                        ========
+        public ${glDaoSelectorInterfaceName} DaoSelector {
+            get { return _daoSelector; }
+            set { _daoSelector = value; }
         }
     }
 }

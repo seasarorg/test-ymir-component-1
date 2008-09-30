@@ -18,11 +18,6 @@ namespace ${glPackageBaseCommonS2DaoInternalSqlHandler} {
     public abstract class ${glInternalAbstractAutoHandler} : ${glInternalBasicHandler} {
 
         // ===============================================================================
-        //                                                                      Definition
-        //                                                                      ==========
-        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
-        // ===============================================================================
         //                                                                       Attribute
         //                                                                       =========
         protected readonly IBeanMetaData _beanMetaData;
@@ -78,17 +73,17 @@ namespace ${glPackageBaseCommonS2DaoInternalSqlHandler} {
             } finally {
                 Close(cmd);
             }
-            PostUpdateBean(bean);
+            PostUpdateBean(bean, ret);
             return ret;
         }
 
         // ===============================================================================
         //                                                                   Assist Helper
         //                                                                   =============
-        protected virtual void PreUpdateBean(object bean) {
+        protected virtual void PreUpdateBean(Object bean) {
         }
 
-        protected virtual void PostUpdateBean(object bean) {
+        protected virtual void PostUpdateBean(Object bean, int ret) {
         }
 
         protected abstract void SetupBindVariables(object bean);
@@ -163,7 +158,6 @@ namespace ${glPackageBaseCommonS2DaoInternalSqlHandler} {
             if (bmd.HasVersionNoPropertyType) {
                 IPropertyType pt = bmd.VersionNoPropertyType;
                 PropertyInfo pi = pt.PropertyInfo;
-                _log.Debug(pi.Name);
                 varList.Add(pi.GetValue(bean, null));
                 varTypeList.Add(pi.PropertyType);
             }

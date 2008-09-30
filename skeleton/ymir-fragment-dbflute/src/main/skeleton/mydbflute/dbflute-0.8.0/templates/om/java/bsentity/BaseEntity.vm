@@ -146,28 +146,26 @@ public abstract class $myClassName implements ${myEntityInterfaceName}, java.io.
     //                                                          Classification Classifying
     //                                                          ==========================
 #foreach ($col in $table.columns)
-  #if (${col.hasClassification()})
-    #foreach ($classificationMap in $col.classificationMapList)
-
+#if (${col.hasClassification()})
+#foreach ($classificationMap in $col.classificationMapList)
     /**
      * Classify the value of ${col.uncapitalisedJavaName} as ${classificationMap.get('name')}. <br />
      * ${database.getMapValue($classificationMap, 'comment')}
      */
     public void classify${col.JavaName}${classificationMap.get('name')}() {
-        String code = ${glPackageBaseCommon}.${glClassificationDefinition}.${database.classificationCodeVariableNamePrefix}${col.classificationName}_${classificationMap.get('name')};
-        set${col.JavaName}(new ${col.JavaNative}(code));
+        String cd = ${glPackageBaseCommon}.${glClassificationDefinition}.${database.classificationCodeVariableNamePrefix}${col.classificationName}_${classificationMap.get('name')};
+        set${col.JavaName}(new ${col.JavaNative}(cd));
     }
-    #end
-  #end
-#end
 
+#end
+#end
+#end
     // ===================================================================================
     //                                                        Classification Determination
     //                                                        ============================
 #foreach ($col in $table.columns)
-  #if (${col.hasClassification()})
-    #foreach ($classificationMap in $col.classificationMapList)
-
+#if (${col.hasClassification()})
+#foreach ($classificationMap in $col.classificationMapList)
     /**
      * Is the value of the column '${col.UncapitalisedJavaName}' '${classificationMap.get('name')}'? <br />
      * ${database.getMapValue($classificationMap, 'comment')}
@@ -178,57 +176,47 @@ public abstract class $myClassName implements ${myEntityInterfaceName}, java.io.
      * @return Determination.
      */
     public boolean is${col.JavaName}${classificationMap.get('name')}() {
-        return helpEqualingIgnoreCaseClassification(_${col.UncapitalisedJavaName}, ${glPackageBaseCommon}.${glClassificationDefinition}.${database.classificationCodeVariableNamePrefix}${col.ClassificationName}_${classificationMap.get('name')});
+        return helpEqCls(_${col.UncapitalisedJavaName}, ${glPackageBaseCommon}.${glClassificationDefinition}.${database.classificationCodeVariableNamePrefix}${col.ClassificationName}_${classificationMap.get('name')});
     }
-    #end
-  #end
-#end
 
+#end
+#end
+#end
 #if (${table.hasClassification()})
-    private boolean helpEqualingIgnoreCaseClassification(Object value, String code) {
+    private boolean helpEqCls(Object value, String code) {
         if (value == null) { return false; }
         return code.equalsIgnoreCase(value.toString());
     }
-#end
 
+#end
     // ===================================================================================
     //                                                           Classification Name/Alias
     //                                                           =========================
 #set ($isUseHelpGettingFromClassificationMap = false)
 #foreach ($col in $table.Columns)
-  #if (${col.hasClassification()})
-    #if (${col.hasClassificationName()})
-      #set ($isUseHelpGettingFromClassificationMap = true)
-
+#if (${col.hasClassification()})
+#if (${col.hasClassificationName()})
     /**
      * Get the value of the column '${col.uncapitalisedJavaName}' as classification-name.
      * @return The value of the column '${col.uncapitalisedJavaName}' as classification-name. (Nullable)
      */
     public String get${col.JavaName}Name() {
-        return helpGettingFromClassificationMap(_${col.UncapitalisedJavaName}, ${glPackageBaseCommon}.${glClassificationDefinition}.CODE_NAME_MAP_${col.ClassificationName});
+        return ${glPackageBaseCommon}.${glClassificationDefinition}.find${col.ClassificationName}Name(_${col.UncapitalisedJavaName} + "");
     }
-    #end
-    #if (${col.hasClassificationAlias()})
-      #set ($isUseHelpGettingFromClassificationMap = true)
 
+#end
+#if (${col.hasClassificationAlias()})
     /**
      * Get the value of the column '${col.UncapitalisedJavaName}' as classification-alias.
      * @return The value of the column '${col.UncapitalisedJavaName}' as classification-alias. (Nullable)
      */
     public String get${col.JavaName}Alias() {
-        return helpGettingFromClassificationMap(_${col.UncapitalisedJavaName}, ${glPackageBaseCommon}.${glClassificationDefinition}.CODE_ALIAS_MAP_${col.ClassificationName});
+        return ${glPackageBaseCommon}.${glClassificationDefinition}.find${col.ClassificationName}Alias(_${col.UncapitalisedJavaName} + "");
     }
-    #end
-  #end
-#end
 
-#if (${isUseHelpGettingFromClassificationMap})
-    private String helpGettingFromClassificationMap(Object key, java.util.Map<String, String> map) {
-        if (key == null) { return null; }
-        return map.get(key.toString()); 
-    }
 #end
-
+#end
+#end
     // ===================================================================================
     //                                                                    Foreign Property
     //                                                                    ================
@@ -401,7 +389,7 @@ public abstract class $myClassName implements ${myEntityInterfaceName}, java.io.
      */
     public boolean equals(Object other) {
         if (other == null || !(other instanceof $myClassName)) { return false; }
-        final $myClassName otherEntity = ($myClassName)other;
+        $myClassName otherEntity = ($myClassName)other;
 #foreach ($col in $table.primaryKey)
         if (!helpComparingValue(get${col.JavaName}(), otherEntity.get${col.JavaName}())) { return false; }
 #end
@@ -461,14 +449,12 @@ public abstract class $myClassName implements ${myEntityInterfaceName}, java.io.
      * @return The view string of columns. (NotNull)
      */
     public String toString() {
-        final String delimiter = ",";
-        final StringBuilder sb = new StringBuilder();
-
+        String delimiter = ",";
+        StringBuilder sb = new StringBuilder();
 #foreach ($col in $table.columns)
         sb.append(delimiter).append(get${col.javaName}());
 #end
-
-        sb.delete(0, delimiter.length());
+        if (sb.length() > 0) { sb.delete(0, delimiter.length()); }
         sb.insert(0, "{").append("}");
         return sb.toString();
     }

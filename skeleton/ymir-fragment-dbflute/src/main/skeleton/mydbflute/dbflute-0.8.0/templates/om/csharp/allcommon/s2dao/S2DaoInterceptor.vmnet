@@ -1,16 +1,19 @@
 
 using System;
-using System.Reflection;
 using System.Collections;
+using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 
 using Seasar.Framework.Aop;
 using Seasar.Framework.Aop.Interceptors;
+using Seasar.Framework.Beans;
 using Seasar.Dao;
 
 using ${glPackageBaseCommon};
 using ${glPackageBaseCommonCBean};
 using ${glPackageBaseCommonCBeanOutsidesql};
+using ${glPackageBaseCommonDBMeta};
 using ${glPackageBaseCommonException};
 using ${glPackageBaseCommonUtil};
 
@@ -26,13 +29,13 @@ namespace ${glPackageBaseCommonS2Dao} {
         // ===============================================================================
         //                                                                       Attribute
         //                                                                       =========
-        private IDaoMetaDataFactory daoMetaDataFactory_;
+        private IDaoMetaDataFactory _daoMetaDataFactory;
 
         // ===============================================================================
         //                                                                     Constructor
         //                                                                     ===========
         public ${glDaoInterceptor}(IDaoMetaDataFactory daoMetaDataFactory) {
-            daoMetaDataFactory_ = daoMetaDataFactory;
+            _daoMetaDataFactory = daoMetaDataFactory;
         }
 		
         // ===============================================================================
@@ -62,6 +65,14 @@ namespace ${glPackageBaseCommonS2Dao} {
             MethodBase method = invocation.Method;
             if (!method.IsAbstract) {
                 return invocation.Proceed();
+            }
+        
+            // - - - - - - - - - - - - -
+            // Initialize DAO meta data
+            // - - - - - - - - - - - - -
+            if (method.Name.Equals("InitializeDaoMetaData")) {
+                InitializeSqlCommand(invocation);
+                return null;// The end! (Initilization Only)
             }
 
             // - - - - - - - - - - -
@@ -142,10 +153,35 @@ namespace ${glPackageBaseCommonS2Dao} {
         // ===============================================================================
         //                                                                      SqlCommand
         //                                                                      ==========
+        protected void InitializeSqlCommand(IMethodInvocation invocation) {
+            Type targetType = GetComponentDef(invocation).ComponentType;
+            IDaoMetaData dmd = _daoMetaDataFactory.GetDaoMetaData(targetType);
+            if (typeof(${glOutsideSqlDaoName}).IsAssignableFrom(targetType)) {
+                return;// Do nothing!
+            } else {
+                Object[] arguments = invocation.Arguments;
+                if (arguments != null && arguments.Length > 0 && arguments[0] is String) {
+                    String methodName = (String)arguments[0];
+                    try {
+                        dmd.GetSqlCommand(methodName);
+                    } catch (MethodNotFoundRuntimeException ignored) {
+                        // Do nothing!
+                        if (IsLogEnabled()) {
+                            Log("Not Found the method: " + methodName + " msg=" + ignored.Message);
+                        }
+                    }
+                    return;
+                } else {
+                    String msg = "The method should have one string argument as method name: " + invocation;
+                    throw new SystemException(msg);
+                }
+            }
+        }
+
         protected ISqlCommand FindSqlCommand(IMethodInvocation invocation) {
             ISqlCommand cmd;
             Type targetType = GetComponentDef(invocation).ComponentType;
-            IDaoMetaData dmd = daoMetaDataFactory_.GetDaoMetaData(targetType);
+            IDaoMetaData dmd = _daoMetaDataFactory.GetDaoMetaData(targetType);
             if (typeof(${glOutsideSqlDaoName}).IsAssignableFrom(targetType)) {
                 cmd = dmd.GetSqlCommand(GenerateSpecifiedOutsideSqlUniqueKey(invocation));
             } else {
@@ -170,8 +206,22 @@ namespace ${glPackageBaseCommonS2Dao} {
         //                                                                  Log Invocation
         //                                                                  ==============
         protected void LogInvocation(IMethodInvocation invocation) {
+            StackTrace stackTrace = new StackTrace();
             MethodBase method = invocation.Method;
-            String invokeName = BuildEntityExpressionFromDaoName(method.DeclaringType.Name) + "." + method.Name;
+            InvokeNameExtractingResult behaviorResult = null;
+            try {
+                behaviorResult = extractBehaviorInvokeName(stackTrace);
+            } catch (Exception ignored) {
+                Log("Failed to extract behavior name: msg=" + ignored.Message);
+            }
+            String invokeName = null;
+            if (behaviorResult != null && behaviorResult.getSimpleClassName() != null) {
+                String invokeClassName = behaviorResult.getSimpleClassName();
+                String invokeMethodName = behaviorResult.getMethodName();
+                invokeName = buildInvocationExpressionWithoutKakko(invocation, invokeClassName, invokeMethodName);
+            } else {
+                invokeName = BuildSimpleExpressionFromDaoName(method.DeclaringType.Name) + "." + method.Name;
+            }
             int length = invokeName.Length;
             StringBuilder sb = new StringBuilder();
             for (int i=0; i < length; i++) {
@@ -180,7 +230,9 @@ namespace ${glPackageBaseCommonS2Dao} {
             Log("/=====================================================" + sb.ToString() + "==");
             Log("                                                      " + invokeName + "()");
             Log("                                                      " + sb.ToString() + "=/");
-			
+
+            LogPath(invocation, stackTrace, behaviorResult);
+
             // Specified OutsideSql
             if (IsSpecifiedOutsideSql(invocation)) {
                 Object[] args = invocation.Arguments;
@@ -194,25 +246,340 @@ namespace ${glPackageBaseCommonS2Dao} {
             }
         }
 
-        protected String BuildEntityExpressionFromDaoName(String name) {
-		    // Commented out because of still thinking.
-    	    // if (name.EndsWith("Dao")) {
-    		//     name = name.Substring(0, name.Length - "Dao".Length);
-    		// }
-            if (!name.StartsWith("${glProjectPrefix}${glBasePrefix}")) {
-                return name;
+        protected String buildInvocationExpressionWithoutKakko(IMethodInvocation invocation, String invokeClassName, String invokeMethodName) {
+            if (invokeClassName.Contains("OutsideSql") && invokeClassName.Contains("Executor")) { // OutsideSql Executor Handling and CSharp Only Contains
+                try {
+                    String originalName = invokeClassName;
+                    if (IsSpecifiedOutsideSql()) {
+                        ${glOutsideSqlContextName} outsideSqlContext = GetOutsideSqlContext();
+                        String tableDbName = outsideSqlContext.TableDbName;
+                        ${glDBMetaInterfaceName} dbmeta = ${glDBMetaInstanceHandlerName}.FindDBMeta(tableDbName);
+                        String behaviorTypeName = dbmeta.BehaviorTypeName;
+                        String behaviorClassName = behaviorTypeName.Substring(behaviorTypeName.LastIndexOf(".") + ".".Length);
+                        invokeClassName = behaviorClassName + ".OutsideSql()";
+                        if (originalName.Contains("OutsideSqlEntityExecutor")) { // CSharp Only Contains
+                            invokeClassName = invokeClassName + ".EntityHandling()";
+                        } else if (originalName.Contains("OutsideSqlPagingExecutor")) { // CSharp Only Contains
+                            if (outsideSqlContext.IsOffsetByCursorForcedly || outsideSqlContext.IsLimitByCursorForcedly) {
+                                invokeClassName = invokeClassName + ".AutoPaging()";
+                            } else {
+                                invokeClassName = invokeClassName + ".ManualPaging()";
+                            }
+                        } else if (originalName.Contains("OutsideSqlCursorExecutor")) { // CSharp Only Contains
+                            invokeClassName = invokeClassName + ".CursorHandling()";
+                        }
+                    } else {
+                        invokeClassName = "OutsideSql";
+                    }
+                } catch (Exception ignored) {
+                    Log("Ignored exception occurred: msg=" + ignored.Message);
+                }
             }
-            int prefixLength = "${glProjectPrefix}${glBasePrefix}".Length;
-			// I want someone to teach me how to do this by CSharp!
-            // if (!Character.isUpperCase(name.substring(prefixLength).charAt(0))) {
-            //     return name;
-            // }
-            if (name.Length <= prefixLength) {
-                return name;
+            String invocationExpressionWithoutKakko = invokeClassName  + "." + invokeMethodName;
+            if ("SelectPage".Equals(invokeMethodName)) { // Special Handling!
+                bool resultTypeInteger = false;
+                if (IsSpecifiedOutsideSql()) {
+                    ${glOutsideSqlContextName} outsideSqlContext = GetOutsideSqlContext();
+                    Object resultTypeSpecification = outsideSqlContext.ResultTypeSpecification;
+                    if (resultTypeSpecification != null && resultTypeSpecification is Type) {
+                        Type resultType = (Type)resultTypeSpecification;
+                        if (typeof(int).IsAssignableFrom(resultType)) {
+                            resultTypeInteger = true;
+                        }
+                    }
+                }
+                if (resultTypeInteger || "SelectCount".Equals(invocation.Method.Name)) {
+                    invocationExpressionWithoutKakko = invocationExpressionWithoutKakko + "():count";
+                } else {
+                    invocationExpressionWithoutKakko = invocationExpressionWithoutKakko + "():paging";
+                }
             }
-            return "${glProjectPrefix}" + name.Substring(prefixLength);
+            return invocationExpressionWithoutKakko;
         }
-	
+
+        protected String BuildSimpleExpressionFromDaoName(String name) {
+    		return InvokeNameStringUtil.removeBasePrefixFromSimpleClassName(name);
+        }
+
+        protected void LogPath(IMethodInvocation invocation, StackTrace stackTrace, InvokeNameExtractingResult behaviorResult) {
+            try {
+                int bhvNextIndex = behaviorResult.getNextStartIndex();
+                InvokeNameExtractingResult clientResult = extractClientInvokeName(stackTrace, bhvNextIndex);
+                int clientFirstIndex = clientResult.getFoundFirstIndex();
+                InvokeNameExtractingResult byPassResult = extractByPassInvokeName(stackTrace, bhvNextIndex, clientFirstIndex - bhvNextIndex);
+                String clientInvokeName = clientResult.getInvokeName();
+                String byPassInvokeName = byPassResult.getInvokeName();
+                String behaviorInvokeName = behaviorResult.getInvokeName();
+                if (clientInvokeName.Trim().Length == 0 && byPassInvokeName.Trim().Length == 0) {
+                    return;
+                }
+                Log(clientInvokeName + byPassInvokeName + behaviorInvokeName + "...");
+            } catch (Exception ignored) {
+                Log("Failed to extract client or by-pass name: " + ignored.Message);
+            }
+        }
+
+        protected InvokeNameExtractingResult extractClientInvokeName(StackTrace stackTrace, int startIndex) {
+            InvokeNameExtractingCallback callback = new ClientInvokeNameExtractingCallback(startIndex);
+            return extractInvokeName(callback, stackTrace);
+        }
+
+        protected class ClientInvokeNameExtractingCallback : InvokeNameExtractingCallback {
+            protected int _startIndex;
+            public ClientInvokeNameExtractingCallback(int startIndex) {
+                _startIndex = startIndex;
+            }
+            public bool isTargetElement(String className, String methodName) {
+                return isClassNameEndsWith(className);
+            }
+            public String filterSimpleClassName(String simpleClassName) {
+                return simpleClassName;
+            }
+            public bool isUseAdditionalInfo() {
+                return true;
+            }
+            public int getStartIndex() {
+                return _startIndex;
+            }
+            public int getLoopSize() {
+                return 25;
+            }
+
+            protected bool isClassNameEndsWith(String className) {
+                String[] suffixArray = new String[]{"Page", "Action"};
+                foreach (String suffix in suffixArray) { if (className.EndsWith(suffix)) { return true; } }
+                return false;
+            }
+        }
+
+        protected InvokeNameExtractingResult extractByPassInvokeName(StackTrace stackTrace, int startIndex, int loopSize) {
+            InvokeNameExtractingCallback callback = new ByPassInvokeNameExtractingCallback(startIndex, loopSize);
+            return extractInvokeName(callback, stackTrace);
+        }
+
+        protected class ByPassInvokeNameExtractingCallback : InvokeNameExtractingCallback {
+            protected int _startIndex;
+            protected int _loopSize;
+            public ByPassInvokeNameExtractingCallback(int startIndex, int loopSize) {
+                _startIndex = startIndex;
+                _loopSize = loopSize;
+            }
+            public bool isTargetElement(String className, String methodName) {
+                return isClassNameEndsWith(className);
+            }
+            public String filterSimpleClassName(String simpleClassName) {
+                return simpleClassName;
+            }
+            public bool isUseAdditionalInfo() {
+                return true;
+            }
+            public int getStartIndex() {
+                return _startIndex;
+            }
+            public int getLoopSize() {
+                return _loopSize >= 0 ? _loopSize : 25;
+            }
+
+            protected bool isClassNameEndsWith(String className) {
+                String[] suffixArray = new String[]{"Service", "ServiceImpl", "Facade", "FacadeImpl"};
+                foreach (String suffix in suffixArray) { if (className.EndsWith(suffix)) { return true; } }
+                return false;
+            }
+        }
+
+        protected InvokeNameExtractingResult extractBehaviorInvokeName(StackTrace stackTrace) {
+            InvokeNameExtractingCallback callback = new BehaviorInvokeNameExtractingCallback();
+            return extractInvokeName(callback, stackTrace);
+        }
+
+        protected class BehaviorInvokeNameExtractingCallback : InvokeNameExtractingCallback {
+            public bool isTargetElement(String className, String methodName) {
+                if (isClassNameEndsWith(className)) {
+                    return true;
+                }
+                if (isClassNameContains(className)) {
+                    return true;
+                }
+                if (isClassNameOutsideSqlExecutor(className)) {
+                    return true;
+                }
+                return false;
+            }
+            public String filterSimpleClassName(String simpleClassName) {
+                return removeBasePrefixFromSimpleClassName(simpleClassName);
+            }
+            public bool isUseAdditionalInfo() {
+                return false;
+            }
+            public int getStartIndex() {
+                return 0;
+            }
+            public int getLoopSize() {
+                return 25;
+            }
+
+            protected bool isClassNameEndsWith(String className) {
+                String[] suffixArray = new String[]{"Bhv", "BehaviorReadable", "BehaviorWritable"};
+                foreach (String suffix in suffixArray) { if (className.EndsWith(suffix)) { return true; } }
+                return false;
+            }
+
+            protected bool isClassNameContains(String className) {
+                String[] keywordArray = new String[]{"PagingInvoker"};
+                foreach (String keyword in keywordArray) { if (className.Contains(keyword)) { return true; } }
+                return false;
+            }
+
+            protected bool isClassNameOutsideSqlExecutor(String className) {
+                String[] keywordArray1 = new String[]{"OutsideSql"};
+                String[] keywordArray2 = new String[]{"Executor"};
+                bool containsOutsideSql = false;
+                bool containsExecutor = false; // CSharp Only Contains because of unknown suffix found
+                foreach (String keyword in keywordArray1) { if (className.Contains(keyword)) { containsOutsideSql = true; break; } }
+                foreach (String keyword in keywordArray2) { if (className.Contains(keyword)) { containsExecutor = true; break; } }
+                return containsOutsideSql && containsExecutor;
+            }
+
+            protected String removeBasePrefixFromSimpleClassName(String simpleClassName) {
+                return InvokeNameStringUtil.removeBasePrefixFromSimpleClassName(simpleClassName);
+            }
+        }
+
+        protected InvokeNameExtractingResult extractInvokeName(InvokeNameExtractingCallback callback, StackTrace stackTrace) {
+            String targetSimpleClassName = null;
+            String targetMethodName = null;
+            int lineNumber = 0;
+            int foundIndex = -1;// The minus one means 'Not Found'.
+            int foundFirstIndex = -1;// The minus one means 'Not Found'.
+            bool onTarget = false;
+            for (int i = 0; i < stackTrace.FrameCount; i++) {
+                StackFrame stackFrame = stackTrace.GetFrame(i); // The inner class is not appeared.
+                MethodBase method = stackFrame.GetMethod();
+                if (method == null) {
+                    break; // End
+                }
+                String className = method.DeclaringType.Name; // This is simple class name at CSharp.
+                String methodName = method.Name;
+
+                if (i > callback.getStartIndex() + callback.getLoopSize()) {
+                    break;
+                }
+                if (className.StartsWith("System.")) { // This is system package of CSharp.
+                    if (onTarget) { // But the class name is simple so this 'if' statement is waste... 
+                        break;
+                    }
+                    continue;
+                }
+                if (callback.isTargetElement(className, methodName)) {
+                    if (methodName.Equals("Invoke")) {
+                        continue;
+                    }
+                    targetSimpleClassName = className.Substring(className.LastIndexOf(".") + 1);
+                    targetMethodName = methodName;
+                    if (callback.isUseAdditionalInfo()) {
+                        try {
+                            lineNumber = stackFrame.GetFileLineNumber();
+                        } catch (Exception) {
+                            // Ignored
+                        }
+                    }
+                    foundIndex = i;
+                    if (foundFirstIndex == -1) {
+                        foundFirstIndex = i;
+                    }
+                    onTarget = true;
+                    continue;
+                }
+                if (onTarget) {
+                    break;
+                }
+            }
+            InvokeNameExtractingResult result = new InvokeNameExtractingResult();
+            if (targetSimpleClassName == null) {
+                result.setInvokeName("");// Not Found! It sets empty string as default.
+                return result;
+            }
+            String filteredClassName = callback.filterSimpleClassName(targetSimpleClassName);
+            result.setSimpleClassName(callback.filterSimpleClassName(targetSimpleClassName));
+            result.setMethodName(targetMethodName);
+            if (lineNumber > 0) {
+                result.setInvokeName(filteredClassName + "." + targetMethodName + "():" + lineNumber + " --> ");
+            } else {
+                result.setInvokeName(filteredClassName + "." + targetMethodName + "() --> ");
+            }
+            result.setFoundIndex(foundIndex);
+            result.setFoundFirstIndex(foundFirstIndex);
+            return result;
+        }
+
+        protected interface InvokeNameExtractingCallback {
+            bool isTargetElement(String className, String methodName);
+            String filterSimpleClassName(String simpleClassName);
+            bool isUseAdditionalInfo();
+            int getStartIndex();
+            int getLoopSize();
+        }
+
+        protected class InvokeNameExtractingResult {
+            protected String _simpleClassName;
+            protected String _methodName;
+            protected String _invokeName;
+            protected int _foundIndex;
+            protected int _foundFirstIndex;
+
+            public int getNextStartIndex() {
+                return _foundIndex + 1;
+            }
+
+            public String getSimpleClassName() {
+                return _simpleClassName;
+            }
+            public void setSimpleClassName(String simpleClassName) {
+                _simpleClassName = simpleClassName;
+            }
+            public String getMethodName() {
+                return _methodName;
+            }
+            public void setMethodName(String methodName) {
+                _methodName = methodName;
+            }
+            public String getInvokeName() {
+                return _invokeName;
+            }
+            public void setInvokeName(String invokeName) {
+                _invokeName = invokeName;
+            }
+            public int getFoundIndex() {
+                return _foundIndex;
+            }
+            public void setFoundIndex(int foundIndex) {
+                _foundIndex = foundIndex;
+            }
+            public int getFoundFirstIndex() {
+                return _foundFirstIndex;
+            }
+            public void setFoundFirstIndex(int foundFirstIndex) {
+                _foundFirstIndex = foundFirstIndex;
+            }
+        }
+
+        protected static class InvokeNameStringUtil {
+            public static String removeBasePrefixFromSimpleClassName(String simpleClassName) {
+                if (!simpleClassName.StartsWith("${glProjectPrefix}${glBasePrefix}")) {
+                    return simpleClassName;
+                }
+                int prefixLength = "${glProjectPrefix}${glBasePrefix}".Length;
+                // [Under Review]: I want someone to teach me how to do this by CSharp!
+                // if (!Character.isUpperCase(simpleClassName.substring(prefixLength).charAt(0))) {
+                //     return simpleClassName;
+                // }
+                if (simpleClassName.Length <= prefixLength) {
+                    return simpleClassName;
+                }
+                return "${glProjectPrefix}" + simpleClassName.Substring(prefixLength);
+            }
+        }
+
         // ===============================================================================
         //                                                                  Log SqlCommand
         //                                                                  ==============

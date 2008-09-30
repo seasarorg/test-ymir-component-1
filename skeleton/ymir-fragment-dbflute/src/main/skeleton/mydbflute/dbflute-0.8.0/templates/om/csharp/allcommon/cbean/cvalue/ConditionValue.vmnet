@@ -11,11 +11,26 @@ namespace ${glPackageBaseCommonCValue} {
 [System.Serializable]
 public class ${myClassName} {
 
+    // ==================================================================================
+    //                                                                              Equal
+    //                                                                              =====
     protected Object _equalValue;
 
     public Object Equal {
         get { return _equalValue; }
         set { _equalValue = value; }
+    }
+
+    public bool HasEqual { get {
+        return _equalValue != null;
+    }}
+
+    public bool EqualEqual(Object value) {
+        return HasEqual ? _equalValue.Equals(value) : value == null;
+    }
+
+    public ${myClassName} OverrideEqual(Object value) {
+        _equalValue = value; return this;
     }
 
     protected String _equalLocation;
@@ -29,11 +44,26 @@ public class ${myClassName} {
         return this;
     }
 
+    // ==================================================================================
+    //                                                                          Not Equal
+    //                                                                          =========
     protected Object _notEqualValue;
 
     public Object NotEqual {
         get { return _notEqualValue; }
         set { _notEqualValue = value; }
+    }
+
+    public bool HasNotEqual { get {
+        return _notEqualValue != null;
+    }}
+
+    public bool EqualNotEqual(Object value) {
+        return HasNotEqual ? _notEqualValue.Equals(value) : value == null;
+    }
+
+    public ${myClassName} OverrideNotEqual(Object value) {
+        _notEqualValue = value; return this;
     }
 
     protected String _notEqualLocation;
@@ -47,11 +77,26 @@ public class ${myClassName} {
         return this;
     }
 
+    // ==================================================================================
+    //                                                                        GreaterThan
+    //                                                                        ===========
     protected Object _greaterThanValue;
 
     public Object GreaterThan {
         get { return _greaterThanValue; }
         set { _greaterThanValue = value; }
+    }
+
+    public bool HasGreaterThan { get {
+        return _greaterThanValue != null;
+    }}
+
+    public bool EqualGreaterThan(Object value) {
+        return HasGreaterThan ? _greaterThanValue.Equals(value) : value == null;
+    }
+
+    public ${myClassName} OverrideGreaterThan(Object value) {
+        _greaterThanValue = value; return this;
     }
 
     protected String _greaterThanLocation;
@@ -65,11 +110,26 @@ public class ${myClassName} {
         return this;
     }
 
+    // ==================================================================================
+    //                                                                          Less Than
+    //                                                                          =========
     protected Object _lessThanValue;
 
     public Object LessThan {
         get { return _lessThanValue; }
         set { _lessThanValue = value; }
+    }
+
+    public bool HasLessThan { get {
+        return _lessThanValue != null;
+    }}
+
+    public bool EqualLessThan(Object value) {
+        return HasLessThan ? _lessThanValue.Equals(value) : value == null;
+    }
+
+    public ${myClassName} OverrideLessThan(Object value) {
+        _lessThanValue = value; return this;
     }
 
     protected String _lessThanLocation;
@@ -83,11 +143,26 @@ public class ${myClassName} {
         return this;
     }
 
+    // ==================================================================================
+    //                                                                      Greater Equal
+    //                                                                      =============
     protected Object _greaterEqualValue;
 
     public Object GreaterEqual {
         get { return _greaterEqualValue; }
         set { _greaterEqualValue = value; }
+    }
+
+    public bool HasGreaterEqual { get {
+        return _greaterEqualValue != null;
+    }}
+
+    public bool EqualGreaterEqual(Object value) {
+        return HasGreaterEqual ? _greaterEqualValue.Equals(value) : value == null;
+    }
+
+    public ${myClassName} OverrideGreaterEqual(Object value) {
+        _greaterEqualValue = value; return this;
     }
 
     protected String _greaterEqualLocation;
@@ -101,11 +176,26 @@ public class ${myClassName} {
         return this;
     }
 
+    // ==================================================================================
+    //                                                                         Less Equal
+    //                                                                         ==========
     protected Object _lessEqualValue;
 
     public Object LessEqual {
         get { return _lessEqualValue; }
         set { _lessEqualValue = value; }
+    }
+
+    public bool HasLessEqual { get {
+        return _lessEqualValue != null;
+    }}
+
+    public bool EqualLessEqual(Object value) {
+        return HasLessEqual ? _lessEqualValue.Equals(value) : value == null;
+    }
+
+    public ${myClassName} OverrideLessEqual(Object value) {
+        _lessEqualValue = value; return this;
     }
 
     protected String _lessEqualLocation;
@@ -119,11 +209,26 @@ public class ${myClassName} {
         return this;
     }
 
+    // ==================================================================================
+    //                                                                      Prefix Search
+    //                                                                      =============
     protected Object _prefixSearch;
 
     public Object PrefixSearch {
         get { return _prefixSearch; }
         set { _prefixSearch = value; }
+    }
+
+    public bool HasPrefixSearch { get {
+        return _prefixSearch != null;
+    }}
+
+    public bool EqualPrefixSearch(Object value) {
+        return HasPrefixSearch ? _prefixSearch.Equals(value) : value == null;
+    }
+
+    public ${myClassName} OverridePrefixSearch(Object value) {
+        _prefixSearch = value; return this;
     }
 
     protected String _prefixSearchLocation;
@@ -214,6 +319,18 @@ public class ${myClassName} {
         set { _inScope = value; }
     }
 
+    public bool HasInScope { get {
+        return _inScope != null;
+    }}
+
+    public bool EqualInScope(System.Collections.IList value) {
+        return HasInScope ? _inScope.Equals(value) : value == null;
+    }
+
+    public ${myClassName} OverrideInScope(System.Collections.IList value) {
+        _inScope = value; return this;
+    }
+
     protected String _inScopeLocation;
 
     public String getInScopeLocation() {
@@ -225,11 +342,26 @@ public class ${myClassName} {
         return this;
     }
 
+    // ===================================================================================
+    //                                                                        Not In Scope
+    //                                                                        ============
     protected System.Collections.IList _notInScope;
 
     public System.Collections.IList NotInScope {
         get { return _notInScope; }
         set { _notInScope = value; }
+    }
+
+    public bool HasNotInScope { get {
+        return _notInScope != null;
+    }}
+
+    public bool EqualNotInScope(System.Collections.IList value) {
+        return HasNotInScope ? _notInScope.Equals(value) : value == null;
+    }
+
+    public ${myClassName} OverrideNotInScope(System.Collections.IList value) {
+        _notInScope = value; return this;
     }
 
     protected String _notInScopeLocation;
@@ -243,12 +375,19 @@ public class ${myClassName} {
         return this;
     }
 
+    // ===================================================================================
+    //                                                                             Is Null
+    //                                                                             =======
     protected Object _isNullValue;
 
     public Object IsNull {
         get { return _isNullValue; }
         set { _isNullValue = value; }
     }
+
+    public bool HasIsNull { get {
+        return _isNullValue != null;
+    }}
 
     protected String _isNullLocation;
 
@@ -261,12 +400,19 @@ public class ${myClassName} {
         return this;
     }
 
+    // ===================================================================================
+    //                                                                         Is Not Null
+    //                                                                         ===========
     protected Object _isNotNullValue;
 
     public Object IsNotNull {
         get { return _isNotNullValue; }
         set { _isNotNullValue = value; }
     }
+
+    public bool HasIsNotNull { get {
+        return _isNotNullValue != null;
+    }}
 
     protected String _isNotNullLocation;
 

@@ -212,7 +212,7 @@ public abstract class ${myClassName} extends ${glBehaviorReadableAbstractName} i
                 }
             } catch (${glPackageBaseCommonException}.${glEntityAlreadyDeletedException} e) {
                 exception = e;
-            } catch (IllegalStateException e) {
+            } catch (OptimisticLockColumnValueNullException e) {
                 exception = e;
             }
             if (exception != null) {
@@ -268,6 +268,7 @@ public abstract class ${myClassName} extends ${glBehaviorReadableAbstractName} i
         } else if (deletedCount > 1) {
             String msg = "The deleted entity was duplicated. It should be the only one! But the deletedCount=" + deletedCount;
             msg = msg + ": entity=" + entity;
+            throw new ${glPackageBaseCommonException}.${glEntityDuplicatedException}(msg);
         }
     }
 
@@ -284,6 +285,7 @@ public abstract class ${myClassName} extends ${glBehaviorReadableAbstractName} i
         } else if (deletedCount > 1) {
             String msg = "The deleted entity was duplicated. It should be the only one! But the deletedCount=" + deletedCount;
             msg = msg + ": entity=" + entity;
+            throw new ${glPackageBaseCommonException}.${glEntityDuplicatedException}(msg);
         }
     }
 
@@ -299,6 +301,7 @@ public abstract class ${myClassName} extends ${glBehaviorReadableAbstractName} i
         } else if (deletedCount > 1) {
             String msg = "The deleted entity was duplicated. It should be the only one! But the deletedCount=" + deletedCount;
             msg = msg + ": entity=" + entity;
+            throw new ${glPackageBaseCommonException}.${glEntityDuplicatedException}(msg);
         }
     }
 
@@ -852,7 +855,7 @@ public abstract class ${myClassName} extends ${glBehaviorReadableAbstractName} i
         msg = msg + "entity to string = " + entity + getLineSeparator();
         msg = msg + "entity to map    = " + entity.getDBMeta().convertToColumnValueMap(entity) + getLineSeparator();
         msg = msg + "* * * * * * * * * */" + getLineSeparator();
-        throw new IllegalStateException(msg);
+        throw new OptimisticLockColumnValueNullException(msg);
     }
 
     protected void assertEntityHasUpdateDateValue(${glEntityInterfaceName} entity) {
@@ -874,7 +877,14 @@ public abstract class ${myClassName} extends ${glBehaviorReadableAbstractName} i
         msg = msg + "entity to string = " + entity + getLineSeparator();
         msg = msg + "entity to map    = " + entity.getDBMeta().convertToColumnValueMap(entity) + getLineSeparator();
         msg = msg + "* * * * * * * * * */" + getLineSeparator();
-        throw new IllegalStateException(msg);
+        throw new OptimisticLockColumnValueNullException(msg);
+    }
+
+    public static class OptimisticLockColumnValueNullException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+        public OptimisticLockColumnValueNullException(String msg) {
+            super(msg);
+        }
     }
 
     // ===================================================================================

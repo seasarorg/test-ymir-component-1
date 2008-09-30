@@ -6,7 +6,6 @@ using System.Collections;
 using ${glPackageBaseCommon};
 using ${glPackageBaseCommonCBean};
 using ${glPackageBaseCommonDBMeta};
-using ${glPackageBaseCommonHelper};
 using ${glPackageBaseCommonException};
 
 namespace ${glPackageBaseCommonBhv} {
@@ -60,6 +59,116 @@ namespace ${glPackageBaseCommonBhv} {
                 msg = msg + ": entity=" + entity;
                 throw new ${glEntityDuplicatedException}(msg);
             }
+        }
+
+        // -------------------------------------------------
+        //                                    InsertOrUpdate
+        //                                    --------------
+        protected void HelpInsertOrUpdateInternally<ENTITY_TYPE, CB_TYPE>(ENTITY_TYPE entity, InternalInsertOrUpdateCallback<ENTITY_TYPE, CB_TYPE> callback)
+                    where ENTITY_TYPE : ${glEntityInterfaceName} where CB_TYPE : ${glConditionBeanInterfaceName} {
+            AssertEntityNotNull(entity);
+            if (!entity.HasPrimaryKeyValue) {
+                callback.CallbackInsert(entity);
+            } else {
+                Exception exception = null;
+                try {
+                   callback.CallbackUpdate(entity);
+                } catch (${glEntityAlreadyUpdatedException} e) {
+                    if (e.Rows == 0) {
+                        exception = e;
+                    }
+                } catch (${glEntityAlreadyDeletedException} e) {
+                    exception = e;
+                } catch (OptimisticLockColumnValueNullException e) {
+                    exception = e;
+                }
+                if (exception != null) {
+                    CB_TYPE cb = callback.CallbackNewMyConditionBean();
+                    callback.CallbackSetupPrimaryKeyCondition(cb, entity);
+                    if (callback.CallbackSelectCount(cb) == 0) {
+                        callback.CallbackInsert(entity);
+                    } else {
+                        throw exception;
+                    }
+                }
+            }
+        }
+
+        protected interface InternalInsertOrUpdateCallback<ENTITY_TYPE, CB_TYPE> where ENTITY_TYPE : ${glEntityInterfaceName} where CB_TYPE : ${glConditionBeanInterfaceName} {
+            void CallbackInsert(ENTITY_TYPE entity);
+            void CallbackUpdate(ENTITY_TYPE entity);
+            CB_TYPE CallbackNewMyConditionBean();
+            void CallbackSetupPrimaryKeyCondition(CB_TYPE cb, ENTITY_TYPE entity);
+            int CallbackSelectCount(CB_TYPE cb);
+        }
+
+        protected void HelpInsertOrUpdateInternally<ENTITY_TYPE>(ENTITY_TYPE entity, InternalInsertOrUpdateNonstrictCallback<ENTITY_TYPE> callback)
+                where ENTITY_TYPE : ${glEntityInterfaceName} {
+            AssertEntityNotNull(entity);
+            if (!entity.HasPrimaryKeyValue) {
+                callback.CallbackInsert(entity);
+            } else {
+                try {
+                    callback.CallbackUpdateNonstrict(entity);
+                } catch (${glEntityAlreadyUpdatedException}) {
+                    callback.CallbackInsert(entity);
+                } catch (${glEntityAlreadyDeletedException}) {
+                    callback.CallbackInsert(entity);
+                }
+            }
+        }
+
+        protected interface InternalInsertOrUpdateNonstrictCallback<ENTITY_TYPE> where ENTITY_TYPE : ${glEntityInterfaceName} {
+            void CallbackInsert(ENTITY_TYPE entity);
+            void CallbackUpdateNonstrict(ENTITY_TYPE entity);
+        }
+
+        // -------------------------------------------------
+        //                                            Delete
+        //                                            ------
+        protected void HelpDeleteInternally<ENTITY_TYPE>(ENTITY_TYPE entity, InternalDeleteCallback<ENTITY_TYPE> callback) where ENTITY_TYPE : ${glEntityInterfaceName} {
+            AssertEntityNotNull(entity);
+            AssertEntityHasVersionNoValue(entity);
+            AssertEntityHasUpdateDateValue(entity);
+            int deletedCount = callback.CallbackDelegateDelete(entity);
+            AssertUpdatedEntity(entity, deletedCount);
+        }
+
+        protected interface InternalDeleteCallback<ENTITY_TYPE> where ENTITY_TYPE : ${glEntityInterfaceName} {
+            int CallbackDelegateDelete(ENTITY_TYPE entity);
+        }
+
+        protected void HelpDeleteNonstrictInternally<ENTITY_TYPE>(ENTITY_TYPE entity, InternalDeleteNonstrictCallback<ENTITY_TYPE> callback) where ENTITY_TYPE : ${glEntityInterfaceName} {
+            AssertEntityNotNull(entity);
+            int deletedCount = callback.CallbackDelegateDeleteNonstrict(entity);
+            if (deletedCount == 0) {
+                String msg = "The entity was Not Found! The entity has already been deleted: entity=" + entity;
+                throw new ${glEntityAlreadyDeletedException}(msg);
+            } else if (deletedCount > 1) {
+                String msg = "The deleted entity was duplicated. It should be the only one! But the deletedCount=" + deletedCount;
+                msg = msg + ": entity=" + entity;
+                throw new ${glEntityDuplicatedException}(msg);
+            }
+        }
+
+        protected interface InternalDeleteNonstrictCallback<ENTITY_TYPE> where ENTITY_TYPE : ${glEntityInterfaceName} {
+            int CallbackDelegateDeleteNonstrict(ENTITY_TYPE entity);
+        }
+
+        protected void HelpDeleteNonstrictIgnoreDeletedInternally<ENTITY_TYPE>(ENTITY_TYPE entity, InternalDeleteNonstrictIgnoreDeletedCallback<ENTITY_TYPE> callback) where ENTITY_TYPE : ${glEntityInterfaceName} {
+            AssertEntityNotNull(entity);
+            int deletedCount = callback.CallbackDelegateDeleteNonstrict(entity);
+            if (deletedCount == 0) {
+                return;
+            } else if (deletedCount > 1) {
+                String msg = "The deleted entity was duplicated. It should be the only one! But the deletedCount=" + deletedCount;
+                msg = msg + ": entity=" + entity;
+                throw new ${glEntityDuplicatedException}(msg);
+            }
+       }
+
+        protected interface InternalDeleteNonstrictIgnoreDeletedCallback<ENTITY_TYPE> where ENTITY_TYPE : ${glEntityInterfaceName} {
+            int CallbackDelegateDeleteNonstrict(ENTITY_TYPE entity);
         }
 
         // ===============================================================================
@@ -239,6 +348,53 @@ namespace ${glPackageBaseCommonBhv} {
                 return true;
             } else {
                 return false;
+            }
+        }
+
+        protected void AssertEntityHasVersionNoValue(${glEntityInterfaceName} entity) {
+            if (!DBMeta.HasVersionNo) {
+                return;
+            }
+            if (HasVersionNoValue(entity)) {
+                return;
+            }
+            String msg = "Look! Read the message below." + GetLineSeparator();
+            msg = msg + "/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *" + GetLineSeparator();
+            msg = msg + "The value of 'version no' on the entity was Not Found!" + GetLineSeparator() + GetLineSeparator();
+            msg = msg + "[Advice]" + GetLineSeparator();
+            msg = msg + "Please confirm the existence of the value of 'version no' on the entity." + GetLineSeparator();
+            msg = msg + "You called the method in which the check for optimistic lock is indispensable. " + GetLineSeparator();
+            msg = msg + "So 'version no' is required on the entity. " + GetLineSeparator();
+            msg = msg + "In addition, please confirm the necessity of optimistic lock. It might possibly be unnecessary." + GetLineSeparator() + GetLineSeparator();
+            msg = msg + "[Entity]" + GetLineSeparator();
+            msg = msg + "entity to string = " + entity + GetLineSeparator();
+            msg = msg + "* * * * * * * * * */" + GetLineSeparator();
+            throw new OptimisticLockColumnValueNullException(msg);
+        }
+
+        protected void AssertEntityHasUpdateDateValue(${glEntityInterfaceName} entity) {
+            if (!DBMeta.HasUpdateDate) {
+                return;
+            }
+            if (HasUpdateDateValue(entity)) {
+                return;
+            }
+            String msg = "Look! Read the message below." + GetLineSeparator();
+            msg = msg + "/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *" + GetLineSeparator();
+            msg = msg + "The value of 'update date' on the entity was Not Found!" + GetLineSeparator() + GetLineSeparator();
+            msg = msg + "[Advice]" + GetLineSeparator();
+            msg = msg + "Please confirm the existence of the value of 'update date' on the entity." + GetLineSeparator();
+            msg = msg + "You called the method in which the check for optimistic lock is indispensable. " + GetLineSeparator();
+            msg = msg + "So 'update date' is required on the entity. " + GetLineSeparator();
+            msg = msg + "In addition, please confirm the necessity of optimistic lock. It might possibly be unnecessary." + GetLineSeparator() + GetLineSeparator();
+            msg = msg + "[Entity]" + GetLineSeparator();
+            msg = msg + "entity to string = " + entity + GetLineSeparator();
+            msg = msg + "* * * * * * * * * */" + GetLineSeparator();
+            throw new OptimisticLockColumnValueNullException(msg);
+        }
+
+        public class OptimisticLockColumnValueNullException : SystemException {
+            public OptimisticLockColumnValueNullException(String msg) : base(msg) {
             }
         }
     }

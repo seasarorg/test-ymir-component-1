@@ -31,6 +31,11 @@ namespace ${glPackageBaseCommonS2Dao} {
     public class ${glDaoMetaDataExtension} : Seasar.Dao.Impl.DaoMetaDataImpl {
 
         // ===============================================================================
+        //                                                                      Definition
+        //                                                                      ==========
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        // ===============================================================================
         //                                                                       Attribute
         //                                                                       =========
         protected Map<Type, IBeanMetaData> _beanMetaDataCacheMap = new HashMap<Type, IBeanMetaData>();
@@ -66,6 +71,9 @@ namespace ${glPackageBaseCommonS2Dao} {
             if (cmd != null) {
                 return cmd;
             }
+            if (_log.IsDebugEnabled) {
+                _log.Debug("...Initializing sqlCommand for " + methodName + "().");
+            }
             return InitializeSqlCommand(methodName);
         }
 
@@ -92,6 +100,8 @@ namespace ${glPackageBaseCommonS2Dao} {
             if (method != null && method.IsAbstract) {
                 if (IsOutsideSqlDaoMethodSelect(method)) {
                     SetupSpecifiedOutsideSqlSelectCommand(sqlCommandKey, method, outsideSqlContext);
+                } else if (IsOutsideSqlDaoMethodCall(method)) {
+                    SetupSpecifiedOutsideSqlCallCommand(sqlCommandKey, method, outsideSqlContext);
                 } else {
                     SetupSpecifiedOutsideSqlExecuteCommand(sqlCommandKey, method, outsideSqlContext);
                 }
@@ -108,6 +118,10 @@ namespace ${glPackageBaseCommonS2Dao} {
 
         protected bool IsOutsideSqlDaoMethodSelect(MethodInfo method) {
             return method.Name.StartsWith("Select");
+        }
+
+        protected bool IsOutsideSqlDaoMethodCall(MethodInfo method) {
+            return method.Name.StartsWith("Call");
         }
 
         // ===============================================================================
@@ -197,16 +211,18 @@ namespace ${glPackageBaseCommonS2Dao} {
             }
             base.SetupUpdateMethodByAuto(mi);
         }
-        
+
         protected override AbstractSqlCommand CreateUpdateAutoDynamicCommand(MethodInfo method, IDataSource dataSource, ICommandFactory commandFactory, IBeanMetaData beanMetaData, string[] propertyNames) {
             ${glInternalUpdateAutoDynamicCommand} cmd = new ${glInternalUpdateAutoDynamicCommand}(dataSource, commandFactory, CreateBeanMetaData4UpdateDeleteByAuto(method), propertyNames);
             cmd.VersionNoAutoIncrementOnMemory = IsUpdateVersionNoAutoIncrementOnMemory(method);
+            cmd.IsCheckSingleRowUpdate = !IsNonstrictMethod(method);
             return cmd;
         }
-		
+
         protected override AbstractSqlCommand CreateUpdateModifiedOnlyCommand(MethodInfo method, IDataSource dataSource, ICommandFactory commandFactory, IBeanMetaData beanMetaData, string[] propertyNames) {
             ${glInternalUpdateModifiedOnlyCommand} cmd = new ${glInternalUpdateModifiedOnlyCommand}(dataSource, commandFactory, CreateBeanMetaData4UpdateDeleteByAuto(method), propertyNames);
             cmd.VersionNoAutoIncrementOnMemory = IsUpdateVersionNoAutoIncrementOnMemory(method);
+            cmd.IsCheckSingleRowUpdate = !IsNonstrictMethod(method);
             return cmd;
         }
 
@@ -220,7 +236,9 @@ namespace ${glPackageBaseCommonS2Dao} {
         }
 
         protected override AbstractSqlCommand CreateDeleteAutoStaticCommand(MethodInfo method, IDataSource dataSource, ICommandFactory commandFactory, IBeanMetaData beanMetaData, string[] propertyNames) {
-            return new ${glInternalDeleteAutoStaticCommand}(dataSource, commandFactory, CreateBeanMetaData4UpdateDeleteByAuto(method), propertyNames);
+            ${glInternalDeleteAutoStaticCommand} cmd = new ${glInternalDeleteAutoStaticCommand}(dataSource, commandFactory, CreateBeanMetaData4UpdateDeleteByAuto(method), propertyNames);
+            cmd.IsCheckSingleRowUpdate = !IsNonstrictMethod(method);
+            return cmd;
         }
 		
         // -------------------------------------------------
@@ -418,7 +436,31 @@ namespace ${glPackageBaseCommonS2Dao} {
 				return base.Execute(new Object[]{arg});
             }
         }
-		
+
+        // - - - - - - - - - - - -
+        //          Call Procedure
+        //           - - - - - - -
+        protected void SetupSpecifiedOutsideSqlCallCommand(String sqlCommandKey, MethodInfo method, ${glOutsideSqlContextName} outsideSqlContext) {
+            // - - - - - - - - - - - - - - - - - - - - - - -
+            // The attribute of Specified-OutsideSqlContext.
+            // - - - - - - - - - - - - - - - - - - - - - - -
+            Object pmb = outsideSqlContext.ParameterBean;
+            String procedureName = outsideSqlContext.OutsideSqlPath;
+
+            // - - - - - - - - - - - - - - -
+            // The attribute of SqlCommand.
+            // - - - - - - - - - - - - - - -
+            InternalProcedureMetaDataFactory myProcedureMetaDataFactory = new InternalProcedureMetaDataFactory();
+            Type pmbType = pmb != null ? pmb.GetType() : null;
+            InternalProcedureMetaData metaData = myProcedureMetaDataFactory.CreateProcedureMetaData(procedureName, pmbType);
+            ${glInternalProcedureCommand} cmd = CreateInternalProcedureCommand(method, metaData);
+            _sqlCommands.Add(sqlCommandKey, cmd);
+        }
+
+        protected ${glInternalProcedureCommand} CreateInternalProcedureCommand(MethodInfo method, InternalProcedureMetaData metaData) {
+            return new ${glInternalProcedureCommand}(_dataSource, CreateDataReaderHandler(method), _commandFactory, _dataReaderFactory, metaData);
+        }
+
         // -------------------------------------------------
         //                              Common of OutsideSql
         //                              --------------------

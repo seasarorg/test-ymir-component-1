@@ -3,6 +3,7 @@ ${database.allClassCopyright}package ${glPackageBaseCommonS2Dao};
 import java.util.Arrays;
 import java.util.List;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.seasar.framework.beans.MethodNotFoundRuntimeException;
@@ -21,6 +22,8 @@ import ${glPackageBaseCommonCBean}.${glFetchNarrowingBeanInterfaceName};
 import ${glPackageBaseCommonCBeanOutsidesql}.${glOutsideSqlContextName};
 import ${glPackageBaseCommonCBeanOutsidesql}.${glOutsideSqlDaoName};
 import ${glPackageBaseCommonCBeanOutsidesql}.${glOutsideSqlOptionName};
+import ${glPackageBaseCommonDBMeta}.${glDBMetaInterfaceName};
+import ${glPackageBaseCommonDBMeta}.${glDBMetaInstanceHandlerName};
 import ${glPackageBaseCommonException}.${glEntityAlreadyUpdatedException};
 import ${glPackageBaseCommonUtil}.${glTraceViewUtilName};
 
@@ -93,7 +96,7 @@ public class ${glDaoInterceptor} extends org.seasar.framework.aop.interceptors.A
      */
     protected Object dispatchInvoking(MethodInvocation invocation) throws Throwable {
         final Method method = invocation.getMethod();
-        if (!org.seasar.framework.util.MethodUtil.isAbstract(method)) {
+        if (!isAbstract(method)) {
             return invocation.proceed();
         }
         
@@ -255,9 +258,9 @@ public class ${glDaoInterceptor} extends org.seasar.framework.aop.interceptors.A
             invokeClassName = extractInvocationExpression(method);
             invokeMethodName = method.getName();
         }
-        final String invocationExpressionWithoutKakko = invokeClassName  + "." + invokeMethodName;
-        final String equalBorder = buildFitBorder("", "=", invocationExpressionWithoutKakko, false);
-        final String invocationExpression = invocationExpressionWithoutKakko + "()";
+        final String expWithoutKakko = buildInvocationExpressionWithoutKakko(invocation, invokeClassName, invokeMethodName);
+        final String equalBorder = buildFitBorder("", "=", expWithoutKakko, false);
+        final String invocationExpression = expWithoutKakko + "()";
 
         log("/=====================================================" + equalBorder + "==");
         log("                                                      " + invocationExpression);
@@ -278,6 +281,57 @@ public class ${glDaoInterceptor} extends org.seasar.framework.aop.interceptors.A
                 log("option: " + getOutsideSqlOption(args));
             }
         }
+    }
+
+    protected String buildInvocationExpressionWithoutKakko(MethodInvocation invocation, String invokeClassName, String invokeMethodName) {
+        if (invokeClassName.contains("OutsideSql") && invokeClassName.endsWith("Executor")) { // OutsideSql Executor Handling
+            try {
+                final String originalName = invokeClassName;
+                if (isSpecifiedOutsideSql()) {
+                    final ${glOutsideSqlContextName} outsideSqlContext = getOutsideSqlContext();
+                    final String tableDbName = outsideSqlContext.getTableDbName();
+                    final ${glDBMetaInterfaceName} dbmeta = ${glDBMetaInstanceHandlerName}.findDBMeta(tableDbName);
+                    final String behaviorTypeName = dbmeta.getBehaviorTypeName();
+                    final String behaviorClassName = behaviorTypeName.substring(behaviorTypeName.lastIndexOf(".") + ".".length());
+                    invokeClassName = behaviorClassName + ".outsideSql()";
+                    if (originalName.endsWith("OutsideSqlEntityExecutor")) {
+                        invokeClassName = invokeClassName + ".entityHandling()";
+                    } else if (originalName.endsWith("OutsideSqlPagingExecutor")) {
+                        if (outsideSqlContext.isOffsetByCursorForcedly() || outsideSqlContext.isLimitByCursorForcedly()) {
+                            invokeClassName = invokeClassName + ".autoPaging()";
+                        } else {
+                            invokeClassName = invokeClassName + ".manualPaging()";
+                        }
+                    } else if (originalName.endsWith("OutsideSqlCursorExecutor")) {
+                        invokeClassName = invokeClassName + ".cursorHandling()";
+                    }
+                } else {
+                    invokeClassName = "OutsideSql";
+                }
+            } catch (RuntimeException ignored) {
+                log("Ignored exception occurred: msg=" + ignored.getMessage());
+            }
+        }
+        String invocationExpressionWithoutKakko = invokeClassName  + "." + invokeMethodName;
+        if ("selectPage".equals(invokeMethodName)) { // Special Handling!
+            boolean resultTypeInteger = false;
+            if (isSpecifiedOutsideSql()) {
+                final ${glOutsideSqlContextName} outsideSqlContext = getOutsideSqlContext();
+                final Object resultTypeSpecification = outsideSqlContext.getResultTypeSpecification();
+                if (resultTypeSpecification != null && resultTypeSpecification instanceof Class<?>) {
+                    final Class<?> resultType = (Class<?>)resultTypeSpecification;
+                    if (Integer.class.isAssignableFrom(resultType)) {
+                        resultTypeInteger = true;
+                    }
+                }
+            }
+            if (resultTypeInteger || "selectCount".equals(invocation.getMethod().getName())) {
+                invocationExpressionWithoutKakko = invocationExpressionWithoutKakko + "():count";
+            } else {
+                invocationExpressionWithoutKakko = invocationExpressionWithoutKakko + "():paging";
+            }
+        }
+        return invocationExpressionWithoutKakko;
     }
 
     protected void logPath(MethodInvocation invocation, StackTraceElement[] stackTrace, InvokeNameExtractingResult behaviorResult) {
@@ -356,14 +410,21 @@ public class ${glDaoInterceptor} extends org.seasar.framework.aop.interceptors.A
     }
 
     protected InvokeNameExtractingResult extractBehaviorInvokeName(StackTraceElement[] stackTrace) {
-        final List<String> suffixList = Arrays.asList(new String[]{"Bhv", "BehaviorReadable", "BehaviorWritable", "PagingInvoker"});
+        final List<String> suffixList = Arrays.asList(new String[]{"Bhv", "BehaviorReadable", "BehaviorWritable" , "PagingInvoker"});
         final List<String> keywordList = Arrays.asList(new String[]{"Bhv$", "BehaviorReadable$", "BehaviorWritable$"});
+        final List<String> ousideSql1List = Arrays.asList(new String[]{"OutsideSql"});
+        final List<String> ousideSql2List = Arrays.asList(new String[]{"Executor"});
+        final List<String> ousideSql3List = Arrays.asList(new String[]{"Executor$"});
         final InvokeNameExtractingCallback callback = new InvokeNameExtractingCallback() {
             public boolean isTargetElement(String className, String methodName) {
                 if (isClassNameEndsWith(className, suffixList)) {
                     return true;
                 }
                 if (isClassNameContains(className, keywordList)) {
+                    return true;
+                }
+                if (isClassNameContains(className, ousideSql1List)
+                        && (isClassNameEndsWith(className, ousideSql2List) || isClassNameContains(className, ousideSql3List))) {
                     return true;
                 }
                 return false;
@@ -894,6 +955,16 @@ public class ${glDaoInterceptor} extends org.seasar.framework.aop.interceptors.A
     // ===================================================================================
     //                                                                      General Helper
     //                                                                      ==============
+    /**
+     * Is the method abstract?
+     * @param method Method. (NotNull)
+     * @return Determination. (NotNull)
+     */
+    public boolean isAbstract(Method method) {
+        final int mod = method.getModifiers();
+        return Modifier.isAbstract(mod);
+    }
+
     /**
      * Get the value of line separator.
      * @return The value of line separator. (NotNull)

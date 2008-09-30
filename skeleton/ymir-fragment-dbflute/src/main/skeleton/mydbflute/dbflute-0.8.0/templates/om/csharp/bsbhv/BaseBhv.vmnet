@@ -251,11 +251,13 @@ namespace ${glPackageExtendedBhv} {
 
         public virtual void Update(${myExtendedObjectClassName} entity) {
             AssertEntityNotNull(entity);
+            AssertEntityHasVersionNoValue(entity);
+            AssertEntityHasUpdateDateValue(entity);
             int updatedCount = this.DelegateUpdate(entity);
             AssertUpdatedEntity(entity, updatedCount);
         }
-
 #if ($table.hasOptimisticLock())
+
         public virtual void UpdateNonstrict(${myExtendedObjectClassName} entity) {
             AssertEntityNotNull(entity);
             int updatedCount = this.DelegateUpdateNonstrict(entity);
@@ -263,32 +265,61 @@ namespace ${glPackageExtendedBhv} {
         }
 #end
 
-// TODO: @jflute - In development
-//        public virtual void InsertOrUpdate(${myExtendedObjectClassName} entity) {
-//            AssertEntityNotNull(entity);
-//            if (!entity.HasPrimaryKeyValue) {
-//                this.Insert(entity);
-//                return;
-//            }
-//            try {
-//                this.Update(entity);
-//            } catch (Exception) {
-//                this.Insert(entity);
-//                return;
-//            }
-//        }
+        public void InsertOrUpdate(${myExtendedObjectClassName} entity) {
+            HelpInsertOrUpdateInternally<${myExtendedObjectClassName}, ${myConditionBeanClassName}>(entity, new MyInternalInsertOrUpdateCallback(this));
+        }
+        protected class MyInternalInsertOrUpdateCallback : InternalInsertOrUpdateCallback<${myExtendedObjectClassName}, ${myConditionBeanClassName}> {
+            protected ${myClassName} _bhv;
+            public MyInternalInsertOrUpdateCallback(${myClassName} bhv) { _bhv = bhv; }
+            public void CallbackInsert(${myExtendedObjectClassName} entity) { _bhv.Insert(entity); }
+            public void CallbackUpdate(${myExtendedObjectClassName} entity) { _bhv.Update(entity); }
+            public ${myConditionBeanClassName} CallbackNewMyConditionBean() { return _bhv.NewMyConditionBean(); }
+            public void CallbackSetupPrimaryKeyCondition(${myConditionBeanClassName} cb, ${myExtendedObjectClassName} entity) {
+#foreach ($col in $table.primaryKey)
+                cb.Query().Set${col.javaName}_Equal(entity.${col.javaName});
+#end
+            }
+            public int CallbackSelectCount(${myConditionBeanClassName} cb) { return _bhv.SelectCount(cb); }
+        }
+#if ($table.hasOptimisticLock())
+
+        public void InsertOrUpdateNonstrict(${myExtendedObjectClassName} entity) {
+            HelpInsertOrUpdateInternally<${myExtendedObjectClassName}>(entity, new MyInternalInsertOrUpdateNonstrictCallback(this));
+        }
+        protected class MyInternalInsertOrUpdateNonstrictCallback : InternalInsertOrUpdateNonstrictCallback<${myExtendedObjectClassName}> {
+            protected ${myClassName} _bhv;
+            public MyInternalInsertOrUpdateNonstrictCallback(${myClassName} bhv) { _bhv = bhv; }
+            public void CallbackInsert(${myExtendedObjectClassName} entity) { _bhv.Insert(entity); }
+            public void CallbackUpdateNonstrict(${myExtendedObjectClassName} entity) { _bhv.UpdateNonstrict(entity); }
+        }
+#end
 
         public virtual void Delete(${myExtendedObjectClassName} entity) {
-            AssertEntityNotNull(entity);
-            int deletedCount = this.DelegateDelete(entity);
-            AssertUpdatedEntity(entity, deletedCount);
+            HelpDeleteInternally<${myExtendedObjectClassName}>(entity, new MyInternalDeleteCallback(this));
+        }
+        protected class MyInternalDeleteCallback : InternalDeleteCallback<${myExtendedObjectClassName}> {
+            protected ${myClassName} _bhv;
+            public MyInternalDeleteCallback(${myClassName} bhv) { _bhv = bhv; }
+            public int CallbackDelegateDelete(${myExtendedObjectClassName} entity) { return _bhv.DelegateDelete(entity); }
+        }
+#if ($table.hasOptimisticLock())
+
+        public virtual void DeleteNonstrict(${myExtendedObjectClassName} entity) {
+            HelpDeleteNonstrictInternally<${myExtendedObjectClassName}>(entity, new MyInternalDeleteNonstrictCallback(this));
+        }
+        protected class MyInternalDeleteNonstrictCallback : InternalDeleteNonstrictCallback<${myExtendedObjectClassName}> {
+            protected ${myClassName} _bhv;
+            public MyInternalDeleteNonstrictCallback(${myClassName} bhv) { _bhv = bhv; }
+            public int CallbackDelegateDeleteNonstrict(${myExtendedObjectClassName} entity) { return _bhv.DelegateDeleteNonstrict(entity); }
         }
 
-#if ($table.hasOptimisticLock())
-        public virtual void DeleteNonstrict(${myExtendedObjectClassName} entity) {
-            AssertEntityNotNull(entity);
-            int deletedCount = this.DelegateDeleteNonstrict(entity);
-            AssertUpdatedEntity(entity, deletedCount);
+        public virtual void DeleteNonstrictIgnoreDeleted(${myExtendedObjectClassName} entity) {
+            HelpDeleteNonstrictIgnoreDeletedInternally<${myExtendedObjectClassName}>(entity, new MyInternalDeleteNonstrictIgnoreDeletedCallback(this));
+        }
+        protected class MyInternalDeleteNonstrictIgnoreDeletedCallback : InternalDeleteNonstrictIgnoreDeletedCallback<${myExtendedObjectClassName}> {
+            protected ${myClassName} _bhv;
+            public MyInternalDeleteNonstrictIgnoreDeletedCallback(${myClassName} bhv) { _bhv = bhv; }
+            public int CallbackDelegateDeleteNonstrict(${myExtendedObjectClassName} entity) { return _bhv.DelegateDeleteNonstrict(entity); }
         }
 #end
         #endregion
@@ -310,6 +341,32 @@ namespace ${glPackageExtendedBhv} {
             return this.Dao.DeleteByQuery(cb);
         }
 #end
+
+        // ===============================================================================
+        //                                                            Optimistic Lock Info
+        //                                                            ====================
+        protected override bool HasVersionNoValue(${glEntityInterfaceName} entity) {
+#if ($table.isUseVersionNo())
+            return Downcast(entity).${table.versionNoJavaName} != null;
+#else
+            return false;
+#end
+        }
+
+        protected override bool HasUpdateDateValue(${glEntityInterfaceName} entity) {
+#if ($table.isUseUpdateDate())
+            return Downcast(entity).${table.updateDateJavaName} != null;
+#else
+            return false;
+#end
+        }
+
+        // ===============================================================================
+        //                                                                          Helper
+        //                                                                          ======
+        protected ${myExtendedObjectClassName} Downcast(${glEntityInterfaceName} entity) {
+            return (${myExtendedObjectClassName})entity;
+        }
 
         // ===============================================================================
         //                                                                 Delegate Method
