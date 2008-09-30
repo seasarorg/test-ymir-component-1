@@ -1,4 +1,4 @@
-package org.seasar.ymir.testing.mock.servlet;
+package org.seasar.ymir.mock.servlet;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;

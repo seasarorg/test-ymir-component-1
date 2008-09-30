@@ -4,9 +4,9 @@ import javax.servlet.http.HttpSession;
 
 import junit.framework.TestCase;
 
+import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
+import org.seasar.ymir.mock.servlet.MockServletContextImpl;
 import org.seasar.ymir.session.impl.SessionManagerImpl;
-import org.seasar.ymir.test.mock.servlet.MockHttpServletRequestImpl;
-import org.seasar.ymir.test.mock.servlet.MockServletContextImpl;
 import org.seasar.ymir.window.impl.WindowManagerImpl;
 
 public class RedirectionManagerImplTest extends TestCase {

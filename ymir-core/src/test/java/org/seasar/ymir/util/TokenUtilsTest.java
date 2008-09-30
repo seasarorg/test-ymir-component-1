@@ -3,8 +3,8 @@ package org.seasar.ymir.util;
 import junit.framework.TestCase;
 
 import org.seasar.framework.mock.servlet.MockHttpServletRequest;
-import org.seasar.ymir.test.mock.servlet.MockHttpServletRequestImpl;
-import org.seasar.ymir.test.mock.servlet.MockServletContextImpl;
+import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
+import org.seasar.ymir.mock.servlet.MockServletContextImpl;
 
 public class TokenUtilsTest extends TestCase {
     public void testGenerateToken() throws Exception {

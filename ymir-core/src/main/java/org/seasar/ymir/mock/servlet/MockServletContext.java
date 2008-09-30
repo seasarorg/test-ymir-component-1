@@ -1,4 +1,4 @@
-package org.seasar.ymir.testing.mock.servlet;
+package org.seasar.ymir.mock.servlet;
 
 import org.seasar.kvasir.util.io.Resource;
 

@@ -1,4 +1,4 @@
-package org.seasar.ymir.testing.mock;
+package org.seasar.ymir.mock;
 
 import java.util.Map;
 
