@@ -33,7 +33,7 @@
   <component name="hotdeployManager"
     class="org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl" />
   <component name="typeConversionManager"
-    class="org.seasar.ymir.impl.BeanUtilsTypeConversionManager" />
+    class="org.seasar.ymir.impl.YmirTypeConversionManager" />
   <component name="conversationManager"
     class="org.seasar.ymir.conversation.impl.ConversationManagerImpl" />
   <component name="componentMetaDataFactory"

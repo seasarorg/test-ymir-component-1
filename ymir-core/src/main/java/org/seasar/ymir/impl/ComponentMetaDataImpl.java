@@ -77,12 +77,6 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
         }
     }
 
-    // TODO [YMIR-1.0][#YMIR-258] 削除する。
-    public boolean isProtected(String propertyName) {
-        return protectedNameSet_.contains(BeanUtils
-                .getFirstSimpleSegment(propertyName));
-    }
-
     public ScopeAttributePopulator[] getScopeAttributePopulators() {
         return scopeAttributePopulatorMap_.values().toArray(
                 new ScopeAttributePopulator[0]);

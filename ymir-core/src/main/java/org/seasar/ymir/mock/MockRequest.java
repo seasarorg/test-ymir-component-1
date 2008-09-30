@@ -70,11 +70,6 @@ public class MockRequest extends RequestWrapper {
         }
     }
 
-    // TODO [YMIR-1.0][#YMIR-258] 削除する。
-    public boolean isDispatchingByParameter() {
-        return dispatchingByParameter_;
-    }
-
     public boolean isMatched() {
         return matchedPathMapping_ != null;
     }

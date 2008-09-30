@@ -19,21 +19,6 @@ import org.seasar.ymir.scope.handler.ScopeAttributePopulator;
  */
 public interface ComponentMetaData {
     /**
-     * 指定された名前のプロパティがインジェクトから保護されているかどうかを返します。
-     * <p>Ymirではセキュリティ上、任意のプロパティにリクエストパラメータ等の値が自動的にインジェクトされるようにしていません。
-     * このメソッドがtrueを返すプロパティにはフレームワークが値をインジェクトしません。
-     * </p>
-     * <p><b>[注意]</b> このメソッドはYmir1.0.x系では削除される予定です。
-     * </p>
-     * 
-     * @param propertyName プロパティ名。
-     * @return インジェクトから保護されているかどうか。
-     * @see PageProcessor#injectProperties(Object, PageMetaData, java.util.Map)
-     * @see PageProcessor#injectFormFileProperties(Object, PageMetaData, java.util.Map)
-     */
-    boolean isProtected(String propertyName);
-
-    /**
      * スコープから値をポピュレートする必要のある属性のためのハンドラを返します。
      * <p>フレームワークはこのメソッドが返す属性の値をスコープから取り出して、
      * Pageオブジェクトの対応するプロパティにポピュレートします。

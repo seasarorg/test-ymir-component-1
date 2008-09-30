@@ -18,9 +18,6 @@ import org.seasar.ymir.conversation.Conversations;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface BeginSubConversation {
-    // TODO [YMIR-1.0][#YMIR-258] なくす。
-    String name() default "";
-
     /**
      * 終了時の処理の戻り先を表す文字列です。
      * 

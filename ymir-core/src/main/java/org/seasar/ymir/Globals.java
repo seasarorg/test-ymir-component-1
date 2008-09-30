@@ -1,7 +1,5 @@
 package org.seasar.ymir;
 
-import org.seasar.ymir.annotation.RequestParameter;
-
 /**
  * フレームワーク関連の定数を定義するインタフェースです。
  * 
@@ -37,13 +35,4 @@ public interface Globals {
      * フレームワークが管理するアプリケーションプロパティのキーにつける接頭辞です。
      */
     String APPKEYPREFIX_CORE = "core.";
-
-    /**
-     * リクエストパラメータをPageオブジェクトにインジェクトする際に、
-     * 明示的に{@link RequestParameter}アノテーションが指定されているSetter
-     * にだけインジェクトするかどうかを指定するためのアプリケーションプロパティのキーです。
-     */
-    // TODO [YMIR-1.0][#YMIR-258] 廃止する。
-    String APPKEY_CORE_REQUESTPARAMETER_STRICTINJECTION = APPKEYPREFIX_CORE
-            + "requestParameter.strictInjection";
 }

@@ -26,31 +26,6 @@ public interface PageComponent extends Acceptor<PageComponentVisitor<?>> {
     Class<?> getPageClass();
 
     /**
-     * 指定されたClassオブジェクトに関連付けられたオブジェクトを返します。
-     * <p>このクラスではClassオブジェクトをキーとして任意のオブジェクトを関連付けることができます。
-     * このメソッドは、指定されたClassオブジェクトに関連付けられたオブジェクトを返します。
-     * オブジェクトが関連付けられていない場合はnullを返します。
-     * </p>
-     * <p><b>[注意]</b> このメソッドはYmir1.0.xで廃止されます。</p>
-     * 
-     * @param <T> オブジェクトの型。
-     * @param clazz キーとなるClassオブジェクト。
-     * @return 関連付けられたオブジェクト。
-     * @see #setRelatedObject(Class, Object)
-     */
-    <T> T getRelatedObject(Class<T> clazz);
-
-    /**
-     * lassオブジェクトにオブジェクトを関連付けます。
-     * <p><b>[注意]</b> このメソッドはYmir1.0.xで廃止されます。</p>
-     * 
-     * @param <T> オブジェクトの型。
-     * @param clazz キーとなるClassオブジェクト。
-     * @param object 関連付けるオブジェクト。nullを指定することで関連付けが削除されます。
-     */
-    <T> void setRelatedObject(Class<T> clazz, T object);
-
-    /**
      * このオブジェクトの子PageComponentを返します。
      * 
      * @return このオブジェクトの子PageComponent。子PageComponentが存在しない場合は空の配列を返します。
