@@ -18,8 +18,6 @@ import org.seasar.cms.pluggable.ThreadContext;
 import org.seasar.cms.pluggable.impl.ConfigurationImpl;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
-import org.seasar.framework.mock.servlet.MockHttpServletRequest;
-import org.seasar.framework.mock.servlet.MockHttpSession;
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.kvasir.util.ClassUtils;
 import org.seasar.kvasir.util.io.impl.FileResource;
@@ -36,12 +34,14 @@ import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
+import org.seasar.ymir.mock.servlet.MockHttpServletRequest;
+import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
+import org.seasar.ymir.mock.servlet.MockHttpServletResponse;
+import org.seasar.ymir.mock.servlet.MockHttpServletResponseImpl;
+import org.seasar.ymir.mock.servlet.MockHttpSession;
+import org.seasar.ymir.mock.servlet.MockServletContext;
+import org.seasar.ymir.mock.servlet.MockServletContextImpl;
 import org.seasar.ymir.servlet.YmirListener;
-import org.seasar.ymir.test.mock.servlet.MockHttpServletRequestImpl;
-import org.seasar.ymir.test.mock.servlet.MockHttpServletResponse;
-import org.seasar.ymir.test.mock.servlet.MockHttpServletResponseImpl;
-import org.seasar.ymir.test.mock.servlet.MockServletContext;
-import org.seasar.ymir.test.mock.servlet.MockServletContextImpl;
 import org.seasar.ymir.util.ContainerUtils;
 import org.seasar.ymir.util.ServletUtils;
 
@@ -481,10 +481,8 @@ abstract public class YmirTestCase extends TestCase {
         return new MockHttpServletResponseImpl(httpRequest);
     }
 
-    // TODO [YMIR-1.0][#YMIR-257] 引数をYmirのMockServletContextにしよう。
     protected MockHttpServletRequest newHttpServletRequest(
-            org.seasar.framework.mock.servlet.MockServletContext application,
-            String path, MockHttpSession session) {
+            MockServletContext application, String path, MockHttpSession session) {
         return new MockHttpServletRequestImpl(application, path, session);
     }
 
