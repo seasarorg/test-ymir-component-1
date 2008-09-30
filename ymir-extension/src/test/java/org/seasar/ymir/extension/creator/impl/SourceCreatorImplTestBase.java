@@ -46,7 +46,7 @@ import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.impl.YmirPathMapping;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
-import org.seasar.ymir.test.TestCaseBase;
+import org.seasar.ymir.testing.TestCaseBase;
 
 abstract public class SourceCreatorImplTestBase extends TestCaseBase {
 

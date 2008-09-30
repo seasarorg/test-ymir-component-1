@@ -23,7 +23,7 @@ import org.seasar.ymir.extension.creator.impl.PropertyDescImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.extension.creator.impl.ThrowsDescImpl;
 import org.seasar.ymir.mock.MockApplication;
-import org.seasar.ymir.test.TestCaseBase;
+import org.seasar.ymir.testing.TestCaseBase;
 
 import com.example.dao.Hoe;
 import com.example.dto.HoeDto;
