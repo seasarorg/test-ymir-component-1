@@ -25,7 +25,7 @@ import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.Notes;
-import org.seasar.ymir.PageNotFoundException;
+import org.seasar.ymir.PageNotFoundRuntimeException;
 import org.seasar.ymir.Path;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
@@ -515,10 +515,10 @@ abstract public class YmirTestCase extends TestCase {
      * @param request Requestオブジェクト。
      * @return 処理結果を表すResponseオブジェクト。
      * @throws PermissionDeniedException 権限エラーが発生した場合。
-     * @throws PageNotFoundException 指定されたリクエストパスに直接アクセスすることが禁止されている場合。
+     * @throws PageNotFoundRuntimeException 指定されたリクエストパスに直接アクセスすることが禁止されている場合。
      */
     protected Response processRequest(Request request)
-            throws PermissionDeniedException, PageNotFoundException {
+            throws PermissionDeniedException, PageNotFoundRuntimeException {
         return processRequest(request, null);
     }
 
@@ -532,10 +532,10 @@ abstract public class YmirTestCase extends TestCase {
      * @param test リクエストの処理中に実行するテスト。nullを指定することもできます。
      * @return 処理結果を表すResponseオブジェクト。
      * @throws PermissionDeniedException 権限エラーが発生した場合。
-     * @throws PageNotFoundException 指定されたリクエストパスに直接アクセスすることが禁止されている場合。
+     * @throws PageNotFoundRuntimeException 指定されたリクエストパスに直接アクセスすることが禁止されている場合。
      */
     protected Response processRequest(Request request, Test test)
-            throws PermissionDeniedException, PageNotFoundException {
+            throws PermissionDeniedException, PageNotFoundRuntimeException {
         checkStatus(STATUS_PREPARED);
 
         status_ = STATUS_PROCESSED;
@@ -575,12 +575,12 @@ abstract public class YmirTestCase extends TestCase {
      * @param request Requestオブジェクト。
      * @return 処理結果を表すHttpServletResponseFilterオブジェクト。
      * @throws PermissionDeniedException 権限エラーが発生した場合。
-     * @throws PageNotFoundException 指定されたリクエストパスに直接アクセスすることが禁止されている場合。
+     * @throws PageNotFoundRuntimeException 指定されたリクエストパスに直接アクセスすることが禁止されている場合。
      * @throws ServletException レスポンスの処理中にスローされることがあります。
      * @throws IOException レスポンスの処理中にスローされることがあります。
      */
     protected HttpServletResponseFilter process(Request request)
-            throws PermissionDeniedException, PageNotFoundException,
+            throws PermissionDeniedException, PageNotFoundRuntimeException,
             IOException, ServletException {
         return process(request, null);
     }
@@ -597,12 +597,12 @@ abstract public class YmirTestCase extends TestCase {
      * @param test リクエストの処理中に実行するテスト。nullを指定することもできます。
      * @return 処理結果を表すHttpServletResponseFilterオブジェクト。
      * @throws PermissionDeniedException 権限エラーが発生した場合。
-     * @throws PageNotFoundException 指定されたリクエストパスに直接アクセスすることが禁止されている場合。
+     * @throws PageNotFoundRuntimeException 指定されたリクエストパスに直接アクセスすることが禁止されている場合。
      * @throws ServletException レスポンスの処理中にスローされることがあります。
      * @throws IOException レスポンスの処理中にスローされることがあります。
      */
     protected HttpServletResponseFilter process(Request request, Test test)
-            throws PermissionDeniedException, PageNotFoundException,
+            throws PermissionDeniedException, PageNotFoundRuntimeException,
             IOException, ServletException {
         checkStatus(STATUS_PREPARED);
 
