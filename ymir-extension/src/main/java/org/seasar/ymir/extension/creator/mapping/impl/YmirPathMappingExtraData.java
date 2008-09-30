@@ -28,8 +28,7 @@ public class YmirPathMappingExtraData implements
         sb.append(pathMapping.getActionName(resolver));
 
         String buttonName = seed.getButtonName();
-        String patternString = pathMapping
-                .getButtonNamePatternStringForDispatching();
+        String patternString = YmirPathMapping.BUTTONNAMEPATTERNSTRINGFORDISPATCHING;
         List<ParameterDesc> pdList = new ArrayList<ParameterDesc>();
         if (buttonName != null && patternString != null) {
             Button button = new Button(buttonName);
