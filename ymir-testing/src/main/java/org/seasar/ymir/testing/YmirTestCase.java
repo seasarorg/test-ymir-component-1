@@ -101,11 +101,47 @@ abstract public class YmirTestCase extends TestCase {
 
     /**
      * テストに使用されるS2Containerを返します。
+     * <p>返されるコンテナは、コンテナグラフのルートコンテナです。
+     * </p>
      *
      * @return S2Containerオブジェクト。
      */
     protected S2Container getContainer() {
         return container_;
+    }
+
+    /**
+     * テストに使用されるS2Containerのうち、指定されたパスに対応するものを返します。
+     * <p>既に構築済みのコンテナグラフのノードのうち、指定されたパスに対応するコンテナを返します。
+     * コンテナグラフに含まれていないコンテナを返すことはありません。
+     * </p>
+     * 
+     * @param path パス。nullを指定してはいけません。
+     * @return S2Containerオブジェクト。
+     * @throws IllegalArgumentException S2Containerが見つからなかった場合。
+     */
+    protected S2Container getContainer(String path)
+            throws IllegalArgumentException {
+        S2Container container = findContainer(path, getContainer());
+        if (container == null) {
+            throw new IllegalArgumentException("Can't find container: " + path);
+        }
+        return container;
+    }
+
+    private S2Container findContainer(String path, S2Container container) {
+        if (container.getPath().endsWith("/" + path)) {
+            return container;
+        }
+
+        int size = container.getChildSize();
+        for (int i = 0; i < size; i++) {
+            S2Container c = findContainer(path, container.getChild(i));
+            if (c != null) {
+                return c;
+            }
+        }
+        return null;
     }
 
     /**
