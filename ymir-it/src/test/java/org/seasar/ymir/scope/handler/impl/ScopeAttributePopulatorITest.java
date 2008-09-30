@@ -1,8 +1,5 @@
 package org.seasar.ymir.scope.handler.impl;
 
-import static org.seasar.ymir.Globals.APPKEY_CORE_REQUESTPARAMETER_STRICTINJECTION;
-
-import org.seasar.cms.pluggable.Configuration;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.TypeConversionManager;
@@ -15,12 +12,6 @@ import com.example.web.ScopeAttributePopulatorTest2Page;
 import com.example.web.ScopeAttributePopulatorTestPage;
 
 public class ScopeAttributePopulatorITest extends YmirTestCase {
-    @Override
-    protected void setUpConfiguration(Configuration configuration) {
-        configuration.setProperty(APPKEY_CORE_REQUESTPARAMETER_STRICTINJECTION,
-                "true");
-    }
-
     public void testPopulateTo_ネストしたBeanに属性値をインジェクションできること() throws Exception {
         final ScopeAttributePopulatorImpl target = new ScopeAttributePopulatorImpl(
                 getComponent(RequestParameterScope.class),

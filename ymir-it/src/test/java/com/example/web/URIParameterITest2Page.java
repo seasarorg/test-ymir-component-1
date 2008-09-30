@@ -1,5 +1,7 @@
 package com.example.web;
 
+import org.seasar.ymir.annotation.RequestParameter;
+
 public class URIParameterITest2Page {
     private String category_;
 
@@ -9,6 +11,7 @@ public class URIParameterITest2Page {
         return category_;
     }
 
+    @RequestParameter
     public void setCategory(String category) {
         category_ = category;
     }
@@ -17,6 +20,7 @@ public class URIParameterITest2Page {
         return sequence_;
     }
 
+    @RequestParameter
     public void setSequence(int sequence) {
         sequence_ = sequence;
     }

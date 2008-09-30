@@ -12,7 +12,7 @@ public class ConversationScopeITest4Page {
     public void _get_begin() {
     }
 
-    @BeginSubConversation(name = "conversation4", reenter = "/conversationScopeITest6.html")
+    @BeginSubConversation(reenter = "/conversationScopeITest6.html")
     public void _get_next() {
     }
 
