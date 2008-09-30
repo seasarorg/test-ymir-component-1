@@ -7,7 +7,7 @@ import org.seasar.ymir.constraint.Constraint;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.Required;
 import org.seasar.ymir.impl.FormFileImpl;
-import org.seasar.ymir.test.constraint.ConstraintTestCase;
+import org.seasar.ymir.testing.constraint.ConstraintTestCase;
 
 public class RequiredConstraintTest extends
         ConstraintTestCase<Required, RequiredConstraint> {
