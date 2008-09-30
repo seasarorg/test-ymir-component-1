@@ -31,15 +31,6 @@ public class MockServletContextImpl extends
         return new MockRequestDispatcherImpl(path);
     }
 
-    // TODO [YMIR-1.0][#YMIR-252] Seasar-2.4.17の不具合回避のためのworkaround。Seasar-2.4.18からは不要。
-    @Override
-    protected String adjustPath(String path) {
-        if (path != null && path.length() > 0 && path.charAt(0) == '/') {
-            return path.substring(1);
-        }
-        return path;
-    }
-
     @Override
     public String getRealPath(String path) {
         if (root_ != null) {
