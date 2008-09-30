@@ -1,4 +1,4 @@
-package org.seasar.ymir.beanutils;
+package org.seasar.ymir.mock.fileupload;
 
 import java.io.File;
 import java.io.IOException;

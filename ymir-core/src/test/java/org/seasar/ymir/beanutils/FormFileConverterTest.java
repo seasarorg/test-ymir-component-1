@@ -10,6 +10,7 @@ import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.impl.FormFileImpl;
+import org.seasar.ymir.mock.fileupload.MockFileItem;
 
 public class FormFileConverterTest extends TestCase {
 
