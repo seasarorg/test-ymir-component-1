@@ -22,7 +22,6 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.cache.CacheManager;
-import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.plugin.Plugin;
 import org.seasar.ymir.plugin.annotation.PluginAnnotation;
@@ -114,7 +113,7 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
 
     @Override
     public Action actionInvoking(Request request, Action originalAction,
-            Action action) throws PermissionDeniedException {
+            Action action) {
         Pair<?>[] pairs = getPairs(request, action);
         pairs_.set(pairs);
         for (int i = 0; i < pairs.length; i++) {
@@ -245,7 +244,7 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
         }
 
         public Action actionInvoking(Request request, Action originalAction,
-                Action action) throws PermissionDeniedException {
+                Action action) {
             return plugin_.actionInvoking(request, originalAction, action,
                     annotation_);
         }

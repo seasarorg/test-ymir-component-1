@@ -16,13 +16,10 @@ import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.MatchedPathMapping;
-import org.seasar.ymir.PageNotFoundException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.Ymir;
-import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
-import org.seasar.ymir.mock.MockDispatch;
 
 public class MockYmir implements Ymir {
     private Application application_;
@@ -88,8 +85,7 @@ public class MockYmir implements Ymir {
         return null;
     }
 
-    public Response processRequest(Request request)
-            throws PageNotFoundException, PermissionDeniedException {
+    public Response processRequest(Request request) {
         return null;
     }
 

@@ -10,7 +10,7 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.io.IORuntimeException;
-import org.seasar.ymir.ActionNotFoundException;
+import org.seasar.ymir.ActionNotFoundRuntimeException;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Request;
@@ -18,8 +18,8 @@ import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.handler.ExceptionHandler;
 
-public class ActionNotFoundExceptionHandler implements
-        ExceptionHandler<ActionNotFoundException> {
+public class ActionNotFoundRuntimeExceptionHandler implements
+        ExceptionHandler<ActionNotFoundRuntimeException> {
     private static final String HEADER_ALLOW = "Allow";
 
     private static final String[] METHODS = new String[] {
@@ -42,7 +42,7 @@ public class ActionNotFoundExceptionHandler implements
         httpResponse_ = httpResponse;
     }
 
-    public String handle(ActionNotFoundException t) {
+    public String handle(ActionNotFoundRuntimeException t) {
         httpResponse_.setHeader(HEADER_ALLOW, PropertyUtils
                 .join(getAllowedMethods()));
         try {

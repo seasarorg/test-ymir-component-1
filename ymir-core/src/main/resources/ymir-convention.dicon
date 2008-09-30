@@ -27,11 +27,11 @@
       @org.seasar.framework.container.ComponentCreator@class)
     </property>
   </component>
-  <component name="default_pageNotFoundExceptionHandler"
-    class="org.seasar.ymir.handler.impl.PageNotFoundExceptionHandler"
+  <component name="default_pageNotFoundRuntimeExceptionHandler"
+    class="org.seasar.ymir.handler.impl.PageNotFoundRuntimeExceptionHandler"
     instance="request" />
-  <component name="default_actionNotFoundExceptionHandler"
-    class="org.seasar.ymir.handler.impl.ActionNotFoundExceptionHandler"
+  <component name="default_actionNotFoundRuntimeExceptionHandler"
+    class="org.seasar.ymir.handler.impl.ActionNotFoundRuntimeExceptionHandler"
     instance="request" />
   <component name="default_permissionDeniedExceptionHandler"
     class="org.seasar.ymir.handler.impl.PermissionDeniedExceptionHandler"

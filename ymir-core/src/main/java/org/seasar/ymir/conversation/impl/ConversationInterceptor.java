@@ -11,7 +11,6 @@ import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
-import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.conversation.ConversationUtils;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.conversation.Globals;
@@ -48,7 +47,7 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
 
     @Override
     public Action actionInvoking(Request request, Action originalAction,
-            Action action) throws PermissionDeniedException {
+            Action action) {
         Conversation annotation = annotationHandler_.getAnnotation(request
                 .getCurrentDispatch().getPageComponent().getPageClass(),
                 Conversation.class);

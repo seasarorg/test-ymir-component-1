@@ -1,7 +1,5 @@
 package org.seasar.ymir;
 
-import org.seasar.ymir.constraint.PermissionDeniedException;
-
 /**
  * HTTPリクエストを処理するためのインタフェースです。
  * <p><b>同期化：</b>
@@ -55,11 +53,8 @@ public interface RequestProcessor {
      * 
      * @param request 現在のRequestオブジェクト。
      * @return 構築したResponseオブジェクト。nullを返すことはありません。
-     * @throws PageNotFoundException リクエストに対応するページが見つからなかった場合。
-     * @throws PermissionDeniedException リクエストに対応するページを処理する権限がなかった場合。
      */
-    Response process(Request request) throws PageNotFoundException,
-            PermissionDeniedException;
+    Response process(Request request);
 
     /**
      * サーブレットのインクルード処理を行なう前に属性を退避します。

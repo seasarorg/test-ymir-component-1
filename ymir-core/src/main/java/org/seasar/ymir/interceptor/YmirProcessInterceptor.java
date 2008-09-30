@@ -10,7 +10,6 @@ import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseProcessor;
-import org.seasar.ymir.constraint.PermissionDeniedException;
 
 /**
  * Ymirの処理の途中で独自の処理を挟み込むためのインタフェースです。
@@ -87,10 +86,8 @@ public interface YmirProcessInterceptor {
      * 元もとのActionではないものに差し替えられていることがあります。
      * nullであることもあります。
      * @return Actionオブジェクト。nullを返すこともできます。
-     * @throws PermissionDeniedException 権限エラーが発生した場合。
      */
-    Action actionInvoking(Request request, Action originalAction, Action action)
-            throws PermissionDeniedException;
+    Action actionInvoking(Request request, Action originalAction, Action action);
 
     /**
      * フレームワークがResponseオブジェクトを構築した際に、

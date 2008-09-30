@@ -9,7 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 
 /**
@@ -82,11 +81,8 @@ public interface Ymir {
      * 
      * @param request 現在のRequestオブジェクト。
      * @return 構築したResponseオブジェクト。nullを返すことはありません。
-     * @throws PageNotFoundException リクエストに対応するページが見つからなかった場合。
-     * @throws PermissionDeniedException リクエストに対応するページを処理する権限がなかった場合。
      */
-    Response processRequest(Request request) throws PageNotFoundException,
-            PermissionDeniedException;
+    Response processRequest(Request request);
 
     /**
      * ResponseオブジェクトからHTTPレスポンスを構築します。

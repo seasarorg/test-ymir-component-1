@@ -8,7 +8,6 @@ import org.seasar.ymir.Action;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
-import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 
 abstract public class AbstractYmirProcessInterceptor implements
@@ -41,7 +40,7 @@ abstract public class AbstractYmirProcessInterceptor implements
     }
 
     public Action actionInvoking(Request request, Action originalAction,
-            Action action) throws PermissionDeniedException {
+            Action action) {
         return action;
     }
 

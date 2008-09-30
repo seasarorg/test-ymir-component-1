@@ -1,15 +1,13 @@
 package org.seasar.ymir;
 
 /**
- * HTTPリクエストに対応するページが存在しなかった場合にスローされる例外クラスです。
- * <p><b>同期化：</b>
- * このクラスはスレッドセーフではありません。
- * </p>
+ * 不正なリクエストを検出した場合にフレームワークからスローされる例外です。
  * 
  * @author YOKOTA Takehiko
+ * @since 1.0.0
  */
-public class PageNotFoundException extends Exception {
-    private static final long serialVersionUID = 4300901393295361786L;
+public class BadRequestRuntimeException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
 
     private String path_;
 
@@ -18,12 +16,12 @@ public class PageNotFoundException extends Exception {
      * 
      * @param path ページのパス。
      */
-    public PageNotFoundException(String path) {
+    public BadRequestRuntimeException(String path) {
         path_ = path;
     }
 
     public String toString() {
-        return "Page not found: " + path_;
+        return "Bad request: " + path_;
     }
 
     /**

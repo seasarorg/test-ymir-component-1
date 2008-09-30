@@ -105,12 +105,11 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
     @Override
     public Action actionInvoking(Request request, Action originalAction,
-            Action action) throws PermissionDeniedException {
+            Action action) {
         PageComponent pageComponent = request.getCurrentDispatch()
                 .getPageComponent();
 
         Action finalAction = null;
-        PermissionDeniedException pde = null;
         try {
             Notes notes = confirmConstraint(pageComponent, request);
             if (notes != null) {
@@ -128,23 +127,13 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             } else {
                 finalAction = action;
             }
-        } catch (WrappingRuntimeException ex) {
-            if (ex.getCause() instanceof PermissionDeniedException) {
-                pde = (PermissionDeniedException) ex.getCause();
-            } else {
-                throw ex;
-            }
         } catch (PermissionDeniedException ex) {
-            pde = ex;
-        }
-
-        // 権限エラーが発生した場合は、エラー処理メソッドが存在すればそれを呼び出す。
-        // メソッドが存在しなければPermissionDeniedExceptionを上に再スローする。
-        if (pde != null) {
+            // 権限エラーが発生した場合は、エラー処理メソッドが存在すればそれを呼び出す。
+            // メソッドが存在しなければPermissionDeniedExceptionを上に再スローする。
             finalAction = (Action) pageComponent
-                    .accept(new VisitorForFindingPermissionDeniedMethod(pde));
+                    .accept(new VisitorForFindingPermissionDeniedMethod(ex));
             if (finalAction == null) {
-                throw pde;
+                throw new WrappingRuntimeException(ex);
             }
         }
 

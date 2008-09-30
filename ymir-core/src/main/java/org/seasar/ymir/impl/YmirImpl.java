@@ -28,14 +28,12 @@ import org.seasar.ymir.Globals;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.LifecycleListener;
 import org.seasar.ymir.MatchedPathMapping;
-import org.seasar.ymir.PageNotFoundException;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseProcessor;
 import org.seasar.ymir.Ymir;
-import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.util.ServletUtils;
 import org.seasar.ymir.util.YmirUtils;
@@ -197,11 +195,7 @@ public class YmirImpl implements Ymir {
         request.leaveDispatch();
     }
 
-    // TODO [YMIR-1.0][#YMIR-253]PageNotFoundExceptionをRuntimException化。
-    // ActionNotFoundExceptionも。PageNotとActionNotはBadRequestRuntimeExceptionの子Exceptionにする。
-    // org.seasar.ymirパッケージ内のクラスについてはPermissionDeniedをthrowsから外す。
-    public Response processRequest(final Request request)
-            throws PageNotFoundException, PermissionDeniedException {
+    public Response processRequest(final Request request) {
         Response response = requestProcessor_.process(request);
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             response = ymirProcessInterceptors_[i].responseCreated(response);

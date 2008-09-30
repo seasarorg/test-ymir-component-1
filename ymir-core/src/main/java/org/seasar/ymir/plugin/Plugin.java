@@ -11,7 +11,6 @@ import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseProcessor;
-import org.seasar.ymir.constraint.PermissionDeniedException;
 
 /**
  * 特定のPageの処理時にフレームワークのリクエスト処理のライフサイクル毎に
@@ -58,10 +57,9 @@ public interface Plugin<A extends Annotation> {
      * 元もとのActionではないものに差し替えられていることがあります。
      * @param annotation プラグイン実行のトリガとなったアノテーション。
      * @return Actionオブジェクト。
-     * @throws PermissionDeniedException 権限エラーが発生した場合。
      */
     Action actionInvoking(Request request, Action originalAction,
-            Action action, A annotation) throws PermissionDeniedException;
+            Action action, A annotation);
 
     /**
      * フレームワークがResponseオブジェクトを構築した際に、

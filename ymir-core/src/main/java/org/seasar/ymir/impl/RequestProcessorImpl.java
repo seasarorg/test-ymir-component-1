@@ -13,7 +13,7 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.log.Logger;
 import org.seasar.ymir.Action;
-import org.seasar.ymir.ActionNotFoundException;
+import org.seasar.ymir.ActionNotFoundRuntimeException;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.ComponentMetaDataFactory;
@@ -23,7 +23,7 @@ import org.seasar.ymir.FrameworkDispatch;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
-import org.seasar.ymir.PageNotFoundException;
+import org.seasar.ymir.PageNotFoundRuntimeException;
 import org.seasar.ymir.PageProcessor;
 import org.seasar.ymir.Phase;
 import org.seasar.ymir.Request;
@@ -32,12 +32,10 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.Updater;
-import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.Include;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.constraint.ConstraintType;
-import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.response.PassthroughResponse;
@@ -170,8 +168,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         return ymir_.getApplication().getS2Container();
     }
 
-    public Response process(final Request request)
-            throws PageNotFoundException, PermissionDeniedException {
+    public Response process(final Request request) {
         switch (request.getCurrentDispatch().getDispatcher()) {
         case REQUEST:
             return processRequest(request);
@@ -187,11 +184,10 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
     }
 
-    protected Response processRequest(final Request request)
-            throws PageNotFoundException, PermissionDeniedException {
+    protected Response processRequest(final Request request) {
         Dispatch dispatch = request.getCurrentDispatch();
         if (dispatch.isDenied()) {
-            throw new PageNotFoundException(dispatch.getPath());
+            throw new PageNotFoundRuntimeException(dispatch.getPath());
         }
 
         Response response = processRequestAndForward(request);
@@ -210,13 +206,11 @@ public class RequestProcessorImpl implements RequestProcessor {
         return response;
     }
 
-    protected Response processForward(final Request request)
-            throws PageNotFoundException, PermissionDeniedException {
+    protected Response processForward(final Request request) {
         return processRequestAndForward(request);
     }
 
-    protected Response processRequestAndForward(final Request request)
-            throws PageNotFoundException, PermissionDeniedException {
+    protected Response processRequestAndForward(final Request request) {
         FrameworkDispatch dispatch = YmirUtils.toFrameworkDispatch(request
                 .getCurrentDispatch());
 
@@ -255,8 +249,8 @@ public class RequestProcessorImpl implements RequestProcessor {
                     // ただしforwardの時はアクションがなくても良いことにしている。
                     // これは、forward先のパスに対応するPageクラスでは_render()だけ
                     // 呼びたい場合にアクションメソッドを省略できるようにするため。
-                    throw new ActionNotFoundException(dispatch.getPath(),
-                            request.getMethod());
+                    throw new ActionNotFoundRuntimeException(
+                            dispatch.getPath(), request.getMethod());
                 }
 
                 pageComponent.accept(new VisitorForPreparing(request));
@@ -323,8 +317,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         return response;
     }
 
-    protected Response processInclude(final Request request)
-            throws PageNotFoundException, PermissionDeniedException {
+    protected Response processInclude(final Request request) {
         Dispatch dispatch = request.getCurrentDispatch();
         if (dispatch.isMatched()) {
             // includeの場合はselfを設定するだけ。
@@ -414,7 +407,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         return request.getAttribute(ATTR_SELF);
     }
 
-    Response invokeAction(final Action action) throws PermissionDeniedException {
+    Response invokeAction(final Action action) {
         Response response = new PassthroughResponse();
 
         if (action != null && action.shouldInvoke()) {
@@ -544,13 +537,8 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
 
         public Object process(PageComponent pageComponent) {
-            try {
-                invokeAction(matched_.getRenderAction(pageComponent, request_));
-
-                return null;
-            } catch (PermissionDeniedException ex) {
-                throw new WrappingRuntimeException(ex);
-            }
+            invokeAction(matched_.getRenderAction(pageComponent, request_));
+            return null;
         }
     }
 

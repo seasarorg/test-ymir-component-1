@@ -2,14 +2,12 @@ package org.seasar.ymir;
 
 /**
  * HTTPリクエストに対応するPageクラスのアクションメソッドが見つからなかった場合にスローされる例外クラスです。
- * <p><b>同期化：</b>
- * このクラスはスレッドセーフではありません。
- * </p>
  * 
  * @author YOKOTA Takehiko
+ * @since 1.0.0
  */
-public class ActionNotFoundException extends PageNotFoundException {
-    private static final long serialVersionUID = 5885040967668460745L;
+public class ActionNotFoundRuntimeException extends BadRequestRuntimeException {
+    private static final long serialVersionUID = 1L;
 
     private String method_;
 
@@ -18,7 +16,7 @@ public class ActionNotFoundException extends PageNotFoundException {
      * 
      * @param path ページのパス。
      */
-    public ActionNotFoundException(String path) {
+    public ActionNotFoundRuntimeException(String path) {
         super(path);
     }
 
@@ -28,7 +26,7 @@ public class ActionNotFoundException extends PageNotFoundException {
      * @param path ページのパス。
      * @param method HTTPメソッド名。
      */
-    public ActionNotFoundException(String path, String method) {
+    public ActionNotFoundRuntimeException(String path, String method) {
         super(path);
         setMethod(method);
     }
@@ -48,7 +46,7 @@ public class ActionNotFoundException extends PageNotFoundException {
      * @param method HTTPメソッド名。
      * @return このオブジェクト自身。
      */
-    public ActionNotFoundException setMethod(String method) {
+    public ActionNotFoundRuntimeException setMethod(String method) {
         method_ = method;
         return this;
     }
