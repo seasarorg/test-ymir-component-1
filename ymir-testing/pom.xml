@@ -10,44 +10,14 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.seasar.ymir</groupId>
-  <artifactId>ymir-core</artifactId>
-  <name>Ymir Core</name>
+  <artifactId>ymir-testing</artifactId>
+  <name>Ymir Testing</name>
   <description>
-    Ymir is a framework for developing light-weight web application.
+    This project includes unit test cases to confirm Ymir's behavior.
   </description>
   <build>
-    <defaultGoal>install</defaultGoal>
+    <defaultGoal>test</defaultGoal>
     <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>testCompile</goal>
-            </goals>
-            <configuration>
-              <skip>false</skip>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-            <configuration>
-              <!-- Will be enable from maven-jar-plugin 2.2 -->
-              <includes>
-                <include>org/seasar/ymir/test/**</include>
-              </includes>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <artifactId>maven-source-plugin</artifactId>
         <executions>
@@ -86,52 +56,7 @@
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>2.4</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-beanutils</groupId>
-      <artifactId>commons-beanutils</artifactId>
-      <version>1.7.0</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>log4j</artifactId>
-          <groupId>log4j</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>logkit</artifactId>
-          <groupId>logkit</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.seasar.container</groupId>
-      <artifactId>s2-extension</artifactId>
-      <version>2.4.20</version>
-    </dependency>
-    <dependency>
-      <groupId>org.seasar.container</groupId>
-      <artifactId>s2-tiger</artifactId>
-      <version>2.4.20</version>
-    </dependency>
-    <dependency>
-      <groupId>org.seasar.cms.s2-pluggable</groupId>
-      <artifactId>s2-pluggable</artifactId>
-      <version>0.0.9</version>
-    </dependency>
-    <dependency>
-      <groupId>org.seasar.cms.s2-classbuilder</groupId>
-      <artifactId>s2-classbuilder</artifactId>
-      <version>0.0.6</version>
-    </dependency>
-    <dependency>
-      <groupId>org.seasar.kvasir</groupId>
-      <artifactId>kvasir-util</artifactId>
-      <version>3.0.0-RC3</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-      <version>1.1</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
@@ -143,6 +68,12 @@
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-ejb_3.0_spec</artifactId>
       <version>1.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.ymir</groupId>
+      <artifactId>ymir-core</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

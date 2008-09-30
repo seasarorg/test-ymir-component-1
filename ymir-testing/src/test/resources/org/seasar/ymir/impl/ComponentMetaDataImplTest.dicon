@@ -7,7 +7,7 @@
   <component name="hotdeployManager"
     class="org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl" />
   <component name="applicationManager"
-    class="org.seasar.ymir.mock.MockApplicationManager" />
+    class="org.seasar.ymir.testing.mock.MockApplicationManager" />
   <component name="typeConversionManager"
     class="org.seasar.ymir.impl.YmirTypeConversionManager" />
   <component name="sessionManager"
