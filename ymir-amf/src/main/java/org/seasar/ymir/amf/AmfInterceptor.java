@@ -25,7 +25,6 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.cache.CacheManager;
-import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.response.SelfContainedResponse;
 import org.seasar.ymir.response.VoidResponse;
@@ -128,8 +127,7 @@ public class AmfInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public Action actionInvoking(Request request, Action originalAction, Action action)
-            throws PermissionDeniedException {
+    public Action actionInvoking(Request request, Action originalAction, Action action) {
         if (!isEnabled()) {
             return action;
         }
