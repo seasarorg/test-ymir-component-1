@@ -4,7 +4,7 @@ import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.util.Map;
 
-import org.seasar.ymir.ActionNotFoundException;
+import org.seasar.ymir.ActionNotFoundRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -36,7 +36,7 @@ public class CreateActionAction extends AbstractAction implements
     }
 
     Response actDefault(Request request, PathMetaData pathMetaData, Throwable t) {
-        ActionNotFoundException anfe = (ActionNotFoundException) t;
+        ActionNotFoundRuntimeException anfe = (ActionNotFoundRuntimeException) t;
 
         String actionName = getSourceCreator().getExtraPathMapping(
                 anfe.getPath(), anfe.getMethod()).newActionMethodDesc(
@@ -52,7 +52,7 @@ public class CreateActionAction extends AbstractAction implements
     }
 
     Response actCreate(Request request, PathMetaData pathMetaData, Throwable t) {
-        ActionNotFoundException anfe = (ActionNotFoundException) t;
+        ActionNotFoundRuntimeException anfe = (ActionNotFoundRuntimeException) t;
 
         String method = request.getParameter(PARAM_METHOD);
         if (method == null) {

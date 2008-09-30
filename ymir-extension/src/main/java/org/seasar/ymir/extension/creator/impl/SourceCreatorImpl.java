@@ -55,7 +55,7 @@ import org.seasar.framework.util.ClassTraversal;
 import org.seasar.kvasir.util.StringUtils;
 import org.seasar.kvasir.util.collection.MapProperties;
 import org.seasar.kvasir.util.io.IOUtils;
-import org.seasar.ymir.ActionNotFoundException;
+import org.seasar.ymir.ActionNotFoundRuntimeException;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.MatchedPathMapping;
@@ -222,7 +222,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     MessageNotFoundRuntimeException.class,
                     new CreateMessageAction(this)).register("createMessage",
                     new CreateMessageAction(this))
-            .register(ActionNotFoundException.class,
+            .register(ActionNotFoundRuntimeException.class,
                     new CreateActionAction(this)).register("createAction",
                     new CreateActionAction(this));
 
