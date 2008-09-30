@@ -1,4 +1,4 @@
-package org.seasar.ymir.test;
+package org.seasar.ymir.testing;
 
 import java.io.File;
 import java.io.IOException;
