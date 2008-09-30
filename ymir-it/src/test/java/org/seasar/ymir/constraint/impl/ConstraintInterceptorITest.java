@@ -3,7 +3,7 @@ package org.seasar.ymir.constraint.impl;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.test.PageTestCase;
+import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.ConstraintInterceptorTestPage;
 
