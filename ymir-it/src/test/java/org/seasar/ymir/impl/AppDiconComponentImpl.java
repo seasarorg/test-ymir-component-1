@@ -1,8 +1,8 @@
 package org.seasar.ymir.impl;
 
 import org.seasar.ymir.AppDiconComponent;
-import org.seasar.ymir.Messages;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.message.Messages;
 
 public class AppDiconComponentImpl implements AppDiconComponent {
     private Messages messages_;

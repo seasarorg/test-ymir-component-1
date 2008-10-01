@@ -2,8 +2,6 @@ package com.example.web;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.ymir.Note;
-import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.ValidationFailedException;
@@ -12,6 +10,8 @@ import org.seasar.ymir.constraint.annotation.Fuga;
 import org.seasar.ymir.constraint.annotation.Fugas;
 import org.seasar.ymir.constraint.annotation.SuppressConstraints;
 import org.seasar.ymir.constraint.annotation.Validator;
+import org.seasar.ymir.message.Note;
+import org.seasar.ymir.message.Notes;
 
 @Fuga("saru")
 @Fufu("tora")

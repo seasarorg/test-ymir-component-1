@@ -1,9 +1,9 @@
 package org.seasar.ymir.constraint.impl;
 
-import org.seasar.ymir.Note;
 import org.seasar.ymir.constraint.Constraint;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.Length;
+import org.seasar.ymir.message.Note;
 import org.seasar.ymir.testing.constraint.ConstraintTestCase;
 
 public class LengthConstraintTest extends

@@ -1,9 +1,9 @@
 package org.seasar.ymir.constraint.impl;
 
-import org.seasar.ymir.Notes;
 import org.seasar.ymir.constraint.Constraint;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.Matched;
+import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.testing.constraint.ConstraintTestCase;
 
 public class MatchedConstraintTest extends
