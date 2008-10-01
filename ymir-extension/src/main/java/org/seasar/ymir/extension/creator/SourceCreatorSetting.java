@@ -271,19 +271,15 @@ public class SourceCreatorSetting {
                 DEFAULT_SOURCECREATOR_FIELDSUFFIX);
     }
 
-    // TODO ymir-1.0.xではデフォルトをtrueにする。
     public boolean isUsingFreyjaRenderClasses() {
-        return PropertyUtils
-                .valueOf(
-                        getProperty(APPKEY_SOURCECREATOR_USEFREYJARENDERCLASSES),
-                        false);
+        return PropertyUtils.valueOf(
+                getProperty(APPKEY_SOURCECREATOR_USEFREYJARENDERCLASSES), true);
     }
 
-    // TODO ymir-1.0.xではデフォルトをtrueにする。
     public boolean isFormDtoCreationFeatureEnabled() {
         return PropertyUtils.valueOf(
                 getProperty(APPKEY_SOURCECREATOR_FEATURE_CREATEFORMDTO_ENABLE),
-                false);
+                true);
     }
 
     public boolean isBeantableEnabled() {
