@@ -9,6 +9,7 @@ import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.FrameworkRequest;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.impl.RequestImpl;
 
@@ -94,7 +95,7 @@ class FrameworkRequestImpl implements FrameworkRequest {
         return request_.getLocale();
     }
 
-    public String getMethod() {
+    public HttpMethod getMethod() {
         return request_.getMethod();
     }
 

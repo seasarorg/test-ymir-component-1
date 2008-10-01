@@ -12,17 +12,17 @@ import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.RequestWrapper;
 import org.seasar.ymir.impl.RequestImpl;
-import org.seasar.ymir.mock.MockMatchedPathMapping;
 
 public class MockRequest extends RequestWrapper {
     private AttributeContainer attributeContainer_ = this;
 
     private String contextPath_;
 
-    private String method_;
+    private HttpMethod method_;
 
     private Map<String, String[]> parameterMap_ = new HashMap<String, String[]>();
 
@@ -78,7 +78,7 @@ public class MockRequest extends RequestWrapper {
         return matchedPathMapping_ == null || matchedPathMapping_.isDenied();
     }
 
-    public String getMethod() {
+    public HttpMethod getMethod() {
         return method_;
     }
 
@@ -128,7 +128,7 @@ public class MockRequest extends RequestWrapper {
         return this;
     }
 
-    public MockRequest setMethod(String method) {
+    public MockRequest setMethod(HttpMethod method) {
         method_ = method;
         return this;
     }

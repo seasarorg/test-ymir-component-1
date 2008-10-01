@@ -25,6 +25,7 @@ import org.seasar.kvasir.util.el.impl.MapVariableResolver;
 import org.seasar.kvasir.util.el.impl.SimpleTextTemplateEvaluator;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionManager;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.PathMapping;
@@ -266,7 +267,7 @@ public class PathMappingImpl implements PathMapping {
         return buttonNamePatternStringForDispatching_;
     }
 
-    public VariableResolver match(String path, String method) {
+    public VariableResolver match(String path, HttpMethod method) {
         Matcher matcher = pattern_.matcher(path);
         if (matcher.find()) {
             Map<String, String> prop = new HashMap<String, String>();
@@ -281,8 +282,8 @@ public class PathMappingImpl implements PathMapping {
             prop.put("`", path.substring(0, matcher.start()));
             prop.put("&", path.substring(matcher.start(), matcher.end()));
             prop.put("'", path.substring(matcher.end()));
-            prop.put("METHOD", method);
-            String lmethod = method.toLowerCase();
+            prop.put("METHOD", method.name());
+            String lmethod = method.name().toLowerCase();
             prop.put("method", lmethod);
             prop.put("Method", upper(lmethod));
 

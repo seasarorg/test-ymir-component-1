@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
@@ -60,7 +61,7 @@ public class PathMappingImplTest extends TestCase {
         parameterMap.put("search", new String[] { "" });
         Request request = new MockRequest().setParameterMap(parameterMap);
         VariableResolver resolver = target_.match("/index.html",
-                Request.METHOD_POST);
+                HttpMethod.POST);
         Parent4Page parent4Page = new Parent4Page();
         Child4Page child4Page = new Child4Page();
         PageComponent pageComponent = new PageComponentImpl(parent4Page,
@@ -79,7 +80,7 @@ public class PathMappingImplTest extends TestCase {
         parameterMap.put("search[1][test][hoe]", new String[] { "" });
         Request request = new MockRequest().setParameterMap(parameterMap);
         VariableResolver resolver = target_.match("/index.html",
-                Request.METHOD_POST);
+                HttpMethod.POST);
         PageComponent pageComponent = new PageComponentImpl(
                 new PathMappingImplTest1Page(), PathMappingImplTest1Page.class,
                 new PageComponent[0]);
@@ -106,7 +107,7 @@ public class PathMappingImplTest extends TestCase {
         parameterMap.put("image.y", new String[] { "" });
         Request request = new MockRequest().setParameterMap(parameterMap);
         VariableResolver resolver = target_.match("/index.html",
-                Request.METHOD_POST);
+                HttpMethod.POST);
         Test6Page test6Page = new Test6Page();
         PageComponent pageComponent = new PageComponentImpl(test6Page,
                 Test6Page.class);
@@ -165,7 +166,7 @@ public class PathMappingImplTest extends TestCase {
         target.setTypeConversionManager(new BeanUtilsTypeConversionManager());
 
         Map<String, String[]> actual = target.getParameterMap(target.match(
-                "/article/science&technology/15.html", Request.METHOD_GET));
+                "/article/science&technology/15.html", HttpMethod.GET));
 
         assertEquals("science&technology", actual.get("category")[0]);
         assertEquals("15", actual.get("sequence")[0]);

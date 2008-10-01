@@ -12,11 +12,12 @@ import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.FrameworkRequest;
+import org.seasar.ymir.HttpMethod;
 
 public class RequestImpl implements FrameworkRequest {
     private String contextPath_;
 
-    private String method_;
+    private HttpMethod method_;
 
     private String characterEncoding_;
 
@@ -41,7 +42,7 @@ public class RequestImpl implements FrameworkRequest {
     public RequestImpl() {
     }
 
-    public RequestImpl(String contextPath, String method,
+    public RequestImpl(String contextPath, HttpMethod method,
             String characterEncoding, Map<String, String[]> queryParameterMap,
             Map<String, FormFile[]> fileParameterMap,
             AttributeContainer attributeContainer, Locale locale) {
@@ -54,11 +55,11 @@ public class RequestImpl implements FrameworkRequest {
         locale_ = locale;
     }
 
-    public String getMethod() {
+    public HttpMethod getMethod() {
         return method_;
     }
 
-    public void setMethod(String method) {
+    public void setMethod(HttpMethod method) {
         method_ = method;
     }
 

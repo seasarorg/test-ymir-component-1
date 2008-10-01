@@ -18,6 +18,7 @@ import org.seasar.cms.pluggable.ThreadContext;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.LocaleManager;
 import org.seasar.ymir.MatchedPathMapping;
@@ -77,7 +78,13 @@ public class YmirFilter implements Filter {
 
         Dispatcher dispatcher = getDispatcher(httpRequest);
         String path = ServletUtils.getNativePath(httpRequest);
-        String method = httpRequest.getMethod();
+        HttpMethod method;
+        try {
+            method = HttpMethod.enumOf(httpRequest.getMethod());
+        } catch (IllegalArgumentException ex) {
+            throw new ServletException("Unknown HTTP method: "
+                    + httpRequest.getMethod());
+        }
 
         // 開発モードではResponseを加工できるように、マッチするかに関わらずYmirで処理するようにする。
         // また、開発モードではHTTPメソッドが差し替えられることがあるため、MatchedPathMappingは

@@ -21,39 +21,6 @@ import org.seasar.ymir.util.ServletUtils;
  * @see Dispatch
  */
 public interface Request extends AttributeContainer {
-    /** CONNECTメソッドを表す定数です。 */
-    String METHOD_CONNECT = "CONNECT";
-
-    /** DELETEメソッドを表す定数です。 */
-    String METHOD_DELETE = "DELETE";
-
-    /** GETメソッドを表す定数です。 */
-    String METHOD_GET = "GET";
-
-    /** HEADメソッドを表す定数です。 */
-    String METHOD_HEAD = "HEAD";
-
-    /** LINKメソッドを表す定数です。 */
-    String METHOD_LINK = "LINK";
-
-    /** OPTIONSメソッドを表す定数です。 */
-    String METHOD_OPTIONS = "OPTIONS";
-
-    /** PATCHメソッドを表す定数です。 */
-    String METHOD_PATCH = "PATCH";
-
-    /** POSTメソッドを表す定数です。 */
-    String METHOD_POST = "POST";
-
-    /** PUTメソッドを表す定数です。 */
-    String METHOD_PUT = "PUT";
-
-    /** TRACEメソッドを表す定数です。 */
-    String METHOD_TRACE = "TRACE";
-
-    /** UNLINKメソッドを表す定数です。 */
-    String METHOD_UNLINK = "UNLINK";
-
     /**
      * コンテキストパスを返します。
      * <p>返されるパスは末尾に「/」がつかない形に正規化されています。
@@ -87,11 +54,10 @@ public interface Request extends AttributeContainer {
 
     /**
      * HTTPメソッドを返します。
-     * <p>返されるメソッド名は全て大文字です。</p>
      *
-     * @return メソッド名。
+     * @return HTTPメソッド。
      */
-    String getMethod();
+    HttpMethod getMethod();
 
     /**
      * リクエストの文字エンコーディングを返します。

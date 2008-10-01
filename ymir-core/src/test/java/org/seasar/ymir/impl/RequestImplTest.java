@@ -14,8 +14,8 @@ import junit.framework.TestCase;
 
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.PathMapping;
-import org.seasar.ymir.Request;
 
 public class RequestImplTest extends TestCase {
     private RequestImpl target_;
@@ -26,7 +26,7 @@ public class RequestImplTest extends TestCase {
     protected void setUp() throws Exception {
         String path = "/index.html";
         String queryString = "param=value_q1&param=value_q2";
-        String method = Request.METHOD_GET;
+        HttpMethod method = HttpMethod.GET;
 
         queryParameterMap_ = new HashMap<String, String[]>();
         queryParameterMap_

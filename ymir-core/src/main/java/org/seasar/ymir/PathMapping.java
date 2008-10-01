@@ -25,7 +25,7 @@ public interface PathMapping {
      * @param method HTTPメソッド。
      * @return パス中から取り出したパラメータを持つ{@link VariableResolver}オブジェクト。
      */
-    VariableResolver match(String path, String method);
+    VariableResolver match(String path, HttpMethod method);
 
     /**
      * パスに対応するPageコンポーネントの名前を返します。

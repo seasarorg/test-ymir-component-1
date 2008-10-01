@@ -20,6 +20,7 @@ import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FrameworkDispatch;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
@@ -274,7 +275,7 @@ public class RequestProcessorImpl implements RequestProcessor {
                         MatchedPathMapping mapping = ymir_
                                 .findMatchedPathMapping(ServletUtils
                                         .getTrunk(response.getPath()),
-                                        Request.METHOD_GET);
+                                        HttpMethod.GET);
                         if (mapping != null
                                 && componentExists(mapping
                                         .getPageComponentName())) {

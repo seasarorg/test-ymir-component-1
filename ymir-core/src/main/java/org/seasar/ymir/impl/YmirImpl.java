@@ -25,6 +25,7 @@ import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.Globals;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.LifecycleListener;
 import org.seasar.ymir.MatchedPathMapping;
@@ -114,7 +115,7 @@ public class YmirImpl implements Ymir {
     }
 
     public Request prepareForProcessing(final String contextPath,
-            String method, String characterEncoding,
+            HttpMethod method, String characterEncoding,
             final Map<String, String[]> parameterMap,
             final Map<String, FormFile[]> fileParameterMap,
             final AttributeContainer attributeContainer, final Locale locale) {
@@ -131,11 +132,11 @@ public class YmirImpl implements Ymir {
         return request;
     }
 
-    String correctMethod(final String method,
+    HttpMethod correctMethod(final HttpMethod method,
             final Map<String, String[]> parameterMap) {
         final String[] values = parameterMap.get(PARAM_METHOD);
         if (values != null && values.length > 0) {
-            return values[0];
+            return HttpMethod.valueOf(values[0]);
         } else {
             return method;
         }
@@ -172,7 +173,7 @@ public class YmirImpl implements Ymir {
     }
 
     public MatchedPathMapping findMatchedPathMapping(final String path,
-            final String method) {
+            final HttpMethod method) {
         String normalizedPath = ServletUtils.normalizePath(path);
         VariableResolver resolver = null;
         final PathMapping[] pathMappings = getPathMappings();
@@ -313,7 +314,7 @@ public class YmirImpl implements Ymir {
             }
             parameterMap = Collections.unmodifiableMap(parameterMap);
 
-            unwrappedRequest.setMethod(Request.METHOD_GET);
+            unwrappedRequest.setMethod(HttpMethod.GET);
         }
         unwrappedRequest.setQueryParameterMap(parameterMap);
     }

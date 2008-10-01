@@ -39,7 +39,7 @@ public interface Ymir {
      * @param locale 現在のロケール。
      * @return 構築したRequestオブジェクト。
      */
-    Request prepareForProcessing(String contextPath, String method,
+    Request prepareForProcessing(String contextPath, HttpMethod method,
             String characterEncoding, Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap,
             AttributeContainer attributeContainer, Locale locale);
@@ -198,8 +198,8 @@ public interface Ymir {
      * </p>
      * 
      * @param path パス。末尾に「/」がついていてもついていなくても構いません。
-     * @param method HTTPメソッド。全て大文字である必要があります。
+     * @param method HTTPメソッド。
      * @return 構築したMatchedPathMappingオブジェクト。
      */
-    MatchedPathMapping findMatchedPathMapping(String path, String method);
+    MatchedPathMapping findMatchedPathMapping(String path, HttpMethod method);
 }

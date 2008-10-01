@@ -9,7 +9,7 @@ package org.seasar.ymir;
 public class ActionNotFoundRuntimeException extends BadRequestRuntimeException {
     private static final long serialVersionUID = 1L;
 
-    private String method_;
+    private HttpMethod method_;
 
     /**
      * このクラスのオブジェクトを構築します。
@@ -24,9 +24,9 @@ public class ActionNotFoundRuntimeException extends BadRequestRuntimeException {
      * このクラスのオブジェクトを構築します。
      * 
      * @param path ページのパス。
-     * @param method HTTPメソッド名。
+     * @param method HTTPメソッド。
      */
-    public ActionNotFoundRuntimeException(String path, String method) {
+    public ActionNotFoundRuntimeException(String path, HttpMethod method) {
         super(path);
         setMethod(method);
     }
@@ -36,7 +36,7 @@ public class ActionNotFoundRuntimeException extends BadRequestRuntimeException {
      * 
      * @return HTTPメソッド名。
      */
-    public String getMethod() {
+    public HttpMethod getMethod() {
         return method_;
     }
 
@@ -46,7 +46,7 @@ public class ActionNotFoundRuntimeException extends BadRequestRuntimeException {
      * @param method HTTPメソッド名。
      * @return このオブジェクト自身。
      */
-    public ActionNotFoundRuntimeException setMethod(String method) {
+    public ActionNotFoundRuntimeException setMethod(HttpMethod method) {
         method_ = method;
         return this;
     }

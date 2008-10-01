@@ -21,22 +21,22 @@ public class YmirConventionTest extends TestCase {
                 .getComponent(PathMappingProvider.class);
         PathMapping[] mappings = provider.getPathMappings();
 
-        MatchedPathMapping matched = match("", "GET", mappings);
+        MatchedPathMapping matched = match("", HttpMethod.GET, mappings);
         assertNotNull(matched);
         assertEquals("_RootPage", matched.getPageComponentName());
 
-        matched = match("/_Root", "GET", mappings);
+        matched = match("/_Root", HttpMethod.GET, mappings);
         assertNull(matched);
 
-        matched = match("/article.html", "GET", mappings);
+        matched = match("/article.html", HttpMethod.GET, mappings);
         assertNotNull(matched);
         assertEquals("articlePage", matched.getPageComponentName());
 
-        matched = match("/article/update.html", "POST", mappings);
+        matched = match("/article/update.html", HttpMethod.POST, mappings);
         assertNotNull(matched);
         assertEquals("article_updatePage", matched.getPageComponentName());
 
-        matched = match("/article/_update.html", "POST", mappings);
+        matched = match("/article/_update.html", HttpMethod.POST, mappings);
         assertNull(matched);
     }
 
@@ -48,7 +48,7 @@ public class YmirConventionTest extends TestCase {
                 .fromComponentNameToClass("_RootPage"));
     }
 
-    private MatchedPathMapping match(String path, String method,
+    private MatchedPathMapping match(String path, HttpMethod method,
             PathMapping[] mappings) {
         for (int i = 0; i < mappings.length; i++) {
             VariableResolver resolver = mappings[i].match(path, method);

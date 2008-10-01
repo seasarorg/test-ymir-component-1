@@ -14,6 +14,7 @@ import org.seasar.ymir.Application;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Request;
@@ -58,7 +59,7 @@ public class MockYmir implements Ymir {
         return Configuration.PROJECTSTATUS_DEVELOP.equals(getProjectStatus());
     }
 
-    public Request prepareForProcessing(String contextPath, String method,
+    public Request prepareForProcessing(String contextPath, HttpMethod method,
             String characterEncoding, Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap,
             AttributeContainer attributeContainer, Locale locale) {
@@ -108,7 +109,8 @@ public class MockYmir implements Ymir {
             Dispatcher dispatcher) {
     }
 
-    public MatchedPathMapping findMatchedPathMapping(String path, String method) {
+    public MatchedPathMapping findMatchedPathMapping(String path,
+            HttpMethod method) {
         return null;
     }
 }

@@ -12,6 +12,7 @@ import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.ymir.ActionNotFoundRuntimeException;
 import org.seasar.ymir.Dispatch;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Ymir;
@@ -21,12 +22,6 @@ import org.seasar.ymir.handler.ExceptionHandler;
 public class ActionNotFoundRuntimeExceptionHandler implements
         ExceptionHandler<ActionNotFoundRuntimeException> {
     private static final String HEADER_ALLOW = "Allow";
-
-    private static final String[] METHODS = new String[] {
-        Request.METHOD_CONNECT, Request.METHOD_DELETE, Request.METHOD_GET,
-        Request.METHOD_HEAD, Request.METHOD_LINK, Request.METHOD_OPTIONS,
-        Request.METHOD_PATCH, Request.METHOD_POST, Request.METHOD_PUT,
-        Request.METHOD_TRACE, Request.METHOD_UNLINK, };
 
     private Request request_;
 
@@ -59,12 +54,12 @@ public class ActionNotFoundRuntimeExceptionHandler implements
         String path = dispatch.getPath();
 
         List<String> list = new ArrayList<String>();
-        for (int i = 0; i < METHODS.length; i++) {
+        for (HttpMethod method : HttpMethod.values()) {
             MatchedPathMapping matched = ymir.findMatchedPathMapping(path,
-                    METHODS[i]);
+                    method);
             if (matched != null
                     && matched.getAction(dispatch.getPageComponent(), request_) != null) {
-                list.add(METHODS[i]);
+                list.add(method.name());
             }
         }
 
