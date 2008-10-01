@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.impl.MatchedConstraint;
+import org.seasar.ymir.converter.annotation.TypeConversionHint;
 
 /**
  * リクエストパラメータの値が指定された正規表現パターンにマッチしていることを表す制約アノテーションです。
@@ -23,6 +24,7 @@ import org.seasar.ymir.constraint.impl.MatchedConstraint;
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.TYPE, ElementType.METHOD })
 @ConstraintAnnotation(type = ConstraintType.VALIDATION, component = MatchedConstraint.class)
+@TypeConversionHint
 public @interface Matched {
     /**
      * リクエストパラメータ名です。
