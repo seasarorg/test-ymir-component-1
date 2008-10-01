@@ -4,12 +4,12 @@ import java.util.Locale;
 
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.ymir.Globals;
-import org.seasar.ymir.MessageNotFoundRuntimeException;
-import org.seasar.ymir.Messages;
-import org.seasar.ymir.MessagesNotFoundRuntimeException;
-import org.seasar.ymir.NoteRenderer;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.message.MessageNotFoundRuntimeException;
+import org.seasar.ymir.message.Messages;
+import org.seasar.ymir.message.MessagesNotFoundRuntimeException;
+import org.seasar.ymir.message.NoteRenderer;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;

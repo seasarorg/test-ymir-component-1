@@ -1,6 +1,6 @@
 package org.seasar.ymir.zpt;
 
-import org.seasar.ymir.impl.NoteRendererImpl;
+import org.seasar.ymir.message.impl.NoteRendererImpl;
 
 import net.skirnir.freyja.zpt.tales.NoteLocalizer;
 import net.skirnir.freyja.zpt.webapp.ServletTalesExpressionEvaluator;

@@ -6,8 +6,8 @@ import org.seasar.kvasir.util.collection.AttributeReader;
 import org.seasar.kvasir.util.collection.I18NPropertyReader;
 import org.seasar.kvasir.util.collection.PropertyReader;
 import org.seasar.ymir.Globals;
-import org.seasar.ymir.MessageNotFoundRuntimeException;
-import org.seasar.ymir.Messages;
+import org.seasar.ymir.message.MessageNotFoundRuntimeException;
+import org.seasar.ymir.message.Messages;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;

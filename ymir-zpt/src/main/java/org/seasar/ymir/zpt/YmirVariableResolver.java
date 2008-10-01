@@ -12,11 +12,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.Globals;
-import org.seasar.ymir.Messages;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.Token;
-import org.seasar.ymir.TokenManager;
 import org.seasar.ymir.impl.RequestProcessorImpl;
+import org.seasar.ymir.message.Messages;
+import org.seasar.ymir.token.Token;
+import org.seasar.ymir.token.TokenManager;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;
