@@ -8,12 +8,12 @@ import java.util.Map;
 import org.seasar.kvasir.util.collection.I18NProperties;
 import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.kvasir.util.io.impl.FileResource;
-import org.seasar.ymir.MessageNotFoundRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.action.UpdateByExceptionAction;
+import org.seasar.ymir.message.MessageNotFoundRuntimeException;
 
 public class CreateMessageAction extends AbstractAction implements
         UpdateByExceptionAction {

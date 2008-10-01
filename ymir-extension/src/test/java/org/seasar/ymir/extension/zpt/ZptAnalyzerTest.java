@@ -20,7 +20,6 @@ import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
-import org.seasar.ymir.Note;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.annotation.RequestParameter;
@@ -45,6 +44,7 @@ import org.seasar.ymir.impl.ApplicationManagerImpl;
 import org.seasar.ymir.impl.MatchedPathMappingImpl;
 import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.impl.YmirPathMapping;
+import org.seasar.ymir.message.Note;
 import org.seasar.ymir.mock.MockApplication;
 
 import com.example.dto.SaruDto;

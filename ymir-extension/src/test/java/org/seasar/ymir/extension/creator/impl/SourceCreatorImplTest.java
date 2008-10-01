@@ -10,7 +10,6 @@ import java.util.Map;
 import org.seasar.framework.util.ResourceUtil;
 import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.HttpMethod;
-import org.seasar.ymir.Notes;
 import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Out;
@@ -31,6 +30,7 @@ import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.TypeDesc;
+import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
 

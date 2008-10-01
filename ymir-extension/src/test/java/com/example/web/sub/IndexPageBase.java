@@ -1,6 +1,6 @@
 package com.example.web.sub;
 
-import org.seasar.ymir.Note;
+import org.seasar.ymir.message.Note;
 
 public class IndexPageBase {
     protected String param1_;

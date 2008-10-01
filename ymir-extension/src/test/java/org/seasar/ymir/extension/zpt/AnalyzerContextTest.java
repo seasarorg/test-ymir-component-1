@@ -40,9 +40,9 @@ public class AnalyzerContextTest extends TestCase {
     }
 
     public void testFindRenderClassName() throws Exception {
-        assertEquals("org.seasar.ymir.Note", target_
+        assertEquals("org.seasar.ymir.message.Note", target_
                 .findRenderClassName("note"));
-        assertEquals("org.seasar.ymir.Notes", target_
+        assertEquals("org.seasar.ymir.message.Notes", target_
                 .findRenderClassName("notes"));
         assertEquals("互換性のため", "net.skirnir.freyja.render.html.InputTag",
                 target_.findRenderClassName("input"));

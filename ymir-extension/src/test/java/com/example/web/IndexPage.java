@@ -1,6 +1,6 @@
 package com.example.web;
 
-import org.seasar.ymir.Note;
+import org.seasar.ymir.message.Note;
 
 public class IndexPage extends IndexPageBase {
 
