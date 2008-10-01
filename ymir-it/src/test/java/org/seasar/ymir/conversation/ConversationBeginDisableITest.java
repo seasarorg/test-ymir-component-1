@@ -1,5 +1,6 @@
 package org.seasar.ymir.conversation;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.testing.PageTestCase;
 
@@ -17,7 +18,7 @@ public class ConversationBeginDisableITest extends
         disableBeginCheck();
 
         Request request = prepareForProcessing(
-                "/conversationBeginDisable.html", Request.METHOD_GET);
+                "/conversationBeginDisable.html", HttpMethod.GET);
         try {
             processRequest(request);
         } catch (IllegalTransitionRuntimeException ex) {

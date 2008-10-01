@@ -1,5 +1,6 @@
 package org.seasar.ymir.scope.handler.impl;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.TypeConversionManager;
@@ -21,7 +22,7 @@ public class ScopeAttributePopulatorITest extends YmirTestCase {
         target.addEntry(ScopeAttributePopulatorTestPage.class.getMethod(
                 "getAaa", new Class[0]), new String[0]);
         final Request request = prepareForProcessing(
-                "/scopeAttributePopulatorTest.html", Request.METHOD_GET,
+                "/scopeAttributePopulatorTest.html", HttpMethod.GET,
                 "aaa.bbb=AAA");
         processRequest(request, new Test() {
             @Override
@@ -39,7 +40,7 @@ public class ScopeAttributePopulatorITest extends YmirTestCase {
 
     public void test_属性名を指定したメソッドに属性値をインジェクションできること() throws Exception {
         final Request request = prepareForProcessing(
-                "/scopeAttributePopulatorTest2.html", Request.METHOD_GET,
+                "/scopeAttributePopulatorTest2.html", HttpMethod.GET,
                 "a=AAA&bbb=BBB");
         processRequest(request);
         ScopeAttributePopulatorTest2Page actual = (ScopeAttributePopulatorTest2Page) request

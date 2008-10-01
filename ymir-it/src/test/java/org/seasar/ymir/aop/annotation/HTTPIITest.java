@@ -1,5 +1,6 @@
 package org.seasar.ymir.aop.annotation;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.testing.PageTestCase;
@@ -13,14 +14,14 @@ public class HTTPIITest extends PageTestCase<HTTPPage> {
     }
 
     public void test_スキームが同じ場合はリダイレクトされないこと() throws Exception {
-        Request request = prepareForProcessing("/HTTP.html", Request.METHOD_GET);
+        Request request = prepareForProcessing("/HTTP.html", HttpMethod.GET);
         Response response = processRequest(request);
 
         assertEquals("/path", response.getPath());
     }
 
     public void test_スキームが違う場合はリダイレクトされること() throws Exception {
-        Request request = prepareForProcessing("/HTTP.html", Request.METHOD_GET);
+        Request request = prepareForProcessing("/HTTP.html", HttpMethod.GET);
         getHttpServletRequest().setScheme("https");
         getHttpServletRequest().setServerPort(443);
         Response response = processRequest(request);

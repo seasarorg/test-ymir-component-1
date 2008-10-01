@@ -1,5 +1,6 @@
 package org.seasar.ymir.annotation;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.testing.PageTestCase;
 
@@ -14,7 +15,7 @@ public class RequestParameterITest extends
 
     public void test() throws Exception {
         Request request = prepareForProcessing("/requestParameterITest.html",
-                Request.METHOD_GET, "value=VALUE&dto.aaa=AAA");
+                HttpMethod.GET, "value=VALUE&dto.aaa=AAA");
         processRequest(request);
 
         RequestParameterITestPage page = getPage();

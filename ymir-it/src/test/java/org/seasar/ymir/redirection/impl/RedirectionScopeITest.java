@@ -2,6 +2,7 @@ package org.seasar.ymir.redirection.impl;
 
 import javax.servlet.http.Cookie;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.testing.PageTestCase;
@@ -21,7 +22,7 @@ public class RedirectionScopeITest extends
         redirectionManager.setAddScopeIdAsRequestParameter(true);
 
         Request request = prepareForProcessing("/redirectionScopeTest.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         process(request);
 
         RedirectionScopeTestPage page = (RedirectionScopeTestPage) request
@@ -33,7 +34,7 @@ public class RedirectionScopeITest extends
         assertTrue(redirectPath.startsWith(pathPrefix));
 
         request = prepareForProcessing("/redirectionScopeTest.html",
-                Request.METHOD_GET, "redirect=&"
+                HttpMethod.GET, "redirect=&"
                         + RedirectionManagerImpl.KEY_SCOPEID + "="
                         + redirectPath.substring(pathPrefix.length()));
         process(request);
@@ -45,7 +46,7 @@ public class RedirectionScopeITest extends
 
     public void test_Cookie版() throws Exception {
         Request request = prepareForProcessing("/redirectionScopeTest.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         process(request);
 
         RedirectionScopeTestPage page = (RedirectionScopeTestPage) request
@@ -59,7 +60,7 @@ public class RedirectionScopeITest extends
         assertEquals(RedirectionManagerImpl.KEY_SCOPEID, cookies[0].getName());
 
         request = prepareForProcessing("/redirectionScopeTest.html",
-                Request.METHOD_GET, "redirect=");
+                HttpMethod.GET, "redirect=");
         getHttpServletRequest().addCookie(cookies[0]);
         process(request);
 

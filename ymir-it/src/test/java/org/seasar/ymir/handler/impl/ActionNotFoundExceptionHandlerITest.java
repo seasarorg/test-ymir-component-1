@@ -1,5 +1,6 @@
 package org.seasar.ymir.handler.impl;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.testing.PageTestCase;
 
@@ -14,7 +15,7 @@ public class ActionNotFoundExceptionHandlerITest extends
 
     public void test_アクションが見つからなかった時に405を返すこと() throws Exception {
         Request request = prepareForProcessing(
-                "/actionNotFoundExceptionHandler.html", Request.METHOD_TRACE);
+                "/actionNotFoundExceptionHandler.html", HttpMethod.TRACE);
         process(request);
 
         assertEquals(405, getHttpServletResponse().getStatus());

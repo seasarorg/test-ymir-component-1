@@ -10,7 +10,7 @@ import com.example.web.ForwardResponseITest8Page;
 public class ForwardResponseITest extends YmirTestCase {
     public void test_ForwardResponseについてはリクエストパラメータが引き継がれること() throws Exception {
         Request request = prepareForProcessing("/forwardResponseITest.html",
-                Request.METHOD_GET, "param1=value1");
+                HttpMethod.GET, "param1=value1");
         process(request);
 
         prepareForProcessing("/forwardResponseITest2.html", Dispatcher.FORWARD);
@@ -25,7 +25,7 @@ public class ForwardResponseITest extends YmirTestCase {
 
     public void test_ProceedResponseについてはリクエストパラメータを引き継がないこと() throws Exception {
         Request request = prepareForProcessing("/forwardResponseITest.html",
-                Request.METHOD_POST, "param1=value1");
+                HttpMethod.POST, "param1=value1");
         process(request);
 
         prepareForProcessing("/forwardResponseITest2.html", Dispatcher.FORWARD);
@@ -40,7 +40,7 @@ public class ForwardResponseITest extends YmirTestCase {
 
     public void test_ForwardResponseについてはHTTPメソッドが引き継がれること() throws Exception {
         Request request = prepareForProcessing("/forwardResponseITest3.html",
-                Request.METHOD_PUT);
+                HttpMethod.PUT);
         process(request);
 
         prepareForProcessing("/forwardResponseITest4.html", Dispatcher.FORWARD);
@@ -52,7 +52,7 @@ public class ForwardResponseITest extends YmirTestCase {
 
     public void test_ProceedResponseについてはHTTPメソッドが引き継がれないこと() throws Exception {
         Request request = prepareForProcessing("/forwardResponseITest3.html",
-                Request.METHOD_POST);
+                HttpMethod.POST);
         process(request);
 
         prepareForProcessing("/forwardResponseITest4.html", Dispatcher.FORWARD);
@@ -65,7 +65,7 @@ public class ForwardResponseITest extends YmirTestCase {
     public void test_YMIR134_forwardの場合は対応するPageコンポーネントが存在しない時だけrenderメソッドが呼び出されること()
             throws Exception {
         Request request = prepareForProcessing("/forwardResponseITest5.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         processRequest(request);
         ForwardResponseITest5Page actual = getComponent(ForwardResponseITest5Page.class);
 
@@ -73,7 +73,7 @@ public class ForwardResponseITest extends YmirTestCase {
                 .isRenderCalled());
 
         request = prepareForProcessing("/forwardResponseITest5.html",
-                Request.METHOD_POST);
+                HttpMethod.POST);
         processRequest(request);
         actual = getComponent(ForwardResponseITest5Page.class);
 
@@ -84,7 +84,7 @@ public class ForwardResponseITest extends YmirTestCase {
     public void test_DeniedPathMappingにマッチするパスにforwardする時は遷移元のrenderメソッドが呼び出されること()
             throws Exception {
         Request request = prepareForProcessing("/forwardResponseITest8.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         processRequest(request);
         ForwardResponseITest8Page actual = getComponent(ForwardResponseITest8Page.class);
 

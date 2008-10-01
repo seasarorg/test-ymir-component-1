@@ -1,5 +1,6 @@
 package org.seasar.ymir.scope.impl;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.testing.PageTestCase;
 
@@ -15,7 +16,7 @@ public class RequestParameterScopeITest extends
     public void test() throws Exception {
         Request request = prepareForProcessing(
                 "/requestParameterScopeITest.html",
-                Request.METHOD_GET,
+                HttpMethod.GET,
                 "injectedValue1=1&injectedValue2=2&injectedValue2=2"
                         + "&injectedValue3=3&injectedValue4=4&injectedValue4=4&injectedValue5=5&injectedValue6=6&injectedValue6=6"
                         + "&i7=7");

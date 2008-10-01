@@ -19,7 +19,7 @@ public class PageITest extends PageTestCase<PageITestPage> {
         container.register(new PageITestComponent3Impl());
 
         Request request = prepareForProcessing("/pageITest.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         process(request);
         PageITestPage actual = getPage();
 

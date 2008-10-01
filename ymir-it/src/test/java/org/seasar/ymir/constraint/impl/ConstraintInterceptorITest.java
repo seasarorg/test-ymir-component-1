@@ -1,6 +1,7 @@
 package org.seasar.ymir.constraint.impl;
 
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.testing.PageTestCase;
@@ -28,8 +29,7 @@ public class ConstraintInterceptorITest extends
 
     public void test_アクション制約とクラス制約と共通制約を返すこと・getterの制約も含むこと() throws Exception {
         Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", Request.METHOD_GET,
-                "button1=");
+                "/constraintInterceptorTest.html", HttpMethod.GET, "button1=");
         processRequest(request);
         Notes actual = getNotes(request);
 
@@ -48,8 +48,7 @@ public class ConstraintInterceptorITest extends
     public void test_SuppressConstraintアノテーションが付与されている場合はクラス制約を含まないこと_old()
             throws Exception {
         Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", Request.METHOD_GET,
-                "button2=");
+                "/constraintInterceptorTest.html", HttpMethod.GET, "button2=");
         processRequest(request);
         Notes actual = getNotes(request);
 
@@ -62,8 +61,7 @@ public class ConstraintInterceptorITest extends
     public void test_SuppressConstraintアノテーションが付与されている場合はクラス制約を含まないこと()
             throws Exception {
         Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", Request.METHOD_GET,
-                "button22=");
+                "/constraintInterceptorTest.html", HttpMethod.GET, "button22=");
         processRequest(request);
         Notes actual = getNotes(request);
 
@@ -76,8 +74,7 @@ public class ConstraintInterceptorITest extends
     public void test_SuppressConstraintアノテーションがConstraintTypeつきで付与されている場合は指定されたクラス制約を含まないこと_old()
             throws Exception {
         Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", Request.METHOD_GET,
-                "button3=");
+                "/constraintInterceptorTest.html", HttpMethod.GET, "button3=");
         processRequest(request);
         Notes actual = getNotes(request);
 
@@ -91,8 +88,7 @@ public class ConstraintInterceptorITest extends
     public void test_SuppressConstraintアノテーションがConstraintTypeつきで付与されている場合は指定されたクラス制約を含まないこと()
             throws Exception {
         Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", Request.METHOD_GET,
-                "button32=");
+                "/constraintInterceptorTest.html", HttpMethod.GET, "button32=");
         processRequest(request);
         Notes actual = getNotes(request);
 
@@ -106,8 +102,7 @@ public class ConstraintInterceptorITest extends
     public void test_複数Constraintの一括指定系Constraintアノテーションが正しく解釈されること()
             throws Exception {
         Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", Request.METHOD_GET,
-                "button4=");
+                "/constraintInterceptorTest.html", HttpMethod.GET, "button4=");
         processRequest(request);
         Notes actual = getNotes(request);
 
@@ -120,8 +115,7 @@ public class ConstraintInterceptorITest extends
 
     public void test_Validatorアノテーションがついているメソッドが呼び出されること() throws Exception {
         Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", Request.METHOD_GET,
-                "button5=");
+                "/constraintInterceptorTest.html", HttpMethod.GET, "button5=");
         processRequest(request);
 
         assertEquals("validator3", request.getAttribute("validator3"));
@@ -133,7 +127,7 @@ public class ConstraintInterceptorITest extends
     public void test_パラメータつきでアクションが呼ばれる時はValidatorアノテーションがついているアクションが引数を取るものであればパラメータが渡されること()
             throws Exception {
         Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", Request.METHOD_GET,
+                "/constraintInterceptorTest.html", HttpMethod.GET,
                 "button6[1][hoe]=");
         processRequest(request);
 

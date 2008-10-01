@@ -16,7 +16,7 @@ public class InvokePageMethodTest extends
 
     public void test() throws Exception {
         Request request = prepareForProcessing("/invokePageMethodTest.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         processRequest(request);
         InvokePageMethodTestPage actual = getPage();
 

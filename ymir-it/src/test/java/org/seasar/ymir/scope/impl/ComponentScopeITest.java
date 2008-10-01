@@ -1,5 +1,6 @@
 package org.seasar.ymir.scope.impl;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.testing.PageTestCase;
@@ -14,7 +15,7 @@ public class ComponentScopeITest extends PageTestCase<ComponentScopeTestPage> {
 
     public void test() throws Exception {
         Request request = prepareForProcessing("/componentScopeTest.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         processRequest(request);
 
         ComponentScopeTestPage page = (ComponentScopeTestPage) request

@@ -2,6 +2,7 @@ package org.seasar.ymir.impl;
 
 import javax.servlet.http.HttpSession;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.session.SessionManager;
 import org.seasar.ymir.testing.PageTestCase;
@@ -21,14 +22,14 @@ public class SessionManagerImplITest extends
         sessionManager.addStraddlingAttributeNamePattern("hoehoe");
 
         Request request = prepareForProcessing("/sessionManagerImpl.html",
-                Request.METHOD_GET, "getSession=");
+                HttpMethod.GET, "getSession=");
         assertNull(getHttpSession());
         processRequest(request);
 
         assertNull("getSession(false)ではセッションが作成されないこと", getHttpSession());
 
         request = prepareForProcessing("/sessionManagerImpl.html",
-                Request.METHOD_GET, "getSession2=");
+                HttpMethod.GET, "getSession2=");
         processRequest(request);
 
         assertNotNull("getSession(true)ではセッションが作成されること", getHttpSession());
@@ -40,7 +41,7 @@ public class SessionManagerImplITest extends
         sessionManager.addStraddlingAttributeNamePattern("hoehoe");
 
         Request request = prepareForProcessing("/sessionManagerImpl.html",
-                Request.METHOD_GET, "invalidate=");
+                HttpMethod.GET, "invalidate=");
         getHttpServletRequest().getSession(true);
         processRequest(request);
 
@@ -54,7 +55,7 @@ public class SessionManagerImplITest extends
         sessionManager.addStraddlingAttributeNamePattern("hoehoe");
 
         Request request = prepareForProcessing("/sessionManagerImpl.html",
-                Request.METHOD_GET, "invalidateAndCreate=");
+                HttpMethod.GET, "invalidateAndCreate=");
         HttpSession session = getHttpServletRequest().getSession();
         session.setAttribute("hoehoe", "HOEHOE");
         processRequest(request);

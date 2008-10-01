@@ -28,13 +28,13 @@ public class ScopeAttributeITest extends PageTestCase<ScopePage> {
         getServletContext().setAttribute("param2", "value2");
 
         Request request = prepareForProcessing("/scope.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         processRequest(request);
         ScopePage page = getPage();
         assertNull(page.getParam1());
         assertEquals("value2", page.getParam2());
 
-        request = prepareForProcessing("/scope.html", Request.METHOD_POST);
+        request = prepareForProcessing("/scope.html", HttpMethod.POST);
         processRequest(request);
         page = getPage();
         assertEquals("value1", page.getParam1());
@@ -43,7 +43,7 @@ public class ScopeAttributeITest extends PageTestCase<ScopePage> {
 
     public void test_Outアノテーションが指定されたアクションでだけ有効であること() throws Exception {
         Request request = prepareForProcessing("/scope.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         ScopePage page = getPage();
         page.setParam1("value1");
         page.setParam2("value2");
@@ -51,7 +51,7 @@ public class ScopeAttributeITest extends PageTestCase<ScopePage> {
         assertNull(getServletContext().getAttribute("param1"));
         assertEquals("value2", getServletContext().getAttribute("param2"));
 
-        request = prepareForProcessing("/scope.html", Request.METHOD_POST);
+        request = prepareForProcessing("/scope.html", HttpMethod.POST);
         page = getPage();
         page.setParam1("value1");
         page.setParam2("value2");
@@ -64,7 +64,7 @@ public class ScopeAttributeITest extends PageTestCase<ScopePage> {
         getServletContext().setAttribute("param3", "value3");
 
         Request request = prepareForProcessing("/scope.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         processRequest(request);
         ScopePage page = getPage();
         assertEquals("value3", page.getParam3());
@@ -72,7 +72,7 @@ public class ScopeAttributeITest extends PageTestCase<ScopePage> {
 
     public void test_Outsアノテーションが正しく解釈されること() throws Exception {
         Request request = prepareForProcessing("/scope.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         ScopePage page = getPage();
         page.setParam3("value3");
         processRequest(request);
@@ -82,7 +82,7 @@ public class ScopeAttributeITest extends PageTestCase<ScopePage> {
     public void test_セッションからInされたものはOutしなくてもHttpSession_setAttributeされること()
             throws Exception {
         Request request = prepareForProcessing("/scope2.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         getHttpSession(true).setAttribute("string", "STRING");
         getHttpSession().setAttribute("date", new Date());
         setNameSet_.clear();

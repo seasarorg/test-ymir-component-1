@@ -9,7 +9,7 @@ public class URIParameterITest extends YmirTestCase {
     public void test_URIに指定したパラメータがPageにDIされること() throws Exception {
         Request request = prepareForProcessing(
                 "/URIParameterITest1/science&technology/15.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         URIParameterITest1Page page = getComponent(URIParameterITest1Page.class);
         processRequest(request);
 
@@ -23,7 +23,7 @@ public class URIParameterITest extends YmirTestCase {
             throws Exception {
         Request request = prepareForProcessing(
                 "/URIParameterITest1/science&technology/15.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         process(request);
 
         prepareForProcessing("/URIParameterITest2/10.html", Dispatcher.FORWARD);

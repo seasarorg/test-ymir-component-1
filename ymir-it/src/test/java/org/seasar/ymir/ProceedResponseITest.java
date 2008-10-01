@@ -7,7 +7,7 @@ import com.example.web.ProceedResponseITestPage;
 public class ProceedResponseITest extends YmirTestCase {
     public void test_YMIR134_proceedの場合はrenderメソッドが呼び出されないこと() throws Exception {
         Request request = prepareForProcessing("/proceedResponseITest.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         processRequest(request);
         ProceedResponseITestPage actual = getComponent(ProceedResponseITestPage.class);
 
@@ -15,7 +15,7 @@ public class ProceedResponseITest extends YmirTestCase {
                 .isRenderCalled());
 
         request = prepareForProcessing("/proceedResponseITest.html",
-                Request.METHOD_POST);
+                HttpMethod.POST);
         processRequest(request);
         actual = getComponent(ProceedResponseITestPage.class);
 

@@ -1,5 +1,6 @@
 package org.seasar.ymir.test;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.testing.PageTestCase;
 
@@ -13,7 +14,7 @@ public class PageTestCaseTest extends PageTestCase<PageTestCaseTestPage> {
 
     public void test_renderが呼び出されること() throws Exception {
         Request request = prepareForProcessing("/pageTestCaseTest.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
         processRequest(request);
 
         assertTrue(getPage().isRenderCalled());
