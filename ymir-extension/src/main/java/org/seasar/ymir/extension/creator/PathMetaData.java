@@ -2,9 +2,10 @@ package org.seasar.ymir.extension.creator;
 
 import java.io.File;
 
-public interface PathMetaData {
+import org.seasar.ymir.HttpMethod;
 
-    String getMethod();
+public interface PathMetaData {
+    HttpMethod getMethod();
 
     String getPath();
 

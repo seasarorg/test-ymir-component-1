@@ -15,6 +15,7 @@ import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.DispatchWrapper;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.YmirContext;
@@ -80,8 +81,8 @@ public class SourceCreatorUtils {
         }
     }
 
-    public static Request newRequest(final String path, final String method,
-            Map<String, String[]> parameterMap) {
+    public static Request newRequest(final String path,
+            final HttpMethod method, Map<String, String[]> parameterMap) {
         if (parameterMap == null) {
             parameterMap = new HashMap<String, String[]>();
         }
@@ -92,7 +93,7 @@ public class SourceCreatorUtils {
             return new ParameterReplacedRequestWrapper(request, parameterMap,
                     fileParameterMap) {
                 @Override
-                public String getMethod() {
+                public HttpMethod getMethod() {
                     return method;
                 }
 

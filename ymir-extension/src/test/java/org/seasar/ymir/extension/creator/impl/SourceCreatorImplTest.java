@@ -9,8 +9,8 @@ import java.util.Map;
 
 import org.seasar.framework.util.ResourceUtil;
 import org.seasar.kvasir.util.io.IOUtils;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Notes;
-import org.seasar.ymir.Request;
 import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Out;
@@ -42,7 +42,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
     public void testGetComponentName() throws Exception {
 
         String actual = target_.getComponentName("/index.html",
-                Request.METHOD_GET);
+                HttpMethod.GET);
 
         assertEquals("indexPage", actual);
     }
@@ -122,7 +122,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         "com.example.web.TestPage", "result",
                         "java.lang.Integer", false) }, null);
         target_.gatherClassDescs(classDescMap, new PathMetaDataImpl(
-                "/test.html", Request.METHOD_GET, false, "testPage",
+                "/test.html", HttpMethod.GET, false, "testPage",
                 "com.example.web.TestPage", null, null, null,
                 getSourceCreator().getTemplate("/test.html")), hintBag, null);
         ClassDesc[] actual = (ClassDesc[]) classDescMap.values().toArray(
@@ -159,7 +159,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         "com.example.web.TestPage", "result",
                         "com.outer.dto.EntryDto", false) }, null);
         target_.gatherClassDescs(classDescMap, new PathMetaDataImpl(
-                "/test.html", Request.METHOD_GET, false, "testPage",
+                "/test.html", HttpMethod.GET, false, "testPage",
                 "com.example.web.TestPage", null, null, null,
                 getSourceCreator().getTemplate("/test.html")), hintBag, null);
         ClassDesc[] actual = (ClassDesc[]) classDescMap.values().toArray(
@@ -178,7 +178,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         "com.example.web.TestPage", "result",
                         "com.outer.dto.EntryDto", false) }, null);
         target_.gatherClassDescs(classDescMap, new PathMetaDataImpl(
-                "/test.html", Request.METHOD_GET, false, "testPage",
+                "/test.html", HttpMethod.GET, false, "testPage",
                 "com.example.web.TestPage", null, null, null,
                 getSourceCreator().getTemplate("/test.html")), hintBag, null);
 
@@ -477,7 +477,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         request.setParameterValues("aaa", new String[] { "a&?", "b" });
         request.setParameter("bbb", "c");
         request.setParameter(SourceCreator.PARAM_PREFIX + "hoehoe", "c");
-        request.setMethod(Request.METHOD_GET);
+        request.setMethod(HttpMethod.GET);
         MockDispatch dispatch = new MockDispatch();
         dispatch.setAbsolutePath("/context/path");
         request.enterDispatch(dispatch);

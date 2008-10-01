@@ -2,6 +2,7 @@ package org.seasar.ymir.extension.creator.impl;
 
 import java.io.File;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
@@ -11,7 +12,7 @@ public class LazyPathMetaData implements PathMetaData {
 
     private String path_;
 
-    private String method_;
+    private HttpMethod method_;
 
     private String forwardPath_;
 
@@ -40,7 +41,7 @@ public class LazyPathMetaData implements PathMetaData {
     private boolean templateLoaded_;
 
     public LazyPathMetaData(SourceCreator sourceCreator, String path,
-            String method, String forwardPath) {
+            HttpMethod method, String forwardPath) {
         sourceCreator_ = sourceCreator;
         path_ = path;
         method_ = method;
@@ -59,7 +60,7 @@ public class LazyPathMetaData implements PathMetaData {
         }
     }
 
-    public String getMethod() {
+    public HttpMethod getMethod() {
         return method_;
     }
 

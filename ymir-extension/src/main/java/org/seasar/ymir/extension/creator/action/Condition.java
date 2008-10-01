@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.creator.action;
 
+import org.seasar.ymir.HttpMethod;
+
 public class Condition {
 
     private State classBound_;
@@ -8,10 +10,10 @@ public class Condition {
 
     private State templateExists_;
 
-    private String method_;
+    private HttpMethod method_;
 
     public Condition(State classBound, State classExists, State templateExists,
-        String method) {
+            HttpMethod method) {
 
         classBound_ = classBound;
         classExists_ = classExists;
@@ -48,7 +50,7 @@ public class Condition {
             if (method_ != null) {
                 return false;
             }
-        } else if (!o.method_.equalsIgnoreCase(method_)) {
+        } else if (o.method_ != method_) {
             return false;
         }
 
@@ -67,7 +69,7 @@ public class Condition {
         return templateExists_;
     }
 
-    public String getMethod() {
+    public HttpMethod getMethod() {
         return method_;
     }
 }

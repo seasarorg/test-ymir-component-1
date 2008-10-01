@@ -2,6 +2,7 @@ package org.seasar.ymir.extension.creator.impl;
 
 import java.io.File;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.Template;
 
@@ -9,7 +10,7 @@ public class PathMetaDataImpl implements PathMetaData {
 
     private String path_;
 
-    private String method_;
+    private HttpMethod method_;
 
     private boolean denied_;
 
@@ -27,7 +28,7 @@ public class PathMetaDataImpl implements PathMetaData {
 
     private Template template_;
 
-    public PathMetaDataImpl(String path, String method, boolean denied,
+    public PathMetaDataImpl(String path, HttpMethod method, boolean denied,
             String componentName, String className, String actionName,
             String defaultPath, File sourceFile, Template template) {
 
@@ -59,7 +60,7 @@ public class PathMetaDataImpl implements PathMetaData {
         }
     }
 
-    public String getMethod() {
+    public HttpMethod getMethod() {
 
         return method_;
     }

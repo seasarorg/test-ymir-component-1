@@ -22,8 +22,8 @@ import org.seasar.framework.mock.servlet.MockHttpServletResponseImpl;
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.framework.util.ResourceUtil;
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.PathMapping;
-import org.seasar.ymir.Request;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.convention.YmirNamingConvention;
@@ -112,7 +112,7 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         MockRequest ymirRequest = new MockRequest();
         ymirRequest.setParameterValues("aaa", new String[] { "a&?", "b" });
         ymirRequest.setParameter("bbb", "c");
-        ymirRequest.setMethod(Request.METHOD_GET);
+        ymirRequest.setMethod(HttpMethod.GET);
         MockDispatch dispatch = new MockDispatch();
         dispatch.setAbsolutePath("/context/path");
         ymirRequest.enterDispatch(dispatch);

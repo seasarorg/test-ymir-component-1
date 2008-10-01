@@ -5,6 +5,7 @@ import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.Globals;
@@ -80,8 +81,7 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
     }
 
     Response actRedirect(Request request, PathMetaData pathMetaData) {
-
-        String method = request.getParameter(PARAM_METHOD);
+        HttpMethod method = getHttpMethod(request);
         if (method == null) {
             return null;
         }

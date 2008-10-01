@@ -1,7 +1,5 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +14,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.seasar.kvasir.util.PropertyUtils;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.AnnotatedDesc;
@@ -174,7 +173,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             return null;
         }
 
-        String method = request.getParameter(PARAM_METHOD);
+        HttpMethod method = getHttpMethod(request);
         if (method == null) {
             return null;
         }

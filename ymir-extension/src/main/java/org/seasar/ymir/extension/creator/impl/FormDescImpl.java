@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.FormDesc;
 import org.seasar.ymir.extension.creator.SourceCreator;
@@ -16,16 +17,16 @@ public class FormDescImpl implements FormDesc {
 
     private String path_;
 
-    private String method_;
+    private HttpMethod method_;
 
     public FormDescImpl(SourceCreator sourceCreator, ClassDesc classDesc,
-            ClassDesc dtoClassDesc, String name, String path, String method) {
+            ClassDesc dtoClassDesc, String name, String path, HttpMethod method) {
         sourceCreator_ = sourceCreator;
         classDesc_ = classDesc;
         dtoClassDesc_ = dtoClassDesc;
         name_ = name;
         path_ = path;
-        method_ = toUpperCase(method);
+        method_ = method;
     }
 
     String toUpperCase(String string) {

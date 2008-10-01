@@ -16,18 +16,19 @@ import java.util.regex.Pattern;
 import org.seasar.cms.pluggable.ClassTraverser;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.util.ClassTraversal;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Messages;
 import org.seasar.ymir.Note;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Token;
+import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.FormDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
-import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
@@ -58,7 +59,7 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private SourceCreator sourceCreator_;
 
-    private String method_;
+    private HttpMethod method_;
 
     private Map<String, ClassDesc> classDescMap_;
 
@@ -216,11 +217,11 @@ public class AnalyzerContext extends ZptTemplateContext {
         return super.pushRepeatInfo(name, objs);
     }
 
-    public String getMethod() {
+    public HttpMethod getMethod() {
         return method_;
     }
 
-    public void setMethod(String method) {
+    public void setMethod(HttpMethod method) {
         method_ = method;
     }
 

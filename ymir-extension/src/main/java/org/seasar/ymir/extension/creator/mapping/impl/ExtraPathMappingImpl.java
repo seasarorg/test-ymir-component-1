@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.creator.mapping.impl;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.extension.creator.MethodDesc;
@@ -14,11 +15,11 @@ public class ExtraPathMappingImpl implements ExtraPathMapping {
 
     private String path_;
 
-    private String method_;
+    private HttpMethod method_;
 
     @SuppressWarnings("unchecked")
     public ExtraPathMappingImpl(PathMappingExtraData<?> extraData,
-            MatchedPathMapping matched, String path, String method) {
+            MatchedPathMapping matched, String path, HttpMethod method) {
         extraData_ = (PathMappingExtraData<PathMapping>) extraData;
         matched_ = matched;
         path_ = path;

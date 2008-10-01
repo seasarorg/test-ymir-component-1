@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.seasar.kvasir.util.el.VariableResolver;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
@@ -22,7 +23,7 @@ public class YmirPathMappingExtraData implements
     }
 
     public MethodDesc newActionMethodDesc(YmirPathMapping pathMapping,
-            VariableResolver resolver, String path, String method,
+            VariableResolver resolver, String path, HttpMethod method,
             ActionSelectorSeed seed) {
         StringBuilder sb = new StringBuilder();
         sb.append(pathMapping.getActionName(resolver));
@@ -119,7 +120,7 @@ public class YmirPathMappingExtraData implements
     }
 
     public MethodDesc newRenderActionMethodDesc(YmirPathMapping pathMapping,
-            VariableResolver resolver, String path, String method,
+            VariableResolver resolver, String path, HttpMethod method,
             ActionSelectorSeed seed) {
         return new MethodDescImpl(YmirPathMapping.ACTION_PRERENDER);
     }

@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.ymir.Application;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -56,19 +57,20 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public MatchedPathMapping findMatchedPathMapping(String path, String method) {
+    public MatchedPathMapping findMatchedPathMapping(String path,
+            HttpMethod method) {
         return null;
     }
 
-    public boolean isDenied(String path, String method) {
+    public boolean isDenied(String path, HttpMethod method) {
         return false;
     }
 
-    public String getComponentName(String path, String method) {
+    public String getComponentName(String path, HttpMethod method) {
         return null;
     }
 
-    public String getDefaultPath(String path, String method) {
+    public String getDefaultPath(String path, HttpMethod method) {
         return null;
     }
 
@@ -247,7 +249,7 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public ExtraPathMapping getExtraPathMapping(String path, String method) {
+    public ExtraPathMapping getExtraPathMapping(String path, HttpMethod method) {
         return null;
     }
 }

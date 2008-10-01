@@ -58,6 +58,7 @@ import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.ActionNotFoundRuntimeException;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.MessageNotFoundRuntimeException;
 import org.seasar.ymir.MessagesNotFoundRuntimeException;
@@ -189,23 +190,21 @@ public class SourceCreatorImpl implements SourceCreator {
     private ActionSelector<UpdateAction> actionSelector_ = new ActionSelector<UpdateAction>()
             .register(
                     new Condition(State.ANY, State.ANY, State.FALSE,
-                            Request.METHOD_GET), new CreateTemplateAction(this))
+                            HttpMethod.GET), new CreateTemplateAction(this))
             .register(
                     new Condition(State.ANY, State.ANY, State.TRUE,
-                            Request.METHOD_GET), new UpdateClassesAction(this))
+                            HttpMethod.GET), new UpdateClassesAction(this))
             .register(
                     new Condition(State.ANY, State.FALSE, State.FALSE,
-                            Request.METHOD_POST),
-                    new CreateClassAndTemplateAction(this))
-            .register(
+                            HttpMethod.POST),
+                    new CreateClassAndTemplateAction(this)).register(
                     new Condition(State.ANY, State.ANY, State.TRUE,
-                            Request.METHOD_POST), new UpdateClassesAction(this))
+                            HttpMethod.POST), new UpdateClassesAction(this))
             .register(
                     new Condition(State.TRUE, State.TRUE, State.FALSE,
-                            Request.METHOD_POST),
-                    new CreateTemplateAction(this)).register("createClass",
-                    new CreateClassAction(this)).register("createTemplate",
-                    new CreateTemplateAction(this)).register(
+                            HttpMethod.POST), new CreateTemplateAction(this))
+            .register("createClass", new CreateClassAction(this)).register(
+                    "createTemplate", new CreateTemplateAction(this)).register(
                     "createClassAndTemplate",
                     new CreateClassAndTemplateAction(this)).register(
                     "updateClasses", new UpdateClassesAction(this)).register(
@@ -221,8 +220,8 @@ public class SourceCreatorImpl implements SourceCreator {
                     new CreateMessagesAction(this)).register(
                     MessageNotFoundRuntimeException.class,
                     new CreateMessageAction(this)).register("createMessage",
-                    new CreateMessageAction(this))
-            .register(ActionNotFoundRuntimeException.class,
+                    new CreateMessageAction(this)).register(
+                    ActionNotFoundRuntimeException.class,
                     new CreateActionAction(this)).register("createAction",
                     new CreateActionAction(this));
 
@@ -299,7 +298,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 response);
         String path = ServletUtils.normalizePath(pathMetaData.getPath());
         String forwardPath = pathMetaData.getForwardPath();
-        String method = pathMetaData.getMethod();
+        HttpMethod method = pathMetaData.getMethod();
 
         if (!shouldUpdate(forwardPath)) {
             return response;
@@ -419,10 +418,10 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    String getOriginalMethod(Request request) {
+    HttpMethod getOriginalMethod(Request request) {
         String originalMethod = request.getParameter(PARAM_METHOD);
         if (originalMethod != null) {
-            return originalMethod;
+            return HttpMethod.enumOf(originalMethod);
         } else {
             return request.getMethod();
         }
@@ -581,7 +580,7 @@ public class SourceCreatorImpl implements SourceCreator {
             PathMetaData pathMetaData, ClassCreationHintBag hintBag,
             String[] ignoreVariables) {
         String path = pathMetaData.getPath();
-        String method = pathMetaData.getMethod();
+        HttpMethod method = pathMetaData.getMethod();
         String pageClassName = pathMetaData.getClassName();
         analyzer_.analyze(getServletContext(), getHttpServletRequest(),
                 getHttpServletResponse(), path, method, classDescMap,
@@ -593,8 +592,7 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         ClassDesc pageClassDesc = classDescMap.get(pageClassName);
-        if (pageClassDesc == null
-                && method.equalsIgnoreCase(Request.METHOD_POST)) {
+        if (pageClassDesc == null && method == HttpMethod.POST) {
             // テンプレートを解析した結果対応するPageクラスを作る必要があると
             // 見なされなかった場合でも、methodがPOSTならPageクラスを作る。
             pageClassDesc = newClassDesc(pageClassName, ClassType.PAGE, hintBag);
@@ -640,7 +638,7 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     MethodDesc newActionMethodDescUnlessExists(String pageClassName,
-            String path, String method) {
+            String path, HttpMethod method) {
         Class<?> pageClass = getClass(pageClassName);
         if (pageClass != null) {
             if (ymir_.findMatchedPathMapping(path, method)
@@ -1266,14 +1264,15 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    public MatchedPathMapping findMatchedPathMapping(String path, String method) {
+    public MatchedPathMapping findMatchedPathMapping(String path,
+            HttpMethod method) {
         if (path == null) {
             return null;
         }
         return ymir_.findMatchedPathMapping(path, method);
     }
 
-    public boolean isDenied(String path, String method) {
+    public boolean isDenied(String path, HttpMethod method) {
         if (path == null) {
             return true;
         }
@@ -1285,7 +1284,7 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    public String getComponentName(String path, String method) {
+    public String getComponentName(String path, HttpMethod method) {
         if (path == null) {
             return null;
         }
@@ -1715,7 +1714,7 @@ public class SourceCreatorImpl implements SourceCreator {
         return setting_;
     }
 
-    public ExtraPathMapping getExtraPathMapping(String path, String method) {
+    public ExtraPathMapping getExtraPathMapping(String path, HttpMethod method) {
         MatchedPathMapping mapping = findMatchedPathMapping(path, method);
         if (mapping == null) {
             return null;

@@ -4,7 +4,7 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 
-import org.seasar.ymir.Request;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.extension.creator.impl.PathMetaDataImpl;
@@ -30,21 +30,21 @@ public class ResourceActionTest extends TestCase {
         assertEquals("js/prototype/prototype.js", target_
                 .getResourcePath(new PathMetaDataImpl(
                         "/__ymir__/resource/js/prototype/prototype.js",
-                        Request.METHOD_GET, false, null, null, null, null,
-                        null, null)));
+                        HttpMethod.GET, false, null, null, null, null, null,
+                        null)));
     }
 
     public void testGetResourcePath_パスが不適切な場合はnullを返すこと() throws Exception {
         assertNull(target_.getResourcePath(new PathMetaDataImpl(
-                "/js/prototype/prototype.js", Request.METHOD_GET, false, null,
+                "/js/prototype/prototype.js", HttpMethod.GET, false, null,
                 null, null, null, null, null)));
     }
 
     public void testAct() throws Exception {
 
         Response actual = target_.act(new MockRequest(), new PathMetaDataImpl(
-                "/__ymir__/resource/js/prototype/prototype.js",
-                Request.METHOD_GET, false, null, null, null, null, null, null));
+                "/__ymir__/resource/js/prototype/prototype.js", HttpMethod.GET,
+                false, null, null, null, null, null, null));
 
         assertEquals(ResponseType.SELF_CONTAINED, actual.getType());
         assertEquals("text/javascript", actual.getContentType());
@@ -56,7 +56,7 @@ public class ResourceActionTest extends TestCase {
     public void testAct_パスが不適切な場合はVoidResponseを返すこと() throws Exception {
 
         Response actual = target_.act(new MockRequest(), new PathMetaDataImpl(
-                "/js/prototype/prototype.js", Request.METHOD_GET, false, null,
+                "/js/prototype/prototype.js", HttpMethod.GET, false, null,
                 null, null, null, null, null));
 
         assertEquals(ResponseType.VOID, actual.getType());

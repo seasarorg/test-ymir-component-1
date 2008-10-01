@@ -2,7 +2,7 @@ package org.seasar.ymir.extension.creator.impl;
 
 import java.util.List;
 
-import org.seasar.ymir.Request;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.WebappSourceResourceCollector.Rule;
@@ -15,11 +15,11 @@ public class PathMetaDataCollectorRule implements Rule<PathMetaData> {
     }
 
     public void add(String path, List<PathMetaData> resourceList) {
-        addPathMetaDataIfNecessary(path, Request.METHOD_GET, resourceList);
-        addPathMetaDataIfNecessary(path, Request.METHOD_POST, resourceList);
+        addPathMetaDataIfNecessary(path, HttpMethod.GET, resourceList);
+        addPathMetaDataIfNecessary(path, HttpMethod.POST, resourceList);
     }
 
-    void addPathMetaDataIfNecessary(String path, String method,
+    void addPathMetaDataIfNecessary(String path, HttpMethod method,
             List<PathMetaData> pathList) {
         PathMetaData pathMetaData = new LazyPathMetaData(sourceCreator_, path,
                 method, path);

@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.ymir.Application;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.Updater;
@@ -41,11 +42,11 @@ public interface SourceCreator extends Updater {
 
     File getResourcesDirectory();
 
-    MatchedPathMapping findMatchedPathMapping(String path, String method);
+    MatchedPathMapping findMatchedPathMapping(String path, HttpMethod method);
 
-    boolean isDenied(String path, String method);
+    boolean isDenied(String path, HttpMethod method);
 
-    String getComponentName(String path, String method);
+    String getComponentName(String path, HttpMethod method);
 
     String getClassName(String componentName);
 
@@ -117,5 +118,5 @@ public interface SourceCreator extends Updater {
 
     SourceCreatorSetting getSourceCreatorSetting();
 
-    ExtraPathMapping getExtraPathMapping(String path, String method);
+    ExtraPathMapping getExtraPathMapping(String path, HttpMethod method);
 }

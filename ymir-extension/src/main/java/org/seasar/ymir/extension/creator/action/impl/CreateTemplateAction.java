@@ -1,7 +1,6 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
 import static org.seasar.ymir.extension.creator.SourceCreator.PARAM_PREFIX;
-import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -9,6 +8,7 @@ import java.util.Map;
 
 import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.Action;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -58,7 +58,7 @@ public class CreateTemplateAction extends AbstractAction implements
                 pathMetaData.getClassName());
         if (pageClass != null) {
             String path = pathMetaData.getPath();
-            String method = pathMetaData.getMethod();
+            HttpMethod method = pathMetaData.getMethod();
             Request newRequest = SourceCreatorUtils.newRequest(path, method,
                     null);
             Action action = getSourceCreator().findMatchedPathMapping(path,
@@ -88,7 +88,7 @@ public class CreateTemplateAction extends AbstractAction implements
     }
 
     Response actCreate(Request request, PathMetaData pathMetaData) {
-        String method = request.getParameter(PARAM_METHOD);
+        HttpMethod method = getHttpMethod(request);
         if (method == null) {
             return null;
         }

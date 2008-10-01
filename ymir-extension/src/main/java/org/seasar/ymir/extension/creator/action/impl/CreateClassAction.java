@@ -1,9 +1,8 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
-import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
-
 import java.util.Map;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -42,7 +41,7 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
 
     Response actDefault(Request request, PathMetaData pathMetaData) {
         String path = request.getCurrentDispatch().getPath();
-        String method = request.getMethod();
+        HttpMethod method = request.getMethod();
         String actionName = getSourceCreator()
                 .getExtraPathMapping(path, method).newActionMethodDesc(
                         new ActionSelectorSeedImpl()).getName();
@@ -57,7 +56,7 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
     }
 
     Response actCreate(Request request, PathMetaData pathMetaData) {
-        String method = request.getParameter(PARAM_METHOD);
+        HttpMethod method = getHttpMethod(request);
         if (method == null) {
             return null;
         }
@@ -69,8 +68,8 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
         ClassDesc classDesc = getSourceCreator().newClassDesc(
                 pathMetaData.getClassName(), ClassType.PAGE, null);
         String path = request.getCurrentDispatch().getPath();
-        MethodDesc actionMethodDesc = getSourceCreator().getExtraPathMapping(path,
-                method).newActionMethodDesc(new ActionSelectorSeedImpl());
+        MethodDesc actionMethodDesc = getSourceCreator().getExtraPathMapping(
+                path, method).newActionMethodDesc(new ActionSelectorSeedImpl());
         actionMethodDesc.setReturnTypeDesc(String.class.getName(), true);
         if (transition != null && transition.trim().length() > 0) {
             if (redirect) {

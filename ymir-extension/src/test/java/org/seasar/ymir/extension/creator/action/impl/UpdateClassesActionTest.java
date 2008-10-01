@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.seasar.framework.util.ResourceUtil;
-import org.seasar.ymir.Request;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescSet;
 import org.seasar.ymir.extension.creator.impl.PathMetaDataImpl;
@@ -44,7 +44,7 @@ public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
         Map<String, ClassDesc> classDescMap = new LinkedHashMap<String, ClassDesc>();
         getSourceCreator().gatherClassDescs(
                 classDescMap,
-                new PathMetaDataImpl("/test.html", Request.METHOD_GET, false,
+                new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
                         "testPage", "com.example.web.TestPage", null, null,
                         null, getSourceCreator().getTemplate("/test.html")),
                 null, null);

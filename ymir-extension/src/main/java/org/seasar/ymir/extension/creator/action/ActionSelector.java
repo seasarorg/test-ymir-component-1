@@ -3,16 +3,17 @@ package org.seasar.ymir.extension.creator.action;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.seasar.ymir.HttpMethod;
+
 public class ActionSelector<T> {
 
     private Map<Object, T> strategyMap_ = new HashMap<Object, T>();
 
     public ActionSelector<T> register(Condition condition, T action) {
-
         State classBound = condition.getClassBound();
         State classExists = condition.getClassExists();
         State templateExists = condition.getTemplateExists();
-        String method = condition.getMethod();
+        HttpMethod method = condition.getMethod();
         if (classBound == State.ANY) {
             register(new Condition(State.FALSE, classExists, templateExists,
                     method), action);

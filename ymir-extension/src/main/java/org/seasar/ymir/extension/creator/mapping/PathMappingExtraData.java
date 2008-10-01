@@ -1,6 +1,7 @@
 package org.seasar.ymir.extension.creator.mapping;
 
 import org.seasar.kvasir.util.el.VariableResolver;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.extension.creator.MethodDesc;
 
@@ -34,7 +35,7 @@ public interface PathMappingExtraData<P extends PathMapping> {
      * @return 構築した{@link MethodDesc}オブジェクト。
      */
     MethodDesc newActionMethodDesc(P pathMapping, VariableResolver resolver,
-            String path, String method, ActionSelectorSeed seed);
+            String path, HttpMethod method, ActionSelectorSeed seed);
 
     /**
      * 指定されたパスとHTTPメソッドに対応するPageクラスのプリレンダメソッドを表す{@link MethodDesc}
@@ -49,6 +50,6 @@ public interface PathMappingExtraData<P extends PathMapping> {
      * @see #newActionMethodDesc(PathMapping, VariableResolver, String, String, ActionSelectorSeed)
      */
     MethodDesc newRenderActionMethodDesc(P pathMapping,
-            VariableResolver resolver, String path, String method,
+            VariableResolver resolver, String path, HttpMethod method,
             ActionSelectorSeed seed);
 }

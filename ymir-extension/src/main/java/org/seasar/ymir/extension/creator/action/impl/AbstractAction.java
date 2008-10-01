@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
+import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -19,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.Application;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
@@ -88,6 +91,10 @@ abstract public class AbstractAction {
 
     protected boolean isSkipButtonPushed(Request request) {
         return (request.getParameter(PARAM_BUTTON_SKIP) != null);
+    }
+
+    protected HttpMethod getHttpMethod(Request request) {
+        return HttpMethod.enumOf(request.getParameter(PARAM_METHOD));
     }
 
     public static class Parameter {

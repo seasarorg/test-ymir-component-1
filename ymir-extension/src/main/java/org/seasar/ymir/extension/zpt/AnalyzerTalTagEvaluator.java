@@ -11,6 +11,7 @@ import java.util.Set;
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.Globals;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Path;
 import org.seasar.ymir.annotation.RequestParameter;
@@ -254,7 +255,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
     FormDesc registerTransitionClassDesc(AnalyzerContext analyzerContext,
             Map<String, Attribute> attrMap,
             Set<String> runtimeAttributeNameSet, String attrName,
-            String method, boolean form) {
+            String methodName, boolean form) {
         SourceCreator creator = analyzerContext.getSourceCreator();
         String url = getAttributeValue(attrMap, attrName, null);
         if ("#".equals(url)) {
@@ -266,6 +267,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         if (path == null) {
             return null;
         }
+        HttpMethod method = HttpMethod.enumOf(methodName);
         MatchedPathMapping matched = creator.findMatchedPathMapping(path
                 .getTrunk(), method);
         if (matched == null || matched.isDenied()) {

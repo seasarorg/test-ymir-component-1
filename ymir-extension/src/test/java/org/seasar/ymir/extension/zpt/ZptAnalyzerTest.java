@@ -18,10 +18,10 @@ import org.seasar.framework.container.factory.S2ContainerFactory;
 import org.seasar.framework.convention.impl.NamingConventionImpl;
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.FormFile;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Note;
 import org.seasar.ymir.PathMapping;
-import org.seasar.ymir.Request;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.annotation.RequestParameter;
 import org.seasar.ymir.extension.Globals;
@@ -91,7 +91,7 @@ public class ZptAnalyzerTest extends TestCase {
         sourceCreator_ = new SourceCreatorImpl() {
             @Override
             public MatchedPathMapping findMatchedPathMapping(String path,
-                    String method) {
+                    HttpMethod method) {
                 for (int i = 0; i < mappings_.length; i++) {
                     VariableResolver resolver = mappings_[i]
                             .match(path, method);
@@ -104,7 +104,7 @@ public class ZptAnalyzerTest extends TestCase {
             }
 
             @Override
-            public String getComponentName(String path, String method) {
+            public String getComponentName(String path, HttpMethod method) {
                 MatchedPathMapping matched = findMatchedPathMapping(path,
                         method);
                 if (matched == null) {
@@ -208,7 +208,7 @@ public class ZptAnalyzerTest extends TestCase {
     private void act(final String methodName, String pageClassName,
             ClassCreationHintBag hintBag, String[] ignoreVariables) {
         target_.analyze(MOCK_SERVLETCONTEXT, MOCK_REQUEST, MOCK_RESPONSE,
-                path_, Request.METHOD_GET, classDescMap_, new Template() {
+                path_, HttpMethod.GET, classDescMap_, new Template() {
                     public InputStream getInputStream() throws IOException {
                         return getClass().getResourceAsStream(
                                 "ZptAnalyzerTest_" + methodName + ".zpt");
