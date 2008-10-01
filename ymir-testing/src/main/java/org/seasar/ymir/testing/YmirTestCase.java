@@ -2,7 +2,9 @@ package org.seasar.ymir.testing;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -20,9 +22,11 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.kvasir.util.ClassUtils;
+import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.kvasir.util.io.impl.FileResource;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.Notes;
 import org.seasar.ymir.PageNotFoundRuntimeException;
@@ -81,6 +85,8 @@ abstract public class YmirTestCase extends TestCase {
     private int status_;
 
     private Locale locale_ = new Locale("");
+
+    private String characterEncoding_ = "UTF-8";
 
     private MockHttpServletRequest httpRequest_;
 
@@ -165,7 +171,7 @@ abstract public class YmirTestCase extends TestCase {
 
     /**
      * リクエストを処理するためのロケールを返します。
-     * <p>デフォルトでは、返されるロケールはデフォルトロケールです。
+     * <p>デフォルトでは、返されるロケールは空のロケールです。
      * </p>
      *
      * @return ロケール。
@@ -184,6 +190,29 @@ abstract public class YmirTestCase extends TestCase {
      */
     protected void setLocale(Locale locale) {
         locale_ = locale;
+    }
+
+    /**
+     * リクエストの文字エンコーディングを返します。
+     * <p>デフォルトでは、返される文字エンコーディングはUTF-8です。
+     * </p>
+     *
+     * @return 文字エンコーディング。
+     */
+    protected String getCharacterEncoding() {
+        return characterEncoding_;
+    }
+
+    /**
+     * リクエストの文字エンコーディングを設定します。
+     * <p>リクエストの文字エンコーディングを変更したい場合は、<code>prepareForProcessing</code>
+     * メソッドを呼び出す前にこのメソッドを呼び出して文字エンコーディングを設定して下さい。
+     * </p>
+     *
+     * @param characterEncoding 文字エンコーディング。
+     */
+    protected void setCharacterEncoding(String characterEncoding) {
+        characterEncoding_ = characterEncoding;
     }
 
     protected void setWebappRoot(String webappRoot) {
@@ -368,16 +397,43 @@ abstract public class YmirTestCase extends TestCase {
 
     /**
      * Pageクラスのアクション呼び出しのための準備を行ないます。
+     * <p><code>prepareForProcessing(path, HttpMethod.GET)</code>
+     * と同じです。
+     * </p>
+     *
+     * @param path リクエストパス（コンテキストパス相対）。
+     * @return 構築されたRequestオブジェクト。
+     */
+    protected Request prepareForProcessing(String path) {
+        return prepareForProcessing(path, HttpMethod.GET);
+    }
+
+    /**
+     * Pageクラスのアクション呼び出しのための準備を行ないます。
      * <p>パスに「?a=b」のようにクエリ文字列を付与することでリクエストパラメータを指定することもできます。
      * </p>
      *
      * @param path リクエストパス（コンテキストパス相対）。
-     * @param httpMethod HTTPメソッド。Request.METHOD_XXXのいずれかを指定して下さい。
+     * @param method HTTPメソッド。
      * @return 構築されたRequestオブジェクト。
      */
-    protected Request prepareForProcessing(String path, String httpMethod) {
-        return prepareForProcessing(ServletUtils.getTrunk(path), httpMethod,
+    protected Request prepareForProcessing(String path, HttpMethod method) {
+        return prepareForProcessing(ServletUtils.getTrunk(path), method,
                 ServletUtils.getQueryString(path));
+    }
+
+    /**
+     * Pageクラスのアクション呼び出しのための準備を行ないます。
+     * <p><code>prepareForProcessing(path, HttpMethod.GET, queryString)</code>
+     * と同じです。
+     * </p>
+     *
+     * @param path リクエストパス（コンテキストパス相対）。
+     * @param queryString クエリ文字列。「<code>a=b&c=d</code>」のように記述して下さい。
+     * @return 構築されたRequestオブジェクト。
+     */
+    protected Request prepareForProcessing(String path, String queryString) {
+        return prepareForProcessing(path, HttpMethod.GET, queryString);
     }
 
     /**
@@ -386,13 +442,13 @@ abstract public class YmirTestCase extends TestCase {
      * </p>
      *
      * @param path リクエストパス（コンテキストパス相対）。
+     * @param method HTTPメソッド。
      * @param queryString クエリ文字列。「<code>a=b&c=d</code>」のように記述して下さい。
-     * @param httpMethod HTTPメソッド。Request.METHOD_XXXのいずれかを指定して下さい。
      * @return 構築されたRequestオブジェクト。
      */
-    protected Request prepareForProcessing(String path, String httpMethod,
+    protected Request prepareForProcessing(String path, HttpMethod method,
             String queryString) {
-        return prepareForProcessing(path, httpMethod,
+        return prepareForProcessing(path, method,
                 parseQueryString(queryString),
                 new HashMap<String, FormFile[]>());
     }
@@ -415,8 +471,16 @@ abstract public class YmirTestCase extends TestCase {
                 String segment = queryString.substring(pre, idx);
                 int equal = segment.indexOf('=');
                 if (equal >= 0) {
-                    String name = segment.substring(0, equal);
-                    String value = segment.substring(equal + 1);
+                    String name;
+                    String value;
+                    try {
+                        name = URLDecoder.decode(segment.substring(0, equal),
+                                getCharacterEncoding());
+                        value = URLDecoder.decode(segment.substring(equal + 1),
+                                getCharacterEncoding());
+                    } catch (UnsupportedEncodingException ex) {
+                        throw new IORuntimeException(ex);
+                    }
                     String[] values = parameterMap.get(name);
                     if (values == null) {
                         values = new String[] { value };
@@ -453,12 +517,12 @@ abstract public class YmirTestCase extends TestCase {
      *
      * @param path リクエストパス（コンテキストパス相対）。
      * @param parameterMap リクエストパラメータが格納されているMap。
-     * @param httpMethod HTTPメソッド。Request.METHOD_XXXのいずれかを指定して下さい。
+     * @param method HTTPメソッド。
      * @return 構築されたRequestオブジェクト。
      */
-    protected Request prepareForProcessing(String path, String httpMethod,
+    protected Request prepareForProcessing(String path, HttpMethod method,
             Map<String, String[]> parameterMap) {
-        return prepareForProcessing(path, httpMethod,
+        return prepareForProcessing(path, method,
                 parameterMap != null ? parameterMap
                         : new HashMap<String, String[]>(),
                 new HashMap<String, FormFile[]>());
@@ -468,14 +532,14 @@ abstract public class YmirTestCase extends TestCase {
      * Pageクラスのアクション呼び出しのための準備を行ないます。
      *
      * @param path リクエストパス（コンテキストパス相対）。
-     * @param httpMethod HTTPメソッド。Request.METHOD_XXXのいずれかを指定して下さい。
+     * @param method HTTPメソッド。
      * @param dispatcher ディスパッチャ。通常はDispatcher.REQUESTを指定して下さい。
      * @param parameterMap リクエストパラメータが格納されているMap。
      * @param fileParameterMap fileタイプのリクエストパラメータが格納されているMap。
      * @return 構築されたRequestオブジェクト。
      */
     @SuppressWarnings("unchecked")
-    protected Request prepareForProcessing(String path, String httpMethod,
+    protected Request prepareForProcessing(String path, HttpMethod method,
             Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap) {
         if (parameterMap == null) {
@@ -499,13 +563,13 @@ abstract public class YmirTestCase extends TestCase {
 
         status_ = STATUS_PREPARED;
 
-        request_ = ymir_.prepareForProcessing(getContextPath(), httpMethod,
+        request_ = ymir_.prepareForProcessing(getContextPath(), method,
                 "UTF-8", parameterMap, fileParameterMap,
                 new HttpServletRequestAttributeContainer(httpRequest_),
                 getLocale());
 
         String queryString = null;
-        if (Request.METHOD_GET.equals(httpMethod) && !parameterMap.isEmpty()) {
+        if (method == HttpMethod.GET && !parameterMap.isEmpty()) {
             queryString = new Path(path, parameterMap).getQueryString();
         }
         ymir_.enterDispatch(request_, path, queryString, Dispatcher.REQUEST);
