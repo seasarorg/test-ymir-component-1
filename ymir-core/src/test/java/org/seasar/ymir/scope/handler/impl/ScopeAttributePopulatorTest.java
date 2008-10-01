@@ -1,41 +1,24 @@
 package org.seasar.ymir.scope.handler.impl;
 
-import junit.framework.TestCase;
-
-import org.seasar.ymir.YmirContext;
-import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
-import org.seasar.ymir.cache.impl.CacheManagerImpl;
-import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
+import org.seasar.ymir.ComponentClientTestCase;
+import org.seasar.ymir.annotation.handler.AnnotationHandler;
+import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.impl.Bean;
-import org.seasar.ymir.impl.YmirImpl;
-import org.seasar.ymir.impl.YmirTypeConversionManager;
+import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.impl.MapScope;
-import org.seasar.ymir.scope.impl.ScopeManagerImpl;
 
-public class ScopeAttributePopulatorTest extends TestCase {
+public class ScopeAttributePopulatorTest extends ComponentClientTestCase {
     private ScopeAttributePopulatorImpl target_;
 
     @Override
     protected void setUp() throws Exception {
-        YmirContext.setYmir(new YmirImpl() {
-            @Override
-            public boolean isUnderDevelopment() {
-                return false;
-            }
-        });
+        super.setUp();
 
         MapScope scope = new MapScope();
-        YmirTypeConversionManager typeConversionManager = new YmirTypeConversionManager();
-        AnnotationHandlerImpl annotationHandler = new AnnotationHandlerImpl();
-        CacheManagerImpl cacheManager = new CacheManagerImpl();
-        HotdeployManagerImpl hotdeployManager = new HotdeployManagerImpl();
-        cacheManager.setHotdeployManager(hotdeployManager);
-        annotationHandler.setCacheManager(cacheManager);
-        ScopeManagerImpl scopeManager = new ScopeManagerImpl();
-        scopeManager.setHotdeployManager(hotdeployManager);
-        scopeManager.setTypeConversionManager(typeConversionManager);
-        target_ = new ScopeAttributePopulatorImpl(scope, annotationHandler,
-                scopeManager, typeConversionManager);
+        target_ = new ScopeAttributePopulatorImpl(scope,
+                getComponent(AnnotationHandler.class),
+                getComponent(ScopeManager.class),
+                getComponent(TypeConversionManager.class));
 
         scope.setAttribute("bean.aaa[1].bbb(key).mapped(key)", "value");
         target_.addEntry(Page.class.getMethod("getBean", new Class[0]),

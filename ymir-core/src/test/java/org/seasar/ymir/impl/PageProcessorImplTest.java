@@ -1,57 +1,25 @@
 package org.seasar.ymir.impl;
 
-import junit.framework.TestCase;
-
-import org.seasar.framework.container.S2Container;
-import org.seasar.framework.container.impl.S2ContainerImpl;
-import org.seasar.ymir.ComponentMetaData;
-import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.ComponentClientTestCase;
+import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.annotation.MapParameter;
-import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
-import org.seasar.ymir.cache.impl.CacheManagerImpl;
-import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.scope.impl.MapScope;
-import org.seasar.ymir.scope.impl.ScopeManagerImpl;
 
-public class PageProcessorImplTest extends TestCase {
+public class PageProcessorImplTest extends ComponentClientTestCase {
     private PageProcessorImpl target_;
 
     private MapScope mapScope_;
 
     @Override
     protected void setUp() throws Exception {
-        YmirContext.setYmir(new YmirImpl() {
-            public boolean isUnderDevelopment() {
-                return false;
-            }
-        });
+        super.setUp();
+
+        mapScope_ = new MapScope();
+        register(mapScope_);
+
         target_ = new PageProcessorImpl();
-        S2Container container = new S2ContainerImpl();
-        container.register(MapScope.class);
-        mapScope_ = (MapScope) container.getComponent(MapScope.class);
-        AnnotationHandlerImpl annotationHandlerImpl = new AnnotationHandlerImpl();
-        HotdeployManagerImpl hotdeployManager = new HotdeployManagerImpl();
-        YmirTypeConversionManager typeConversionManager = new YmirTypeConversionManager();
-        ScopeManagerImpl scopeManager = new ScopeManagerImpl();
-        scopeManager.setHotdeployManager(hotdeployManager);
-        scopeManager.setTypeConversionManager(typeConversionManager);
-        CacheManagerImpl cacheManager = new CacheManagerImpl();
-        cacheManager.setHotdeployManager(hotdeployManager);
-        annotationHandlerImpl.setCacheManager(cacheManager);
-        final ComponentMetaDataImpl metaData = new ComponentMetaDataImpl(
-                Page.class, container, annotationHandlerImpl, scopeManager,
-                typeConversionManager);
-        ComponentMetaDataFactoryImpl componentMetaDataFactory = new ComponentMetaDataFactoryImpl() {
-            @Override
-            public ComponentMetaData getInstance(Class<?> clazz) {
-                if (clazz == Page.class) {
-                    return metaData;
-                } else {
-                    return super.getInstance(clazz);
-                }
-            }
-        };
-        target_.setComponentMetaDataFactory(componentMetaDataFactory);
+        target_
+                .setComponentMetaDataFactory(getComponent(ComponentMetaDataFactory.class));
     }
 
     public void testPopulateScopeAttributes() throws Exception {

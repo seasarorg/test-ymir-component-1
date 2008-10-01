@@ -21,7 +21,7 @@ public class SetterPropertyHandler implements PropertyHandler {
     }
 
     public Class<?> getPropertyType() {
-        return method_.getReturnType();
+        return method_.getParameterTypes()[0];
     }
 
     public Method getReadMethod() {

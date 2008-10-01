@@ -2,7 +2,10 @@ package org.seasar.ymir.util;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javassist.CannotCompileException;
 import javassist.ClassClassPath;
@@ -13,9 +16,22 @@ import javassist.NotFoundException;
 public class ClassUtils {
     private static ClassPool cp_;
 
+    private static Map<Class<?>, Class<?>> primitiveMap_;
+
     static {
         cp_ = new ClassPool(null);
         cp_.appendSystemPath();
+
+        Map<Class<?>, Class<?>> map = new HashMap<Class<?>, Class<?>>();
+        map.put(Boolean.class, Boolean.TYPE);
+        map.put(Byte.class, Byte.TYPE);
+        map.put(Character.class, Character.TYPE);
+        map.put(Double.class, Double.TYPE);
+        map.put(Float.class, Float.TYPE);
+        map.put(Integer.class, Integer.TYPE);
+        map.put(Long.class, Long.TYPE);
+        map.put(Short.class, Short.TYPE);
+        primitiveMap_ = Collections.unmodifiableMap(map);
     }
 
     private ClassUtils() {
@@ -121,5 +137,13 @@ public class ClassUtils {
         } else {
             return clazz;
         }
+    }
+
+    public static boolean isWrapper(Class<?> clazz) {
+        return primitiveMap_.containsKey(clazz);
+    }
+
+    public static Class<?> getPrimitive(Class<?> clazz) {
+        return primitiveMap_.get(clazz);
     }
 }

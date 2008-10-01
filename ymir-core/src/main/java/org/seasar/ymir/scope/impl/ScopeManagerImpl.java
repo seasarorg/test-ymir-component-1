@@ -4,8 +4,8 @@ import java.lang.annotation.Annotation;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.scope.AttributeNotFoundRuntimeException;
 import org.seasar.ymir.scope.Scope;

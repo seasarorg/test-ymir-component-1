@@ -5,7 +5,7 @@ import java.lang.annotation.Annotation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.util.ArrayUtil;
-import org.seasar.ymir.TypeConversionManager;
+import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.scope.AttributeNotFoundRuntimeException;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.ScopeManager;

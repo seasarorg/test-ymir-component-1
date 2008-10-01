@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.ymir.TypeConversionManager;
+import org.seasar.ymir.converter.TypeConversionManager;
 
 /**
  * レスポンスヘッダに値を設定するための仮想的なスコープを表すクラスです。

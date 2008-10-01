@@ -7,9 +7,9 @@ import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.ComponentMetaDataFactory;
-import org.seasar.ymir.TypeConversionManager;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.cache.CacheManager;
+import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.scope.ScopeManager;
 
 public class ComponentMetaDataFactoryImpl implements ComponentMetaDataFactory {

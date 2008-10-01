@@ -12,14 +12,14 @@ import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.MethodNotFoundRuntimeException;
 import org.seasar.ymir.Phase;
-import org.seasar.ymir.TypeConversionManager;
-import org.seasar.ymir.annotation.Conversion;
+import org.seasar.ymir.annotation.TypeConversionHint;
 import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Invoke;
 import org.seasar.ymir.annotation.Out;
 import org.seasar.ymir.annotation.Populate;
 import org.seasar.ymir.annotation.Resolve;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
+import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.handler.ScopeAttributeInjector;
@@ -125,7 +125,7 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
             if (is.length > 0) {
                 resolver = new ScopeAttributeResolverImpl(types[i],
                         annotationHandler_.getMarkedParameterAnnotations(
-                                method, i, Conversion.class), scopeManager_,
+                                method, i, TypeConversionHint.class), scopeManager_,
                         typeConversionManager_);
                 for (int j = 0; j < is.length; j++) {
                     resolver.addEntry(getScope(is[j]), is[j].value(), is[j]
@@ -189,7 +189,7 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
                 toAttributeName(method.getName(), in.name()), method
                         .getParameterTypes()[0], annotationHandler_
                         .getMarkedParameterAnnotations(method, 0,
-                                Conversion.class), getScope(in), method, in
+                                TypeConversionHint.class), getScope(in), method, in
                         .injectWhereNull(), in.required(), in.actionName(),
                 scopeManager_));
     }

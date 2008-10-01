@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
+  "http://www.seasar.org/dtd/components24.dtd">
+<components>
+  <component
+    class="org.seasar.cms.pluggable.container.autoregister.ComponentAutoRegister">
+    <property name="customizer" bindingType="none" />
+    <initMethod name="addReferenceClass">
+      <arg>@org.seasar.ymir.Ymir@class</arg>
+    </initMethod>
+    <initMethod name="addClassPattern">
+      <arg>"org.seasar.ymir.converter.impl"</arg>
+      <arg>".*Converter"</arg>
+    </initMethod>
+    <initMethod name="registerAll" />
+  </component>
+  <component name="primitiveBooleanConverter"
+    class="org.seasar.ymir.converter.impl.BooleanConverter">
+    <property name="type">@java.lang.Boolean@TYPE</property>
+    <property name="defaultValue">false</property>
+  </component>
+  <component name="primitiveByteConverter"
+    class="org.seasar.ymir.converter.impl.ByteConverter">
+    <property name="type">@java.lang.Byte@TYPE</property>
+    <property name="defaultValue">@java.lang.Byte@valueOf(0)</property>
+  </component>
+  <component name="primitiveCharacterConverter"
+    class="org.seasar.ymir.converter.impl.CharacterConverter">
+    <property name="type">@java.lang.Character@TYPE</property>
+    <property name="defaultValue">'\0'</property>
+  </component>
+  <component name="primitiveDoubleConverter"
+    class="org.seasar.ymir.converter.impl.DoubleConverter">
+    <property name="type">@java.lang.Double@TYPE</property>
+    <property name="defaultValue">
+      @java.lang.Double@valueOf(0)
+    </property>
+  </component>
+  <component name="primitiveFloatConverter"
+    class="org.seasar.ymir.converter.impl.FloatConverter">
+    <property name="type">@java.lang.Float@TYPE</property>
+    <property name="defaultValue">@java.lang.Float@valueOf(0)</property>
+  </component>
+  <component name="primitiveIntegerConverter"
+    class="org.seasar.ymir.converter.impl.IntegerConverter">
+    <property name="type">@java.lang.Integer@TYPE</property>
+    <property name="defaultValue">
+      @java.lang.Integer@valueOf(0)
+    </property>
+  </component>
+  <component name="primitiveLongConverter"
+    class="org.seasar.ymir.converter.impl.LongConverter">
+    <property name="type">@java.lang.Long@TYPE</property>
+    <property name="defaultValue">@java.lang.Long@valueOf(0)</property>
+  </component>
+  <component name="primitiveShortConverter"
+    class="org.seasar.ymir.converter.impl.ShortConverter">
+    <property name="type">@java.lang.Short@TYPE</property>
+    <property name="defaultValue">@java.lang.Short@valueOf(0)</property>
+  </component>
+</components>

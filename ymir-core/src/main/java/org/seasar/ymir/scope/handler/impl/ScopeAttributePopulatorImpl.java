@@ -12,9 +12,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.ymir.PropertyHandler;
-import org.seasar.ymir.TypeConversionManager;
-import org.seasar.ymir.annotation.Conversion;
+import org.seasar.ymir.annotation.TypeConversionHint;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
+import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.impl.SetterPropertyHandler;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.ScopeManager;
@@ -129,7 +129,7 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
             Object value = scopeManager_.getAttribute(scope_, name, handler
                     .getPropertyType(), annotationHandler_
                     .getMarkedParameterAnnotations(handler.getWriteMethod(), 0,
-                            Conversion.class), false, true);
+                            TypeConversionHint.class), false, true);
 
             if (value != null) {
                 boolean removeValue = false;

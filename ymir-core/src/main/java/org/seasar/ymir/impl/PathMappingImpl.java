@@ -30,9 +30,9 @@ import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.TypeConversionManager;
-import org.seasar.ymir.annotation.Conversion;
+import org.seasar.ymir.annotation.TypeConversionHint;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
+import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.util.ClassUtils;
 
 /**
@@ -533,7 +533,7 @@ public class PathMappingImpl implements PathMapping {
                     (Object) (i < rawParameters.length ? rawParameters[i]
                             : null), parameterTypes[i], annotationHandler_
                             .getMarkedParameterAnnotations(method, i,
-                                    Conversion.class));
+                                    TypeConversionHint.class));
         }
         return parameters;
     }

@@ -3,6 +3,7 @@
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
   <include path="global.dicon" />
+  <include path="ymir-component.dicon" />
   <!-- mapping.dicon -->
   <component class="org.seasar.ymir.impl.PathMappingProviderImpl">
     <property name="pathMappings">
@@ -86,25 +87,10 @@
     class="org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl" />
   <component
     class="org.seasar.ymir.response.scheme.impl.StrategySelectorImpl" />
-  <component
-    class="org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl" />
-  <component class="org.seasar.ymir.impl.ApplicationManagerImpl" />
-  <component class="org.seasar.ymir.cache.impl.CacheManagerImpl" />
-  <component
-    class="org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl" />
-  <component name="sessionManager"
-    class="org.seasar.ymir.session.impl.SessionManagerImpl" />
-  <component name="componentMetaDataFactory"
-    class="org.seasar.ymir.impl.ComponentMetaDataFactoryImpl" />
   <component name="sessionScope"
     class="org.seasar.ymir.scope.impl.SessionScope" />
   <component name="requestScope"
     class="org.seasar.ymir.scope.impl.RequestScope" />
-  <component class="org.seasar.ymir.impl.TypeConversionManagerImpl" />
-  <component name="scopeManager"
-    class="org.seasar.ymir.scope.impl.ScopeManagerImpl" />
-  <component name="actionManager"
-    class="org.seasar.ymir.impl.ActionManagerImpl" />
   <!-- FOR TEST -->
   <component name="parentPage" class="org.seasar.ymir.impl.ParentPage" />
   <component name="child1Page" class="org.seasar.ymir.impl.Child1Page" />

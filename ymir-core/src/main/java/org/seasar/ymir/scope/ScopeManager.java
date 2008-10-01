@@ -2,8 +2,8 @@ package org.seasar.ymir.scope;
 
 import java.lang.annotation.Annotation;
 
-import org.seasar.ymir.TypeConversionManager;
-import org.seasar.ymir.annotation.Conversion;
+import org.seasar.ymir.annotation.TypeConversionHint;
+import org.seasar.ymir.converter.TypeConversionManager;
 
 public interface ScopeManager {
     /**
@@ -41,7 +41,7 @@ public interface ScopeManager {
      * @param type 属性のタイプ。
      * @param hint 変換のためのヒント。nullを指定することもできます。
      * ヒントとしては変換がメソッドなどを経由して行なわれる際に対象メソッドに付与されている
-     * アノテーションのうち{@link Conversion}メタアノテーションが付与されているものが渡されます。
+     * アノテーションのうち{@link TypeConversionHint}メタアノテーションが付与されているものが渡されます。
      * @param required 属性の値が存在する必要があるかどうか。
      * @param convertNullToDefaultValueWhereTypeIsPrimitive typeがプリミティブ型である場合、
      * 値が見つからなかったかnullの時にデフォルト値に変換するかどうか。

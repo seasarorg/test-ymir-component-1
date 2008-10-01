@@ -19,7 +19,7 @@ import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.hotdeploy.impl.AbstractHotdeployEventListener;
 import org.seasar.ymir.impl.BeanUtilsPropertyHandler;
 
-public class YmirTypeConversionManager implements TypeConversionManager {
+public class TypeConversionManagerImpl implements TypeConversionManager {
     private static final String TRUE_NUMBER = "1";
 
     private static final String FALSE_NUMBER = "0";
@@ -31,11 +31,11 @@ public class YmirTypeConversionManager implements TypeConversionManager {
     private final PropertyUtilsBean propertyUtilsBean_;
 
     private static final Log log_ = LogFactory
-            .getLog(YmirTypeConversionManager.class);
+            .getLog(TypeConversionManagerImpl.class);
 
     private static final Annotation[] HINT_EMPTY = new Annotation[0];
 
-    public YmirTypeConversionManager() {
+    public TypeConversionManagerImpl() {
         propertyUtilsBean_ = prepare(newPropertyUtilsBean());
     }
 

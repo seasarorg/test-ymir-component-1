@@ -1,13 +1,13 @@
 package org.seasar.ymir.converter.impl;
 
 import java.lang.annotation.Annotation;
+import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
-public class DateConverter extends DateConverterBase<Date> {
-    public static final String PATTERN = "yyyy-MM-dd HH:mm:ss";
+public class SqlDateConverter extends DateConverterBase<Date> {
+    public static final String PATTERN = "yyyy-MM-dd";
 
-    public DateConverter() {
+    public SqlDateConverter() {
         type_ = Date.class;
         pattern_ = PATTERN;
     }
@@ -16,11 +16,13 @@ public class DateConverter extends DateConverterBase<Date> {
     protected Date doConvert(Object value, Annotation[] hint) {
         if (value instanceof Number) {
             return new Date(((Number) value).longValue());
+        } else if (value instanceof java.util.Date) {
+            return new Date(((java.util.Date) value).getTime());
         }
 
         try {
-            return new SimpleDateFormat(getPattern(hint)).parse(value
-                    .toString());
+            return new Date(new SimpleDateFormat(getPattern(hint)).parse(
+                    value.toString()).getTime());
         } catch (Exception ex) {
             return defaultValue_;
         }

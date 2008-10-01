@@ -2,6 +2,7 @@
 <!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
+  <include path="ymir-converter.dicon" />
   <component name="applicationManager"
     class="org.seasar.ymir.impl.ApplicationManagerImpl" />
   <component name="cacheManager"
@@ -33,7 +34,7 @@
   <component name="hotdeployManager"
     class="org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl" />
   <component name="typeConversionManager"
-    class="org.seasar.ymir.impl.YmirTypeConversionManager" />
+    class="org.seasar.ymir.converter.impl.TypeConversionManagerImpl" />
   <component name="conversationManager"
     class="org.seasar.ymir.conversation.impl.ConversationManagerImpl" />
   <component name="componentMetaDataFactory"

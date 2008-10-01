@@ -1,20 +1,23 @@
 package org.seasar.ymir.converter.impl;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.lang.annotation.Annotation;
 
-import org.apache.commons.beanutils.Converter;
+import org.seasar.ymir.converter.TypeConverter;
 
-public class StringConverter implements Converter {
-    @SuppressWarnings("unchecked")
-    public Object convert(Class type, Object value) {
+public class StringConverter implements TypeConverter<String> {
+    public Class<String> getType() {
+        return String.class;
+    }
+
+    public String convert(Object value, Annotation[] hint) {
         if (value == null) {
             return null;
-        } else if (value instanceof Date) {
-            return new SimpleDateFormat(DateConverter.DEFAULT_FORMAT)
-                    .format((Date) value);
         } else {
             return value.toString();
         }
+    }
+
+    public String convertToString(String value, Annotation[] hint) {
+        return convert(value, hint);
     }
 }

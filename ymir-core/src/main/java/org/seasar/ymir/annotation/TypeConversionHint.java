@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.seasar.ymir.TypeConversionManager;
+import org.seasar.ymir.converter.TypeConversionManager;
 
 /**
  * 型変換に関するヒントを与えるためのアノテーションに付与するメタアノテーションです。
@@ -19,5 +19,5 @@ import org.seasar.ymir.TypeConversionManager;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
-public @interface Conversion {
+public @interface TypeConversionHint {
 }

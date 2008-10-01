@@ -1,43 +1,26 @@
 package org.seasar.ymir.impl;
 
-import junit.framework.TestCase;
-
-import org.seasar.framework.container.S2Container;
-import org.seasar.framework.container.impl.S2ContainerImpl;
-import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
-import org.seasar.ymir.cache.impl.CacheManagerImpl;
-import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
+import org.seasar.ymir.ComponentClientTestCase;
+import org.seasar.ymir.annotation.handler.AnnotationHandler;
+import org.seasar.ymir.converter.TypeConversionManager;
+import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.impl.RequestParameterScope;
-import org.seasar.ymir.scope.impl.ScopeManagerImpl;
 import org.seasar.ymir.scope.impl.SessionScope;
 
-public class ComponentMetaDataImplTest extends TestCase {
+public class ComponentMetaDataImplTest extends ComponentClientTestCase {
     private ComponentMetaDataImpl target_;
-
-    private AnnotationHandlerImpl annotationHandler_;
-
-    HotdeployManagerImpl hotdeployManager_;
-
-    private ScopeManagerImpl scopeManager_;
-
-    private YmirTypeConversionManager typeConversionManager_;
 
     @Override
     protected void setUp() throws Exception {
-        S2Container container = new S2ContainerImpl();
-        container.register(RequestParameterScope.class);
-        container.register(SessionScope.class);
-        annotationHandler_ = new AnnotationHandlerImpl();
-        typeConversionManager_ = new YmirTypeConversionManager();
-        hotdeployManager_ = new HotdeployManagerImpl();
-        scopeManager_ = new ScopeManagerImpl();
-        scopeManager_.setHotdeployManager(hotdeployManager_);
-        scopeManager_.setTypeConversionManager(typeConversionManager_);
-        CacheManagerImpl cacheManager = new CacheManagerImpl();
-        cacheManager.setHotdeployManager(hotdeployManager_);
-        annotationHandler_.setCacheManager(cacheManager);
-        target_ = new ComponentMetaDataImpl(Hoe2Page.class, container,
-                annotationHandler_, scopeManager_, typeConversionManager_) {
+        super.setUp();
+
+        register(RequestParameterScope.class);
+        register(SessionScope.class);
+
+        target_ = new ComponentMetaDataImpl(Hoe2Page.class, getContainer(),
+                getComponent(AnnotationHandler.class),
+                getComponent(ScopeManager.class),
+                getComponent(TypeConversionManager.class)) {
         };
     }
 

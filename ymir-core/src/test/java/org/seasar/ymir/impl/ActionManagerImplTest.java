@@ -1,31 +1,22 @@
 package org.seasar.ymir.impl;
 
-import org.seasar.extension.unit.S2TestCase;
-import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.ComponentClientTestCase;
 import org.seasar.ymir.MethodInvoker;
-import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.annotation.Resolve;
 import org.seasar.ymir.scope.impl.MapScope;
 
-public class ActionManagerImplTest extends S2TestCase {
+public class ActionManagerImplTest extends ComponentClientTestCase {
     private ActionManagerImpl target_;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        include(getClass().getName().replace('.', '/').concat(".dicon"));
-        ApplicationManager applicationManager = (ApplicationManager) getComponent(ApplicationManager.class);
-        applicationManager.setBaseApplication(new SingleApplication(null, null,
-                null, getContainer(), null, null));
-        YmirContext.setYmir(new YmirImpl() {
-            @Override
-            public boolean isUnderDevelopment() {
-                return false;
-            }
-        });
-        target_ = (ActionManagerImpl) getComponent(ActionManagerImpl.class);
 
-        MapScope mapScope = (MapScope) getComponent(MapScope.class);
+        MapScope mapScope = new MapScope();
+        register(mapScope);
+
+        target_ = getComponent(ActionManagerImpl.class);
+
         mapScope.setAttribute("value", "VALUE");
         mapScope.setAttribute("number", "20");
     }
