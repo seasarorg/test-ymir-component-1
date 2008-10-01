@@ -1,7 +1,7 @@
 package org.seasar.ymir.constraint;
 
-import org.seasar.ymir.Note;
-import org.seasar.ymir.Notes;
+import org.seasar.ymir.message.Note;
+import org.seasar.ymir.message.Notes;
 
 /**
  * 制約を満たしていない場合にスローされる例外クラスです。

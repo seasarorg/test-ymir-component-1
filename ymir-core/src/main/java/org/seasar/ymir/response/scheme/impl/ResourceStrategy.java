@@ -2,9 +2,9 @@ package org.seasar.ymir.response.scheme.impl;
 
 import java.io.InputStream;
 
-import org.seasar.ymir.MimeTypeDetector;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.impl.AsIsInputStreamFactory;
+import org.seasar.ymir.mime.MimeTypeDetector;
 import org.seasar.ymir.response.SelfContainedResponse;
 import org.seasar.ymir.response.scheme.Strategy;
 

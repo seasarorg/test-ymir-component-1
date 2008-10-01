@@ -5,12 +5,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.seasar.ymir.Note;
-import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.Confirmed;
+import org.seasar.ymir.message.Note;
+import org.seasar.ymir.message.Notes;
 
 public class ConfirmedConstraint extends AbstractConstraint<Confirmed> {
     public void confirm(Object component, Request request,

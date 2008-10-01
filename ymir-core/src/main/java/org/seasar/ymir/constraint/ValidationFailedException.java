@@ -1,6 +1,6 @@
 package org.seasar.ymir.constraint;
 
-import org.seasar.ymir.Notes;
+import org.seasar.ymir.message.Notes;
 
 /**
  * 値または状態が適切でない場合にスローされる例外クラスです。

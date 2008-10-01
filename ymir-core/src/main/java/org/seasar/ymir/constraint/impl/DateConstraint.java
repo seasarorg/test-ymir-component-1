@@ -4,12 +4,12 @@ import java.lang.reflect.AnnotatedElement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import org.seasar.ymir.Note;
-import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.Date;
+import org.seasar.ymir.message.Note;
+import org.seasar.ymir.message.Notes;
 
 public class DateConstraint extends AbstractConstraint<Date> {
     public static final String PATTERN = "yyyy-MM-dd HH:mm:ss";

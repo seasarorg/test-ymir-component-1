@@ -2,8 +2,8 @@ package org.seasar.ymir.scope;
 
 import java.lang.annotation.Annotation;
 
-import org.seasar.ymir.annotation.TypeConversionHint;
 import org.seasar.ymir.converter.TypeConversionManager;
+import org.seasar.ymir.converter.annotation.TypeConversionHint;
 
 public interface ScopeManager {
     /**

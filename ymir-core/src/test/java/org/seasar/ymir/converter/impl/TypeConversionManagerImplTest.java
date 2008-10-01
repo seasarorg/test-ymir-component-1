@@ -2,7 +2,7 @@ package org.seasar.ymir.converter.impl;
 
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.ComponentClientTestCase;
-import org.seasar.ymir.PropertyHandler;
+import org.seasar.ymir.converter.PropertyHandler;
 
 public class TypeConversionManagerImplTest extends ComponentClientTestCase {
     private S2Container container_;

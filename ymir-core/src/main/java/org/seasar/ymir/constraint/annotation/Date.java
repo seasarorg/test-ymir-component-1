@@ -6,9 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.text.SimpleDateFormat;
 
-import org.seasar.ymir.annotation.TypeConversionHint;
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.impl.DateConstraint;
+import org.seasar.ymir.converter.annotation.TypeConversionHint;
 
 /**
  * リクエストパラメータの値が日付パターンにマッチしていることを表す制約アノテーションです。

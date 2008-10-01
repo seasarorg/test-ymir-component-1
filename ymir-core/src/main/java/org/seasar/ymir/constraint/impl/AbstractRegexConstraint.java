@@ -6,11 +6,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.seasar.ymir.Note;
-import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
+import org.seasar.ymir.message.Note;
+import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.util.map.LruHashMap;
 
 abstract public class AbstractRegexConstraint<T extends Annotation> extends

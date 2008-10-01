@@ -8,17 +8,17 @@
   <component name="cacheManager"
     class="org.seasar.ymir.cache.impl.CacheManagerImpl" />
   <component name="mimeTypeDetector"
-    class="org.seasar.ymir.impl.ServletMimeTypeDetector" />
+    class="org.seasar.ymir.mime.impl.ServletMimeTypeDetector" />
   <component name="annotationHandler"
     class="org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl" />
   <component name="messages"
-    class="org.seasar.ymir.impl.MessagesImpl">
+    class="org.seasar.ymir.message.impl.MessagesImpl">
     <initMethod name="addPath">
       <arg>"messages.xproperties"</arg>
     </initMethod>
   </component>
   <component name="noteRenderer"
-    class="org.seasar.ymir.impl.NoteRendererImpl" />
+    class="org.seasar.ymir.message.impl.NoteRendererImpl" />
   <component name="localeManager"
     class="org.seasar.ymir.impl.LocaleManagerImpl" />
   <component name="sessionManager"
@@ -26,11 +26,11 @@
   <component name="windowManager"
     class="org.seasar.ymir.window.impl.WindowManagerImpl" />
   <component name="dateManager"
-    class="org.seasar.ymir.impl.DateManagerImpl" />
+    class="org.seasar.ymir.date.impl.DateManagerImpl" />
   <component name="redirectionManager"
     class="org.seasar.ymir.redirection.impl.RedirectionManagerImpl" />
   <component name="tokenManager"
-    class="org.seasar.ymir.impl.TokenManagerImpl" />
+    class="org.seasar.ymir.token.impl.TokenManagerImpl" />
   <component name="hotdeployManager"
     class="org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl" />
   <component name="typeConversionManager"

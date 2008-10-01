@@ -12,12 +12,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.ymir.PropertyHandler;
+import org.seasar.ymir.converter.PropertyHandler;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.converter.TypeConverter;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.hotdeploy.impl.AbstractHotdeployEventListener;
-import org.seasar.ymir.impl.BeanUtilsPropertyHandler;
 
 public class TypeConversionManagerImpl implements TypeConversionManager {
     private static final String TRUE_NUMBER = "1";

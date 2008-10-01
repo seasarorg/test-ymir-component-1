@@ -30,9 +30,9 @@ import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.annotation.TypeConversionHint;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.converter.TypeConversionManager;
+import org.seasar.ymir.converter.annotation.TypeConversionHint;
 import org.seasar.ymir.util.ClassUtils;
 
 /**

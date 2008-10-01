@@ -26,7 +26,6 @@ import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.MethodInvoker;
-import org.seasar.ymir.Notes;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.Request;
@@ -45,6 +44,7 @@ import org.seasar.ymir.constraint.annotation.SuppressConstraints;
 import org.seasar.ymir.constraint.annotation.Validator;
 import org.seasar.ymir.impl.MethodInvokerImpl;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
+import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.ContainerUtils;
 

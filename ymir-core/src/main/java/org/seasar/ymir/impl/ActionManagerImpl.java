@@ -8,9 +8,9 @@ import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.MethodInvoker;
-import org.seasar.ymir.annotation.TypeConversionHint;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.converter.TypeConversionManager;
+import org.seasar.ymir.converter.annotation.TypeConversionHint;
 import org.seasar.ymir.scope.handler.ScopeAttributeResolver;
 
 public class ActionManagerImpl implements ActionManager {

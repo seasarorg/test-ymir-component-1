@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.seasar.ymir.FormFile;
-import org.seasar.ymir.Note;
-import org.seasar.ymir.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.Required;
+import org.seasar.ymir.message.Note;
+import org.seasar.ymir.message.Notes;
 
 public class RequiredConstraint extends AbstractConstraint<Required> {
     public void confirm(Object component, Request request, Required annotation,

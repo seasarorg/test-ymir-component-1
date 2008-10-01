@@ -2,8 +2,7 @@ package org.seasar.ymir.converter;
 
 import java.lang.annotation.Annotation;
 
-import org.seasar.ymir.PropertyHandler;
-import org.seasar.ymir.annotation.TypeConversionHint;
+import org.seasar.ymir.converter.annotation.TypeConversionHint;
 
 /**
  * 値の型変換を統一的に行なうためのインタフェースです。
