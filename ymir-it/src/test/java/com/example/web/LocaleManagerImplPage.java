@@ -4,7 +4,7 @@ import java.util.Locale;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.ymir.LocaleManager;
+import org.seasar.ymir.locale.LocaleManager;
 
 public class LocaleManagerImplPage {
     private LocaleManager localeManager_;
