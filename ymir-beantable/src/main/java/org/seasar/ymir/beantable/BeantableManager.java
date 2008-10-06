@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.cms.beantable.Beantable;
 import org.seasar.cms.pluggable.ClassTraverser;
 import org.seasar.cms.pluggable.Configuration;
@@ -16,7 +18,6 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.container.impl.S2ContainerBehavior;
-import org.seasar.framework.log.Logger;
 import org.seasar.framework.util.ClassTraversal.ClassHandler;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
@@ -37,7 +38,7 @@ public class BeantableManager implements LifecycleListener, HotdeployListener {
 
     private ClassTraverserBag[] traverserBags_;
 
-    private Logger logger_ = Logger.getLogger(getClass());
+    private Log log_ = LogFactory.getLog(BeantableManager.class);
 
     @Binding(bindingType = BindingType.MUST)
     public void setConfiguration(Configuration configuration) {
@@ -139,12 +140,12 @@ public class BeantableManager implements LifecycleListener, HotdeployListener {
         try {
             beantable.activate();
         } catch (SQLException ex) {
-            logger_.error("Can't activate table: " + clazz.getName(), ex);
+            log_.error("Can't activate table: " + clazz.getName(), ex);
         }
         try {
             beantable.update(correctTableSchema);
         } catch (SQLException ex) {
-            logger_.error("Can't update table: " + clazz.getName(), ex);
+            log_.error("Can't update table: " + clazz.getName(), ex);
         }
     }
 

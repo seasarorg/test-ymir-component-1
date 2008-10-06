@@ -1,12 +1,13 @@
 package org.seasar.ymir.beantable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.framework.log.Logger;
 import org.seasar.framework.util.ClassTraversal.ClassHandler;
 
 public class BeantableClassHandler implements ClassHandler {
-    private Logger logger_ = Logger.getLogger(getClass());
+    private Log log_ = LogFactory.getLog(BeantableClassHandler.class);
 
     private BeantableManager manager_;
 
@@ -24,8 +25,8 @@ public class BeantableClassHandler implements ClassHandler {
         try {
             manager_.enableBeantable(Class.forName(className, true, cl), false);
         } catch (ClassNotFoundException ex) {
-            if (logger_.isDebugEnabled()) {
-                logger_.debug("[SKIP] Class not found: " + className);
+            if (log_.isDebugEnabled()) {
+                log_.debug("[SKIP] Class not found: " + className);
             }
             return;
         }
