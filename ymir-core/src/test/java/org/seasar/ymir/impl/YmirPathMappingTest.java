@@ -53,7 +53,7 @@ public class YmirPathMappingTest extends ComponentClientTestCase {
         VariableResolver resolver = target_.match("/index.html",
                 HttpMethod.POST);
         PageComponent pageComponent = new PageComponentImpl(
-                new PathMappingImplTest1Page(), PathMappingImplTest1Page.class,
+                new YmirPathMappingTest1Page(), YmirPathMappingTest1Page.class,
                 new PageComponent[0]);
 
         Action action = target_.getAction(pageComponent, request, resolver);

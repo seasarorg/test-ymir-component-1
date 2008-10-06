@@ -11,29 +11,29 @@
       @org.seasar.ymir.PathMapping@class)
     </property>
   </component>
-  <component class="org.seasar.ymir.impl.PathMappingImpl">
-    <arg>"^/article\\.done$"</arg>
+  <component class="org.seasar.ymir.impl.YmirPathMapping">
+    <arg>"/article\\.done"</arg>
     <arg>"articlePage"</arg>
     <arg>"_${method}"</arg>
     <arg>""</arg>
+    <arg>null</arg>
     <arg>"/article.do"</arg>
-    <arg>null</arg>
   </component>
-  <component class="org.seasar.ymir.impl.PathMappingImpl">
-    <arg>"^/article\\.do$"</arg>
+  <component class="org.seasar.ymir.impl.YmirPathMapping">
+    <arg>"/article\\.do"</arg>
     <arg>"articlePage"</arg>
     <arg>"_${method}"</arg>
     <arg>""</arg>
-    <arg>"/article.html"</arg>
     <arg>null</arg>
+    <arg>"/article.html"</arg>
   </component>
-  <component class="org.seasar.ymir.impl.PathMappingImpl">
-    <arg>"^/article\\.html$"</arg>
+  <component class="org.seasar.ymir.impl.YmirPathMapping">
+    <arg>"/article\\.html"</arg>
     <arg>"articlePage"</arg>
     <arg>"_${method}"</arg>
     <arg>""</arg>
-    <arg>"/article.html"</arg>
     <arg>null</arg>
+    <arg>"/article.html"</arg>
   </component>
   <component name="articlePage"
     class="org.seasar.ymir.impl.ArticlePage" />
