@@ -563,8 +563,7 @@ abstract public class YmirTestCase extends TestCase {
 
         request_ = ymir_.prepareForProcessing(getContextPath(), method,
                 "UTF-8", parameterMap, fileParameterMap,
-                new HttpServletRequestAttributeContainer(httpRequest_),
-                getLocale());
+                new HttpServletRequestAttributeContainer(httpRequest_));
 
         String queryString = null;
         if (method == HttpMethod.GET && !parameterMap.isEmpty()) {
