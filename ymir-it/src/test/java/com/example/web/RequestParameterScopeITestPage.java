@@ -1,7 +1,7 @@
 package com.example.web;
 
-import org.seasar.ymir.annotation.In;
-import org.seasar.ymir.annotation.RequestParameter;
+import org.seasar.ymir.scope.annotation.In;
+import org.seasar.ymir.scope.annotation.RequestParameter;
 import org.seasar.ymir.scope.impl.RequestParameterScope;
 
 public class RequestParameterScopeITestPage {

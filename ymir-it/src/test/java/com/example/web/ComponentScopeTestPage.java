@@ -3,7 +3,7 @@ package com.example.web;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.annotation.In;
+import org.seasar.ymir.scope.annotation.In;
 import org.seasar.ymir.scope.impl.ComponentScope;
 
 public class ComponentScopeTestPage {

@@ -1,6 +1,6 @@
 package com.example.web;
 
-import org.seasar.ymir.annotation.RequestParameter;
+import org.seasar.ymir.scope.annotation.RequestParameter;
 
 public class ForwardResponseITest2Page {
     private String param1_;

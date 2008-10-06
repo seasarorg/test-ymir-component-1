@@ -1,9 +1,9 @@
 package com.example.web;
 
-import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.conversation.annotation.Conversation;
 import org.seasar.ymir.conversation.impl.ConversationScope;
+import org.seasar.ymir.scope.annotation.In;
 
 @Conversation(name = "conversation2", phase = "1")
 public class ConversationScopeITest3Page {

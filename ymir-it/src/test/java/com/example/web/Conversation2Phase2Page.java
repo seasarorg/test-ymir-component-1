@@ -1,9 +1,9 @@
 package com.example.web;
 
-import org.seasar.ymir.annotation.In;
-import org.seasar.ymir.annotation.Out;
 import org.seasar.ymir.conversation.annotation.Conversation;
 import org.seasar.ymir.conversation.impl.ConversationScope;
+import org.seasar.ymir.scope.annotation.In;
+import org.seasar.ymir.scope.annotation.Out;
 
 @Conversation(name = "conversation", phase = "phase2", followAfter = "phase1")
 public class Conversation2Phase2Page {

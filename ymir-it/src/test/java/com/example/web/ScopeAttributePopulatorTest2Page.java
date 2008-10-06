@@ -1,6 +1,6 @@
 package com.example.web;
 
-import org.seasar.ymir.annotation.Populate;
+import org.seasar.ymir.scope.annotation.Populate;
 import org.seasar.ymir.scope.impl.RequestParameterScope;
 
 public class ScopeAttributePopulatorTest2Page {

@@ -14,11 +14,6 @@ public class InvokePageMethodTestPage {
         list_.add(Phase.PAGECOMPONENT_CREATED);
     }
 
-    @Invoke(Phase.SCOPEOBJECT_INJECTING)
-    public void invoke2() {
-        list_.add(Phase.SCOPEOBJECT_INJECTING);
-    }
-
     @Invoke(Phase.ACTION_INVOKING)
     public void invoke3() {
         list_.add(Phase.ACTION_INVOKING);
@@ -27,16 +22,6 @@ public class InvokePageMethodTestPage {
     @Invoke(Phase.ACTION_INVOKED)
     public void invoke4() {
         list_.add(Phase.ACTION_INVOKED);
-    }
-
-    @Invoke(Phase.SCOPEOBJECT_OUTJECTING)
-    public void invoke5() {
-        list_.add(Phase.SCOPEOBJECT_OUTJECTING);
-    }
-
-    @Invoke(Phase.SCOPEOBJECT_OUTJECTED)
-    public void invoke6() {
-        list_.add(Phase.SCOPEOBJECT_OUTJECTED);
     }
 
     public void _get() {

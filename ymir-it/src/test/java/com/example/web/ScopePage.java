@@ -1,9 +1,9 @@
 package com.example.web;
 
-import org.seasar.ymir.annotation.In;
-import org.seasar.ymir.annotation.Ins;
-import org.seasar.ymir.annotation.Out;
-import org.seasar.ymir.annotation.Outs;
+import org.seasar.ymir.scope.annotation.In;
+import org.seasar.ymir.scope.annotation.Ins;
+import org.seasar.ymir.scope.annotation.Out;
+import org.seasar.ymir.scope.annotation.Outs;
 import org.seasar.ymir.scope.impl.ApplicationScope;
 
 public class ScopePage {

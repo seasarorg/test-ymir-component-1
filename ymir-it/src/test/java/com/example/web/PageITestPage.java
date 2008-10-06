@@ -5,7 +5,7 @@ import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.PageITestComponent1;
 import org.seasar.ymir.PageITestComponent2;
 import org.seasar.ymir.PageITestComponent3;
-import org.seasar.ymir.annotation.Inject;
+import org.seasar.ymir.scope.annotation.Inject;
 
 public class PageITestPage {
     private PageITestComponent1 component1_;

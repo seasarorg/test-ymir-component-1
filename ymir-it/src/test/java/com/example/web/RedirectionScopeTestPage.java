@@ -1,8 +1,8 @@
 package com.example.web;
 
-import org.seasar.ymir.annotation.In;
-import org.seasar.ymir.annotation.Out;
 import org.seasar.ymir.redirection.impl.RedirectionScope;
+import org.seasar.ymir.scope.annotation.In;
+import org.seasar.ymir.scope.annotation.Out;
 
 public class RedirectionScopeTestPage {
     private String injectedValue_;
