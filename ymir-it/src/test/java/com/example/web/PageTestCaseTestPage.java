@@ -1,16 +1,16 @@
 package com.example.web;
 
 public class PageTestCaseTestPage {
-    private boolean renderCallded_;
+    private boolean prerenderCallded_;
 
     public void _get() {
     }
 
-    public void _render() {
-        renderCallded_ = true;
+    public void _prerender() {
+        prerenderCallded_ = true;
     }
 
-    public boolean isRenderCalled() {
-        return renderCallded_;
+    public boolean isPrerenderCalled() {
+        return prerenderCallded_;
     }
 }

@@ -1,17 +1,17 @@
 package com.example.web;
 
 public class ForwardResponseITest8Page {
-    private boolean renderCalled_;
+    private boolean prerenderCalled_;
 
     public String _get() {
         return "/forwardResponseITest8.forward.html";
     }
 
-    public void _render() {
-        renderCalled_ = true;
+    public void _prerender() {
+        prerenderCalled_ = true;
     }
 
-    public boolean isRenderCalled() {
-        return renderCalled_;
+    public boolean isPrerenderCalled() {
+        return prerenderCalled_;
     }
 }

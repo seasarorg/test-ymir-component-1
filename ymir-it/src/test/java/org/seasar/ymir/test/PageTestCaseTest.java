@@ -12,11 +12,11 @@ public class PageTestCaseTest extends PageTestCase<PageTestCaseTestPage> {
         return PageTestCaseTestPage.class;
     }
 
-    public void test_renderが呼び出されること() throws Exception {
+    public void test_prerenderが呼び出されること() throws Exception {
         Request request = prepareForProcessing("/pageTestCaseTest.html",
                 HttpMethod.GET);
         processRequest(request);
 
-        assertTrue(getPage().isRenderCalled());
+        assertTrue(getPage().isPrerenderCalled());
     }
 }

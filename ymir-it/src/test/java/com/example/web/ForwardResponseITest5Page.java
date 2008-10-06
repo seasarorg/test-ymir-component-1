@@ -1,7 +1,7 @@
 package com.example.web;
 
 public class ForwardResponseITest5Page {
-    private boolean renderCalled_;
+    private boolean prerenderCalled_;
 
     public String _get() {
         return "/forwardResponseITest6.html";
@@ -11,11 +11,11 @@ public class ForwardResponseITest5Page {
         return "/forwardResponseITest7.html";
     }
 
-    public void _render() {
-        renderCalled_ = true;
+    public void _prerender() {
+        prerenderCalled_ = true;
     }
 
-    public boolean isRenderCalled() {
-        return renderCalled_;
+    public boolean isPrerenderCalled() {
+        return prerenderCalled_;
     }
 }

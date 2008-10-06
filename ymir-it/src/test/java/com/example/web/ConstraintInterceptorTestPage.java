@@ -36,20 +36,20 @@ public class ConstraintInterceptorTestPage {
     }
 
     @SuppressWarnings("deprecation")
-    @org.seasar.ymir.annotation.Validator("_get_button1")
+    @Validator("_get_button1")
     public Notes validate1() {
         return new Notes().add(new Note("validator1"));
     }
 
     @SuppressWarnings("deprecation")
-    @org.seasar.ymir.annotation.Validator("_get_button1")
+    @Validator("_get_button1")
     public void validate2() throws ValidationFailedException {
         throw new ValidationFailedException(new Notes().add(new Note(
                 "validator2")));
     }
 
     @SuppressWarnings("deprecation")
-    @org.seasar.ymir.annotation.Validator
+    @Validator
     public Notes validate3() {
         request_.setAttribute("validator3", "validator3");
         return null;
@@ -62,7 +62,7 @@ public class ConstraintInterceptorTestPage {
     }
 
     @SuppressWarnings("deprecation")
-    @org.seasar.ymir.annotation.Validator
+    @Validator
     public void validate4() throws ValidationFailedException {
         request_.setAttribute("validator4", "validator4");
     }
@@ -73,7 +73,7 @@ public class ConstraintInterceptorTestPage {
     }
 
     @SuppressWarnings("deprecation")
-    @org.seasar.ymir.annotation.Validator("_get_button6")
+    @Validator("_get_button6")
     public void validate5(int param1, String param2) {
         request_.setAttribute("param1", Integer.valueOf(param1));
         request_.setAttribute("param2", param2);
@@ -90,7 +90,7 @@ public class ConstraintInterceptorTestPage {
     }
 
     @SuppressWarnings("deprecation")
-    @org.seasar.ymir.annotation.SuppressConstraints
+    @SuppressConstraints
     @Fuga("button2")
     public void _get_button2() {
     }
@@ -101,7 +101,7 @@ public class ConstraintInterceptorTestPage {
     }
 
     @SuppressWarnings("deprecation")
-    @org.seasar.ymir.annotation.SuppressConstraints(ConstraintType.VALIDATION)
+    @SuppressConstraints(ConstraintType.VALIDATION)
     @Fuga("button3")
     public void _get_button3() {
     }
