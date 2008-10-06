@@ -8,7 +8,7 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.impl.S2ContainerImpl;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Ymir;
-import org.seasar.ymir.impl.LocaleManagerImpl;
+import org.seasar.ymir.locale.impl.LocaleManagerImpl;
 import org.seasar.ymir.message.impl.MessagesImpl;
 import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.mock.MockDispatch;

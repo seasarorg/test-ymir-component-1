@@ -4,13 +4,14 @@ import java.text.MessageFormat;
 import java.util.Locale;
 
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
+import org.seasar.framework.container.S2Container;
 import org.seasar.kvasir.util.collection.AttributeReader;
 import org.seasar.kvasir.util.collection.I18NPropertyReader;
 import org.seasar.kvasir.util.collection.PropertyReader;
 import org.seasar.ymir.Globals;
-import org.seasar.ymir.Request;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.locale.LocaleManager;
 import org.seasar.ymir.message.MessageNotFoundRuntimeException;
 import org.seasar.ymir.message.Messages;
 import org.seasar.ymir.message.MessagesNotFoundRuntimeException;
@@ -146,7 +147,8 @@ abstract public class PathResolverBase implements PathResolver {
     }
 
     Locale findLocale(TemplateContext context, VariableResolver varResolver) {
-        return ((Request) varResolver.getVariable(context,
-                YmirVariableResolver.NAME_YMIRREQUEST)).getLocale();
+        return ((LocaleManager) ((S2Container) varResolver.getVariable(context,
+                YmirVariableResolver.NAME_CONTAINER))
+                .getComponent(LocaleManager.class)).getLocale();
     }
 }

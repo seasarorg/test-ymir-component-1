@@ -4,8 +4,8 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.seasar.ymir.LocaleManager;
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.locale.LocaleManager;
 
 import net.skirnir.freyja.webapp.FreyjaServlet;
 
