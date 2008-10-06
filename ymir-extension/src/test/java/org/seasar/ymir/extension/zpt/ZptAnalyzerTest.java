@@ -22,7 +22,6 @@ import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.YmirContext;
-import org.seasar.ymir.annotation.RequestParameter;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
@@ -46,6 +45,7 @@ import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.impl.YmirPathMapping;
 import org.seasar.ymir.message.Note;
 import org.seasar.ymir.mock.MockApplication;
+import org.seasar.ymir.scope.annotation.RequestParameter;
 
 import com.example.dto.SaruDto;
 import com.example.web.Test47Page;

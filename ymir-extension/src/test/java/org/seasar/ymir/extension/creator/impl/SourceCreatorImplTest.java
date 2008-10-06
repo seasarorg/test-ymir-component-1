@@ -10,9 +10,7 @@ import java.util.Map;
 import org.seasar.framework.util.ResourceUtil;
 import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.HttpMethod;
-import org.seasar.ymir.annotation.In;
 import org.seasar.ymir.annotation.Meta;
-import org.seasar.ymir.annotation.Out;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.conversation.annotation.Begin;
@@ -33,6 +31,8 @@ import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
+import org.seasar.ymir.scope.annotation.In;
+import org.seasar.ymir.scope.annotation.Out;
 
 import com.example.page.SourceCreatorImplTestPageBaseBase;
 import com.example.page.TestPageBase;

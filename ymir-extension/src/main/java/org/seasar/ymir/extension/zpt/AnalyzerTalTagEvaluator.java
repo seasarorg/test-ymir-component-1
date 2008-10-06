@@ -14,7 +14,6 @@ import org.seasar.ymir.Globals;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Path;
-import org.seasar.ymir.annotation.RequestParameter;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.FormDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -24,6 +23,7 @@ import org.seasar.ymir.extension.creator.impl.FormDescImpl;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
+import org.seasar.ymir.scope.annotation.RequestParameter;
 import org.seasar.ymir.util.BeanUtils;
 
 import net.skirnir.freyja.Attribute;

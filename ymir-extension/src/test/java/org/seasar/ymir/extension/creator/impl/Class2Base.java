@@ -1,7 +1,7 @@
 package org.seasar.ymir.extension.creator.impl;
 
-import org.seasar.ymir.annotation.In;
-import org.seasar.ymir.annotation.Out;
+import org.seasar.ymir.scope.annotation.In;
+import org.seasar.ymir.scope.annotation.Out;
 import org.seasar.ymir.scope.impl.SessionScope;
 
 public class Class2Base {
