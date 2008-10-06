@@ -4,10 +4,9 @@ import org.seasar.ymir.ComponentClientTestCase;
 import org.seasar.ymir.annotation.MapParameter;
 import org.seasar.ymir.impl.Bean;
 import org.seasar.ymir.impl.PageComponentImpl;
-import org.seasar.ymir.scope.ScopeManager;
 
-public class ScopeInterceptorTest extends ComponentClientTestCase {
-    private ScopeInterceptor target_;
+public class ScopeManagerImplTest extends ComponentClientTestCase {
+    private ScopeManagerImpl target_;
 
     private MapScope mapScope_;
 
@@ -18,8 +17,7 @@ public class ScopeInterceptorTest extends ComponentClientTestCase {
         mapScope_ = new MapScope();
         register(mapScope_);
 
-        target_ = new ScopeInterceptor();
-        target_.setScopeManager(getComponent(ScopeManager.class));
+        target_ = getComponent(ScopeManagerImpl.class);
     }
 
     public void testPopulateScopeAttributes() throws Exception {

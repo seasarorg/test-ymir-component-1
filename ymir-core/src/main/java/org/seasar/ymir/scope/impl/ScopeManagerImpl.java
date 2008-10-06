@@ -1,20 +1,27 @@
 package org.seasar.ymir.scope.impl;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.cache.CacheManager;
 import org.seasar.ymir.converter.TypeConversionManager;
+import org.seasar.ymir.converter.annotation.TypeConversionHint;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.scope.AttributeNotFoundRuntimeException;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.ScopeMetaData;
+import org.seasar.ymir.scope.handler.ScopeAttributeInjector;
+import org.seasar.ymir.scope.handler.ScopeAttributeOutjector;
+import org.seasar.ymir.scope.handler.ScopeAttributePopulator;
+import org.seasar.ymir.scope.handler.ScopeAttributeResolver;
 import org.seasar.ymir.util.ClassUtils;
 
 public class ScopeManagerImpl implements ScopeManager {
@@ -90,7 +97,14 @@ public class ScopeManagerImpl implements ScopeManager {
         return typeConversionManager_.convert(value, type, hint);
     }
 
-    public ScopeMetaData getMetaData(Class<?> clazz) {
+    /**
+     * 指定されたクラスについてのスコープ関連のメタ情報を保持する{@link ScopeMetaData}オブジェクトを返します。
+     * 
+     * @param clazz クラス。nullを指定してはいけません。
+     * @return {@link ScopeMetaData}オブジェクト。
+     * @see ScopeMetaData
+     */
+    protected ScopeMetaData getMetaData(Class<?> clazz) {
         ScopeMetaData metaData = metaDataMap_.get(clazz);
         if (metaData == null) {
             metaData = newInstance(clazz);
@@ -103,5 +117,58 @@ public class ScopeManagerImpl implements ScopeManager {
         return new ScopeMetaDataImpl(clazz, applicationManager_
                 .findContextApplication().getS2Container(), annotationHandler_,
                 this, typeConversionManager_);
+    }
+
+    public void populateScopeAttributes(PageComponent pageComponent,
+            String actionName) {
+        ScopeMetaData metaData = getMetaData(pageComponent.getPageClass());
+        ScopeAttributePopulator[] populators = metaData
+                .getScopeAttributePopulators();
+        for (int i = 0; i < populators.length; i++) {
+            populators[i].populateTo(pageComponent.getPage(), actionName);
+        }
+    }
+
+    public void injectScopeAttributes(PageComponent pageComponent,
+            String actionName) {
+        ScopeMetaData metaData = getMetaData(pageComponent.getPageClass());
+        ScopeAttributeInjector[] injectors = metaData
+                .getScopeAttributeInjectors();
+        for (int i = 0; i < injectors.length; i++) {
+            injectors[i].injectTo(pageComponent.getPage(), actionName);
+        }
+    }
+
+    public void outjectScopeAttributes(PageComponent pageComponent,
+            String actionName) {
+        ScopeMetaData metaData = getMetaData(pageComponent.getPageClass());
+        ScopeAttributeOutjector[] outjectors = metaData
+                .getScopeAttributeOutjectors();
+        for (int i = 0; i < outjectors.length; i++) {
+            outjectors[i].outjectFrom(pageComponent.getPage(), actionName);
+        }
+    }
+
+    public Object[] resolveParameters(Class<?> pageClass, Method method,
+            Object[] extendedParams) {
+        Class<?>[] types = method.getParameterTypes();
+        ScopeAttributeResolver[] resolvers = getMetaData(pageClass)
+                .getScopeAttributeResolversForParameters(method);
+        Object[] params = new Object[types.length];
+        int buttonParamsIdx = 0;
+        for (int i = 0; i < types.length; i++) {
+            if (resolvers[i] != null) {
+                params[i] = resolvers[i].getValue();
+            } else {
+                Object value = null;
+                if (buttonParamsIdx < extendedParams.length) {
+                    value = extendedParams[buttonParamsIdx++];
+                }
+                params[i] = typeConversionManager_.convert(value, types[i],
+                        annotationHandler_.getMarkedParameterAnnotations(
+                                method, i, TypeConversionHint.class));
+            }
+        }
+        return params;
     }
 }

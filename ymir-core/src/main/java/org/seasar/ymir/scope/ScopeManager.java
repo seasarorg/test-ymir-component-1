@@ -1,7 +1,9 @@
 package org.seasar.ymir.scope;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
+import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.converter.annotation.TypeConversionHint;
 
@@ -65,11 +67,57 @@ public interface ScopeManager {
             throws AttributeNotFoundRuntimeException;
 
     /**
-     * 指定されたクラスについてのスコープ関連のメタ情報を保持する{@link ScopeMetaData}オブジェクトを返します。
+     * スコープに格納されている属性の値をPageオブジェクトのプロパティにポピュレートします。
+     * <p>子孫Pageについては処理は行なわれません。
+     * </p>
      * 
-     * @param clazz クラス。nullを指定してはいけません。
-     * @return {@link ScopeMetaData}オブジェクト。
-     * @see ScopeMetaData
+     * @param pageComponent PageComponentオブジェクト。
+     * @param actionName 実行するアクションの名前。
+     * @since 1.0.0
      */
-    ScopeMetaData getMetaData(Class<?> clazz);
+    void populateScopeAttributes(PageComponent pageComponent, String actionName);
+
+    /**
+     * スコープに格納されている属性の値をPageオブジェクトのプロパティにインジェクトします。
+     * <p>子孫Pageについては処理は行なわれません。
+     * </p>
+     * 
+     * @param pageComponent PageComponentオブジェクト。
+     * @param metaData Pageオブジェクトに関するメタデータ。
+     * @param actionName 実行するアクションの名前。
+     * @since 1.0.0
+     */
+    void injectScopeAttributes(PageComponent pageComponent, String actionName);
+
+    /**
+     * スコープに対してPageオブジェクトのプロパティから値をアウトジェクトします。
+     * <p>子孫Pageについては処理は行なわれません。
+     * </p>
+     * 
+     * @param pageComponent PageComponentオブジェクト。
+     * @param metaData Pageオブジェクトに関するメタデータ。
+     * @param actionName 実行されたアクションの名前。
+     * @since 1.0.0
+     */
+    void outjectScopeAttributes(PageComponent pageComponent, String actionName);
+
+    /**
+     * 指定されたクラスの指定されたメソッドを実行するために必要な引数を解決します。
+     * <p>指定されたクラスの指定されたメソッドを実行するために、
+     * メソッドの引数毎にスコープから値を取り出して並べた配列を返します。
+     * 引数に対応する値がスコープに存在しない場合は外部パラメータの値が順次利用されます。
+     * 外部パラメータの値が不足している場合はnull（引数の型がプリミティブ型の場合はデフォルト値）が使われます。
+     * </p>
+     * 
+     * @param pageClass ページクラス。nullを指定してはいけません。
+     * @param method メソッド。pageClassのメソッドである必要があります。
+     * nullを指定してはいけません。
+     * @param extendedParams 外部パラメータ。
+     * スコープから値を解決できなかった時に順次利用されます。
+     * @return メソッドの引数の値の配列。メソッドの引数の個数と同じ長さの配列です。
+     * nullを指定してはいけません。
+     * @since 1.0.0
+     */
+    Object[] resolveParameters(Class<?> pageClass, Method method,
+            Object[] extendedParams);
 }

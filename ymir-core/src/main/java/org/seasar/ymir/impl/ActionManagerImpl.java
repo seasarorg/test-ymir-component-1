@@ -7,33 +7,14 @@ import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.MethodInvoker;
-import org.seasar.ymir.annotation.handler.AnnotationHandler;
-import org.seasar.ymir.converter.TypeConversionManager;
-import org.seasar.ymir.converter.annotation.TypeConversionHint;
 import org.seasar.ymir.scope.ScopeManager;
-import org.seasar.ymir.scope.handler.ScopeAttributeResolver;
 
 public class ActionManagerImpl implements ActionManager {
-    private AnnotationHandler annotationHandler_;
-
     private ScopeManager scopeManager_;
-
-    private TypeConversionManager typeConversionManager_;
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setAnnotationHandler(AnnotationHandler annotationHandler) {
-        annotationHandler_ = annotationHandler;
-    }
 
     @Binding(bindingType = BindingType.MUST)
     public void setScopeManager(ScopeManager scopeManager) {
         scopeManager_ = scopeManager;
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setTypeConversionManager(
-            TypeConversionManager typeConversionManager) {
-        typeConversionManager_ = typeConversionManager;
     }
 
     public Action newAction(Object page, Class<?> pageClass, Method method) {
@@ -52,25 +33,8 @@ public class ActionManagerImpl implements ActionManager {
 
     public MethodInvoker newMethodInvoker(Class<?> pageClass, Method method,
             Object[] extendedParams) {
-        Class<?>[] types = method.getParameterTypes();
-        ScopeAttributeResolver[] resolvers = scopeManager_.getMetaData(
-                pageClass).getScopeAttributeResolversForParameters(method);
-        Object[] params = new Object[types.length];
-        int buttonParamsIdx = 0;
-        for (int i = 0; i < types.length; i++) {
-            if (resolvers[i] != null) {
-                params[i] = resolvers[i].getValue();
-            } else {
-                Object value = null;
-                if (buttonParamsIdx < extendedParams.length) {
-                    value = extendedParams[buttonParamsIdx++];
-                }
-                params[i] = typeConversionManager_.convert(value, types[i],
-                        annotationHandler_.getMarkedParameterAnnotations(
-                                method, i, TypeConversionHint.class));
-            }
-        }
-        return new MethodInvokerImpl(method, params);
+        return new MethodInvokerImpl(method, scopeManager_.resolveParameters(
+                pageClass, method, extendedParams));
     }
 
     public Action newAction(Object page, MethodInvoker methodInvoker) {
