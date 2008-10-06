@@ -35,7 +35,7 @@ public class ExtraPathMappingImpl implements ExtraPathMapping {
                 matched_.getVariableResolver(), path_, method_, seed);
     }
 
-    public MethodDesc newRenderActionMethodDesc(ActionSelectorSeed seed) {
+    public MethodDesc newPrerenderActionMethodDesc(ActionSelectorSeed seed) {
         return extraData_.newRenderActionMethodDesc(matched_.getPathMapping(),
                 matched_.getVariableResolver(), path_, method_, seed);
     }

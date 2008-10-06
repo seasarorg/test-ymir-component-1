@@ -8,5 +8,5 @@ public interface ExtraPathMapping {
 
     MethodDesc newActionMethodDesc(ActionSelectorSeed seed);
 
-    MethodDesc newRenderActionMethodDesc(ActionSelectorSeed seed);
+    MethodDesc newPrerenderActionMethodDesc(ActionSelectorSeed seed);
 }

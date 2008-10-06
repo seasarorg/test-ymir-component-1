@@ -284,7 +284,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                                 .size() > 0));
         variableMap.put("pageClassDescs", classDescBag
                 .getClassDescs(ClassType.PAGE));
-        variableMap.put("renderActionName", mapping.newRenderActionMethodDesc(
+        variableMap.put("renderActionName", mapping.newPrerenderActionMethodDesc(
                 new ActionSelectorSeedImpl()).getName());
         variableMap.put("createdBeanClassDescs", classDescBag
                 .getCreatedClassDescs(ClassType.BEAN));

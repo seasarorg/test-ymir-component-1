@@ -1,7 +1,5 @@
 package org.seasar.ymir.extension.creator.impl;
 
-import static org.seasar.ymir.extension.Globals.META_NAME_ACTIONTYPE;
-import static org.seasar.ymir.extension.Globals.META_VALUE_ACTIONTYPE_RENDER;
 import static org.seasar.ymir.extension.creator.util.SourceCreatorUtils.newPageComponent;
 import static org.seasar.ymir.extension.creator.util.SourceCreatorUtils.newRequest;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
@@ -159,8 +157,6 @@ public class SourceCreatorImpl implements SourceCreator {
     private static final String PACKAGEPREFIX_JAVA_UTIL = "java.util.";
 
     private static final String RESOURCE_PREAMBLE_JAVA = "org/seasar/ymir/extension/Preamble.java.txt";
-
-    private static final String BODY_RENDER = "_render";
 
     private YmirImpl ymir_;
 
@@ -498,32 +494,9 @@ public class SourceCreatorImpl implements SourceCreator {
 
                 EntityMetaData metaData = new EntityMetaData(this, null, td
                         .getClassDesc().getName());
-                boolean daoExists = addPropertyIfValid(pageClassDescs[i],
-                        new TypeDescImpl(metaData.getDaoClassDesc()),
-                        PropertyDesc.WRITE, classDescSet);
-                boolean dxoExists = addPropertyIfValid(pageClassDescs[i],
-                        new TypeDescImpl(metaData.getDxoClassDesc()),
-                        PropertyDesc.WRITE, classDescSet);
                 addPropertyIfValid(pageClassDescs[i], new TypeDescImpl(metaData
                         .getConverterClassDesc()), PropertyDesc.WRITE,
                         classDescSet);
-
-                if (pds[j].isReadable() && td.isArray() && daoExists
-                        && dxoExists) {
-                    MethodDesc methodDesc = null;
-                    for (MethodDesc md : pageClassDescs[i].getMethodDescs()) {
-                        if (META_VALUE_ACTIONTYPE_RENDER.equals(md
-                                .getMetaFirstValue(META_NAME_ACTIONTYPE))) {
-                            methodDesc = md;
-                            break;
-                        }
-                    }
-                    if (methodDesc != null) {
-                        // TODO [YMIR-1.0] SELECTするコードの生成を廃止する。
-                        // おそらくあわせてMETA_NAME_ACTIONTYPE,META_VALUE_ACTIONTYPE_RENDERも廃止することになる。
-                        addSelectStatement(methodDesc, pds[j], metaData);
-                    }
-                }
             }
 
             // Pageの親クラスが存在しない場合は生成しておく。
@@ -605,14 +578,10 @@ public class SourceCreatorImpl implements SourceCreator {
             if (actionMethodDesc != null) {
                 pageClassDesc.setMethodDesc(actionMethodDesc);
             }
-            MethodDesc renderMethodDesc = getExtraPathMapping(path, method)
-                    .newRenderActionMethodDesc(new ActionSelectorSeedImpl());
-            renderMethodDesc
-                    .setAnnotationDesc(new MetaAnnotationDescImpl(
-                            META_NAME_ACTIONTYPE,
-                            new String[] { META_VALUE_ACTIONTYPE_RENDER },
-                            new Class[0]));
-            pageClassDesc.setMethodDesc(renderMethodDesc);
+            // _prerender()を追加する。
+            MethodDesc prerenderMethodDesc = getExtraPathMapping(path, method)
+                    .newPrerenderActionMethodDesc(new ActionSelectorSeedImpl());
+            pageClassDesc.setMethodDesc(prerenderMethodDesc);
             // _validationFailed(Notes)を追加する。
             MethodDescImpl methodDesc = new MethodDescImpl(
                     ConstraintInterceptor.ACTION_VALIDATIONFAILED);
@@ -1011,27 +980,6 @@ public class SourceCreatorImpl implements SourceCreator {
                     + "Base"), "conversion");
         }
         return pairTypeNames;
-    }
-
-    @SuppressWarnings("unchecked")
-    void addSelectStatement(MethodDesc methodDesc, PropertyDesc propertyDesc,
-            EntityMetaData metaData) {
-        BodyDesc bodyDesc = methodDesc.getBodyDesc();
-        Map<String, Object> root = new HashMap<String, Object>();
-        root.put("entityMetaData", metaData);
-        if (bodyDesc == null) {
-            bodyDesc = new BodyDescImpl(BODY_RENDER, root);
-        } else {
-            bodyDesc.setRoot(root);
-        }
-        List<PropertyDesc> propertyDescList = (List<PropertyDesc>) root
-                .get("propertyDescs");
-        if (propertyDescList == null) {
-            propertyDescList = new ArrayList<PropertyDesc>();
-            root.put("propertyDescs", propertyDescList);
-        }
-        propertyDescList.add(propertyDesc);
-        methodDesc.setBodyDesc(bodyDesc);
     }
 
     boolean addPropertyIfValid(ClassDesc classDesc, TypeDesc typeDesc,

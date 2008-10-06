@@ -8,7 +8,6 @@ import java.util.Map;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
-import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
@@ -17,7 +16,6 @@ import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.extension.creator.impl.BodyDescImpl;
-import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
 import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 
@@ -102,13 +100,6 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
         methodDesc.setBodyDesc(new BodyDescImpl("return "
                 + quote("redirect:" + redirectPath) + ";"));
         classDesc.setMethodDesc(methodDesc);
-        MethodDesc renderMethodDesc = mapping
-                .newRenderActionMethodDesc(new ActionSelectorSeedImpl());
-        renderMethodDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
-                Globals.META_NAME_ACTIONTYPE,
-                new String[] { Globals.META_VALUE_ACTIONTYPE_RENDER },
-                new Class[0]));
-        classDesc.setMethodDesc(renderMethodDesc);
 
         String[] lackingClassNames = null;
         try {
