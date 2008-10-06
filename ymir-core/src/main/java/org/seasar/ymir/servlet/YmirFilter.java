@@ -20,7 +20,6 @@ import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.HttpServletResponseFilter;
-import org.seasar.ymir.LocaleManager;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.MultipartServletRequest;
 import org.seasar.ymir.Request;
@@ -48,14 +47,10 @@ public class YmirFilter implements Filter {
 
     private YmirProcessInterceptor[] ymirProcessInterceptors_;
 
-    private LocaleManager localeManager_;
-
     public void init(FilterConfig config) throws ServletException {
         context_ = config.getServletContext();
         ymir_ = (Ymir) context_.getAttribute(YmirListener.ATTR_YMIR);
         ymirProcessInterceptors_ = ymir_.getYmirProcessInterceptors();
-        localeManager_ = (LocaleManager) ymir_.getApplication()
-                .getS2Container().getComponent(LocaleManager.class);
 
         String dispatcher = config.getInitParameter("dispatcher");
         if (dispatcher != null) {
@@ -136,8 +131,7 @@ public class YmirFilter implements Filter {
                 request = ymir_.prepareForProcessing(ServletUtils
                         .getContextPath(httpRequest), method, httpRequest
                         .getCharacterEncoding(), httpRequest.getParameterMap(),
-                        fileParameterMap, attributeContainer, localeManager_
-                                .getLocale());
+                        fileParameterMap, attributeContainer);
                 context.setComponent(Request.class, request);
             } else {
                 request = (Request) context.getComponent(Request.class);

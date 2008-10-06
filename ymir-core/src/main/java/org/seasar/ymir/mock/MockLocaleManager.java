@@ -2,7 +2,7 @@ package org.seasar.ymir.mock;
 
 import java.util.Locale;
 
-import org.seasar.ymir.LocaleManager;
+import org.seasar.ymir.locale.LocaleManager;
 
 public class MockLocaleManager implements LocaleManager {
     private Locale locale_;

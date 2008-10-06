@@ -1,4 +1,4 @@
-package org.seasar.ymir.impl;
+package org.seasar.ymir.locale.impl;
 
 import java.util.Locale;
 
@@ -9,8 +9,7 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Globals;
-import org.seasar.ymir.LocaleManager;
-import org.seasar.ymir.Request;
+import org.seasar.ymir.locale.LocaleManager;
 import org.seasar.ymir.session.SessionManager;
 import org.seasar.ymir.util.ContainerUtils;
 
@@ -67,19 +66,6 @@ public class LocaleManagerImpl implements LocaleManager {
 
     public void setLocale(Locale locale) {
         sessionManager_.setAttribute(Globals.ATTR_LOCALE, locale);
-        Request request = getRequest();
-        if (request != null) {
-            request.setLocale(locale);
-        }
-    }
-
-    Request getRequest() {
-        S2Container container = getS2Container();
-        if (container.hasComponentDef(Request.class)) {
-            return (Request) container.getComponent(Request.class);
-        } else {
-            return null;
-        }
     }
 
     S2Container getS2Container() {

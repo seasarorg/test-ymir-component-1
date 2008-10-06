@@ -1,7 +1,6 @@
 package org.seasar.ymir;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
@@ -36,13 +35,12 @@ public interface Ymir {
      * @param parameterMap 文字列型のリクエストパラメータが格納されているMap。
      * @param fileParameterMap FormFile型のリクエストパラメータが格納されているMap。
      * @param attributeContainer リクエストスコープの属性を保持するための属性コンテナ。
-     * @param locale 現在のロケール。
      * @return 構築したRequestオブジェクト。
      */
     Request prepareForProcessing(String contextPath, HttpMethod method,
             String characterEncoding, Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap,
-            AttributeContainer attributeContainer, Locale locale);
+            AttributeContainer attributeContainer);
 
     /**
      * ディスパッチの処理を開始します。

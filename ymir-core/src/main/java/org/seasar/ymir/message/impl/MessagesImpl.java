@@ -16,10 +16,10 @@ import org.seasar.kvasir.util.el.EvaluationException;
 import org.seasar.kvasir.util.el.TextTemplateEvaluator;
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.kvasir.util.el.impl.SimpleTextTemplateEvaluator;
-import org.seasar.ymir.LocaleManager;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.locale.LocaleManager;
 import org.seasar.ymir.message.Messages;
 import org.seasar.ymir.util.MessagesUtils;
 

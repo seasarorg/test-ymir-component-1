@@ -20,7 +20,7 @@
   <component name="noteRenderer"
     class="org.seasar.ymir.message.impl.NoteRendererImpl" />
   <component name="localeManager"
-    class="org.seasar.ymir.impl.LocaleManagerImpl" />
+    class="org.seasar.ymir.locale.impl.LocaleManagerImpl" />
   <component name="sessionManager"
     class="org.seasar.ymir.session.impl.SessionManagerImpl" />
   <component name="windowManager"

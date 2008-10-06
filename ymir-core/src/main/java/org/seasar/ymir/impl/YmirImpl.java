@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
@@ -119,14 +118,14 @@ public class YmirImpl implements Ymir {
             HttpMethod method, String characterEncoding,
             final Map<String, String[]> parameterMap,
             final Map<String, FormFile[]> fileParameterMap,
-            final AttributeContainer attributeContainer, final Locale locale) {
+            final AttributeContainer attributeContainer) {
         if (isUnderDevelopment()) {
             method = correctMethod(method, parameterMap);
         }
 
         Request request = new RequestImpl(contextPath, method,
                 characterEncoding, parameterMap, fileParameterMap,
-                attributeContainer, locale);
+                attributeContainer);
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             request = ymirProcessInterceptors_[i].requestCreated(request);
         }

@@ -5,7 +5,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Map;
 
 import org.seasar.ymir.AttributeContainer;
@@ -31,8 +30,6 @@ public class RequestImpl implements FrameworkRequest {
 
     private AttributeContainer attributeContainer_;
 
-    private Locale locale_;
-
     private Dispatch requestDispatch_;
 
     private Dispatch dispatch_;
@@ -45,14 +42,13 @@ public class RequestImpl implements FrameworkRequest {
     public RequestImpl(String contextPath, HttpMethod method,
             String characterEncoding, Map<String, String[]> queryParameterMap,
             Map<String, FormFile[]> fileParameterMap,
-            AttributeContainer attributeContainer, Locale locale) {
+            AttributeContainer attributeContainer) {
         contextPath_ = contextPath;
         method_ = method;
         characterEncoding_ = characterEncoding;
         setQueryParameterMap(queryParameterMap);
         fileParameterMap_ = fileParameterMap;
         attributeContainer_ = attributeContainer;
-        locale_ = locale;
     }
 
     public HttpMethod getMethod() {
@@ -200,14 +196,6 @@ public class RequestImpl implements FrameworkRequest {
 
     public void setAttribute(String name, Object value) {
         attributeContainer_.setAttribute(name, value);
-    }
-
-    public Locale getLocale() {
-        return locale_;
-    }
-
-    public void setLocale(Locale locale) {
-        locale_ = locale;
     }
 
     public Dispatch getRequestDispatch() {

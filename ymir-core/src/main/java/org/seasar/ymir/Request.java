@@ -1,7 +1,6 @@
 package org.seasar.ymir;
 
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Map;
 
 import org.seasar.ymir.util.ServletUtils;
@@ -209,23 +208,6 @@ public interface Request extends AttributeContainer {
      * @return AttributeContainerオブジェクト。
      */
     AttributeContainer getAttributeContainer();
-
-    /**
-     * 現在のリクエストがどのロケールに基づいて処理されているかを返します。
-     *
-     * @return ロケール。nullを返すことはありません。
-     */
-    Locale getLocale();
-
-    /**
-     * ロケールを設定します。
-     * <p>このメソッドはフレームワークによって用いられます。
-     * アプリケーションはこのメソッドを呼び出さないようにして下さい。
-     * </p>
-     * 
-     * @param action アクション。
-     */
-    void setLocale(Locale locale);
 
     /**
      * 現在のディスパッチの処理を開始します。

@@ -1,7 +1,6 @@
 package org.seasar.ymir.mock;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
@@ -62,7 +61,7 @@ public class MockYmir implements Ymir {
     public Request prepareForProcessing(String contextPath, HttpMethod method,
             String characterEncoding, Map<String, String[]> parameterMap,
             Map<String, FormFile[]> fileParameterMap,
-            AttributeContainer attributeContainer, Locale locale) {
+            AttributeContainer attributeContainer) {
         return null;
     }
 

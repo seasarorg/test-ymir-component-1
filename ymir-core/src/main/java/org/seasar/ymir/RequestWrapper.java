@@ -2,7 +2,6 @@ package org.seasar.ymir;
 
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -92,14 +91,6 @@ public class RequestWrapper implements Request {
 
     public Map<String, Object> getExtendedParameterMap() {
         return request_.getExtendedParameterMap();
-    }
-
-    public Locale getLocale() {
-        return request_.getLocale();
-    }
-
-    public void setLocale(Locale locale) {
-        request_.setLocale(locale);
     }
 
     public HttpMethod getMethod() {

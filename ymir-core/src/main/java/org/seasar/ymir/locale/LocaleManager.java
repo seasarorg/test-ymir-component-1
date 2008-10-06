@@ -1,6 +1,8 @@
-package org.seasar.ymir;
+package org.seasar.ymir.locale;
 
 import java.util.Locale;
+
+import org.seasar.ymir.Request;
 
 /**
  * ロケールを管理するためのインタフェースです。

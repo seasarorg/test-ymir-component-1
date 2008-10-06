@@ -2,7 +2,6 @@ package org.seasar.ymir.util;
 
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Map;
 
 import org.seasar.ymir.AttributeContainer;
@@ -91,10 +90,6 @@ class FrameworkRequestImpl implements FrameworkRequest {
         return request_.getFileParameterValues(name);
     }
 
-    public Locale getLocale() {
-        return request_.getLocale();
-    }
-
     public HttpMethod getMethod() {
         return request_.getMethod();
     }
@@ -141,10 +136,6 @@ class FrameworkRequestImpl implements FrameworkRequest {
 
     public void setAttribute(String name, Object value) {
         request_.setAttribute(name, value);
-    }
-
-    public void setLocale(Locale locale) {
-        request_.setLocale(locale);
     }
 
     public void setExtendedParameterMap(Map<String, Object> extendedParameterMap) {

@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -33,8 +32,7 @@ public class RequestImplTest extends TestCase {
                 .put("param", new String[] { "value_q1", "value_q2" });
 
         target_ = new RequestImpl("/context", method, "UTF-8",
-                queryParameterMap_, new HashMap<String, FormFile[]>(), null,
-                Locale.JAPAN);
+                queryParameterMap_, new HashMap<String, FormFile[]>(), null);
 
         PathMapping pathMapping = new YmirPathMapping("/[a-zA-Z_]+.html",
                 "indexPage", "index", null,
