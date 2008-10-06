@@ -41,8 +41,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testGetComponentName() throws Exception {
 
-        String actual = target_.getComponentName("/index.html",
-                HttpMethod.GET);
+        String actual = target_.getComponentName("/index.html", HttpMethod.GET);
 
         assertEquals("indexPage", actual);
     }
@@ -288,7 +287,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertNull(cd.getMethodDesc(md));
     }
 
-    public void testGetClassDesc_引数が0個で返り値がStringのmethodについてはボディを保存するようなBodyDescが生成されること()
+    public void testGetClassDesc_bodyアノテーションが付与されている場合はボディが復元されること()
             throws Exception {
 
         ClassDesc cd = target_.getClassDesc(Class1Base.class);

@@ -780,37 +780,17 @@ public class SourceCreatorImpl implements SourceCreator {
                 continue;
             }
             MethodDesc md = new MethodDescImpl(methods[i]);
-            if (clazz.getName().endsWith("Base")) {
-                if (methods[i].getName().equals(
-                        ConstraintInterceptor.ACTION_PERMISSIONDENIED)) {
-                    // Baseクラスについては、_permissionDeniedのボディが消えると困るので用意する。
-                    ParameterDesc[] ps = md.getParameterDescs();
-                    for (int j = 0; j < ps.length; j++) {
-                        if (PermissionDeniedException.class.getName().equals(
-                                ps[j].getTypeDesc().getName())
-                                && ps[j].getNameAsIs() == null) {
-                            ps[j].setName("ex");
-                            break;
-                        }
-                    }
-                    md.setBodyDesc(new BodyDescImpl(
-                            BodyDesc.KEY_PERMISSIONDENIED,
-                            new HashMap<String, Object>()));
-                } else if (methods[i].getReturnType() == String.class
-                        && methods[i].getParameterTypes().length == 0) {
-                    // Baseクラスについては、引数なしで返り値がStringのメソッドについてはボディを用意する。
-                    // （他のもそうしたいが今はこれだけ）
-                    try {
-                        String value = (String) methods[i].invoke(clazz
-                                .newInstance(), new Object[0]);
-                        BodyDesc bodyDesc = new BodyDescImpl("return "
-                                + quote(value) + ";");
-                        md.setBodyDesc(bodyDesc);
-                    } catch (Throwable ignore) {
-                    }
+            classDesc.setMethodDesc(md);
+            String[] source = md.getMetaValue(Globals.META_NAME_SOURCE);
+            if (source != null) {
+                int idx = 0;
+                md.setBodyDesc(new BodyDescImpl(source[idx++]));
+                ParameterDesc[] parameterDescs = md.getParameterDescs();
+                for (int j = 0; idx < source.length
+                        && j < parameterDescs.length; idx++, j++) {
+                    parameterDescs[j].setName(source[idx]);
                 }
             }
-            classDesc.setMethodDesc(md);
         }
 
         // 特別な処理を行なう。

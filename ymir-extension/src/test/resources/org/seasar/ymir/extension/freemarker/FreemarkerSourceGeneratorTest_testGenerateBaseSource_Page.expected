@@ -41,6 +41,7 @@ public class TestPageBase extends com.example.page.TestPageBaseBase
         param4_ = param4;
     }
 
+    @org.seasar.ymir.annotation.Meta(name="source",value="return \"redirect:/path/to/redirect.html\";")
     public String _get()
     {
         return "redirect:/path/to/redirect.html";

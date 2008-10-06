@@ -67,7 +67,7 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
             String delim = "";
             for (int i = 0; i < objs.length; i++) {
                 sb.append(delim).append(toLiteral(objs[i]));
-                delim = ", ";
+                delim = ",";
             }
             sb.append("}");
             return sb.toString();

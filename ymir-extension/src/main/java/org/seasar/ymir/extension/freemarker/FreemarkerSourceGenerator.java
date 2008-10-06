@@ -3,19 +3,24 @@ package org.seasar.ymir.extension.freemarker;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.io.IORuntimeException;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.EntityMetaData;
 import org.seasar.ymir.extension.creator.MethodDesc;
+import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceGenerator;
+import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
 
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
@@ -49,7 +54,18 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
     public String generateClassSource(String templateName, ClassDesc classDesc) {
         MethodDesc[] mds = classDesc.getMethodDescs();
         for (int i = 0; i < mds.length; i++) {
-            mds[i].setEvaluatedBody(generateBodySource(mds[i].getBodyDesc()));
+            String evaluatedBody = generateBodySource(mds[i].getBodyDesc());
+            mds[i].setEvaluatedBody(evaluatedBody);
+            if (evaluatedBody != null && evaluatedBody.length() > 0) {
+                List<String> list = new ArrayList<String>();
+                list.add(evaluatedBody);
+                for (ParameterDesc pd : mds[i].getParameterDescs()) {
+                    list.add(pd.getName());
+                }
+                mds[i].setAnnotationDesc(new MetaAnnotationDescImpl(
+                        Globals.META_NAME_SOURCE, list.toArray(new String[0]),
+                        new Class[0]));
+            }
         }
         Map<String, Object> root = new HashMap<String, Object>();
         root.put("preamble", sourceCreator_.getJavaPreamble());
