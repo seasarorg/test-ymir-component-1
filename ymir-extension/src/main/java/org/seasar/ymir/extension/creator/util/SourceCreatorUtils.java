@@ -109,7 +109,7 @@ public class SourceCreatorUtils {
             };
         } else {
             RequestImpl created = new RequestImpl(null, method, "UTF-8",
-                    parameterMap, fileParameterMap, null, null);
+                    parameterMap, fileParameterMap, null);
             created.enterDispatch(new DispatchImpl(null, path, null,
                     Dispatcher.REQUEST, null));
             return created;
