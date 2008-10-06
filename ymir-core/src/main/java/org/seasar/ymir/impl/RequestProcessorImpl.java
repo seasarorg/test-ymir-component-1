@@ -258,9 +258,8 @@ public class RequestProcessorImpl implements RequestProcessor {
 
                 pageComponent.accept(visitorForInvokingInPhaseActionInvoking_);
 
-                response = normalizeResponse(adjustResponse(dispatch,
-                        invokeAction(action), action != null ? action
-                                .getTarget() : null), dispatch.getPath());
+                response = adjustResponse(dispatch, invokeAction(action),
+                        action != null ? action.getTarget() : null);
 
                 pageComponent.accept(visitorForInvokingInPhaseActionInvoked_);
 
@@ -306,8 +305,7 @@ public class RequestProcessorImpl implements RequestProcessor {
                 // デフォルト値からResponseを作るようにしている。
                 // （例えば、リクエストパス名がテンプレートパス名ではない場合に、リクエストパス名で
                 // テンプレートが作られてしまうとうれしくない。）
-                response = normalizeResponse(adjustResponse(dispatch, response,
-                        null), dispatch.getPath());
+                response = adjustResponse(dispatch, response, null);
             }
 
             if (logger_.isDebugEnabled()) {
@@ -396,12 +394,6 @@ public class RequestProcessorImpl implements RequestProcessor {
             return false;
         }
         return getS2Container().hasComponentDef(componentKey);
-    }
-
-    // 互換性のため残している。DefaultRequestProcessorを廃止する時に廃止して良い。
-    @Deprecated
-    protected Response normalizeResponse(Response response, String path) {
-        return response;
     }
 
     Object getRequestComponent(Request request) {

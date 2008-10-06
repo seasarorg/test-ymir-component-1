@@ -31,17 +31,6 @@ public class SelfContainedResponse extends ResponseBase {
     public SelfContainedResponse() {
     }
 
-    @Deprecated
-    public SelfContainedResponse(InputStream inputStream) {
-        this(inputStream, DEFAULT_BINARY_CONTENTTYPE);
-    }
-
-    @Deprecated
-    public SelfContainedResponse(InputStream inputStream, String contentType) {
-        setInputStream(inputStream);
-        setContentType(contentType);
-    }
-
     public SelfContainedResponse(InputStreamFactory inputStreamFactory) {
         this(inputStreamFactory, DEFAULT_BINARY_CONTENTTYPE);
     }

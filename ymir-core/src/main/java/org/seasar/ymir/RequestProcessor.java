@@ -10,30 +10,6 @@ package org.seasar.ymir;
  */
 public interface RequestProcessor {
     /**
-     * 代わりにConstraintInterceptor#ACTION_VALIDATIONFAILEDを使って下さい。
-     */
-    @Deprecated
-    String ACTION_VALIDATIONFAILED = "_validationFailed";
-
-    /**
-     * 代わりにConstraintInterceptor#ACTION_PERMISSIONDENIEDを使って下さい。
-     */
-    @Deprecated
-    String ACTION_PERMISSIONDENIED = "_permissionDenied";
-
-    /**
-     * アクション名に対応するメソッドがない場合のデフォルトのアクション名です。
-     */
-    @Deprecated
-    String ACTION_DEFAULT = "_default";
-
-    /**
-     * レンダリングのためにフレームワークによって呼び出されるメソッドの名前です。
-     */
-    @Deprecated
-    String METHOD_RENDER = "_render";
-
-    /**
      * {@link Request}に属性としてPageオブジェクトをバインドする際のキー文字列です。
      */
     String ATTR_SELF = "self";

@@ -14,9 +14,10 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.framework.log.Logger;
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.el.EvaluationException;
@@ -72,6 +73,8 @@ public class YmirPathMapping implements PathMapping {
 
     private String parameterTemplate_;
 
+    private String defaultReturnValueTemplate_;
+
     private Pattern buttonNamePatternForDispatching_ = Pattern
             .compile(BUTTONNAMEPATTERNSTRINGFORDISPATCHING);
 
@@ -81,50 +84,70 @@ public class YmirPathMapping implements PathMapping {
 
     private ActionManager actionManager_;
 
-    private final Logger logger_ = Logger.getLogger(getClass());
+    private final Log log_ = LogFactory.getLog(YmirPathMapping.class);
 
     public YmirPathMapping(String patternString,
             String pageComponentNameTemplate) {
         this(false, patternString, pageComponentNameTemplate,
-                DEFAULT_ACTIONNAMETEMPLATE, null, null);
+                DEFAULT_ACTIONNAMETEMPLATE, null, null, null);
     }
 
     public YmirPathMapping(boolean denied, String patternString,
             String pageComponentNameTemplate) {
         this(denied, patternString, pageComponentNameTemplate,
-                DEFAULT_ACTIONNAMETEMPLATE, null, null);
+                DEFAULT_ACTIONNAMETEMPLATE, null, null, null);
     }
 
     public YmirPathMapping(String patternString,
             String pageComponentNameTemplate, String pathInfoTemplate,
             String parameterTemplate) {
         this(false, patternString, pageComponentNameTemplate,
-                DEFAULT_ACTIONNAMETEMPLATE, pathInfoTemplate, parameterTemplate);
+                DEFAULT_ACTIONNAMETEMPLATE, pathInfoTemplate,
+                parameterTemplate, null);
     }
 
     public YmirPathMapping(boolean denied, String patternString,
             String pageComponentNameTemplate, String pathInfoTemplate,
             String parameterTemplate) {
         this(denied, patternString, pageComponentNameTemplate,
-                DEFAULT_ACTIONNAMETEMPLATE, pathInfoTemplate, parameterTemplate);
+                DEFAULT_ACTIONNAMETEMPLATE, pathInfoTemplate,
+                parameterTemplate, null);
     }
 
     public YmirPathMapping(String patternString,
             String pageComponentNameTemplate, String actionNameTemplate,
             String pathInfoTemplate, String parameterTemplate) {
         this(false, patternString, pageComponentNameTemplate,
-                actionNameTemplate, pathInfoTemplate, parameterTemplate);
+                actionNameTemplate, pathInfoTemplate, parameterTemplate, null);
     }
 
     public YmirPathMapping(boolean denied, String patternString,
             String pageComponentNameTemplate, String actionNameTemplate,
             String pathInfoTemplate, String parameterTemplate) {
+        this(denied, patternString, pageComponentNameTemplate,
+                actionNameTemplate, pathInfoTemplate, parameterTemplate, null);
+    }
+
+    public YmirPathMapping(String patternString,
+            String pageComponentNameTemplate, String actionNameTemplate,
+            String pathInfoTemplate, String parameterTemplate,
+            String defaultReturnValueTemplate) {
+        this(false, pageComponentNameTemplate, pageComponentNameTemplate,
+                actionNameTemplate, pathInfoTemplate, parameterTemplate,
+                defaultReturnValueTemplate);
+    }
+
+    public YmirPathMapping(boolean denied, String patternString,
+            String pageComponentNameTemplate, String actionNameTemplate,
+            String pathInfoTemplate, String parameterTemplate,
+            String defaultReturnValueTemplate) {
         denied_ = denied;
         pattern_ = Pattern.compile(patternString);
         setPageComponentNameTemplate(pageComponentNameTemplate);
         actionNameTemplate_ = actionNameTemplate;
         pathInfoTemplate_ = pathInfoTemplate;
         parameterTemplate_ = parameterTemplate;
+        defaultReturnValueTemplate_ = defaultReturnValueTemplate;
     }
 
     void setPageComponentNameTemplate(String pageComponentNameTemplate) {
@@ -303,8 +326,7 @@ public class YmirPathMapping implements PathMapping {
     }
 
     public Object getDefaultReturnValue(VariableResolver resolver) {
-        // シンプルにするため、YmirPathMappingではデフォルトの返り値は扱わない。
-        return null;
+        return evaluate(defaultReturnValueTemplate_, resolver);
     }
 
     String evaluate(String template, VariableResolver resolver) {
@@ -396,16 +418,16 @@ public class YmirPathMapping implements PathMapping {
     protected Action getActionForButton(Object page, Class<?> pageClass,
             String actionName, Request request) {
         Method[] methods = ClassUtils.getMethods(pageClass);
-        if (logger_.isDebugEnabled()) {
-            logger_.debug("getActionByParameter: search " + pageClass + " for "
+        if (log_.isDebugEnabled()) {
+            log_.debug("getActionByParameter: search " + pageClass + " for "
                     + actionName + " method...");
         }
         for (int i = 0; i < methods.length; i++) {
             Action action = createActionForButton(page, pageClass, methods[i],
                     actionName, request);
             if (action != null) {
-                if (logger_.isDebugEnabled()) {
-                    logger_.debug("getActionByParameter: Found: " + methods[i]);
+                if (log_.isDebugEnabled()) {
+                    log_.debug("getActionByParameter: Found: " + methods[i]);
                 }
                 return action;
             }
@@ -454,8 +476,8 @@ public class YmirPathMapping implements PathMapping {
             String actionName, Request request) {
         Method[] methods = ClassUtils.getMethods(pageClass, actionName);
         if (methods.length == 1) {
-            if (logger_.isDebugEnabled()) {
-                logger_.debug("getAction: Found: " + methods[0]);
+            if (log_.isDebugEnabled()) {
+                log_.debug("getAction: Found: " + methods[0]);
             }
             return actionManager_.newAction(page, pageClass, methods[0]);
         } else if (methods.length == 0) {

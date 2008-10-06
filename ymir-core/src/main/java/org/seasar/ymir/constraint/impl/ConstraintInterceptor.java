@@ -206,14 +206,6 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             return suppress.value();
         }
 
-        // 後方互換性のため。
-        org.seasar.ymir.annotation.SuppressConstraints suppress2 = annotationHandler_
-                .getAnnotation(actionMethod,
-                        org.seasar.ymir.annotation.SuppressConstraints.class);
-        if (suppress2 != null) {
-            return suppress2.value();
-        }
-
         return null;
     }
 
@@ -401,14 +393,6 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
                 Validator.class);
         if (validator != null) {
             return validator.value();
-        }
-
-        // 後方互換性のため。
-        org.seasar.ymir.annotation.Validator validator2 = annotationHandler_
-                .getAnnotation(method,
-                        org.seasar.ymir.annotation.Validator.class);
-        if (validator2 != null) {
-            return validator2.value();
         }
 
         return null;

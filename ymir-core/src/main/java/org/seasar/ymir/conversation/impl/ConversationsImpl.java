@@ -205,12 +205,6 @@ public class ConversationsImpl implements Conversations, Serializable {
         conversationStack_.clear();
     }
 
-    @Deprecated
-    public synchronized void beginSubConversation(String conversationName,
-            Object reenterResponse) {
-        beginSubConversation(reenterResponse);
-    }
-
     public synchronized void beginSubConversation(Object reenterResponse) {
         if (currentConversation_ == null) {
             throw new RuntimeException("Conversation is not begun");

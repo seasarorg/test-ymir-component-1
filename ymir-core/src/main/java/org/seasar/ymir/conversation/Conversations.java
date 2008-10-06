@@ -128,9 +128,6 @@ public interface Conversations {
      */
     boolean isInSubConversation();
 
-    @Deprecated
-    void beginSubConversation(String conversationName, Object reenterResponse);
-
     /**
      * sub-conversationを開始します。
      * <p>sub-conversationはconversationの入れ子で、
