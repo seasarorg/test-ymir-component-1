@@ -37,6 +37,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.cms.pluggable.ClassTraverser;
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
@@ -45,7 +47,6 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.convention.NamingConvention;
-import org.seasar.framework.log.Logger;
 import org.seasar.framework.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.framework.mock.servlet.MockHttpServletResponseImpl;
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
@@ -223,7 +224,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
     private boolean initialized_;
 
-    public Logger logger_ = Logger.getLogger(getClass());
+    public Log log_ = LogFactory.getLog(SourceCreatorImpl.class);
 
     @Binding(bindingType = BindingType.MUST)
     public void setTemplateAnalyzer(TemplateAnalyzer analyzer) {
@@ -361,7 +362,7 @@ public class SourceCreatorImpl implements SourceCreator {
         String projectRoot = SourceCreatorUtils
                 .findProjectRootDirectory(application);
         application.setProjectRoot(projectRoot);
-        logger_.info("Project root has been detected and set automatically: "
+        log_.info("Project root has been detected and set automatically: "
                 + projectRoot);
     }
 
@@ -1339,7 +1340,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     fis = new FileInputStream(file);
                     sourceCreatorProperties_.load(new BufferedInputStream(fis));
                 } catch (IOException ex) {
-                    logger_.error("Can't read properties: " + file);
+                    log_.error("Can't read properties: " + file);
                 } finally {
                     if (fis != null) {
                         try {
@@ -1376,7 +1377,7 @@ public class SourceCreatorImpl implements SourceCreator {
             prop.store(new BufferedOutputStream(fos), "ISO-8859-1");
             fos = null;
         } catch (IOException ex) {
-            logger_.error("Can't write properties: " + file);
+            log_.error("Can't write properties: " + file);
         } finally {
             if (fos != null) {
                 try {
