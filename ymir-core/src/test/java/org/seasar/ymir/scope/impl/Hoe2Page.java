@@ -1,12 +1,12 @@
-package org.seasar.ymir.impl;
+package org.seasar.ymir.scope.impl;
 
 import java.util.Map;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.ymir.FormFile;
-import org.seasar.ymir.annotation.In;
-import org.seasar.ymir.annotation.Out;
-import org.seasar.ymir.annotation.RequestParameter;
+import org.seasar.ymir.scope.annotation.In;
+import org.seasar.ymir.scope.annotation.Out;
+import org.seasar.ymir.scope.annotation.RequestParameter;
 import org.seasar.ymir.scope.impl.SessionScope;
 
 public class Hoe2Page {

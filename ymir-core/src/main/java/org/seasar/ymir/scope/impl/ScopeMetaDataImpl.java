@@ -1,4 +1,4 @@
-package org.seasar.ymir.impl;
+package org.seasar.ymir.scope.impl;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -8,20 +8,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.seasar.framework.container.S2Container;
-import org.seasar.framework.util.ArrayUtil;
-import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.MethodNotFoundRuntimeException;
-import org.seasar.ymir.Phase;
-import org.seasar.ymir.annotation.In;
-import org.seasar.ymir.annotation.Invoke;
-import org.seasar.ymir.annotation.Out;
-import org.seasar.ymir.annotation.Populate;
-import org.seasar.ymir.annotation.Resolve;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.converter.annotation.TypeConversionHint;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.ScopeManager;
+import org.seasar.ymir.scope.ScopeMetaData;
+import org.seasar.ymir.scope.annotation.In;
+import org.seasar.ymir.scope.annotation.Out;
+import org.seasar.ymir.scope.annotation.Populate;
+import org.seasar.ymir.scope.annotation.Resolve;
 import org.seasar.ymir.scope.handler.ScopeAttributeInjector;
 import org.seasar.ymir.scope.handler.ScopeAttributeOutjector;
 import org.seasar.ymir.scope.handler.ScopeAttributePopulator;
@@ -30,12 +27,10 @@ import org.seasar.ymir.scope.handler.impl.ScopeAttributeInjectorImpl;
 import org.seasar.ymir.scope.handler.impl.ScopeAttributeOutjectorImpl;
 import org.seasar.ymir.scope.handler.impl.ScopeAttributePopulatorImpl;
 import org.seasar.ymir.scope.handler.impl.ScopeAttributeResolverImpl;
-import org.seasar.ymir.scope.impl.ComponentScope;
-import org.seasar.ymir.scope.impl.RequestScope;
 import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ClassUtils;
 
-public class ComponentMetaDataImpl implements ComponentMetaData {
+public class ScopeMetaDataImpl implements ScopeMetaData {
     private Class<?> class_;
 
     private S2Container container_;
@@ -50,13 +45,11 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
 
     private List<ScopeAttributeOutjector> scopeAttributeOutjectorList_ = new ArrayList<ScopeAttributeOutjector>();
 
-    private Map<Phase, Method[]> methodsMap_ = new HashMap<Phase, Method[]>();
-
     private Map<Scope, ScopeAttributePopulatorImpl> scopeAttributePopulatorMap_ = new HashMap<Scope, ScopeAttributePopulatorImpl>();
 
     private Map<Method, ScopeAttributeResolver[]> scopeAttributeResolversMap_ = new HashMap<Method, ScopeAttributeResolver[]>();
 
-    public ComponentMetaDataImpl(Class<?> clazz, S2Container container,
+    public ScopeMetaDataImpl(Class<?> clazz, S2Container container,
             AnnotationHandler annotationHandler, ScopeManager scopeManager,
             TypeConversionManager typeConversionManager) {
         class_ = clazz;
@@ -99,22 +92,6 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
             registerForOutjectionToScope(out, method);
         }
 
-        Invoke invoke = annotationHandler_.getAnnotation(method, Invoke.class);
-        if (invoke != null) {
-            if (method.getParameterTypes().length > 0) {
-                throw new RuntimeException(
-                        "Can't annotate method that has parameter with @Invoke");
-            }
-            Phase phase = invoke.value();
-            Method[] methods = methodsMap_.get(phase);
-            if (methods == null) {
-                methods = new Method[] { method };
-            } else {
-                methods = (Method[]) ArrayUtil.add(methods, method);
-            }
-            methodsMap_.put(phase, methods);
-        }
-
         // メソッドの引数についてScopeAttributeResolverを生成して登録する。
         Class<?>[] types = method.getParameterTypes();
         ScopeAttributeResolver[] resolvers = new ScopeAttributeResolver[types.length];
@@ -125,8 +102,8 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
             if (is.length > 0) {
                 resolver = new ScopeAttributeResolverImpl(types[i],
                         annotationHandler_.getMarkedParameterAnnotations(
-                                method, i, TypeConversionHint.class), scopeManager_,
-                        typeConversionManager_);
+                                method, i, TypeConversionHint.class),
+                        scopeManager_, typeConversionManager_);
                 for (int j = 0; j < is.length; j++) {
                     resolver.addEntry(getScope(is[j]), is[j].value(), is[j]
                             .required());
@@ -189,8 +166,8 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
                 toAttributeName(method.getName(), in.name()), method
                         .getParameterTypes()[0], annotationHandler_
                         .getMarkedParameterAnnotations(method, 0,
-                                TypeConversionHint.class), getScope(in), method, in
-                        .injectWhereNull(), in.required(), in.actionName(),
+                                TypeConversionHint.class), getScope(in),
+                method, in.injectWhereNull(), in.required(), in.actionName(),
                 scopeManager_));
     }
 
@@ -265,10 +242,6 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
 
     Object getComponent(Object key) {
         return container_.getComponent(key);
-    }
-
-    public Method[] getMethods(Phase phase) {
-        return methodsMap_.get(phase);
     }
 
     public ScopeAttributeResolver[] getScopeAttributeResolversForParameters(

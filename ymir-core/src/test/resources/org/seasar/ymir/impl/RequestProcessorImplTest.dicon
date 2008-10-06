@@ -80,7 +80,6 @@
       </meta>
     </property>
   </component>
-  <component class="org.seasar.ymir.impl.PageProcessorImpl" />
   <component class="org.seasar.ymir.impl.ResponseProcessorImpl" />
   <component class="org.seasar.ymir.impl.ExceptionProcessorImpl" />
   <component

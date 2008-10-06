@@ -4,29 +4,15 @@ import java.util.Map;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.cache.CacheManager;
-import org.seasar.ymir.converter.TypeConversionManager;
-import org.seasar.ymir.scope.ScopeManager;
 
 public class ComponentMetaDataFactoryImpl implements ComponentMetaDataFactory {
-    private ApplicationManager applicationManager_;
-
     private AnnotationHandler annotationHandler_;
 
-    private ScopeManager scopeManager_;
-
-    private TypeConversionManager typeConversionManager_;
-
     private Map<Class<?>, ComponentMetaData> metaDataMap_;
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setApplicationManager(ApplicationManager applicationManager) {
-        applicationManager_ = applicationManager;
-    }
 
     @Binding(bindingType = BindingType.MUST)
     public void setAnnotationHandler(AnnotationHandler annotationHandler) {
@@ -36,17 +22,6 @@ public class ComponentMetaDataFactoryImpl implements ComponentMetaDataFactory {
     @Binding(bindingType = BindingType.MUST)
     public void setCacheManager(CacheManager cacheManager) {
         metaDataMap_ = cacheManager.newMap();
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setScopeManager(ScopeManager scopeManager) {
-        scopeManager_ = scopeManager;
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setTypeConversionManager(
-            TypeConversionManager typeConversionManager) {
-        typeConversionManager_ = typeConversionManager;
     }
 
     public ComponentMetaData getInstance(Class<?> clazz) {
@@ -59,8 +34,6 @@ public class ComponentMetaDataFactoryImpl implements ComponentMetaDataFactory {
     }
 
     protected ComponentMetaData newInstance(Class<?> clazz) {
-        return new ComponentMetaDataImpl(clazz, applicationManager_
-                .findContextApplication().getS2Container(), annotationHandler_,
-                scopeManager_, typeConversionManager_);
+        return new ComponentMetaDataImpl(clazz, annotationHandler_);
     }
 }

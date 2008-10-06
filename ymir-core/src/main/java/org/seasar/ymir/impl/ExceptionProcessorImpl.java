@@ -9,8 +9,6 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.ExceptionProcessor;
-import org.seasar.ymir.PageComponent;
-import org.seasar.ymir.PageProcessor;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
@@ -27,8 +25,6 @@ import org.seasar.ymir.util.YmirUtils;
 public class ExceptionProcessorImpl implements ExceptionProcessor {
     private Ymir ymir_;
 
-    private PageProcessor pageProcessor_;
-
     private ComponentMetaDataFactory componentMetaDataFactory_;
 
     private ResponseConstructorSelector responseConstructorSelector_;
@@ -40,11 +36,6 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
         ymir_ = ymir;
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setPageProcessor(PageProcessor pageProcessor) {
-        pageProcessor_ = pageProcessor;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -118,26 +109,28 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         }
         // この時点でhandlerCdがnullならymir-convention.diconの記述ミス。
 
-        ExceptionHandler<Throwable> handler = (ExceptionHandler<Throwable>) handlerCd
+        final ExceptionHandler<? extends Throwable> originalHandler = (ExceptionHandler<? extends Throwable>) handlerCd
                 .getComponent();
 
-        // 各コンテキストが持つ属性をinjectする。
-        PageComponent pageComponent = new PageComponentImpl(handler, handlerCd
-                .getComponentClass());
-        // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
-        // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
-        pageProcessor_.populateScopeAttributes(pageComponent, null);
-        pageProcessor_.injectScopeAttributes(pageComponent, null);
+        ExceptionHandler<? extends Throwable> handler = originalHandler;
+        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+            handler = ymirProcessInterceptors_[i].exceptionHandlerInvoking(
+                    originalHandler, handler);
+        }
 
-        Response response = constructResponse(handler.handle(t));
+        Response response = constructResponse(((ExceptionHandler<Throwable>) handler)
+                .handle(t));
+
+        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+            response = ymirProcessInterceptors_[i]
+                    .responseCreatedByExceptionHandler(handler, response);
+        }
+
         if (response.getType() == ResponseType.PASSTHROUGH) {
             response = new ForwardResponse(PATH_EXCEPTION_TEMPLATE
                     + getClassShortName(exceptionClass)
                     + SUFFIX_EXCEPTION_TEMPLATE);
         }
-
-        // 各コンテキストに属性をoutjectする。
-        pageProcessor_.outjectScopeAttributes(pageComponent, null);
 
         // ExceptionHandlerコンポーネントと例外オブジェクトをattributeとしてバインドしておく。
         request.setAttribute(ATTR_HANDLER, handler);

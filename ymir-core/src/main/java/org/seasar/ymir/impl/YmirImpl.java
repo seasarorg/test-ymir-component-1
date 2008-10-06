@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.cms.pluggable.Configuration;
-import org.seasar.cms.pluggable.ThreadContext;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.el.VariableResolver;
@@ -199,7 +198,8 @@ public class YmirImpl implements Ymir {
     public Response processRequest(final Request request) {
         Response response = requestProcessor_.process(request);
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-            response = ymirProcessInterceptors_[i].responseCreated(response);
+            response = ymirProcessInterceptors_[i].responseCreated(request,
+                    response);
         }
         request.setAttribute(ATTR_RESPONSE, response);
         return response;
@@ -251,11 +251,6 @@ public class YmirImpl implements Ymir {
                 (Map<String, String[]>) backuppeds[1]);
         requestProcessor_
                 .restoreForInclusion(attributeContainer, backuppeds[0]);
-    }
-
-    protected ThreadContext getThreadContext() {
-        return (ThreadContext) getApplication().getS2Container().getRoot()
-                .getComponent(ThreadContext.class);
     }
 
     public Response processException(final Request request, final Throwable t) {
@@ -320,7 +315,7 @@ public class YmirImpl implements Ymir {
     }
 
     protected RequestImpl getUnwrappedRequest() {
-        return YmirUtils.unwrapRequest(((Request) getThreadContext()
-                .getComponent(Request.class)));
+        return YmirUtils.unwrapRequest(((Request) getApplication()
+                .getS2Container().getComponent(Request.class)));
     }
 }

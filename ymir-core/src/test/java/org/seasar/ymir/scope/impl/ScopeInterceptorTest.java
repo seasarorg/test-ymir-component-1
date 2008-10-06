@@ -1,12 +1,13 @@
-package org.seasar.ymir.impl;
+package org.seasar.ymir.scope.impl;
 
 import org.seasar.ymir.ComponentClientTestCase;
-import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.annotation.MapParameter;
-import org.seasar.ymir.scope.impl.MapScope;
+import org.seasar.ymir.impl.Bean;
+import org.seasar.ymir.impl.PageComponentImpl;
+import org.seasar.ymir.scope.ScopeManager;
 
-public class PageProcessorImplTest extends ComponentClientTestCase {
-    private PageProcessorImpl target_;
+public class ScopeInterceptorTest extends ComponentClientTestCase {
+    private ScopeInterceptor target_;
 
     private MapScope mapScope_;
 
@@ -17,9 +18,8 @@ public class PageProcessorImplTest extends ComponentClientTestCase {
         mapScope_ = new MapScope();
         register(mapScope_);
 
-        target_ = new PageProcessorImpl();
-        target_
-                .setComponentMetaDataFactory(getComponent(ComponentMetaDataFactory.class));
+        target_ = new ScopeInterceptor();
+        target_.setScopeManager(getComponent(ScopeManager.class));
     }
 
     public void testPopulateScopeAttributes() throws Exception {

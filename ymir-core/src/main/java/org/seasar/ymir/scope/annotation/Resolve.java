@@ -1,4 +1,4 @@
-package org.seasar.ymir.annotation;
+package org.seasar.ymir.scope.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

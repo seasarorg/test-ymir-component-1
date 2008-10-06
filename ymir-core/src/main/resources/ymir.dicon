@@ -59,8 +59,6 @@
       </meta>
     </property>
   </component>
-  <component name="pageProcessor"
-    class="org.seasar.ymir.impl.PageProcessorImpl" />
   <component name="responseProcessor"
     class="org.seasar.ymir.impl.ResponseProcessorImpl">
     <property name="updaters" bindingType="none">

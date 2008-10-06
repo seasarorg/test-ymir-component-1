@@ -159,7 +159,7 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public Response responseCreated(Response response) {
+    public Response responseCreated(Request request, Response response) {
         Pair<?>[] pairs = getPairs();
         for (int i = 0; i < pairs.length; i++) {
             response = pairs[i].responseCreated(response);

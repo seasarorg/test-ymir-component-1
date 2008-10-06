@@ -5,6 +5,16 @@ import java.lang.annotation.Annotation;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.converter.annotation.TypeConversionHint;
 
+/**
+ * スコープに関する操作を行なうためのインタフェースです。
+ * 
+ * <p><b>同期化：</b>
+ * このインタフェースの実装クラスはスレッドセーフである必要があります。
+ * </p>
+ * 
+ * @author YOKOTA Takehiko
+ * @since 1.0.0
+ */
 public interface ScopeManager {
     /**
      * 指定されたスコープから指定された名前とタイプに対応する属性の値を取り出して返します。
@@ -48,10 +58,18 @@ public interface ScopeManager {
      * @return 属性の値。
      * @throws AttributeNotFoundRuntimeException requiredがtrueである場合で値が見つからなかったかnullであった時。
      * @see TypeConversionManager#convert(Object, Class, Annotation[])
-     * @since 1.0.0
      */
     <T> T getAttribute(Scope scope, String name, Class<T> type,
             Annotation[] hint, boolean required,
             boolean convertNullToDefaultValueWhereTypeIsPrimitive)
             throws AttributeNotFoundRuntimeException;
+
+    /**
+     * 指定されたクラスについてのスコープ関連のメタ情報を保持する{@link ScopeMetaData}オブジェクトを返します。
+     * 
+     * @param clazz クラス。nullを指定してはいけません。
+     * @return {@link ScopeMetaData}オブジェクト。
+     * @see ScopeMetaData
+     */
+    ScopeMetaData getMetaData(Class<?> clazz);
 }

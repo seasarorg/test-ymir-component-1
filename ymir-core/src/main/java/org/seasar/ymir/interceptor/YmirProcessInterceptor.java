@@ -10,6 +10,7 @@ import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseProcessor;
+import org.seasar.ymir.handler.ExceptionHandler;
 
 /**
  * Ymirの処理の途中で独自の処理を挟み込むためのインタフェースです。
@@ -95,10 +96,11 @@ public interface YmirProcessInterceptor {
      * <p>Responseオブジェクトを加工しない場合は引数で渡されたResponseオブジェクトをそのまま返すようにして下さい。
      * </p>
      * 
+     * @param request 現在のRequestオブジェクト。
      * @param response フレームワークによって構築されたResponseオブジェクト。
-     * @return Responseオブジェクト。
+     * @return Responseオブジェクト。nullを返してはいけません。
      */
-    Response responseCreated(Response response);
+    Response responseCreated(Request request, Response response);
 
     /**
      * {@link ResponseProcessor#process(ServletContext, HttpServletRequest, HttpServletResponse, Request, Response)}
@@ -156,4 +158,33 @@ public interface YmirProcessInterceptor {
      * @since 1.0.0
      */
     Response exceptionProcessingStarted(Request request, Throwable t);
+
+    /**
+     * 例外ハンドラの処理が実行される前に、
+     * {@link ExceptionHandler}オブジェクトを加工できるように呼び出されるメソッドです。
+     * <p>{@link ExceptionHandler}オブジェクトを加工しない場合は引数で渡された{@link ExceptionHandler}オブジェクトをそのまま返すようにして下さい。
+     * </p>
+     * 
+     * @param originalHandler 元もとの{@link ExceptionHandler}オブジェクト。
+     * @param handler 現在の{@link ExceptionHandler}オブジェクト。
+     * 他のYmirProcessInterceptorによって元もとの{@link ExceptionHandler}ではないものに差し替えられていることがあります。
+     * nullであることはありません。
+     * @return {@link ExceptionHandler}オブジェクト。nullを返してはいけません。
+     */
+    ExceptionHandler<? extends Throwable> exceptionHandlerInvoking(
+            ExceptionHandler<? extends Throwable> originalHandler,
+            ExceptionHandler<? extends Throwable> handler);
+
+    /**
+     * フレームワークが例外ハンドラの処理結果からResponseオブジェクトを構築した際に、
+     * Responseオブジェクトを加工できるように呼び出されるメソッドです。
+     * <p>Responseオブジェクトを加工しない場合は引数で渡されたResponseオブジェクトをそのまま返すようにして下さい。
+     * </p>
+     * 
+     * @param handler {@link ExceptionHandler}オブジェクト。
+     * @param response フレームワークによって構築されたResponseオブジェクト。
+     * @return Responseオブジェクト。nullを返してはいけません。
+     */
+    Response responseCreatedByExceptionHandler(
+            ExceptionHandler<? extends Throwable> handler, Response response);
 }

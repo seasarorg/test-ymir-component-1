@@ -1,5 +1,7 @@
 package org.seasar.ymir.impl;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -17,6 +19,7 @@ import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionNotFoundRuntimeException;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.AttributeContainer;
+import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
@@ -26,19 +29,17 @@ import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.PageNotFoundRuntimeException;
-import org.seasar.ymir.PageProcessor;
 import org.seasar.ymir.Phase;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.Updater;
+import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.Include;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.constraint.ConstraintType;
-import org.seasar.ymir.converter.TypeConversionManager;
-import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
@@ -55,12 +56,6 @@ public class RequestProcessorImpl implements RequestProcessor {
     private ApplicationManager applicationManager_;
 
     private AnnotationHandler annotationHandler_;
-
-    private HotdeployManager hotdeployManager_;
-
-    private TypeConversionManager typeConversionManager_;
-
-    private PageProcessor pageProcessor_;
 
     private ComponentMetaDataFactory componentMetaDataFactory_;
 
@@ -79,12 +74,6 @@ public class RequestProcessorImpl implements RequestProcessor {
     private final PageComponentVisitor<Object> visitorForInvokingInPhaseActionInvoked_ = new VisitorForInvoking(
             Phase.ACTION_INVOKED);
 
-    private final PageComponentVisitor<Object> visitorForInvokingInPhaseScopeObjectOutjecting_ = new VisitorForInvoking(
-            Phase.SCOPEOBJECT_OUTJECTING);
-
-    private final PageComponentVisitor<Object> visitorForInvokingInPhaseScopeObjectOutjected_ = new VisitorForInvoking(
-            Phase.SCOPEOBJECT_OUTJECTED);
-
     private final Log log_ = LogFactory.getLog(RequestProcessorImpl.class);
 
     @Binding(bindingType = BindingType.MUST)
@@ -100,22 +89,6 @@ public class RequestProcessorImpl implements RequestProcessor {
     @Binding(bindingType = BindingType.MUST)
     public void setAnnotationHandler(AnnotationHandler annotationHandler) {
         annotationHandler_ = annotationHandler;
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setHotdeployManager(HotdeployManager hotdeployManager) {
-        hotdeployManager_ = hotdeployManager;
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setTypeConversionManager(
-            TypeConversionManager typeConversionManager) {
-        typeConversionManager_ = typeConversionManager;
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setPageProcessor(PageProcessor pageProcessor) {
-        pageProcessor_ = pageProcessor;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -255,8 +228,6 @@ public class RequestProcessorImpl implements RequestProcessor {
                             dispatch.getPath(), request.getMethod());
                 }
 
-                pageComponent.accept(new VisitorForPreparing(request));
-
                 pageComponent.accept(visitorForInvokingInPhaseActionInvoking_);
 
                 response = adjustResponse(dispatch, invokeAction(action),
@@ -286,14 +257,6 @@ public class RequestProcessorImpl implements RequestProcessor {
                         pageComponent.accept(new VisitorForRendering(request));
                     }
                 }
-
-                pageComponent
-                        .accept(visitorForInvokingInPhaseScopeObjectOutjecting_);
-
-                pageComponent.accept(new VisitorForFinishing(request));
-
-                pageComponent
-                        .accept(visitorForInvokingInPhaseScopeObjectOutjected_);
 
                 // Pageコンポーネントをattributeとしてバインドしておく。
                 request.setAttribute(ATTR_PAGECOMPONENT, pageComponent);
@@ -490,32 +453,25 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
 
         public Object process(PageComponent pageComponent) {
-            pageProcessor_.invokeMethods(pageComponent, phase_);
-            return null;
-        }
-    }
-
-    protected class VisitorForPreparing extends PageComponentVisitor<Object> {
-        private Request request_;
-
-        public VisitorForPreparing(Request request) {
-            request_ = request;
-        }
-
-        public Object process(PageComponent pageComponent) {
-            Dispatch dispatch = request_.getCurrentDispatch();
-
-            pageProcessor_.invokeMethods(pageComponent,
-                    Phase.SCOPEOBJECT_INJECTING);
-
-            // 各コンテキストが持つ属性をpopulateする。
-            pageProcessor_.populateScopeAttributes(pageComponent, dispatch
-                    .getActionName());
-
-            // 各コンテキストが持つ属性をinjectする。
-            pageProcessor_.injectScopeAttributes(pageComponent, dispatch
-                    .getActionName());
-
+            ComponentMetaData metaData = componentMetaDataFactory_
+                    .getInstance(pageComponent.getPageClass());
+            Method[] methods = metaData.getMethods(phase_);
+            if (methods != null) {
+                for (int i = 0; i < methods.length; i++) {
+                    try {
+                        methods[i].invoke(pageComponent.getPage(),
+                                new Object[0]);
+                    } catch (IllegalArgumentException ex) {
+                        throw new RuntimeException(
+                                "Can't invoke method with parameters", ex);
+                    } catch (IllegalAccessException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (InvocationTargetException ex) {
+                        throw new WrappingRuntimeException(ex
+                                .getTargetException());
+                    }
+                }
+            }
             return null;
         }
     }
@@ -532,21 +488,6 @@ public class RequestProcessorImpl implements RequestProcessor {
 
         public Object process(PageComponent pageComponent) {
             invokeAction(matched_.getRenderAction(pageComponent, request_));
-            return null;
-        }
-    }
-
-    protected class VisitorForFinishing extends PageComponentVisitor<Object> {
-        private Dispatch dispatch_;
-
-        public VisitorForFinishing(Request request) {
-            dispatch_ = request.getCurrentDispatch();
-        }
-
-        public Object process(PageComponent pageComponent) {
-            // 各コンテキストに属性をoutjectする。
-            pageProcessor_.outjectScopeAttributes(pageComponent, dispatch_
-                    .getActionName());
             return null;
         }
     }

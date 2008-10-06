@@ -1,14 +1,12 @@
-package org.seasar.ymir.impl;
+package org.seasar.ymir.scope.impl;
 
 import org.seasar.ymir.ComponentClientTestCase;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.scope.ScopeManager;
-import org.seasar.ymir.scope.impl.RequestParameterScope;
-import org.seasar.ymir.scope.impl.SessionScope;
 
-public class ComponentMetaDataImplTest extends ComponentClientTestCase {
-    private ComponentMetaDataImpl target_;
+public class ScopeMetaDataImplTest extends ComponentClientTestCase {
+    private ScopeMetaDataImpl target_;
 
     @Override
     protected void setUp() throws Exception {
@@ -17,7 +15,7 @@ public class ComponentMetaDataImplTest extends ComponentClientTestCase {
         register(RequestParameterScope.class);
         register(SessionScope.class);
 
-        target_ = new ComponentMetaDataImpl(Hoe2Page.class, getContainer(),
+        target_ = new ScopeMetaDataImpl(Hoe2Page.class, getContainer(),
                 getComponent(AnnotationHandler.class),
                 getComponent(ScopeManager.class),
                 getComponent(TypeConversionManager.class)) {

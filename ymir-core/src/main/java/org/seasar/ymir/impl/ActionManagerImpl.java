@@ -6,17 +6,17 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionManager;
-import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.converter.annotation.TypeConversionHint;
+import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.handler.ScopeAttributeResolver;
 
 public class ActionManagerImpl implements ActionManager {
     private AnnotationHandler annotationHandler_;
 
-    private ComponentMetaDataFactory componentMetaDataFactory_;
+    private ScopeManager scopeManager_;
 
     private TypeConversionManager typeConversionManager_;
 
@@ -26,9 +26,8 @@ public class ActionManagerImpl implements ActionManager {
     }
 
     @Binding(bindingType = BindingType.MUST)
-    public void setComponentMetaDataFactory(
-            ComponentMetaDataFactory componentMetaDataFactory) {
-        componentMetaDataFactory_ = componentMetaDataFactory;
+    public void setScopeManager(ScopeManager scopeManager) {
+        scopeManager_ = scopeManager;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -54,9 +53,8 @@ public class ActionManagerImpl implements ActionManager {
     public MethodInvoker newMethodInvoker(Class<?> pageClass, Method method,
             Object[] extendedParams) {
         Class<?>[] types = method.getParameterTypes();
-        ScopeAttributeResolver[] resolvers = componentMetaDataFactory_
-                .getInstance(pageClass)
-                .getScopeAttributeResolversForParameters(method);
+        ScopeAttributeResolver[] resolvers = scopeManager_.getMetaData(
+                pageClass).getScopeAttributeResolversForParameters(method);
         Object[] params = new Object[types.length];
         int buttonParamsIdx = 0;
         for (int i = 0; i < types.length; i++) {

@@ -1,10 +1,11 @@
-package org.seasar.ymir.annotation;
+package org.seasar.ymir.scope.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.seasar.ymir.annotation.Alias;
 import org.seasar.ymir.scope.impl.RequestParameterScope;
 
 /**

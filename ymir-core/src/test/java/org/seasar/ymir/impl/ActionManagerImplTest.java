@@ -2,7 +2,7 @@ package org.seasar.ymir.impl;
 
 import org.seasar.ymir.ComponentClientTestCase;
 import org.seasar.ymir.MethodInvoker;
-import org.seasar.ymir.annotation.Resolve;
+import org.seasar.ymir.scope.annotation.Resolve;
 import org.seasar.ymir.scope.impl.MapScope;
 
 public class ActionManagerImplTest extends ComponentClientTestCase {
