@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.container.annotation.tiger.InitMethod;
-import org.seasar.framework.log.Logger;
 import org.seasar.kvasir.util.collection.I18NProperties;
 import org.seasar.kvasir.util.collection.I18NPropertiesBuilder;
 import org.seasar.kvasir.util.el.EvaluationException;
@@ -25,7 +26,7 @@ import org.seasar.ymir.util.MessagesUtils;
 public class MessagesImpl implements Messages {
     private static final String SUFFIX_PAGE = "Page";
 
-    private final Logger logger_ = Logger.getLogger(getClass());
+    private final Log log_ = LogFactory.getLog(MessagesImpl.class);
 
     private final List<String> path_ = new ArrayList<String>();
 
@@ -58,7 +59,7 @@ public class MessagesImpl implements Messages {
     @InitMethod
     public void init() {
         if (path_.isEmpty()) {
-            logger_.warn("no message path specified");
+            log_.warn("no message path specified");
         }
         final I18NPropertiesBuilder propertiesBuilder = new I18NPropertiesBuilder();
         for (final String path : path_) {
@@ -80,7 +81,7 @@ public class MessagesImpl implements Messages {
         try {
             return evaluator_.evaluateAsString(value, variableResolverAdapter_);
         } catch (EvaluationException ex) {
-            logger_.warn("Can't evaluate: " + value, ex);
+            log_.warn("Can't evaluate: " + value, ex);
             return value;
         }
     }
@@ -107,7 +108,7 @@ public class MessagesImpl implements Messages {
                 }
             });
         } catch (EvaluationException ex) {
-            logger_.warn("Can't evaluate: " + value + ": locale=" + locale, ex);
+            log_.warn("Can't evaluate: " + value + ": locale=" + locale, ex);
             return value;
         }
     }

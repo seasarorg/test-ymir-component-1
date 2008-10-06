@@ -7,11 +7,12 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.framework.log.Logger;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionNotFoundRuntimeException;
 import org.seasar.ymir.ApplicationManager;
@@ -84,7 +85,7 @@ public class RequestProcessorImpl implements RequestProcessor {
     private final PageComponentVisitor<Object> visitorForInvokingInPhaseScopeObjectOutjected_ = new VisitorForInvoking(
             Phase.SCOPEOBJECT_OUTJECTED);
 
-    private final Logger logger_ = Logger.getLogger(getClass());
+    private final Log log_ = LogFactory.getLog(RequestProcessorImpl.class);
 
     @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
@@ -308,8 +309,8 @@ public class RequestProcessorImpl implements RequestProcessor {
                 response = adjustResponse(dispatch, response, null);
             }
 
-            if (logger_.isDebugEnabled()) {
-                logger_.debug("FINAL RESPONSE: " + response);
+            if (log_.isDebugEnabled()) {
+                log_.debug("FINAL RESPONSE: " + response);
             }
         }
 
@@ -404,14 +405,14 @@ public class RequestProcessorImpl implements RequestProcessor {
         Response response = new PassthroughResponse();
 
         if (action != null && action.shouldInvoke()) {
-            if (logger_.isDebugEnabled()) {
-                logger_.debug("INVOKE: " + action.getTarget().getClass() + "#"
+            if (log_.isDebugEnabled()) {
+                log_.debug("INVOKE: " + action.getTarget().getClass() + "#"
                         + action.getMethodInvoker());
             }
             response = constructResponse(action.getTarget(), action
                     .getReturnType(), action.invoke());
-            if (logger_.isDebugEnabled()) {
-                logger_.debug("RESPONSE: " + response);
+            if (log_.isDebugEnabled()) {
+                log_.debug("RESPONSE: " + response);
             }
         }
 
@@ -428,8 +429,8 @@ public class RequestProcessorImpl implements RequestProcessor {
             }
         }
 
-        if (logger_.isDebugEnabled()) {
-            logger_.debug("[4]RESPONSE: " + response);
+        if (log_.isDebugEnabled()) {
+            log_.debug("[4]RESPONSE: " + response);
         }
 
         return response;

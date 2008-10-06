@@ -3,7 +3,8 @@ package org.seasar.ymir.scope.handler.impl;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import org.seasar.framework.log.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.ymir.scope.AttributeNotFoundRuntimeException;
 import org.seasar.ymir.scope.Scope;
@@ -13,8 +14,8 @@ import org.seasar.ymir.util.ClassUtils;
 
 public class ScopeAttributeInjectorImpl extends AbstractScopeAttributeHandler
         implements ScopeAttributeInjector {
-    private static final Logger logger_ = Logger
-            .getLogger(ScopeAttributeInjectorImpl.class);
+    private static final Log log_ = LogFactory
+            .getLog(ScopeAttributeInjectorImpl.class);
 
     private Class<?> type_;
 
