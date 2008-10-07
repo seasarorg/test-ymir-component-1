@@ -32,8 +32,13 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
 
     @Override
     public Response responseCreated(Request request, Response response) {
-        request.getCurrentDispatch().getPageComponent().accept(
-                new VisitorForOutjecting(request.getCurrentDispatch()));
+        PageComponent pageComponent = request.getCurrentDispatch()
+                .getPageComponent();
+        if (pageComponent != null) {
+            // 自動生成ONの場合はpageComponentはnullになることがある。
+            pageComponent.accept(new VisitorForOutjecting(request
+                    .getCurrentDispatch()));
+        }
 
         return response;
     }

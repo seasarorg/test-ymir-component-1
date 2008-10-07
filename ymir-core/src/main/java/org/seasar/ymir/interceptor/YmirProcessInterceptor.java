@@ -95,6 +95,11 @@ public interface YmirProcessInterceptor {
      * Responseオブジェクトを加工できるように呼び出されるメソッドです。
      * <p>Responseオブジェクトを加工しない場合は引数で渡されたResponseオブジェクトをそのまま返すようにして下さい。
      * </p>
+     * <p><strong>注意：</strong>この時点でrequestオブジェクトのカレントのDispatchには
+     * 通常PageComponentオブジェクトが設定されていますが、開発モードでは自動生成の都合上
+     * PageComponentが設定されていない場合があります。
+     * このメソッドの中でPageComponentを利用する場合は必ずnullチェックを行なうようにして下さい。
+     * </p>
      * 
      * @param request 現在のRequestオブジェクト。
      * @param response フレームワークによって構築されたResponseオブジェクト。
@@ -170,6 +175,7 @@ public interface YmirProcessInterceptor {
      * 他のYmirProcessInterceptorによって元もとの{@link ExceptionHandler}ではないものに差し替えられていることがあります。
      * nullであることはありません。
      * @return {@link ExceptionHandler}オブジェクト。nullを返してはいけません。
+     * @since 1.0.0
      */
     ExceptionHandler<? extends Throwable> exceptionHandlerInvoking(
             ExceptionHandler<? extends Throwable> originalHandler,
@@ -184,6 +190,7 @@ public interface YmirProcessInterceptor {
      * @param handler {@link ExceptionHandler}オブジェクト。
      * @param response フレームワークによって構築されたResponseオブジェクト。
      * @return Responseオブジェクト。nullを返してはいけません。
+     * @since 1.0.0
      */
     Response responseCreatedByExceptionHandler(
             ExceptionHandler<? extends Throwable> handler, Response response);
