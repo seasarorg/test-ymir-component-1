@@ -224,7 +224,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
     private boolean initialized_;
 
-    public Log log_ = LogFactory.getLog(SourceCreatorImpl.class);
+    private Log log_ = LogFactory.getLog(SourceCreatorImpl.class);
 
     @Binding(bindingType = BindingType.MUST)
     public void setTemplateAnalyzer(TemplateAnalyzer analyzer) {
