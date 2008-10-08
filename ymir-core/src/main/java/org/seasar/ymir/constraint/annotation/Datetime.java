@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 import java.text.SimpleDateFormat;
 
 import org.seasar.ymir.constraint.ConstraintType;
-import org.seasar.ymir.constraint.impl.DateConstraint;
+import org.seasar.ymir.constraint.impl.DatetimeConstraint;
 import org.seasar.ymir.converter.annotation.TypeConversionHint;
 
 /**
@@ -25,9 +25,9 @@ import org.seasar.ymir.converter.annotation.TypeConversionHint;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.TYPE, ElementType.METHOD })
-@ConstraintAnnotation(type = ConstraintType.VALIDATION, component = DateConstraint.class)
+@ConstraintAnnotation(type = ConstraintType.VALIDATION, component = DatetimeConstraint.class)
 @TypeConversionHint
-public @interface Date {
+public @interface Datetime {
     /**
      * リクエストパラメータ名です。
      * <p>先頭が「#」で始まる名前は正規表現パターンと見なされます。

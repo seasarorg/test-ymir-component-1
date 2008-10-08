@@ -80,7 +80,7 @@ abstract public class AbstractRegexConstraint<T extends Annotation> extends
 
     protected Note newNote(Request request, String name, String key,
             String pattern, String value) {
-        return new Note(key, new Object[] { name });
+        return new Note(key, name, pattern);
     }
 
     Pattern getCompiledPattern(String pattern) {

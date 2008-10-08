@@ -8,18 +8,18 @@ import java.lang.annotation.Target;
 import org.seasar.ymir.annotation.Collection;
 
 /**
- * {@link Date}アノテーションを複数指定するためのアノテーションです。
+ * {@link Datetime}アノテーションを複数指定するためのアノテーションです。
  * 
  * @author YOKOTA Takehiko
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.TYPE, ElementType.METHOD })
 @Collection
-public @interface Dates {
+public @interface Datetimes {
     /**
-     * {@link Date}アノテーションです。
+     * {@link Datetime}アノテーションです。
      * 
-     * @return {@link Date}アノテーション。
+     * @return {@link Datetime}アノテーション。
      */
-    Date[] value();
+    Datetime[] value();
 }

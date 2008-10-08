@@ -1,13 +1,14 @@
-package org.seasar.ymir.constraint.impl;
+package org.seasar.ymir.token.constraint.impl;
 
 import java.lang.reflect.AnnotatedElement;
 
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
-import org.seasar.ymir.constraint.annotation.TokenRequired;
+import org.seasar.ymir.constraint.impl.AbstractConstraint;
 import org.seasar.ymir.message.Note;
 import org.seasar.ymir.token.TokenManager;
+import org.seasar.ymir.token.constraint.annotation.TokenRequired;
 
 public class TokenRequiredConstraint extends AbstractConstraint<TokenRequired> {
     private TokenManager tokenManager_;
@@ -26,7 +27,7 @@ public class TokenRequiredConstraint extends AbstractConstraint<TokenRequired> {
         }
         if (!tokenManager_.isTokenValid(tokenKey, true)) {
             throw new ValidationFailedException().addNote(new Note(
-                    PREFIX_MESSAGEKEY + "tokenRequired", new Object[0]));
+                    PREFIX_MESSAGEKEY + "token.tokenRequired", new Object[0]));
         }
     }
 }

@@ -1,4 +1,4 @@
-package org.seasar.ymir.constraint.annotation;
+package org.seasar.ymir.token.constraint.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,7 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.seasar.ymir.constraint.ConstraintType;
-import org.seasar.ymir.constraint.impl.TokenRequiredConstraint;
+import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
+import org.seasar.ymir.token.constraint.impl.TokenRequiredConstraint;
 
 /**
  * トランザクショントークンが一致することを表す制約アノテーションです。

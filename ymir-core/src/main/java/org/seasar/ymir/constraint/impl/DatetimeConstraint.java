@@ -7,14 +7,14 @@ import java.text.SimpleDateFormat;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
-import org.seasar.ymir.constraint.annotation.Date;
+import org.seasar.ymir.constraint.annotation.Datetime;
 import org.seasar.ymir.message.Note;
 import org.seasar.ymir.message.Notes;
 
-public class DateConstraint extends AbstractConstraint<Date> {
+public class DatetimeConstraint extends AbstractConstraint<Datetime> {
     public static final String PATTERN = "yyyy-MM-dd HH:mm:ss";
 
-    public void confirm(Object component, Request request, Date annotation,
+    public void confirm(Object component, Request request, Datetime annotation,
             AnnotatedElement element) throws ConstraintViolatedException {
         String[] names = getParameterNames(request, getPropertyName(element),
                 annotation.property());
@@ -33,15 +33,16 @@ public class DateConstraint extends AbstractConstraint<Date> {
 
         Notes notes = new Notes();
         for (int i = 0; i < names.length; i++) {
-            confirm(request, names[i], sdf, notes);
+            confirm(request, names[i], pattern, sdf, notes);
         }
         if (notes.size() > 0) {
             throw new ValidationFailedException().setNotes(notes);
         }
     }
 
-    void confirm(Request request, String name, SimpleDateFormat sdf, Notes notes) {
-        String key = PREFIX_MESSAGEKEY + "date";
+    void confirm(Request request, String name, String pattern,
+            SimpleDateFormat sdf, Notes notes) {
+        String key = PREFIX_MESSAGEKEY + "datetime";
         String[] values = request.getParameterValues(name);
         if (values == null) {
             return;
@@ -54,11 +55,11 @@ public class DateConstraint extends AbstractConstraint<Date> {
             try {
                 parsed = sdf.parse(values[i]);
             } catch (ParseException ex) {
-                notes.add(name, new Note(key, name));
+                notes.add(name, new Note(key, name, pattern));
                 continue;
             }
             if (!values[i].equals(sdf.format(parsed))) {
-                notes.add(name, new Note(key, name));
+                notes.add(name, new Note(key, name, pattern));
                 continue;
             }
         }
