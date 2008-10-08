@@ -128,7 +128,7 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
 
             Object value = scopeManager_.getAttribute(scope_, name, handler
                     .getPropertyType(), annotationHandler_
-                    .getMarkedParameterAnnotations(handler.getWriteMethod(), 0,
+                    .getMarkedAnnotations(handler.getWriteMethod(),
                             TypeConversionHint.class), false, true);
 
             if (value != null) {

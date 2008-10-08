@@ -164,10 +164,10 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
 
         scopeAttributeInjectorList_.add(new ScopeAttributeInjectorImpl(
                 toAttributeName(method.getName(), in.name()), method
-                        .getParameterTypes()[0], annotationHandler_
-                        .getMarkedParameterAnnotations(method, 0,
-                                TypeConversionHint.class), getScope(in),
-                method, in.injectWhereNull(), in.required(), in.actionName(),
+                        .getParameterTypes()[0],
+                annotationHandler_.getMarkedAnnotations(method,
+                        TypeConversionHint.class), getScope(in), method, in
+                        .injectWhereNull(), in.required(), in.actionName(),
                 scopeManager_));
     }
 
