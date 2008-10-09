@@ -26,7 +26,11 @@
   <component name="interceptorCustomizer"
     class="org.seasar.framework.container.customizer.CustomizerChain" />
   <component name="logicCustomizer"
-    class="org.seasar.framework.container.customizer.CustomizerChain" />
+    class="org.seasar.framework.container.customizer.CustomizerChain">
+    <initMethod name="addCustomizer">
+      <arg>requiredTxCustomizer</arg>
+    </initMethod>
+  </component>
   <component name="pageCustomizer"
     class="org.seasar.framework.container.customizer.CustomizerChain" />
   <component name="serviceCustomizer"
