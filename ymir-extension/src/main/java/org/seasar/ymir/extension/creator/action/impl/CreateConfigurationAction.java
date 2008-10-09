@@ -147,17 +147,6 @@ public class CreateConfigurationAction extends AbstractAction implements
             }
         }
 
-        if (getSourceCreatorSetting().isConverterCreationFeatureEnabled()) {
-            getSourceCreator().writeSourceFile(
-                    "ConverterSuperclass.java",
-                    new ClassDescImpl(application.getRootPackageName()
-                            + ".converter.ConverterBase"), false);
-            getSourceCreator().writeSourceFile(
-                    "ConverterSuperclassBase.java",
-                    new ClassDescImpl(application.getRootPackageName()
-                            + ".converter.ConverterBaseBase"), true);
-        }
-
         synchronizeResources(null);
 
         Map<String, Object> variableMap = newVariableMap();

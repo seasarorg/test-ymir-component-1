@@ -1,14 +1,64 @@
 ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
 
-import ${application.rootPackageName}.converter.ConverterBase;
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.converter.TypeConversionManager;
+import org.seasar.ymir.message.Messages;
 
 <#if pairTypeDescs?size &gt; 0>import ${targetClassDesc.name};
 </#if><#list pairTypeDescs as pairTypeDesc><#list pairTypeDesc.importClassNames as importClassName>
 import ${importClassName};
 </#list></#list>
 
-public class ${classDesc.shortName}Base extends ConverterBase
+public class ${classDesc.shortName}Base
 {
+    protected TypeConversionManager ${fieldPrefix}typeConversionManager${fieldSuffix};
+
+    protected Messages ${fieldPrefix}messages${fieldSuffix};
+
+    @Binding(bindingType = BindingType.MUST)
+    final public void setConversionManager(
+        TypeConversionManager typeConversionManager) {
+        ${fieldSpecialPrefix}${fieldPrefix}typeConversionManager${fieldSuffix} = typeConversionManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    final public void setMessages(Messages messages) {
+        ${fieldSpecialPrefix}${fieldPrefix}messages${fieldSuffix} = messages;
+    }
+
+    final protected TypeConversionManager getTypeConversionManager() {
+        return ${fieldPrefix}typeConversionManager${fieldSuffix};
+    }
+
+    final protected Messages getMessages() {
+        return ${fieldPrefix}messages${fieldSuffix};
+    }
+
+    final protected <T> T convert(Object value, Class<T> type) {
+        return ${fieldPrefix}typeConversionManager${fieldSuffix}.convert(value, type);
+    }
+
+    final protected String valueOf(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        return String.valueOf(obj);
+    }
+
+    final protected boolean isEmpty(Object obj) {
+        return (obj == null || obj instanceof String
+            && ((String) obj).trim().length() == 0);
+    }
+
+    final protected <T> T emptyToNull(T obj) {
+        if (isEmpty(obj)) {
+            return null;
+        } else {
+            return obj;
+        }
+    }
+
 <#list pairTypeDescs as pairTypeDesc>
     public ${targetClassDesc.shortName} copyTo(${targetClassDesc.shortName} dto, ${pairTypeDesc.shortName} entity)
     {
