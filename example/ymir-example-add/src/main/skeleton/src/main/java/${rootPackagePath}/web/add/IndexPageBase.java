@@ -1,6 +1,6 @@
 package ${rootPackageName}.web.add;
 
-import org.seasar.ymir.annotation.RequestParameter;
+import org.seasar.ymir.scope.annotation.RequestParameter;
 
 public class IndexPageBase
 {
