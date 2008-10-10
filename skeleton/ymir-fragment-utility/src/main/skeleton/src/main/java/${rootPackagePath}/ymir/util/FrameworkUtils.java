@@ -1,6 +1,6 @@
 package ${rootPackageName}.ymir.util;
 
-import org.seasar.ymir.Messages;
+import org.seasar.ymir.message.Messages;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
 

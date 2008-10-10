@@ -2,8 +2,8 @@ package ${rootPackageName}.ymir.util;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.ymir.Note;
-import org.seasar.ymir.Notes;
+import org.seasar.ymir.message.Note;
+import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.response.scheme.impl.PassthroughStrategy;
@@ -11,15 +11,15 @@ import org.seasar.ymir.response.scheme.impl.PassthroughStrategy;
 abstract public class PageBase {
     public static final String PASSTHROUGH = PassthroughStrategy.SCHEME + ":";
 
-    private Request ymirRequest_;
+    private Request ${fieldPrefix}ymirRequest${fieldSuffix};
 
     @Binding(bindingType = BindingType.MUST)
     final public void setYmirRequest(Request ymirRequest) {
-        ymirRequest_ = ymirRequest;
+        ${fieldSpecialPrefix}${fieldPrefix}ymirRequest${fieldSuffix} = ymirRequest;
     }
 
     final public Request getYmirRequest() {
-        return ymirRequest_;
+        return ${fieldPrefix}ymirRequest${fieldSuffix};
     }
 
     final protected void addNote(String key) {
@@ -33,10 +33,10 @@ abstract public class PageBase {
     }
 
     final protected Notes getNotes() {
-        Notes notes = (Notes) ymirRequest_.getAttribute(RequestProcessor.ATTR_NOTES);
+        Notes notes = (Notes) ${fieldPrefix}ymirRequest${fieldSuffix}.getAttribute(RequestProcessor.ATTR_NOTES);
         if (notes == null) {
             notes = new Notes();
-            ymirRequest_.setAttribute(RequestProcessor.ATTR_NOTES, notes);
+            ${fieldPrefix}ymirRequest${fieldSuffix}.setAttribute(RequestProcessor.ATTR_NOTES, notes);
         }
         return notes;
     }
