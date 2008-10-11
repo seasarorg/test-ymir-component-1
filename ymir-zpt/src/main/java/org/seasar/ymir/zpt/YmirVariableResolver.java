@@ -13,8 +13,10 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.impl.RequestProcessorImpl;
 import org.seasar.ymir.message.Messages;
+import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.token.Token;
 import org.seasar.ymir.token.TokenManager;
 
@@ -69,6 +71,13 @@ public class YmirVariableResolver extends VariableResolverImpl {
             return container_;
         } else if (NAME_MESSAGES.equals(name)) {
             return messages_;
+        } else if (RequestProcessor.ATTR_NOTES.equals(name)) {
+            // notesがリクエストにない場合はそこでトラバースを打ち切った方が都合が良いため
+            // こうしている。リクエストパラメータ等をトラバースされると意図しない動作をする
+            // ことがある。例えば /hoe.html?notes=aaa とされると
+            // <ul tal:condition="notes"> の判定がtrueになってしまため、
+            // 空のulタグがレンダリングされてしまう。
+            return getNotes();
         } else if (NAME_TOKEN.equals(name)) {
             return getToken();
         } else if (super.containsVariable(name)) {
@@ -80,13 +89,17 @@ public class YmirVariableResolver extends VariableResolverImpl {
             }
         }
 
+        // リクエストパラメータを優先させていているのは、バリデーションエラーの後に
+        // フォームの値を復元しやすいように。こうなっていると、例えば
+        // <input tal:attributes="value hoehoe" name="hoehoe" type="text />
+        // のように、TAL式としてパラメータ名だけを書けばPageのgetterで取得できる加工された
+        // 値ではなく名前の値がレンダリングに用いられることになり都合が良い。
         Object value = request_.getParameter(name);
         if (value != null) {
             return value;
         }
 
-        Object component = request_
-                .getAttribute(RequestProcessorImpl.ATTR_SELF);
+        Object component = request_.getAttribute(RequestProcessor.ATTR_SELF);
         if (component != null) {
             try {
                 return PropertyUtils.getProperty(component, name);
@@ -103,6 +116,7 @@ public class YmirVariableResolver extends VariableResolverImpl {
         nameSet.add(NAME_YMIRREQUEST);
         nameSet.add(NAME_CONTAINER);
         nameSet.add(NAME_MESSAGES);
+        nameSet.add(RequestProcessor.ATTR_NOTES);
         nameSet.add(NAME_TOKEN);
         nameSet.addAll(Arrays.asList(super.getVariableNames()));
         if (parent_ != null) {
@@ -131,6 +145,8 @@ public class YmirVariableResolver extends VariableResolverImpl {
         if (NAME_YMIRREQUEST.equals(name) || NAME_CONTAINER.equals(name)
                 || NAME_MESSAGES.equals(name) || NAME_TOKEN.equals(name)) {
             return true;
+        } else if (RequestProcessor.ATTR_NOTES.equals(name)) {
+            return getNotes() != null;
         } else if (super.containsVariable(name)) {
             return true;
         } else if (parent_ != null && parent_.containsVariable(name)) {
@@ -160,6 +176,13 @@ public class YmirVariableResolver extends VariableResolverImpl {
             return new EntryImpl(name, S2Container.class, container_);
         } else if (NAME_MESSAGES.equals(name)) {
             return new EntryImpl(name, Messages.class, messages_);
+        } else if (RequestProcessor.ATTR_NOTES.equals(name)) {
+            Notes notes = getNotes();
+            if (notes != null) {
+                return new EntryImpl(name, Notes.class, notes);
+            } else {
+                return null;
+            }
         } else if (NAME_TOKEN.equals(name)) {
             return new TokenEntry(name);
         }
@@ -197,6 +220,10 @@ public class YmirVariableResolver extends VariableResolverImpl {
         }
 
         return null;
+    }
+
+    Notes getNotes() {
+        return (Notes) request_.getAttribute(RequestProcessor.ATTR_NOTES);
     }
 
     Token getToken() {
