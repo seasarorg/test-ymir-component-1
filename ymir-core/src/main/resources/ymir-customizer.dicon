@@ -13,6 +13,8 @@
       <arg>s2DaoCustomizer</arg>
     </initMethod>
   </component>
+  <component name="dtoCustomizer"
+    class="org.seasar.framework.container.customizer.CustomizerChain" />
   <component name="dxoCustomizer"
     class="org.seasar.framework.container.customizer.CustomizerChain">
     <initMethod name="addCustomizer">
@@ -26,17 +28,19 @@
   <component name="interceptorCustomizer"
     class="org.seasar.framework.container.customizer.CustomizerChain" />
   <component name="logicCustomizer"
-    class="org.seasar.framework.container.customizer.CustomizerChain">
-    <initMethod name="addCustomizer">
-      <arg>requiredTxCustomizer</arg>
-    </initMethod>
-  </component>
-  <component name="pageCustomizer"
     class="org.seasar.framework.container.customizer.CustomizerChain" />
-  <component name="serviceCustomizer"
+  <component name="pageCustomizer"
     class="org.seasar.framework.container.customizer.CustomizerChain">
     <initMethod name="addCustomizer">
-      <arg>requiredTxCustomizer</arg>
+      <arg>
+        <component
+          class="org.seasar.framework.container.customizer.AspectCustomizer">
+          <property name="interceptorName">"j2ee.requiredTx"</property>
+          <property name="pointcut">"_get.*,_post.*"</property>
+        </component>
+      </arg>
     </initMethod>
   </component>
+  <component name="serviceCustomizer"
+    class="org.seasar.framework.container.customizer.CustomizerChain" />
 </components>
