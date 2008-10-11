@@ -60,6 +60,18 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jta_1.1_spec</artifactId>
+      <version>1.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-ejb_3.0_spec</artifactId>
+      <version>1.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>ymir-testing</artifactId>
       <version>${project.version}</version>
@@ -69,6 +81,12 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>ymir-core</artifactId>
       <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.cms.database</groupId>
+      <artifactId>database</artifactId>
+      <version>0.0.4</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
