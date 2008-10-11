@@ -12,7 +12,6 @@ import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.ClassDesc;
-import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.PathMetaData;
@@ -109,7 +108,7 @@ public class CreateTemplateAction extends AbstractAction implements
             synchronizeResources(new String[] { getPath(template) });
         } else if (transition != null) {
             ClassDesc classDesc = getSourceCreator().newClassDesc(
-                    pathMetaData.getClassName(), ClassType.PAGE, null);
+                    pathMetaData.getClassName(), null);
             String path = request.getCurrentDispatch().getPath();
             MethodDesc actionMethodDesc = getSourceCreator()
                     .getExtraPathMapping(path, method).newActionMethodDesc(

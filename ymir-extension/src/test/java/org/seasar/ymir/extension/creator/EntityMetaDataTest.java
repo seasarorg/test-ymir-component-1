@@ -39,7 +39,7 @@ public class EntityMetaDataTest extends TestCase {
                 }
 
                 @Override
-                public ClassDesc newClassDesc(String className, ClassType type,
+                public ClassDesc newClassDesc(String className,
                         ClassCreationHintBag hintBag) {
                     return new ClassDescImpl(className);
                 }

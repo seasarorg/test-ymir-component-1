@@ -122,6 +122,7 @@ import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.message.MessageNotFoundRuntimeException;
 import org.seasar.ymir.message.MessagesNotFoundRuntimeException;
 import org.seasar.ymir.message.Notes;
+import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.HTMLUtils;
 import org.seasar.ymir.util.ServletUtils;
 
@@ -505,8 +506,7 @@ public class SourceCreatorImpl implements SourceCreator {
             if (superclassName != null) {
                 Class<?> superclass = getClass(superclassName);
                 if (superclass == null) {
-                    ClassDesc classDesc = newClassDesc(superclassName,
-                            ClassType.PAGE, null);
+                    ClassDesc classDesc = newClassDesc(superclassName, null);
                     if (!isOuter(classDesc)) {
                         writeSourceFile("PageSuperclass.java", classDesc, false);
                         classDescBag.addAsCreated(classDesc, true);
@@ -541,7 +541,7 @@ public class SourceCreatorImpl implements SourceCreator {
             }
             TypeDescImpl td = new TypeDescImpl(pairTypeNames[i]);
             String className = td.getClassDesc().getName();
-            td.replaceClassDesc(getClassDesc(getClass(className), null, false));
+            td.replaceClassDesc(getClassDesc(getClass(className), false));
 
             pairTdList.add(td);
         }
@@ -569,7 +569,7 @@ public class SourceCreatorImpl implements SourceCreator {
         if (pageClassDesc == null && method == HttpMethod.POST) {
             // テンプレートを解析した結果対応するPageクラスを作る必要があると
             // 見なされなかった場合でも、methodがPOSTならPageクラスを作る。
-            pageClassDesc = newClassDesc(pageClassName, ClassType.PAGE, hintBag);
+            pageClassDesc = newClassDesc(pageClassName, hintBag);
             classDescMap.put(pageClassName, pageClassDesc);
         }
         if (pageClassDesc != null) {
@@ -647,21 +647,22 @@ public class SourceCreatorImpl implements SourceCreator {
         return classDescBag;
     }
 
-    ClassDesc getClassDesc(String className, ClassType type,
-            boolean onlyDeclared) {
+    ClassDesc getClassDesc(String className, boolean onlyDeclared) {
         if (className == null) {
             return null;
         }
         Class<?> clazz = getClass(className);
         if (clazz != null || onlyDeclared) {
-            return getClassDesc(clazz, type, onlyDeclared);
+            return getClassDesc(clazz, onlyDeclared);
         }
 
         // クラスが存在しないので、スーパークラスを辿る。
-        ClassDesc classDesc = newClassDesc(className, type, null);
+        ClassDesc classDesc = newClassDesc(className, null);
         String superclassName = classDesc.getSuperclassName();
-        classDesc = getClassDesc(superclassName, type, false);
+        classDesc = getClassDesc(superclassName, false);
         if (classDesc == null) {
+            // スーパークラスが指定されていないのでclassNameなクラスに関する推論が
+            // 何も行なえなかったことになる。これではClassDescを作る意味がないのでnullを返す。
             return null;
         }
         classDesc.setName(className);
@@ -671,11 +672,10 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public ClassDesc getClassDesc(Class<?> clazz) {
-        return getClassDesc(clazz, null, true);
+        return getClassDesc(clazz, true);
     }
 
-    public ClassDesc getClassDesc(Class<?> clazz, ClassType type,
-            boolean onlyDeclared) {
+    public ClassDesc getClassDesc(Class<?> clazz, boolean onlyDeclared) {
         if (clazz == null) {
             return null;
         }
@@ -687,7 +687,7 @@ public class SourceCreatorImpl implements SourceCreator {
             throw new RuntimeException(ex);
         }
 
-        ClassDesc classDesc = newClassDesc(clazz.getName(), type, null);
+        ClassDesc classDesc = newClassDesc(clazz.getName(), null);
 
         String superclassName = null;
         Class<?> superclass = clazz.getSuperclass();
@@ -1015,11 +1015,11 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public void adjustByExistentClass(ClassDesc desc) {
         String className = desc.getName();
-        Class<?> clazz = getClass(className);
         ClassType type = desc.getType();
+        Class<?> clazz = getClass(className);
         ClassDesc gapDesc = getClassDesc(clazz);
         if (gapDesc == null) {
-            gapDesc = newClassDesc(className, type, null);
+            gapDesc = newClassDesc(className, null);
         }
 
         String baseClassName = className + "Base";
@@ -1031,7 +1031,7 @@ public class SourceCreatorImpl implements SourceCreator {
         ClassDesc baseDesc = desc.getType().isSubordinate() ? null
                 : getClassDesc(baseClass);
         if (baseDesc == null) {
-            baseDesc = newClassDesc(baseClassName, type, null);
+            baseDesc = newClassDesc(baseClassName, null);
             baseDesc.setSuperclassName(desc.getSuperclassName());
         }
         if (baseClass != null) {
@@ -1053,10 +1053,10 @@ public class SourceCreatorImpl implements SourceCreator {
                 .getOptionalSourceGeneratorParameter());
         desc.merge(baseDesc, true);
 
-        ClassDesc superDesc = getClassDesc(desc.getSuperclassName(), type,
-                false);
+        ClassDesc superDesc = getClassDesc(desc.getSuperclassName(), false);
         if (superDesc == null) {
-            superDesc = newClassDesc(Object.class.getName(), type, null);
+            superDesc = newClassDesc(Object.class.getName(), null);
+            superDesc.setType(type);
         }
 
         PropertyDesc[] pds = generated.getPropertyDescs();
@@ -1130,7 +1130,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public void mergeWithExistentClass(ClassDesc classDesc) {
         String className = classDesc.getName();
-        classDesc.merge(getClassDesc(getClass(className), null, false), false);
+        classDesc.merge(getClassDesc(getClass(className), false), false);
     }
 
     public void writeSourceFile(ClassDesc classDesc, ClassDescSet classDescSet)
@@ -1490,17 +1490,15 @@ public class SourceCreatorImpl implements SourceCreator {
         actionSelector_.register(condition, updateAction);
     }
 
-    public ClassDesc newClassDesc(String className, ClassType type,
-            ClassCreationHintBag hintBag) {
+    public ClassDesc newClassDesc(String className, ClassCreationHintBag hintBag) {
         // booleanとかのクラスについてはSimpleClassDescを返した方が都合が良いのでこうしている。
         if (className.indexOf('.') < 0) {
             return new SimpleClassDesc(className);
         }
 
         ClassDescImpl classDescImpl = new ClassDescImpl(className);
-        if (type != null) {
-            classDescImpl.setType(type);
-        }
+        ClassType type = ClassType.typeOfClass(className);
+        classDescImpl.setType(type);
 
         // スーパークラスをセットする。
         String superclassName = null;
@@ -1522,16 +1520,21 @@ public class SourceCreatorImpl implements SourceCreator {
                 }
             } else {
                 superclassName = setting_.getSuperclassName(className);
+                if (superclassName == null && type == ClassType.PAGE) {
+                    superclassName = setting_.getPageSuperclassName();
+                }
+                if (superclassName != null) {
+                    Class<?> superclass = findClass(ClassUtils
+                            .getShortName(superclassName), className);
+                    if (superclass != null) {
+                        superclassName = superclass.getName();
+                    }
+                }
             }
         }
 
         if (superclassName != null) {
             classDescImpl.setSuperclassName(superclassName);
-        } else if (classDescImpl.isTypeOf(ClassType.PAGE)) {
-            superclassName = setting_.getPageSuperclassName();
-            if (superclassName != null) {
-                classDescImpl.setSuperclassName(superclassName);
-            }
         }
 
         return classDescImpl;
@@ -1662,5 +1665,19 @@ public class SourceCreatorImpl implements SourceCreator {
         }
         return new ExtraPathMappingImpl(pathMappingExtraData, mapping, path,
                 method);
+    }
+
+    public Class<?> findClass(String name, String baseClassName) {
+        int pre = baseClassName.length();
+        int dot;
+        while ((dot = baseClassName.lastIndexOf('.', pre)) >= 0) {
+            try {
+                return Class
+                        .forName(baseClassName.substring(0, dot + 1) + name);
+            } catch (ClassNotFoundException ignore) {
+            }
+            pre = dot - 1;
+        }
+        return null;
     }
 }

@@ -22,6 +22,7 @@
     </ol>
   </li>
 </ul>
+<p>Pageの親クラスには存在しないクラスを指定することもできます。その場合は空のクラスが生成されます。</p>
 <div tal:condition="ambiguousClasses">
 <p><strong>[重要] あいまいなプロパティが検出されました！</strong></p>
 <p>JavaBeans規約に照らし合わせた結果、名前があいまいなプロパティが検出されました。

@@ -284,8 +284,9 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                                 .size() > 0));
         variableMap.put("pageClassDescs", classDescBag
                 .getClassDescs(ClassType.PAGE));
-        variableMap.put("renderActionName", mapping.newPrerenderActionMethodDesc(
-                new ActionSelectorSeedImpl()).getName());
+        variableMap.put("renderActionName", mapping
+                .newPrerenderActionMethodDesc(new ActionSelectorSeedImpl())
+                .getName());
         variableMap.put("createdBeanClassDescs", classDescBag
                 .getCreatedClassDescs(ClassType.BEAN));
         return getSourceCreator().getResponseCreator().createResponse(
@@ -315,7 +316,8 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                         .getComponentName(acceptor.getBaseName());
                 if (name.indexOf('.') < 0 && !primitiveSet_.contains(name)) {
                     String className;
-                    Class<?> clazz = findClass(name, baseClassName);
+                    Class<?> clazz = getSourceCreator().findClass(name,
+                            baseClassName);
                     if (clazz == null) {
                         clazz = getSourceCreator().getClass(name);
                     }
@@ -332,20 +334,6 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             }
         });
         return type.getAsString();
-    }
-
-    Class<?> findClass(String name, String baseClassName) {
-        int pre = baseClassName.length();
-        int dot;
-        while ((dot = baseClassName.lastIndexOf('.', pre)) >= 0) {
-            try {
-                return Class
-                        .forName(baseClassName.substring(0, dot + 1) + name);
-            } catch (ClassNotFoundException ignore) {
-            }
-            pre = dot - 1;
-        }
-        return null;
     }
 
     boolean shouldUpdate(PathMetaData pathMetaData) {

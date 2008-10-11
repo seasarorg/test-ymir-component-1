@@ -258,7 +258,7 @@ public class AnalyzerContext extends ZptTemplateContext {
     public ClassDesc getTemporaryClassDesc(String className) {
         ClassDesc classDesc = temporaryClassDescMap_.get(className);
         if (classDesc == null) {
-            classDesc = sourceCreator_.newClassDesc(className, null, hintBag_);
+            classDesc = sourceCreator_.newClassDesc(className, hintBag_);
             temporaryClassDescMap_.put(className, classDesc);
         }
         return classDesc;

@@ -93,8 +93,7 @@ public interface SourceCreator extends Updater {
 
     void saveSourceCreatorProperties();
 
-    ClassDesc newClassDesc(String className, ClassType type,
-            ClassCreationHintBag hintBag);
+    ClassDesc newClassDesc(String className, ClassCreationHintBag hintBag);
 
     void adjustByExistentClass(ClassDesc desc);
 
@@ -119,4 +118,6 @@ public interface SourceCreator extends Updater {
     SourceCreatorSetting getSourceCreatorSetting();
 
     ExtraPathMapping getExtraPathMapping(String path, HttpMethod method);
+
+    Class<?> findClass(String name, String baseClassName);
 }
