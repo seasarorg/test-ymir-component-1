@@ -80,7 +80,7 @@
     <dependency>
       <groupId>org.seasar.cms.beantable</groupId>
       <artifactId>beantable</artifactId>
-      <version>0.0.4</version>
+      <version>0.0.5-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>
