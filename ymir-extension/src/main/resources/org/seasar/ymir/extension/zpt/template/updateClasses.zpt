@@ -57,7 +57,7 @@
     <li tal:repeat="classDesc createdClassDescs">
       <input type="checkbox" name="__ymir__apply" tal:attributes="value classDesc/name; checked classDesc/checked" />
       <span tal:condition="not:classDesc/dto" tal:content="classDesc/name">CLASS</span>
-      <input tal:condition="classDesc/dto" tal:attributes="name string:__ymir__className_${classDesc/name}; value classDesc/name" size="48" />
+      <input tal:condition="classDesc/dto" tal:attributes="name string:__ymir__className_${classDesc/name}; value classDesc/name" size="64" />
       <span tal:condition="classDesc/page">&nbsp;&nbsp;親クラス：<input tal:attributes="name string:__ymir__superclassName_${classDesc/name}; value classDesc/superclassName" type="text" name="__ymir__superclassName" size="48" /></span>
       <div tal:condition="converterCreated" tal:omit-tag=""><span tal:condition="classDesc/dto">&nbsp;&nbsp;対応するEntityクラス：<input tal:attributes="name string:__ymir__converter_pairTypeName_${classDesc/name}; value classDesc/pairTypeName" type="text" name="__ymir__converter_pairTypeName" size="48" /></span></div>
       <table tal:condition="classDesc/propertyDescs">

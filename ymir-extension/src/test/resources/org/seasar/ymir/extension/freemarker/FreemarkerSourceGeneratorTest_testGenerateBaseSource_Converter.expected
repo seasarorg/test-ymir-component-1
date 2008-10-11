@@ -1,5 +1,8 @@
 package com.example.converter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.converter.TypeConversionManager;
@@ -67,6 +70,24 @@ public class HoeConverterBase
         return dto;
     }
 
+    public HoeDto[] copyTo(Hoe<List>[] entities)
+    {
+        HoeDto[] dtos = new HoeDto[entities.length];
+        for (int i = 0; i < entities.length; i++) {
+            dtos[i] = copyTo(new HoeDto(), entities[i]);
+        }
+        return dtos;
+    }
+
+    public List<HoeDto> copyToDtoList(List<Hoe<List>> entityList)
+    {
+        List<HoeDto> dtoList = new ArrayList<HoeDto>();
+        for (Hoe<List> entity : entityList) {
+            dtoList.add(copyTo(new HoeDto(), entity));
+        }
+        return dtoList;
+    }
+
     protected void copyAaaTo(HoeDto dto, Hoe<List> entity)
     {
         dto.setAaa(convert(entity.getAaa(), String.class));
@@ -89,6 +110,24 @@ public class HoeConverterBase
         copyDddTo(entity, dto);
 
         return entity;
+    }
+
+    public Hoe<List>[] copyTo(HoeDto[] dtos)
+    {
+        Hoe<List>[] entities = new Hoe<List>[dtos.length];
+        for (int i = 0; i < dtos.length; i++) {
+            entities[i] = copyTo(new Hoe<List>(), dtos[i]);
+        }
+        return entities;
+    }
+
+    public List<Hoe<List>> copyToEntityList(List<HoeDto> dtoList)
+    {
+        List<Hoe<List>> entityList = new ArrayList<Hoe<List>>();
+        for (HoeDto dto : dtoList) {
+            entityList.add(copyTo(new Hoe<List>(), dto));
+        }
+        return entityList;
     }
 
     protected void copyAaaTo(Hoe<List> entity, HoeDto dto)
