@@ -146,4 +146,16 @@ public class ClassUtils {
     public static Class<?> getPrimitive(Class<?> clazz) {
         return primitiveMap_.get(clazz);
     }
+
+    public static String getShortName(String className) {
+        if (className == null) {
+            return null;
+        }
+        int dot = className.lastIndexOf('.');
+        if (dot >= 0) {
+            return className.substring(dot + 1);
+        } else {
+            return className;
+        }
+    }
 }
