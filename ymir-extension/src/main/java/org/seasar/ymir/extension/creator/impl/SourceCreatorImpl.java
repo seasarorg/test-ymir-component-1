@@ -485,7 +485,7 @@ public class SourceCreatorImpl implements SourceCreator {
             // Dtoに対応するBeanに対応するDaoのsetterを自動生成する。
             // Dxoのsetterも自動生成する。
             // Converterのsetterも自動生成する。
-            // _render()のボディも自動生成する。
+            // _prerender()のボディも自動生成する。
             PropertyDesc[] pds = pageClassDescs[i].getPropertyDescs();
             for (int j = 0; j < pds.length; j++) {
                 TypeDesc td = pds[j].getTypeDesc();
