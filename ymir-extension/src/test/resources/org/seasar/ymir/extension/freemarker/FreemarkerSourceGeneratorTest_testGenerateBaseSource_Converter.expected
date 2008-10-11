@@ -114,7 +114,8 @@ public class HoeConverterBase
 
     public Hoe<List>[] copyTo(HoeDto[] dtos)
     {
-        Hoe<List>[] entities = new Hoe<List>[dtos.length];
+        @SuppressWarnings("unchecked")
+        Hoe<List>[] entities = new Hoe[dtos.length];
         for (int i = 0; i < dtos.length; i++) {
             entities[i] = copyTo(new Hoe<List>(), dtos[i]);
         }

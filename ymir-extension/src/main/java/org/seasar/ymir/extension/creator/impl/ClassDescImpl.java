@@ -59,7 +59,6 @@ public class ClassDescImpl extends AbstractClassDesc {
     }
 
     public PropertyDesc addProperty(String name, int mode) {
-
         PropertyDesc propertyDesc = getPropertyDesc(name);
         if (propertyDesc == null) {
             propertyDesc = new PropertyDescImpl(name);

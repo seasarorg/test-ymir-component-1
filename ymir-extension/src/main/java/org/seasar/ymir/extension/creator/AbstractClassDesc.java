@@ -3,6 +3,8 @@ package org.seasar.ymir.extension.creator;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.seasar.ymir.util.ClassUtils;
+
 abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
         ClassDesc {
     private Map<String, Object> parameter_;
@@ -46,23 +48,11 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
     }
 
     public String toString() {
-
         return getName();
     }
 
     public String getShortName() {
-
-        return getShortName(getName());
-    }
-
-    String getShortName(String name) {
-
-        int dot = name.lastIndexOf('.');
-        if (dot < 0) {
-            return name;
-        } else {
-            return name.substring(dot + 1);
-        }
+        return ClassUtils.getShortName(getName());
     }
 
     public String getNameBase() {
@@ -70,7 +60,7 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
     }
 
     String getNameBase(String name) {
-        name = getShortName(name);
+        name = ClassUtils.getShortName(name);
         for (ClassType type : ClassType.values()) {
             if (name.endsWith(type.getSuffix())) {
                 return name.substring(0, name.length()
@@ -81,12 +71,10 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
     }
 
     public String getPackageName() {
-
         return getPackageName(getName());
     }
 
     String getPackageName(String name) {
-
         int dot = name.lastIndexOf('.');
         if (dot < 0) {
             return "";
@@ -96,17 +84,14 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
     }
 
     public String getInstanceName() {
-
         return getInstanceName(getName());
     }
 
     String getInstanceName(String name) {
-
-        return uncapFirst(getShortName(name));
+        return uncapFirst(ClassUtils.getShortName(name));
     }
 
     String uncapFirst(String string) {
-
         if (string == null || string.length() == 0) {
             return string;
         } else {

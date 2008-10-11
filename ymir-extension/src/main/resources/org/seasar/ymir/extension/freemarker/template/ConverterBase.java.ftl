@@ -110,7 +110,8 @@ public class ${classDesc.shortName}Base
 
     public ${pairTypeDesc.shortName}[] copyTo(${targetClassDesc.shortName}[] dtos)
     {
-        ${pairTypeDesc.shortName}[] entities = new ${pairTypeDesc.shortName}[dtos.length];
+<#if pairTypeDesc.generic>        @SuppressWarnings("unchecked")</#if>
+        ${pairTypeDesc.shortName}[] entities = new ${pairTypeDesc.shortClassName}[dtos.length];
         for (int i = 0; i < dtos.length; i++) {
             entities[i] = copyTo(new ${pairTypeDesc.shortName}(), dtos[i]);
         }

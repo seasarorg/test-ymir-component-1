@@ -13,6 +13,7 @@ import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.type.Token;
 import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
+import org.seasar.ymir.util.ClassUtils;
 
 public class TypeDescImpl implements TypeDesc {
     private static final String ARRAY_SUFFIX = "[]";
@@ -177,6 +178,14 @@ public class TypeDescImpl implements TypeDesc {
         name_ = typeDesc.getName();
     }
 
+    public boolean isGeneric() {
+        if (name_ != null) {
+            return name_.indexOf('<') >= 0;
+        } else {
+            return false;
+        }
+    }
+
     public String getName() {
         if (name_ != null) {
             return normalizePackage(name_);
@@ -203,32 +212,45 @@ public class TypeDescImpl implements TypeDesc {
         }
     }
 
+    public String getShortClassName() {
+        if (name_ != null) {
+            return getShortClassName(name_);
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append(classDesc_.getShortName());
+            if (array_) {
+                sb.append(ARRAY_SUFFIX);
+            }
+            return sb.toString();
+        }
+    }
+
     String getShortTypeName(String typeName) {
         if (typeName == null) {
             return null;
         }
 
+        return getTypeTokenForShorten(typeName).getAsString();
+    }
+
+    String getShortClassName(String typeName) {
+        if (typeName == null) {
+            return null;
+        }
+
+        return getTypeTokenForShorten(typeName).getBaseName();
+    }
+
+    TypeToken getTypeTokenForShorten(String typeName) {
         TypeToken typeToken = new TypeToken(typeName);
         typeToken.accept(new TokenVisitor<Object>() {
             public Object visit(Token acceptor) {
-                acceptor.setBaseName(getShortClassName(acceptor.getBaseName()));
+                acceptor.setBaseName(ClassUtils.getShortName(acceptor
+                        .getBaseName()));
                 return null;
             }
         });
-        return typeToken.getAsString();
-    }
-
-    String getShortClassName(String className) {
-        if (className == null) {
-            return className;
-        }
-
-        int dot = className.lastIndexOf('.');
-        if (dot < 0) {
-            return className;
-        } else {
-            return className.substring(dot + 1);
-        }
+        return typeToken;
     }
 
     public String[] getImportClassNames() {

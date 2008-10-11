@@ -122,6 +122,7 @@ import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.message.MessageNotFoundRuntimeException;
 import org.seasar.ymir.message.MessagesNotFoundRuntimeException;
 import org.seasar.ymir.message.Notes;
+import org.seasar.ymir.scope.annotation.Inject;
 import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.HTMLUtils;
 import org.seasar.ymir.util.ServletUtils;
@@ -482,10 +483,7 @@ public class SourceCreatorImpl implements SourceCreator {
         ClassDesc[] pageClassDescs = classDescBag.getClassDescs(ClassType.PAGE);
         for (int i = 0; i < pageClassDescs.length; i++) {
             // Dtoに触るようなプロパティを持っているなら
-            // Dtoに対応するBeanに対応するDaoのsetterを自動生成する。
-            // Dxoのsetterも自動生成する。
-            // Converterのsetterも自動生成する。
-            // _prerender()のボディも自動生成する。
+            // Converterのsetterを自動生成する。
             PropertyDesc[] pds = pageClassDescs[i].getPropertyDescs();
             for (int j = 0; j < pds.length; j++) {
                 TypeDesc td = pds[j].getTypeDesc();
@@ -496,8 +494,8 @@ public class SourceCreatorImpl implements SourceCreator {
 
                 EntityMetaData metaData = new EntityMetaData(this, null, td
                         .getClassDesc().getName());
-                addPropertyIfValid(pageClassDescs[i], new TypeDescImpl(metaData
-                        .getConverterClassDesc()), PropertyDesc.WRITE,
+                addPropertyToPageIfValid(pageClassDescs[i], new TypeDescImpl(
+                        metaData.getConverterClassDesc()), PropertyDesc.WRITE,
                         classDescSet);
             }
 
@@ -963,20 +961,18 @@ public class SourceCreatorImpl implements SourceCreator {
         return pairTypeNames;
     }
 
-    boolean addPropertyIfValid(ClassDesc classDesc, TypeDesc typeDesc,
-            int mode, ClassDescSet classDescSet) {
+    boolean addPropertyToPageIfValid(ClassDesc pageClassDesc,
+            TypeDesc typeDesc, int mode, ClassDescSet classDescSet) {
         if (DescValidator.validate(typeDesc, classDescSet).isValid()) {
-            PropertyDesc propertyDesc = classDesc.addProperty(typeDesc
+            PropertyDesc propertyDesc = pageClassDesc.addProperty(typeDesc
                     .getInstanceName(), mode);
             propertyDesc.setTypeDesc(typeDesc);
             propertyDesc.notifyUpdatingType();
-            AnnotationDesc ad = propertyDesc.getAnnotationDesc(Binding.class
+            AnnotationDesc ad = propertyDesc.getAnnotationDesc(Inject.class
                     .getName());
             if (ad == null) {
-                propertyDesc
-                        .setAnnotationDescForSetter(new AnnotationDescImpl(
-                                Binding.class.getName(),
-                                "(bindingType = org.seasar.framework.container.annotation.tiger.BindingType.MUST)"));
+                propertyDesc.setAnnotationDescForSetter(new AnnotationDescImpl(
+                        Inject.class.getName()));
             }
             return true;
         } else {
