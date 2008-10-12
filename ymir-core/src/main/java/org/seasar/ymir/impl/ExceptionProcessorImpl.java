@@ -2,6 +2,8 @@ package org.seasar.ymir.impl;
 
 import java.beans.Introspector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
@@ -32,6 +34,8 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     private Updater[] updaters_ = new Updater[0];
 
     private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
+
+    private final Log log_ = LogFactory.getLog(ExceptionProcessorImpl.class);
 
     @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
@@ -64,11 +68,16 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     @SuppressWarnings("unchecked")
     public Response process(Request request, Throwable t) {
         t = ThrowableUtils.unwrap(t);
+        log_.error("Exception has occured", t);
 
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             Response response = ymirProcessInterceptors_[i]
                     .exceptionProcessingStarted(request, t);
             if (response != null) {
+                if (log_.isDebugEnabled()) {
+                    log_.debug("Response has been created by: "
+                            + ymirProcessInterceptors_[i] + ": " + response);
+                }
                 return response;
             }
         }
@@ -77,6 +86,10 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
             for (int i = 0; i < updaters_.length; i++) {
                 Response response = updaters_[i].updateByException(request, t);
                 if (response != null) {
+                    if (log_.isDebugEnabled()) {
+                        log_.debug("Response has been created by: "
+                                + updaters_[i] + ": " + response);
+                    }
                     return response;
                 }
             }
@@ -111,15 +124,24 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
 
         final ExceptionHandler<? extends Throwable> originalHandler = (ExceptionHandler<? extends Throwable>) handlerCd
                 .getComponent();
+        if (log_.isDebugEnabled()) {
+            log_.debug("Raw ExceptionHandler: " + originalHandler);
+        }
 
         ExceptionHandler<? extends Throwable> handler = originalHandler;
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             handler = ymirProcessInterceptors_[i].exceptionHandlerInvoking(
                     originalHandler, handler);
         }
+        if (log_.isDebugEnabled()) {
+            log_.debug("Final ExceptionHandler: " + handler);
+        }
 
         Response response = constructResponse(((ExceptionHandler<Throwable>) handler)
                 .handle(t));
+        if (log_.isDebugEnabled()) {
+            log_.debug("Raw response: " + response);
+        }
 
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             response = ymirProcessInterceptors_[i]
@@ -130,6 +152,10 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
             response = new ForwardResponse(PATH_EXCEPTION_TEMPLATE
                     + getClassShortName(exceptionClass)
                     + SUFFIX_EXCEPTION_TEMPLATE);
+        }
+
+        if (log_.isDebugEnabled()) {
+            log_.debug("Final response: " + response);
         }
 
         // ExceptionHandlerコンポーネントと例外オブジェクトをattributeとしてバインドしておく。
