@@ -299,7 +299,8 @@ public class SourceCreatorImpl implements SourceCreator {
         String forwardPath = pathMetaData.getForwardPath();
         HttpMethod method = pathMetaData.getMethod();
 
-        if (!shouldUpdate(forwardPath)) {
+        if (request.getParameter(PARAM_TASK) == null
+                && !shouldUpdate(forwardPath)) {
             return response;
         }
 

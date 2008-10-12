@@ -120,6 +120,7 @@ abstract public class AbstractAction {
         Map<String, Object> variableMap = new HashMap<String, Object>();
 
         Application application = getSourceCreator().getApplication();
+        variableMap.put("sourceCreator", getSourceCreator());
         variableMap.put("resourceAutoSynchronized", getSourceCreatorSetting()
                 .isResourceSynchronized());
         variableMap.put("templateEncoding", application.getTemplateEncoding());

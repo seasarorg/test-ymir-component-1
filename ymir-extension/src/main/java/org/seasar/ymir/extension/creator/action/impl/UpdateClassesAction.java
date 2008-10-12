@@ -40,8 +40,8 @@ import org.seasar.ymir.extension.creator.util.type.TypeToken;
 import org.seasar.ymir.util.BeanUtils;
 
 public class UpdateClassesAction extends AbstractAction implements UpdateAction {
-    protected static final String PARAM_BUTTON_IGNORE = SourceCreator.PARAM_PREFIX
-            + "button_ignore";
+    protected static final String PARAM_BUTTON_ALWAYS_SKIP = SourceCreator.PARAM_PREFIX
+            + "button_always_skip";
 
     protected static final String PARAM_APPLY = SourceCreator.PARAM_PREFIX
             + "apply";
@@ -167,7 +167,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
     }
 
     Response actUpdate(Request request, PathMetaData pathMetaData) {
-        if (request.getParameter(PARAM_BUTTON_IGNORE) != null) {
+        if (request.getParameter(PARAM_BUTTON_ALWAYS_SKIP) != null) {
             getSourceCreator().getSourceCreatorSetting()
                     .setSourceCreatorEnabledWith(request.getPath(), false);
             return null;

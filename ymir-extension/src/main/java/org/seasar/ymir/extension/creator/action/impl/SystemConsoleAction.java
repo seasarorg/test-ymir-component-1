@@ -12,6 +12,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
+import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.convention.YmirNamingConvention;
@@ -45,6 +46,9 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
             return actUpdateAllClasses(request, pathMetaData);
         } else if ("initializeTemplateCheckedTime".equals(subTask)) {
             return actInitializeTemplateCheckedTime(request, pathMetaData);
+        } else if ("setSourceCreatorEnabledWithThisTemplate".equals(subTask)) {
+            return actSetSourceCreatorEnabledWithThisTemplate(request,
+                    pathMetaData);
         } else {
             return actDefault(request, pathMetaData);
         }
@@ -59,6 +63,9 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
                 .put("systemInformation", new SystemInformation(
                         getSourceCreator().getApplication(),
                         getYmirNamingConvention()));
+        variableMap.put("sourceCreatorEnabledWithThisTemplate",
+                getSourceCreator().getSourceCreatorSetting()
+                        .isSourceCreatorEnabledWith(request.getPath()));
         return getSourceCreator().getResponseCreator().createResponse(
                 "systemConsole", variableMap);
     }
@@ -167,5 +174,30 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
         variableMap.put("parameters", getParameters(request));
         return getSourceCreator().getResponseCreator().createResponse(
                 "systemConsole_initializeTemplateCheckedTime", variableMap);
+    }
+
+    Response actSetSourceCreatorEnabledWithThisTemplate(Request request,
+            PathMetaData pathMetaData) {
+        String method = request.getParameter(PARAM_METHOD);
+        if (method == null) {
+            return null;
+        }
+
+        getSourceCreator().getSourceCreatorSetting()
+                .setSourceCreatorEnabledWith(
+                        request.getPath(),
+                        PropertyUtils.valueOf(request.getParameter("value"),
+                                false));
+
+        synchronizeResources(new String[] { adjustPath(getSourceCreator()
+                .getSourceCreatorPropertiesFile().getAbsolutePath()) });
+
+        Map<String, Object> variableMap = newVariableMap();
+        variableMap.put("request", request);
+        variableMap.put("method", method);
+        variableMap.put("parameters", getParameters(request));
+        return getSourceCreator().getResponseCreator().createResponse(
+                "systemConsole_setSourceCreatorEnabledWithThisTemplate",
+                variableMap);
     }
 }

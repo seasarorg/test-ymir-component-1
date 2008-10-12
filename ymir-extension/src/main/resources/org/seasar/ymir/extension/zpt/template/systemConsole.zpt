@@ -27,13 +27,26 @@
 </ul>
 </div>
 
+<h2>自動生成</h2>
+<p>現在の画面「<span tal:replace="request/path">PATH</span>」
+を自動生成の対象にするかどうかを設定することができます。</p>
+<form tal:attributes="action request/absolutePath" method="post">
+  <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
+  <input type="hidden" name="__ymir__task" value="systemConsole" />
+  <input type="hidden" name="__ymir__subTask" value="setSourceCreatorEnabledWithThisTemplate" />
+  <input type="hidden" name="__ymir__method" tal:attributes="value method" />
+  <p><input tal:attributes="checked sourceCreatorEnabledWithThisTemplate" type="radio" name="value" value="true" /> 自動生成の対象にする</p>
+  <p><input tal:attributes="checked not:sourceCreatorEnabledWithThisTemplate" type="radio" name="value" value="false" /> 自動生成の対象にしない</p>
+  <p><input type="submit" value="設定する" /></p>
+</form>
+
 <h2>HTMLテンプレートの更新確認日時の初期化</h2>
 <p>SubversionからプロジェクトのHTMLテンプレートを更新すると、
 Ymirが持つテンプレートの更新確認日時とテンプレートの更新日時に不整合が生じることがあります。
 その場合、実際にはテンプレートが更新されていないにも関わらず更新があったと誤認識されます。</p>
 <p>テンプレートの更新の誤認識を防ぐため、
 SubversionからプロジェクトのHTMLテンプレートを更新した後などは
-「HTMLテンプレートの更新確認日時を初期化する」ボタンを押して下さい。
+「HTMLテンプレートの更新確認日時を初期化する」ボタンを押して下さい。</p>
 <form tal:attributes="action request/absolutePath" method="post">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
   <input type="hidden" name="__ymir__task" value="systemConsole" />
