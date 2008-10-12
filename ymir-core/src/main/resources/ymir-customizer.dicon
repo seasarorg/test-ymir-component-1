@@ -28,7 +28,11 @@
   <component name="interceptorCustomizer"
     class="org.seasar.framework.container.customizer.CustomizerChain" />
   <component name="logicCustomizer"
-    class="org.seasar.framework.container.customizer.CustomizerChain" />
+    class="org.seasar.framework.container.customizer.CustomizerChain">
+    <initMethod name="addCustomizer">
+      <arg>requiredTxCustomizer</arg>
+    </initMethod>
+  </component>
   <component name="pageCustomizer"
     class="org.seasar.framework.container.customizer.CustomizerChain">
     <initMethod name="addCustomizer">
@@ -36,7 +40,7 @@
         <component
           class="org.seasar.framework.container.customizer.AspectCustomizer">
           <property name="interceptorName">"j2ee.requiredTx"</property>
-          <property name="pointcut">"_get.*,_post.*"</property>
+          <property name="pointcut">"_.*"</property>
         </component>
       </arg>
     </initMethod>

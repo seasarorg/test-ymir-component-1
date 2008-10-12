@@ -3,6 +3,7 @@
   "http://www.seasar.org/dtd/components24.dtd">
 <components namespace="dao">
   <!-- If you want to add DAO capability to Ymir application,
-       please override this file by putting an actual ymir-dao.dicon
-       on prior classpath like WEB-INF/classes. -->
+    please override this file by putting an actual ymir-dao.dicon
+    on prior classpath like WEB-INF/classes. -->
+  <include path="j2ee.dicon" />
 </components>
