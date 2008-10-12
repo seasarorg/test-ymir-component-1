@@ -3,16 +3,16 @@
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
   <include path="ymir-component.dicon" />
+  <component name="scopeInterceptor"
+    class="org.seasar.ymir.scope.impl.ScopeInterceptor">
+    <property name="priority">50.0</property>
+  </component>
   <component name="constraintInterceptor"
     class="org.seasar.ymir.constraint.impl.ConstraintInterceptor">
     <property name="priority">50.0</property>
   </component>
   <component name="pluginInterceptor"
     class="org.seasar.ymir.plugin.impl.PluginInterceptor">
-    <property name="priority">100.0</property>
-  </component>
-  <component name="scopeInterceptor"
-    class="org.seasar.ymir.scope.impl.ScopeInterceptor">
     <property name="priority">100.0</property>
   </component>
   <component name="windowInterceptor"
