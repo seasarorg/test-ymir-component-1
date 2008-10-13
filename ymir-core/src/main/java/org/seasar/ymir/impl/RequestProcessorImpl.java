@@ -24,7 +24,6 @@ import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FrameworkDispatch;
-import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
@@ -44,7 +43,6 @@ import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
-import org.seasar.ymir.util.ServletUtils;
 import org.seasar.ymir.util.YmirUtils;
 
 public class RequestProcessorImpl implements RequestProcessor {
@@ -235,27 +233,17 @@ public class RequestProcessorImpl implements RequestProcessor {
 
                 pageComponent.accept(visitorForInvokingInPhaseActionInvoked_);
 
-                if (response.isSubordinate()) {
-                    // 画面描画のためのAction呼び出しを行なう。
-                    //
-                    // ただしforwardの時で遷移先のページに対応するPageコンポーネントが
-                    // 存在する場合は遷移元のページのrenderは呼ばない（互換性のため
-                    // にこうしている）。
-                    boolean renderShouldBeCalled = true;
-                    if (response.getType() == ResponseType.FORWARD) {
-                        MatchedPathMapping mapping = ymir_
-                                .findMatchedPathMapping(ServletUtils
-                                        .getTrunk(response.getPath()),
-                                        HttpMethod.GET);
-                        if (mapping != null
-                                && componentExists(mapping
-                                        .getPageComponentName())) {
-                            renderShouldBeCalled = false;
-                        }
-                    }
-                    if (renderShouldBeCalled) {
-                        pageComponent.accept(new VisitorForRendering(request));
-                    }
+                // 画面描画のためのAction呼び出しを行なう。
+                //
+                // 以前はforwardの時に遷移先のページに対応するPageコンポーネントが
+                // 存在しない場合は遷移元のページの_prerenderを呼ぶようにしていたが、
+                // その場合は通常と表示するテンプレートが異なるのに単一の_prerender
+                // で処理しないといけなくなり_prerenderが複雑化するため、
+                // こういうケースではアクションメソッド内でforward先のテンプレートのための
+                // 準備を行なうようにする方が良い。そのため_prerenderは呼ばないように
+                // 変更した。
+                if (response.getType() == ResponseType.PASSTHROUGH) {
+                    pageComponent.accept(new VisitorForPrerendering(request));
                 }
 
                 // Pageコンポーネントをattributeとしてバインドしておく。
@@ -476,12 +464,12 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
     }
 
-    protected class VisitorForRendering extends PageComponentVisitor<Object> {
+    protected class VisitorForPrerendering extends PageComponentVisitor<Object> {
         private Request request_;
 
         private MatchedPathMapping matched_;
 
-        public VisitorForRendering(Request request) {
+        public VisitorForPrerendering(Request request) {
             request_ = request;
             matched_ = request_.getCurrentDispatch().getMatchedPathMapping();
         }
