@@ -35,4 +35,16 @@ public class MethodNotFoundRuntimeException extends RuntimeException {
         method_ = method;
         return this;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (getMessage() != null) {
+            sb.append(getMessage());
+        } else {
+            sb.append("Method not found");
+        }
+        sb.append(": ").append(method_);
+        return sb.toString();
+    }
 }

@@ -447,18 +447,18 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
         public Action process(PageComponent pageComponent) {
             Object page = pageComponent.getPage();
-            Method[] methods = ClassUtils.getMethods(page,
+            Class<?> pageClass = pageComponent.getPageClass();
+            Method[] methods = ClassUtils.getMethods(pageClass,
                     ACTION_VALIDATIONFAILED);
             if (methods.length == 1) {
-                return actionManager_.newAction(page, pageComponent
-                        .getPageClass(), methods[0], new Object[] { notes_ });
+                return actionManager_.newAction(page, pageClass, methods[0],
+                        new Object[] { notes_ });
             } else if (methods.length == 0) {
                 return null;
             } else {
                 throw new IllegalClientCodeRuntimeException("Method '"
                         + ACTION_VALIDATIONFAILED + "' must be single: class="
-                        + pageComponent.getPageClass() + ", method="
-                        + Arrays.asList(methods));
+                        + pageClass + ", method=" + Arrays.asList(methods));
             }
         }
     }
@@ -474,18 +474,18 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
         public Action process(PageComponent pageComponent) {
             Object page = pageComponent.getPage();
-            Method[] methods = ClassUtils.getMethods(page,
+            Class<?> pageClass = pageComponent.getPageClass();
+            Method[] methods = ClassUtils.getMethods(pageClass,
                     ACTION_PERMISSIONDENIED);
             if (methods.length == 1) {
-                return actionManager_.newAction(page, pageComponent
-                        .getPageClass(), methods[0], new Object[] { ex_ });
+                return actionManager_.newAction(page, pageClass, methods[0],
+                        new Object[] { ex_ });
             } else if (methods.length == 0) {
                 return null;
             } else {
                 throw new IllegalClientCodeRuntimeException("Method '"
                         + ACTION_PERMISSIONDENIED + "' must be single: class="
-                        + pageComponent.getPageClass() + ", method="
-                        + Arrays.asList(methods));
+                        + pageClass + ", method=" + Arrays.asList(methods));
             }
         }
     }
