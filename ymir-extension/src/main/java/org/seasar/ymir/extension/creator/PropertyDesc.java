@@ -1,18 +1,11 @@
 package org.seasar.ymir.extension.creator;
 
-import org.seasar.ymir.annotation.Meta;
-import org.seasar.ymir.annotation.Metas;
-
-public interface PropertyDesc extends Cloneable {
+public interface PropertyDesc extends AnnotatedDesc, Cloneable {
     int NONE = 0;
 
     int READ = 1;
 
     int WRITE = 2;
-
-    String ANNOTATION_NAME_META = Meta.class.getName();
-
-    String ANNOTATION_NAME_METAS = Metas.class.getName();
 
     Object clone();
 
@@ -60,23 +53,13 @@ public interface PropertyDesc extends Cloneable {
 
     void setAnnotationDescsForSetter(AnnotationDesc[] annotationDescs);
 
-    AnnotationDesc getAnnotationDesc(String name);
-
-    void setAnnotationDesc(AnnotationDesc annotationDesc);
-
-    AnnotationDesc[] getAnnotationDescs();
-
     void setAnnotationDescs(AnnotationDesc[] annotationDescs);
 
     boolean hasMetaOnGetter(String name);
 
-    String getMetaValueOnGetter(String name);
+    String getMetaFirstValueOnGetter(String name);
 
     boolean hasMetaOnSetter(String name);
 
-    String getMetaValueOnSetter(String name);
-
-    boolean hasMeta(String name);
-
-    String getMetaValue(String name);
+    String getMetaFirstValueOnSetter(String name);
 }

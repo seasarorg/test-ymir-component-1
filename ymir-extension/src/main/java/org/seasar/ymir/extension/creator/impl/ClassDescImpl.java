@@ -9,7 +9,9 @@ import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Metas;
 import org.seasar.ymir.extension.creator.AbstractClassDesc;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
+import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.MethodDescKey;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -160,7 +162,10 @@ public class ClassDescImpl extends AbstractClassDesc {
                 TypeDesc returnTd = md.getReturnTypeDesc();
                 TypeDesc returnTypeDesc = methodDescs[i].getReturnTypeDesc();
                 if (merge(returnTd, returnTypeDesc, force)) {
-                    md.setBodyDesc(methodDescs[i].getBodyDesc());
+                    BodyDesc bodyDesc = methodDescs[i].getBodyDesc();
+                    if (bodyDesc != null) {
+                        md.setBodyDesc(methodDescs[i].getBodyDesc());
+                    }
                 }
                 md.setAnnotationDescs(merge(md.getAnnotationDescs(),
                         methodDescs[i].getAnnotationDescs(), force));
@@ -184,24 +189,49 @@ public class ClassDescImpl extends AbstractClassDesc {
                         .getAnnotationDescsForSetter(), force));
     }
 
-    // Metaは自動生成機構が操作するものであって、つけたり外したりする都合上マージはしないようにしている。
     AnnotationDesc[] merge(AnnotationDesc[] ads,
             AnnotationDesc[] annotationDescs, boolean force) {
+        ClassDesc dummyCd = new ClassDescImpl("");
         Map<String, AnnotationDesc> adMap = new LinkedHashMap<String, AnnotationDesc>();
         for (AnnotationDesc ad : ads) {
-            if (force && isMetaAnnotation(ad)) {
-                continue;
+            if (isMetaAnnotation(ad)) {
+                dummyCd.setAnnotationDesc(ad);
+            } else {
+                adMap.put(ad.getName(), ad);
             }
-            adMap.put(ad.getName(), ad);
         }
-        for (AnnotationDesc annotationdesc : annotationDescs) {
-            if (!force && isMetaAnnotation(annotationdesc)) {
-                continue;
+        for (AnnotationDesc annotationDesc : annotationDescs) {
+            if (isMetaAnnotation(annotationDesc)) {
+                if (force) {
+                    dummyCd.setAnnotationDesc(annotationDesc);
+                } else {
+                    ClassDesc dummyCd2 = new ClassDescImpl("");
+                    dummyCd2.setAnnotationDesc(annotationDesc);
+                    for (MetaAnnotationDesc mad : dummyCd2
+                            .getMetaAnnotationDescs()) {
+                        if (!dummyCd.hasMeta(mad.getMetaName())) {
+                            dummyCd.setAnnotationDesc(mad);
+                        }
+                    }
+                }
+            } else {
+                AnnotationDesc ad = adMap.get(annotationDesc.getName());
+                if (force || ad == null) {
+                    adMap.put(annotationDesc.getName(),
+                            (AnnotationDesc) annotationDesc.clone());
+                }
             }
-            AnnotationDesc ad = adMap.get(annotationdesc.getName());
-            if (force || ad == null) {
-                adMap.put(annotationdesc.getName(),
-                        (AnnotationDesc) annotationdesc.clone());
+        }
+
+        AnnotationDesc metasAd = dummyCd.getAnnotationDesc(Metas.class
+                .getName());
+        if (metasAd != null) {
+            adMap.put(metasAd.getName(), metasAd);
+        } else {
+            AnnotationDesc metaAd = dummyCd.getAnnotationDesc(Meta.class
+                    .getName());
+            if (metaAd != null) {
+                adMap.put(metaAd.getName(), metaAd);
             }
         }
 

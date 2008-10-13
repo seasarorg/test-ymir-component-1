@@ -15,6 +15,7 @@ import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.conversation.annotation.Begin;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
@@ -529,5 +530,16 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertEquals("com.example.web.TraversePageBase", target_.newClassDesc(
                 "com.example.web.aaa2.bbb.TraversePage", null)
                 .getSuperclassName());
+    }
+
+    public void testAdjustByExistentClass_Baseにあるメソッドのアノテーションとボディが保持されること()
+            throws Exception {
+        ClassDesc classDesc = target_.getClassDesc(AdjustPage.class);
+        target_.adjustByExistentClass(classDesc);
+
+        MethodDesc actual = classDesc.getMethodDesc(new MethodDescImpl("_get"));
+        assertNotNull(actual);
+        assertNotNull(actual.getMetaFirstValue(Globals.META_NAME_SOURCE));
+        assertNotNull(actual.getBodyDesc());
     }
 }

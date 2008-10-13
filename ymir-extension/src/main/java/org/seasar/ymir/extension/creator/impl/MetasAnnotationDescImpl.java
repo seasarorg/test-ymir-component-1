@@ -117,4 +117,8 @@ public class MetasAnnotationDescImpl implements MetasAnnotationDesc {
     public MetaAnnotationDesc[] getMetaAnnotationDescs() {
         return metaAnnotationDescs_;
     }
+
+    public String getMetaName() {
+        throw new UnsupportedOperationException();
+    }
 }

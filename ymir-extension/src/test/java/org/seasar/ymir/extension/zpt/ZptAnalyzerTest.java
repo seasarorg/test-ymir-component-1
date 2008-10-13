@@ -835,13 +835,13 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals("com.example.dto.FormDto", pd.getTypeDesc().getName());
         assertEquals(PropertyDesc.NONE, pd.getMode());
         assertTrue(pd.hasMeta(Globals.META_NAME_PROPERTY));
-        assertEquals("form", pd.getMetaValue(Globals.META_NAME_PROPERTY));
+        assertEquals("form", pd.getMetaFirstValue(Globals.META_NAME_PROPERTY));
         pd = cd.getPropertyDesc("value");
         assertNotNull(pd);
         assertTrue(pd.isWritable());
         assertTrue(pd.hasMetaOnSetter(Globals.META_NAME_FORMPROPERTY));
         assertEquals("form", pd
-                .getMetaValueOnSetter(Globals.META_NAME_FORMPROPERTY));
+                .getMetaFirstValueOnSetter(Globals.META_NAME_FORMPROPERTY));
     }
 
     public void testAnalyze49_RequestParameterアノテーションが付与されること()

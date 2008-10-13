@@ -1,6 +1,5 @@
 package org.seasar.ymir.extension.creator.impl;
 
-import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -145,9 +144,9 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
                 new MethodDescImpl("method5")).getAnnotationDesc("name1"));
         assertNotNull("メソッドのMeta系でないアノテーションはマージされること", actual.getMethodDesc(
                 new MethodDescImpl("method5")).getAnnotationDesc("name2"));
-        assertNotNull("メソッドのMeta系アノテーションはマージされないこと", actual.getMethodDesc(
+        assertNotNull("メソッドのMeta系アノテーションもマージされること", actual.getMethodDesc(
                 new MethodDescImpl("method5")).getMetaValue("a"));
-        assertNull("メソッドのMeta系アノテーションはマージされないこと", actual.getMethodDesc(
+        assertNotNull("メソッドのMeta系アノテーションもマージされること", actual.getMethodDesc(
                 new MethodDescImpl("method5")).getMetaValue("b"));
     }
 
@@ -282,9 +281,9 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
                 new MethodDescImpl("method5")).getAnnotationDesc("name1"));
         assertNotNull("メソッドのMeta系でないアノテーションはマージされること", actual.getMethodDesc(
                 new MethodDescImpl("method5")).getAnnotationDesc("name2"));
-        assertNull("メソッドのMeta系アノテーションはマージされないこと", actual.getMethodDesc(
+        assertNotNull("メソッドのMeta系アノテーションもマージされること", actual.getMethodDesc(
                 new MethodDescImpl("method5")).getMetaValue("a"));
-        assertNotNull("メソッドのMeta系アノテーションはマージされないこと", actual.getMethodDesc(
+        assertNotNull("メソッドのMeta系アノテーションもマージされること", actual.getMethodDesc(
                 new MethodDescImpl("method5")).getMetaValue("b"));
     }
 
@@ -322,27 +321,28 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
 
         actual.merge(cd2, false);
 
-        assertEquals("Meta系アノテーションはマージされないこと", "a",
-                ((MetaAnnotationDescImpl) actual.getPropertyDesc("param1")
-                        .getAnnotationDesc(Meta.class.getName())).getMetaName());
+        assertTrue("Meta系アノテーションもマージされる", actual.getPropertyDesc("param1")
+                .hasMeta("a"));
+        assertTrue("Meta系アノテーションもマージされる", actual.getPropertyDesc("param1")
+                .hasMeta("b"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
                 "param1").getAnnotationDesc("name1"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
                 "param1").getAnnotationDesc("name2"));
 
-        assertEquals("Meta系アノテーションはマージされないこと", "a_getter",
-                ((MetaAnnotationDescImpl) actual.getPropertyDesc("param1")
-                        .getAnnotationDescForGetter(Meta.class.getName()))
-                        .getMetaName());
+        assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
+                .hasMetaOnGetter("a_getter"));
+        assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
+                .hasMetaOnGetter("b_getter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
                 "param1").getAnnotationDescForGetter("name1_getter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
                 "param1").getAnnotationDescForGetter("name2_getter"));
 
-        assertEquals("Meta系アノテーションはマージされないこと", "a_setter",
-                ((MetaAnnotationDescImpl) actual.getPropertyDesc("param1")
-                        .getAnnotationDescForSetter(Meta.class.getName()))
-                        .getMetaName());
+        assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
+                .hasMetaOnSetter("a_setter"));
+        assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
+                .hasMetaOnSetter("b_setter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
                 "param1").getAnnotationDescForSetter("name1_setter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
@@ -383,27 +383,28 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
 
         actual.merge(cd2, true);
 
-        assertEquals("Meta系アノテーションはマージされないこと", "b",
-                ((MetaAnnotationDescImpl) actual.getPropertyDesc("param1")
-                        .getAnnotationDesc(Meta.class.getName())).getMetaName());
+        assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
+                .hasMeta("a"));
+        assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
+                .hasMeta("b"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
                 "param1").getAnnotationDesc("name1"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
                 "param1").getAnnotationDesc("name2"));
 
-        assertEquals("Meta系アノテーションはマージされないこと", "b_getter",
-                ((MetaAnnotationDescImpl) actual.getPropertyDesc("param1")
-                        .getAnnotationDescForGetter(Meta.class.getName()))
-                        .getMetaName());
+        assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
+                .hasMetaOnGetter("a_getter"));
+        assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
+                .hasMetaOnGetter("b_getter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
                 "param1").getAnnotationDescForGetter("name1_getter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
                 "param1").getAnnotationDescForGetter("name2_getter"));
 
-        assertEquals("Meta系アノテーションはマージされないこと", "b_setter",
-                ((MetaAnnotationDescImpl) actual.getPropertyDesc("param1")
-                        .getAnnotationDescForSetter(Meta.class.getName()))
-                        .getMetaName());
+        assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
+                .hasMetaOnSetter("a_setter"));
+        assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
+                .hasMetaOnSetter("b_setter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
                 "param1").getAnnotationDescForSetter("name1_setter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(

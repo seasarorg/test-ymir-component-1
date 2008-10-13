@@ -21,4 +21,6 @@ public interface AnnotatedDesc {
     Class<?>[] getMetaClassValue(String name);
 
     boolean hasMeta(String name);
+
+    MetaAnnotationDesc[] getMetaAnnotationDescs();
 }

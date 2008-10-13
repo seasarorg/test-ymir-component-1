@@ -3,12 +3,14 @@ package org.seasar.ymir.extension.creator.impl;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.seasar.ymir.extension.creator.AbstractAnnotatedDesc;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
-import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
+import org.seasar.ymir.extension.creator.util.DescUtils;
 
-public class PropertyDescImpl implements PropertyDesc, Cloneable {
+public class PropertyDescImpl extends AbstractAnnotatedDesc implements
+        PropertyDesc {
     public static final int NONE = 0;
 
     public static final int READ = 1;
@@ -27,8 +29,6 @@ public class PropertyDescImpl implements PropertyDesc, Cloneable {
 
     private Map<String, AnnotationDesc> annotationDescForSetterMap_ = new TreeMap<String, AnnotationDesc>();
 
-    private Map<String, AnnotationDesc> annotationDescMap_ = new TreeMap<String, AnnotationDesc>();
-
     private String getterName_;
 
     public PropertyDescImpl(String name) {
@@ -36,13 +36,8 @@ public class PropertyDescImpl implements PropertyDesc, Cloneable {
     }
 
     public Object clone() {
+        PropertyDescImpl cloned = (PropertyDescImpl) super.clone();
 
-        PropertyDescImpl cloned;
-        try {
-            cloned = (PropertyDescImpl) super.clone();
-        } catch (CloneNotSupportedException ex) {
-            throw new RuntimeException(ex);
-        }
         if (typeDesc_ != null) {
             cloned.typeDesc_ = (TypeDesc) typeDesc_.clone();
         }
@@ -50,8 +45,6 @@ public class PropertyDescImpl implements PropertyDesc, Cloneable {
                 annotationDescForGetterMap_);
         cloned.annotationDescForSetterMap_ = new TreeMap<String, AnnotationDesc>(
                 annotationDescForSetterMap_);
-        cloned.annotationDescMap_ = new TreeMap<String, AnnotationDesc>(
-                annotationDescMap_);
 
         return cloned;
     }
@@ -158,8 +151,8 @@ public class PropertyDescImpl implements PropertyDesc, Cloneable {
     }
 
     public void setAnnotationDescForGetter(AnnotationDesc annotationDesc) {
-        annotationDescForGetterMap_.put(annotationDesc.getName(),
-                annotationDesc);
+        DescUtils
+                .setAnnotationDesc(annotationDescForGetterMap_, annotationDesc);
     }
 
     public AnnotationDesc[] getAnnotationDescsForGetter() {
@@ -179,8 +172,8 @@ public class PropertyDescImpl implements PropertyDesc, Cloneable {
     }
 
     public void setAnnotationDescForSetter(AnnotationDesc annotationDesc) {
-        annotationDescForSetterMap_.put(annotationDesc.getName(),
-                annotationDesc);
+        DescUtils
+                .setAnnotationDesc(annotationDescForSetterMap_, annotationDesc);
     }
 
     public AnnotationDesc[] getAnnotationDescsForSetter() {
@@ -195,85 +188,26 @@ public class PropertyDescImpl implements PropertyDesc, Cloneable {
         }
     }
 
-    public AnnotationDesc getAnnotationDesc(String name) {
-        return annotationDescMap_.get(name);
-    }
-
-    public void setAnnotationDesc(AnnotationDesc annotationDesc) {
-        annotationDescMap_.put(annotationDesc.getName(), annotationDesc);
-    }
-
-    public AnnotationDesc[] getAnnotationDescs() {
-        return annotationDescMap_.values().toArray(new AnnotationDesc[0]);
-    }
-
     public void setAnnotationDescs(AnnotationDesc[] annotationDescs) {
-        annotationDescMap_.clear();
+        super.clear();
         for (AnnotationDesc annotationDesc : annotationDescs) {
             setAnnotationDesc(annotationDesc);
         }
     }
 
-    public String getMetaValueOnGetter(String name) {
-        MetaAnnotationDesc metas = (MetaAnnotationDesc) annotationDescForGetterMap_
-                .get(ANNOTATION_NAME_METAS);
-        if (metas != null) {
-            String value = metas.getValue(name);
-            if (value != null) {
-                return value;
-            }
-        }
-        MetaAnnotationDesc meta = (MetaAnnotationDesc) annotationDescForGetterMap_
-                .get(ANNOTATION_NAME_META);
-        if (meta != null) {
-            return meta.getValue(name);
-        }
-        return null;
+    public String getMetaFirstValueOnGetter(String name) {
+        return DescUtils.getMetaFirstValue(annotationDescForGetterMap_, name);
     }
 
-    public String getMetaValueOnSetter(String name) {
-        MetaAnnotationDesc metas = (MetaAnnotationDesc) annotationDescForSetterMap_
-                .get(ANNOTATION_NAME_METAS);
-        if (metas != null) {
-            String value = metas.getValue(name);
-            if (value != null) {
-                return value;
-            }
-        }
-        MetaAnnotationDesc meta = (MetaAnnotationDesc) annotationDescForSetterMap_
-                .get(ANNOTATION_NAME_META);
-        if (meta != null) {
-            return meta.getValue(name);
-        }
-        return null;
-    }
-
-    public String getMetaValue(String name) {
-        MetaAnnotationDesc metas = (MetaAnnotationDesc) annotationDescMap_
-                .get(ANNOTATION_NAME_METAS);
-        if (metas != null) {
-            String value = metas.getValue(name);
-            if (value != null) {
-                return value;
-            }
-        }
-        MetaAnnotationDesc meta = (MetaAnnotationDesc) annotationDescMap_
-                .get(ANNOTATION_NAME_META);
-        if (meta != null) {
-            return meta.getValue(name);
-        }
-        return null;
+    public String getMetaFirstValueOnSetter(String name) {
+        return DescUtils.getMetaFirstValue(annotationDescForSetterMap_, name);
     }
 
     public boolean hasMetaOnGetter(String name) {
-        return (getMetaValueOnGetter(name) != null);
+        return DescUtils.hasMeta(annotationDescForGetterMap_, name);
     }
 
     public boolean hasMetaOnSetter(String name) {
-        return (getMetaValueOnSetter(name) != null);
-    }
-
-    public boolean hasMeta(String name) {
-        return (getMetaValue(name) != null);
+        return DescUtils.hasMeta(annotationDescForSetterMap_, name);
     }
 }
