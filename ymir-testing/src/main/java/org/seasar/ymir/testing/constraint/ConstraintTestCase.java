@@ -25,8 +25,6 @@ abstract public class ConstraintTestCase<A extends Annotation, C extends Constra
         extends TestCase {
     private MockRequest request_ = new MockRequest();
 
-    private String value_;
-
     /**
      * 制約を記述するためのAnnotationクラスを返します。
      * 
