@@ -10,7 +10,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.cms.beantable.Beantable;
 import org.seasar.cms.pluggable.ClassTraverser;
-import org.seasar.cms.pluggable.Configuration;
 import org.seasar.cms.pluggable.hotdeploy.DistributedHotdeployBehavior;
 import org.seasar.cms.pluggable.hotdeploy.HotdeployListener;
 import org.seasar.cms.pluggable.util.PluggableUtils;
@@ -26,8 +25,6 @@ import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.beantable.annotation.Managed;
 
 public class BeantableManager implements LifecycleListener, HotdeployListener {
-    private Configuration configuration_;
-
     private S2Container container_;
 
     private ApplicationManager applicationManager_;
@@ -39,11 +36,6 @@ public class BeantableManager implements LifecycleListener, HotdeployListener {
     private ClassTraverserBag[] traverserBags_;
 
     private Log log_ = LogFactory.getLog(BeantableManager.class);
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setConfiguration(Configuration configuration) {
-        configuration_ = configuration;
-    }
 
     @Binding(bindingType = BindingType.MUST)
     public void setContainer(S2Container container) {
