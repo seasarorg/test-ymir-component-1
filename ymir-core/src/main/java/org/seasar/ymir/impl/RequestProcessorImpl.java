@@ -51,8 +51,6 @@ public class RequestProcessorImpl implements RequestProcessor {
 
     private Ymir ymir_;
 
-    private ApplicationManager applicationManager_;
-
     private AnnotationHandler annotationHandler_;
 
     private ComponentMetaDataFactory componentMetaDataFactory_;
@@ -77,11 +75,6 @@ public class RequestProcessorImpl implements RequestProcessor {
     @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
         ymir_ = ymir;
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setApplicationManager(ApplicationManager applicationManager) {
-        applicationManager_ = applicationManager;
     }
 
     @Binding(bindingType = BindingType.MUST)

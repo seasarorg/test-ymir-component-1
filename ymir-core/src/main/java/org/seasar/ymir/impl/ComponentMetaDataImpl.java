@@ -12,15 +12,12 @@ import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.util.ClassUtils;
 
 public class ComponentMetaDataImpl implements ComponentMetaData {
-    private Class<?> class_;
-
     private AnnotationHandler annotationHandler_;
 
     private Map<Phase, Method[]> methodsMap_ = new HashMap<Phase, Method[]>();
 
     public ComponentMetaDataImpl(Class<?> clazz,
             AnnotationHandler annotationHandler) {
-        class_ = clazz;
         annotationHandler_ = annotationHandler;
         Method[] methods = ClassUtils.getMethods(clazz);
         for (int i = 0; i < methods.length; i++) {

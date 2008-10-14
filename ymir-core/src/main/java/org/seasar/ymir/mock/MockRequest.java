@@ -28,8 +28,6 @@ public class MockRequest extends RequestWrapper {
 
     private Map<String, FormFile[]> fileParameterMap_ = new HashMap<String, FormFile[]>();
 
-    private boolean dispatchingByParameter_;
-
     private Locale locale_;
 
     private Map<String, Object> attributeMap_ = new HashMap<String, Object>();
@@ -120,11 +118,6 @@ public class MockRequest extends RequestWrapper {
 
     public MockRequest setContextPath(String contextPath) {
         contextPath_ = contextPath;
-        return this;
-    }
-
-    public MockRequest setDispatchingByParameter(boolean dispatchingByParameter) {
-        dispatchingByParameter_ = dispatchingByParameter;
         return this;
     }
 

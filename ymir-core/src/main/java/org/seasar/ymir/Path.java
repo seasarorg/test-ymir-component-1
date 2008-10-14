@@ -287,7 +287,7 @@ public class Path {
             return this;
         }
 
-        String[] values = (String[]) parameterMap_.get(name);
+        String[] values = parameterMap_.get(name);
         String[] newValues;
         if (values == null) {
             newValues = new String[] { value };

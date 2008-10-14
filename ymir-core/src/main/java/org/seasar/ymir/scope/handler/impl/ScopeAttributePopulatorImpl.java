@@ -22,9 +22,6 @@ import org.seasar.ymir.scope.handler.ScopeAttributePopulator;
 import org.seasar.ymir.util.BeanUtils;
 
 public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
-    private static final Log log_ = LogFactory
-            .getLog(ScopeAttributePopulatorImpl.class);
-
     private Scope scope_;
 
     private AnnotationHandler annotationHandler_;

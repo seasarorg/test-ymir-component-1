@@ -32,8 +32,6 @@ public class TypeConversionManagerImpl implements TypeConversionManager {
     private static final Log log_ = LogFactory
             .getLog(TypeConversionManagerImpl.class);
 
-    private static final Annotation[] HINT_EMPTY = new Annotation[0];
-
     public TypeConversionManagerImpl() {
         propertyUtilsBean_ = prepare(newPropertyUtilsBean());
     }

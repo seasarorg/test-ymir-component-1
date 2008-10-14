@@ -85,7 +85,7 @@ public class MultipartServletRequest extends HttpServletRequestWrapper {
     }
 
     public String[] getParameterValues(String name) {
-        return (String[]) paramMap_.get(name);
+        return paramMap_.get(name);
     }
 
     /*

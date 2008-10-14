@@ -30,14 +30,17 @@ public class BeanUtilsTest extends TestCase {
 
     public void testSpike2() throws Exception {
         BeanInfo beanInfo = Introspector.getBeanInfo(new Object() {
+            @SuppressWarnings("unused")
             public boolean isHoe() {
                 return false;
             }
 
+            @SuppressWarnings("unused")
             public boolean getHoe() {
                 return false;
             }
 
+            @SuppressWarnings("unused")
             public void setHoe(boolean hoe) {
             }
         }.getClass());

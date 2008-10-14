@@ -27,9 +27,6 @@ abstract public class AbstractScopeAttributeHandler {
 
     protected boolean invokeWhereNull_;
 
-    private static final Log log_ = LogFactory
-            .getLog(AbstractScopeAttributeHandler.class);
-
     /**
      * このクラスのオブジェクトを構築します。
      * 

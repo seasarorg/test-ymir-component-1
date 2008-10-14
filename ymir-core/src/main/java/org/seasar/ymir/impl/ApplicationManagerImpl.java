@@ -40,7 +40,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
     }
 
     public Application getContextApplication() {
-        return (Application) application_.get();
+        return application_.get();
     }
 
     public Application findContextApplication() {

@@ -5,8 +5,6 @@ import org.seasar.ymir.ComponentClientTestCase;
 import org.seasar.ymir.converter.PropertyHandler;
 
 public class TypeConversionManagerImplTest extends ComponentClientTestCase {
-    private S2Container container_;
-
     private TypeConversionManagerImpl target_;
 
     @Override

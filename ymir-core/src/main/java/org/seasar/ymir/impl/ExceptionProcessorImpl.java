@@ -27,8 +27,6 @@ import org.seasar.ymir.util.YmirUtils;
 public class ExceptionProcessorImpl implements ExceptionProcessor {
     private Ymir ymir_;
 
-    private ComponentMetaDataFactory componentMetaDataFactory_;
-
     private ResponseConstructorSelector responseConstructorSelector_;
 
     private Updater[] updaters_ = new Updater[0];
@@ -40,12 +38,6 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
         ymir_ = ymir;
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setComponentMetaDataFactory(
-            ComponentMetaDataFactory componentMetaDataFactory) {
-        componentMetaDataFactory_ = componentMetaDataFactory;
     }
 
     @Binding(bindingType = BindingType.MUST)

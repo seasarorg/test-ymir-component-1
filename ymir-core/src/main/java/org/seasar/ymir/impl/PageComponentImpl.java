@@ -14,8 +14,6 @@ public class PageComponentImpl implements PageComponent {
 
     private PageComponent[] children_;
 
-    private Map<Class<?>, Object> relatedObjectMap_ = new ConcurrentHashMap<Class<?>, Object>();
-
     private PageComponent[] descendants_;
 
     public PageComponentImpl(Object page, Class<?> pageClass) {

@@ -10,18 +10,12 @@ import org.seasar.ymir.scope.AttributeNotFoundRuntimeException;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.handler.ScopeAttributeInjector;
-import org.seasar.ymir.util.ClassUtils;
 
 public class ScopeAttributeInjectorImpl extends AbstractScopeAttributeHandler
         implements ScopeAttributeInjector {
-    private static final Log log_ = LogFactory
-            .getLog(ScopeAttributeInjectorImpl.class);
-
     private Class<?> type_;
 
     private Annotation[] hint_;
-
-    private Class<?> componentType_;
 
     private boolean required_;
 
@@ -34,7 +28,6 @@ public class ScopeAttributeInjectorImpl extends AbstractScopeAttributeHandler
         super(name, scope, injectionMethod, injectWhereNull, enabledActionNames);
         type_ = type;
         hint_ = hint;
-        componentType_ = ClassUtils.toComponentType(type);
         required_ = required;
         scopeManager_ = scopeManager;
     }
@@ -47,7 +40,7 @@ public class ScopeAttributeInjectorImpl extends AbstractScopeAttributeHandler
 
         Object value;
         try {
-            value = scopeManager_.getAttribute(scope_, name_, type_, null,
+            value = scopeManager_.getAttribute(scope_, name_, type_, hint_,
                     required_, invokeWhereNull_);
         } catch (AttributeNotFoundRuntimeException ex) {
             throw ex.setMethod(method_).setComponent(component);

@@ -12,9 +12,6 @@ import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.handler.ScopeAttributeResolver;
 
 public class ScopeAttributeResolverImpl implements ScopeAttributeResolver {
-    private static final Log log_ = LogFactory
-            .getLog(ScopeAttributeResolverImpl.class);
-
     private Class<?> type_;
 
     private Annotation[] hint_;

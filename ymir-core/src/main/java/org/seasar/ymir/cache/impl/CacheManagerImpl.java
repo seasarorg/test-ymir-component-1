@@ -58,7 +58,7 @@ public class CacheManagerImpl implements CacheManager {
     public <K, V> Map<K, V> newMap() {
         Map<K, V> m;
         try {
-            m = (Map<K, V>) mapClass_.newInstance();
+            m = mapClass_.newInstance();
         } catch (InstantiationException ex) {
             throw new RuntimeException(ex);
         } catch (IllegalAccessException ex) {

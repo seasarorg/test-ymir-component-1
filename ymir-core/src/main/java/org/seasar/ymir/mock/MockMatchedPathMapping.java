@@ -28,8 +28,6 @@ public class MockMatchedPathMapping implements MatchedPathMapping {
 
     private boolean denied_;
 
-    private boolean dispatchingByParameter_;
-
     private String renderActionName_;
 
     private Action renderAction_;
@@ -112,12 +110,6 @@ public class MockMatchedPathMapping implements MatchedPathMapping {
 
     public boolean isDenied() {
         return denied_;
-    }
-
-    public MockMatchedPathMapping setDispatchingByParameter(
-            boolean dispatchingByParameter) {
-        dispatchingByParameter_ = dispatchingByParameter;
-        return this;
     }
 
     public MockMatchedPathMapping setDenied(boolean denied) {

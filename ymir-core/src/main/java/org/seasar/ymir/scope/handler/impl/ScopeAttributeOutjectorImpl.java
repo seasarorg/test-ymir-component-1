@@ -10,9 +10,6 @@ import org.seasar.ymir.scope.handler.ScopeAttributeOutjector;
 
 public class ScopeAttributeOutjectorImpl extends AbstractScopeAttributeHandler
         implements ScopeAttributeOutjector {
-    private static final Log log_ = LogFactory
-            .getLog(ScopeAttributeOutjectorImpl.class);
-
     public ScopeAttributeOutjectorImpl(String name, Scope scope,
             Method outjectionMethod, boolean outjectWhereNull,
             String[] enabledActionNames) {
