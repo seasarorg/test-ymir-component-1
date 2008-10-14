@@ -62,33 +62,32 @@ public class ForwardResponseITest extends YmirTestCase {
         assertTrue(page.isGetCalled());
     }
 
-    public void test_YMIR134_forwardの場合は対応するPageコンポーネントが存在しない時だけprerenderメソッドが呼び出されること()
+    public void test_YMIR265_forwardの場合はprerenderメソッドが呼び出されないこと()
             throws Exception {
         Request request = prepareForProcessing("/forwardResponseITest5.html",
                 HttpMethod.GET);
         processRequest(request);
         ForwardResponseITest5Page actual = getComponent(ForwardResponseITest5Page.class);
 
-        assertTrue("forward先のページ対応するコンポーネントが存在しない場合はprerenderが呼び出されること", actual
-                .isPrerenderCalled());
+        assertFalse("forward先のページ対応するコンポーネントが存在しない場合はprerenderが呼び出されないこと",
+                actual.isPrerenderCalled());
 
         request = prepareForProcessing("/forwardResponseITest5.html",
                 HttpMethod.POST);
         processRequest(request);
         actual = getComponent(ForwardResponseITest5Page.class);
 
-        assertFalse(
-                "forward先のページ対応するコンポーネントが存在する場合はprerenderが呼び出されないこと（互換性のため）",
+        assertFalse("forward先のページ対応するコンポーネントが存在する場合はprerenderが呼び出されないこと",
                 actual.isPrerenderCalled());
     }
 
-    public void test_DeniedPathMappingにマッチするパスにforwardする時は遷移元のprerenderメソッドが呼び出されること()
+    public void test_YMIR265_DeniedPathMappingにマッチするパスにforwardする時でも遷移元のprerenderメソッドが呼び出されないこと()
             throws Exception {
         Request request = prepareForProcessing("/forwardResponseITest8.html",
                 HttpMethod.GET);
         processRequest(request);
         ForwardResponseITest8Page actual = getComponent(ForwardResponseITest8Page.class);
 
-        assertTrue(actual.isPrerenderCalled());
+        assertFalse(actual.isPrerenderCalled());
     }
 }
