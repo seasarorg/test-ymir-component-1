@@ -9,8 +9,6 @@ import org.seasar.ymir.extension.creator.util.SourceCreatorUtils;
 public class SystemInformation {
     private Application application_;
 
-    private YmirNamingConvention namingConvention_;
-
     private String[] hotDeployEnabledPackageNames_ = new String[0];
 
     private String[] hotDeployDisabledPackageNames_ = new String[0];
@@ -18,7 +16,6 @@ public class SystemInformation {
     public SystemInformation(Application application,
             YmirNamingConvention namingConvention) {
         application_ = application;
-        namingConvention_ = namingConvention;
 
         initialize(namingConvention);
     }

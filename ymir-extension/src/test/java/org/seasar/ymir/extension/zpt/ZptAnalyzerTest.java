@@ -246,7 +246,7 @@ public class ZptAnalyzerTest extends TestCase {
 
     private ClassDesc getClassDesc(String name) {
 
-        return (ClassDesc) classDescMap_.get(name);
+        return classDescMap_.get(name);
     }
 
     public void testAnalyze1() throws Exception {

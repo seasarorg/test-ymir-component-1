@@ -179,7 +179,7 @@ public class AnnotationDescImpl implements AnnotationDesc {
 
     public Object clone() {
         try {
-            return (AnnotationDescImpl) super.clone();
+            return super.clone();
         } catch (CloneNotSupportedException ex) {
             throw new RuntimeException(ex);
         }

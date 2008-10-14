@@ -24,7 +24,7 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
 
     public Object clone() {
         try {
-            return (MetaAnnotationDescImpl) super.clone();
+            return super.clone();
         } catch (CloneNotSupportedException ex) {
             throw new RuntimeException(ex);
         }

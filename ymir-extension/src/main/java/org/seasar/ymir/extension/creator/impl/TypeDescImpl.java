@@ -286,7 +286,7 @@ public class TypeDescImpl implements TypeDesc {
             return NULL_VALUE;
         } else {
             String name = classDesc_.getName();
-            String value = (String) DEFAULT_VALUE_MAP.get(name);
+            String value = DEFAULT_VALUE_MAP.get(name);
             if (value != null) {
                 return value;
             } else {

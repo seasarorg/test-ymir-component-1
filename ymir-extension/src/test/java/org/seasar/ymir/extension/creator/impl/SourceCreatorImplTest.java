@@ -116,8 +116,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 "/test.html", HttpMethod.GET, false, "testPage",
                 "com.example.web.TestPage", null, null, null,
                 getSourceCreator().getTemplate("/test.html")), hintBag, null);
-        ClassDesc[] actual = (ClassDesc[]) classDescMap.values().toArray(
-                new ClassDesc[0]);
+        ClassDesc[] actual = classDescMap.values().toArray(new ClassDesc[0]);
 
         assertNotNull(actual);
         assertEquals(2, actual.length);
@@ -152,8 +151,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 "/test.html", HttpMethod.GET, false, "testPage",
                 "com.example.web.TestPage", null, null, null,
                 getSourceCreator().getTemplate("/test.html")), hintBag, null);
-        ClassDesc[] actual = (ClassDesc[]) classDescMap.values().toArray(
-                new ClassDesc[0]);
+        ClassDesc[] actual = classDescMap.values().toArray(new ClassDesc[0]);
 
         assertEquals("com.outer.dto.EntryDto", actual[0].getPropertyDesc(
                 "result").getTypeDesc().getName());
@@ -478,10 +476,12 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         ClassDesc actual = target_.getClassDesc(new Object() {
             private String aName_;
 
+            @SuppressWarnings("unused")
             public String getAName() {
                 return aName_;
             }
 
+            @SuppressWarnings("unused")
             public void setAName(String aName) {
                 aName_ = aName;
             }
@@ -497,11 +497,13 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
             @org.seasar.ymir.annotation.Meta(name = "property", value = "hoehoe")
             protected HoehoeDto hoehoe_ = new HoehoeDto();
 
+            @SuppressWarnings("unused")
             @org.seasar.ymir.annotation.Meta(name = "formProperty", value = "hoehoe")
             public String getAName() {
                 return hoehoe_.getAName();
             }
 
+            @SuppressWarnings("unused")
             @org.seasar.ymir.annotation.Meta(name = "formProperty", value = "hoehoe")
             public void setAName(String aName) {
                 hoehoe_.setAName(aName);

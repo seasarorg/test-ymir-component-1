@@ -45,6 +45,6 @@ public class ActionSelector<T> {
 
     public T getAction(Object condition) {
 
-        return (T) strategyMap_.get(condition);
+        return strategyMap_.get(condition);
     }
 }

@@ -62,8 +62,6 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
 
     private static final String SUFFIX_ARRAY = "[]";
 
-    private static final String PACKAGEPREFIX_JAVA_LANG = "java.lang.";
-
     private static final Set<String> primitiveSet_;
 
     static {

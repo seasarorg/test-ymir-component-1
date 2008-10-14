@@ -27,7 +27,7 @@ public class ParameterReplacedRequestWrapper extends RequestWrapper {
 
     @Override
     public String getParameter(String name, String defaultValue) {
-        String[] values = (String[]) parameterMap_.get(name);
+        String[] values = parameterMap_.get(name);
         if (values != null && values.length > 0) {
             return values[0];
         } else {
@@ -52,7 +52,7 @@ public class ParameterReplacedRequestWrapper extends RequestWrapper {
 
     @Override
     public String[] getParameterValues(String name, String[] defaultValues) {
-        String[] values = (String[]) parameterMap_.get(name);
+        String[] values = parameterMap_.get(name);
         if (values != null) {
             return values;
         } else {
@@ -62,7 +62,7 @@ public class ParameterReplacedRequestWrapper extends RequestWrapper {
 
     @Override
     public FormFile getFileParameter(String name) {
-        FormFile[] values = (FormFile[]) fileParameterMap_.get(name);
+        FormFile[] values = fileParameterMap_.get(name);
         if (values != null && values.length > 0) {
             return values[0];
         } else {
@@ -82,7 +82,7 @@ public class ParameterReplacedRequestWrapper extends RequestWrapper {
 
     @Override
     public FormFile[] getFileParameterValues(String name) {
-        FormFile[] values = (FormFile[]) fileParameterMap_.get(name);
+        FormFile[] values = fileParameterMap_.get(name);
         if (values != null) {
             return values;
         } else {

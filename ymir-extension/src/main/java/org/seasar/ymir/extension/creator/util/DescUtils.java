@@ -24,10 +24,6 @@ import org.seasar.ymir.extension.creator.impl.MetasAnnotationDescImpl;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
 
 public class DescUtils {
-    private static final char BEGIN_TYPESPEC = '<';
-
-    private static final char END_TYPESPEC = '>';
-
     private static final String SUFFIX_ARRAY = "[]";
 
     private DescUtils() {
