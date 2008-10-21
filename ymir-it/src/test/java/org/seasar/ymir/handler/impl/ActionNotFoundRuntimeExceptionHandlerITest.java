@@ -4,18 +4,18 @@ import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.testing.PageTestCase;
 
-import com.example.web.ActionNotFoundExceptionHandlerPage;
+import com.example.web.ActionNotFoundRuntimeExceptionHandlerPage;
 
-public class ActionNotFoundExceptionHandlerITest extends
-        PageTestCase<ActionNotFoundExceptionHandlerPage> {
+public class ActionNotFoundRuntimeExceptionHandlerITest extends
+        PageTestCase<ActionNotFoundRuntimeExceptionHandlerPage> {
     @Override
-    protected Class<ActionNotFoundExceptionHandlerPage> getPageClass() {
-        return ActionNotFoundExceptionHandlerPage.class;
+    protected Class<ActionNotFoundRuntimeExceptionHandlerPage> getPageClass() {
+        return ActionNotFoundRuntimeExceptionHandlerPage.class;
     }
 
     public void test_アクションが見つからなかった時に405を返すこと() throws Exception {
         Request request = prepareForProcessing(
-                "/actionNotFoundExceptionHandler.html", HttpMethod.TRACE);
+                "/actionNotFoundRuntimeExceptionHandler.html", HttpMethod.TRACE);
         process(request);
 
         assertEquals(405, getHttpServletResponse().getStatus());

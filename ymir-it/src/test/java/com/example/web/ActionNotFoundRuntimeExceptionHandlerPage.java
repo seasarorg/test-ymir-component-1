@@ -1,6 +1,6 @@
 package com.example.web;
 
-public class ActionNotFoundExceptionHandlerPage {
+public class ActionNotFoundRuntimeExceptionHandlerPage {
     public void _get() {
     }
 
