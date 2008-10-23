@@ -24,6 +24,7 @@ import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FrameworkDispatch;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
@@ -443,7 +444,7 @@ public class RequestProcessorImpl implements RequestProcessor {
                         methods[i].invoke(pageComponent.getPage(),
                                 new Object[0]);
                     } catch (IllegalArgumentException ex) {
-                        throw new RuntimeException(
+                        throw new IllegalClientCodeRuntimeException(
                                 "Can't invoke method with parameters", ex);
                     } catch (IllegalAccessException ex) {
                         throw new RuntimeException(ex);

@@ -28,10 +28,6 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
     void register(Method method) {
         Invoke invoke = annotationHandler_.getAnnotation(method, Invoke.class);
         if (invoke != null) {
-            if (method.getParameterTypes().length > 0) {
-                throw new RuntimeException(
-                        "Can't annotate method that has parameter with @Invoke");
-            }
             Phase phase = invoke.value();
             Method[] methods = methodsMap_.get(phase);
             if (methods == null) {

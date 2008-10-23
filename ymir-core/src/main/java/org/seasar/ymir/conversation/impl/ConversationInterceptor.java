@@ -9,6 +9,7 @@ import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.conversation.ConversationUtils;
@@ -78,14 +79,14 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
                     .getAnnotation(actionMethod, BeginSubConversation.class);
             if (annotationHandler_.isAnnotationPresent(actionMethod, End.class)) {
                 if (beginSubConversation != null) {
-                    throw new RuntimeException(
+                    throw new IllegalClientCodeRuntimeException(
                             "Can't specify both @End and @BeginSubConversation: "
                                     + actionMethod.getName());
                 }
                 if (conversations.isInSubConversation()
                         && !action.getReturnType().isAssignableFrom(
                                 String.class)) {
-                    throw new RuntimeException(
+                    throw new IllegalClientCodeRuntimeException(
                             "@End must annote a method whose return type is assignable from String: "
                                     + action.getTarget().getClass().getName()
                                     + "#" + action.getName() + "()");

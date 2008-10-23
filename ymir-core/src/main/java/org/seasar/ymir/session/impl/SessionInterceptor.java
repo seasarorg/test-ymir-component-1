@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.session.SessionManager;
@@ -26,7 +27,7 @@ public class SessionInterceptor extends AbstractYmirProcessInterceptor
     @Binding(bindingType = BindingType.MUST)
     public void setSessionManager(SessionManager sessionManager) {
         if (!(sessionManager instanceof SessionManagerImpl)) {
-            throw new RuntimeException(
+            throw new IllegalClientCodeRuntimeException(
                     "SessionManager must be instance of SessionManagerImpl");
         }
         ((SessionManagerImpl) sessionManager).setAttributeListener(this);

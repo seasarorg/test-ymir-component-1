@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.response.scheme.Strategy;
 import org.seasar.ymir.response.scheme.StrategySelector;
 
@@ -16,8 +17,8 @@ public class StrategySelectorImpl implements StrategySelector {
         if (strategy != null) {
             return strategy;
         } else {
-            throw new RuntimeException("Strategy does not exist for scheme: "
-                    + scheme);
+            throw new IllegalClientCodeRuntimeException(
+                    "Strategy does not exist for scheme: " + scheme);
         }
     }
 

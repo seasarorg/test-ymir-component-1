@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.seasar.framework.container.S2Container;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.MethodNotFoundRuntimeException;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.converter.TypeConversionManager;
@@ -149,15 +150,15 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
     void registerForInjectionFromScope(In in, Method method) {
         int modifiers = method.getModifiers();
         if (Modifier.isStatic(modifiers)) {
-            throw new RuntimeException(
+            throw new IllegalClientCodeRuntimeException(
                     "Logic error: @In can't annotate static method: class="
                             + class_.getName() + ", method=" + method);
         } else if (!Modifier.isPublic(modifiers)) {
-            throw new RuntimeException(
+            throw new IllegalClientCodeRuntimeException(
                     "Logic error: @In can annotate only public method: class="
                             + class_.getName() + ", method=" + method);
         } else if (method.getParameterTypes().length != 1) {
-            throw new RuntimeException(
+            throw new IllegalClientCodeRuntimeException(
                     "Logic error: @In can't annotate this method: class="
                             + class_.getName() + ", method=" + method);
         }
@@ -200,15 +201,15 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
     void registerForOutjectionToScope(Out out, Method method) {
         int modifiers = method.getModifiers();
         if (Modifier.isStatic(modifiers)) {
-            throw new RuntimeException(
+            throw new IllegalClientCodeRuntimeException(
                     "Logic error: @Out can't annotate static method: class="
                             + class_.getName() + ", method=" + method);
         } else if (!Modifier.isPublic(modifiers)) {
-            throw new RuntimeException(
+            throw new IllegalClientCodeRuntimeException(
                     "Logic error: @Out can annotate only public method: class="
                             + class_.getName() + ", method=" + method);
         } else if (method.getParameterTypes().length != 0) {
-            throw new RuntimeException(
+            throw new IllegalClientCodeRuntimeException(
                     "Logic error: @Out can't annotate this method: class="
                             + class_.getName() + ", method=" + method);
         }

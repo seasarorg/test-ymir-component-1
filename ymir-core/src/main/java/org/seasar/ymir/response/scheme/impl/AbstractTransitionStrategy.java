@@ -11,6 +11,7 @@ import org.seasar.kvasir.util.el.EvaluationException;
 import org.seasar.kvasir.util.el.TextTemplateEvaluator;
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.kvasir.util.el.impl.SimpleTextTemplateEvaluator;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Path;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -113,7 +114,7 @@ abstract public class AbstractTransitionStrategy implements Strategy {
                             evaluator_.evaluateAsString(decodeURL(params[i]
                                     .substring(equal + 1)), resolver));
                 } catch (EvaluationException ex) {
-                    throw new RuntimeException(
+                    throw new IllegalClientCodeRuntimeException(
                             "Expression type parameter's format is wrong: "
                                     + parameter, ex);
                 }

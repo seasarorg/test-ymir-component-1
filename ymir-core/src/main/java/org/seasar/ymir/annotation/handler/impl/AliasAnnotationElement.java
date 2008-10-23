@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.annotation.ForTesting;
 import org.seasar.ymir.annotation.handler.AnnotationElement;
 import org.seasar.ymir.annotation.handler.AnnotationElements;
@@ -40,8 +41,9 @@ public class AliasAnnotationElement extends AbstractAnnotationElement {
                     + aliasAnnotation, ex);
         }
         if (originalAnnotation == null) {
-            throw new RuntimeException("Alias annotation must have '"
-                    + PROP_ALIAS + "' property: " + aliasAnnotation);
+            throw new IllegalClientCodeRuntimeException(
+                    "Alias annotation must have '" + PROP_ALIAS
+                            + "' property: " + aliasAnnotation);
         }
 
         expandedElement_ = AnnotationElements.newInstance((Annotation) Proxy

@@ -14,6 +14,7 @@ import org.seasar.framework.container.creator.ComponentCreatorImpl;
 import org.seasar.framework.exception.EmptyRuntimeException;
 import org.seasar.framework.util.StringUtil;
 import org.seasar.kvasir.util.PropertyUtils;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 
 public class YmirNamingConvention extends PluggableNamingConventionImpl {
     private static final char PACKAGE_SEPARATOR = '_';
@@ -145,7 +146,7 @@ public class YmirNamingConvention extends PluggableNamingConventionImpl {
         String[] ignorePackageNames = PropertyUtils.toLines(ignorePackageName);
         String[] rootPackageNames = getRootPackageNames();
         if (rootPackageNames == null || rootPackageNames.length == 0) {
-            throw new RuntimeException(
+            throw new IllegalClientCodeRuntimeException(
                     "Must be set rootPackageName before adding ignorePackageName");
         }
 

@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.conversation.Conversation;
 import org.seasar.ymir.conversation.Conversations;
@@ -207,7 +208,8 @@ public class ConversationsImpl implements Conversations, Serializable {
 
     public synchronized void beginSubConversation(Object reenterResponse) {
         if (currentConversation_ == null) {
-            throw new RuntimeException("Conversation is not begun");
+            throw new IllegalClientCodeRuntimeException(
+                    "Conversation is not begun");
         }
 
         currentConversation_.setReenterResponse(reenterResponse);

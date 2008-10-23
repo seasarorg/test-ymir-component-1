@@ -7,6 +7,7 @@ import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.DispatchWrapper;
 import org.seasar.ymir.FrameworkDispatch;
 import org.seasar.ymir.FrameworkRequest;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestWrapper;
 import org.seasar.ymir.impl.DispatchImpl;
@@ -42,7 +43,7 @@ public class YmirUtils {
         try {
             return (RequestImpl) request;
         } catch (ClassCastException ex) {
-            throw new RuntimeException(
+            throw new IllegalClientCodeRuntimeException(
                     "Must give the original Request instance or an instance of RequestWrapper to Ymir",
                     ex);
         }
@@ -59,7 +60,7 @@ public class YmirUtils {
         try {
             return (DispatchImpl) dispatch;
         } catch (ClassCastException ex) {
-            throw new RuntimeException(
+            throw new IllegalClientCodeRuntimeException(
                     "Must give the original Dispatch instance or an instance of DispatchWrapper to Ymir",
                     ex);
         }

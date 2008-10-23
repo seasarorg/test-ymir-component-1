@@ -56,7 +56,7 @@ public class YmirBootstrap {
         try {
             landmark = Class.forName(Globals.LANDMARK_CLASSNAME);
         } catch (ClassNotFoundException ex) {
-            throw new RuntimeException("Landmark class ("
+            throw new IllegalClientCodeRuntimeException("Landmark class ("
                     + Globals.LANDMARK_CLASSNAME
                     + ") not found. Can't boot Ymir." + SP
                     + "You MUST put the landmark class"

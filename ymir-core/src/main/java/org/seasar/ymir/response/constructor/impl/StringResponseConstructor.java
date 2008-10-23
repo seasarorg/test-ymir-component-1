@@ -1,5 +1,6 @@
 package org.seasar.ymir.response.constructor.impl;
 
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.response.VoidResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
@@ -34,8 +35,8 @@ public class StringResponseConstructor implements ResponseConstructor<String> {
         }
         Strategy strategy = strategySelector_.getStrategy(scheme);
         if (strategy == null) {
-            throw new RuntimeException("Unknown scheme '" + scheme
-                    + "' is specified: " + returnValue);
+            throw new IllegalClientCodeRuntimeException("Unknown scheme '"
+                    + scheme + "' is specified: " + returnValue);
         }
         return strategy.constructResponse(path, page);
     }

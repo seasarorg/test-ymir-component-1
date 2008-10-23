@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
 
@@ -22,7 +23,7 @@ public class ResponseConstructorSelectorImpl implements
         if (constructor != null) {
             return (ResponseConstructor<T>) constructor;
         } else {
-            throw new RuntimeException(
+            throw new IllegalClientCodeRuntimeException(
                     "ResponseConstructor does not exist for class: " + type);
         }
     }
