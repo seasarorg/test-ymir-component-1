@@ -26,7 +26,7 @@ public @interface Resolve {
      * 
      * @return 属性名。
      */
-    String value();
+    String name();
 
     /**
      * スコープを表すClassオブジェクトです。

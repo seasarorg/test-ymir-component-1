@@ -105,7 +105,7 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
                                 method, i, TypeConversionHint.class),
                         scopeManager_, typeConversionManager_);
                 for (int j = 0; j < is.length; j++) {
-                    resolver.addEntry(getScope(is[j]), is[j].value(), is[j]
+                    resolver.addEntry(getScope(is[j]), is[j].name(), is[j]
                             .required());
                 }
             }

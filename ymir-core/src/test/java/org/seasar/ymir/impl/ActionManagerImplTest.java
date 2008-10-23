@@ -38,8 +38,8 @@ public class ActionManagerImplTest extends ComponentClientTestCase {
     }
 
     public static class Page {
-        public void act(@Resolve(scopeClass = MapScope.class, value = "value")
-        String value, @Resolve(scopeClass = MapScope.class, value = "number")
+        public void act(@Resolve(scopeClass = MapScope.class, name = "value")
+        String value, @Resolve(scopeClass = MapScope.class, name = "number")
         int number, int number2, String string, int number3) {
         }
     }
