@@ -65,8 +65,8 @@ public class MatchedPathMappingImpl implements MatchedPathMapping {
                 .getAction(pageComponent, request, variableResolver_);
     }
 
-    public Action getRenderAction(PageComponent pageComponent, Request request) {
-        return pathMapping_.getRenderAction(pageComponent, request,
+    public Action getPrerenderAction(PageComponent pageComponent, Request request) {
+        return pathMapping_.getPrerenderAction(pageComponent, request,
                 variableResolver_);
     }
 }

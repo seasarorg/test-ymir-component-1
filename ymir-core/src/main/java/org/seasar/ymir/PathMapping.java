@@ -87,16 +87,15 @@ public interface PathMapping {
             VariableResolver resolver);
 
     /**
-     * レンダアクションを表すActionオブジェクトを構築して返します。
+     * プリレンダアクションを表すActionオブジェクトを構築して返します。
      * アクションメソッドが見つからなかった場合はnullを返します。
      * 
      * @param pageComponent パスに対応するPageComponent。
      * @param request 現在のRequest。
      * @param resolver {@link #match(String, String)}が返す{@link VariableResolver}オブジェクト。
      * @return Actionオブジェクト。nullを返すこともあります。
-     * @since 0.9.6
-     * @see #getRenderActionName(VariableResolver)
+     * @since 1.0.0
      */
-    Action getRenderAction(PageComponent pageComponent, Request request,
+    Action getPrerenderAction(PageComponent pageComponent, Request request,
             VariableResolver resolver);
 }

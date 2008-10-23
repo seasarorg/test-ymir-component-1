@@ -505,8 +505,8 @@ public class YmirPathMapping implements PathMapping {
                 .matches();
     }
 
-    public Action getRenderAction(PageComponent pageComponent, Request request,
-            VariableResolver resolver) {
+    public Action getPrerenderAction(PageComponent pageComponent,
+            Request request, VariableResolver resolver) {
         Method[] methods = ClassUtils.getMethods(pageComponent.getPageClass(),
                 ACTION_PRERENDER);
         if (methods.length == 1) {
@@ -516,7 +516,7 @@ public class YmirPathMapping implements PathMapping {
             return null;
         } else {
             throw new IllegalClientCodeRuntimeException(
-                    "Pre-render method must be single: class="
+                    "Prerender method must be single: class="
                             + pageComponent.getPageClass() + ", method="
                             + Arrays.asList(methods));
         }

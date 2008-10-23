@@ -125,7 +125,7 @@ public class MockMatchedPathMapping implements MatchedPathMapping {
         renderActionName_ = renderActionName;
     }
 
-    public Action getRenderAction(PageComponent pageComponent, Request request) {
+    public Action getPrerenderAction(PageComponent pageComponent, Request request) {
         return renderAction_;
     }
 

@@ -468,7 +468,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
 
         public Object process(PageComponent pageComponent) {
-            invokeAction(matched_.getRenderAction(pageComponent, request_));
+            invokeAction(matched_.getPrerenderAction(pageComponent, request_));
             return null;
         }
     }
