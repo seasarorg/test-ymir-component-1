@@ -16,6 +16,7 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Action;
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.ActionNotFoundRuntimeException;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.AttributeContainer;
@@ -52,6 +53,8 @@ public class RequestProcessorImpl implements RequestProcessor {
 
     private Ymir ymir_;
 
+    private ActionManager actionManager_;
+
     private AnnotationHandler annotationHandler_;
 
     private ComponentMetaDataFactory componentMetaDataFactory_;
@@ -76,6 +79,11 @@ public class RequestProcessorImpl implements RequestProcessor {
     @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
         ymir_ = ymir;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setActionManager(ActionManager actionManager) {
+        actionManager_ = actionManager;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -440,18 +448,10 @@ public class RequestProcessorImpl implements RequestProcessor {
             Method[] methods = metaData.getMethods(phase_);
             if (methods != null) {
                 for (int i = 0; i < methods.length; i++) {
-                    try {
-                        methods[i].invoke(pageComponent.getPage(),
-                                new Object[0]);
-                    } catch (IllegalArgumentException ex) {
-                        throw new IllegalClientCodeRuntimeException(
-                                "Can't invoke method with parameters", ex);
-                    } catch (IllegalAccessException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (InvocationTargetException ex) {
-                        throw new WrappingRuntimeException(ex
-                                .getTargetException());
-                    }
+                    actionManager_.newAction(
+                            pageComponent.getPage(),
+                            actionManager_.newMethodInvoker(pageComponent
+                                    .getPageClass(), methods[i])).invoke();
                 }
             }
             return null;
