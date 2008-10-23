@@ -4,7 +4,7 @@ public class ArticlePage {
 
     private int counter_;
 
-    public void _render() {
+    public void _prerender() {
         counter_++;
     }
 

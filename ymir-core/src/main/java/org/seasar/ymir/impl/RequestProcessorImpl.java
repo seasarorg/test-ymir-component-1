@@ -222,7 +222,7 @@ public class RequestProcessorImpl implements RequestProcessor {
                         && dispatch.getDispatcher() == Dispatcher.REQUEST) {
                     // リクエストに対応するアクションが存在しない場合はリクエストを受け付けない。
                     // ただしforwardの時はアクションがなくても良いことにしている。
-                    // これは、forward先のパスに対応するPageクラスでは_render()だけ
+                    // これは、forward先のパスに対応するPageクラスでは_prerender()だけ
                     // 呼びたい場合にアクションメソッドを省略できるようにするため。
                     throw new ActionNotFoundRuntimeException(
                             dispatch.getPath(), request.getMethod());
