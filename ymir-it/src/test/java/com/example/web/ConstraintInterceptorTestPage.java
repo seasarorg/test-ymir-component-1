@@ -1,5 +1,7 @@
 package com.example.web;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Request;
@@ -90,8 +92,10 @@ public class ConstraintInterceptorTestPage {
     @Validator("_get_button7")
     public void validate7(
             @Resolve(scopeClass = ApplicationScope.class, name = "app")
-            String app, int param1, String param2) {
+            String app, @Resolve
+            HttpServletRequest request, int param1, String param2) {
         request_.setAttribute("app", app);
+        request_.setAttribute("request", request);
         request_.setAttribute("param12", Integer.valueOf(param1));
         request_.setAttribute("param22", param2);
     }

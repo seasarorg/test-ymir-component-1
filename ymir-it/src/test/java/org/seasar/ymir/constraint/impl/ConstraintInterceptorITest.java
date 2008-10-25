@@ -145,6 +145,7 @@ public class ConstraintInterceptorITest extends
         processRequest(request);
 
         assertEquals("app", request.getAttribute("app"));
+        assertSame(getHttpServletRequest(), request.getAttribute("request"));
         assertEquals(Integer.valueOf(1), request.getAttribute("param12"));
         assertEquals("hoe", request.getAttribute("param22"));
     }
