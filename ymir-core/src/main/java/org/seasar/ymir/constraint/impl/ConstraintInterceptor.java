@@ -78,7 +78,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
     private Map<Class<?>, ConstraintBag<?>[]> bagsForPageClassMap_;
 
-    private Map<Class<?>, Method[]> validatorMethodsMap_;
+    private Map<Key, Method[]> validatorMethodsMap_;
 
     @Binding(bindingType = BindingType.MUST)
     public void setActionManager(ActionManager actionManager) {
@@ -314,16 +314,14 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
         // Validatorアノテーションがついているメソッドを実行する。
         if (!suppressTypeSet.contains(ConstraintType.VALIDATION)) {
-            MethodInvoker[] validators = getValidators(pageClass, request
+            Action[] validators = getValidators(page, pageClass, request
                     .getCurrentDispatch().getAction());
             for (int i = 0; i < validators.length; i++) {
                 try {
-                    Object invoked = validators[i].invoke(page);
+                    Object invoked = validators[i].invoke();
                     if (invoked instanceof Notes) {
                         notes.add((Notes) invoked);
                     }
-                } catch (IllegalArgumentException ex) {
-                    throw new RuntimeException("May logic error", ex);
                 } catch (WrappingRuntimeException ex) {
                     Throwable cause = ex.getCause();
                     if (cause instanceof ValidationFailedException) {
@@ -337,7 +335,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
     }
 
-    MethodInvoker[] getValidators(Class<?> pageClass, Action action) {
+    Action[] getValidators(Object page, Class<?> pageClass, Action action) {
         String actionName = null;
         Object[] actionParameters = new Object[0];
         if (action != null) {
@@ -351,7 +349,8 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             }
         }
 
-        Method[] validatorMethods = validatorMethodsMap_.get(pageClass);
+        Key key = new Key(pageClass, actionName);
+        Method[] validatorMethods = validatorMethodsMap_.get(key);
         if (validatorMethods == null) {
             List<Method> list = new ArrayList<Method>();
             Method[] methods = ClassUtils.getMethods(pageClass);
@@ -376,15 +375,16 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
                 }
             }
             validatorMethods = list.toArray(new Method[0]);
-            validatorMethodsMap_.put(pageClass, validatorMethods);
+            validatorMethodsMap_.put(key, validatorMethods);
         }
 
-        List<MethodInvoker> list = new ArrayList<MethodInvoker>();
+        List<Action> list = new ArrayList<Action>();
         for (int i = 0; i < validatorMethods.length; i++) {
-            list.add(createValidator(validatorMethods[i], actionParameters));
+            list.add(actionManager_.newAction(page, pageClass,
+                    validatorMethods[i], actionParameters));
         }
 
-        return list.toArray(new MethodInvoker[0]);
+        return list.toArray(new Action[0]);
     }
 
     @SuppressWarnings("deprecation")
@@ -396,41 +396,6 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
 
         return null;
-    }
-
-    MethodInvoker createValidator(Method method, Object[] actionParameters) {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        Object[] parameters = new Object[parameterTypes.length];
-        for (int i = 0; i < parameterTypes.length; i++) {
-            if (i < actionParameters.length) {
-                parameters[i] = actionParameters[i];
-            } else {
-                parameters[i] = getDefaultValue(parameterTypes[i]);
-            }
-        }
-        return new MethodInvokerImpl(method, parameters);
-    }
-
-    Object getDefaultValue(Class<?> type) {
-        if (type == Byte.TYPE) {
-            return Byte.valueOf((byte) 0);
-        } else if (type == Short.TYPE) {
-            return Short.valueOf((short) 0);
-        } else if (type == Integer.TYPE) {
-            return Integer.valueOf(0);
-        } else if (type == Long.TYPE) {
-            return Long.valueOf(0l);
-        } else if (type == Float.TYPE) {
-            return Float.valueOf(0f);
-        } else if (type == Double.TYPE) {
-            return Double.valueOf(0d);
-        } else if (type == Character.TYPE) {
-            return Character.valueOf('\0');
-        } else if (type == Boolean.TYPE) {
-            return Boolean.FALSE;
-        } else {
-            return null;
-        }
     }
 
     protected S2Container getS2Container() {
@@ -523,6 +488,49 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             } else {
                 return null;
             }
+        }
+    }
+
+    protected static class Key {
+        private Class<?> pageClass_;
+
+        private String actionName_;
+
+        public Key(Class<?> pageClass, String actionName) {
+            pageClass_ = pageClass;
+            actionName_ = actionName;
+        }
+
+        @Override
+        public int hashCode() {
+            int code = pageClass_.hashCode();
+            if (actionName_ != null) {
+                code += actionName_.hashCode();
+            }
+            return code;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            } else if (obj == null || obj.getClass() != getClass()) {
+                return false;
+            }
+            Key o = (Key) obj;
+            if (o.actionName_ == null) {
+                if (actionName_ != null) {
+                    return false;
+                }
+            } else {
+                if (!o.actionName_.equals(actionName_)) {
+                    return false;
+                }
+            }
+            if (o.pageClass_ != pageClass_) {
+                return false;
+            }
+            return true;
         }
     }
 }
