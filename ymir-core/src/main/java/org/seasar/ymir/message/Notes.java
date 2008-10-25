@@ -33,7 +33,7 @@ public class Notes {
     /**
      * 標準のカテゴリです。
      */
-    public static final String GLOBAL_NOTE = "org.seasar.ymir.GLOBAL_NOTE";
+    public static final String GLOBAL_NOTE = "org.seasar.ymir.message.GLOBAL_NOTE";
 
     private List<Note> list_ = new ArrayList<Note>();
 
