@@ -12,6 +12,8 @@ import org.seasar.ymir.constraint.annotation.SuppressConstraints;
 import org.seasar.ymir.constraint.annotation.Validator;
 import org.seasar.ymir.message.Note;
 import org.seasar.ymir.message.Notes;
+import org.seasar.ymir.scope.annotation.Resolve;
+import org.seasar.ymir.scope.impl.ApplicationScope;
 
 @Fuga("saru")
 @Fufu("tora")
@@ -85,6 +87,15 @@ public class ConstraintInterceptorTestPage {
         request_.setAttribute("param22", param2);
     }
 
+    @Validator("_get_button7")
+    public void validate7(
+            @Resolve(scopeClass = ApplicationScope.class, name = "app")
+            String app, int param1, String param2) {
+        request_.setAttribute("app", app);
+        request_.setAttribute("param12", Integer.valueOf(param1));
+        request_.setAttribute("param22", param2);
+    }
+
     @Fuga("button1")
     public void _get_button1() {
     }
@@ -122,7 +133,10 @@ public class ConstraintInterceptorTestPage {
     public void _get_button6(int param1, String param2) {
     }
 
+    public void _get_button7(int param1, String param2) {
+    }
+
     @Fuga("render")
-    public void _render() {
+    public void _prerender() {
     }
 }

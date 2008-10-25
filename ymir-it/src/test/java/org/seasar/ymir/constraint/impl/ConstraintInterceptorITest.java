@@ -136,4 +136,16 @@ public class ConstraintInterceptorITest extends
         assertEquals(Integer.valueOf(1), request.getAttribute("param12"));
         assertEquals("hoe", request.getAttribute("param22"));
     }
+
+    public void test_YMIR267_Validatorの引数が解決できること() throws Exception {
+        getServletContext().setAttribute("app", "app");
+        Request request = prepareForProcessing(
+                "/constraintInterceptorTest.html", HttpMethod.GET,
+                "button7[1][hoe]=");
+        processRequest(request);
+
+        assertEquals("app", request.getAttribute("app"));
+        assertEquals(Integer.valueOf(1), request.getAttribute("param12"));
+        assertEquals("hoe", request.getAttribute("param22"));
+    }
 }
