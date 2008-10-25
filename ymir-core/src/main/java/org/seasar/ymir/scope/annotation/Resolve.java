@@ -35,7 +35,7 @@ public @interface Resolve {
      * 
      * @return 属性名。
      */
-    String name();
+    String name() default "";
 
     /**
      * スコープを表すClassオブジェクトです。
