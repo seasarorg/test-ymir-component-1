@@ -22,6 +22,15 @@ import org.seasar.ymir.scope.Scope;
 @Target(ElementType.PARAMETER)
 public @interface Resolve {
     /**
+     * スコープを表すClassオブジェクトです。
+     * <p>{@link #value()}または{@link #scopeClass()}または{@link #scopeName()}
+     * のいずれかだけを指定するようにして下さい。
+     * 
+     * @return スコープを表すClassオブジェクト。
+     */
+    Class<? extends Scope> value() default Scope.class;
+
+    /**
      * 属性名です。
      * 
      * @return 属性名。
@@ -30,7 +39,7 @@ public @interface Resolve {
 
     /**
      * スコープを表すClassオブジェクトです。
-     * <p>{@link #scopeClass()}または{@link #scopeName()}
+     * <p>{@link #value()}または{@link #scopeClass()}または{@link #scopeName()}
      * のいずれかだけを指定するようにして下さい。
      * 
      * @return スコープを表すClassオブジェクト。
@@ -39,7 +48,7 @@ public @interface Resolve {
 
     /**
      * スコープ名です。
-     * <p>{@link #scopeClass()}または{@link #scopeName()}
+     * <p>{@link #value()}または{@link #scopeClass()}または{@link #scopeName()}
      * のいずれかだけを指定するようにして下さい。
      * 
      * @return スコープ名。

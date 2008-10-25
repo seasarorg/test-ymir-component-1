@@ -190,6 +190,8 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
         Object key;
         if (resolve.scopeName().length() > 0) {
             key = resolve.scopeName();
+        } else if (resolve.value() != Scope.class) {
+            key = resolve.value();
         } else if (resolve.scopeClass() != Scope.class) {
             key = resolve.scopeClass();
         } else {
