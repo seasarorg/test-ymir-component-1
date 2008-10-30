@@ -1,6 +1,7 @@
 package org.seasar.ymir.conversation;
 
 import org.seasar.ymir.HttpMethod;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.testing.YmirTestCase;
 
@@ -26,7 +27,7 @@ public class ConversationITest extends YmirTestCase {
             processRequest(request);
             fail();
         } catch (RuntimeException ex) {
-            assertTrue(ex.getClass() == RuntimeException.class);
+            assertTrue(ex.getClass() == IllegalClientCodeRuntimeException.class);
         }
     }
 
