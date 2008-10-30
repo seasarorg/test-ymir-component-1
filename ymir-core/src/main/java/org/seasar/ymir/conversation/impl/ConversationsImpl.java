@@ -110,7 +110,7 @@ public class ConversationsImpl implements Conversations, Serializable {
             // 既に同一名のConversationが始まっている場合、
             if (!alwaysBegin || equals(currentConversation_.getPhase(), phase)) {
                 // alwaysBegin == falseなら再beginしないようにする。
-                // また、alwaysBegin == trueである場合、フェーズが同じなら何もしない。
+                // また、alwaysBegin == trueである場合でも、フェーズが同じなら何もしない。
                 return;
             }
         }
