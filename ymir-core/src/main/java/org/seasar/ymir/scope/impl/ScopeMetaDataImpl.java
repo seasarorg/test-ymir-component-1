@@ -32,6 +32,8 @@ import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ClassUtils;
 
 public class ScopeMetaDataImpl implements ScopeMetaData {
+    private static final String SUFFIX_SCOPE = "Scope";
+
     private Class<?> class_;
 
     private S2Container container_;
@@ -133,20 +135,6 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
         }
     }
 
-    Scope getScope(Populate populate) {
-        Object key;
-        if (populate.scopeName().length() > 0) {
-            key = populate.scopeName();
-        } else if (populate.scopeClass() != Scope.class) {
-            key = populate.scopeClass();
-        } else if (populate.value() != Scope.class) {
-            key = populate.value();
-        } else {
-            key = RequestScope.class;
-        }
-        return (Scope) getComponent(key);
-    }
-
     void registerForInjectionFromScope(In in, Method method) {
         int modifiers = method.getModifiers();
         if (Modifier.isStatic(modifiers)) {
@@ -175,7 +163,7 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
     Scope getScope(In in) {
         Object key;
         if (in.scopeName().length() > 0) {
-            key = in.scopeName();
+            key = normalizeScopeName(in.scopeName());
         } else if (in.scopeClass() != Scope.class) {
             key = in.scopeClass();
         } else if (in.value() != Scope.class) {
@@ -186,10 +174,38 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
         return (Scope) getComponent(key);
     }
 
+    Scope getScope(Populate populate) {
+        Object key;
+        if (populate.scopeName().length() > 0) {
+            key = normalizeScopeName(populate.scopeName());
+        } else if (populate.scopeClass() != Scope.class) {
+            key = populate.scopeClass();
+        } else if (populate.value() != Scope.class) {
+            key = populate.value();
+        } else {
+            key = RequestScope.class;
+        }
+        return (Scope) getComponent(key);
+    }
+
+    Scope getScope(Out out) {
+        Object key;
+        if (out.scopeName().length() > 0) {
+            key = normalizeScopeName(out.scopeName());
+        } else if (out.scopeClass() != Scope.class) {
+            key = out.scopeClass();
+        } else if (out.value() != Scope.class) {
+            key = out.value();
+        } else {
+            key = RequestScope.class;
+        }
+        return (Scope) getComponent(key);
+    }
+
     Scope getScope(Resolve resolve) {
         Object key;
         if (resolve.scopeName().length() > 0) {
-            key = resolve.scopeName();
+            key = normalizeScopeName(resolve.scopeName());
         } else if (resolve.value() != Scope.class) {
             key = resolve.value();
         } else if (resolve.scopeClass() != Scope.class) {
@@ -198,6 +214,15 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
             key = ComponentScope.class;
         }
         return (Scope) getComponent(key);
+    }
+
+    String normalizeScopeName(String scopeName) {
+        if (scopeName != null && scopeName.length() > 0
+                && !scopeName.endsWith(SUFFIX_SCOPE)) {
+            return scopeName + SUFFIX_SCOPE;
+        } else {
+            return scopeName;
+        }
     }
 
     void registerForOutjectionToScope(Out out, Method method) {
@@ -219,20 +244,6 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
         scopeAttributeOutjectorList_.add(new ScopeAttributeOutjectorImpl(
                 toAttributeName(method.getName(), out.name()), getScope(out),
                 method, out.outjectWhereNull(), out.actionName()));
-    }
-
-    Scope getScope(Out out) {
-        Object key;
-        if (out.scopeName().length() > 0) {
-            key = out.scopeName();
-        } else if (out.scopeClass() != Scope.class) {
-            key = out.scopeClass();
-        } else if (out.value() != Scope.class) {
-            key = out.value();
-        } else {
-            key = RequestScope.class;
-        }
-        return (Scope) getComponent(key);
     }
 
     String toAttributeName(String methodName, String explicitName) {
