@@ -6,7 +6,7 @@
   <groupId>org.seasar.ymir</groupId>
   <artifactId>ymir-project</artifactId>
   <packaging>pom</packaging>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0-RC1-SNAPSHOT</version>
   <name>Ymir Project</name>
   <description>
     Ymir Project is a project to develop Ymir, which is a simple Web

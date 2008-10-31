@@ -173,7 +173,7 @@
     <dependency>
       <groupId>org.seasar.ymir</groupId>
       <artifactId>ymir-extension</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0-RC1</version>
       <exclusions>
         <exclusion>
           <groupId>org.seasar.container</groupId>
@@ -216,7 +216,7 @@
     <dependency>
       <groupId>org.seasar.cms.s2-classbuilder</groupId>
       <artifactId>s2.3-classbuilder</artifactId>
-      <version>0.0.6</version>
+      <version>0.0.7</version>
     </dependency>
     <dependency>
       <groupId>org.seasar.container</groupId>
