@@ -173,7 +173,7 @@
     <dependency>
       <groupId>org.seasar.ymir</groupId>
       <artifactId>ymir-extension</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0-RC1</version>
       <exclusions>
         <exclusion>
           <groupId>org.seasar.container</groupId>
