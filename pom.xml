@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.seasar.ymir</groupId>
-  <artifactId>ymir-project-root</artifactId>
+  <artifactId>ymir</artifactId>
   <packaging>pom</packaging>
   <version>1.0.0-RC1-SNAPSHOT</version>
   <name>Ymir Project Root</name>
