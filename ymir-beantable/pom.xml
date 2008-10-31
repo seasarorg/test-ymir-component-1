@@ -68,13 +68,6 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>ymir-core</artifactId>
-      <classifier>tests</classifier>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>ymir-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
