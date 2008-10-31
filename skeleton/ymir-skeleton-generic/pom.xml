@@ -3,9 +3,14 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <relativePath>../ymir-skeleton-project/pom.xml</relativePath>
+    <groupId>org.seasar.ymir.skeleton</groupId>
+    <artifactId>ymir-skeleton-project</artifactId>
+    <version>1.0.0-RC1-SNAPSHOT</version>
+  </parent>
   <groupId>org.seasar.ymir.skeleton</groupId>
   <artifactId>ymir-skeleton-generic</artifactId>
-  <version>1.0.0-RC1-SNAPSHOT</version>
   <name>Ymir Generic Skeleton</name>
   <description>
     This is a project to generate a generic Ymir application skeleton.
