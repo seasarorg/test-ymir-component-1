@@ -163,13 +163,13 @@
   </build>
   <scm>
     <connection>
-      scm:svn:https://www.seasar.org/svn/sandbox/ymir/trunk/${project.artifactId}
+      scm:svn:https://www.seasar.org/svn/sandbox/ymir/component/trunk/${project.artifactId}
     </connection>
     <developerConnection>
-      scm:svn:https://www.seasar.org/svn/sandbox/ymir/trunk/${project.artifactId}
+      scm:svn:https://www.seasar.org/svn/sandbox/ymir/component/trunk/${project.artifactId}
     </developerConnection>
     <url>
-      http://svn.seasar.org/browse/trunk/${project.artifactId}?root=sandbox.ymir
+      http://svn.seasar.org/browse/component/trunk/${project.artifactId}?root=sandbox.ymir
     </url>
   </scm>
   <repositories>
