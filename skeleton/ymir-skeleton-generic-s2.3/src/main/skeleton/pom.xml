@@ -173,7 +173,7 @@
     <dependency>
       <groupId>org.seasar.ymir</groupId>
       <artifactId>ymir-extension</artifactId>
-      <version>1.0.0-RC1</version>
+      <version>1.0.0-RC2-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>org.seasar.container</groupId>
@@ -190,21 +190,6 @@
         <exclusion>
           <groupId>org.seasar.cms.s2-classbuilder</groupId>
           <artifactId>s2-classbuilder</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.seasar.dao</groupId>
-      <artifactId>s2-dao-tiger</artifactId>
-      <version>1.0.47</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.seasar.container</groupId>
-          <artifactId>s2-extension</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.seasar.container</groupId>
-          <artifactId>s2-tiger</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
