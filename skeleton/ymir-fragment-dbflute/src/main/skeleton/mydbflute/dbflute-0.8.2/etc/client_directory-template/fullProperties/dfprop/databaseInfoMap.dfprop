@@ -1,0 +1,28 @@
+# /---------------------------------------------------------------------------
+# [Database Information]
+#   databaseInfoMap: 
+#     driver   -- The class name of JDBC-Driver.
+#     url      -- The url for connecting database.
+#     schema   -- The schema name.
+#     user     -- The database user name.
+#     password -- The database password.
+#     propertiesMap -- The properties that depends on the database.
+#     variousMap    -- The various settings about JDBC task.
+#
+# @FirstProperty
+map:{
+    ; driver   = {Please write your setting! at './dfprop/databaseInfoMap.dfprop'}
+    ; url      = ...
+    ; schema   = ...
+    ; user     = ...
+    ; password = ...
+    ; propertiesMap = map:{}
+    ; variousMap = map:{
+        # ; additionalSchemaList=list:{BBB}
+        # ; objectTypeTargetList=list:{TABLE;VIEW}
+        # ; tableExceptList=list:{AAA,BBB,CCC}
+        # ; tableTargetList=list:{AAA,BBB,CCC}
+        # ; columnExceptList=list:{XXX_COL;YYY_COL}
+    }
+}
+# ----------------/

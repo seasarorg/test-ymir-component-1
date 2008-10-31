@@ -1,0 +1,12 @@
+map:{
+    ; dataLoadingType = ut
+    ; loggingInsertSql = true
+    # /- - - - - - - - - - - - - - - - - - - - - - - - - -
+    # You can specify the skip sheet by regular expression
+    # - - - - - - - - - -/
+    # ; skipSheet = P.+
+    # /- - - - - - - - - - - - - - - - - - - - - - - - - -
+    # You can specify the filter variables for DDL.
+    # - - - - - - - - - -/
+    # ; filterVariablesMap = map:{abc=AAA}
+}
