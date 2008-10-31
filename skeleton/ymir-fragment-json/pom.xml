@@ -1,8 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0          http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <relativePath>../ymir-skeleton-project/pom.xml</relativePath>
+    <groupId>org.seasar.ymir.skeleton</groupId>
+    <artifactId>ymir-skeleton-project</artifactId>
+    <version>1.0.0-RC1</version>
+  </parent>
   <groupId>org.seasar.ymir.skeleton</groupId>
   <artifactId>ymir-fragment-json</artifactId>
-  <version>1.0.0-RC1</version>
   <name>Ymir JSON Fragment</name>
   <description>
     This is a project to generate an JSON fragment.
