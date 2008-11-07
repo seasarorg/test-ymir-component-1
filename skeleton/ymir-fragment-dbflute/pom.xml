@@ -10,7 +10,7 @@
   </parent>
   <groupId>org.seasar.ymir.skeleton</groupId>
   <artifactId>ymir-fragment-dbflute</artifactId>
-  <version>1.0.0-RC2-00.08.02-000-SNAPSHOT</version>
+  <version>1.0.0-RC2-00.08.03-000-SNAPSHOT</version>
   <name>Ymir DBFlute Fragment</name>
   <description>
     This is a project to generate a DBFlute fragment.

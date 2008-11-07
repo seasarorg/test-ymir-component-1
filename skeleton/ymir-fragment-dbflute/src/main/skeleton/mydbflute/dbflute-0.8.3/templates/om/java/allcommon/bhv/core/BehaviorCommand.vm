@@ -1,0 +1,47 @@
+${database.allClassCopyright}package ${glPackageBaseCommonBhvCore};
+
+import ${glPackageBaseCommonCBean}.${glConditionBeanInterfaceName};
+import ${glPackageBaseCommonCBeanOutsidesql}.${glOutsideSqlOptionName};
+
+/**
+ * @author ${database.ClassAuthor}
+ */
+public interface ${glBehaviorCommand} {
+
+    // ===================================================================================
+    //                                                                   Basic Information
+    //                                                                   =================
+    public String getTableDbName();
+    public String getCommandName();
+    public Class<?> getCommandReturnType();
+    public boolean isInitializeOnly();
+
+    // ===================================================================================
+    //                                                                  Detail Information
+    //                                                                  ==================
+    public boolean isConditionBean();
+    public boolean isOutsideSql();
+    public boolean isProcedure();
+    public boolean isSelect();
+    public boolean isSelectCount();
+
+    // ===================================================================================
+    //                                                                    Process Callback
+    //                                                                    ================
+    public void beforeGettingSqlExecution();
+    public void afterExecuting();
+
+    // ===================================================================================
+    //                                                               SqlExecution Handling
+    //                                                               =====================
+    public String buildSqlExecutionKey();
+    public ${glSqlExecutionCreator} createSqlExecutionCreator();
+    public Object[] getSqlExecutionArgument();
+
+    // ===================================================================================
+    //                                                                Argument Information
+    //                                                                ====================
+    public ${glConditionBeanInterfaceName} getConditionBean();
+    public String getOutsideSqlPath();
+    public ${glOutsideSqlOptionName} getOutsideSqlOption();
+}

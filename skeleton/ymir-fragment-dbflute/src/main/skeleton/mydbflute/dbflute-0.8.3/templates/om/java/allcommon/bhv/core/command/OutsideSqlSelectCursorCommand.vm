@@ -1,0 +1,57 @@
+${database.allClassCopyright}package ${glPackageBaseCommonBhvCoreCommand};
+
+import ${glPackageBaseCommonJdbc}.${glCursorHandlerName};
+
+/**
+ * The behavior command for OutsideSql.selectList().
+ * @author ${database.ClassAuthor}
+ */
+public class ${glOutsideSqlSelectCursorCommand} extends ${glOutsideSqlSelectListCommand} {
+
+    // ===================================================================================
+    //                                                                           Attribute
+    //                                                                           =========
+    /** The handler of cursor. (Required) */
+    protected ${glCursorHandlerName} _cursorHandler;
+
+    // ===================================================================================
+    //                                                                   Basic Information
+    //                                                                   =================
+    @Override
+    public String getCommandName() {
+        return "selectCursor";
+    }
+
+    @Override
+    public Class<?> getCommandReturnType() {
+        return Object.class;
+    }
+
+    // ===================================================================================
+    //                                                                     Extension Point
+    //                                                                     ===============
+    @Override
+    protected Object getResultTypeSpecification() {
+        return _cursorHandler;
+    }
+
+    // ===================================================================================
+    //                                                                       Assert Helper
+    //                                                                       =============
+    @Override
+    protected void assertStatus(String methodName) {
+        assertBasicProperty(methodName);
+        assertComponentProperty(methodName);
+        assertOutsideSqlBasic(methodName);
+        if (_cursorHandler == null) {
+            throw new IllegalStateException(buildAssertMessage("_cursorHandler", methodName));
+        }
+    }
+
+    // ===================================================================================
+    //                                                                            Accessor
+    //                                                                            ========
+    public void setCursorHandler(${glCursorHandlerName} cursorHandler) {
+        _cursorHandler = cursorHandler;
+    }
+}

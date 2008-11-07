@@ -1,0 +1,102 @@
+${database.allClassCopyright}package ${glPackageBaseCommonBhvCoreCommand};
+
+import org.seasar.extension.jdbc.ResultSetHandler;
+
+import ${glPackageBaseCommonBhvCore}.${glSqlExecution};
+import ${glPackageBaseCommonBhvCore}.${glSqlExecutionCreator};
+import ${glPackageBaseCommonCBeanOutsidesql}.${glOutsideSqlContextName};
+import ${glPackageBaseCommonS2DaoInternalSqlCommand}.${glInternalProcedureCommand};
+import ${glPackageBaseCommonS2DaoInternalVarious}.${glInternalProcedureMetaData};
+import ${glPackageBaseCommonS2DaoInternalVarious}.${glInternalProcedureMetaDataFactory};
+
+/**
+ * The behavior command for OutsideSql.execute().
+ * @author ${database.ClassAuthor}
+ */
+public class ${glOutsideSqlCallCommand} extends ${glOutsideSqlExecuteCommand} {
+
+    // ===================================================================================
+    //                                                                   Basic Information
+    //                                                                   =================
+    @Override
+    public String getCommandName() {
+        return "call";
+    }
+
+    @Override
+    public Class<?> getCommandReturnType() {
+        return void.class;
+    }
+
+    // ===================================================================================
+    //                                                                  Detail Information
+    //                                                                  ==================
+    @Override
+    public boolean isProcedure() {
+        return true;
+    }
+
+    // ===================================================================================
+    //                                                               SqlExecution Handling
+    //                                                               =====================
+    @Override
+    public ${glSqlExecutionCreator} createSqlExecutionCreator() {
+        assertStatus("createSqlExecutionCreator");
+        return new ${glSqlExecutionCreator}() {
+            public ${glSqlExecution} createSqlExecution() {
+                final ${glOutsideSqlContextName} outsideSqlContext = ${glOutsideSqlContextName}.getOutsideSqlContextOnThread();
+                return createOutsideSqlCallCommand(outsideSqlContext);
+            }
+        };
+    }
+
+    protected ${glSqlExecution} createOutsideSqlCallCommand(${glOutsideSqlContextName} outsideSqlContext) {
+        // - - - - - - - - - - - - - - - - - - - - - - -
+        // The attribute of Specified-OutsideSqlContext.
+        // - - - - - - - - - - - - - - - - - - - - - - -
+        final Object pmb = outsideSqlContext.getParameterBean();
+        final String procedureName = outsideSqlContext.getOutsideSqlPath();
+
+        // - - - - - - - - - - - - - - -
+        // The attribute of SqlCommand.
+        // - - - - - - - - - - - - - - -
+        final ${glInternalProcedureMetaDataFactory} factory = createProcedureMetaDataFactory();
+        factory.setValueTypeFactory(_valueTypeFactory);
+        final Class<?> pmbType = (pmb != null ? pmb.getClass() : null);
+        final ${glInternalProcedureMetaData} metaData = factory.createProcedureMetaData(procedureName, pmbType);
+        return createProcedureCommand(metaData);
+    }
+
+    protected ${glInternalProcedureMetaDataFactory} createProcedureMetaDataFactory() {
+        return new ${glInternalProcedureMetaDataFactory}();
+    }
+
+    protected ${glInternalProcedureCommand} createProcedureCommand(${glInternalProcedureMetaData} metaData) {
+        // Because a procedure command does not use result set handler.
+        final ResultSetHandler resultSetHandler = new InternalNullResultSetHandler(); 
+        return new ${glInternalProcedureCommand}(_dataSource, resultSetHandler, _statementFactory, metaData);
+    }
+
+    // /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // InternalProcedureCommand switches argument so this override is unnecessary!
+    // - - - - - - - - - -/
+    // @Override
+    // public Object[] getSqlExecutionArgument() {
+    //     return new Object[] { _parameterBean };
+    // }
+
+    // ===================================================================================
+    //                                                                       Assert Helper
+    //                                                                       =============
+    @Override
+    protected void assertStatus(String methodName) {
+        assertBasicProperty(methodName);
+        assertComponentProperty(methodName);
+        assertOutsideSqlBasic(methodName);
+        if (_parameterBean == null) {
+            String msg = "The property 'parameterBean' should not be null";
+            msg = msg + " when you call " + methodName + "().";
+            throw new IllegalStateException(msg);
+        }
+    }
+}
