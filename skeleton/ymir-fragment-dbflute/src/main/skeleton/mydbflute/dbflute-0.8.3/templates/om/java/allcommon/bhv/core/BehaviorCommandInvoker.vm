@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 
-import org.seasar.framework.util.NumberConversionUtil;
 import org.seasar.extension.jdbc.StatementFactory;
 import org.seasar.dao.BeanMetaDataFactory;
 import org.seasar.dao.ValueTypeFactory;
@@ -29,8 +28,18 @@ import ${glPackageBaseCommonJdbc}.${glStatementConfig};
 import ${glPackageBaseCommonS2DaoInternalVarious}.${glInternalStatementFactory};
 import ${glPackageBaseCommonUtil}.${glTraceViewUtilName};
 import ${glPackageBaseCommonUtil}.${glSimpleSystemUtil};
+import ${glPackageBaseCommonUtil}.${glSimpleTypeUtil};
 
 /**
+ * The invoker of behavior command.
+ * <pre>
+ * public interface methods are as follows:
+ * 
+ *   o injectComponentProperty(${glBehaviorCommandComponentSetup} behaviorCommand);
+ *   o invoke(${glBehaviorCommand} behaviorCommand);
+ *   o isDisposable();
+ *   o isExecutionCacheEmpty();
+ * </pre>
  * @author ${database.ClassAuthor}
  */
 public class ${glBehaviorCommandInvoker} implements Disposable {
@@ -255,9 +264,8 @@ public class ${glBehaviorCommandInvoker} implements Disposable {
         log("                                                      " + callerExpression);
         log("                                                      " + equalBorder + "=/");
 
-        // logPath(behaviorCommand, stackTrace, behaviorResult);
+        logPath(behaviorCommand, stackTrace, behaviorResult);
 
-        // Specified OutsideSql
         if (behaviorCommand.isOutsideSql() && !behaviorCommand.isProcedure()) {
             final ${glOutsideSqlContextName} outsideSqlContext = getOutsideSqlContext();
             if (outsideSqlContext != null) {
@@ -306,7 +314,7 @@ public class ${glBehaviorCommandInvoker} implements Disposable {
                     if (originalName.endsWith("OutsideSqlEntityExecutor")) {
                         invokeClassName = invokeClassName + ".entityHandling()";
                     } else if (originalName.endsWith("OutsideSqlPagingExecutor")) {
-                        if (outsideSqlContext.isOffsetByCursorForcedly() || outsideSqlContext.isLimitByCursorForcedly()) {
+                        if (outsideSqlContext.isAutoPagingLogging()) {
                             invokeClassName = invokeClassName + ".autoPaging()";
                         } else {
                             invokeClassName = invokeClassName + ".manualPaging()";
@@ -647,11 +655,11 @@ public class ${glBehaviorCommandInvoker} implements Disposable {
     //                                                                      Convert Helper
     //                                                                      ==============
     protected Object convertPrimitiveWrapper(Class<?> retType, Object ret) {
-        return NumberConversionUtil.convertPrimitiveWrapper(retType, ret);
+        return ${glSimpleTypeUtil}.toWrapper(retType, ret);
     }
 
     protected Object convertNumber(Class<?> retType, Object ret) {
-        return NumberConversionUtil.convertNumber(retType, ret);
+        return ${glSimpleTypeUtil}.toNumber(retType, ret);
     }
 
     // ===================================================================================

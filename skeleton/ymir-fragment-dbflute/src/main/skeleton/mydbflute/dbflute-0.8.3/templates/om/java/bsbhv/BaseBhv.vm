@@ -1,10 +1,13 @@
 ${database.allClassCopyright}package ${glPackageBaseBhv};
-
 #set ($myClassName = "${myBaseBhvClassName}")
 
 import java.util.List;
+import java.util.Map;
 
 import ${glPackageBaseCommon}.*;
+#if (!$database.isCompatibleBehaviorUseDaoInterface() && $table.isAvailableNonPrimaryKeyWritable())
+import ${glPackageBaseCommonBhvCoreCommand}.${glInsertEntityCommand};
+#end
 #if (${table.hasOnlyOnePrimaryKey()} && $table.hasReferrerAsMany())
 import ${glPackageBaseCommonBhvLoad}.${glLoadReferrerOptionName};
 import ${glPackageBaseCommonBhvSetup}.${glConditionBeanSetupperName};
@@ -26,7 +29,9 @@ import ${glPackageBaseCommonDBMeta}.${glDBMetaInterfaceName};
 #if (${table.hasOnlyOnePrimaryKey()} && $table.hasReferrerAsMany())
 import ${glPackageExtendedBhv}.*;
 #end
+#if ($database.isCompatibleBehaviorUseDaoInterface())
 import ${glPackageExtendedDao}.*;
+#end
 import ${glPackageExtendedEntity}.*;
 import ${myDBMetaPackageName}.*;
 import ${glPackageCB}.*;
@@ -37,7 +42,6 @@ import ${glPackageCB}.*;
 #else
   #set ($myExtendClassName = "${glBehaviorReadableAbstractName}")
 #end
-
 /**
  * The behavior of ${table.name}.
  * <pre>
@@ -77,11 +81,13 @@ public abstract class ${myClassName} extends ${glPackageBaseCommonBhv}.${myExten
     //                                                                          ==========
     ${database.behaviorQueryPathBeginMark}
     ${database.behaviorQueryPathEndMark}
+#if ($database.isCompatibleBehaviorUseDaoInterface())
 
     // ===================================================================================
     //                                                                           Attribute
     //                                                                           =========
     protected ${myExtendedDaoClassName} _dao;
+#end
 
     // ===================================================================================
     //                                                                          Table name
@@ -92,10 +98,10 @@ public abstract class ${myClassName} extends ${glPackageBaseCommonBhv}.${myExten
     // ===================================================================================
     //                                                                              DBMeta
     //                                                                              ======
-    /** @return The meta data of the database. (NotNull) */
+    /** @return The instance of DBMeta. (NotNull) */
     public ${glDBMetaInterfaceName} getDBMeta() { return ${myDBMetaClassName}.getInstance(); }
 
-    /** @return The meta data of the database as my table type. (NotNull) */
+    /** @return The instance of DBMeta as my table type. (NotNull) */
     public ${myDBMetaClassName} getMyDBMeta() { return ${myDBMetaClassName}.getInstance(); }
 #if ($database.isCompatibleBehaviorUseDaoInterface())
 
@@ -109,6 +115,7 @@ public abstract class ${myClassName} extends ${glPackageBaseCommonBhv}.${myExten
     public ${glDaoWritableInterfaceName} getDaoWritable() { return getMyDao(); }
 #end
 #end
+
     // ===================================================================================
     //                                                                        New Instance
     //                                                                        ============
@@ -214,11 +221,27 @@ public abstract class ${myClassName} extends ${glPackageBaseCommonBhv}.${myExten
      * @param valueLabelSetupper The setupper of value-label. (NotNull)
      * @return The list of value-label. (NotNull)
      */
-    public List<java.util.Map<String, Object>> selectValueLabelList(${myConditionBeanClassName} cb, ${glValueLabelSetupperName}<${myExtendedObjectClassName}> valueLabelSetupper) {
+    public List<Map<String, Object>> selectValueLabelList(${myConditionBeanClassName} cb, ${glValueLabelSetupperName}<${myExtendedObjectClassName}> valueLabelSetupper) {
         return createValueLabelList(selectList(cb), valueLabelSetupper);
     }
+#if ($table.isWritable() && $table.hasOnlyOnePrimaryKey() && $table.isBuriTarget())
 
+    public ${myExtendedObjectClassName} getEntityForBuri(${table.primaryKeyArgsString}) { // For Buri
+        ${myExtendedObjectClassName} entity = new ${myExtendedObjectClassName}();
+        ${table.getPrimaryKeyArgsSetupString('entity')}
+        ${myConditionBeanClassName} cb = newMyConditionBean();
+        cb.acceptPrimaryKeyMapString(getDBMeta().extractPrimaryKeyMapString(entity));
+        return selectEntity(cb);
+    }
+
+    public List<${myExtendedObjectClassName}> getEntityListForBuri(List<${table.primaryKeyJavaNativeAsOne}> ids) { // For Buri
+        ${myConditionBeanClassName} cb = newMyConditionBean();
+        cb.query().set${table.primaryKeyAsOne.javaName}_InScope(ids);
+        return selectList(cb);
+    }
+#end
 #if ($table.isUseSequence())
+
     // ===================================================================================
     //                                                                            Sequence
     //                                                                            ========
@@ -230,8 +253,8 @@ public abstract class ${myClassName} extends ${glPackageBaseCommonBhv}.${myExten
         return delegateSelectNextVal();
     }
 #end
-
 #if (${table.hasOnlyOnePrimaryKey()})
+
     // ===================================================================================
     //                                                                       Load Referrer
     //                                                                       =============
@@ -245,16 +268,6 @@ public abstract class ${myClassName} extends ${glPackageBaseCommonBhv}.${myExten
 #set ($genericPKMyEntityMap = "${table.getPrimaryKeyJavaNativeAsOne()}, ${myExtendedObjectClassName}")
 #set ($genericPKChildListMap = "${table.getPrimaryKeyJavaNativeAsOne()}, List<${referrerEntityClassName}>")
 #if (!${referrer.isOneToOne()})
-#if ($database.isMakeBehaviorNoConditionLoadReferrer())
-    /**
-     * {Refer to overload method that has an argument of condition-bean setupper.}
-     * @param ${myEntityListVariableName} The entity list of ${table.javaBeansRulePropertyName}. (NotNull)
-     */
-    public void load${referrer.referrerJavaBeansRulePropertyNameInitCap}(List<${myExtendedObjectClassName}> ${myEntityListVariableName}) {
-        load${referrer.referrerJavaBeansRulePropertyNameInitCap}(${myEntityListVariableName}, new ${glConditionBeanSetupperName}<${referrerCBClassName}>() {
-            public void setup(${referrerCBClassName} cb) {}});
-    }
-#end
     /**
      * Load referrer of ${referrer.referrerJavaBeansRulePropertyName} with the setupper for condition-bean of referrer. <br />
      * About internal policy, the value of primary key(and others too) is treated as case-insensitive. <br />
@@ -624,27 +637,6 @@ public abstract class ${myClassName} extends ${glPackageBaseCommonBhv}.${myExten
     }
 #end
 #end
-#if ($database.isMakeBehaviorLoopUpdate())
-    /**
-     * Loop update modified elements only.
-     * @param ${myEntityListVariableName} The list of entity. (NotNull and Empty OK)
-     */
-    public void loopUpdateModifiedElementsOnly(List<${myExtendedObjectClassName}> ${myEntityListVariableName}) {
-        assertObjectNotNull("${myEntityListVariableName}", ${myEntityListVariableName});
-        for (${myExtendedObjectClassName} entity : ${myEntityListVariableName}) { if (entity.hasModification()) { update(entity); } }
-    }
-
-#if ($table.isUseUpdateDate() || $table.isUseVersionNo())
-    /**
-     * Loop update modified elements only non-strictly.
-     * @param ${myEntityListVariableName} The list of entity. (NotNull and Empty OK)
-     */
-    public void loopUpdateModifiedElementsOnlyNonstrict(List<${myExtendedObjectClassName}> ${myEntityListVariableName}) {
-        assertObjectNotNull("${myEntityListVariableName}", ${myEntityListVariableName});
-        for (${myExtendedObjectClassName} entity : ${myEntityListVariableName}) { if (entity.hasModification()) { updateNonstrict(entity); } }
-    }
-#end
-#end
 #else
   #if ($table.isAvailableNonPrimaryKeyWritable())
 
@@ -814,9 +806,18 @@ public abstract class ${myClassName} extends ${glPackageBaseCommonBhv}.${myExten
 #end
 #else
 #if ($table.isAvailableNonPrimaryKeyWritable())
-    protected int delegateInsert(${myExtendedObjectClassName} entity) {
-        assertEntityNotNull(entity); // If this table use identity, the entity does not have primary-key.
+    protected int delegateInsert(${myExtendedObjectClassName} e) {
+        assertEntityNotNull(e); // If this table use identity, the entity does not have primary-key.
         return invoke(createInsertEntityCommand(e));
+    }
+    protected ${glInsertEntityCommand} createInsertEntityCommand(${glEntityInterfaceName} entity) {
+        assertBehaviorCommandInvoker("createInsertEntityCommand");
+        final ${glInsertEntityCommand} cmd = new ${glInsertEntityCommand}();
+        cmd.setTableDbName(getTableDbName());
+        _behaviorCommandInvoker.injectComponentProperty(cmd);
+        cmd.setEntityType(entity.getClass());
+        cmd.setEntity(entity);
+        return cmd;
     }
 #end
 #end

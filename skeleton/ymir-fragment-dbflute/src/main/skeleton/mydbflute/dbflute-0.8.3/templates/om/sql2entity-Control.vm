@@ -72,6 +72,8 @@ targetdatabase = $targetDatabase
     #set ($glMapListStringImplName = "${glProjectPrefix}MapListStringImpl")
     #set ($glMapStringBuilderName = "${glProjectPrefix}MapStringBuilder")
     #set ($glMapStringBuilderImplName = "${glProjectPrefix}MapStringBuilderImpl")
+    #set ($glStringKeyMap = "${glProjectPrefix}StringKeyMap")
+    #set ($glStringSet = "${glProjectPrefix}StringSet")
 
     ## [Allcommon-JDBC]
     #set ($glCursorHandlerName = "${glProjectPrefix}CursorHandler")
@@ -80,6 +82,15 @@ targetdatabase = $targetDatabase
 
     ## [ClassificationDefinition]
     #set ($glClassificationDefinition = "${glProjectPrefix}ClassificationDefinition")
+
+    ## [Allcommon-Util]
+    #set ($glSimpleAssertUtil = "${glProjectPrefix}SimpleAssertUtil")
+    #set ($glSimpleResourceUtil = "${glProjectPrefix}SimpleResourceUtil")
+    #set ($glSimpleStringUtil = "${glProjectPrefix}SimpleStringUtil")
+    #set ($glSimpleSystemUtil = "${glProjectPrefix}SimpleSystemUtil")
+    #set ($glSimpleTypeUtil = "${glProjectPrefix}SimpleTypeUtil")
+    #set ($glValueLabelUtilName = "${glProjectPrefix}ValueLabelUtil")
+    #set ($glTraceViewUtilName = "${glProjectPrefix}TraceViewUtil")
 
     ## [Package]
     #set ($glPackageBaseCommon = "${database.baseCommonPackage}")
@@ -91,11 +102,10 @@ targetdatabase = $targetDatabase
     #set ($glPackageBaseCommonHelper = "${database.baseCommonPackage}.helper")
     #set ($glPackageBaseCommonJavaLike = "${database.baseCommonPackage}.javalike")
     #set ($glPackageBaseCommonJdbc = "${database.baseCommonPackage}.jdbc")
+    #set ($glPackageBaseCommonUtil = "${database.baseCommonPackage}.util")
     #set ($glPackageBaseDao = "${database.baseDaoPackage}" )
-    #set ($glPackageBaseDaoCursor = "${database.baseDaoPackage}.cursor" )
     #set ($glPackageBaseEntity = "${database.baseEntityPackage}")
     #set ($glPackageExtendedDao = "${database.extendedDaoPackage}")
-    #set ($glPackageExtendedDaoCursor = "${database.extendedDaoPackage}.cursor")
     #set ($glPackageExtendedEntity = "${database.extendedEntityPackage}")
     #if ($database.isTargetLanguageCSharp())
       #set ($glPackageBaseCommon = "${database.baseCommonPackage}")
@@ -107,13 +117,14 @@ targetdatabase = $targetDatabase
       #set ($glPackageBaseCommonHelper = "${database.baseCommonPackage}.Helper")
       #set ($glPackageBaseCommonJavaLike = "${database.baseCommonPackage}.JavaLike")
       #set ($glPackageBaseCommonJdbc = "${database.baseCommonPackage}.Ado")
+      #set ($glPackageBaseCommonUtil = "${database.baseCommonPackage}.Util")
       #set ($glPackageBaseDao = "${database.baseDaoPackage}" )
-      #set ($glPackageBaseDaoCursor = "${database.baseDaoPackage}.Cursor" )
       #set ($glPackageBaseEntity = "${database.baseEntityPackage}")
       #set ($glPackageExtendedDao = "${database.extendedDaoPackage}")
-      #set ($glPackageExtendedDaoCursor = "${database.extendedDaoPackage}.Cursor")
       #set ($glPackageExtendedEntity = "${database.extendedEntityPackage}")
     #end
+    #set ($glPackageBaseCursor = "${database.sql2EntityBaseCursorPackage}" )
+    #set ($glPackageExtendedCursor = "${database.sql2EntityExtendedCursorPackage}")
 
     ## [Other]
     #set ($glConditionBeanInitialName = "CB")
@@ -166,8 +177,8 @@ targetdatabase = $targetDatabase
       #set ($myEntityListVariableName = "${table.uncapitalisedJavaName}List")
       #set ($myCBVariableName = "${table.uncapitalisedJavaName}")
 
-      #set ($myBaseDaoCursorPackageName = "${glPackageBaseDaoCursor}")
-      #set ($myExtendedDaoCursorPackageName = "${glPackageExtendedDaoCursor}")
+      #set ($myBaseDaoCursorPackageName = "${glPackageBaseCursor}")
+      #set ($myExtendedDaoCursorPackageName = "${glPackageExtendedCursor}")
       #set ($myBaseTypeSafeCursorClassName = "${glProjectPrefix}${glBasePrefix}${table.javaName}Cursor")
       #set ($myBaseTypeSafeCursorHandlerClassName = "${glProjectPrefix}${glBasePrefix}${table.javaName}CursorHandler")
       #set ($myExtendedTypeSafeCursorClassName = "${glProjectPrefix}${table.javaName}Cursor")
@@ -182,11 +193,11 @@ targetdatabase = $targetDatabase
 
         $database.debug("        parse('BaseTypeSafeCursor')")
         #set ( $path = "${database.getPackageAsPath(${myBaseDaoCursorPackageName})}${myBaseTypeSafeCursorClassName}.${glClassFileExtension}" )
-        $generator.parse("om/${glResourceDirectory}/bsdao/cursor/BsTypeSafeCursor.${glTemplateFileExtension}",$path ,"" ,"")
+        $generator.parse("om/${glResourceDirectory}/bsbhv/cursor/BsTypeSafeCursor.${glTemplateFileExtension}",$path ,"" ,"")
 
         $database.debug("        parse('BaseTypeSafeCursorHandler')")
         #set ( $path = "${database.getPackageAsPath(${myBaseDaoCursorPackageName})}${myBaseTypeSafeCursorHandlerClassName}.${glClassFileExtension}" )
-        $generator.parse("om/${glResourceDirectory}/bsdao/cursor/BsTypeSafeCursorHandler.${glTemplateFileExtension}",$path ,"" ,"")
+        $generator.parse("om/${glResourceDirectory}/bsbhv/cursor/BsTypeSafeCursorHandler.${glTemplateFileExtension}",$path ,"" ,"")
 
         #set ($path = $database.getPackageAsPath(${myExtendedDaoCursorPackageName}))
         $database.makeDirectory($path)
@@ -194,13 +205,13 @@ targetdatabase = $targetDatabase
         $database.debug("        parse('ExtendedTypeSafeCursor')")
         #set ( $path = "${database.getPackageAsPath(${myExtendedDaoCursorPackageName})}${myExtendedTypeSafeCursorClassName}.${glClassFileExtension}" )
         #if (!$files.file(${generator.OutputPath},$path).exists())
-          $generator.parse("om/${glResourceDirectory}/exdao/cursor/ExTypeSafeCursor.${glTemplateFileExtension}",$path ,"" ,"")
+          $generator.parse("om/${glResourceDirectory}/exbhv/cursor/ExTypeSafeCursor.${glTemplateFileExtension}",$path ,"" ,"")
         #end
 
         $database.debug("        parse('ExtendedTypeSafeCursorHandler')")
         #set ( $path = "${database.getPackageAsPath(${myExtendedDaoCursorPackageName})}${myExtendedTypeSafeCursorHandlerClassName}.${glClassFileExtension}" )
         #if (!$files.file(${generator.OutputPath},$path).exists())
-          $generator.parse("om/${glResourceDirectory}/exdao/cursor/ExTypeSafeCursorHandler.${glTemplateFileExtension}",$path ,"" ,"")
+          $generator.parse("om/${glResourceDirectory}/exbhv/cursor/ExTypeSafeCursorHandler.${glTemplateFileExtension}",$path ,"" ,"")
         #end
       #else
         #if ($database.isSql2EntityPlainEntity())
@@ -251,12 +262,12 @@ targetdatabase = $targetDatabase
 
         $database.debug("        parseBaseParameterBean(parameterBean);     // ${myBaseParameterBeanClassName}")
         #set ( $path = "${database.getPackageAsPath(${glPackageBaseParameterBean})}${myBaseParameterBeanClassName}.${glClassFileExtension}" )
-        $generator.parse("om/${glResourceDirectory}/bsdao/BsParameterBean.${glTemplateFileExtension}",$path ,"" ,"")
+        $generator.parse("om/${glResourceDirectory}/bsbhv/pmbean/BsParameterBean.${glTemplateFileExtension}",$path ,"" ,"")
 
         #set ( $path = "${database.getPackageAsPath(${glPackageExtendedParameterBean})}${myExtendedParameterBeanClassName}.${glClassFileExtension}" )
         #if (!$files.file(${generator.OutputPath},$path).exists())
           $database.debug("        parseExtendedParameterBean(parameterBean); // ${myExtendedParameterBeanClassName}")
-          $generator.parse("om/${glResourceDirectory}/exdao/ExParameterBean.${glTemplateFileExtension}",$path ,"" ,"")
+          $generator.parse("om/${glResourceDirectory}/exbhv/pmbean/ExParameterBean.${glTemplateFileExtension}",$path ,"" ,"")
         #end
       #end
     $database.debug("    }")

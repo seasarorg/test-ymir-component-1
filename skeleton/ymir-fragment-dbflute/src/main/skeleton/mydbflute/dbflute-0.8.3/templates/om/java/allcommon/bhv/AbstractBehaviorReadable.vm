@@ -14,7 +14,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Constructor;
 
 import ${glPackageBaseCommon}.${glBehaviorSelectorInterfaceName};
-import ${glPackageBaseCommon}.${glDaoSelectorInterfaceName};
 import ${glPackageBaseCommon}.${glEntityInterfaceName};
 import ${glPackageBaseCommonBhvCore}.${glBehaviorCommand};
 import ${glPackageBaseCommonBhvCore}.${glBehaviorCommandInvoker};
@@ -31,7 +30,6 @@ import ${glPackageBaseCommonCBean}.${glPagingHandlerName};
 import ${glPackageBaseCommonCBean}.${glPagingInvokerName};
 import ${glPackageBaseCommonCBean}.${glPagingBeanInterfaceName};
 import ${glPackageBaseCommonCBean}.${glPagingResultBeanName};
-import ${glPackageBaseCommonCBeanOutsidesql}.${glOutsideSqlDaoName};
 import ${glPackageBaseCommonCBeanOutsidesqlExecutor}.${glOutsideSqlBasicExecutorName};
 import ${glPackageBaseCommonBhvBatch}.${glTokenFileOutputOptionName};
 import ${glPackageBaseCommonBhvBatch}.${glTokenFileOutputResultName};
@@ -45,7 +43,6 @@ import ${glPackageBaseCommonUtil}.${glSimpleSystemUtil};
 
 /**
  * The abstract class of behavior-readable.
- * 
  * @author ${database.ClassAuthor}
  */${database.outputSuppressWarningsAfterLineSeparator()}
 public abstract class $myClassName implements ${glBehaviorReadableInterfaceName} {
@@ -58,9 +55,6 @@ public abstract class $myClassName implements ${glBehaviorReadableInterfaceName}
 
     /** Behavior-selector instance. It's basically referred at loadReferrer. (Required for loadReferrer) */
     protected ${glBehaviorSelectorInterfaceName} _behaviorSelector;
-
-    /** Dao-selector instance. It's basically referred at loadReferrer. (Required for OutsideSql) */
-    protected ${glDaoSelectorInterfaceName} _daoSelector;
 
     // =====================================================================================
     //                                                                         Basic Get All
@@ -242,38 +236,50 @@ public abstract class $myClassName implements ${glBehaviorReadableInterfaceName}
     }
 
     // ===================================================================================
+    //                                                                          OutsideSql
+    //                                                                          ==========
+    /**
+     * Get the basic executor of outside-SQL. <br />
+     * The invoker of behavior command should be not null when you call this method.
+     * <pre>
+     * You can use the methods for outside-SQL are as follows:
+     * {Basic}
+     *   o selectList()
+     *   o execute()
+     *   o call()
+     * 
+     * {Entity}
+     *   o entityHandling().selectEntity()
+     *   o entityHandling().selectEntityWithDeletedCheck()
+     * 
+     * {Cursor}
+     *   o cursorHandling().selectCursor()
+     * 
+     * {Paging}
+     *   o autoPaging().selectList()
+     *   o autoPaging().selectPage()
+     *   o manualPaging().selectList()
+     *   o manualPaging().selectPage()
+     * 
+     * {Option -- Dynamic}
+     *   o dynamicBinding().selectList()
+     * </pre>
+     * @return The basic executor of outside-SQL. (NotNull) 
+     */
+    public ${glOutsideSqlBasicExecutorName} outsideSql() {
+        assertBehaviorCommandInvoker("outsideSql");
+        return new ${glOutsideSqlBasicExecutorName}(_behaviorCommandInvoker, getTableDbName());
+    }
+
+    // ===================================================================================
     //                                                                      Various Select
     //                                                                      ==============
-    public ${glOutsideSqlBasicExecutorName} outsideSql() {
-        assertDaoSelectorNotNull("outsideSql");
-        final ${glOutsideSqlDaoName} outsideSqlDao = _daoSelector.select(${glOutsideSqlDaoName}.class);
-        return new ${glOutsideSqlBasicExecutorName}(outsideSqlDao, getTableDbName());
-    }
-
-    private void assertDaoSelectorNotNull(String methodName) {
-        if (_daoSelector == null) {
-            String msg = "Look! Read the message below." + getLineSeparator();
-            msg = msg + "/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *" + getLineSeparator();
-            msg = msg + "Not found the selector of dao as behavior's attributed!" + getLineSeparator();
-            msg = msg + getLineSeparator();
-            msg = msg + "[Advice]" + getLineSeparator();
-            msg = msg + "Please confirm the definition of the selector at your 'dbflute.dicon'." + getLineSeparator();
-            msg = msg + "It is precondition that '" + methodName + "()' needs the selector instance." + getLineSeparator();
-            msg = msg + getLineSeparator();
-            msg = msg + "[Your Behavior's Attributes]" + getLineSeparator();
-            msg = msg + "  _behaviorSelector  : " + _behaviorSelector + getLineSeparator();
-            msg = msg + "  _daoSelector       : " + _daoSelector + getLineSeparator();
-            msg = msg + "* * * * * * * * * */" + getLineSeparator();
-            throw new IllegalStateException(msg);
-        }
-    }
-
     /**
-     * Create value-label list.
+     * Create the list of value-label.
      * @param <ENTITY> The type of entity.
      * @param entityList The list of entity. (NotNull)
-     * @param valueLabelSetupper Value-label-setupper. (NotNull)
-     * @return Value-label list. (NotNull)
+     * @param valueLabelSetupper The setupper of value-label. (NotNull)
+     * @return The list of value-label. (NotNull)
      */
     public <ENTITY extends ${glEntityInterfaceName}> List<Map<String, Object>> createValueLabelList(List<ENTITY> entityList, ${glValueLabelSetupperName}<ENTITY> valueLabelSetupper) {
         final List<Map<String, Object>> valueLabelList = new ArrayList<Map<String, Object>>();
@@ -875,21 +881,5 @@ public abstract class $myClassName implements ${glBehaviorReadableInterfaceName}
      */
     public void setBehaviorSelector(${glBehaviorSelectorInterfaceName} behaviorSelector) {
         this._behaviorSelector = behaviorSelector;
-    }
-
-    /**
-     * Get the selector of DAO.
-     * @return The select of DAO. (Nullable: But normally NotNull)
-     */
-    protected ${glDaoSelectorInterfaceName} getDaoSelector() {
-        return _daoSelector;
-    }
-
-    /**
-     * Set the selector of DAO.
-     * @param daoSelector The selector of DAO. (NotNull)
-     */
-    public void setDaoSelector(${glDaoSelectorInterfaceName} daoSelector) {
-        _daoSelector = daoSelector;
     }
 }

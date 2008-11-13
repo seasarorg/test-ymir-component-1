@@ -8,6 +8,7 @@ import ${glPackageBaseCommon}.${glEntityInterfaceName};
 import ${glPackageBaseCommonDBMeta}.${glDBMetaAbstractName};
 import ${myExtendedEntityPackageName}.${myExtendedObjectClassName};
 import ${glPackageBaseCommonDBMetaInfo}.*;
+import ${glPackageBaseCommonHelper}.${glStringKeyMap};
 
 /**
  * The DB meta of ${table.Name}. (Singleton)
@@ -42,49 +43,37 @@ public class ${myClassName} extends ${glDBMetaAbstractName} {
 #foreach ($col in $table.columns)
     public ${glColumnInfoName} column${col.javaBeansRulePropertyNameInitCap}() { return _column${col.javaBeansRulePropertyNameInitCap}; }
 #end
-    { initializeColumnInfoList(); }
-#if ($database.isMakeDBMetaStaticDefinition())
 
     // ===================================================================================
-    //                                                                     Name Definition
-    //                                                                     ===============
-    // -----------------------------------------------------
-    //                                                 Table
-    //                                                 -----
-    public static final String TABLE_DB_NAME = "$table.name";
-    public static final String TABLE_PROPERTY_NAME = "$table.javaBeansRulePropertyName";
-
-    // -----------------------------------------------------
-    //                                        Column DB Name
-    //                                        --------------
-#foreach ($col in $table.columns)
-    public static final String DB_NAME_${col.name} = "$col.name";
-#end
-
-    // -----------------------------------------------------
-    //                                  Column Property Name
-    //                                  (JavaBeansRule)
-    //                                  --------------------
-#foreach ($col in $table.columns)
-    public static final String PROPERTY_NAME_${col.javaBeansRulePropertyName} = "$col.javaBeansRulePropertyName";
-#end
-#end
+    //                                                             Resource Initialization
+    //                                                             =======================
+    { initializeInformationResource(); }
+#if ($database.isMakeRecentlyDeprecated())
 
     // ===================================================================================
     //                                                                            Name Map
     //                                                                            ========
-    public Map<String, String> getDbNamePropertyNameKeyToLowerMap() { return createDbNamePropertyNameKeyToLowerMap(); }
-    public Map<String, String> getPropertyNameDbNameKeyToLowerMap() { return createPropertyNameDbNameKeyToLowerMap(); }
-    protected static Map<String, String> _dbNamePropertyNameKeyToLowerMap;
-    protected Map<String, String> createDbNamePropertyNameKeyToLowerMap() {
-        if (_dbNamePropertyNameKeyToLowerMap == null) { _dbNamePropertyNameKeyToLowerMap = setupKeyToLowerMap(true); }
-        return _dbNamePropertyNameKeyToLowerMap;
+    /**
+     * @return The key-to-lower map of DB name(lower) and property name. (NotNull)
+     * @deprecated Sorry! This method is unnecessary on DBFlute.
+     */
+    public Map<String, String> getDbNamePropertyNameKeyToLowerMap() { return createDPLMap(); }
+    /**
+     * @return The key-to-lower map of property name(lower) and DB name. (NotNull)
+     * @deprecated Sorry! This method is unnecessary on DBFlute.
+     */
+    public Map<String, String> getPropertyNameDbNameKeyToLowerMap() { return createPDLMap(); }
+    protected static Map<String, String> _dplMap;
+    protected Map<String, String> createDPLMap() {
+        if (_dplMap == null) { _dplMap = setupKeyToLowerMap(true); }
+        return _dplMap;
     }
-    protected static Map<String, String> _propertyNameDbNameKeyToLowerMap;
-    protected Map<String, String> createPropertyNameDbNameKeyToLowerMap() {
-        if (_propertyNameDbNameKeyToLowerMap == null) { _propertyNameDbNameKeyToLowerMap = setupKeyToLowerMap(false); }
-        return _propertyNameDbNameKeyToLowerMap;
+    protected static Map<String, String> _pdlMap;
+    protected Map<String, String> createPDLMap() {
+        if (_pdlMap == null) { _pdlMap = setupKeyToLowerMap(false); }
+        return _pdlMap;
     }
+#end
 
     // ===================================================================================
     //                                                                           Type Name
@@ -154,7 +143,7 @@ public class ${myClassName} extends ${glDBMetaAbstractName} {
 #if ($foreignKeys.isSimpleKeyFK())
 #set ($column = $foreignKeys.localColumnAsOne)
 #set ($yourColumn = ${foreignKeys.getForeignColumnByLocalColumn(${column})})
-		Map<${glColumnInfoName}, ${glColumnInfoName}> map = newLinkedHashMap(column${column.javaBeansRulePropertyNameInitCap}(), ${foreignKeys.foreignTableDBMetaClassName}.getInstance().column${yourColumn.javaBeansRulePropertyNameInitCap}());
+        Map<${glColumnInfoName}, ${glColumnInfoName}> map = newLinkedHashMap(column${column.javaBeansRulePropertyNameInitCap}(), ${foreignKeys.foreignTableDBMetaClassName}.getInstance().column${yourColumn.javaBeansRulePropertyNameInitCap}());
 #else
         Map<${glColumnInfoName}, ${glColumnInfoName}> map = newLinkedHashMap();
 #foreach ($column in $foreignKeys.localColumnList)
@@ -162,7 +151,7 @@ public class ${myClassName} extends ${glDBMetaAbstractName} {
         map.put(column${column.javaBeansRulePropertyNameInitCap}(), ${foreignKeys.foreignTableDBMetaClassName}.getInstance().column${yourColumn.javaBeansRulePropertyNameInitCap}());
 #end
 #end
-	    return cfi("${foreignKeys.foreignJavaBeansRulePropertyName}", this, ${foreignKeys.foreignTableDBMetaClassName}.getInstance(), map, ${table.resolveForeignIndex($foreignKeys)}, ${foreignKeys.isOneToOne()});
+        return cfi("${foreignKeys.foreignJavaBeansRulePropertyName}", this, ${foreignKeys.foreignTableDBMetaClassName}.getInstance(), map, ${table.resolveForeignIndex($foreignKeys)}, ${foreignKeys.isOneToOne()});
     }
 #end
 #foreach ($referrer in $table.referrers)
@@ -174,13 +163,13 @@ public class ${myClassName} extends ${glDBMetaAbstractName} {
 #set ($yourColumn = ${referrer.getLocalColumnByForeignColumn(${column})})
         Map<${glColumnInfoName}, ${glColumnInfoName}> map = newLinkedHashMap(column${column.javaBeansRulePropertyNameInitCap}(), ${referrer.referrerTableDBMetaClassName}.getInstance().column${yourColumn.javaBeansRulePropertyNameInitCap}());
 #else
-		Map<${glColumnInfoName}, ${glColumnInfoName}> map = newLinkedHashMap();
+        Map<${glColumnInfoName}, ${glColumnInfoName}> map = newLinkedHashMap();
 #foreach ($column in $referrer.foreignColumnList)
 #set ($yourColumn = ${referrer.getLocalColumnByForeignColumn(${column})})
         map.put(column${column.javaBeansRulePropertyNameInitCap}(), ${referrer.referrerTableDBMetaClassName}.getInstance().column${yourColumn.javaBeansRulePropertyNameInitCap}());
 #end
 #end
-	    return cfi("${referrer.refererJavaBeansRulePropertyNameAsOne}", this, ${referrer.referrerTableDBMetaClassName}.getInstance(), map, ${table.resolveReferrerIndexAsOne($referrer)}, ${referrer.isOneToOne()});
+        return cfi("${referrer.refererJavaBeansRulePropertyNameAsOne}", this, ${referrer.referrerTableDBMetaClassName}.getInstance(), map, ${table.resolveReferrerIndexAsOne($referrer)}, ${referrer.isOneToOne()});
     }
 #end
 #end
@@ -195,12 +184,12 @@ public class ${myClassName} extends ${glDBMetaAbstractName} {
 #set ($column = $referrer.foreignColumnAsOne)
         Map<${glColumnInfoName}, ${glColumnInfoName}> map = newLinkedHashMap(column${column.javaBeansRulePropertyNameInitCap}(), ${referrer.referrerTableDBMetaClassName}.getInstance().column${referrer.getLocalColumnByForeignColumn(${column}).javaBeansRulePropertyNameInitCap}());
 #else
-		Map<${glColumnInfoName}, ${glColumnInfoName}> map = newLinkedHashMap();
+        Map<${glColumnInfoName}, ${glColumnInfoName}> map = newLinkedHashMap();
 #foreach ($column in $referrer.foreignColumnList)
         map.put(column${column.javaBeansRulePropertyNameInitCap}(), ${referrer.referrerTableDBMetaClassName}.getInstance().column${referrer.getLocalColumnByForeignColumn(${column}).javaBeansRulePropertyNameInitCap}());
 #end
 #end
-	    return cri("${referrer.referrerJavaBeansRulePropertyName}", this, ${referrer.referrerTableDBMetaClassName}.getInstance(), map, ${referrer.isOneToOne()});
+        return cri("${referrer.referrerJavaBeansRulePropertyName}", this, ${referrer.referrerTableDBMetaClassName}.getInstance(), map, ${referrer.isOneToOne()});
     }
 #end
 #end
@@ -291,7 +280,7 @@ public class ${myClassName} extends ${glDBMetaAbstractName} {
     //                                                Accept
     //                                                ------
     public void acceptPrimaryKeyMap(${glEntityInterfaceName} entity, Map<String, ? extends Object> primaryKeyMap) {
-		doAcceptPrimaryKeyMap((${myExtendedObjectClassName})entity, primaryKeyMap, _epsMap);
+        doAcceptPrimaryKeyMap((${myExtendedObjectClassName})entity, primaryKeyMap, _epsMap);
     }
 
     public void acceptPrimaryKeyMapString(${glEntityInterfaceName} entity, String primaryKeyMapString) {
@@ -317,50 +306,6 @@ public class ${myClassName} extends ${glDBMetaAbstractName} {
     public String extractColumnValueMapString(${glEntityInterfaceName} entity, String startBrace, String endBrace, String delimiter, String equal) {
         return doExtractColumnValueMapString(entity, startBrace, endBrace, delimiter, equal);
     }
-#if ($database.isMakeDBMetaCommonColumnHandling())
-#if (${table.hasAllCommonColumn()})
-
-    public String extractCommonColumnValueMapString(${glEntityInterfaceName} entity) {
-        return extractCommonColumnValueMapString(entity, MAP_STRING_START_BRACE, MAP_STRING_END_BRACE, MAP_STRING_DELIMITER, MAP_STRING_EQUAL);
-    }
-
-    public String extractCommonColumnValueMapString(${glEntityInterfaceName} entity, String startBrace, String endBrace, String delimiter, String equal) {
-        final ${myExtendedObjectClassName} myEntity = (${myExtendedObjectClassName})entity;
-        final String mapMarkAndStartBrace = MAP_STRING_MAP_MARK + startBrace;
-        final StringBuffer sb = new StringBuffer();
-  #foreach ($columnName in ${database.commonColumnNameList})
-    #set ($filteredColumnName = ${database.filterCommonColumn(${columnName})})
-    #set ($commonColumnMap = ${database.commonColumnMap})
-    #set ($columnType = ${commonColumnMap.get(${columnName})})
-    #set ($javaNative = ${database.convertJavaNativeByJdbcType(${columnType})})
-    #set ($javaName = ${database.convertJavaNameByJdbcNameAsColumn(${filteredColumnName})})
-    #set ($targetColumnName = ${table.findTargetColumnNameByCommonColumnName(${columnName})})
-    #set ($col = $table.getColumnByFlexibleName($columnName))
-    #if ($col.isJavaNativeDateObject())
-
-        sb.append(delimiter).append("${targetColumnName}").append(equal);
-        sb.append((myEntity.get${javaName}() != null ? helpFormatingDate(myEntity.get${javaName}()) : ""));
-    #else
-
-        sb.append(delimiter).append("${targetColumnName}").append(equal);
-        sb.append((myEntity.get${javaName}() != null ? myEntity.get${javaName}().toString() : ""));
-    #end
-  #end
-
-        sb.delete(0, delimiter.length()).insert(0, mapMarkAndStartBrace).append(endBrace);
-        return sb.toString();
-    }
-#else
-
-    public String extractCommonColumnValueMapString(${glEntityInterfaceName} entity) {
-        return "map:{}";
-    }
-
-    public String extractCommonColumnValueMapString(${glEntityInterfaceName} entity, String startBrace, String endBrace, String delimiter, String equal) {
-        return "map:" + startBrace + endBrace;
-    }
-#end
-#end
 
     // -----------------------------------------------------
     //                                               Convert
@@ -369,29 +314,12 @@ public class ${myClassName} extends ${glDBMetaAbstractName} {
     public Map<String, Object> convertToColumnValueMap(${glEntityInterfaceName} entity) { return doConvertToColumnValueMap(entity); }
     public List<String> convertToColumnStringValueList(${glEntityInterfaceName} entity) { return newArrayList(convertToColumnStringValueMap(entity).values()); }
     public Map<String, String> convertToColumnStringValueMap(${glEntityInterfaceName} entity) { return doConvertToColumnStringValueMap(entity); }
-#if ($database.isMakeDBMetaJDBCSupport())
-
-    // ===================================================================================
-    //                                                                        JDBC Support
-    //                                                                        ============
-    public String getPreparedInsertClause() {
-        return getPreparedInsertClause(new PreparedInsertClauseOption());
-    }
-
-    public String getPreparedInsertClause(PreparedInsertClauseOption preparedInsertClauseOption) {
-        if (preparedInsertClauseOption.getTablePrefix() != null) {
-            final String tablePrefix = preparedInsertClauseOption.getTablePrefix();
-            return "insert into " + tablePrefix + "${table.name}(${table.ColumnNameCommaString}) values(${table.insertClauseValuesAsQuetionMark})";
-        }
-        return "insert into ${table.name}(${table.ColumnNameCommaString}) values(${table.insertClauseValuesAsQuetionMark})";
-    }
-#end
 
     // ===================================================================================
     //                                                               Entity Property Setup
     //                                                               =====================
     // It's very INTERNAL!
-    protected Map<String, Eps<${myExtendedObjectClassName}>> _epsMap = newConcurrentHashMap();
+    protected Map<String, Eps<${myExtendedObjectClassName}>> _epsMap = ${glStringKeyMap}.createAsFlexibleConcurrent();
     {
 #foreach ($column in $table.columns)
         setupEps(_epsMap, new Eps${column.javaName}(), column${column.javaBeansRulePropertyNameInitCap}());
