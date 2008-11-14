@@ -9,7 +9,7 @@
       "${databaseDriverClassName}"
     </property>
     <property name="URL">
-      ${databaseURLForYmir}
+      "${databaseURL?replace("%WEBAPP%", "\" + application.getRealPath(\"\") + \"")}"
     </property>
     <property name="user">
       "${databaseUser}"
