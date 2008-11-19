@@ -1519,6 +1519,12 @@ public class SourceCreatorImpl implements SourceCreator {
                 superclassName = setting_.getSuperclassName(className);
                 if (superclassName == null && type == ClassType.PAGE) {
                     superclassName = setting_.getPageSuperclassName();
+                    if (className.equals(superclassName)) {
+                        // Page共通の親クラス名をPageBase等にしていると、共通の親クラスが存在しない場合に
+                        // そのさらに親クラスとして自分自身が見つかってしまい無限ループに陥ってしまう。
+                        // それを避けるためにこうしている。
+                        superclassName = null;
+                    }
                 }
                 if (superclassName != null) {
                     Class<?> superclass = findClass(ClassUtils
