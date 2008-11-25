@@ -63,6 +63,8 @@ public class SourceCreatorSetting {
 
     private static final String DEFAULT_SOURCECREATOR_FIELDSUFFIX = "_";
 
+    private static final String APPKEY_BEANTABLE_ENABLE = "beantable.enable";
+
     private SourceCreator sourceCreator_;
 
     private final Log log_ = LogFactory.getLog(getClass());
@@ -283,9 +285,7 @@ public class SourceCreatorSetting {
     }
 
     public boolean isBeantableEnabled() {
-        return PropertyUtils
-                .valueOf(
-                        getProperty(org.seasar.ymir.beantable.Globals.APPKEY_BEANTABLE_ENABLE),
-                        false);
+        return PropertyUtils.valueOf(getProperty(APPKEY_BEANTABLE_ENABLE),
+                false);
     }
 }
