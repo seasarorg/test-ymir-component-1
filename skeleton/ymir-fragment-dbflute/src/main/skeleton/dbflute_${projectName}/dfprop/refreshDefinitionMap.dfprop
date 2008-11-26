@@ -1,4 +1,4 @@
 map:{
     ; projectName = ${projectName}
-    ; requestUrl = <#if ymir["extension.sourceCreator.eclipse.resourceSynchronizerURL"]??><#assign url = ymir["extension.sourceCreator.eclipse.resourceSynchronizerURL"]><#else><#assign url = ""></#if><#if url != "">${url}<#else>http://localhost:8386/</#if>
+    ; requestUrl = <#if ymir["extension.sourceCreator.eclipse.resourceSynchronizerURL"]?? && ymir["extension.sourceCreator.eclipse.resourceSynchronizerURL"] != "">${ymir["extension.sourceCreator.eclipse.resourceSynchronizerURL"]}<#else>http://localhost:8386/</#if>
 }
