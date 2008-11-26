@@ -2,6 +2,6 @@
 <!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
-<#if hotdeployType == "JavaRebel">  <component
+<#if ymir["hotdeployType"]?? && ymir["hotdeployType"] == "JavaRebel">  <component
     class="org.seasar.ymir.interceptor.impl.AlternativeHotdeployInterceptor" />
 </#if></components>

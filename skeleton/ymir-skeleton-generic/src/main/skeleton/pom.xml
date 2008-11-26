@@ -174,8 +174,25 @@
       <groupId>org.seasar.ymir</groupId>
       <artifactId>ymir-extension</artifactId>
       <version>1.0.0-RC2-SNAPSHOT</version>
+<#if !(ymir["beantable.enable"]?? && ymir["beantable.enable"] == "true")>      <exclusions>
+        <exclusion>
+          <groupId>org.seasar.ymir</groupId>
+          <artifactId>ymir-beantable</artifactId>
+        </exclusion>
+      </exclusions>
+</#if>    </dependency>
+<#if !(ymir["beantable.enable"]?? && ymir["beantable.enable"] == "true")>    <dependency>
+      <groupId>org.seasar.dao</groupId>
+      <artifactId>s2-dao-tiger</artifactId>
+      <version>1.0.47</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.seasar.container</groupId>
+          <artifactId>s2-extension</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
-    <dependency>
+</#if>    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>2.4</version>
