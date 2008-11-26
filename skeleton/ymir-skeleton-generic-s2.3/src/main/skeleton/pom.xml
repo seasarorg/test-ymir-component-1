@@ -191,9 +191,24 @@
           <groupId>org.seasar.cms.s2-classbuilder</groupId>
           <artifactId>s2-classbuilder</artifactId>
         </exclusion>
+<#if !(ymir["beantable.enable"]?? && ymir["beantable.enable"] == "true")>        <exclusion>
+          <groupId>org.seasar.ymir</groupId>
+          <artifactId>ymir-beantable</artifactId>
+        </exclusion>
+</#if>      </exclusions>
+    </dependency>
+<#if !(ymir["beantable.enable"]?? && ymir["beantable.enable"] == "true")>    <dependency>
+      <groupId>org.seasar.dao</groupId>
+      <artifactId>s2-dao-tiger</artifactId>
+      <version>1.0.47</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.seasar.container</groupId>
+          <artifactId>s2-extension</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
+</#if>    <dependency>
       <groupId>org.seasar.cms.s2-pluggable</groupId>
       <artifactId>s2.3-pluggable</artifactId>
       <version>0.0.9</version>
