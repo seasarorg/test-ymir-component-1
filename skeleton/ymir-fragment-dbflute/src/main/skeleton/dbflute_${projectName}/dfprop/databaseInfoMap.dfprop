@@ -12,7 +12,7 @@
 # @FirstProperty
 map:{
 	; driver		= ${databaseDriverClassName}
-	; url			= "${databaseURL?replace("%WEBAPP%", "../src/main/webapp")}"
+	; url			= ${databaseURL?replace("%WEBAPP%", "../src/main/webapp")}
 	; schema		= <#if databaseType == "mysql">${databaseUser}</#if>
 	; user			= ${databaseUser}
 	; password		= ${databasePassword}
