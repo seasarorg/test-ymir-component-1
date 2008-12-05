@@ -222,5 +222,5 @@
       <version>3.8.2</version>
       <scope>test</scope>
     </dependency>
-<#if dependencies != "">${dependencies}</#if>  </dependencies>
+  </dependencies>
 </project>
