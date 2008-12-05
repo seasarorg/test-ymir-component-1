@@ -170,5 +170,5 @@ ${r"</#if>"}    <profile>
     </pluginRepository>
   </pluginRepositories>
   <dependencies>
-${r"<#if"} dependencies != "">${r"$"}{dependencies}${r"</#if>"}  </dependencies>
+  </dependencies>
 </project>
