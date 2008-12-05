@@ -1,7 +1,0 @@
-<dependencies>
-  <dependency>
-    <groupId>org.seasar.ymir</groupId>
-    <artifactId>ymir-amf</artifactId>
-    <version>1.0.0-RC2-SNAPSHOT</version>
-  </dependency>
-</dependencies>
