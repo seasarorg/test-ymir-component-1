@@ -11,10 +11,10 @@
 #
 # @FirstProperty
 map:{
-	; driver		= ${databaseDriverClassName}
-	; url			= ${databaseURL?replace("%WEBAPP%", "../src/main/webapp")}
-	; schema		= <#if databaseType == "mysql">${databaseUser}</#if>
-	; user			= ${databaseUser}
-	; password		= ${databasePassword}
+	; driver		= ${database.driverClassName}
+	; url			= ${database.URL?replace("%WEBAPP%", "../src/main/webapp")}
+	; schema		= <#if database.type == "mysql">${database.user}</#if>
+	; user			= ${database.user}
+	; password		= ${database.password}
 }
 # ----------------/
