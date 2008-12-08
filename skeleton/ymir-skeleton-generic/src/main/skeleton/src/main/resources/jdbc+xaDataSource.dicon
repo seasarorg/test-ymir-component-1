@@ -6,16 +6,16 @@
 <#if useDatabase>
     class="org.seasar.extension.dbcp.impl.XADataSourceImpl">
     <property name="driverClassName">
-      "${databaseDriverClassName}"
+      "${database.driverClassName}"
     </property>
     <property name="URL">
-      "${databaseURL?replace("%WEBAPP%", "\" + application.getRealPath(\"\") + \"")}"
+      "${database.URL?replace("%WEBAPP%", "\" + application.getRealPath(\"\") + \"")}"
     </property>
     <property name="user">
-      "${databaseUser}"
+      "${database.user}"
     </property>
     <property name="password">
-      "${databasePassword}"
+      "${database.password}"
     </property>
   </component>
 <#else>
