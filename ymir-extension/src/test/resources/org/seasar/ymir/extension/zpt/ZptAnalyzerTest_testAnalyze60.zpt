@@ -1,0 +1,10 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <div tal:repeat="item self/items">
+      <input type="checkbox" tal:attributes="checked java:item.getId1().equals(new Integer(1))" />
+    </div>
+  </body>
+</html>

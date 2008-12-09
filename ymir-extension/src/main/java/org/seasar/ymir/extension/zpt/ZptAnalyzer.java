@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.zpt;
 
+import static net.skirnir.freyja.zpt.tales.TalesExpressionEvaluator.TYPE_JAVA;
 import static net.skirnir.freyja.zpt.tales.TalesExpressionEvaluator.TYPE_NOT;
 import static net.skirnir.freyja.zpt.webapp.ServletTalesExpressionEvaluator.TYPE_PAGE;
 
@@ -74,7 +75,9 @@ public class ZptAnalyzer implements TemplateAnalyzer {
                     TYPE_PAGE,
                     new AnalyzerPageTypePrefixHandler(
                             (PageTypePrefixHandler) evaluator
-                                    .getTypePrefixHandler(TYPE_PAGE)));
+                                    .getTypePrefixHandler(TYPE_PAGE)))
+                    .addTypePrefix(TYPE_JAVA,
+                            new AnalyzerJavaTypePrefixHandler());
             evaluator.addPathResolver(new AnalyzerPathResolver());
         }
         evaluator_ = new TemplateEvaluatorImpl(templateEvaluator

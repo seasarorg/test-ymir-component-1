@@ -1032,4 +1032,13 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(pd);
         assertEquals("String", pd.getTypeDesc().getName());
     }
+
+    public void testAnalyze60_YMIR_269_Java式を使っても例外が発生しないこと() throws Exception {
+
+        try {
+            act("testAnalyze60");
+        } catch (Throwable t) {
+            fail();
+        }
+    }
 }
