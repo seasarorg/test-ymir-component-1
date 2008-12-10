@@ -41,8 +41,9 @@
   <modules>
     <module>../ymir-skeleton-generic</module>
     <module>../ymir-skeleton-generic-s2.3</module>
-    <module>../ymir-skeleton-skeleton</module>
-    <module>../ymir-skeleton-fragment</module>
+    <module>../ymir-skeleton-skeleton-generic</module>
+    <module>../ymir-skeleton-skeleton-web</module>
+    <module>../ymir-skeleton-fragment-generic</module>
     <module>../ymir-fragment-utility</module>
     <module>../ymir-fragment-dbflute</module>
     <module>../ymir-fragment-json</module>
