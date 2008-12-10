@@ -7,10 +7,10 @@
     <version>1.0.0-RC2-SNAPSHOT</version>
   </parent>
   <groupId>org.seasar.ymir.skeleton</groupId>
-  <artifactId>ymir-skeleton-skeleton</artifactId>
-  <name>Ymir Skeleton Skeleton</name>
+  <artifactId>ymir-skeleton-skeleton-generic</artifactId>
+  <name>Ymir Generic Skeleton Skeleton</name>
   <description>
-    This is a project to generate a Vili skeleton project.
+    This is a project to generate a generic Vili skeleton project.
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
