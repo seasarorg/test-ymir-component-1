@@ -65,14 +65,11 @@ public class RequestProcessorImpl implements RequestProcessor {
 
     private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
 
-    private final PageComponentVisitor<Object> visitorForInvokingInPhasePageComponentCreated_ = new VisitorForInvoking(
-            Phase.PAGECOMPONENT_CREATED);
+    private PageComponentVisitor<Object> visitorForInvokingInPhasePageComponentCreated_;
 
-    private final PageComponentVisitor<Object> visitorForInvokingInPhaseActionInvoking_ = new VisitorForInvoking(
-            Phase.ACTION_INVOKING);
+    private PageComponentVisitor<Object> visitorForInvokingInPhaseActionInvoking_;
 
-    private final PageComponentVisitor<Object> visitorForInvokingInPhaseActionInvoked_ = new VisitorForInvoking(
-            Phase.ACTION_INVOKED);
+    private PageComponentVisitor<Object> visitorForInvokingInPhaseActionInvoked_;
 
     private final Log log_ = LogFactory.getLog(RequestProcessorImpl.class);
 
@@ -84,6 +81,7 @@ public class RequestProcessorImpl implements RequestProcessor {
     @Binding(bindingType = BindingType.MUST)
     public void setActionManager(ActionManager actionManager) {
         actionManager_ = actionManager;
+        initPageComponentVisitor();
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -95,6 +93,7 @@ public class RequestProcessorImpl implements RequestProcessor {
     public void setComponentMetaDataFactory(
             ComponentMetaDataFactory componentMetaDataFactory) {
         componentMetaDataFactory_ = componentMetaDataFactory;
+        initPageComponentVisitor();
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -123,6 +122,23 @@ public class RequestProcessorImpl implements RequestProcessor {
             path = path.substring(0, path.length() - 1);
         }
         return path;
+    }
+
+    void initPageComponentVisitor() {
+        if (actionManager_ == null || componentMetaDataFactory_ == null) {
+            return;
+        }
+
+        visitorForInvokingInPhasePageComponentCreated_ = new VisitorForInvoking(
+                Phase.PAGECOMPONENT_CREATED, actionManager_,
+                componentMetaDataFactory_);
+
+        visitorForInvokingInPhaseActionInvoking_ = new VisitorForInvoking(
+                Phase.ACTION_INVOKING, actionManager_,
+                componentMetaDataFactory_);
+
+        visitorForInvokingInPhaseActionInvoked_ = new VisitorForInvoking(
+                Phase.ACTION_INVOKED, actionManager_, componentMetaDataFactory_);
     }
 
     public Object backupForInclusion(AttributeContainer attributeContainer) {
@@ -432,29 +448,6 @@ public class RequestProcessorImpl implements RequestProcessor {
                     .constructResponse(page, returnValue);
         } finally {
             Thread.currentThread().setContextClassLoader(oldLoader);
-        }
-    }
-
-    protected class VisitorForInvoking extends PageComponentVisitor<Object> {
-        private Phase phase_;
-
-        public VisitorForInvoking(Phase phase) {
-            phase_ = phase;
-        }
-
-        public Object process(PageComponent pageComponent) {
-            ComponentMetaData metaData = componentMetaDataFactory_
-                    .getInstance(pageComponent.getPageClass());
-            Method[] methods = metaData.getMethods(phase_);
-            if (methods != null) {
-                for (int i = 0; i < methods.length; i++) {
-                    actionManager_.newAction(
-                            pageComponent.getPage(),
-                            actionManager_.newMethodInvoker(pageComponent
-                                    .getPageClass(), methods[i])).invoke();
-                }
-            }
-            return null;
         }
     }
 

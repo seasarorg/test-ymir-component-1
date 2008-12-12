@@ -12,6 +12,12 @@ public enum Phase {
     PAGECOMPONENT_CREATED,
 
     /**
+     * スコープからオブジェクトがインジェクトされたことを表します。
+     * ポピュレートはまだ行なわれていません。
+     */
+    OBJECT_INJECTED,
+
+    /**
      * Pageコンポーネントについてアクションが実行されようとしていることを表します。
      */
     ACTION_INVOKING,
