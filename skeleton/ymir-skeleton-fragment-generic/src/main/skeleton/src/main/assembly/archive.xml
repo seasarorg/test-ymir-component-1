@@ -10,4 +10,10 @@
       <outputDirectory></outputDirectory>
     </fileSet>
   </fileSets>
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>vili-lib</outputDirectory>
+      <scope>runtime</scope>
+    </dependencySet>
+  </dependencySets>
 </assembly>
