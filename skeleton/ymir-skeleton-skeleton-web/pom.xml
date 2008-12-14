@@ -6,8 +6,8 @@
     <artifactId>ymir-skeleton-project</artifactId>
     <version>1.0.0-RC2-SNAPSHOT</version>
   </parent>
-  <groupId>org.seasar.ymir.skeleton</groupId>
   <artifactId>ymir-skeleton-skeleton-web</artifactId>
+  <version>1.0.0-RC2-000-SNAPSHOT</version>
   <name>Ymir Web Skeleton Skeleton</name>
   <description>
     This is a project to generate a standard web Vili skeleton project.
