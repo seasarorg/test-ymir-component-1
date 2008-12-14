@@ -3,6 +3,8 @@ package org.seasar.ymir.extension.creator;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.seasar.ymir.extension.creator.util.DescUtils;
+
 public class DescValidator {
 
     private DescValidator() {
@@ -70,7 +72,7 @@ public class DescValidator {
 
         if (TypeDesc.TYPE_VOID.equals(className)) {
             return true;
-        } else if (isPrimitive(className)) {
+        } else if (DescUtils.isPrimitive(className)) {
             return true;
         } else if (classDescSet != null && classDescSet.contains(className)) {
             return true;
@@ -86,14 +88,6 @@ public class DescValidator {
                 return false;
             }
         }
-    }
-
-    static boolean isPrimitive(String name) {
-
-        return ("byte".equals(name) || "short".equals(name)
-                || "int".equals(name) || "long".equals(name)
-                || "float".equals(name) || "double".equals(name)
-                || "char".equals(name) || "boolean".equals(name));
     }
 
     public static class Result {

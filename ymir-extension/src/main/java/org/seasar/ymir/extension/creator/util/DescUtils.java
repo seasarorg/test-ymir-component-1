@@ -286,4 +286,11 @@ public class DescUtils {
         }
         return null;
     }
+
+    public static boolean isPrimitive(String name) {
+        return ("byte".equals(name) || "short".equals(name)
+                || "int".equals(name) || "long".equals(name)
+                || "float".equals(name) || "double".equals(name)
+                || "char".equals(name) || "boolean".equals(name));
+    }
 }

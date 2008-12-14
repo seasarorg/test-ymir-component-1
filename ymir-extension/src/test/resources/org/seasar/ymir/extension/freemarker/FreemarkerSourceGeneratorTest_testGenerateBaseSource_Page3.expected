@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.freemarker;
 
+@SuppressWarnings("unchecked")
 public class Hoe3PageBase
 {
 

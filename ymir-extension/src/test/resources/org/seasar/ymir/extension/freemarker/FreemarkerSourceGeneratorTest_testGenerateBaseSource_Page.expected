@@ -1,5 +1,6 @@
 package com.example.page;
 
+@SuppressWarnings("unchecked")
 public class TestPageBase extends com.example.page.TestPageBaseBase
 {
     protected boolean param1_;
@@ -8,7 +9,7 @@ public class TestPageBase extends com.example.page.TestPageBaseBase
 
     protected String param3_;
 
-    protected Integer[] param4_;
+    protected Integer[] param4_ = new Integer[0];
 
 
     public boolean isParam1()

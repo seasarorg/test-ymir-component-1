@@ -2,6 +2,7 @@ package com.example.dto;
 
 import java.io.Serializable;
 
+@SuppressWarnings("unchecked")
 public class TestDtoBase
     implements Serializable
 {
@@ -13,7 +14,7 @@ public class TestDtoBase
 
     protected String param3_;
 
-    protected Integer[] param4_;
+    protected Integer[] param4_ = new Integer[0];
 
 
     public TestDtoBase()

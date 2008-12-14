@@ -38,4 +38,6 @@ public interface TypeDesc extends Cloneable {
     String getDefaultValue();
 
     String getInstanceName();
+
+    String getInitialValue();
 }

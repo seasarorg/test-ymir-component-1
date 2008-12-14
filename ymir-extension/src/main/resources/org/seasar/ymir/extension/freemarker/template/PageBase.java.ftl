@@ -1,11 +1,12 @@
 ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
 
 <#list classDesc.annotationDescs as annotationDesc>${annotationDesc.string}
-</#list>public <#if classDesc.baseClassAbstract>abstract </#if>class ${classDesc.shortName}Base<#if classDesc.superclassName?exists && classDesc.superclassName != "java.lang.Object"> extends ${classDesc.superclassName}</#if>
+</#list>@SuppressWarnings("unchecked")
+public <#if classDesc.baseClassAbstract>abstract </#if>class ${classDesc.shortName}Base<#if classDesc.superclassName?exists && classDesc.superclassName != "java.lang.Object"> extends ${classDesc.superclassName}</#if>
 {
 <#list classDesc.propertyDescs as propertyDesc><#if !propertyDesc.hasMetaOnSetter("formProperty")>
     <#if propertyDesc.hasMeta("property")>@org.seasar.ymir.annotation.Meta(name="property",value="${propertyDesc.getMetaFirstValue("property")}")
-    </#if>protected ${propertyDesc.typeDesc.name} ${fieldPrefix}${propertyDesc.name}${fieldSuffix}<#if propertyDesc.hasMeta("property")> = new ${propertyDesc.typeDesc.name}()</#if>;
+    </#if>protected ${propertyDesc.typeDesc.name} ${fieldPrefix}${propertyDesc.name}${fieldSuffix}<#if propertyDesc.typeDesc.initialValue??> = ${propertyDesc.typeDesc.initialValue}</#if>;
 
 </#if></#list>
 <#list classDesc.propertyDescs as propertyDesc>

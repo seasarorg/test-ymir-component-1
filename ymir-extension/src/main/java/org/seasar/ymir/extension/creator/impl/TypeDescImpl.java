@@ -34,6 +34,10 @@ public class TypeDescImpl implements TypeDesc {
 
     private static final Map<String, String> WRAPPER_MAP;
 
+    private static final String PACKAGEPREFIX_FREYJA_RENDER_CLASS = "net.skirnir.freyja.render.";
+
+    private static final String SUFFIX_DTO = "Dto";
+
     static {
         DEFAULT_VALUE_MAP = new HashMap<String, String>();
         DEFAULT_VALUE_MAP.put("byte", "0");
@@ -317,5 +321,19 @@ public class TypeDescImpl implements TypeDesc {
 
     public void replaceClassDesc(ClassDesc classDesc) {
         classDesc_ = classDesc;
+    }
+
+    public String getInitialValue() {
+        if (array_) {
+            return "new " + normalizePackage(classDesc_.getName()) + "[0]";
+        } else {
+            if (classDesc_.getPackageName().startsWith(
+                    PACKAGEPREFIX_FREYJA_RENDER_CLASS)
+                    || classDesc_.getName().endsWith(SUFFIX_DTO)) {
+                return "new " + getName() + "()";
+            } else {
+                return null;
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 package org.seasar.ymir.extension.freemarker;
 
 @org.seasar.ymir.constraint.annotation.Required(allowWhitespace=true,completely=false,matchedParameterRequired=false,value="test")
+@SuppressWarnings("unchecked")
 public class HoePageBase
 {
     protected String hoe_;
