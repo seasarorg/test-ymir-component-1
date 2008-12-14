@@ -48,5 +48,6 @@
     <module>../ymir-fragment-dbflute</module>
     <module>../ymir-fragment-json</module>
     <module>../ymir-fragment-amf</module>
+    <module>../ymir-fragment-yonex</module>
   </modules>
 </project>
