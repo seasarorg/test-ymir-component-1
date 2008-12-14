@@ -75,6 +75,9 @@ public class TypeConversionManagerImpl implements TypeConversionManager {
 
     @SuppressWarnings("unchecked")
     public <T> T convert(Object value, Class<T> type, Annotation[] hint) {
+        if (hint == null) {
+            hint = new Annotation[0];
+        }
         if (value == null) {
             return convertStringTo(null, type, hint);
         }
