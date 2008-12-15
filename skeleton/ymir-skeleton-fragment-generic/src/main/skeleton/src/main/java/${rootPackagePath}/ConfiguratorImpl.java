@@ -9,7 +9,8 @@ import org.seasar.ymir.vili.ViliProjectPreferences;
 
 public class ConfiguratorImpl implements Configurator {
     public Map<String, Object> createAdditionalParameters(
-            ViliBehavior behavior, ViliProjectPreferences preferences) {
+            ViliBehavior behavior, ViliProjectPreferences preferences,
+            Map<String, Object> artifactParameters) {
         Map<String, Object> parameters = new HashMap<String, Object>();
         // TODO 追加のパラメータをparametersにputする処理を書いて下さい。
         return parameters;
