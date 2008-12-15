@@ -8,10 +8,10 @@
     <version>1.0.0-RC2-SNAPSHOT</version>
   </parent>
   <artifactId>ymir-fragment-yonex</artifactId>
-  <name>ymir-fragment-yonex</name>
+  <name>Ymir Yonex Fragment</name>
   <version>1.0.0-RC2-00.01-000-SNAPSHOT</version>
   <description>
-    This is a project to generate a Vili project fragment.
+    This is a project to generate a Yonex integration-test environment fragment for Ymir.
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
