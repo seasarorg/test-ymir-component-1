@@ -6,6 +6,12 @@ import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.message.Messages;
 
 
+/**
+ * A class to convert Dto objects and entity objects.
+ * <p>Developer can override methods to customize this class's behavior,
+ * and add methods to gain conversion ability.
+ * </p>
+ */
 public class HoeConverterBase
 {
     protected TypeConversionManager typeConversionManager_;
@@ -23,18 +29,50 @@ public class HoeConverterBase
         messages_ = messages;
     }
 
+    /**
+     * Gets TypeConversionManager.
+     * <p>Gets a TypeConversionManager instance to convert types of object.
+     * </p>
+     * 
+     * @return A TypeConversionManager instance.
+     */
     final protected TypeConversionManager getTypeConversionManager() {
         return typeConversionManager_;
     }
 
+    /**
+     * Gets Messages.
+     * <p>Gets a Messages instance to localize messages represented by keys.
+     * </p>
+     * 
+     * @return A Messages instance.
+     */
     final protected Messages getMessages() {
         return messages_;
     }
 
+    /**
+     * Converts object by specified type.
+     * <p>Converts object by specified type using TypeConversionManager.
+     * </p>
+     * 
+     * @param value Source object.
+     * @param type Destination type.
+     * @return Conversion result.
+     */
     final protected <T> T convert(Object value, Class<T> type) {
         return typeConversionManager_.convert(value, type);
     }
 
+    /**
+     * Gets String representation of object.
+     * <p>Gets String representation of specified object.
+     * If the object is null, null is returned.
+     * </p>
+     * 
+     * @param obj Source object.
+     * @return String representation.
+     */
     final protected String valueOf(Object obj) {
         if (obj == null) {
             return null;
@@ -42,11 +80,29 @@ public class HoeConverterBase
         return String.valueOf(obj);
     }
 
+    /**
+     * Returns whether object is empty or not.
+     * <p>Returns whether specified object is empty or not.
+     * 'Empty' means that a object is null or 0-length String.
+     * </p>
+     *  
+     * @param obj Target object.
+     * @return Whether object is empty or not.
+     */
     final protected boolean isEmpty(Object obj) {
         return (obj == null || obj instanceof String
             && ((String) obj).trim().length() == 0);
     }
 
+    /**
+     * Converts null if object is empty.
+     * <p>Converts null if specified object is empty.
+     * 'Empty' means that a object is null or 0-length String.
+     * </p>
+     *  
+     * @param obj Target object.
+     * @return Original object, or null if it is empty.
+     */
     final protected <T> T emptyToNull(T obj) {
         if (isEmpty(obj)) {
             return null;

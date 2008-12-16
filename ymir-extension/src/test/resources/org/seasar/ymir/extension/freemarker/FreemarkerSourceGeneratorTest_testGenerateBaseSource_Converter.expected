@@ -12,6 +12,12 @@ import com.example.dto.HoeDto;
 import com.example.dao.Hoe;
 import java.util.List;
 
+/**
+ * A class to convert Dto objects and entity objects.
+ * <p>Developer can override methods to customize this class's behavior,
+ * and add methods to gain conversion ability.
+ * </p>
+ */
 public class HoeConverterBase
 {
     protected TypeConversionManager typeConversionManager_;
@@ -29,18 +35,50 @@ public class HoeConverterBase
         messages_ = messages;
     }
 
+    /**
+     * Gets TypeConversionManager.
+     * <p>Gets a TypeConversionManager instance to convert types of object.
+     * </p>
+     * 
+     * @return A TypeConversionManager instance.
+     */
     final protected TypeConversionManager getTypeConversionManager() {
         return typeConversionManager_;
     }
 
+    /**
+     * Gets Messages.
+     * <p>Gets a Messages instance to localize messages represented by keys.
+     * </p>
+     * 
+     * @return A Messages instance.
+     */
     final protected Messages getMessages() {
         return messages_;
     }
 
+    /**
+     * Converts object by specified type.
+     * <p>Converts object by specified type using TypeConversionManager.
+     * </p>
+     * 
+     * @param value Source object.
+     * @param type Destination type.
+     * @return Conversion result.
+     */
     final protected <T> T convert(Object value, Class<T> type) {
         return typeConversionManager_.convert(value, type);
     }
 
+    /**
+     * Gets String representation of object.
+     * <p>Gets String representation of specified object.
+     * If the object is null, null is returned.
+     * </p>
+     * 
+     * @param obj Source object.
+     * @return String representation.
+     */
     final protected String valueOf(Object obj) {
         if (obj == null) {
             return null;
@@ -48,11 +86,29 @@ public class HoeConverterBase
         return String.valueOf(obj);
     }
 
+    /**
+     * Returns whether object is empty or not.
+     * <p>Returns whether specified object is empty or not.
+     * 'Empty' means that a object is null or 0-length String.
+     * </p>
+     *  
+     * @param obj Target object.
+     * @return Whether object is empty or not.
+     */
     final protected boolean isEmpty(Object obj) {
         return (obj == null || obj instanceof String
             && ((String) obj).trim().length() == 0);
     }
 
+    /**
+     * Converts null if object is empty.
+     * <p>Converts null if specified object is empty.
+     * 'Empty' means that a object is null or 0-length String.
+     * </p>
+     *  
+     * @param obj Target object.
+     * @return Original object, or null if it is empty.
+     */
     final protected <T> T emptyToNull(T obj) {
         if (isEmpty(obj)) {
             return null;
@@ -61,6 +117,19 @@ public class HoeConverterBase
         }
     }
 
+    /**
+     * Copies Hoe<List> entity to HoeDto instance.
+     * <p>This methods copies the following properties automatically:</p>
+     * <ul>
+     *   <li>aaa</li>
+     *   <li>ccc</li>
+     *   <li>eee</li>
+     * </ul>
+     * 
+     * @param dto Destination object.
+     * @param entity Source object.
+     * @return The first argument of this method.
+     */
     public HoeDto copyTo(HoeDto dto, Hoe<List> entity)
     {
         copyAaaTo(dto, entity);
@@ -70,6 +139,18 @@ public class HoeConverterBase
         return dto;
     }
 
+    /**
+     * Copies an array of Hoe<List> entity to an array of HoeDto.
+     * <p>This methods copies the following properties automatically:</p>
+     * <ul>
+     *   <li>aaa</li>
+     *   <li>ccc</li>
+     *   <li>eee</li>
+     * </ul>
+     * 
+     * @param entities Source array.
+     * @return Copied array of Dto.
+     */
     public HoeDto[] copyTo(Hoe<List>[] entities)
     {
         HoeDto[] dtos = new HoeDto[entities.length];
@@ -79,6 +160,18 @@ public class HoeConverterBase
         return dtos;
     }
 
+    /**
+     * Copies a List of Hoe<List> entity to a List of HoeDto.
+     * <p>This methods copies the following properties automatically:</p>
+     * <ul>
+     *   <li>aaa</li>
+     *   <li>ccc</li>
+     *   <li>eee</li>
+     * </ul>
+     * 
+     * @param entityList Source List.
+     * @return Copied List of Dto.
+     */
     public List<HoeDto> copyToDtoList(List<Hoe<List>> entityList)
     {
         List<HoeDto> dtoList = new ArrayList<HoeDto>();
@@ -88,21 +181,52 @@ public class HoeConverterBase
         return dtoList;
     }
 
+    /**
+     * Copies 'aaa' property of Hoe<List> entity to HoeDto instance's 'aaa' property.
+     * 
+     * @param dto Destination object.
+     * @param entity Source object.
+     */
     protected void copyAaaTo(HoeDto dto, Hoe<List> entity)
     {
         dto.setAaa(convert(entity.getAaa(), String.class));
     }
 
+    /**
+     * Copies 'ccc' property of Hoe<List> entity to HoeDto instance's 'ccc' property.
+     * 
+     * @param dto Destination object.
+     * @param entity Source object.
+     */
     protected void copyCccTo(HoeDto dto, Hoe<List> entity)
     {
         dto.setCcc(convert(entity.isCcc(), String.class));
     }
 
+    /**
+     * Copies 'eee' property of Hoe<List> entity to HoeDto instance's 'eee' property.
+     * 
+     * @param dto Destination object.
+     * @param entity Source object.
+     */
     protected void copyEeeTo(HoeDto dto, Hoe<List> entity)
     {
         dto.setEee(convert(entity.getEee(), String.class));
     }
 
+    /**
+     * Copies HoeDto entity to Hoe<List> instance.
+     * <p>This methods copies the following properties automatically:</p>
+     * <ul>
+     *   <li>aaa</li>
+     *   <li>bbb</li>
+     *   <li>ddd</li>
+     * </ul>
+     * 
+     * @param entity Destination object.
+     * @param dto Source object.
+     * @return The first argument of this method.
+     */
     public Hoe<List> copyTo(Hoe<List> entity, HoeDto dto)
     {
         copyAaaTo(entity, dto);
@@ -112,6 +236,18 @@ public class HoeConverterBase
         return entity;
     }
 
+    /**
+     * Copies an array of HoeDto entity to an array of Hoe<List>.
+     * <p>This methods copies the following properties automatically:</p>
+     * <ul>
+     *   <li>aaa</li>
+     *   <li>bbb</li>
+     *   <li>ddd</li>
+     * </ul>
+     * 
+     * @param dtos Source array.
+     * @return Copied array of entity.
+     */
     public Hoe<List>[] copyTo(HoeDto[] dtos)
     {
         @SuppressWarnings("unchecked")
@@ -122,6 +258,18 @@ public class HoeConverterBase
         return entities;
     }
 
+    /**
+     * Copies a List of HoeDto entity to a List of Hoe<List>.
+     * <p>This methods copies the following properties automatically:</p>
+     * <ul>
+     *   <li>aaa</li>
+     *   <li>bbb</li>
+     *   <li>ddd</li>
+     * </ul>
+     * 
+     * @param dtoList Source List.
+     * @return Copied List of entity.
+     */
     public List<Hoe<List>> copyToEntityList(List<HoeDto> dtoList)
     {
         List<Hoe<List>> entityList = new ArrayList<Hoe<List>>();
@@ -131,16 +279,34 @@ public class HoeConverterBase
         return entityList;
     }
 
+    /**
+     * Copies 'aaa' property of HoeDto entity to Hoe<List> instance's 'aaa' property.
+     * 
+     * @param entity Destination object.
+     * @param dto Source object.
+     */
     protected void copyAaaTo(Hoe<List> entity, HoeDto dto)
     {
         entity.setAaa(convert(dto.getAaa(), String.class));
     }
 
+    /**
+     * Copies 'bbb' property of HoeDto entity to Hoe<List> instance's 'bbb' property.
+     * 
+     * @param entity Destination object.
+     * @param dto Source object.
+     */
     protected void copyBbbTo(Hoe<List> entity, HoeDto dto)
     {
         entity.setBbb(convert(dto.isBbb(), String.class));
     }
 
+    /**
+     * Copies 'ddd' property of HoeDto entity to Hoe<List> instance's 'ddd' property.
+     * 
+     * @param entity Destination object.
+     * @param dto Source object.
+     */
     protected void copyDddTo(Hoe<List> entity, HoeDto dto)
     {
         entity.setDdd(convert(dto.getDdd(), String.class));
