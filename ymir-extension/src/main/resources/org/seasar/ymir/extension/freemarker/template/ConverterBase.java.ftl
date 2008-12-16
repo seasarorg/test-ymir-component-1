@@ -69,7 +69,21 @@ public class ${classDesc.shortName}Base
      * @param type Destination type.
      * @return Conversion result.
      */
-    final protected <T> T convert(Object value, Class<T> type) {
+    protected <T> T convert(Object value, Class<T> type) {
+        return ${fieldPrefix}typeConversionManager${fieldSuffix}.convert(value, type);
+    }
+
+    /**
+     * Converts object for entity by specified type.
+     * <p>This method is used in order to set converted objects to entities.
+     * You can change behavior of this method by overriding this method.
+     * </p>
+     * 
+     * @param value source object.
+     * @param type destination type.
+     * @return conversion result.
+     */
+    protected <T> T convertForEntity(Object value, Class<T> type) {
         return ${fieldPrefix}typeConversionManager${fieldSuffix}.convert(value, type);
     }
 
@@ -98,7 +112,7 @@ public class ${classDesc.shortName}Base
      * @param obj Target object.
      * @return Whether object is empty or not.
      */
-    final protected boolean isEmpty(Object obj) {
+    protected boolean isEmpty(Object obj) {
         return (obj == null || obj instanceof String
             && ((String) obj).trim().length() == 0);
     }
@@ -112,7 +126,7 @@ public class ${classDesc.shortName}Base
      * @param obj Target object.
      * @return Original object, or null if it is empty.
      */
-    final protected <T> T emptyToNull(T obj) {
+    protected <T> T emptyToNull(T obj) {
         if (isEmpty(obj)) {
             return null;
         } else {
@@ -272,7 +286,7 @@ public class ${classDesc.shortName}Base
      */
     protected void copy${propertyDesc.name?cap_first}To(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto)
     {
-        entity.set${propertyDesc.name?cap_first}(convert(dto.${pd.getterName}(), ${propertyDesc.typeDesc.name}.class));
+        entity.set${propertyDesc.name?cap_first}(convertForEntity(dto.${pd.getterName}(), ${propertyDesc.typeDesc.name}.class));
     }
 </#if></#if></#list>
 

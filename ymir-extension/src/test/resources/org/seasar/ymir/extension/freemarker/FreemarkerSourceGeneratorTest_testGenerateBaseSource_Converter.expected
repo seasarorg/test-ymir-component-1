@@ -66,7 +66,21 @@ public class HoeConverterBase
      * @param type Destination type.
      * @return Conversion result.
      */
-    final protected <T> T convert(Object value, Class<T> type) {
+    protected <T> T convert(Object value, Class<T> type) {
+        return typeConversionManager_.convert(value, type);
+    }
+
+    /**
+     * Converts object for entity by specified type.
+     * <p>This method is used in order to set converted objects to entities.
+     * You can change behavior of this method by overriding this method.
+     * </p>
+     * 
+     * @param value source object.
+     * @param type destination type.
+     * @return conversion result.
+     */
+    protected <T> T convertForEntity(Object value, Class<T> type) {
         return typeConversionManager_.convert(value, type);
     }
 
@@ -95,7 +109,7 @@ public class HoeConverterBase
      * @param obj Target object.
      * @return Whether object is empty or not.
      */
-    final protected boolean isEmpty(Object obj) {
+    protected boolean isEmpty(Object obj) {
         return (obj == null || obj instanceof String
             && ((String) obj).trim().length() == 0);
     }
@@ -109,7 +123,7 @@ public class HoeConverterBase
      * @param obj Target object.
      * @return Original object, or null if it is empty.
      */
-    final protected <T> T emptyToNull(T obj) {
+    protected <T> T emptyToNull(T obj) {
         if (isEmpty(obj)) {
             return null;
         } else {
@@ -287,7 +301,7 @@ public class HoeConverterBase
      */
     protected void copyAaaTo(Hoe<List> entity, HoeDto dto)
     {
-        entity.setAaa(convert(dto.getAaa(), String.class));
+        entity.setAaa(convertForEntity(dto.getAaa(), String.class));
     }
 
     /**
@@ -298,7 +312,7 @@ public class HoeConverterBase
      */
     protected void copyBbbTo(Hoe<List> entity, HoeDto dto)
     {
-        entity.setBbb(convert(dto.isBbb(), String.class));
+        entity.setBbb(convertForEntity(dto.isBbb(), String.class));
     }
 
     /**
@@ -309,7 +323,7 @@ public class HoeConverterBase
      */
     protected void copyDddTo(Hoe<List> entity, HoeDto dto)
     {
-        entity.setDdd(convert(dto.getDdd(), String.class));
+        entity.setDdd(convertForEntity(dto.getDdd(), String.class));
     }
 
 }

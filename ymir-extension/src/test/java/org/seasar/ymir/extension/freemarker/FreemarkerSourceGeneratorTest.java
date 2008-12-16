@@ -317,6 +317,17 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 "testGenerateBaseSource_Converter.expected"), actual);
     }
 
+    public void testGenerateGapSource_Converter() throws Exception {
+        ClassDesc classDesc = sourceCreator_.createConverterClassDesc(
+                new ClassDescImpl(HoeDto.class.getName()), new String[] {
+                    Hoe.class.getName() + "<java.util.List>",
+                    "java.lang.Object" }, null);
+        String actual = target_.generateGapSource(classDesc);
+
+        assertEquals(readResource(getClass(),
+                "testGenerateGapSource_Converter.expected"), actual);
+    }
+
     public void testGenerateBaseSource_Converter2_中身が空の場合() throws Exception {
         ClassDesc classDesc = sourceCreator_.createConverterClassDesc(
                 new ClassDescImpl(HoeDto.class.getName()),
