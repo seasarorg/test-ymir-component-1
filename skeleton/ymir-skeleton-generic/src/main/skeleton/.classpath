@@ -5,35 +5,5 @@
     <classpathentry kind="src" path="src/main/eclipse-resources"/>
     <classpathentry kind="src" path="src/main/resources"/>
     <classpathentry kind="src" output="build/test-classes" path="src/test/resources"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/aopalliance-1.0.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/commons-beanutils-1.7.0.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/commons-fileupload-1.1.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/commons-io-1.1.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/commons-logging-1.1.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/easymock-2.2.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/freemarker-2.3.9.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/freyja-1.0.11.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/geronimo-ejb_3.0_spec-1.0.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/geronimo-jta_1.1_spec-1.0.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/janino-2.4.3.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/javassist-3.4.ga.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/kvasir-util-3.0.0-RC3.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/log4j-1.2.13.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/ognl-2.6.9-patch-20070908.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/poi-3.0-FINAL.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/s2-classbuilder-0.0.7.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/s2-dao-1.0.47.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/s2-dao-tiger-1.0.47.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/s2-extension-2.4.20.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/s2-framework-2.4.20.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/s2-pluggable-0.0.9.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/s2-tiger-2.4.20.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/ymir-core-1.0.0-RC2-SNAPSHOT.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/ymir-extension-1.0.0-RC2-SNAPSHOT.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/ymir-zpt-1.0.0-RC2-SNAPSHOT.jar"/>
-<#if ymir["beantable.enable"]?? && ymir["beantable.enable"] == "true">    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/beantable-0.0.5.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/commons-dbutils-1.1.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/database-0.0.4.jar"/>
-    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/ymir-beantable-1.0.0-RC2-SNAPSHOT.jar"/>
-</#if>    <classpathentry kind="output" path="src/main/webapp/WEB-INF/classes"/>
+    <classpathentry kind="output" path="src/main/webapp/WEB-INF/classes"/>
 </classpath>
