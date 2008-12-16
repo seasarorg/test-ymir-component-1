@@ -8,21 +8,6 @@
     <fileSet>
       <directory>src/main/skeleton</directory>
       <outputDirectory></outputDirectory>
-      <excludes>
-        <exclude>**/ymir-*.jar</exclude>
-      </excludes>
     </fileSet>
   </fileSets>
-  <dependencySets>
-    <dependencySet>
-      <outputDirectory>src/main/webapp/WEB-INF/lib</outputDirectory>
-      <scope>runtime</scope>
-      <includes>
-        <include>ymir-*.jar</include>
-      </includes>
-      <excludes>
-        <exclude>ymir-skeleton-generic-s2.3*.jar</exclude>
-      </excludes>
-    </dependencySet>
-  </dependencySets>
 </assembly>

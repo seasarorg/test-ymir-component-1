@@ -49,11 +49,4 @@
       <url>http://maven.seasar.org/maven2-snapshot</url>
     </repository>
   </repositories>
-  <dependencies>
-    <dependency>
-      <groupId>org.seasar.ymir</groupId>
-      <artifactId>ymir-extension</artifactId>
-      <version>1.0.0-RC2-SNAPSHOT</version>
-    </dependency>
-  </dependencies>
 </project>
