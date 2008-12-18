@@ -30,6 +30,7 @@ import net.skirnir.freyja.Attribute;
 import net.skirnir.freyja.Element;
 import net.skirnir.freyja.EvaluationRuntimeException;
 import net.skirnir.freyja.ExpressionEvaluator;
+import net.skirnir.freyja.StringUtils;
 import net.skirnir.freyja.TagEvaluatorUtils;
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;
@@ -42,6 +43,10 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
     private static final String SEGMENT_CURRENT = ".";
 
     private static final String PREFIX_STRING_EXPRESSION = "string:";
+
+    private static final String KW_LOCAL = "local";
+
+    private static final String KW_GLOBAL = "global ";
 
     @Override
     public String[] getSpecialTagPatternStrings() {
@@ -61,123 +66,154 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
 
     public String evaluate(TemplateContext context, String name,
             Attribute[] attrs, Element[] body) {
-        AnnotationResult result = findAnnotation(context, name, attrs);
-        String annotation = result.getAnnotation();
-        attrs = result.getTheOtherAttributes();
         AnalyzerContext analyzerContext = toAnalyzerContext(context);
-        Map<String, Attribute> attrMap = evaluate(analyzerContext, attrs);
-        Set<String> runtimeAttributeNameSet = getRuntimeAttributeNameSet(attrs);
 
-        if ("form".equals(name)) {
-            analyzerContext.setFormDesc(registerTransitionClassDesc(
-                    analyzerContext, attrMap, runtimeAttributeNameSet,
-                    "action", getAttributeValue(attrMap, "method", "GET")
-                            .toUpperCase(), true));
-            try {
-                return super.evaluate(context, name, attrs, body);
-            } finally {
-                FormDesc formDesc = analyzerContext.getFormDesc();
-                if (formDesc != null) {
-                    formDesc.close();
-                    analyzerContext.setFormDesc(null);
-                }
+        Attribute defineAttr = null;
+        for (int i = 0; i < attrs.length; i++) {
+            if ("tal:define".equals(attrs[i].getName())) {
+                defineAttr = attrs[i];
+                break;
             }
-        } else if (("input".equals(name) || "select".equals(name)
-                || "textarea".equals(name) || "button".equals(name))
-                && !runtimeAttributeNameSet.contains("name")) {
-            // nameの値が実行時に決まる場合は正しくプロパティやメソッドを生成できないので、
-            // nameの値が定数である場合のみ処理を行なうようにしている。
-            do {
-                FormDesc formDesc = analyzerContext.getFormDesc();
-                if (formDesc == null) {
-                    break;
-                }
+        }
+        boolean variableScopePushed = false;
+        try {
+            if (defineAttr != null) {
+                analyzerContext.pushVariableScope();
+                variableScopePushed = true;
+                processDefine(analyzerContext,
+                        context.getExpressionEvaluator(), context
+                                .getVariableResolver(), defineAttr);
+            }
 
-                String type = getAttributeValue(attrMap, "type", null);
-                if ("input".equals(name)
-                        && ("submit".equals(type) || "button".equals(type) || "image"
-                                .equals(type)) || "button".equals(name)
-                        && ("submit".equals(type) || "button".equals(type))) {
-                    formDesc.setActionMethodDesc(getAttributeValue(attrMap,
-                            "name", null));
-                    break;
-                }
+            AnnotationResult result = findAnnotation(context, name, attrs);
+            String annotation = result.getAnnotation();
+            attrs = result.getTheOtherAttributes();
+            Map<String, Attribute> attrMap = evaluate(analyzerContext, attrs);
+            Set<String> runtimeAttributeNameSet = getRuntimeAttributeNameSet(
+                    analyzerContext, attrs);
 
-                PropertyDesc propertyDesc = processParameterTag(
-                        analyzerContext, attrMap, annotation, formDesc);
-                if (propertyDesc == null) {
-                    break;
+            if ("form".equals(name)) {
+                analyzerContext.setFormDesc(registerTransitionClassDesc(
+                        analyzerContext, attrMap, runtimeAttributeNameSet,
+                        "action", getAttributeValue(attrMap, "method", "GET")
+                                .toUpperCase(), true));
+                try {
+                    return super.evaluate(context, name, attrs, body);
+                } finally {
+                    FormDesc formDesc = analyzerContext.getFormDesc();
+                    if (formDesc != null) {
+                        formDesc.close();
+                        analyzerContext.setFormDesc(null);
+                    }
                 }
+            } else if (("input".equals(name) || "select".equals(name)
+                    || "textarea".equals(name) || "button".equals(name))
+                    && !runtimeAttributeNameSet.contains("name")) {
+                // nameの値が実行時に決まる場合は正しくプロパティやメソッドを生成できないので、
+                // nameの値が定数である場合のみ処理を行なうようにしている。
+                do {
+                    FormDesc formDesc = analyzerContext.getFormDesc();
+                    if (formDesc == null) {
+                        break;
+                    }
 
-                if (!propertyDesc.getTypeDesc().isExplicit()) {
-                    if ("input".equals(name)) {
-                        if ("file".equals(type)) {
-                            propertyDesc.getTypeDesc().setClassDesc(
-                                    FormFile.class.getName());
-                        } else if ("radio".equals(type)) {
-                            propertyDesc.getTypeDesc().setArray(false);
+                    String type = getAttributeValue(attrMap, "type", null);
+                    if ("input".equals(name)
+                            && ("submit".equals(type) || "button".equals(type) || "image"
+                                    .equals(type)) || "button".equals(name)
+                            && ("submit".equals(type) || "button".equals(type))) {
+                        formDesc.setActionMethodDesc(getAttributeValue(attrMap,
+                                "name", null));
+                        break;
+                    }
+
+                    PropertyDesc propertyDesc = processParameterTag(
+                            analyzerContext, attrMap, annotation, formDesc);
+                    if (propertyDesc == null) {
+                        break;
+                    }
+
+                    if (!propertyDesc.getTypeDesc().isExplicit()) {
+                        if ("input".equals(name)) {
+                            if ("file".equals(type)) {
+                                propertyDesc.getTypeDesc().setClassDesc(
+                                        FormFile.class.getName());
+                            } else if ("radio".equals(type)) {
+                                propertyDesc.getTypeDesc().setArray(false);
+                            }
+                        }
+                    }
+
+                    String parameterName = getAttributeValue(attrMap, "name",
+                            null);
+                    if (BeanUtils.isSingleSegment(parameterName)
+                            && formDesc.getDtoClassDesc() != null) {
+                        formDesc.getDtoClassDesc().setPropertyDesc(
+                                (PropertyDesc) propertyDesc.clone());
+                        propertyDesc
+                                .setAnnotationDescForGetter(new MetaAnnotationDescImpl(
+                                        org.seasar.ymir.extension.Globals.META_NAME_FORMPROPERTY,
+                                        new String[] { formDesc.getName() },
+                                        new Class[0]));
+                        propertyDesc
+                                .setAnnotationDescForSetter(new MetaAnnotationDescImpl(
+                                        org.seasar.ymir.extension.Globals.META_NAME_FORMPROPERTY,
+                                        new String[] { formDesc.getName() },
+                                        new Class[0]));
+                    }
+
+                    if (BeanUtils.isSingleSegment(parameterName)) {
+                        propertyDesc
+                                .setAnnotationDescForSetter(new AnnotationDescImpl(
+                                        RequestParameter.class.getName()));
+                    } else {
+                        formDesc.getClassDesc().getPropertyDesc(
+                                BeanUtils.getFirstSimpleSegment(parameterName))
+                                .setAnnotationDescForGetter(
+                                        new AnnotationDescImpl(
+                                                RequestParameter.class
+                                                        .getName()));
+                    }
+                } while (false);
+            } else if ("option".equals(name)
+                    && analyzerContext.isUsingFreyjaRenderClasses()) {
+                String returned = super.evaluate(context, name, attrs, body);
+                String statement = getAttributeValue(attrMap, "tal:repeat",
+                        null);
+                if (statement != null) {
+                    Object evaluated = context.getExpressionEvaluator()
+                            .evaluate(
+                                    context,
+                                    context.getVariableResolver(),
+                                    statement.substring(statement.indexOf(' '))
+                                            .trim());
+                    if (evaluated instanceof DescWrapper[]) {
+                        PropertyDesc pd = ((DescWrapper[]) evaluated)[0]
+                                .getPropertyDesc();
+                        if (pd != null && !pd.getTypeDesc().isExplicit()) {
+                            pd
+                                    .setTypeDesc("net.skirnir.freyja.render.html.OptionTag[]");
                         }
                     }
                 }
-
-                String parameterName = getAttributeValue(attrMap, "name", null);
-                if (BeanUtils.isSingleSegment(parameterName)
-                        && formDesc.getDtoClassDesc() != null) {
-                    formDesc.getDtoClassDesc().setPropertyDesc(
-                            (PropertyDesc) propertyDesc.clone());
-                    propertyDesc
-                            .setAnnotationDescForGetter(new MetaAnnotationDescImpl(
-                                    org.seasar.ymir.extension.Globals.META_NAME_FORMPROPERTY,
-                                    new String[] { formDesc.getName() },
-                                    new Class[0]));
-                    propertyDesc
-                            .setAnnotationDescForSetter(new MetaAnnotationDescImpl(
-                                    org.seasar.ymir.extension.Globals.META_NAME_FORMPROPERTY,
-                                    new String[] { formDesc.getName() },
-                                    new Class[0]));
-                }
-
-                if (BeanUtils.isSingleSegment(parameterName)) {
-                    propertyDesc
-                            .setAnnotationDescForSetter(new AnnotationDescImpl(
-                                    RequestParameter.class.getName()));
-                } else {
-                    formDesc.getClassDesc().getPropertyDesc(
-                            BeanUtils.getFirstSimpleSegment(parameterName))
-                            .setAnnotationDescForGetter(
-                                    new AnnotationDescImpl(
-                                            RequestParameter.class.getName()));
-                }
-            } while (false);
-        } else if ("option".equals(name)
-                && analyzerContext.isUsingFreyjaRenderClasses()) {
-            String returned = super.evaluate(context, name, attrs, body);
-            String statement = getAttributeValue(attrMap, "tal:repeat", null);
-            if (statement != null) {
-                Object evaluated = context.getExpressionEvaluator().evaluate(
-                        context, context.getVariableResolver(),
-                        statement.substring(statement.indexOf(' ')).trim());
-                if (evaluated instanceof DescWrapper[]) {
-                    PropertyDesc pd = ((DescWrapper[]) evaluated)[0]
-                            .getPropertyDesc();
-                    if (pd != null && !pd.getTypeDesc().isExplicit()) {
-                        pd
-                                .setTypeDesc("net.skirnir.freyja.render.html.OptionTag[]");
-                    }
-                }
+                return returned;
+            } else {
+                registerTransitionClassDesc(analyzerContext, attrMap,
+                        runtimeAttributeNameSet, "href", "GET", false);
+                registerTransitionClassDesc(analyzerContext, attrMap,
+                        runtimeAttributeNameSet, "src", "GET", false);
             }
-            return returned;
-        } else {
-            registerTransitionClassDesc(analyzerContext, attrMap,
-                    runtimeAttributeNameSet, "href", "GET", false);
-            registerTransitionClassDesc(analyzerContext, attrMap,
-                    runtimeAttributeNameSet, "src", "GET", false);
-        }
 
-        return super.evaluate(context, name, attrs, body);
+            return super.evaluate(context, name, attrs, body);
+        } finally {
+            if (variableScopePushed) {
+                analyzerContext.popVariableScope();
+            }
+        }
     }
 
-    Set<String> getRuntimeAttributeNameSet(Attribute[] attrs) {
+    Set<String> getRuntimeAttributeNameSet(AnalyzerContext analyzerContext,
+            Attribute[] attrs) {
         Set<String> set = new HashSet<String>();
         for (int i = 0; i < attrs.length; i++) {
             if ("tal:attributes".equals(attrs[i].getName())) {
@@ -189,9 +225,12 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     String name = statement.substring(0, delim).trim();
                     String expression = statement.substring(delim).trim();
                     // 添え字の中だけは実行時パラメータを含んでいて良い。
-                    if (!isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(expression)) {
-                        set.add(name);
+                    if (isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(expression)
+                            || isDefinedAndStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
+                                    analyzerContext, expression)) {
+                        continue;
                     }
+                    set.add(name);
                 }
                 break;
             }
@@ -199,8 +238,20 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         return set;
     }
 
+    boolean isDefinedAndStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
+            AnalyzerContext analyzerContext, String expression) {
+        if (!AnalyzerUtils.isValidVariableName(expression)) {
+            return false;
+        }
+        return isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(analyzerContext
+                .getDefinedVariableExpression(expression));
+    }
+
     boolean isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
             String expression) {
+        if (expression == null) {
+            return false;
+        }
         if (!expression.startsWith(PREFIX_STRING_EXPRESSION)) {
             return false;
         }
@@ -480,35 +531,19 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         VariableResolver varResolver = context.getVariableResolver();
 
         List<Attribute> attrList = new ArrayList<Attribute>();
-        Attribute defineAttr = null;
         Attribute attributesAttr = null;
         for (int i = 0; i < attrs.length; i++) {
             if (attrs[i].getName().startsWith("tal:")) {
                 if ("tal:attributes".equals(attrs[i].getName())) {
                     attributesAttr = attrs[i];
-                } else if ("tal:define".equals(attrs[i].getName())) {
-                    defineAttr = attrs[i];
                 }
             } else {
                 attrList.add(attrs[i]);
             }
         }
         if (attributesAttr != null) {
-            boolean variableScopePushed = false;
-            try {
-                if (defineAttr != null) {
-                    context.pushVariableScope();
-                    variableScopePushed = true;
-                    processDefine(context, expEvaluator, varResolver,
-                            defineAttr);
-                }
-                attrs = processAttributes(context, expEvaluator, varResolver,
-                        attributesAttr, attrs, true);
-            } finally {
-                if (variableScopePushed) {
-                    context.popVariableScope();
-                }
-            }
+            attrs = processAttributes(context, expEvaluator, varResolver,
+                    attributesAttr, attrs, true);
         }
         return TagEvaluatorUtils.toMap(attrs);
     }
@@ -583,5 +618,35 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         }
 
         return expEvaluator.isTrue(evaluated);
+    }
+
+    @Override
+    protected void processDefine(ZptTemplateContext talContext,
+            ExpressionEvaluator expEvaluator, VariableResolver varResolver,
+            Attribute attr) {
+        super.processDefine(talContext, expEvaluator, varResolver, attr);
+
+        AnalyzerContext analyzerContext = toAnalyzerContext(talContext);
+        String[] statements = parseStatements(TagEvaluatorUtils.defilter(attr
+                .getValue()));
+        for (int i = 0; i < statements.length; i++) {
+            String statement = statements[i];
+            int scope = ZptTemplateContext.SCOPE_LOCAL;
+
+            if (statement.startsWith(KW_LOCAL)) {
+                scope = ZptTemplateContext.SCOPE_LOCAL;
+                statement = StringUtils.trimLeft(statement.substring(KW_LOCAL
+                        .length()));
+            } else if (statement.startsWith(KW_GLOBAL)) {
+                scope = ZptTemplateContext.SCOPE_GLOBAL;
+                statement = StringUtils.trimLeft(statement.substring(KW_GLOBAL
+                        .length()));
+            }
+
+            int sp = statement.indexOf(' ');
+            String varname = statement.substring(0, sp).trim();
+            String value = StringUtils.trimLeft(statement.substring(sp + 1));
+            analyzerContext.defineVariableExpression(scope, varname, value);
+        }
     }
 }

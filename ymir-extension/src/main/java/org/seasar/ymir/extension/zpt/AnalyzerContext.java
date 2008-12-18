@@ -5,12 +5,14 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.regex.Pattern;
 
 import org.seasar.cms.pluggable.ClassTraverser;
@@ -36,6 +38,7 @@ import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.token.Token;
 import org.seasar.ymir.zpt.YmirVariableResolver;
 
+import net.skirnir.freyja.EvaluationRuntimeException;
 import net.skirnir.freyja.VariableResolver;
 import net.skirnir.freyja.render.html.InputTag;
 import net.skirnir.freyja.zpt.ZptTemplateContext;
@@ -82,6 +85,10 @@ public class AnalyzerContext extends ZptTemplateContext {
     private String path_;
 
     private ClassCreationHintBag hintBag_;
+
+    private Stack<Map<String, String>> variableExpressions_ = new Stack<Map<String, String>>();
+
+    private Map<String, String> globalVariableExpression_ = new HashMap<String, String>();
 
     static {
         final List<ClassNamePattern> list = new ArrayList<ClassNamePattern>();
@@ -665,5 +672,39 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     public boolean isUsingFreyjaRenderClasses() {
         return usingFreyjaRenderClasses_;
+    }
+
+    public void pushVariableScope() {
+        super.pushVariableScope();
+
+        variableExpressions_.push(new HashMap<String, String>());
+    }
+
+    public void popVariableScope() {
+        super.popVariableScope();
+
+        variableExpressions_.pop();
+    }
+
+    public void defineVariableExpression(int scope, String name,
+            String expression) {
+        if (scope == SCOPE_LOCAL) {
+            variableExpressions_.peek().put(name, expression);
+        } else if (scope == SCOPE_GLOBAL) {
+            globalVariableExpression_.put(name, expression);
+        } else {
+            throw new EvaluationRuntimeException("Unknown scope: " + scope);
+        }
+    }
+
+    public String getDefinedVariableExpression(String name) {
+        String expression = null;
+        if (!variableExpressions_.isEmpty()) {
+            expression = variableExpressions_.peek().get(name);
+        }
+        if (expression == null) {
+            expression = globalVariableExpression_.get(name);
+        }
+        return expression;
     }
 }

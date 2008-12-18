@@ -1041,4 +1041,21 @@ public class ZptAnalyzerTest extends TestCase {
             fail();
         }
     }
+
+    public void testAnalyze61_典型的なname動的生成のテンプレートでnameが自動生成に使われること()
+            throws Exception {
+
+        act("testAnalyze61");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        assertNotNull(cd);
+        PropertyDesc pd = cd.getPropertyDesc("items");
+        assertNotNull(pd);
+        assertEquals("com.example.dto.ItemDto[]", pd.getTypeDesc().getName());
+
+        cd = getClassDesc("com.example.dto.ItemDto");
+        assertNotNull(cd);
+        pd = cd.getPropertyDesc("value");
+        assertNotNull(pd);
+    }
 }
