@@ -33,6 +33,8 @@ public class YmirVariableResolver extends VariableResolverImpl {
 
     public static final String NAME_TOKEN = "token";
 
+    private static final String NAME_VARIABLES = "variables";
+
     private Request ymirRequest_;
 
     private HttpServletRequest request_;
@@ -80,6 +82,8 @@ public class YmirVariableResolver extends VariableResolverImpl {
             return getNotes();
         } else if (NAME_TOKEN.equals(name)) {
             return getToken();
+        } else if (NAME_VARIABLES.equals(name)) {
+            return Variables.INSTANCE;
         } else if (super.containsVariable(name)) {
             return super.getVariable(context, name);
         } else if (parent_ != null) {
@@ -118,6 +122,7 @@ public class YmirVariableResolver extends VariableResolverImpl {
         nameSet.add(NAME_MESSAGES);
         nameSet.add(RequestProcessor.ATTR_NOTES);
         nameSet.add(NAME_TOKEN);
+        nameSet.add(NAME_VARIABLES);
         nameSet.addAll(Arrays.asList(super.getVariableNames()));
         if (parent_ != null) {
             nameSet.addAll(Arrays.asList(parent_.getVariableNames()));
@@ -143,7 +148,8 @@ public class YmirVariableResolver extends VariableResolverImpl {
 
     public boolean containsVariable(String name) {
         if (NAME_YMIRREQUEST.equals(name) || NAME_CONTAINER.equals(name)
-                || NAME_MESSAGES.equals(name) || NAME_TOKEN.equals(name)) {
+                || NAME_MESSAGES.equals(name) || NAME_TOKEN.equals(name)
+                || NAME_VARIABLES.equals(name)) {
             return true;
         } else if (RequestProcessor.ATTR_NOTES.equals(name)) {
             return getNotes() != null;
@@ -185,6 +191,8 @@ public class YmirVariableResolver extends VariableResolverImpl {
             }
         } else if (NAME_TOKEN.equals(name)) {
             return new TokenEntry(name);
+        } else if (NAME_VARIABLES.equals(name)) {
+            return new EntryImpl(name, Variables.class, Variables.INSTANCE);
         }
 
         Entry entry = super.getVariableEntry(context, name);
@@ -212,7 +220,7 @@ public class YmirVariableResolver extends VariableResolverImpl {
                     Method readMethod = pd.getReadMethod();
                     if (readMethod != null) {
                         return new EntryImpl(name, readMethod.getReturnType(),
-                                readMethod.invoke(component, new Object[0]));
+                                PropertyUtils.getProperty(component, name));
                     }
                 }
             } catch (Throwable ignore) {
