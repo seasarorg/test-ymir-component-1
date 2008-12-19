@@ -37,7 +37,7 @@ abstract public class AbstractAction {
 
     private static final int TIMEOUT_MILLISEC = 3 * 1000;
 
-    private final Log log_ = LogFactory.getLog(getClass());
+    private final Log log_ = LogFactory.getLog(AbstractAction.class);
 
     private SourceCreator sourceCreator_;
 

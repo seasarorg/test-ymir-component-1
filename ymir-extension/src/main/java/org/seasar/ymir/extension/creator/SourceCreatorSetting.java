@@ -67,7 +67,7 @@ public class SourceCreatorSetting {
 
     private SourceCreator sourceCreator_;
 
-    private final Log log_ = LogFactory.getLog(getClass());
+    private final Log log_ = LogFactory.getLog(SourceCreatorSetting.class);
 
     public SourceCreatorSetting(SourceCreator sourceCreator) {
         sourceCreator_ = sourceCreator;
