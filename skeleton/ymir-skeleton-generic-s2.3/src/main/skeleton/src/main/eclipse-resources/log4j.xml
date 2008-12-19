@@ -22,6 +22,9 @@
     -->
     <appender-ref ref="CONSOLE_INFO" />
   </logger>
+  <logger name="org.seasar.cms" additivity="false">
+    <appender-ref ref="CONSOLE_INFO" />
+  </logger>
   <logger name="org.seasar" additivity="false">
     <appender-ref ref="CONSOLE" />
   </logger>
