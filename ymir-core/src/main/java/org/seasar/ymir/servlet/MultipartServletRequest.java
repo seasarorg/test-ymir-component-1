@@ -1,4 +1,4 @@
-package org.seasar.ymir;
+package org.seasar.ymir.servlet;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
@@ -18,6 +18,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.servlet.ServletRequestContext;
+import org.seasar.ymir.FormFile;
 import org.seasar.ymir.impl.FormFileImpl;
 
 /**

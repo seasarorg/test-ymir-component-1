@@ -1,4 +1,4 @@
-package org.seasar.ymir;
+package org.seasar.ymir.servlet;
 
 import java.io.IOException;
 

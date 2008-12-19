@@ -21,7 +21,6 @@ import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.MatchedPathMapping;
-import org.seasar.ymir.MultipartServletRequest;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.WrappingRuntimeException;
