@@ -27,6 +27,7 @@ import org.seasar.ymir.extension.creator.SourceGenerator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateProvider;
 import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
+import org.seasar.ymir.extension.creator.util.PersistentProperties;
 
 public class MockSourceCreator implements SourceCreator {
     private ServletContext servletContext_;
@@ -233,6 +234,10 @@ public class MockSourceCreator implements SourceCreator {
     }
 
     public File getSourceCreatorPropertiesFile() {
+        return null;
+    }
+
+    public PersistentProperties getMappingProperties() {
         return null;
     }
 

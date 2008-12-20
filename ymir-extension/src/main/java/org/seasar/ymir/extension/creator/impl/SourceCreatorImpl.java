@@ -117,6 +117,7 @@ import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 import org.seasar.ymir.extension.creator.mapping.impl.ExtraPathMappingImpl;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.MetaUtils;
+import org.seasar.ymir.extension.creator.util.PersistentProperties;
 import org.seasar.ymir.extension.creator.util.SourceCreatorUtils;
 import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.message.MessageNotFoundRuntimeException;
@@ -130,7 +131,9 @@ import org.seasar.ymir.util.ServletUtils;
 import net.skirnir.freyja.EvaluationRuntimeException;
 
 public class SourceCreatorImpl implements SourceCreator {
-    private static final String SOURCECREATOR_PROPERTIES = "sourceCreator.properties";
+    private static final String SOURCECREATOR_PREFS = "org.seasar.ymir.extension.sourceCreator.prefs";
+
+    private static final String MAPPING_PREFS = "org.seasar.ymir.extension.mapping.prefs";
 
     public static final ServletContext MOCK_SERVLETCONTEXT = new MockServletContextImpl(
             "/") {
@@ -1352,7 +1355,15 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public File getSourceCreatorPropertiesFile() {
-        return new File(getResourcesDirectory(), SOURCECREATOR_PROPERTIES);
+        return new File(getPreferencesDirectory(), SOURCECREATOR_PREFS);
+    }
+
+    File getMappingPropertiesFile() {
+        return new File(getPreferencesDirectory(), MAPPING_PREFS);
+    }
+
+    public PersistentProperties getMappingProperties() {
+        return new PersistentProperties(getMappingPropertiesFile());
     }
 
     @SuppressWarnings("unchecked")
@@ -1401,6 +1412,11 @@ public class SourceCreatorImpl implements SourceCreator {
         } else {
             return null;
         }
+    }
+
+    File getPreferencesDirectory() {
+        return new File(getApplication().getProjectRoot(),
+                Globals.PATH_PREFERENCES_DIRECTORY);
     }
 
     public File getWebappSourceRoot() {

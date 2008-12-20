@@ -72,7 +72,7 @@ public class CreateActionAction extends AbstractAction implements
             lackingClassNames = ex.getLackingClassNames();
         }
 
-        synchronizeResources(new String[] { getRootPackagePath() });
+        boolean successfullySynchronized = synchronizeResources(new String[] { getRootPackagePath() });
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
@@ -80,6 +80,7 @@ public class CreateActionAction extends AbstractAction implements
         variableMap.put("pathMetaData", pathMetaData);
         variableMap.put("actionName", actionMethodDesc);
         variableMap.put("lackingClassNames", lackingClassNames);
+        variableMap.put("successfullySynchronized", successfullySynchronized);
         return getSourceCreator().getResponseCreator().createResponse(
                 "createAction_create", variableMap);
     }

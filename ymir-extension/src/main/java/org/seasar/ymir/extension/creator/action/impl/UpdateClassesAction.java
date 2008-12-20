@@ -176,6 +176,8 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             return null;
         }
 
+        updateMapping(pathMetaData);
+
         ClassNameMapping classNameMapping = new ClassNameMapping(request
                 .getParameterMap());
 
@@ -261,8 +263,8 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
 
         getSourceCreator().updateClasses(classDescBag, hintBag);
 
-        synchronizeResources(new String[] { getRootPackagePath(),
-            getPath(pathMetaData.getTemplate()) });
+        boolean successfullySynchronized = synchronizeResources(new String[] {
+            getRootPackagePath(), getPath(pathMetaData.getTemplate()) });
 
         String path = request.getCurrentDispatch().getPath();
         ExtraPathMapping mapping = getSourceCreator().getExtraPathMapping(path,
@@ -287,6 +289,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 .getName());
         variableMap.put("createdBeanClassDescs", classDescBag
                 .getCreatedClassDescs(ClassType.BEAN));
+        variableMap.put("successfullySynchronized", successfullySynchronized);
         return getSourceCreator().getResponseCreator().createResponse(
                 "updateClasses_update", variableMap);
     }

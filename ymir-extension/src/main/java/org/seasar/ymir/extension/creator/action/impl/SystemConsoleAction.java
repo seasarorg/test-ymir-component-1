@@ -122,13 +122,14 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
 
         getSourceCreator().updateClasses(classDescBag, null);
 
-        synchronizeResources(new String[] { getRootPackagePath() });
+        boolean successfullySynchronized = synchronizeResources(new String[] { getRootPackagePath() });
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("method", method);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("classDescBag", classDescBag);
+        variableMap.put("successfullySynchronized", successfullySynchronized);
         return getSourceCreator().getResponseCreator().createResponse(
                 "systemConsole_updateAllClasses", variableMap);
     }
@@ -165,13 +166,14 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
 
         getSourceCreator().saveSourceCreatorProperties();
 
-        synchronizeResources(new String[] { adjustPath(getSourceCreator()
+        boolean successfullySynchronized = synchronizeResources(new String[] { adjustPath(getSourceCreator()
                 .getSourceCreatorPropertiesFile().getAbsolutePath()) });
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("method", method);
         variableMap.put("parameters", getParameters(request));
+        variableMap.put("successfullySynchronized", successfullySynchronized);
         return getSourceCreator().getResponseCreator().createResponse(
                 "systemConsole_initializeTemplateCheckedTime", variableMap);
     }
@@ -189,13 +191,14 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
                         PropertyUtils.valueOf(request.getParameter("value"),
                                 false));
 
-        synchronizeResources(new String[] { adjustPath(getSourceCreator()
+        boolean successfullySynchronized = synchronizeResources(new String[] { adjustPath(getSourceCreator()
                 .getSourceCreatorPropertiesFile().getAbsolutePath()) });
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("method", method);
         variableMap.put("parameters", getParameters(request));
+        variableMap.put("successfullySynchronized", successfullySynchronized);
         return getSourceCreator().getResponseCreator().createResponse(
                 "systemConsole_setSourceCreatorEnabledWithThisTemplate",
                 variableMap);

@@ -14,6 +14,7 @@ import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
+import org.seasar.ymir.extension.creator.util.PersistentProperties;
 
 public interface SourceCreator extends Updater {
     String PARAM_PREFIX = "__ymir__";
@@ -90,6 +91,8 @@ public interface SourceCreator extends Updater {
     Properties getSourceCreatorProperties();
 
     File getSourceCreatorPropertiesFile();
+
+    PersistentProperties getMappingProperties();
 
     void saveSourceCreatorProperties();
 

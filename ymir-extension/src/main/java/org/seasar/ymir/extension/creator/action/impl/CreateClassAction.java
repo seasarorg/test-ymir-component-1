@@ -64,6 +64,8 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
         boolean redirect = "true".equals(request
                 .getParameter(PARAM_TRANSITIONREDIRECT));
 
+        updateMapping(pathMetaData);
+
         ClassDesc classDesc = getSourceCreator().newClassDesc(
                 pathMetaData.getClassName(), null);
         String path = request.getCurrentDispatch().getPath();
@@ -86,7 +88,7 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
             lackingClassNames = ex.getLackingClassNames();
         }
 
-        synchronizeResources(new String[] { getRootPackagePath() });
+        boolean successfullySynchronized = synchronizeResources(new String[] { getRootPackagePath() });
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
@@ -94,6 +96,7 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
         variableMap.put("parameters", getParameters(request));
         variableMap.put("pathMetaData", pathMetaData);
         variableMap.put("lackingClassNames", lackingClassNames);
+        variableMap.put("successfullySynchronized", successfullySynchronized);
         return getSourceCreator().getResponseCreator().createResponse(
                 "createClass_create", variableMap);
     }

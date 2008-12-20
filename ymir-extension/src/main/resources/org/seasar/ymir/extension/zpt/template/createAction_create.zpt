@@ -13,7 +13,8 @@
 </div>
 <div tal:condition="not:lackingClassNames">
 <p>Pageクラス<span tal:replace="pathMetaData/className">CLASSNAME</span>に<span tal:replace="actionName">ACTIONNAME</span>()メソッドを作成しました。</p>
-<p><span tal:condition="not:resourceAutoSynchronized">EclipseでプロジェクトルートをRefreshしてから、</span>以下の「OK」ボタンを押して下さい。</p>
+<p tal:condition="successfullySynchronized"><span tal:condition="not:resourceAutoSynchronized">EclipseでプロジェクトルートをRefreshしてから、</span>以下の「OK」ボタンを押して下さい。</p>
+<strong tal:condition="not:successfullySynchronized">Eclipseの同期サーバとの通信に失敗したためリソースの同期が取れませんでした（詳細はログを参照して下さい）。EclipseでプロジェクトルートをRefreshしてから、以下の「OK」ボタンを押して下さい。</strong>
 </div>
 <form tal:attributes="method method; action request/absolutePath">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />

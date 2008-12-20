@@ -23,10 +23,13 @@ import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.extension.Globals;
+import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
+import org.seasar.ymir.extension.creator.util.PersistentProperties;
 
 abstract public class AbstractAction {
     private static final String PARAM_BUTTON_SKIP = SourceCreator.PARAM_PREFIX
@@ -36,6 +39,8 @@ abstract public class AbstractAction {
             + "subTask";
 
     private static final int TIMEOUT_MILLISEC = 3 * 1000;
+
+    private static final String SP = System.getProperty("line.separator");
 
     private final Log log_ = LogFactory.getLog(AbstractAction.class);
 
@@ -128,20 +133,24 @@ abstract public class AbstractAction {
         return variableMap;
     }
 
-    protected void synchronizeResources(String[] paths) {
+    protected boolean synchronizeResources(String[] paths) {
         if (!getSourceCreatorSetting().isResourceSynchronized()) {
-            return;
+            return true;
         }
         if (paths != null && paths.length == 0) {
-            return;
+            return true;
         }
 
         String projectPath = "/"
                 + getSourceCreatorSetting().getEclipseProjectName();
         if (paths == null) {
             // プロジェクト全体をリフレッシュする。
-            synchronizeResources0(projectPath);
-            return;
+            try {
+                synchronizeResources0(projectPath);
+                return true;
+            } catch (IOException ignore) {
+                return false;
+            }
         }
 
         Set<String> absolutePathSet = new LinkedHashSet<String>();
@@ -159,14 +168,23 @@ abstract public class AbstractAction {
             absolutePathSet.add(sb.toString());
         }
 
-        String[] absolutePaths = absolutePathSet.toArray(new String[0]);
-        do {
-            Set<String> absolutePathForRetrySet = new LinkedHashSet<String>();
-            for (String absolutePath : synchronizeResources0(absolutePaths)) {
-                absolutePathForRetrySet.add(getParentPath(absolutePath));
-            }
-            absolutePaths = absolutePathForRetrySet.toArray(new String[0]);
-        } while (absolutePaths.length > 0);
+        absolutePathSet.add(projectPath + "/"
+                + Globals.PATH_PREFERENCES_DIRECTORY);
+
+        try {
+            String[] absolutePaths = absolutePathSet.toArray(new String[0]);
+            do {
+                Set<String> absolutePathForRetrySet = new LinkedHashSet<String>();
+                for (String absolutePath : synchronizeResources0(absolutePaths)) {
+                    absolutePathForRetrySet.add(getParentPath(absolutePath));
+                }
+                absolutePaths = absolutePathForRetrySet.toArray(new String[0]);
+            } while (absolutePaths.length > 0);
+
+            return true;
+        } catch (IOException ignore) {
+            return false;
+        }
     }
 
     String getParentPath(String path) {
@@ -180,7 +198,8 @@ abstract public class AbstractAction {
         return path.substring(0, slash);
     }
 
-    protected String[] synchronizeResources0(String... absolutePaths) {
+    protected String[] synchronizeResources0(String... absolutePaths)
+            throws IOException {
         if (absolutePaths != null && absolutePaths.length == 0) {
             return new String[0];
         }
@@ -208,12 +227,12 @@ abstract public class AbstractAction {
             okAbsolutePathSet = new HashSet<String>(Arrays.asList(PropertyUtils
                     .toArray(response)));
             if (log_.isDebugEnabled()) {
-                log_.debug("Response from " + url + " is:" + response);
+                log_.debug("Response from " + url + " is:" + SP + response);
             }
         } catch (IOException ex) {
             log_.warn("I/O error occured on a resourceSynchronizing server: "
                     + url, ex);
-            return new String[0];
+            throw ex;
         } finally {
             IOUtils.closeQuietly(is);
         }
@@ -300,5 +319,12 @@ abstract public class AbstractAction {
 
     protected SourceCreatorSetting getSourceCreatorSetting() {
         return sourceCreator_.getSourceCreatorSetting();
+    }
+
+    protected void updateMapping(PathMetaData pathMetaData) {
+        PersistentProperties props = sourceCreator_.getMappingProperties();
+        props.setProperty(pathMetaData.getPath(), pathMetaData.getClassName());
+        props.setProperty(pathMetaData.getClassName(), pathMetaData.getPath());
+        props.save();
     }
 }

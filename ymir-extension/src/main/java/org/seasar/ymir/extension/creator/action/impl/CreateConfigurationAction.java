@@ -147,12 +147,13 @@ public class CreateConfigurationAction extends AbstractAction implements
             }
         }
 
-        synchronizeResources(null);
+        boolean successfullySynchronized = synchronizeResources(null);
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("method", method);
         variableMap.put("parameters", getParameters(request));
+        variableMap.put("successfullySynchronized", successfullySynchronized);
         return getSourceCreator().getResponseCreator().createResponse(
                 "createConfiguration_create", variableMap);
     }

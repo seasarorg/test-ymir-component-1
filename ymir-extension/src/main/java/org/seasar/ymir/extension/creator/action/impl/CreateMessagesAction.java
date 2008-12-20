@@ -64,13 +64,14 @@ public class CreateMessagesAction extends AbstractAction implements
 
         createMessages(mnfre.getMessagesName());
 
-        synchronizeResources(new String[] { getResourcesPath() });
+        boolean successfullySynchronized = synchronizeResources(new String[] { getResourcesPath() });
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("method", method);
         variableMap.put("messagesName", mnfre.getMessagesName());
+        variableMap.put("successfullySynchronized", successfullySynchronized);
         return getSourceCreator().getResponseCreator().createResponse(
                 "createMessages_create", variableMap);
     }

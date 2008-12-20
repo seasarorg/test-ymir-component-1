@@ -71,7 +71,7 @@ public class CreateMessageAction extends AbstractAction implements
 
         createMessage(mnfre.getMessagesName(), mnfre.getMessageKey(), value);
 
-        synchronizeResources(new String[] { getResourcesPath() });
+        boolean successfullySynchronized = synchronizeResources(new String[] { getResourcesPath() });
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
@@ -79,6 +79,7 @@ public class CreateMessageAction extends AbstractAction implements
         variableMap.put("method", method);
         variableMap.put("messageKey", mnfre.getMessageKey());
         variableMap.put("messagesName", mnfre.getMessagesName());
+        variableMap.put("successfullySynchronized", successfullySynchronized);
         return getSourceCreator().getResponseCreator().createResponse(
                 "createMessage_create", variableMap);
     }

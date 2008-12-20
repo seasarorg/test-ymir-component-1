@@ -96,6 +96,7 @@ public class CreateTemplateAction extends AbstractAction implements
         String transition = request.getParameter(PARAM_TRANSITION);
         boolean redirect = "true".equals(request
                 .getParameter(PARAM_TRANSITIONREDIRECT));
+        boolean successfullySynchronized;
         if (templateString != null) {
             Template template = pathMetaData.getTemplate();
             try {
@@ -105,7 +106,7 @@ public class CreateTemplateAction extends AbstractAction implements
                 throw new RuntimeException(ex);
             }
 
-            synchronizeResources(new String[] { getPath(template) });
+            successfullySynchronized = synchronizeResources(new String[] { getPath(template) });
         } else if (transition != null) {
             ClassDesc classDesc = getSourceCreator().newClassDesc(
                     pathMetaData.getClassName(), null);
@@ -127,7 +128,7 @@ public class CreateTemplateAction extends AbstractAction implements
                 throw new RuntimeException("Can't happen!", ex);
             }
 
-            synchronizeResources(new String[] { getRootPackagePath() });
+            successfullySynchronized = synchronizeResources(new String[] { getRootPackagePath() });
         } else {
             return null;
         }
@@ -140,6 +141,7 @@ public class CreateTemplateAction extends AbstractAction implements
         variableMap.put("templateCreatd", (templateString != null));
         variableMap.put("transitionSet", (transition != null));
         variableMap.put("transition", transition);
+        variableMap.put("successfullySynchronized", successfullySynchronized);
         return getSourceCreator().getResponseCreator().createResponse(
                 "createTemplate_create", variableMap);
     }

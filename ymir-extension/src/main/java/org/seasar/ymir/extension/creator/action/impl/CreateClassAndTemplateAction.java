@@ -60,6 +60,8 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
             return null;
         }
 
+        updateMapping(pathMetaData);
+
         String template = getSourceCreator().getSourceGenerator()
                 .generateTemplateSource(
                         getSuffix(pathMetaData.getTemplate().getName()),
@@ -107,13 +109,14 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
             lackingClassNames = ex.getLackingClassNames();
         }
 
-        synchronizeResources(new String[] { getRootPackagePath() });
+        boolean successfullySynchronized = synchronizeResources(new String[] { getRootPackagePath() });
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("method", method);
         variableMap.put("pathMetaData", pathMetaData);
         variableMap.put("lackingClassNames", lackingClassNames);
+        variableMap.put("successfullySynchronized", successfullySynchronized);
         return getSourceCreator().getResponseCreator().createResponse(
                 "createClassAndTemplate_redirect", variableMap);
     }
