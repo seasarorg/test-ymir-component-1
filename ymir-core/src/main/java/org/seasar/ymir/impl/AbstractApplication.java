@@ -3,6 +3,7 @@ package org.seasar.ymir.impl;
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.PathMappingProvider;
+import org.seasar.ymir.util.FileUtils;
 
 abstract public class AbstractApplication implements Application {
     public static final String KEY_PROJECTROOT = "projectRoot";
@@ -62,7 +63,8 @@ abstract public class AbstractApplication implements Application {
             }
         } else {
             String projectRoot = getProjectRoot();
-            if (projectRoot != null) {
+            if (projectRoot != null
+                    && FileUtils.isRelativePath(resourcesDirectory)) {
                 resourcesDirectory = projectRoot + "/" + resourcesDirectory;
             }
         }
@@ -82,7 +84,8 @@ abstract public class AbstractApplication implements Application {
             }
         } else {
             String projectRoot = getProjectRoot();
-            if (projectRoot != null) {
+            if (projectRoot != null
+                    && FileUtils.isRelativePath(sourceDirectory)) {
                 sourceDirectory = projectRoot + "/" + sourceDirectory;
             }
         }
@@ -102,7 +105,8 @@ abstract public class AbstractApplication implements Application {
             }
         } else {
             String projectRoot = getProjectRoot();
-            if (projectRoot != null) {
+            if (projectRoot != null
+                    && FileUtils.isRelativePath(webappSourceRoot)) {
                 webappSourceRoot = projectRoot + "/" + webappSourceRoot;
             }
         }
