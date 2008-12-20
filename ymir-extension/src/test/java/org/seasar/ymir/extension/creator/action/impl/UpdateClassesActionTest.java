@@ -23,13 +23,18 @@ public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
 
     @Override
     protected File getSourceDir() {
+        return new File(getProjectRootDir(), "src");
+    }
+
+    @Override
+    protected File getProjectRootDir() {
         return new File(ResourceUtil.getBuildDir(getClass()).getParentFile(),
-                "src");
+                "root");
     }
 
     public void testShouldUpdate() throws Exception {
 
-        File sourceDir = clean(getSourceDir());
+        clean(getProjectRootDir());
 
         PathMetaDataImpl pathMetaData = new PathMetaDataImpl(null, null, false,
                 null, null, null, null, getSourceCreator().getSourceFile(
@@ -56,6 +61,7 @@ public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
             getSourceCreator().writeSourceFile(classDescs[i], classDescSet);
         }
 
+        File sourceDir = getSourceDir();
         assertTrue(new File(sourceDir, "com/example/web/TestPage.java")
                 .exists());
         assertTrue(new File(sourceDir, "com/example/web/TestPageBase.java")

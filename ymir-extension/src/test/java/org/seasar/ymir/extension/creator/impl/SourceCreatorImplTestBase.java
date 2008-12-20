@@ -159,6 +159,8 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         applicationManager.setBaseApplication(new SingleApplication(context,
                 configuration, null, container_, localHotdeployS2Container,
                 pathMappingProvider));
+        configuration.setProperty(AbstractApplication.KEY_PROJECTROOT,
+                getProjectRootDir().getCanonicalPath());
         configuration.setProperty(AbstractApplication.KEY_WEBAPPSOURCEROOT,
                 new File(ResourceUtil.getBuildDir(getClass()), "webapp")
                         .getAbsolutePath());
@@ -182,6 +184,10 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
 
     protected Configuration getConfiguration() {
         return (Configuration) container_.getComponent(Configuration.class);
+    }
+
+    protected File getProjectRootDir() {
+        return ResourceUtil.getBuildDir(getClass());
     }
 
     protected File getSourceDir() {
