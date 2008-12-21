@@ -226,6 +226,9 @@ abstract public class AbstractAction {
             String response = IOUtils.readString(is, "UTF-8", false);
             okAbsolutePathSet = new HashSet<String>(Arrays.asList(PropertyUtils
                     .toArray(response)));
+            if (okAbsolutePathSet.contains("/")) {
+                okAbsolutePathSet.add("");
+            }
             if (log_.isDebugEnabled()) {
                 log_.debug("Response from " + url + " is:" + SP + response);
             }
