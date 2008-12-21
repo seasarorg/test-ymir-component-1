@@ -12,7 +12,7 @@
   </fileSets>
   <dependencySets>
     <dependencySet>
-      <outputDirectory>vili-lib</outputDirectory>
+      <outputDirectory>VILI-INF/lib</outputDirectory>
       <scope>runtime</scope>
     </dependencySet>
   </dependencySets>
