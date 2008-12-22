@@ -9,8 +9,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.seasar.kvasir.util.collection.MapProperties;
 import org.seasar.ymir.vili.AbstractConfigurator;
+import org.seasar.ymir.vili.InclusionType;
 import org.seasar.ymir.vili.ViliBehavior;
 import org.seasar.ymir.vili.ViliProjectPreferences;
 
@@ -19,19 +19,25 @@ public class Configurator extends AbstractConfigurator {
 
     private static final String KEY_UPDATEBATCHFILES = "updateBatchFiles";
 
-    private static final String PREFIX_DBFLUTE = "dbflute_";
-
     private static final String SUFFIX_BAT = ".bat";
 
     private static final String SUFFIX_SH = ".sh";
 
     private static final String PATHPREFIX_DBFLUTE = "dbflute_${projectName}/";
 
+    private static final String PATH_PROJECT_BAT = PATHPREFIX_DBFLUTE
+            + "_project.bat";
+
+    private static final String PATH_PROJECT_SH = PATHPREFIX_DBFLUTE
+            + "_project.sh";
+
+    private boolean updateBatFiles;
+
     @Override
     public void processBeforeExpanding(IProject project, ViliBehavior behavior,
             ViliProjectPreferences preferences, Map<String, Object> parameters,
             IProgressMonitor monitor) {
-        monitor.beginTask("Process before expanding", 2);
+        monitor.beginTask("Process before expanding", 1);
         try {
             Boolean isDeleteOldVersion = (Boolean) parameters
                     .get(KEY_ISDELETEOLDVERSION);
@@ -46,18 +52,8 @@ public class Configurator extends AbstractConfigurator {
                 monitor.worked(1);
             }
 
-            Boolean updateBatFiles = (Boolean) parameters
-                    .get(KEY_UPDATEBATCHFILES);
-            if (updateBatFiles.booleanValue()) {
-                try {
-                    updateBatchFiles(project, behavior, new SubProgressMonitor(
-                            monitor, 1));
-                } catch (CoreException ex) {
-                    throw new RuntimeException(ex);
-                }
-            } else {
-                monitor.worked(1);
-            }
+            updateBatFiles = ((Boolean) parameters.get(KEY_UPDATEBATCHFILES))
+                    .booleanValue();
         } finally {
             monitor.done();
         }
@@ -84,52 +80,24 @@ public class Configurator extends AbstractConfigurator {
         }
     }
 
-    void updateBatchFiles(IProject project, ViliBehavior behavior,
-            IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask("Update batch files", 1);
-        try {
-            IFolder dbflute = null;
-            for (IResource member : project.members()) {
-                if (member.getName().startsWith(PREFIX_DBFLUTE)) {
-                    IFolder folder = project.getFolder(member.getName());
-                    if (folder.exists()) {
-                        // それがフォルダである場合だけ完了する。
-                        dbflute = folder;
-                        break;
-                    }
-                }
-            }
-            if (dbflute == null) {
-                return;
-            }
-
-            MapProperties prop = behavior.getProperties();
-            String includes = prop
-                    .getProperty(ViliBehavior.EXPANSION_INCLUDESIFEXISTS);
-            StringBuilder sb = new StringBuilder();
-            String delim = "";
-            if (includes != null) {
-                sb.append(includes.trim());
-                if (sb.length() > 0) {
-                    delim = ",";
-                }
-            }
-
-            for (IResource member : dbflute.members()) {
-                String name = member.getName();
-                if (name.endsWith(SUFFIX_BAT) || name.endsWith(SUFFIX_SH)) {
-                    sb.append(delim).append(PATHPREFIX_DBFLUTE + name);
-                    delim = ",";
-                }
-            }
-
-            if (sb.length() > 0) {
-                prop.setProperty(ViliBehavior.EXPANSION_INCLUDESIFEXISTS, sb
-                        .toString());
-                behavior.notifyPropertiesUpdated();
-            }
-        } finally {
-            monitor.done();
+    @Override
+    public InclusionType shouldExpand(String path, String resolvedPath,
+            IProject project, ViliBehavior behavior,
+            ViliProjectPreferences preferences, Map<String, Object> parameters) {
+        if (path.equals(PATH_PROJECT_BAT) || path.equals(PATH_PROJECT_SH)) {
+            return InclusionType.INCLUDED;
         }
+        if (path.startsWith(PATHPREFIX_DBFLUTE)) {
+            if (updateBatFiles
+                    && (path.endsWith(SUFFIX_BAT) || path.endsWith(SUFFIX_SH))) {
+                return InclusionType.INCLUDED;
+            }
+
+            if (project.getFile(resolvedPath).exists()
+                    || project.getFolder(resolvedPath).exists()) {
+                return InclusionType.EXCLUDED;
+            }
+        }
+        return InclusionType.UNDEFINED;
     }
 }
