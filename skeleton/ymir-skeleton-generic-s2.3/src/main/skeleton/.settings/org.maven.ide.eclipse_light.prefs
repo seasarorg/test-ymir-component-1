@@ -1,6 +1,4 @@
-<#if platform.getBundle("org.maven.ide.eclipse_light")??>
 eclipse.preferences.version=1
 includeModules=false
 resolveWorkspaceProjects=true
 version=1
-</#if>
