@@ -12,11 +12,7 @@
   <description></description>
   <build>
     <defaultGoal>package</defaultGoal>
-${r"<#if"} platform.getBundle("org.maven.ide.eclipse")?? && !platform.getBundle("org.maven.ide.eclipse_light")??>    <outputDirectory>${r"$"}{r"$"}{basedir}/${r"$"}{r"$"}{target.dir.src}/classes</outputDirectory>
-    <testOutputDirectory>
-      ${r"$"}{r"$"}{basedir}/${r"$"}{r"$"}{target.dir.test}/test-classes
-    </testOutputDirectory>
-${r"</#if>"}    <pluginManagement>
+    <pluginManagement>
       <plugins>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -46,19 +42,8 @@ ${r"</#if>"}          </configuration>
       </plugins>
     </pluginManagement>
   </build>
-${r"<#if"} platform.getBundle("org.maven.ide.eclipse")?? && !platform.getBundle("org.maven.ide.eclipse_light")??>  <properties>
-    <target.dir.src>target</target.dir.src>
-    <target.dir.test>target</target.dir.test>
-  </properties>
-${r"</#if>"}  <profiles>
-${r"<#if"} platform.getBundle("org.maven.ide.eclipse")?? && !platform.getBundle("org.maven.ide.eclipse_light")??>    <profile>
-      <id>eclipse-folders</id>
-      <properties>
-        <target.dir.src>src/main/webapp/WEB-INF</target.dir.src>
-        <target.dir.test>build</target.dir.test>
-      </properties>
-    </profile>
-${r"</#if>"}    <profile>
+  <profiles>
+    <profile>
       <id>executable</id>
       <build>
         <pluginManagement>

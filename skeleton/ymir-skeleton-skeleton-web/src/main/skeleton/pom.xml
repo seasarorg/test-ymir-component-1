@@ -8,10 +8,22 @@
   <name>${projectName}</name>
   <version>${version}</version>
   <description>
-    This is a project to generate a Vili project skeleton.
+    This is a project to generate a Vili web project skeleton.
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <encoding>UTF-8</encoding>
+<#if JREVersion != "">            <source>${JREVersion}</source>
+            <target>${JREVersion}</target>
+</#if>          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -47,4 +59,12 @@
       <url>http://maven.seasar.org/maven2-snapshot</url>
     </repository>
   </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>org.seasar.ymir.vili</groupId>
+      <artifactId>vili-api</artifactId>
+      <version>${viliVersion}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
 </project>
