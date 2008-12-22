@@ -1,0 +1,11 @@
+# /---------------------------------------------------------------------------
+# [OutsideSql Definition]
+#
+map:{
+    ; generateProcedureParameterBean = true
+    # ; targetProcedureCatalogList = list:{ABC}
+    # ; targetProcedureSchemaList = list:{suffix:PLEDB}
+    # ; targetProcedureNameList = list:{prefix:SP_}
+}
+# ----------------/
+

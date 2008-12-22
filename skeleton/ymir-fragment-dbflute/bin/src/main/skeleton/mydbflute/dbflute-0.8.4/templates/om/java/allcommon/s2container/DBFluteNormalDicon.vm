@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE components PUBLIC "-//SEASAR2.1//DTD S2Container//EN"
+    "http://www.seasar.org/dtd/components21.dtd">
+
+<components namespace="${glDBFluteDiconNamespace}">
+#foreach ($includePath in $database.DBFluteDiconBeforeJ2eeIncludePathList)
+    <include path="${includePath}"/>
+#end
+    <include path="${glJdbcDiconResourceName}"/>
+#foreach ($includePath in $database.DBFluteDiconOtherIncludePathList)
+    <include path="${includePath}"/>
+#end
+
+    <!-- The core component of behavior. -->
+    <component name="behaviorInitializer" class="${glPackageBaseCommonBhvCore}.${glBehaviorInitializer}"/>
+    <component name="behaviorCommandInvoker" class="${glPackageBaseCommonBhvCore}.${glBehaviorCommandInvoker}"/>
+
+    <!-- The component of S2Dao. -->
+#if ($database.isMakeDaoInterface())
+    <component class="${database.extendedDaoMetaDataFactoryImplClassName}">
+#if ($database.hasSqlFileEncoding())
+        <property name="sqlFileEncoding">"${database.sqlFileEncoding}"</property>
+#end
+    </component>
+    <component name="interceptor" class="${glPackageBaseCommonS2Dao}.${glDaoInterceptor}"/>
+    <component class="${glPackageBaseCommonS2Dao}.${glDaoMetaDataExtension}$ResultSetHandlerFactoryExtension"/>
+#end
+    <component class="${glPackageBaseCommonS2Dao}.${glBeanMetaDataFactoryExtension}"/>
+    <component class="${glPackageBaseCommonS2Dao}.${glPropertyTypeFactoryBuilderExtension}"/>
+    <component class="${glPackageBaseCommonS2Dao}.${glSqlLogRegistryLatestSqlProvider}"/>
+    <component class="${database.extendedAnnotationReaderFactoryClassName}"/>
+    <component class="org.seasar.dao.impl.ValueTypeFactoryImpl"/>
+    <component class="org.seasar.dao.impl.DaoNamingConventionImpl"/>
+    <component class="org.seasar.dao.impl.NullBeanEnhancer"/>
+    <component class="org.seasar.dao.impl.DtoMetaDataFactoryImpl"/>
+    <component class="org.seasar.dao.impl.RelationPropertyTypeFactoryBuilderImpl"/>
+    <component class="org.seasar.dao.impl.DefaultTableNaming"/>
+    <component class="org.seasar.dao.impl.DefaultColumnNaming"/>
+    <component class="org.seasar.dao.impl.ProcedureMetaDataFactoryImpl"/>
+
+    <!-- The special value type. -->
+	<component name="dbfluteStringClobType" class="org.seasar.extension.jdbc.types.StringClobType" />
+	<component name="dbfluteBytesOidType" class="${glPackageBaseCommonS2DaoInternalValueType}.${glInternalBytesOidType}" />
+
+    <!-- The selector of behavior. -->
+    <component name="${database.behaviorSelectorComponentName}" class="${glPackageBaseCommon}.${glCacheBehaviorSelectorName}">
+        <destroyMethod name="destroy"/>
+    </component>
+#if ($database.isMakeDaoInterface())
+
+    <!-- The selector of DAO. -->
+    <component name="${database.daoSelectorComponentName}" class="${glPackageBaseCommon}.${glCacheDaoSelectorName}">
+        <destroyMethod name="destroy"/>
+    </component>
+#end
+
+#foreach ($table in $database.tables)
+#if ($database.isMakeDaoInterface())
+    <!-- ${table.name} -->
+    <component name="${table.daoComponentName}" class="${table.extendedDaoFullClassName}">
+        <aspect>${glDBFluteDiconNamespace}.interceptor</aspect>
+    </component>
+#end
+    <component name="${table.behaviorComponentName}" class="${table.extendedBehaviorFullClassName}"/>
+#end
+
+</components>

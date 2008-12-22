@@ -1,0 +1,171 @@
+${database.allClassCopyright}package ${glPackageBaseCommonDBMeta};
+
+#set ($myClassName = "${glDBMetaInstanceHandlerName}")
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.lang.reflect.Method;
+
+import ${glPackageBaseCommonHelper}.${glStringKeyMap};
+import ${glPackageBaseCommonUtil}.${glSimpleAssertUtil};
+
+/**
+ * The instance handler of DB meta.
+ * @author ${database.ClassAuthor}
+ */
+public class ${myClassName} {
+
+    // ===================================================================================
+    //                                                                        Resource Map
+    //                                                                        ============
+    /** Table DB-name instance map. */
+    protected static final Map<String, ${glDBMetaInterfaceName}> _tableDbNameInstanceMap = newConcurrentHashMap();
+
+    /** The map of table DB name and class name. This is for initialization. */
+    protected static final Map<String, String> _tableDbNameClassNameMap;
+    static {
+        Map<String, String> tmpMap = newConcurrentHashMap();
+
+#foreach ($table in $database.tables)
+        tmpMap.put("${table.name}", "${table.DBMetaFullClassName}");
+#end
+
+        _tableDbNameClassNameMap = Collections.unmodifiableMap(tmpMap);
+    }
+
+    /** The flexible map of table DB name. This is for conversion at finding. */
+    protected static final Map<String, String> _tableDbNameFlexibleMap;
+    static {
+        Map<String, String> tmpMap = ${glStringKeyMap}.createAsFlexibleConcurrent();
+
+#foreach ($table in $database.tables)
+        tmpMap.put("${table.name}", "${table.name}");
+#end
+
+        _tableDbNameFlexibleMap = Collections.unmodifiableMap(tmpMap);
+    }
+
+    /**
+     * @return The initialized map that contains all instances of DB meta. (NotNull & NotEmpty)
+     */
+    public static Map<String, ${glDBMetaInterfaceName}> getDBMetaMap() {
+        initializeDBMetaMap();
+        return _tableDbNameInstanceMap;
+    }
+    
+    protected static void initializeDBMetaMap() {
+        if (isInitialized()) {
+            return;
+        }
+        final Set<String> tableDbNameSet = _tableDbNameClassNameMap.keySet();
+        for (String tableDbName : tableDbNameSet) {
+            findDBMeta(tableDbName); // Initialize!
+        }
+        if (!isInitialized()) {
+            String msg = "Failed to initialize tableDbNameInstanceMap:";
+            msg = msg + " tableDbNameInstanceMap=" + _tableDbNameInstanceMap;
+            throw new IllegalStateException(msg);
+        }
+    }
+
+    protected static boolean isInitialized() {
+        return _tableDbNameInstanceMap.size() == _tableDbNameClassNameMap.size();
+    }
+
+    // ===================================================================================
+    //                                                                         Main Method
+    //                                                                         ===========
+    /**
+     * Find DB meta by table flexible name.
+     * <pre>
+     * If the table name is 'ORDER_DETAIL', you can find the DB meta by ...(as follows)
+     *     'ORDER_DETAIL', 'ORDer_DeTAiL', 'order_detail'
+     *     , 'OrderDetail', 'orderdetail', 'oRderDetaIl'
+     * </pre>
+     * @param tableFlexibleName The flexible name of table. (NotNull)
+     * @return The instance of DB meta. (NotNull)
+     * @exception DBMetaNotFoundException When the DB meta is not found.
+     */
+    public static ${glDBMetaInterfaceName} findDBMeta(String tableFlexibleName) {
+        assertStringNotNullAndNotTrimmedEmpty("tableFlexibleName", tableFlexibleName);
+        final int dotLastIndex = tableFlexibleName.lastIndexOf(".");
+        if (dotLastIndex >= 0) {
+            tableFlexibleName = tableFlexibleName.substring(dotLastIndex + ".".length());
+        }
+        final String tableDbName = _tableDbNameFlexibleMap.get(tableFlexibleName);
+        if (tableDbName != null) {
+            return byTableDbName(tableDbName);
+        }
+        String msg = "The instance map returned null by the key: key=" + tableFlexibleName + " instanceMap=" + _tableDbNameInstanceMap;
+        throw new DBMetaNotFoundException(msg);
+    }
+
+    public static class DBMetaNotFoundException extends IllegalStateException {
+        private static final long serialVersionUID = 1L;
+        public DBMetaNotFoundException(String msg) {
+            super(msg);
+        }
+    }
+
+    /**
+     * Get instance by table DB-name.
+     * @param tableDbName Table DB-name. (NotNull)
+     * @return Instance. (NotNull)
+     */
+    protected static ${glDBMetaInterfaceName} byTableDbName(String tableDbName) {
+        assertStringNotNullAndNotTrimmedEmpty("tableDbName", tableDbName);
+        ${glDBMetaInterfaceName} instance = getCachedDBMeta(tableDbName);
+        if (instance == null) {
+            String msg = "The instance map returned null by the key: key=" + tableDbName + " instanceMap=" + _tableDbNameInstanceMap;
+            throw new DBMetaNotFoundException(msg);
+        }
+        return instance;
+    }
+    
+    protected static ${glDBMetaInterfaceName} getCachedDBMeta(String tableName) {// For lazy-load! Thank you koyak!
+        if (_tableDbNameInstanceMap.containsKey(tableName)) {
+            return _tableDbNameInstanceMap.get(tableName);
+        }
+        synchronized (_tableDbNameInstanceMap) {
+            if (_tableDbNameInstanceMap.containsKey(tableName)) {
+                return _tableDbNameInstanceMap.get(tableName);
+            }
+            String entityName = _tableDbNameClassNameMap.get(tableName);
+            _tableDbNameInstanceMap.put(tableName, getDBMeta(entityName));
+        }
+        return _tableDbNameInstanceMap.get(tableName);
+    }
+
+    protected static ${glDBMetaInterfaceName} getDBMeta(String className) {
+        try {
+            Class<?> clazz = Class.forName(className);
+            Method methoz = clazz.getMethod("getInstance", (Class[])null);
+            Object result = methoz.invoke(null, (Object[])null);
+            return (${glDBMetaInterfaceName})result;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // ===================================================================================
+    //                                                                      General Helper
+    //                                                                      ==============
+    protected static <KEY, VALUE> ConcurrentHashMap<KEY, VALUE> newConcurrentHashMap() {
+        return new ConcurrentHashMap<KEY, VALUE>();
+    }
+
+    // -----------------------------------------------------
+    //                                         Assert Object
+    //                                         -------------
+    protected static void assertObjectNotNull(String variableName, Object value) {
+        ${glSimpleAssertUtil}.assertObjectNotNull(variableName, value);
+    }
+
+    // -----------------------------------------------------
+    //                                         Assert String
+    //                                         -------------
+    protected static void assertStringNotNullAndNotTrimmedEmpty(String variableName, String value) {
+        ${glSimpleAssertUtil}.assertStringNotNullAndNotTrimmedEmpty(variableName, value);
+    }
+}

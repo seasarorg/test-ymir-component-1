@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <relativePath>../ymir-skeleton-project/pom.xml</relativePath>
@@ -14,6 +16,18 @@
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <encoding>UTF-8</encoding>
+            <source>1.5</source>
+            <target>1.5</target>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -49,4 +63,114 @@
       <url>http://maven.seasar.org/maven2-snapshot</url>
     </repository>
   </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>org.seasar.ymir.vili</groupId>
+      <artifactId>vili-api</artifactId>
+      <version>0.0.3-3-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>jface</artifactId>
+      <version>3.3.0-I20070606-0010</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse</groupId>
+          <artifactId>swt</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.core</groupId>
+          <artifactId>commands</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.swt.win32.win32</groupId>
+      <artifactId>x86</artifactId>
+      <version>3.3.0-v3346</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.ui</groupId>
+      <artifactId>workbench</artifactId>
+      <version>3.3.0-I20070608-1100</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse</groupId>
+          <artifactId>swt</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.core</groupId>
+          <artifactId>expressions</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.core</groupId>
+          <artifactId>databinding</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.jface</groupId>
+          <artifactId>databinding</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse</groupId>
+          <artifactId>jface</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.ui</groupId>
+      <artifactId>ide</artifactId>
+      <version>3.3.0-I20070620</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse.core</groupId>
+          <artifactId>resources</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.core</groupId>
+          <artifactId>runtime</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.core</groupId>
+          <artifactId>filesystem</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse</groupId>
+          <artifactId>help</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse</groupId>
+          <artifactId>ui</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.ui</groupId>
+          <artifactId>views</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.update</groupId>
+          <artifactId>configurator</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.update</groupId>
+          <artifactId>core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.update</groupId>
+          <artifactId>ui</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.jface</groupId>
+          <artifactId>text</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.ui</groupId>
+          <artifactId>forms</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
 </project>
