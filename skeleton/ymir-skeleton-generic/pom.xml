@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <relativePath>../ymir-skeleton-project/pom.xml</relativePath>
@@ -11,11 +9,21 @@
   <artifactId>ymir-skeleton-generic</artifactId>
   <version>1.0.0-RC2-000-SNAPSHOT</version>
   <name>Ymir Generic Skeleton</name>
-  <description>
-    This is a project to generate a generic Ymir application skeleton.
-  </description>
+  <description>This is a project to generate a generic Ymir application skeleton.</description>
   <build>
     <defaultGoal>install</defaultGoal>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <encoding>UTF-8</encoding>
+            <source>1.5</source>
+            <target>1.5</target>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -51,4 +59,12 @@
       <url>http://maven.seasar.org/maven2-snapshot</url>
     </repository>
   </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>org.seasar.ymir.vili</groupId>
+      <artifactId>vili-api</artifactId>
+      <version>0.0.3-3-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
 </project>

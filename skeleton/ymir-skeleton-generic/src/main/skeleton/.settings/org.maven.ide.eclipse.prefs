@@ -1,9 +1,6 @@
-<#if platform.getBundle("org.maven.ide.eclipse")?? && !platform.getBundle("org.maven.ide.eclipse_light")??>
-activeProfiles=eclipse-folders
 eclipse.preferences.version=1
 fullBuildGoals=
 includeModules=false
 resolveWorkspaceProjects=true
 resourceFilterGoals=
 version=1
-</#if>
