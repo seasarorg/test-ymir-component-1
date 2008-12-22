@@ -9,7 +9,7 @@
     <version>1.0.0-RC2-SNAPSHOT</version>
   </parent>
   <artifactId>ymir-fragment-dbflute</artifactId>
-  <version>1.0.0-RC2-00.08.04-000-SNAPSHOT</version>
+  <version>1.0.0-RC2-00.08.07-000-SNAPSHOT</version>
   <name>Ymir DBFlute Fragment</name>
   <description>
     This is a project to generate a DBFlute fragment.
