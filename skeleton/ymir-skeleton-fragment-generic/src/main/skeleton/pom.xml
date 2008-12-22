@@ -12,11 +12,7 @@
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
-<#if platform.getBundle("org.maven.ide.eclipse")?? && !platform.getBundle("org.maven.ide.eclipse_light")??>    <outputDirectory>${r"$"}{basedir}/${r"$"}{target.dir.src}/classes</outputDirectory>
-    <testOutputDirectory>
-      ${r"$"}{basedir}/${r"$"}{target.dir.test}/test-classes
-    </testOutputDirectory>
-</#if>    <pluginManagement>
+    <pluginManagement>
       <plugins>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
