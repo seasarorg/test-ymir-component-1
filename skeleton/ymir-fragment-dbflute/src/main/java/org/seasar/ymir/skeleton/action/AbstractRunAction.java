@@ -22,7 +22,7 @@ abstract public class AbstractRunAction implements IAction {
         IFile file = project.getFile(dbfluteRoot + "/" + getProgramName()
                 + ".bat");
 
-        if (file == null) {
+        if (!file.exists()) {
             WorkbenchUtils.showMessage("実行ファイル（" + getProgramName()
                     + ")が見つかりませんでした。");
             return;
