@@ -11,6 +11,14 @@ import org.seasar.ymir.vili.ViliProjectPreferences;
 abstract public class AbstractRunAction implements IAction {
     private static final String PREFIX_DBFLUTE = "dbflute_";
 
+    private static final String KEY_OS_NAME = "os.name";
+
+    private static final String WINDOWS = "windows";
+
+    private static final String EXTENSION_WINDOWS = ".bat";
+
+    private static final String EXTENSION_OTHERS = ".sh";
+
     public void run(IProject project, ViliProjectPreferences preferences) {
         String dbfluteRoot = getDBFluteRoot(project);
         if (dbfluteRoot == null) {
@@ -20,7 +28,7 @@ abstract public class AbstractRunAction implements IAction {
 
         // TODO .shにも対応する。
         IFile file = project.getFile(dbfluteRoot + "/" + getProgramName()
-                + ".bat");
+                + getExtension());
 
         if (!file.exists()) {
             WorkbenchUtils.showMessage("実行ファイル（" + getProgramName()
@@ -29,6 +37,14 @@ abstract public class AbstractRunAction implements IAction {
         }
 
         WorkbenchUtils.openResource(file);
+    }
+
+    String getExtension() {
+        if (System.getProperty(KEY_OS_NAME).toLowerCase().indexOf(WINDOWS) >= 0) {
+            return EXTENSION_WINDOWS;
+        } else {
+            return EXTENSION_OTHERS;
+        }
     }
 
     String getDBFluteRoot(IProject project) {
