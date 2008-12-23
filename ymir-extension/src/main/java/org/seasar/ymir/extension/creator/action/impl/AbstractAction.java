@@ -327,8 +327,8 @@ abstract public class AbstractAction {
     protected void updateMapping(PathMetaData pathMetaData) {
         PersistentProperties props = sourceCreator_.getMappingProperties();
         // 「/」はEclipseのPreferencesStoreでキーとしてうまく扱えないようなので、
-        // $に置換しておく。
-        props.setProperty(pathMetaData.getPath().replace('/', '$'),
+        // %に置換しておく。
+        props.setProperty(pathMetaData.getPath().replace('/', '%'),
                 pathMetaData.getClassName());
         props.setProperty(pathMetaData.getClassName(), pathMetaData.getPath());
         props.save();
