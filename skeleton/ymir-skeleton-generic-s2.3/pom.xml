@@ -6,8 +6,8 @@
     <artifactId>ymir-skeleton-project</artifactId>
     <version>1.0.0-RC2-SNAPSHOT</version>
   </parent>
-  <groupId>org.seasar.ymir.skeleton</groupId>
   <artifactId>ymir-skeleton-generic-s2.3</artifactId>
+  <version>1.0.0-RC2-000-SNAPSHOT</version>
   <name>Ymir Generic Skeleton for Seasar2.3</name>
   <description>
     This is a project to generate a generic Ymir application skeleton.
