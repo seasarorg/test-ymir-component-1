@@ -6,8 +6,8 @@
     <artifactId>ymir-example-project</artifactId>
     <version>1.0.0-RC2-SNAPSHOT</version>
   </parent>
-  <groupId>org.seasar.ymir.example</groupId>
   <artifactId>ymir-example-add</artifactId>
+  <version>1.0.0-RC2-000-SNAPSHOT</version>
   <name>Ymir Add Example Fragment</name>
   <description>
     This is a project to generate an add example fragment.
