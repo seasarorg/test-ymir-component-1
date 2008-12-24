@@ -39,11 +39,17 @@ public class Configurator extends AbstractConfigurator {
     @Override
     public void start(IProject project, ViliBehavior behavior,
             ViliProjectPreferences preferences) {
-        if (!oldVersionExists(project)) {
+        if (oldVersionExists(project)) {
+            // 古いバージョンが存在する場合。
+            behavior.getProperties().setProperty(
+                    ViliBehavior.TEMPLATE_PARAMETERS,
+                    "isDeleteOldVersion,updateBatchFiles");
+        } else {
+            // 新規インストールの場合。
             behavior.getProperties().setProperty(
                     ViliBehavior.TEMPLATE_PARAMETERS, "isDeleteOldTableClass");
-            behavior.notifyPropertiesChanged();
         }
+        behavior.notifyPropertiesChanged();
     }
 
     private boolean oldVersionExists(IProject project) {
@@ -101,23 +107,23 @@ public class Configurator extends AbstractConfigurator {
     public InclusionType shouldExpand(String path, String resolvedPath,
             IProject project, ViliBehavior behavior,
             ViliProjectPreferences preferences, Map<String, Object> parameters) {
-        if (!project.getFile(resolvedPath).exists()
-                && !project.getFolder(resolvedPath).exists()) {
+        boolean exists = project.getFile(resolvedPath).exists()
+                || project.getFolder(resolvedPath).exists();
+        if (!exists) {
             return InclusionType.UNDEFINED;
         }
 
-        if (path.equals(PATH_PROJECT_BAT) || path.equals(PATH_PROJECT_SH)) {
-            return InclusionType.INCLUDED;
-        }
-
         if (path.startsWith(PATHPREFIX_DBFLUTE)) {
+            if (path.equals(PATH_PROJECT_BAT) || path.equals(PATH_PROJECT_SH)) {
+                return InclusionType.INCLUDED;
+            }
+
             if (updateBatFiles
                     && (path.endsWith(SUFFIX_BAT) || path.endsWith(SUFFIX_SH))) {
                 return InclusionType.INCLUDED;
             }
 
-            if (project.getFile(resolvedPath).exists()
-                    || project.getFolder(resolvedPath).exists()) {
+            if (exists) {
                 return InclusionType.EXCLUDED;
             }
         }
