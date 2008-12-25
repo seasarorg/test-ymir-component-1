@@ -6,11 +6,11 @@
     <artifactId>ymir-skeleton-project</artifactId>
     <version>1.0.0-RC2-SNAPSHOT</version>
   </parent>
-  <artifactId>ymir-fragment-dbflute</artifactId>
-  <version>1.0.0-RC2-00.08.07-000-SNAPSHOT</version>
-  <name>Ymir DBFlute Fragment</name>
+  <artifactId>dbflute-fragment-generic</artifactId>
+  <version>0.8.7-0-SNAPSHOT</version>
+  <name>DBFlute Generic Fragment</name>
   <description>
-    This is a project to generate a DBFlute fragment.
+    This is a project to generate a generic DBFlute fragment.
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
