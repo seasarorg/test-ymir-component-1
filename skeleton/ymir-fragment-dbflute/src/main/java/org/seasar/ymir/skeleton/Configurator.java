@@ -24,6 +24,8 @@ public class Configurator extends AbstractConfigurator {
 
     private static final String SUFFIX_SH = ".sh";
 
+    private static final String NATURE_ID_YMIRPROJECT = "org.seasar.ymir.eclipse.ymirProjectNature";
+
     private static final String PATHPREFIX_DBFLUTE = "dbflute_${projectName}/";
 
     private static final String PATH_PROJECT_BAT = PATHPREFIX_DBFLUTE
@@ -33,6 +35,8 @@ public class Configurator extends AbstractConfigurator {
             + "_project.sh";
 
     private static final String PATH_MYDBFLUTE = "mydbflute";
+
+    private static final String PATH_YMIRDAODICON = "src/main/resources/ymir-dao.dicon";
 
     private boolean updateBatFiles;
 
@@ -110,7 +114,18 @@ public class Configurator extends AbstractConfigurator {
         boolean exists = project.getFile(resolvedPath).exists()
                 || project.getFolder(resolvedPath).exists();
         if (!exists) {
-            return InclusionType.UNDEFINED;
+            if (path.equals(PATH_YMIRDAODICON)) {
+                boolean ymirProject;
+                try {
+                    ymirProject = project.hasNature(NATURE_ID_YMIRPROJECT);
+                } catch (CoreException ex) {
+                    throw new RuntimeException(ex);
+                }
+                if (!ymirProject) {
+                    return InclusionType.EXCLUDED;
+                }
+                return InclusionType.UNDEFINED;
+            }
         }
 
         if (path.startsWith(PATHPREFIX_DBFLUTE)) {
