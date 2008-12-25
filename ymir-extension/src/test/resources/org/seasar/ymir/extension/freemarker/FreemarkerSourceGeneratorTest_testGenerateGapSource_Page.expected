@@ -2,4 +2,5 @@ package com.example.page;
 
 public class TestPage extends TestPageBase
 {
+
 }

@@ -4,8 +4,10 @@ import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,6 +43,8 @@ abstract public class AbstractAction {
     private static final int TIMEOUT_MILLISEC = 3 * 1000;
 
     private static final String SP = System.getProperty("line.separator");
+
+    private static final String RESOURCESYNCHRONIZER_ENCODING = "UTF-8";
 
     private final Log log_ = LogFactory.getLog(AbstractAction.class);
 
@@ -223,7 +227,8 @@ abstract public class AbstractAction {
             connection.setReadTimeout(TIMEOUT_MILLISEC);
             connection.connect();
             is = connection.getInputStream();
-            String response = IOUtils.readString(is, "UTF-8", false);
+            String response = IOUtils.readString(is,
+                    RESOURCESYNCHRONIZER_ENCODING, false);
             okAbsolutePathSet = new HashSet<String>(Arrays.asList(PropertyUtils
                     .toArray(response)));
             if (okAbsolutePathSet.contains("/")) {
@@ -247,6 +252,51 @@ abstract public class AbstractAction {
             }
         }
         return ngAbsolutePathList.toArray(new String[0]);
+    }
+
+    protected void openJavaCodeInEclipseEditor(String className) {
+        if (!getSourceCreatorSetting().isResourceSynchronized()) {
+            return;
+        }
+        if (className == null) {
+            return;
+        }
+
+        URL url;
+        try {
+            url = getSourceCreatorSetting().constructResourceSynchronizerURL(
+                    "select?project="
+                            + URLEncoder.encode(getSourceCreatorSetting()
+                                    .getEclipseProjectName(),
+                                    RESOURCESYNCHRONIZER_ENCODING)
+                            + "&classname="
+                            + URLEncoder.encode(className,
+                                    RESOURCESYNCHRONIZER_ENCODING)
+                            + "&openInEditor=true&line=4");
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException("Can't happen!", ex);
+        }
+        if (url == null) {
+            return;
+        }
+
+        InputStream is = null;
+        try {
+            URLConnection connection = url.openConnection();
+            connection.setReadTimeout(TIMEOUT_MILLISEC);
+            connection.connect();
+            is = connection.getInputStream();
+            String response = IOUtils.readString(is,
+                    RESOURCESYNCHRONIZER_ENCODING, false);
+            if (log_.isDebugEnabled()) {
+                log_.debug("Response from " + url + " is:" + SP + response);
+            }
+        } catch (IOException ex) {
+            log_.warn("I/O error occured on a resourceSynchronizing server: "
+                    + url, ex);
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
     }
 
     protected String getRootPackagePath() {

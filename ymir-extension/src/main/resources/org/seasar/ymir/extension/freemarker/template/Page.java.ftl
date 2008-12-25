@@ -2,4 +2,5 @@ ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#
 
 public class ${classDesc.shortName} extends ${classDesc.shortName}Base
 {
+
 }
