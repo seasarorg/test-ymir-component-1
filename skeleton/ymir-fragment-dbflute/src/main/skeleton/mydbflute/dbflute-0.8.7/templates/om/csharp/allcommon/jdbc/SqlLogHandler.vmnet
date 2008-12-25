@@ -1,7 +1,0 @@
-
-using System;
-
-namespace ${glPackageBaseCommonJdbc} {
-
-    public delegate void ${glSqlLogHandlerName}(String executedSql, String displaySql, Object[] args, Type[] argTypes);
-}

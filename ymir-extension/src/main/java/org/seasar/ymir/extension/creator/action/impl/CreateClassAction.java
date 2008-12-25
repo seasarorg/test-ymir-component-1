@@ -89,6 +89,7 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
         }
 
         boolean successfullySynchronized = synchronizeResources(new String[] { getRootPackagePath() });
+        openJavaCodeInEclipseEditor(pathMetaData.getClassName());
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);

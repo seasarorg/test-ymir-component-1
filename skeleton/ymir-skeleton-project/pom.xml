@@ -3,7 +3,7 @@
     <relativePath>../ymir-project/pom.xml</relativePath>
     <groupId>org.seasar.ymir</groupId>
     <artifactId>ymir-project</artifactId>
-    <version>1.0.0-RC2-SNAPSHOT</version>
+    <version>1.0.0-RC2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.seasar.ymir.skeleton</groupId>
@@ -45,9 +45,7 @@
     <module>../ymir-skeleton-skeleton-web</module>
     <module>../ymir-skeleton-fragment-generic</module>
     <module>../ymir-fragment-utility</module>
-    <module>../ymir-fragment-dbflute</module>
     <module>../ymir-fragment-json</module>
     <module>../ymir-fragment-amf</module>
-    <module>../ymir-fragment-yonex</module>
   </modules>
 </project>
