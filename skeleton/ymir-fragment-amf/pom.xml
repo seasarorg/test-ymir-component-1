@@ -4,10 +4,10 @@
     <relativePath>../ymir-skeleton-project/pom.xml</relativePath>
     <groupId>org.seasar.ymir.skeleton</groupId>
     <artifactId>ymir-skeleton-project</artifactId>
-    <version>1.0.0-RC2</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>ymir-fragment-amf</artifactId>
-  <version>1.0.0-RC2-000</version>
+  <version>1.0.0-0-SNAPSHOT</version>
   <name>Ymir AMF Fragment</name>
   <description>
     This is a project to generate an AMF fragment.

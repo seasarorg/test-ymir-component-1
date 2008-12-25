@@ -4,10 +4,10 @@
     <relativePath>../ymir-example-project/pom.xml</relativePath>
     <groupId>org.seasar.ymir.example</groupId>
     <artifactId>ymir-example-project</artifactId>
-    <version>1.0.0-RC2</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>ymir-example-add</artifactId>
-  <version>1.0.0-RC2-000</version>
+  <version>1.0.0-0-SNAPSHOT</version>
   <name>Ymir Add Example Fragment</name>
   <description>
     This is a project to generate an add example fragment.
