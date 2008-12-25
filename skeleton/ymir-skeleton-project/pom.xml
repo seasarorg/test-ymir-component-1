@@ -45,9 +45,7 @@
     <module>../ymir-skeleton-skeleton-web</module>
     <module>../ymir-skeleton-fragment-generic</module>
     <module>../ymir-fragment-utility</module>
-    <module>../dbflute-fragment-generic</module>
     <module>../ymir-fragment-json</module>
     <module>../ymir-fragment-amf</module>
-    <module>../ymir-fragment-yonex</module>
   </modules>
 </project>
