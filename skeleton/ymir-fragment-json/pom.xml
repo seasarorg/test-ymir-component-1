@@ -4,10 +4,10 @@
     <relativePath>../ymir-skeleton-project/pom.xml</relativePath>
     <groupId>org.seasar.ymir.skeleton</groupId>
     <artifactId>ymir-skeleton-project</artifactId>
-    <version>1.0.0-RC2-SNAPSHOT</version>
+    <version>1.0.0-RC2</version>
   </parent>
   <artifactId>ymir-fragment-json</artifactId>
-  <version>1.0.0-RC2-000-SNAPSHOT</version>
+  <version>1.0.0-RC2-000</version>
   <name>Ymir JSON Fragment</name>
   <description>
     This is a project to generate an JSON fragment.
