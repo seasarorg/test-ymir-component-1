@@ -63,7 +63,7 @@
     <dependency>
       <groupId>org.seasar.ymir.vili</groupId>
       <artifactId>vili-api</artifactId>
-      <version>${viliVersion}</version>
+      <version>${viliVersion.unparsed}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
