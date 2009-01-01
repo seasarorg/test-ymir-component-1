@@ -3,7 +3,7 @@
     <dependency>
       <groupId>org.seasar.ymir</groupId>
       <artifactId>ymir-amf</artifactId>
-      <version>${artifactVersion.majorVersion}.${artifactVersion.minorVersion}.${artifactVersion.incrementalVersion}<#if artifactVersion.qualifier == "0-SNAPSHOT">${artifactVersion.qualifier?substring(1)}</#if></version>
+      <version><#if productVersion??>${productVersion}<#else>!!PLEASE SPECIFY VERSION!!</#if></version>
     </dependency>
   </dependencies>
 </project>
