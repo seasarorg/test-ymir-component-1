@@ -1,2 +1,0 @@
-%add%index.html=${rootPackageName}.web.add.IndexPage
-${rootPackageName}.web.add.IndexPage=/add/index.html

@@ -1,3 +1,0 @@
-<#if platform.getBundle("org.maven.ide.eclipse_light")??>containerId=org.maven.ide.eclipse_light.MAVEN2_CLASSPATH_CONTAINER</#if>
-eclipse.preferences.version=1
-excludes=junit,servlet-api

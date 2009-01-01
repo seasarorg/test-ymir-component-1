@@ -1,9 +1,0 @@
-<project>
-  <dependencies>
-    <dependency>
-      <groupId>org.seasar.ymir</groupId>
-      <artifactId>ymir-json</artifactId>
-      <version><#if productVersion??>${productVersion}<#else>!!PLEASE SPECIFY VERSION!!</#if></version>
-    </dependency>
-  </dependencies>
-</project>
