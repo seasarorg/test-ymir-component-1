@@ -9,7 +9,7 @@
     Ymir Project is a project to develop Ymir, which is a simple Web
     application framework.
   </description>
-  <url>http://ymir.sandbox.seasar.org/</url>
+  <url>http://ymir.seasar.org/</url>
   <issueManagement>
     <system>JIRA</system>
     <url>https://www.seasar.org/issues/browse/YMIR</url>
@@ -159,9 +159,9 @@
     </pluginManagement>
   </build>
   <scm>
-    <connection>scm:svn:https://www.seasar.org/svn/sandbox/ymir/component/trunk/ymir-project</connection>
-    <developerConnection>scm:svn:https://www.seasar.org/svn/sandbox/ymir/component/trunk/ymir-project</developerConnection>
-    <url>http://svn.seasar.org/browse/component/trunk/ymir-project?root=sandbox.ymir</url>
+    <connection>scm:svn:https://www.seasar.org/svn/ymir/component/trunk/ymir-project</connection>
+    <developerConnection>scm:svn:https://www.seasar.org/svn/ymir/component/trunk/ymir-project</developerConnection>
+    <url>http://svn.seasar.org/browse/component/trunk/ymir-project?root=ymir</url>
   </scm>
   <repositories>
     <repository>
