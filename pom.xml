@@ -6,9 +6,9 @@
   <version>1.0.1-SNAPSHOT</version>
   <name>Ymir Project Root</name>
   <scm>
-    <connection>scm:svn:https://www.seasar.org/svn/sandbox/ymir/component/trunk/</connection>
-    <developerConnection>scm:svn:https://www.seasar.org/svn/sandbox/ymir/component/trunk/</developerConnection>
-    <url>http://svn.seasar.org/browse/component/trunk/?root=sandbox.ymir</url>
+    <connection>scm:svn:https://www.seasar.org/svn/ymir/component/trunk/</connection>
+    <developerConnection>scm:svn:https://www.seasar.org/svn/ymir/component/trunk/</developerConnection>
+    <url>http://svn.seasar.org/browse/component/trunk/?root=ymir</url>
   </scm>
   <distributionManagement>
     <repository>
