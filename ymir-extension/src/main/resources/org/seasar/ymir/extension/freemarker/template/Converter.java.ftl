@@ -1,7 +1,6 @@
 ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
 
-public class ${classDesc.shortName} extends ${classDesc.shortName}Base
-{
+public class ${classDesc.shortName} extends ${classDesc.shortName}Base {
     /*
      * For example, if you want to convert empty String as null value
      * when it is set to an entity, override this method by uncommenting

@@ -1,8 +1,7 @@
 package com.example.page;
 
 @SuppressWarnings("unchecked")
-public class TestPageBase extends com.example.page.TestPageBaseBase
-{
+public class TestPageBase extends com.example.page.TestPageBaseBase {
     protected boolean param1_;
 
     protected String param2_;
@@ -12,39 +11,32 @@ public class TestPageBase extends com.example.page.TestPageBaseBase
     protected Integer[] param4_ = new Integer[0];
 
 
-    public boolean isParam1()
-    {
+    public boolean isParam1() {
         return param1_;
     }
 
-    public void setParam2(String param2)
-    {
+    public void setParam2(String param2) {
         param2_ = param2;
     }
 
-    public String getParam3()
-    {
+    public String getParam3() {
         return param3_;
     }
 
-    public void setParam3(String param3)
-    {
+    public void setParam3(String param3) {
         param3_ = param3;
     }
 
-    public Integer[] getParam4()
-    {
+    public Integer[] getParam4() {
         return param4_;
     }
 
-    public void setParam4(Integer[] param4)
-    {
+    public void setParam4(Integer[] param4) {
         param4_ = param4;
     }
 
     @org.seasar.ymir.annotation.Meta(name="source",value="return \"redirect:/path/to/redirect.html\";")
-    public String _get()
-    {
+    public String _get() {
         return "redirect:/path/to/redirect.html";
     }
 }

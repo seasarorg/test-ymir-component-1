@@ -21,8 +21,7 @@ import ${importClassName};
  * and add methods to gain conversion ability.
  * </p>
  */
-public class ${classDesc.shortName}Base
-{
+public class ${classDesc.shortName}Base {
     protected TypeConversionManager ${fieldPrefix}typeConversionManager${fieldSuffix};
 
     protected Messages ${fieldPrefix}messages${fieldSuffix};
@@ -148,8 +147,7 @@ public class ${classDesc.shortName}Base
      * @param entity Source object.
      * @return The first argument of this method.
      */
-    public ${targetClassDesc.shortName} copyTo(${targetClassDesc.shortName} dto, ${pairTypeDesc.shortName} entity)
-    {
+    public ${targetClassDesc.shortName} copyTo(${targetClassDesc.shortName} dto, ${pairTypeDesc.shortName} entity) {
 <#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.classDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.classDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
         copy${propertyDesc.name?cap_first}To(dto, entity);
 </#if></#if></#list>
@@ -169,8 +167,7 @@ public class ${classDesc.shortName}Base
      * @param entities Source array.
      * @return Copied array of Dto.
      */
-    public ${targetClassDesc.shortName}[] copyTo(${pairTypeDesc.shortName}[] entities)
-    {
+    public ${targetClassDesc.shortName}[] copyTo(${pairTypeDesc.shortName}[] entities) {
         ${targetClassDesc.shortName}[] dtos = new ${targetClassDesc.shortName}[entities.length];
         for (int i = 0; i < entities.length; i++) {
             dtos[i] = copyTo(new ${targetClassDesc.shortName}(), entities[i]);
@@ -190,8 +187,7 @@ public class ${classDesc.shortName}Base
      * @param entityList Source List.
      * @return Copied List of Dto.
      */
-    public List<${targetClassDesc.shortName}> copyToDtoList(List<${pairTypeDesc.shortName}> entityList)
-    {
+    public List<${targetClassDesc.shortName}> copyToDtoList(List<${pairTypeDesc.shortName}> entityList) {
         List<${targetClassDesc.shortName}> dtoList = new ArrayList<${targetClassDesc.shortName}>();
         for (${pairTypeDesc.shortName} entity : entityList) {
             dtoList.add(copyTo(new ${targetClassDesc.shortName}(), entity));
@@ -206,8 +202,7 @@ public class ${classDesc.shortName}Base
      * @param dto Destination object.
      * @param entity Source object.
      */
-    protected void copy${propertyDesc.name?cap_first}To(${targetClassDesc.shortName} dto, ${pairTypeDesc.shortName} entity)
-    {
+    protected void copy${propertyDesc.name?cap_first}To(${targetClassDesc.shortName} dto, ${pairTypeDesc.shortName} entity) {
         dto.set${propertyDesc.name?cap_first}(convert(entity.${pd.getterName}(), ${propertyDesc.getTypeDesc().getName()}.class));
     }
 </#if></#if></#list>
@@ -225,8 +220,7 @@ public class ${classDesc.shortName}Base
      * @param dto Source object.
      * @return The first argument of this method.
      */
-    public ${pairTypeDesc.shortName} copyTo(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto)
-    {
+    public ${pairTypeDesc.shortName} copyTo(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto) {
 <#list pairTypeDesc.classDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
         copy${propertyDesc.name?cap_first}To(entity, dto);
 </#if></#if></#list>
@@ -246,8 +240,7 @@ public class ${classDesc.shortName}Base
      * @param dtos Source array.
      * @return Copied array of entity.
      */
-    public ${pairTypeDesc.shortName}[] copyTo(${targetClassDesc.shortName}[] dtos)
-    {
+    public ${pairTypeDesc.shortName}[] copyTo(${targetClassDesc.shortName}[] dtos) {
 <#if pairTypeDesc.generic>        @SuppressWarnings("unchecked")</#if>
         ${pairTypeDesc.shortName}[] entities = new ${pairTypeDesc.shortClassName}[dtos.length];
         for (int i = 0; i < dtos.length; i++) {
@@ -268,8 +261,7 @@ public class ${classDesc.shortName}Base
      * @param dtoList Source List.
      * @return Copied List of entity.
      */
-    public List<${pairTypeDesc.shortName}> copyToEntityList(List<${targetClassDesc.shortName}> dtoList)
-    {
+    public List<${pairTypeDesc.shortName}> copyToEntityList(List<${targetClassDesc.shortName}> dtoList) {
         List<${pairTypeDesc.shortName}> entityList = new ArrayList<${pairTypeDesc.shortName}>();
         for (${targetClassDesc.shortName} dto : dtoList) {
             entityList.add(copyTo(new ${pairTypeDesc.shortName}(), dto));
@@ -284,8 +276,7 @@ public class ${classDesc.shortName}Base
      * @param entity Destination object.
      * @param dto Source object.
      */
-    protected void copy${propertyDesc.name?cap_first}To(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto)
-    {
+    protected void copy${propertyDesc.name?cap_first}To(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto) {
         entity.set${propertyDesc.name?cap_first}(convertForEntity(dto.${pd.getterName}(), ${propertyDesc.typeDesc.name}.class));
     }
 </#if></#if></#list>

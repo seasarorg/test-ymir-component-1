@@ -3,8 +3,7 @@ ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#
 import org.seasar.dao.annotation.tiger.S2Dao;
 
 @S2Dao(bean = ${entityMetaData.beanClassDesc.shortName}.class)
-public interface ${classDesc.shortName}
-{
+public interface ${classDesc.shortName} {
     ${entityMetaData.beanClassDesc.shortName}[] selectAll();
 
     int insert(${entityMetaData.beanClassDesc.shortName} ${entityMetaData.beanClassDesc.instanceName});

@@ -3,11 +3,9 @@ ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#
 import java.io.Serializable;
 
 public class ${classDesc.shortName} extends ${classDesc.shortName}Base
-    implements Serializable
-{
+    implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    public ${classDesc.shortName}()
-    {
+    public ${classDesc.shortName}() {
     }
 }

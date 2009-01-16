@@ -272,7 +272,7 @@ abstract public class AbstractAction {
                             + "&classname="
                             + URLEncoder.encode(className,
                                     RESOURCESYNCHRONIZER_ENCODING)
-                            + "&openInEditor=true&line=4");
+                            + "&openInEditor=true&line=3");
         } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException("Can't happen!", ex);
         }

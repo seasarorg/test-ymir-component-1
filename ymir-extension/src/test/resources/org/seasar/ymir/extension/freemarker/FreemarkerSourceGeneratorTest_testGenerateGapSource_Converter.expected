@@ -1,7 +1,6 @@
 package com.example.converter;
 
-public class HoeConverter extends HoeConverterBase
-{
+public class HoeConverter extends HoeConverterBase {
     /*
      * For example, if you want to convert empty String as null value
      * when it is set to an entity, override this method by uncommenting

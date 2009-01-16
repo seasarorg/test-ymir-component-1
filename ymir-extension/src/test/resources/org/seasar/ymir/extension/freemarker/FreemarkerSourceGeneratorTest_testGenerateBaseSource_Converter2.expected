@@ -12,8 +12,7 @@ import org.seasar.ymir.message.Messages;
  * and add methods to gain conversion ability.
  * </p>
  */
-public class HoeConverterBase
-{
+public class HoeConverterBase {
     protected TypeConversionManager typeConversionManager_;
 
     protected Messages messages_;

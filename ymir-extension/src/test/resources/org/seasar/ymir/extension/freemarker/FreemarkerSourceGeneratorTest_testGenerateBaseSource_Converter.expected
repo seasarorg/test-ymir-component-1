@@ -18,8 +18,7 @@ import java.util.List;
  * and add methods to gain conversion ability.
  * </p>
  */
-public class HoeConverterBase
-{
+public class HoeConverterBase {
     protected TypeConversionManager typeConversionManager_;
 
     protected Messages messages_;
@@ -144,8 +143,7 @@ public class HoeConverterBase
      * @param entity Source object.
      * @return The first argument of this method.
      */
-    public HoeDto copyTo(HoeDto dto, Hoe<List> entity)
-    {
+    public HoeDto copyTo(HoeDto dto, Hoe<List> entity) {
         copyAaaTo(dto, entity);
         copyCccTo(dto, entity);
         copyEeeTo(dto, entity);
@@ -165,8 +163,7 @@ public class HoeConverterBase
      * @param entities Source array.
      * @return Copied array of Dto.
      */
-    public HoeDto[] copyTo(Hoe<List>[] entities)
-    {
+    public HoeDto[] copyTo(Hoe<List>[] entities) {
         HoeDto[] dtos = new HoeDto[entities.length];
         for (int i = 0; i < entities.length; i++) {
             dtos[i] = copyTo(new HoeDto(), entities[i]);
@@ -186,8 +183,7 @@ public class HoeConverterBase
      * @param entityList Source List.
      * @return Copied List of Dto.
      */
-    public List<HoeDto> copyToDtoList(List<Hoe<List>> entityList)
-    {
+    public List<HoeDto> copyToDtoList(List<Hoe<List>> entityList) {
         List<HoeDto> dtoList = new ArrayList<HoeDto>();
         for (Hoe<List> entity : entityList) {
             dtoList.add(copyTo(new HoeDto(), entity));
@@ -201,8 +197,7 @@ public class HoeConverterBase
      * @param dto Destination object.
      * @param entity Source object.
      */
-    protected void copyAaaTo(HoeDto dto, Hoe<List> entity)
-    {
+    protected void copyAaaTo(HoeDto dto, Hoe<List> entity) {
         dto.setAaa(convert(entity.getAaa(), String.class));
     }
 
@@ -212,8 +207,7 @@ public class HoeConverterBase
      * @param dto Destination object.
      * @param entity Source object.
      */
-    protected void copyCccTo(HoeDto dto, Hoe<List> entity)
-    {
+    protected void copyCccTo(HoeDto dto, Hoe<List> entity) {
         dto.setCcc(convert(entity.isCcc(), String.class));
     }
 
@@ -223,8 +217,7 @@ public class HoeConverterBase
      * @param dto Destination object.
      * @param entity Source object.
      */
-    protected void copyEeeTo(HoeDto dto, Hoe<List> entity)
-    {
+    protected void copyEeeTo(HoeDto dto, Hoe<List> entity) {
         dto.setEee(convert(entity.getEee(), String.class));
     }
 
@@ -241,8 +234,7 @@ public class HoeConverterBase
      * @param dto Source object.
      * @return The first argument of this method.
      */
-    public Hoe<List> copyTo(Hoe<List> entity, HoeDto dto)
-    {
+    public Hoe<List> copyTo(Hoe<List> entity, HoeDto dto) {
         copyAaaTo(entity, dto);
         copyBbbTo(entity, dto);
         copyDddTo(entity, dto);
@@ -262,8 +254,7 @@ public class HoeConverterBase
      * @param dtos Source array.
      * @return Copied array of entity.
      */
-    public Hoe<List>[] copyTo(HoeDto[] dtos)
-    {
+    public Hoe<List>[] copyTo(HoeDto[] dtos) {
         @SuppressWarnings("unchecked")
         Hoe<List>[] entities = new Hoe[dtos.length];
         for (int i = 0; i < dtos.length; i++) {
@@ -284,8 +275,7 @@ public class HoeConverterBase
      * @param dtoList Source List.
      * @return Copied List of entity.
      */
-    public List<Hoe<List>> copyToEntityList(List<HoeDto> dtoList)
-    {
+    public List<Hoe<List>> copyToEntityList(List<HoeDto> dtoList) {
         List<Hoe<List>> entityList = new ArrayList<Hoe<List>>();
         for (HoeDto dto : dtoList) {
             entityList.add(copyTo(new Hoe<List>(), dto));
@@ -299,8 +289,7 @@ public class HoeConverterBase
      * @param entity Destination object.
      * @param dto Source object.
      */
-    protected void copyAaaTo(Hoe<List> entity, HoeDto dto)
-    {
+    protected void copyAaaTo(Hoe<List> entity, HoeDto dto) {
         entity.setAaa(convertForEntity(dto.getAaa(), String.class));
     }
 
@@ -310,8 +299,7 @@ public class HoeConverterBase
      * @param entity Destination object.
      * @param dto Source object.
      */
-    protected void copyBbbTo(Hoe<List> entity, HoeDto dto)
-    {
+    protected void copyBbbTo(Hoe<List> entity, HoeDto dto) {
         entity.setBbb(convertForEntity(dto.isBbb(), String.class));
     }
 
@@ -321,8 +309,7 @@ public class HoeConverterBase
      * @param entity Destination object.
      * @param dto Source object.
      */
-    protected void copyDddTo(Hoe<List> entity, HoeDto dto)
-    {
+    protected void copyDddTo(Hoe<List> entity, HoeDto dto) {
         entity.setDdd(convertForEntity(dto.getDdd(), String.class));
     }
 

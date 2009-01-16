@@ -1,21 +1,18 @@
 package org.seasar.ymir.extension.freemarker;
 
 @SuppressWarnings("unchecked")
-public class Hoe6PageBase
-{
+public class Hoe6PageBase {
     @org.seasar.ymir.annotation.Meta(name="property",value="form")
     protected com.example.dto.FormDto form_ = new com.example.dto.FormDto();
 
 
     @org.seasar.ymir.annotation.Meta(name="formProperty",value="form")
-    public String getName()
-    {
+    public String getName() {
         return form_.getName();
     }
 
     @org.seasar.ymir.annotation.Meta(name="formProperty",value="form")
-    public void setName(String name)
-    {
+    public void setName(String name) {
         form_.setName(name);
     }
 }

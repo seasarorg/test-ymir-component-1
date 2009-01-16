@@ -4,8 +4,7 @@ import java.util.List;
 import ${entityMetaData.beanClassDesc.name};
 import ${entityMetaData.dtoClassDesc.name};
 
-public interface ${classDesc.shortName}
-{
+public interface ${classDesc.shortName} {
     ${entityMetaData.dtoClassDesc.shortName} convert(${entityMetaData.beanClassDesc.shortName} ${entityMetaData.beanClassDesc.instanceName});
 
     ${entityMetaData.beanClassDesc.shortName} convert(${entityMetaData.dtoClassDesc.shortName} ${entityMetaData.dtoClassDesc.instanceName});
