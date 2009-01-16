@@ -119,8 +119,7 @@ public class RequestLoggingFilter implements Filter {
         final StringBuilder sb = new StringBuilder();
         sb.append("* * * * * * * * * * {BEGIN}: " + gerServletPath(request));
         sb.append(LF).append(IND);
-        sb.append("Request class=" + request.getClass().getName()).append(
-                ", instance=").append(request.toString().trim());
+        sb.append("Request=").append(request.toString().trim());
 
         sb.append(LF).append(IND);
         sb.append("RequestedSessionId=")
