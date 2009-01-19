@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
 public class SqlTimestampConverter extends DateConverterBase<Timestamp> {
-    public static final String PATTERN = "yyyy-MM-dd HH:mm:ss.fffffffff";
+    public static final String PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
 
     public SqlTimestampConverter() {
         type_ = Timestamp.class;
