@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
 public class SqlTimestampConverter extends DateConverterBase<Timestamp> {
-    public static final String PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
+    public static final String PATTERN = "yyyy-MM-dd HH:mm:ss.fffffffff";
 
     public SqlTimestampConverter() {
         type_ = Timestamp.class;
@@ -22,10 +22,24 @@ public class SqlTimestampConverter extends DateConverterBase<Timestamp> {
 
         String pattern = getPattern(hint);
         try {
-            return new Timestamp(new SimpleDateFormat(pattern).parse(
-                    value.toString()).getTime());
+            if (pattern.equals(PATTERN)) {
+                return Timestamp.valueOf(value.toString());
+            } else {
+                return new Timestamp(new SimpleDateFormat(pattern).parse(
+                        value.toString()).getTime());
+            }
         } catch (Exception ex) {
             return defaultValue_;
+        }
+    }
+
+    @Override
+    public String convertToString(Timestamp value, Annotation[] hint) {
+        String pattern = getPattern(hint);
+        if (pattern.equals(PATTERN)) {
+            return value.toString();
+        } else {
+            return new SimpleDateFormat(getPattern(hint)).format(value);
         }
     }
 }
