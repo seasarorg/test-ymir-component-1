@@ -4,7 +4,7 @@ public class ${classDesc.shortName} extends ${classDesc.shortName}Base {
     /*
      * For example, if you want to convert empty String as null value
      * when it is set to an entity, override this method by uncommenting
-     * the folling lines.
+     * the following lines.
      *
      * @see ${classDesc.shortName}Base#convertForEntity(Object, Class)
      */      
