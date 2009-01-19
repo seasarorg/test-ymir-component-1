@@ -22,12 +22,8 @@ public class SqlTimestampConverter extends DateConverterBase<Timestamp> {
 
         String pattern = getPattern(hint);
         try {
-            if (pattern.equals(PATTERN)) {
-                return Timestamp.valueOf(value.toString());
-            } else {
-                return new Timestamp(new SimpleDateFormat(pattern).parse(
-                        value.toString()).getTime());
-            }
+            return new Timestamp(new SimpleDateFormat(pattern).parse(
+                    value.toString()).getTime());
         } catch (Exception ex) {
             return defaultValue_;
         }
