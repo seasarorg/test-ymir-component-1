@@ -57,7 +57,7 @@ public class SimpleClassDesc extends AbstractClassDesc {
     }
 
     public String getSuperclassName() {
-        throw new UnsupportedOperationException();
+        return Object.class.getName();
     }
 
     public boolean isBaseClassAbstract() {
@@ -85,10 +85,8 @@ public class SimpleClassDesc extends AbstractClassDesc {
     }
 
     public void removeMethodDesc(MethodDesc methodDesc) {
-        throw new UnsupportedOperationException();
     }
 
     public void removePropertyDesc(String name) {
-        throw new UnsupportedOperationException();
     }
 }

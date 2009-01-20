@@ -60,7 +60,7 @@ public class DescValidator {
     static Result validate(TypeDesc typeDesc, ClassDescSet classDescSet,
             Result result) {
 
-        String className = typeDesc.getClassDesc().getName();
+        String className = typeDesc.getComponentClassDesc().getName();
         if (!isValidClassName(className, classDescSet)) {
             result.addClassName(className);
         }

@@ -427,9 +427,9 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc cd = getClassDesc("com.example.web.ActionPage");
         PropertyDesc pd = cd.getPropertyDesc("tests");
-        assertTrue("フォームパラメータ名に添字指定がある場合は配列になること", pd.getTypeDesc().isArray());
+        assertTrue("フォームパラメータ名に添字指定がある場合は配列になること", pd.getTypeDesc().isCollection());
         assertEquals("tests配列プロパティのDto型名は単数形になること", "com.example.dto.TestDto",
-                pd.getTypeDesc().getClassDesc().getName());
+                pd.getTypeDesc().getComponentClassDesc().getName());
     }
 
     public void testAnalyze12_添字指定があるファイルパラメータについてはプロパティの型がFormFileの配列になること()
@@ -505,10 +505,10 @@ public class ZptAnalyzerTest extends TestCase {
         act("testAnalyze18");
 
         ClassDesc cd = getClassDesc(CLASSNAME).getPropertyDesc("entry")
-                .getTypeDesc().getClassDesc();
+                .getTypeDesc().getComponentClassDesc();
         assertEquals("パスが3段以上でも正しくClassDescを生成できること",
                 "com.example.dto.BodyDto", cd.getPropertyDesc("body")
-                        .getTypeDesc().getClassDesc().getName());
+                        .getTypeDesc().getComponentClassDesc().getName());
     }
 
     public void testAnalyze19() throws Exception {
@@ -543,7 +543,7 @@ public class ZptAnalyzerTest extends TestCase {
         ClassDesc cd = getClassDesc("com.example.web.ActionPage");
         PropertyDesc pd = cd.getPropertyDesc("check");
         assertTrue("同一のnameを持つパラメータが複数存在する場合は配列になること", pd.getTypeDesc()
-                .isArray());
+                .isCollection());
     }
 
     public void testAnalyze23() throws Exception {
@@ -553,7 +553,7 @@ public class ZptAnalyzerTest extends TestCase {
         ClassDesc cd = getClassDesc("com.example.web.ActionPage");
         PropertyDesc pd = cd.getPropertyDesc("radio");
         assertFalse("同一のnameを持つパラメータがradio buttonである場合は配列にならないこと", pd
-                .getTypeDesc().isArray());
+                .getTypeDesc().isCollection());
     }
 
     public void testAnalyze24_配列に対するlength呼び出しがあっても正しく自動生成されること()
@@ -563,9 +563,9 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc cd = getClassDesc(CLASSNAME);
         PropertyDesc pd = cd.getPropertyDesc("comment");
-        assertTrue(pd.getTypeDesc().isArray());
+        assertTrue(pd.getTypeDesc().isCollection());
         assertEquals("com.example.dto.CommentDto", pd.getTypeDesc()
-                .getClassDesc().getName());
+                .getComponentClassDesc().getName());
         assertNull(getClassDesc("com.example.dto.CommentDto").getPropertyDesc(
                 "length"));
     }
@@ -584,7 +584,7 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc cd = getClassDesc(CLASSNAME);
         PropertyDesc pd = cd.getPropertyDesc("results");
-        assertEquals(Note.class.getName(), pd.getTypeDesc().getClassDesc()
+        assertEquals(Note.class.getName(), pd.getTypeDesc().getComponentClassDesc()
                 .getName());
         assertNull(getClassDesc(Note.class.getName()));
         assertNull(getClassDesc("com.example.dto.ResultDto"));
@@ -597,7 +597,7 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc cd = getClassDesc("com.example.web.HoePage");
         PropertyDesc pd = cd.getPropertyDesc("value");
-        assertFalse(pd.getTypeDesc().isArray());
+        assertFalse(pd.getTypeDesc().isCollection());
     }
 
     public void testAnalyze28_既にクラスがある状態で再生成されるとプロパティの既存の型が保存されること()
@@ -630,7 +630,7 @@ public class ZptAnalyzerTest extends TestCase {
         PropertyDesc pd = cd.getPropertyDesc("information");
         assertEquals("com.example.dto.InformationDto", pd.getTypeDesc()
                 .getName());
-        pd = pd.getTypeDesc().getClassDesc().getPropertyDesc("entries");
+        pd = pd.getTypeDesc().getComponentClassDesc().getPropertyDesc("entries");
         assertEquals("com.example.dto.EntryDto[]", pd.getTypeDesc().getName());
     }
 
@@ -686,7 +686,7 @@ public class ZptAnalyzerTest extends TestCase {
         ClassDesc cd = getClassDesc("com.example.web.Test35Page");
         PropertyDesc pd = cd.getPropertyDesc("entries");
         assertEquals("com.example.dto.Entry2Dto[]", pd.getTypeDesc().getName());
-        cd = pd.getTypeDesc().getClassDesc();
+        cd = pd.getTypeDesc().getComponentClassDesc();
         assertNotNull(cd.getPropertyDesc("value"));
     }
 
@@ -696,7 +696,7 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc cd = getClassDesc("com.example.web.Test36Page");
         PropertyDesc pd = cd.getPropertyDesc("comment").getTypeDesc()
-                .getClassDesc().getPropertyDesc("entries");
+                .getComponentClassDesc().getPropertyDesc("entries");
         assertEquals("com.example.dto.EntryDto[]", pd.getTypeDesc().getName());
     }
 
@@ -760,7 +760,7 @@ public class ZptAnalyzerTest extends TestCase {
 
         assertNotNull(getClassDesc("com.example.dto.RepeatEntryDto"));
         assertEquals("com.example.dto.RepeatEntryDto", getClassDesc(CLASSNAME)
-                .getPropertyDesc("entryList").getTypeDesc().getClassDesc()
+                .getPropertyDesc("entryList").getTypeDesc().getComponentClassDesc()
                 .getName());
     }
 

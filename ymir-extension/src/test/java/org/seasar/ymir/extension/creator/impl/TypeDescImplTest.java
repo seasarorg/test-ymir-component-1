@@ -77,4 +77,69 @@ public class TypeDescImplTest extends TestCase {
                 .getInitialValue();
         assertNull(actual);
     }
+
+    public void testSetName() throws Exception {
+        TypeDescImpl target = new TypeDescImpl();
+        target.setName("java.lang.Date");
+
+        assertEquals("java.lang.Date", target.getComponentClassDesc().getName());
+        assertFalse(target.isCollection());
+        assertNull(target.getCollectionClassName());
+    }
+
+    public void testSetName_配列() throws Exception {
+        TypeDescImpl target = new TypeDescImpl();
+        target.setName("java.lang.Date[]");
+
+        assertEquals("java.lang.Date", target.getComponentClassDesc().getName());
+        assertTrue(target.isCollection());
+        assertNull(target.getCollectionClassName());
+    }
+
+    public void testSetName_コレクション() throws Exception {
+        TypeDescImpl target = new TypeDescImpl();
+        target.setName("java.util.List<java.lang.Date>");
+
+        assertEquals("java.lang.Date", target.getComponentClassDesc().getName());
+        assertTrue(target.isCollection());
+        assertEquals("java.util.List", target.getCollectionClassName());
+    }
+
+    public void testSetName_コレクションの配列() throws Exception {
+        TypeDescImpl target = new TypeDescImpl();
+        target.setName("java.util.List<java.lang.Date>[]");
+
+        assertEquals("java.util.List", target.getComponentClassDesc().getName());
+        assertTrue(target.isCollection());
+        assertNull(target.getCollectionClassName());
+    }
+
+    public void testSetName_コレクションでないGenerics() throws Exception {
+        TypeDescImpl target = new TypeDescImpl();
+        target.setName("java.lang.ThreadLocal<java.lang.Date>");
+
+        assertEquals("java.lang.ThreadLocal", target.getComponentClassDesc()
+                .getName());
+        assertFalse(target.isCollection());
+        assertNull(target.getCollectionClassName());
+    }
+
+    public void testGetName_コレクション() throws Exception {
+        TypeDescImpl target = new TypeDescImpl();
+        target.setCollection(true);
+        target.setCollectionClassName("java.util.List");
+        target.setComponentClassDesc(new SimpleClassDesc("java.lang.String"));
+
+        assertEquals("java.util.List<String>", target.getName());
+    }
+
+    public void testGetCompleteName_コレクション() throws Exception {
+        TypeDescImpl target = new TypeDescImpl();
+        target.setCollection(true);
+        target.setCollectionClassName("java.util.List");
+        target.setComponentClassDesc(new SimpleClassDesc("java.lang.String"));
+
+        assertEquals("java.util.List<java.lang.String>", target
+                .getCompleteName());
+    }
 }

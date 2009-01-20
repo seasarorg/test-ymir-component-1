@@ -61,6 +61,8 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private static final String ARRAY_SUFFIX = "[]";
 
+    private static final String PROP_LENGTH = "length";
+
     private static ClassNamePattern[] freyjaRenderClassNamePairs_;
 
     private SourceCreator sourceCreator_;
@@ -219,11 +221,15 @@ public class AnalyzerContext extends ZptTemplateContext {
                         td.setName("java.util.List<" + className + ">");
                     } else {
                         // 配列型に補正する。
-                        td.setArray(true);
-                        td.setClassDesc(valueClassDesc);
+                        if (!td.isCollection()) {
+                            td.getComponentClassDesc().removePropertyDesc(
+                                    PROP_LENGTH);
+                        }
+                        td.setName(className + "[]");
                     }
+                    td.setComponentClassDesc(valueClassDesc);
                 } else {
-                    valueClassDesc = td.getClassDesc();
+                    valueClassDesc = td.getComponentClassDesc();
                 }
             } else {
                 valueClassDesc = wrapper.getValueClassDesc();
@@ -584,7 +590,13 @@ public class AnalyzerContext extends ZptTemplateContext {
             // なるべく元の状態を壊さないようにこうしている。
             // （添字があるならば配列である、は真であるが、裏は真ではない。）
             // つまり、arrayがtrueの時だけsetArray()している、ということ。
-            propertyDesc.getTypeDesc().setArray(array);
+            TypeDesc typeDesc = propertyDesc.getTypeDesc();
+            if (!typeDesc.isCollection()) {
+                typeDesc.getComponentClassDesc()
+                        .removePropertyDesc(PROP_LENGTH);
+            }
+            typeDesc.setCollection(array);
+
         }
         return adjustPropertyType(classDesc.getName(), propertyDesc);
     }
@@ -596,19 +608,19 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     public ClassDesc preparePropertyTypeClassDesc(ClassDesc classDesc,
             PropertyDesc propertyDesc, boolean force) {
-        ClassDesc cd = propertyDesc.getTypeDesc().getClassDesc();
+        ClassDesc cd = propertyDesc.getTypeDesc().getComponentClassDesc();
         ClassDesc returned = null;
         if (cd instanceof ClassDescImpl) {
             returned = cd;
         } else if (cd == TypeDesc.DEFAULT_CLASSDESC || force) {
             String name = propertyDesc.getName();
-            if (propertyDesc.getTypeDesc().isArray()) {
+            if (propertyDesc.getTypeDesc().isCollection()) {
                 // 名前を単数形にする。
                 name = toSingular(name);
             }
             returned = getTemporaryClassDesc(fromPropertyNameToClassName(
                     classDesc, name));
-            propertyDesc.getTypeDesc().setClassDesc(returned);
+            propertyDesc.getTypeDesc().setComponentClassDesc(returned);
             propertyDesc.notifyUpdatingType();
         }
         return returned;
@@ -692,9 +704,14 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
 
         TypeDescImpl td = new TypeDescImpl(typeName, true);
-        td.replaceClassDesc(getTemporaryClassDesc(td.getClassDesc().getName()));
+        String cname = td.getComponentClassDesc().getName();
+        Map<String, ClassDesc> map = new HashMap<String, ClassDesc>();
+        map.put(cname, getTemporaryClassDesc(cname));
+        td.setName(typeName, map);
+
         pd.setTypeDesc(td);
         pd.notifyUpdatingType();
+
         return pd;
     }
 

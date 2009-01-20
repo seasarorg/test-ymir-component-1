@@ -2,13 +2,15 @@ package org.seasar.ymir.extension.creator.impl;
 
 import static org.seasar.ymir.extension.creator.util.DescUtils.getComponentName;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.seasar.ymir.extension.creator.ClassDesc;
-import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.type.Token;
@@ -25,9 +27,11 @@ public class TypeDescImpl implements TypeDesc {
 
     private String name_;
 
-    private ClassDesc classDesc_;
+    private ClassDesc componentClassDesc_;
 
-    private boolean array_;
+    private boolean collection_;
+
+    private String collectionClassName_;
 
     private boolean explicit_;
 
@@ -38,8 +42,6 @@ public class TypeDescImpl implements TypeDesc {
     private static final String PACKAGEPREFIX_FREYJA_RENDER_CLASS = "net.skirnir.freyja.render.";
 
     private static final String SUFFIX_DTO = "Dto";
-
-    private static final String PROP_LENGTH = "length";
 
     static {
         DEFAULT_VALUE_MAP = new HashMap<String, String>();
@@ -102,13 +104,14 @@ public class TypeDescImpl implements TypeDesc {
         this(classDesc, false);
     }
 
-    public TypeDescImpl(ClassDesc classDesc, boolean array) {
-        this(classDesc, array, false);
+    public TypeDescImpl(ClassDesc classDesc, boolean collection) {
+        this(classDesc, collection, false);
     }
 
-    public TypeDescImpl(ClassDesc classDesc, boolean array, boolean explicit) {
-        setClassDesc(classDesc);
-        array_ = array;
+    public TypeDescImpl(ClassDesc classDesc, boolean collection,
+            boolean explicit) {
+        setComponentClassDesc(classDesc);
+        collection_ = collection;
         explicit_ = explicit;
     }
 
@@ -127,8 +130,9 @@ public class TypeDescImpl implements TypeDesc {
         } catch (CloneNotSupportedException ex) {
             throw new RuntimeException(ex);
         }
-        if (classDesc_ != null) {
-            cloned.classDesc_ = new SimpleClassDesc(classDesc_.getName());
+        if (componentClassDesc_ != null) {
+            cloned.componentClassDesc_ = (ClassDesc) componentClassDesc_
+                    .clone();
         }
         return cloned;
     }
@@ -148,12 +152,12 @@ public class TypeDescImpl implements TypeDesc {
         return getName();
     }
 
-    public ClassDesc getClassDesc() {
-        return classDesc_;
+    public ClassDesc getComponentClassDesc() {
+        return componentClassDesc_;
     }
 
-    public void setClassDesc(ClassDesc classDesc) {
-        classDesc_ = classDesc;
+    public void setComponentClassDesc(ClassDesc classDesc) {
+        componentClassDesc_ = classDesc;
         name_ = null;
     }
 
@@ -162,33 +166,62 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public void setName(String typeName, Map<String, ClassDesc> classDescMap) {
-        String className = DescUtils
-                .getNonGenericClassName(getComponentName(typeName.replace('$',
-                        '.')));
-        if (classDescMap != null) {
-            classDesc_ = classDescMap.get(className);
-        }
-        if (classDesc_ == null) {
-            classDesc_ = new SimpleClassDesc(className);
-        }
-        array_ = DescUtils.isArray(typeName);
+        componentClassDesc_ = null;
+        collectionClassName_ = null;
+        collection_ = DescUtils.isArray(typeName);
         name_ = normalizePackage(typeName.replace('$', '.'));
-    }
 
-    public boolean isArray() {
-        return array_;
-    }
-
-    public void setArray(boolean array) {
-        if (!array_ && array) {
-            // 配列でないものが配列になった場合はlengthプロパティがあれば（誤生成なので）除去する。
-            ClassDesc cd = getClassDesc();
-            PropertyDesc pd = cd.getPropertyDesc(PROP_LENGTH);
-            if (pd != null) {
-                cd.removePropertyDesc(PROP_LENGTH);
+        String componentClassName;
+        if (collection_) {
+            // 配列である場合はコレクションクラスであっても普通のクラスとして扱う。
+            componentClassName = getComponentName(typeName.replace('$', '.'));
+        } else {
+            // 配列でない場合はコレクションクラスである場合についての処理を行なう。
+            TypeToken token = new TypeToken(typeName);
+            try {
+                collection_ = Collection.class.isAssignableFrom(Class
+                        .forName(token.getBaseName()));
+            } catch (ClassNotFoundException ignore) {
+            }
+            if (collection_) {
+                collectionClassName_ = token.getBaseName();
+                TypeToken[] types = token.getTypes();
+                if (types.length == 0) {
+                    componentClassName = Object.class.getName();
+                } else {
+                    componentClassName = types[0].getBaseName();
+                }
+            } else {
+                // 配列でもコレクションでもないのでそのまま扱う。
+                componentClassName = typeName;
             }
         }
-        array_ = array;
+
+        String className = DescUtils.getNonGenericClassName(componentClassName);
+        if (classDescMap != null) {
+            componentClassDesc_ = classDescMap.get(className);
+        }
+        if (componentClassDesc_ == null) {
+            componentClassDesc_ = new SimpleClassDesc(className);
+        }
+    }
+
+    public boolean isCollection() {
+        return collection_;
+    }
+
+    public void setCollection(boolean collection) {
+        collection_ = collection;
+        name_ = null;
+    }
+
+    public String getCollectionClassName() {
+        return collectionClassName_;
+    }
+
+    public void setCollectionClassName(String collectionClassName) {
+        collectionClassName_ = collectionClassName;
+        name_ = null;
     }
 
     public boolean isExplicit() {
@@ -200,8 +233,9 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public void transcript(TypeDesc typeDesc) {
-        setClassDesc(typeDesc.getClassDesc());
-        array_ = typeDesc.isArray();
+        setComponentClassDesc(typeDesc.getComponentClassDesc());
+        collection_ = typeDesc.isCollection();
+        collectionClassName_ = typeDesc.getCollectionClassName();
         name_ = typeDesc.getName();
     }
 
@@ -218,9 +252,18 @@ public class TypeDescImpl implements TypeDesc {
             return name_;
         } else {
             StringBuilder sb = new StringBuilder();
-            sb.append(classDesc_.getName());
-            if (array_) {
-                sb.append(ARRAY_SUFFIX);
+            if (collection_) {
+                if (collectionClassName_ != null) {
+                    sb.append(collectionClassName_).append("<");
+                }
+            }
+            sb.append(componentClassDesc_.getName());
+            if (collection_) {
+                if (collectionClassName_ != null) {
+                    sb.append(">");
+                } else {
+                    sb.append(ARRAY_SUFFIX);
+                }
             }
             return sb.toString();
         }
@@ -231,9 +274,19 @@ public class TypeDescImpl implements TypeDesc {
             return normalizePackage(name_);
         } else {
             StringBuilder sb = new StringBuilder();
-            sb.append(normalizePackage(classDesc_.getName()));
-            if (array_) {
-                sb.append(ARRAY_SUFFIX);
+            if (collection_) {
+                if (collectionClassName_ != null) {
+                    sb.append(normalizePackage(collectionClassName_)).append(
+                            "<");
+                }
+            }
+            sb.append(normalizePackage(componentClassDesc_.getName()));
+            if (collection_) {
+                if (collectionClassName_ != null) {
+                    sb.append(">");
+                } else {
+                    sb.append(ARRAY_SUFFIX);
+                }
             }
             return sb.toString();
         }
@@ -244,9 +297,19 @@ public class TypeDescImpl implements TypeDesc {
             return getShortTypeName(name_);
         } else {
             StringBuilder sb = new StringBuilder();
-            sb.append(classDesc_.getShortName());
-            if (array_) {
-                sb.append(ARRAY_SUFFIX);
+            if (collection_) {
+                if (collectionClassName_ != null) {
+                    sb.append(ClassUtils.getShortName(collectionClassName_))
+                            .append("<");
+                }
+            }
+            sb.append(componentClassDesc_.getShortName());
+            if (collection_) {
+                if (collectionClassName_ != null) {
+                    sb.append(">");
+                } else {
+                    sb.append(ARRAY_SUFFIX);
+                }
             }
             return sb.toString();
         }
@@ -255,10 +318,12 @@ public class TypeDescImpl implements TypeDesc {
     public String getShortClassName() {
         if (name_ != null) {
             return getShortClassName(name_);
+        } else if (collection_ && collectionClassName_ != null) {
+            return ClassUtils.getShortName(collectionClassName_);
         } else {
             StringBuilder sb = new StringBuilder();
-            sb.append(classDesc_.getShortName());
-            if (array_) {
+            sb.append(componentClassDesc_.getShortName());
+            if (collection_) {
                 sb.append(ARRAY_SUFFIX);
             }
             return sb.toString();
@@ -297,7 +362,12 @@ public class TypeDescImpl implements TypeDesc {
         if (name_ != null) {
             return getImportClassNames(name_);
         } else {
-            return new String[] { classDesc_.getName() };
+            List<String> list = new ArrayList<String>();
+            list.add(componentClassDesc_.getName());
+            if (collection_ && collectionClassName_ != null) {
+                list.add(collectionClassName_);
+            }
+            return list.toArray(new String[0]);
         }
     }
 
@@ -322,10 +392,10 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public String getDefaultValue() {
-        if (array_) {
+        if (collection_) {
             return NULL_VALUE;
         } else {
-            String name = classDesc_.getName();
+            String name = componentClassDesc_.getName();
             String value = DEFAULT_VALUE_MAP.get(name);
             if (value != null) {
                 return value;
@@ -336,10 +406,10 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public String getInstanceName() {
-        if (array_) {
-            return classDesc_.getInstanceName() + "s";
+        if (collection_) {
+            return componentClassDesc_.getInstanceName() + "s";
         } else {
-            return classDesc_.getInstanceName();
+            return componentClassDesc_.getInstanceName();
         }
     }
 
@@ -355,17 +425,18 @@ public class TypeDescImpl implements TypeDesc {
         }
     }
 
-    public void replaceClassDesc(ClassDesc classDesc) {
-        classDesc_ = classDesc;
-    }
-
     public String getInitialValue() {
-        if (array_) {
-            return "new " + normalizePackage(classDesc_.getName()) + "[0]";
+        if (collection_) {
+            if (collectionClassName_ != null) {
+                return null;
+            } else {
+                return "new " + normalizePackage(componentClassDesc_.getName())
+                        + "[0]";
+            }
         } else {
-            if (classDesc_.getPackageName().startsWith(
+            if (componentClassDesc_.getPackageName().startsWith(
                     PACKAGEPREFIX_FREYJA_RENDER_CLASS)
-                    || classDesc_.getName().endsWith(SUFFIX_DTO)) {
+                    || componentClassDesc_.getName().endsWith(SUFFIX_DTO)) {
                 return "new " + getName() + "()";
             } else {
                 return null;

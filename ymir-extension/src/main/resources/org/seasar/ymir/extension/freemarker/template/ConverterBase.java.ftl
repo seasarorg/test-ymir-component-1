@@ -138,7 +138,7 @@ public class ${classDesc.shortName}Base {
      * Copies ${pairTypeDesc.shortName} entity to ${targetClassDesc.shortName} instance.
      * <p>This methods copies the following properties automatically:</p>
      * <ul>
-<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.classDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.classDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
      *   <li>${propertyDesc.name}</li>
 </#if></#if></#list>
      * </ul>
@@ -148,7 +148,7 @@ public class ${classDesc.shortName}Base {
      * @return The first argument of this method.
      */
     public ${targetClassDesc.shortName} copyTo(${targetClassDesc.shortName} dto, ${pairTypeDesc.shortName} entity) {
-<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.classDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.classDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
         copy${propertyDesc.name?cap_first}To(dto, entity);
 </#if></#if></#list>
 
@@ -159,7 +159,7 @@ public class ${classDesc.shortName}Base {
      * Copies an array of ${pairTypeDesc.shortName} entity to an array of ${targetClassDesc.shortName}.
      * <p>This methods copies the following properties automatically:</p>
      * <ul>
-<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.classDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.classDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
      *   <li>${propertyDesc.name}</li>
 </#if></#if></#list>
      * </ul>
@@ -179,7 +179,7 @@ public class ${classDesc.shortName}Base {
      * Copies a List of ${pairTypeDesc.shortName} entity to a List of ${targetClassDesc.shortName}.
      * <p>This methods copies the following properties automatically:</p>
      * <ul>
-<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.classDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.classDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
      *   <li>${propertyDesc.name}</li>
 </#if></#if></#list>
      * </ul>
@@ -194,7 +194,7 @@ public class ${classDesc.shortName}Base {
         }
         return dtoList;
     }
-<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.classDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.classDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
 
     /**
      * Copies '${propertyDesc.name}' property of ${pairTypeDesc.shortName} entity to ${targetClassDesc.shortName} instance's '${propertyDesc.name}' property.
@@ -211,7 +211,7 @@ public class ${classDesc.shortName}Base {
      * Copies ${targetClassDesc.shortName} entity to ${pairTypeDesc.shortName} instance.
      * <p>This methods copies the following properties automatically:</p>
      * <ul>
-<#list pairTypeDesc.classDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
      *   <li>${propertyDesc.name}</li>
 </#if></#if></#list>
      * </ul>
@@ -221,7 +221,7 @@ public class ${classDesc.shortName}Base {
      * @return The first argument of this method.
      */
     public ${pairTypeDesc.shortName} copyTo(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto) {
-<#list pairTypeDesc.classDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
         copy${propertyDesc.name?cap_first}To(entity, dto);
 </#if></#if></#list>
 
@@ -232,7 +232,7 @@ public class ${classDesc.shortName}Base {
      * Copies an array of ${targetClassDesc.shortName} entity to an array of ${pairTypeDesc.shortName}.
      * <p>This methods copies the following properties automatically:</p>
      * <ul>
-<#list pairTypeDesc.classDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
      *   <li>${propertyDesc.name}</li>
 </#if></#if></#list>
      * </ul>
@@ -253,7 +253,7 @@ public class ${classDesc.shortName}Base {
      * Copies a List of ${targetClassDesc.shortName} entity to a List of ${pairTypeDesc.shortName}.
      * <p>This methods copies the following properties automatically:</p>
      * <ul>
-<#list pairTypeDesc.classDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
      *   <li>${propertyDesc.name}</li>
 </#if></#if></#list>
      * </ul>
@@ -268,7 +268,7 @@ public class ${classDesc.shortName}Base {
         }
         return entityList;
     }
-<#list pairTypeDesc.classDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
 
     /**
      * Copies '${propertyDesc.name}' property of ${targetClassDesc.shortName} entity to ${pairTypeDesc.shortName} instance's '${propertyDesc.name}' property.

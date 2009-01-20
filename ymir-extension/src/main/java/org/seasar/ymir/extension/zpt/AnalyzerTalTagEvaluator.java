@@ -137,11 +137,11 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     if (!propertyDesc.getTypeDesc().isExplicit()) {
                         if ("input".equals(name)) {
                             if ("file".equals(type)) {
-                                propertyDesc.getTypeDesc().setClassDesc(
+                                propertyDesc.getTypeDesc().setComponentClassDesc(
                                         new SimpleClassDesc(FormFile.class
                                                 .getName()));
                             } else if ("radio".equals(type)) {
-                                propertyDesc.getTypeDesc().setArray(false);
+                                propertyDesc.getTypeDesc().setCollection(false);
                             }
                         }
                     }

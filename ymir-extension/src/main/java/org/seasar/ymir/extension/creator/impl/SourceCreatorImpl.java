@@ -492,12 +492,12 @@ public class SourceCreatorImpl implements SourceCreator {
             for (int j = 0; j < pds.length; j++) {
                 TypeDesc td = pds[j].getTypeDesc();
                 if (!DescValidator.validate(td, classDescSet).isValid()
-                        || td.getClassDesc().getType() != ClassType.DTO) {
+                        || td.getComponentClassDesc().getType() != ClassType.DTO) {
                     continue;
                 }
 
                 EntityMetaData metaData = new EntityMetaData(this, null, td
-                        .getClassDesc().getName());
+                        .getComponentClassDesc().getName());
                 addPropertyToPageIfValid(pageClassDescs[i], new TypeDescImpl(
                         metaData.getConverterClassDesc()), PropertyDesc.WRITE,
                         classDescSet);
@@ -542,8 +542,10 @@ public class SourceCreatorImpl implements SourceCreator {
                 continue;
             }
             TypeDescImpl td = new TypeDescImpl(pairTypeNames[i]);
-            String className = td.getClassDesc().getName();
-            td.replaceClassDesc(getClassDesc(getClass(className), false));
+            String className = td.getComponentClassDesc().getName();
+            Map<String, ClassDesc> map = new HashMap<String, ClassDesc>();
+            map.put(className, getClassDesc(getClass(className), false));
+            td.setName(pairTypeNames[i], map);
 
             pairTdList.add(td);
         }
@@ -888,7 +890,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
             PropertyDesc[] pds = classDescs[i].getPropertyDescs();
             for (int j = 0; j < pds.length; j++) {
-                ClassDesc cd = pds[j].getTypeDesc().getClassDesc();
+                ClassDesc cd = pds[j].getTypeDesc().getComponentClassDesc();
                 if (!cd.isTypeOf(ClassType.DTO)) {
                     continue;
                 }

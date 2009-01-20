@@ -11,17 +11,21 @@ public interface TypeDesc extends Cloneable {
 
     Object clone();
 
-    ClassDesc getClassDesc();
+    ClassDesc getComponentClassDesc();
 
-    void setClassDesc(ClassDesc classDesc);
+    void setComponentClassDesc(ClassDesc classDesc);
 
     void setName(String typeName);
 
     void setName(String typeName, Map<String, ClassDesc> classDescMap);
 
-    boolean isArray();
+    boolean isCollection();
 
-    void setArray(boolean array);
+    void setCollection(boolean collection);
+
+    String getCollectionClassName();
+
+    void setCollectionClassName(String collectionClassName);
 
     boolean isExplicit();
 

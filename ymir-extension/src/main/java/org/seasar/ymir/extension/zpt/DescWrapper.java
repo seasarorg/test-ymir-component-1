@@ -61,7 +61,7 @@ public class DescWrapper {
 
         TypeDesc td = pd.getTypeDesc();
         if (!td.isExplicit() && td.getName().equals("boolean")) {
-            td.setClassDesc(new SimpleClassDesc(String.class.getName()));
+            td.setComponentClassDesc(new SimpleClassDesc(String.class.getName()));
             pd.notifyUpdatingType();
         }
 
@@ -70,7 +70,7 @@ public class DescWrapper {
         cd.setPropertyDesc(pd);
 
         DescWrapper returned = new DescWrapper(this, pd);
-        if (pd.getTypeDesc().isArray()) {
+        if (pd.getTypeDesc().isCollection()) {
             return new DescWrapper[] { returned };
         } else {
             return returned;
@@ -135,7 +135,7 @@ public class DescWrapper {
             analyzerContext_.preparePropertyTypeClassDesc(parent_
                     .getValueClassDesc(), propertyDesc_, true);
 
-            return propertyDesc_.getTypeDesc().getClassDesc();
+            return propertyDesc_.getTypeDesc().getComponentClassDesc();
         }
     }
 
