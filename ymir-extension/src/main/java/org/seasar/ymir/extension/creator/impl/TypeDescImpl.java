@@ -72,7 +72,7 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public TypeDescImpl(String typeName, boolean explicit) {
-        setClassDesc(typeName);
+        setName(typeName);
         explicit_ = explicit;
     }
 
@@ -157,7 +157,7 @@ public class TypeDescImpl implements TypeDesc {
         name_ = null;
     }
 
-    public void setClassDesc(String typeName) {
+    public void setName(String typeName) {
         classDesc_ = new SimpleClassDesc(DescUtils
                 .getNonGenericClassName(getComponentName(typeName.replace('$',
                         '.'))));

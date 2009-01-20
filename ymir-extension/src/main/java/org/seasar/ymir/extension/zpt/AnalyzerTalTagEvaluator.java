@@ -21,6 +21,7 @@ import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.impl.AnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.FormDescImpl;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
+import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 import org.seasar.ymir.scope.annotation.RequestParameter;
@@ -137,7 +138,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         if ("input".equals(name)) {
                             if ("file".equals(type)) {
                                 propertyDesc.getTypeDesc().setClassDesc(
-                                        FormFile.class.getName());
+                                        new SimpleClassDesc(FormFile.class
+                                                .getName()));
                             } else if ("radio".equals(type)) {
                                 propertyDesc.getTypeDesc().setArray(false);
                             }

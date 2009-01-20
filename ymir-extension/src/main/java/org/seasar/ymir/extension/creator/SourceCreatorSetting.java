@@ -24,6 +24,8 @@ public class SourceCreatorSetting {
 
     public static final String APPKEY_SOURCECREATOR_USEFREYJARENDERCLASSES = "extension.sourceCreator.useFreyjaRenderClasses";
 
+    public static final String APPKEY_SOURCECREATOR_GENERATEREPEATEDPROPERTYASLIST = "extension.sourceCreator.generateRepeatedPropertyAsList";
+
     public static final String APPKEY_SOURCECREATOR_SUPERCLASS = "extension.sourceCreator.superclass";
 
     public static final String APPKEYPREFIX_SOURCECREATOR_SUPERCLASS = APPKEY_SOURCECREATOR_SUPERCLASS

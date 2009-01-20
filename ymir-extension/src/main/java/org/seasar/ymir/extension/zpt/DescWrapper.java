@@ -9,6 +9,7 @@ import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
+import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
 
 public class DescWrapper {
     private AnalyzerContext analyzerContext_;
@@ -60,7 +61,7 @@ public class DescWrapper {
 
         TypeDesc td = pd.getTypeDesc();
         if (!td.isExplicit() && td.getName().equals("boolean")) {
-            td.setClassDesc("String");
+            td.setClassDesc(new SimpleClassDesc("String"));
             pd.notifyUpdatingType();
         }
 

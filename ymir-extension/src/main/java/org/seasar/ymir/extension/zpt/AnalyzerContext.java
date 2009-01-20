@@ -75,6 +75,8 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private boolean usingFreyjaRenderClasses_;
 
+    private boolean generateRepeatedPropertyAsList_;
+
     private VariableResolver variableResolver_;
 
     private Set<String> usedAsVariableSet_ = new HashSet<String>();
@@ -204,20 +206,20 @@ public class AnalyzerContext extends ZptTemplateContext {
             ClassDesc valueClassDesc;
             PropertyDesc pd = wrapper.getPropertyDesc();
             if (pd != null) {
-                // 配列型に補正する。
                 TypeDesc td = pd.getTypeDesc();
                 if (!td.isExplicit()) {
-                    td.setArray(true);
-                    ClassDesc classDesc = getTemporaryClassDesc(fromPropertyNameToClassName(
-                            wrapper.getParent() != null ? wrapper.getParent()
-                                    .getValueClassDesc() : null, name));
-                    td.setClassDesc(classDesc);
-                    valueClassDesc = classDesc;
-                    //                    String className = fromPropertyNameToClassName(wrapper
-                    //                            .getParent() != null ? wrapper.getParent()
-                    //                            .getValueClassDesc() : null, name);
-                    //                    valueClassDesc = getTemporaryClassDesc(className);
-                    //                    td.setClassDesc("java.util.List<" + className + ">");
+                    String className = fromPropertyNameToClassName(wrapper
+                            .getParent() != null ? wrapper.getParent()
+                            .getValueClassDesc() : null, name);
+                    valueClassDesc = getTemporaryClassDesc(className);
+                    if (generateRepeatedPropertyAsList_) {
+                        // List型に補正する。
+                        td.setName("java.util.List<" + className + ">");
+                    } else {
+                        // 配列型に補正する。
+                        td.setArray(true);
+                        td.setClassDesc(valueClassDesc);
+                    }
                 } else {
                     valueClassDesc = td.getClassDesc();
                 }
@@ -716,5 +718,10 @@ public class AnalyzerContext extends ZptTemplateContext {
             expression = globalVariableExpression_.get(name);
         }
         return expression;
+    }
+
+    public void setGenerateRepeatedPropertyAsList(
+            boolean generateRepeatedPropertyAsList) {
+        generateRepeatedPropertyAsList_ = generateRepeatedPropertyAsList;
     }
 }
