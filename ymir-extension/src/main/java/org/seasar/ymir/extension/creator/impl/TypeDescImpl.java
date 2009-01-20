@@ -158,9 +158,19 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public void setName(String typeName) {
-        classDesc_ = new SimpleClassDesc(DescUtils
+        setName(typeName, null);
+    }
+
+    public void setName(String typeName, Map<String, ClassDesc> classDescMap) {
+        String className = DescUtils
                 .getNonGenericClassName(getComponentName(typeName.replace('$',
-                        '.'))));
+                        '.')));
+        if (classDescMap != null) {
+            classDesc_ = classDescMap.get(className);
+        }
+        if (classDesc_ == null) {
+            classDesc_ = new SimpleClassDesc(className);
+        }
         array_ = DescUtils.isArray(typeName);
         name_ = normalizePackage(typeName.replace('$', '.'));
     }
@@ -200,6 +210,19 @@ public class TypeDescImpl implements TypeDesc {
             return name_.indexOf('<') >= 0;
         } else {
             return false;
+        }
+    }
+
+    public String getCompleteName() {
+        if (name_ != null) {
+            return name_;
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append(classDesc_.getName());
+            if (array_) {
+                sb.append(ARRAY_SUFFIX);
+            }
+            return sb.toString();
         }
     }
 

@@ -73,6 +73,8 @@ public class ZptAnalyzerTest extends TestCase {
         prepareForTarget(false);
     }
 
+    private AnalyzerContext context_;
+
     void prepareForTarget(final boolean usingFreyjaRenderClasses) {
         target_ = new ZptAnalyzer() {
             @Override
@@ -80,10 +82,14 @@ public class ZptAnalyzerTest extends TestCase {
                 return new AnalyzerTalTagEvaluator() {
                     @Override
                     public TemplateContext newContext() {
-                        TemplateContext context = super.newContext();
-                        context.getVariableResolver().setVariable("saru",
-                                new SaruDto());
-                        return context;
+                        if (context_ != null) {
+                            return context_;
+                        } else {
+                            TemplateContext context = super.newContext();
+                            context.getVariableResolver().setVariable("saru",
+                                    new SaruDto());
+                            return context;
+                        }
                     }
                 };
             }
@@ -452,7 +458,7 @@ public class ZptAnalyzerTest extends TestCase {
         ClassDesc cd = getClassDesc(CLASSNAME);
         assertNotNull(cd);
         PropertyDesc pd = cd.getPropertyDesc("entity");
-        assertEquals("プロパティを持つ変数はDtoの配列になること", "com.example.dto.EntityDto", pd
+        assertEquals("プロパティを持つ変数はDtoになること", "com.example.dto.EntityDto", pd
                 .getTypeDesc().getName());
         cd = getClassDesc("com.example.dto.EntityDto");
         assertNotNull("プロパティを持つ変数の型が生成されていること", cd);
@@ -1058,5 +1064,36 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(cd);
         pd = cd.getPropertyDesc("value");
         assertNotNull(pd);
+    }
+
+    public void testAnalyze62_リピートされるプロパティをListとして自動生成する機能が正しく機能すること()
+            throws Exception {
+
+        context_ = new AnalyzerContext() {
+            @Override
+            public void setRepeatedPropertyGeneratedAsList(
+                    boolean repeatedPropertyGeneratedAsList) {
+                super.setRepeatedPropertyGeneratedAsList(true);
+            }
+        };
+
+        act("testAnalyze62");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        assertNotNull(cd);
+        PropertyDesc pd = cd.getPropertyDesc("strings");
+        assertNotNull(pd);
+        assertTrue(pd.isReadable());
+        assertFalse(pd.getTypeDesc().isExplicit());
+        assertEquals("プロパティを持たないリピート対象変数はStringのListになること",
+                "java.util.List<String>", pd.getTypeDesc().getName());
+
+        pd = cd.getPropertyDesc("entities");
+        assertEquals("プロパティを持つリピート対象変数はDtoのListになること",
+                "java.util.List<com.example.dto.EntityDto>", pd.getTypeDesc()
+                        .getName());
+        cd = getClassDesc("com.example.dto.EntityDto");
+        assertNotNull("プロパティを持つリピート対象変数の型が生成されていること", cd);
+        assertNotNull("Dto型がプロパティを持つこと", cd.getPropertyDesc("content"));
     }
 }

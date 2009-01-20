@@ -120,6 +120,8 @@ public class ZptAnalyzer implements TemplateAnalyzer {
         context.setPageClassName(className);
         context.setUsingFreyjaRenderClasses(sourceCreator_
                 .getSourceCreatorSetting().isUsingFreyjaRenderClasses());
+        context.setRepeatedPropertyGeneratedAsList(sourceCreator_
+                .getSourceCreatorSetting().isRepeatedPropertyGeneratedAsList());
         context.setPropertyTypeHintBag(hintBag);
 
         InputStream inputStream = null;

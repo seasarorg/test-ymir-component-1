@@ -280,6 +280,13 @@ public class SourceCreatorSetting {
                 getProperty(APPKEY_SOURCECREATOR_USEFREYJARENDERCLASSES), true);
     }
 
+    public boolean isRepeatedPropertyGeneratedAsList() {
+        return PropertyUtils
+                .valueOf(
+                        getProperty(APPKEY_SOURCECREATOR_GENERATEREPEATEDPROPERTYASLIST),
+                        false);
+    }
+
     public boolean isFormDtoCreationFeatureEnabled() {
         return PropertyUtils.valueOf(
                 getProperty(APPKEY_SOURCECREATOR_FEATURE_CREATEFORMDTO_ENABLE),

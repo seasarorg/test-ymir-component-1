@@ -129,6 +129,10 @@ public class TypeToken implements Token {
         return null;
     }
 
+    public BaseToken getName() {
+        return name_;
+    }
+
     public String getBaseName() {
         return name_.getBaseName();
     }

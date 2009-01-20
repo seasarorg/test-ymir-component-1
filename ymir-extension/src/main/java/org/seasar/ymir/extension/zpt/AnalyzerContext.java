@@ -33,6 +33,8 @@ import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 import org.seasar.ymir.extension.creator.util.DescUtils;
+import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
+import org.seasar.ymir.extension.creator.util.type.TypeToken;
 import org.seasar.ymir.message.Messages;
 import org.seasar.ymir.message.Note;
 import org.seasar.ymir.message.Notes;
@@ -75,7 +77,7 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private boolean usingFreyjaRenderClasses_;
 
-    private boolean generateRepeatedPropertyAsList_;
+    private boolean repeatedPropertyGeneratedAsList_;
 
     private VariableResolver variableResolver_;
 
@@ -212,7 +214,7 @@ public class AnalyzerContext extends ZptTemplateContext {
                             .getParent() != null ? wrapper.getParent()
                             .getValueClassDesc() : null, name);
                     valueClassDesc = getTemporaryClassDesc(className);
-                    if (generateRepeatedPropertyAsList_) {
+                    if (repeatedPropertyGeneratedAsList_) {
                         // List型に補正する。
                         td.setName("java.util.List<" + className + ">");
                     } else {
@@ -375,15 +377,9 @@ public class AnalyzerContext extends ZptTemplateContext {
             // 解析を進めたが結局DTOであることが確定しなかったので、
             // 型をデフォルトクラスに差し替える。
             // [#YMIR-198] ただし明示的に型を指定されている場合は差し替えない。
-            PropertyDesc[] pds = classDesc.getPropertyDescs();
-            for (int i = 0; i < pds.length; i++) {
-                ClassDesc typeClassDesc = pds[i].getTypeDesc().getClassDesc();
-                if (!pds[i].getTypeDesc().isExplicit()
-                        && isDto(typeClassDesc)
-                        && !temporaryClassDescMap_.containsKey(typeClassDesc
-                                .getName())) {
-                    pds[i].getTypeDesc().setClassDesc(
-                            TypeDesc.DEFAULT_CLASSDESC);
+            for (PropertyDesc pd : classDesc.getPropertyDescs()) {
+                if (!pd.getTypeDesc().isExplicit()) {
+                    replaceSimpleDtoTypeToDefaultType(pd.getTypeDesc());
                 }
             }
             classDesc.merge(classDescMap_.get(name), false);
@@ -402,6 +398,26 @@ public class AnalyzerContext extends ZptTemplateContext {
                 register(classDesc);
             }
         }
+    }
+
+    void replaceSimpleDtoTypeToDefaultType(TypeDesc typeDesc) {
+        TypeToken typeToken = new TypeToken(typeDesc.getCompleteName());
+        typeToken.accept(new TokenVisitor<Object>() {
+            public Object visit(
+                    org.seasar.ymir.extension.creator.util.type.Token acceptor) {
+                String componentName = DescUtils.getComponentName(acceptor
+                        .getBaseName());
+                boolean array = DescUtils.isArray(acceptor.getBaseName());
+                if (isDto(new SimpleClassDesc(componentName))
+                        && !temporaryClassDescMap_.containsKey(componentName)) {
+                    acceptor.setBaseName(DescUtils.getClassName(
+                            TypeDesc.DEFAULT_CLASSDESC.getName(), array));
+                }
+                return null;
+            }
+        });
+
+        typeDesc.setName(typeToken.getAsString(), temporaryClassDescMap_);
     }
 
     void registerAvailablePagesAndDtos(ClassDesc classDesc) {
@@ -720,8 +736,8 @@ public class AnalyzerContext extends ZptTemplateContext {
         return expression;
     }
 
-    public void setGenerateRepeatedPropertyAsList(
-            boolean generateRepeatedPropertyAsList) {
-        generateRepeatedPropertyAsList_ = generateRepeatedPropertyAsList;
+    public void setRepeatedPropertyGeneratedAsList(
+            boolean repeatedPropertyGeneratedAsList) {
+        repeatedPropertyGeneratedAsList_ = repeatedPropertyGeneratedAsList;
     }
 }

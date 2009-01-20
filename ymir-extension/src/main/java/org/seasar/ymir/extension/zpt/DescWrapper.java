@@ -61,7 +61,7 @@ public class DescWrapper {
 
         TypeDesc td = pd.getTypeDesc();
         if (!td.isExplicit() && td.getName().equals("boolean")) {
-            td.setClassDesc(new SimpleClassDesc("String"));
+            td.setClassDesc(new SimpleClassDesc(String.class.getName()));
             pd.notifyUpdatingType();
         }
 

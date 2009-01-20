@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.creator;
 
+import java.util.Map;
+
 import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
 
 public interface TypeDesc extends Cloneable {
@@ -15,6 +17,8 @@ public interface TypeDesc extends Cloneable {
 
     void setName(String typeName);
 
+    void setName(String typeName, Map<String, ClassDesc> classDescMap);
+
     boolean isArray();
 
     void setArray(boolean array);
@@ -28,6 +32,8 @@ public interface TypeDesc extends Cloneable {
     boolean isGeneric();
 
     String getName();
+
+    String getCompleteName();
 
     String getShortName();
 
