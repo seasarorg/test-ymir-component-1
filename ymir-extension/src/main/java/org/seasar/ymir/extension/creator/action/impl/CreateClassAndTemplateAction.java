@@ -110,6 +110,7 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
         }
 
         boolean successfullySynchronized = synchronizeResources(new String[] { getRootPackagePath() });
+        pause(1000L);
         openJavaCodeInEclipseEditor(pathMetaData.getClassName());
 
         Map<String, Object> variableMap = newVariableMap();

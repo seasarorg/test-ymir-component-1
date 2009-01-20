@@ -254,6 +254,13 @@ abstract public class AbstractAction {
         return ngAbsolutePathList.toArray(new String[0]);
     }
 
+    protected void pause(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ignore) {
+        }
+    }
+
     protected void openJavaCodeInEclipseEditor(String className) {
         if (!getSourceCreatorSetting().isResourceSynchronized()) {
             return;

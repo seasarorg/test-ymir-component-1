@@ -265,6 +265,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
 
         boolean successfullySynchronized = synchronizeResources(new String[] {
             getRootPackagePath(), getPath(pathMetaData.getTemplate()) });
+        pause(1000L);
         openJavaCodeInEclipseEditor(pathMetaData.getClassName());
 
         String path = request.getCurrentDispatch().getPath();
