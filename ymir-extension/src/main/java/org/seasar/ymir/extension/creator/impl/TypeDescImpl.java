@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.type.Token;
@@ -37,6 +38,8 @@ public class TypeDescImpl implements TypeDesc {
     private static final String PACKAGEPREFIX_FREYJA_RENDER_CLASS = "net.skirnir.freyja.render.";
 
     private static final String SUFFIX_DTO = "Dto";
+
+    private static final String PROP_LENGTH = "length";
 
     static {
         DEFAULT_VALUE_MAP = new HashMap<String, String>();
@@ -69,10 +72,8 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public TypeDescImpl(String typeName, boolean explicit) {
-        this(new SimpleClassDesc(DescUtils
-                .getNonGenericClassName(getComponentName(typeName.replace('$',
-                        '.')))), DescUtils.isArray(typeName), explicit);
-        name_ = normalizePackage(typeName.replace('$', '.'));
+        setClassDesc(typeName);
+        explicit_ = explicit;
     }
 
     String normalizePackage(String typeName) {
@@ -107,8 +108,8 @@ public class TypeDescImpl implements TypeDesc {
 
     public TypeDescImpl(ClassDesc classDesc, boolean array, boolean explicit) {
         setClassDesc(classDesc);
-        setArray(array);
-        setExplicit(explicit);
+        array_ = array;
+        explicit_ = explicit;
     }
 
     public TypeDescImpl(Class<?> clazz) {
@@ -156,8 +157,12 @@ public class TypeDescImpl implements TypeDesc {
         name_ = null;
     }
 
-    public void setClassDesc(String className) {
-        setClassDesc(new SimpleClassDesc(className));
+    public void setClassDesc(String typeName) {
+        classDesc_ = new SimpleClassDesc(DescUtils
+                .getNonGenericClassName(getComponentName(typeName.replace('$',
+                        '.'))));
+        array_ = DescUtils.isArray(typeName);
+        name_ = normalizePackage(typeName.replace('$', '.'));
     }
 
     public boolean isArray() {
@@ -165,6 +170,14 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public void setArray(boolean array) {
+        if (!array_ && array) {
+            // 配列でないものが配列になった場合はlengthプロパティがあれば（誤生成なので）除去する。
+            ClassDesc cd = getClassDesc();
+            PropertyDesc pd = cd.getPropertyDesc(PROP_LENGTH);
+            if (pd != null) {
+                cd.removePropertyDesc(PROP_LENGTH);
+            }
+        }
         array_ = array;
     }
 
@@ -178,7 +191,7 @@ public class TypeDescImpl implements TypeDesc {
 
     public void transcript(TypeDesc typeDesc) {
         setClassDesc(typeDesc.getClassDesc());
-        setArray(typeDesc.isArray());
+        array_ = typeDesc.isArray();
         name_ = typeDesc.getName();
     }
 

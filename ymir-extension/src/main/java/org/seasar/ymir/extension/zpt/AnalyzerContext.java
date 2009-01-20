@@ -30,6 +30,7 @@ import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
+import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.message.Messages;
@@ -207,14 +208,19 @@ public class AnalyzerContext extends ZptTemplateContext {
                 TypeDesc td = pd.getTypeDesc();
                 if (!td.isExplicit()) {
                     td.setArray(true);
-                    td
-                            .setClassDesc(getTemporaryClassDesc(fromPropertyNameToClassName(
-                                    wrapper.getParent() != null ? wrapper
-                                            .getParent().getValueClassDesc()
-                                            : null, name)));
+                    ClassDesc classDesc = getTemporaryClassDesc(fromPropertyNameToClassName(
+                            wrapper.getParent() != null ? wrapper.getParent()
+                                    .getValueClassDesc() : null, name));
+                    td.setClassDesc(classDesc);
+                    valueClassDesc = classDesc;
+                    //                    String className = fromPropertyNameToClassName(wrapper
+                    //                            .getParent() != null ? wrapper.getParent()
+                    //                            .getValueClassDesc() : null, name);
+                    //                    valueClassDesc = getTemporaryClassDesc(className);
+                    //                    td.setClassDesc("java.util.List<" + className + ">");
+                } else {
+                    valueClassDesc = td.getClassDesc();
                 }
-
-                valueClassDesc = td.getClassDesc();
             } else {
                 valueClassDesc = wrapper.getValueClassDesc();
             }
@@ -400,11 +406,15 @@ public class AnalyzerContext extends ZptTemplateContext {
         if (!register(classDesc)) {
             return;
         }
-        PropertyDesc[] pds = classDesc.getPropertyDescs();
-        for (int i = 0; i < pds.length; i++) {
-            ClassDesc typeClassDesc = pds[i].getTypeDesc().getClassDesc();
-            if (isDto(typeClassDesc)) {
-                registerAvailablePagesAndDtos(typeClassDesc);
+        for (PropertyDesc pd : classDesc.getPropertyDescs()) {
+            for (String className : pd.getTypeDesc().getImportClassNames()) {
+                ClassDesc cd = temporaryClassDescMap_.get(className);
+                if (cd == null) {
+                    cd = new SimpleClassDesc(className);
+                }
+                if (isDto(cd)) {
+                    registerAvailablePagesAndDtos(cd);
+                }
             }
         }
     }

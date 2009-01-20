@@ -13,7 +13,7 @@ public interface TypeDesc extends Cloneable {
 
     void setClassDesc(ClassDesc classDesc);
 
-    void setClassDesc(String className);
+    void setClassDesc(String typeName);
 
     boolean isArray();
 

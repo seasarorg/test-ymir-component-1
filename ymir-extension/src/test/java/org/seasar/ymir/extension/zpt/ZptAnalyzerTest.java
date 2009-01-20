@@ -426,14 +426,15 @@ public class ZptAnalyzerTest extends TestCase {
                 pd.getTypeDesc().getClassDesc().getName());
     }
 
-    public void testAnalyze12() throws Exception {
+    public void testAnalyze12_添字指定があるファイルパラメータについてはプロパティの型がFormFileの配列になること()
+            throws Exception {
 
         act("testAnalyze12");
 
         ClassDesc cd = getClassDesc("com.example.dto.TestDto");
         PropertyDesc pd = cd.getPropertyDesc("files");
-        assertEquals("添字指定があるファイルパラメータについてはプロパティの型がFormFileの配列になること",
-                FormFile.class.getName() + "[]", pd.getTypeDesc().getName());
+        assertEquals(FormFile.class.getName() + "[]", pd.getTypeDesc()
+                .getName());
     }
 
     public void testAnalyze13() throws Exception {
@@ -555,7 +556,7 @@ public class ZptAnalyzerTest extends TestCase {
         act("testAnalyze24");
 
         ClassDesc cd = getClassDesc(CLASSNAME);
-        PropertyDesc pd = cd.getPropertyDesc("comments");
+        PropertyDesc pd = cd.getPropertyDesc("comment");
         assertTrue(pd.getTypeDesc().isArray());
         assertEquals("com.example.dto.CommentDto", pd.getTypeDesc()
                 .getClassDesc().getName());
