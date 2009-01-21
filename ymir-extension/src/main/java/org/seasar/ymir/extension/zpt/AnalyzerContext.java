@@ -753,6 +753,10 @@ public class AnalyzerContext extends ZptTemplateContext {
         return expression;
     }
 
+    public boolean isRepeatedPropertyGeneratedAsList() {
+        return repeatedPropertyGeneratedAsList_;
+    }
+
     public void setRepeatedPropertyGeneratedAsList(
             boolean repeatedPropertyGeneratedAsList) {
         repeatedPropertyGeneratedAsList_ = repeatedPropertyGeneratedAsList;

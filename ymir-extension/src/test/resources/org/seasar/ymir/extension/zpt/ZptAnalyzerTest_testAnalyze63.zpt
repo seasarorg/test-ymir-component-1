@@ -1,0 +1,13 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+  <form action="./index.html">
+    <select name="option">
+      <option tal:repeat="option self/options" tal:content="option/content">CONTENT</option>
+    </select>
+    <input type="submit" value="Go" />
+  </form>
+  </body>
+</html>

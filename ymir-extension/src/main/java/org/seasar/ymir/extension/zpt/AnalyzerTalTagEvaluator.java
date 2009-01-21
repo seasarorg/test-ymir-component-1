@@ -137,9 +137,11 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     if (!propertyDesc.getTypeDesc().isExplicit()) {
                         if ("input".equals(name)) {
                             if ("file".equals(type)) {
-                                propertyDesc.getTypeDesc().setComponentClassDesc(
-                                        new SimpleClassDesc(FormFile.class
-                                                .getName()));
+                                propertyDesc.getTypeDesc()
+                                        .setComponentClassDesc(
+                                                new SimpleClassDesc(
+                                                        FormFile.class
+                                                                .getName()));
                             } else if ("radio".equals(type)) {
                                 propertyDesc.getTypeDesc().setCollection(false);
                             }
@@ -193,8 +195,14 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         PropertyDesc pd = ((DescWrapper[]) evaluated)[0]
                                 .getPropertyDesc();
                         if (pd != null && !pd.getTypeDesc().isExplicit()) {
-                            pd
-                                    .setTypeDesc("net.skirnir.freyja.render.html.OptionTag[]");
+                            if (analyzerContext
+                                    .isRepeatedPropertyGeneratedAsList()) {
+                                pd
+                                        .setTypeDesc("java.util.List<net.skirnir.freyja.render.html.OptionTag>");
+                            } else {
+                                pd
+                                        .setTypeDesc("net.skirnir.freyja.render.html.OptionTag[]");
+                            }
                         }
                     }
                 }

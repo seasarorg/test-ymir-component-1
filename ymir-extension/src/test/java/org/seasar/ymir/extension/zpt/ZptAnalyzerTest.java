@@ -427,7 +427,8 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc cd = getClassDesc("com.example.web.ActionPage");
         PropertyDesc pd = cd.getPropertyDesc("tests");
-        assertTrue("フォームパラメータ名に添字指定がある場合は配列になること", pd.getTypeDesc().isCollection());
+        assertTrue("フォームパラメータ名に添字指定がある場合は配列になること", pd.getTypeDesc()
+                .isCollection());
         assertEquals("tests配列プロパティのDto型名は単数形になること", "com.example.dto.TestDto",
                 pd.getTypeDesc().getComponentClassDesc().getName());
     }
@@ -584,8 +585,8 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc cd = getClassDesc(CLASSNAME);
         PropertyDesc pd = cd.getPropertyDesc("results");
-        assertEquals(Note.class.getName(), pd.getTypeDesc().getComponentClassDesc()
-                .getName());
+        assertEquals(Note.class.getName(), pd.getTypeDesc()
+                .getComponentClassDesc().getName());
         assertNull(getClassDesc(Note.class.getName()));
         assertNull(getClassDesc("com.example.dto.ResultDto"));
     }
@@ -630,7 +631,8 @@ public class ZptAnalyzerTest extends TestCase {
         PropertyDesc pd = cd.getPropertyDesc("information");
         assertEquals("com.example.dto.InformationDto", pd.getTypeDesc()
                 .getName());
-        pd = pd.getTypeDesc().getComponentClassDesc().getPropertyDesc("entries");
+        pd = pd.getTypeDesc().getComponentClassDesc()
+                .getPropertyDesc("entries");
         assertEquals("com.example.dto.EntryDto[]", pd.getTypeDesc().getName());
     }
 
@@ -760,8 +762,8 @@ public class ZptAnalyzerTest extends TestCase {
 
         assertNotNull(getClassDesc("com.example.dto.RepeatEntryDto"));
         assertEquals("com.example.dto.RepeatEntryDto", getClassDesc(CLASSNAME)
-                .getPropertyDesc("entryList").getTypeDesc().getComponentClassDesc()
-                .getName());
+                .getPropertyDesc("entryList").getTypeDesc()
+                .getComponentClassDesc().getName());
     }
 
     public void testAnalyze43_hrefに書かれたリクエストパラメータのsetterが追加されること()
@@ -1066,7 +1068,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(pd);
     }
 
-    public void testAnalyze62_リピートされるプロパティをListとして自動生成する機能が正しく機能すること()
+    public void testAnalyze62_YMIR_279_リピートされるプロパティをListとして自動生成する機能が正しく機能すること()
             throws Exception {
 
         context_ = new AnalyzerContext() {
@@ -1095,5 +1097,55 @@ public class ZptAnalyzerTest extends TestCase {
         cd = getClassDesc("com.example.dto.EntityDto");
         assertNotNull("プロパティを持つリピート対象変数の型が生成されていること", cd);
         assertNotNull("Dto型がプロパティを持つこと", cd.getPropertyDesc("content"));
+    }
+
+    public void testAnalyze63_YMIR_279_リピートされるプロパティをListとして自動生成する機能が正しく機能すること_OptionTag()
+            throws Exception {
+
+        context_ = new AnalyzerContext() {
+            @Override
+            public void setUsingFreyjaRenderClasses(
+                    boolean usingFreyjaRenderClasses) {
+                super.setUsingFreyjaRenderClasses(true);
+            }
+        };
+
+        act("testAnalyze63");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        assertNotNull(cd);
+        PropertyDesc pd = cd.getPropertyDesc("options");
+        assertNotNull(pd);
+        assertTrue(pd.isReadable());
+        assertFalse(pd.getTypeDesc().isExplicit());
+        assertEquals("デフォルトではリピート対象変数がOptionTagの配列になること",
+                "net.skirnir.freyja.render.html.OptionTag[]", pd.getTypeDesc()
+                        .getName());
+
+        context_ = new AnalyzerContext() {
+            @Override
+            public void setRepeatedPropertyGeneratedAsList(
+                    boolean repeatedPropertyGeneratedAsList) {
+                super.setRepeatedPropertyGeneratedAsList(true);
+            }
+
+            @Override
+            public void setUsingFreyjaRenderClasses(
+                    boolean usingFreyjaRenderClasses) {
+                super.setUsingFreyjaRenderClasses(true);
+            }
+        };
+
+        act("testAnalyze63");
+
+        cd = getClassDesc(CLASSNAME);
+        assertNotNull(cd);
+        pd = cd.getPropertyDesc("options");
+        assertNotNull(pd);
+        assertTrue(pd.isReadable());
+        assertFalse(pd.getTypeDesc().isExplicit());
+        assertEquals("リピート対象変数がOptionTagのListになること",
+                "java.util.List<net.skirnir.freyja.render.html.OptionTag>", pd
+                        .getTypeDesc().getName());
     }
 }
