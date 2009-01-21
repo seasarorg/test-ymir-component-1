@@ -10,12 +10,15 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.conversation.Conversation;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
+import org.seasar.ymir.util.StringUtils;
 
 /**
  * このクラスはスレッドセーフです。
  */
 public class ConversationImpl implements Conversation, Serializable {
     private static final long serialVersionUID = -994133844419542105L;
+
+    private static final String LS = System.getProperty("line.separator");
 
     private transient HotdeployManager hotdeployManager_;
 
@@ -43,7 +46,15 @@ public class ConversationImpl implements Conversation, Serializable {
 
     @Override
     public String toString() {
-        return getName();
+        StringBuilder sb = new StringBuilder();
+        sb.append(super.toString()).append("{").append(LS);
+        sb.append("  name=").append(name_).append(LS);
+        sb.append("  phase=").append(phase_).append(LS);
+        sb.append("  reenterResponse=").append(reenterResponse_).append(LS);
+        sb.append("  attributes=").append(
+                StringUtils.addIndent(attributeMap_, "  ")).append(LS);
+        sb.append("}");
+        return sb.toString();
     }
 
     private Object readResolve() throws ObjectStreamException {

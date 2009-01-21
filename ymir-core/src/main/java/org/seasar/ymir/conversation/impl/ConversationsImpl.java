@@ -13,12 +13,15 @@ import org.seasar.ymir.conversation.Conversation;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.conversation.IllegalTransitionRuntimeException;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
+import org.seasar.ymir.util.StringUtils;
 
 /**
  * このクラスはスレッドセーフです。
  */
 public class ConversationsImpl implements Conversations, Serializable {
     private static final long serialVersionUID = 378981595198068349L;
+
+    private static final String LS = System.getProperty("line.separator");
 
     private transient HotdeployManager hotdeployManager_;
 
@@ -36,6 +39,20 @@ public class ConversationsImpl implements Conversations, Serializable {
 
     public void setApplicationManager(ApplicationManager applicationManager) {
         applicationManager_ = applicationManager;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(super.toString()).append("{").append(LS);
+        sb.append("  enteredInSubConversation=").append(
+                enteredInSubConversation_).append(LS);
+        sb.append("  current=").append(
+                StringUtils.addIndent(currentConversation_, "  ")).append(LS);
+        sb.append("  stack=").append(
+                StringUtils.addIndent(conversationStack_, "  ")).append(LS);
+        sb.append("}");
+        return sb.toString();
     }
 
     private Object readResolve() throws ObjectStreamException {

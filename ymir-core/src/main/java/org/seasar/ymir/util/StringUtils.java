@@ -1,11 +1,16 @@
 package org.seasar.ymir.util;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 
 public class StringUtils {
+    private static final String LS = System.getProperty("line.separator");
+
     private StringUtils() {
     }
 
@@ -82,5 +87,47 @@ public class StringUtils {
         }
         return new LinkedHashSet<String>(Arrays.asList(strings))
                 .toArray(new String[0]);
+    }
+
+    /**
+     * 指定されたオブジェクトの文字列表現の各行にインデント文字を追加します。
+     * <p>オブジェクトとしてnullが指定された場合はnullを返します。
+     * </p>
+     * 
+     * @param obj 対象となるオブジェクト。nullを指定することもできます。
+     * @param indent インデント文字。nullを指定してはいけません。
+     * @return インデントを付加した文字列。
+     * @since 1.0.1
+     */
+    public static String addIndent(Object obj, String indent) {
+        if (obj == null) {
+            return null;
+        }
+        String text = obj.toString();
+        if (text.length() == 0) {
+            return text;
+        }
+
+        BufferedReader br = new BufferedReader(new StringReader(text));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        String delim = "";
+        String idt = "";
+        try {
+            while ((line = br.readLine()) != null) {
+                sb.append(delim).append(idt).append(line);
+                delim = LS;
+                idt = indent;
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException("Can't happen!", ex);
+        }
+
+        char lastChar = text.charAt(text.length() - 1);
+        if (lastChar == '\n' || lastChar == '\r') {
+            sb.append(LS);
+        }
+
+        return sb.toString();
     }
 }
