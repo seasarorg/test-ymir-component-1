@@ -57,7 +57,7 @@
     <dependency>
       <groupId>net.skirnir.freyja</groupId>
       <artifactId>freyja</artifactId>
-      <version>1.0.11</version>
+      <version>1.0.12-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
