@@ -38,6 +38,11 @@ public class DoUpdateTemplateAction extends DoEditTemplateAction {
                     + template.getPath(), ex);
         }
 
+        // [#YMIR-281]【概要】2.の問題に対処するために同期している。
+        // 同期しておかないと「インプレースエディタでHTMLを修正→自動生成画面→スキップ→EclipseでHTMLを編集」とする場合に
+        // Eclipseで警告が表示されてしまう。
+        synchronizeResources(new String[] { getPath(template) });
+
         return VoidResponse.INSTANCE;
     }
 }

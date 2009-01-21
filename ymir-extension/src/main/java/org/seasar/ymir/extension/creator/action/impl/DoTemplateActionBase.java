@@ -7,14 +7,13 @@ import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 
-abstract public class DoTemplateActionBase implements UpdateAction {
+abstract public class DoTemplateActionBase extends AbstractAction implements
+        UpdateAction {
 
     private static final String PARAM_PATH = "path";
 
-    protected SourceCreator sourceCreator_;
-
     public DoTemplateActionBase(SourceCreator sourceCreator) {
-        sourceCreator_ = sourceCreator;
+        super(sourceCreator);
     }
 
     protected Template getTemplate(Request request) {
@@ -22,7 +21,7 @@ abstract public class DoTemplateActionBase implements UpdateAction {
         if (path == null) {
             return null;
         } else {
-            return sourceCreator_.getTemplate(path);
+            return getSourceCreator().getTemplate(path);
         }
     }
 
@@ -36,7 +35,8 @@ abstract public class DoTemplateActionBase implements UpdateAction {
             path = path.substring(0, question);
         }
 
-        HttpServletRequest httpRequest = sourceCreator_.getHttpServletRequest();
+        HttpServletRequest httpRequest = getSourceCreator()
+                .getHttpServletRequest();
         String requestURL = httpRequest.getRequestURL().toString();
         String webappRootURL = requestURL.substring(0, requestURL.length()
                 - httpRequest.getRequestURI().length())
