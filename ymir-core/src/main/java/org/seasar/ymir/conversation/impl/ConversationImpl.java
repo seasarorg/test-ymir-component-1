@@ -1,5 +1,9 @@
 package org.seasar.ymir.conversation.impl;
 
+import static org.seasar.ymir.util.LogUtils.DELIM;
+import static org.seasar.ymir.util.LogUtils.INDENT;
+import static org.seasar.ymir.util.LogUtils.LS;
+
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.Iterator;
@@ -10,15 +14,13 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.conversation.Conversation;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
-import org.seasar.ymir.util.StringUtils;
+import org.seasar.ymir.util.LogUtils;
 
 /**
  * このクラスはスレッドセーフです。
  */
 public class ConversationImpl implements Conversation, Serializable {
     private static final long serialVersionUID = -994133844419542105L;
-
-    private static final String LS = System.getProperty("line.separator");
 
     private transient HotdeployManager hotdeployManager_;
 
@@ -48,11 +50,13 @@ public class ConversationImpl implements Conversation, Serializable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(super.toString()).append("{").append(LS);
-        sb.append("  name=").append(name_).append(LS);
-        sb.append("  phase=").append(phase_).append(LS);
-        sb.append("  reenterResponse=").append(reenterResponse_).append(LS);
-        sb.append("  attributes=").append(
-                StringUtils.addIndent(attributeMap_, "  ")).append(LS);
+        sb.append(INDENT).append("name=").append(name_);
+        sb.append(DELIM).append("phase=").append(phase_);
+        sb.append(DELIM).append("reenterResponse=").append(reenterResponse_)
+                .append(LS);
+        sb.append(INDENT).append("attributes=").append(
+                LogUtils.addIndent(LogUtils.toString(attributeMap_)))
+                .append(LS);
         sb.append("}");
         return sb.toString();
     }

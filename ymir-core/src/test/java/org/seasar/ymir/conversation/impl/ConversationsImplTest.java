@@ -131,4 +131,18 @@ public class ConversationsImplTest extends TestCase {
         assertEquals("conversation1", target_.getCurrentConversationName());
         assertEquals("phase1", target_.getCurrentConversation().getPhase());
     }
+
+    public void testname() throws Exception {
+        target_.begin("conversation1", "phase1");
+        target_.beginSubConversation("/reenter1.html");
+        target_.begin("conversation2", "phase1");
+
+        target_.beginSubConversation("/reenter2.html");
+        target_.begin("conversation3", "phase1");
+        
+        target_.setAttribute("attr1", "value1");
+        target_.setAttribute("attr2", "value2");
+
+        System.out.println(target_.toString());
+    }
 }

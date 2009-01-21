@@ -22,7 +22,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.util.BooleanConversionUtil;
-import org.seasar.ymir.util.StringUtils;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.util.LogUtils;
 
 /**
  * リクエストの情報を出力するためのフィルタです。
@@ -266,7 +267,7 @@ public class RequestLoggingFilter implements Filter {
             Object attr = request.getAttribute(name);
             sb.append(IND);
             sb.append("[request] ").append(name).append("=").append(
-                    StringUtils.addIndent(attr, IND));
+                    LogUtils.addIndent(filterAttribute(attr), IND));
             sb.append(LF);
         }
     }
@@ -283,8 +284,18 @@ public class RequestLoggingFilter implements Filter {
             final Object attr = session.getAttribute(name);
             sb.append(IND);
             sb.append("[session] ").append(name).append("=").append(
-                    StringUtils.addIndent(attr, IND));
+                    LogUtils.addIndent(filterAttribute(attr), IND));
             sb.append(LF);
+        }
+    }
+
+    protected Object filterAttribute(Object attribute) {
+        if (attribute instanceof Response) {
+            // Responseの実装クラスは場合によってはtoString()すると内容が全て吐き出されてしまったりすることがあり冗長なので出力しないようにする。
+            return attribute.getClass().getName() + "@"
+                    + System.identityHashCode(attribute);
+        } else {
+            return attribute;
         }
     }
 
