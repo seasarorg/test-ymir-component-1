@@ -22,6 +22,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.util.BooleanConversionUtil;
+import org.seasar.ymir.util.StringUtils;
 
 /**
  * リクエストの情報を出力するためのフィルタです。
@@ -117,20 +118,20 @@ public class RequestLoggingFilter implements Filter {
     protected void before(HttpServletRequest request,
             HttpServletResponse response) {
         final StringBuilder sb = new StringBuilder();
-        sb.append("* * * * * * * * * * {BEGIN}: " + gerServletPath(request));
-        sb.append(LF).append(IND);
-        sb.append("Request=").append(request.toString().trim());
+        sb.append("* * * * * * * * * * {BEGIN}: " + gerServletPath(request))
+                .append(LF);
+        sb.append(IND).append("Request=").append(request.toString().trim())
+                .append(LF);
 
-        sb.append(LF).append(IND);
-        sb.append("RequestedSessionId=")
-                .append(request.getRequestedSessionId());
+        sb.append(IND).append("RequestedSessionId=").append(
+                request.getRequestedSessionId()).append(LF);
 
-        sb.append(LF).append(IND);
-        sb.append("REQUEST_URI=").append(request.getRequestURI());
-        sb.append(", SERVLET_PATH=").append(request.getServletPath());
+        sb.append(IND).append("REQUEST_URI=").append(request.getRequestURI());
+        sb.append(", SERVLET_PATH=").append(request.getServletPath())
+                .append(LF);
 
-        sb.append(LF).append(IND);
-        sb.append("CharacterEncoding=" + request.getCharacterEncoding());
+        sb.append(IND).append(
+                "CharacterEncoding=" + request.getCharacterEncoding());
         sb.append(", ContentLength=").append(request.getContentLength());
         sb.append(", ContentType=").append(request.getContentType());
         sb.append(", Locale=").append(request.getLocale());
@@ -147,25 +148,22 @@ public class RequestLoggingFilter implements Filter {
             sb.append(locale.toString());
         }
         sb.append(", Scheme=").append(request.getScheme());
-        sb.append(", isSecure=").append(request.isSecure());
+        sb.append(", isSecure=").append(request.isSecure()).append(LF);
 
-        sb.append(LF).append(IND);
-        sb.append("SERVER_PROTOCOL=").append(request.getProtocol());
+        sb.append(IND).append("SERVER_PROTOCOL=").append(request.getProtocol());
         sb.append(", REMOTE_ADDR=").append(request.getRemoteAddr());
         sb.append(", REMOTE_HOST=").append(request.getRemoteHost());
         sb.append(", SERVER_NAME=").append(request.getServerName());
-        sb.append(", SERVER_PORT=").append(request.getServerPort());
+        sb.append(", SERVER_PORT=").append(request.getServerPort()).append(LF);
 
-        sb.append(LF).append(IND);
-        sb.append("ContextPath=").append(request.getContextPath());
+        sb.append(IND).append("ContextPath=").append(request.getContextPath());
         sb.append(", REQUEST_METHOD=").append(request.getMethod());
         sb.append(", PathInfo=").append(request.getPathInfo());
-        sb.append(", RemoteUser=").append(request.getRemoteUser());
+        sb.append(", RemoteUser=").append(request.getRemoteUser()).append(LF);
 
-        sb.append(LF).append(IND);
-        sb.append("QUERY_STRING=").append(request.getQueryString());
+        sb.append(IND).append("QUERY_STRING=").append(request.getQueryString())
+                .append(LF);
 
-        sb.append(LF);
         buildRequestHeaders(sb, request);
         buildCookies(sb, request);
         buildRequestParameters(sb, request);
@@ -182,18 +180,27 @@ public class RequestLoggingFilter implements Filter {
     protected void after(HttpServletRequest request,
             HttpServletResponse response, Long before, Long after) {
         final StringBuilder sb = new StringBuilder();
-        sb.append(LF).append(IND);
-        sb.append("Response class=" + response.getClass().getName());
+        sb.append(LF);
+
+        sb.append(IND).append("Response=")
+                .append(response.getClass().getName()).append(LF);
+        sb.append(IND).append("CharacterEncoding=").append(
+                response.getCharacterEncoding());
+        sb.append(", ContentType=").append(response.getContentType());
+        sb.append(", Locale=").append(response.getLocale());
         // It is possible that Response toString() show all HTML strings.
         // sb.append(", instance=").append(response.toString().trim());
         sb.append(LF);
+
+        buildRequestAttributes(sb, request);
         buildSessionAttributes(sb, request);
+
         sb.append("* * * * * * * * * * {END}: ")
                 .append(gerServletPath(request));
-        sb.append(" ["
-                + convertToPerformanceView(after.longValue()
-                        - before.longValue()) + "]");
-        sb.append(LF);
+        sb.append(
+                " ["
+                        + convertToPerformanceView(after.longValue()
+                                - before.longValue()) + "]").append(LF);
         sb.append(LF);
 
         String logString = sb.toString();
@@ -258,7 +265,8 @@ public class RequestLoggingFilter implements Filter {
             String name = (String) it.next();
             Object attr = request.getAttribute(name);
             sb.append(IND);
-            sb.append("[request] ").append(name).append("=").append(attr);
+            sb.append("[request] ").append(name).append("=").append(
+                    StringUtils.addIndent(attr, IND));
             sb.append(LF);
         }
     }
@@ -274,7 +282,8 @@ public class RequestLoggingFilter implements Filter {
             final String name = (String) it.next();
             final Object attr = session.getAttribute(name);
             sb.append(IND);
-            sb.append("[session] ").append(name).append("=").append(attr);
+            sb.append("[session] ").append(name).append("=").append(
+                    StringUtils.addIndent(attr, IND));
             sb.append(LF);
         }
     }
