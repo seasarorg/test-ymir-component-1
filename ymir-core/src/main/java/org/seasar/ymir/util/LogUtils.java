@@ -3,15 +3,13 @@ package org.seasar.ymir.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
-import javax.servlet.http.HttpSession;
 
 /**
  * ログ出力用のユーティリティクラスです。
@@ -94,5 +92,27 @@ public class LogUtils {
         final SortedSet<V> set = new TreeSet<V>();
         set.addAll(collection);
         return set;
+    }
+
+    public static String toString(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        if (obj instanceof Map) {
+            return toString((Map<?, ?>) obj);
+        } else if (obj.getClass().isArray()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("[");
+            String delim = "";
+            int length = Array.getLength(obj);
+            for (int i = 0; i < length; i++) {
+                sb.append(delim).append(Array.get(obj, i));
+                delim = DELIM;
+            }
+            sb.append("]");
+            return sb.toString();
+        } else {
+            return obj.toString();
+        }
     }
 }
