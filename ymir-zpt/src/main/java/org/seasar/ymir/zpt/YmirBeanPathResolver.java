@@ -1,6 +1,10 @@
 package org.seasar.ymir.zpt;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.beanutils.NestedNullException;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -68,8 +72,15 @@ public class YmirBeanPathResolver implements PathResolver {
             PropertyHandler handler = typeConversionManager.getPropertyHandler(
                     obj, child);
             if (handler != null) {
-                hint = getAnnotationHandler().getMarkedAnnotations(
-                        handler.getWriteMethod(), TypeConversionHint.class);
+                List<Annotation> hintList = new ArrayList<Annotation>();
+                AnnotationHandler annotationHandler = getAnnotationHandler();
+                hintList.addAll(Arrays.asList(annotationHandler
+                        .getMarkedAnnotations(handler.getReadMethod(),
+                                TypeConversionHint.class)));
+                hintList.addAll(Arrays.asList(annotationHandler
+                        .getMarkedAnnotations(handler.getWriteMethod(),
+                                TypeConversionHint.class)));
+                hint = hintList.toArray(new Annotation[0]);
             }
         }
         context.setAttribute(ATTR_TYPECONVERSION_HINT, hint);
