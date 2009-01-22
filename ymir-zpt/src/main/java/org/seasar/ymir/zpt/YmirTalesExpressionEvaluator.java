@@ -3,6 +3,8 @@ package org.seasar.ymir.zpt;
 import org.seasar.ymir.message.impl.NoteRendererImpl;
 
 import net.skirnir.freyja.zpt.tales.NoteLocalizer;
+import net.skirnir.freyja.zpt.tales.PathTypePrefixHandler;
+import net.skirnir.freyja.zpt.tales.UtilityPathResolver;
 import net.skirnir.freyja.zpt.webapp.ServletTalesExpressionEvaluator;
 
 public class YmirTalesExpressionEvaluator extends
@@ -16,6 +18,13 @@ public class YmirTalesExpressionEvaluator extends
                         new LocalizationPathResolver()
                                 .setNoteLocalizer(noteLocalizer));
         addTypePrefix(TYPE_I18NPAGE, new I18NPageTypePrefixHandler());
+    }
+
+    @Override
+    protected PathTypePrefixHandler newPathTypePrefixHandler(char pathExpDelim) {
+        return new PathTypePrefixHandler(pathExpDelim).addPathResolver(
+                new YmirBeanPathResolver()).addPathResolver(
+                new UtilityPathResolver());
     }
 
     protected YmirNoteLocalizer newNoteLocalilzer() {

@@ -18,6 +18,10 @@ public class YmirTagEvaluator extends MetalTagEvaluator {
 
     private String[] specialAttributePatternStrings_;
 
+    public YmirTagEvaluator() {
+        super(new YmirTalTagEvaluator());
+    }
+
     @Override
     public void setProperties(Properties properties) {
         super.setProperties(properties);
