@@ -20,7 +20,7 @@ public class ScopeAttributePopulatorITest extends YmirTestCase {
                 getComponent(ScopeManager.class),
                 getComponent(TypeConversionManager.class));
         target.addEntry(ScopeAttributePopulatorTestPage.class.getMethod(
-                "getAaa", new Class[0]), new String[0]);
+                "getAaa", new Class[0]), false, new String[0]);
         final Request request = prepareForProcessing(
                 "/scopeAttributePopulatorTest.html", HttpMethod.GET,
                 "aaa.bbb=AAA");
