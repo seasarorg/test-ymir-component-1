@@ -129,9 +129,11 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
         }
 
         if (populate.name().length() == 0) {
-            populator.addEntry(method, populate.actionName());
+            populator.addEntry(method, populate.populateWhereNull(), populate
+                    .actionName());
         } else {
-            populator.addEntry(populate.name(), method, populate.actionName());
+            populator.addEntry(populate.name(), method, populate
+                    .populateWhereNull(), populate.actionName());
         }
     }
 

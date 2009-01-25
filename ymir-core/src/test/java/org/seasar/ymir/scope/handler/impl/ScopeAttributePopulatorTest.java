@@ -21,7 +21,7 @@ public class ScopeAttributePopulatorTest extends ComponentClientTestCase {
                 getComponent(TypeConversionManager.class));
 
         scope.setAttribute("bean.aaa[1].bbb(key).mapped(key)", "value");
-        target_.addEntry(Page.class.getMethod("getBean", new Class[0]),
+        target_.addEntry(Page.class.getMethod("getBean", new Class[0]), false,
                 new String[] { "_post" });
     }
 

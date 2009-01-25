@@ -43,13 +43,16 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
         typeConversionManager_ = typeConversionManager;
     }
 
-    public void addEntry(Method method, String[] enabledActionNames) {
-        entryByMethodMap_.put(method, new Entry(method, enabledActionNames,
-                true));
+    public void addEntry(Method method, boolean populateWhereNull,
+            String[] enabledActionNames) {
+        entryByMethodMap_.put(method, new Entry(method, populateWhereNull,
+                enabledActionNames, true));
     }
 
-    public void addEntry(String name, Method method, String[] enabledActionNames) {
-        entryByNameMap_.put(name, new Entry(method, enabledActionNames, false));
+    public void addEntry(String name, Method method, boolean populateWhereNull,
+            String[] enabledActionNames) {
+        entryByNameMap_.put(name, new Entry(method, populateWhereNull,
+                enabledActionNames, false));
     }
 
     public void populateTo(Object component, String actionName) {
@@ -98,12 +101,16 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
     protected class Entry {
         private Method method_;
 
+        private boolean invokeWhereNull_;
+
         private Set<String> enabledActionNameSet_;
 
         private boolean passive_;
 
-        public Entry(Method method, String[] enabledActionNames, boolean passive) {
+        public Entry(Method method, boolean invokeWhereNull,
+                String[] enabledActionNames, boolean passive) {
             method_ = method;
+            invokeWhereNull_ = invokeWhereNull;
             if (enabledActionNames.length > 0) {
                 enabledActionNameSet_ = new HashSet<String>(Arrays
                         .asList(enabledActionNames));
@@ -128,7 +135,7 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
                     .getMarkedAnnotations(handler.getWriteMethod(),
                             TypeConversionHint.class), false, true);
 
-            if (value != null) {
+            if (value != null || invokeWhereNull_) {
                 boolean removeValue = false;
                 try {
                     handler.setProperty(value);
@@ -136,7 +143,7 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
                     // Exceptionをスローしつつ値を消すようにする。
                     removeValue = true;
                     throw new IORuntimeException(
-                            "Can't inject scope attribute: scope=" + scope_
+                            "Can't populate scope attribute: scope=" + scope_
                                     + ", attribute name=" + name + ", value="
                                     + value + ", write method=" + method_, t);
                 } finally {
