@@ -1081,6 +1081,43 @@ public class SourceCreatorImpl implements SourceCreator {
                     generated.removePropertyDesc(pds[i].getName());
                 }
             }
+            // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
+            // GeneratedにあるアノテーションのうちBaseにもあるものを除去しておく。
+            PropertyDesc generatedPd = generated.getPropertyDesc(pds[i]
+                    .getName());
+            if (basePd != null && generatedPd != null) {
+                List<AnnotationDesc> list = new ArrayList<AnnotationDesc>();
+                for (AnnotationDesc ad : generatedPd.getAnnotationDescs()) {
+                    if (DescUtils.isMetaAnnotation(ad)
+                            || basePd.getAnnotationDesc(ad.getName()) == null) {
+                        list.add(ad);
+                    }
+                }
+                generatedPd.setAnnotationDescs(list
+                        .toArray(new AnnotationDesc[0]));
+
+                list = new ArrayList<AnnotationDesc>();
+                for (AnnotationDesc ad : generatedPd
+                        .getAnnotationDescsForGetter()) {
+                    if (DescUtils.isMetaAnnotation(ad)
+                            || basePd.getAnnotationDescForGetter(ad.getName()) == null) {
+                        list.add(ad);
+                    }
+                }
+                generatedPd.setAnnotationDescsForGetter(list
+                        .toArray(new AnnotationDesc[0]));
+
+                list = new ArrayList<AnnotationDesc>();
+                for (AnnotationDesc ad : generatedPd
+                        .getAnnotationDescsForSetter()) {
+                    if (DescUtils.isMetaAnnotation(ad)
+                            || basePd.getAnnotationDescForSetter(ad.getName()) == null) {
+                        list.add(ad);
+                    }
+                }
+                generatedPd.setAnnotationDescsForSetter(list
+                        .toArray(new AnnotationDesc[0]));
+            }
         }
         MethodDesc[] mds = generated.getMethodDescs();
         for (int i = 0; i < mds.length; i++) {
@@ -1100,6 +1137,19 @@ public class SourceCreatorImpl implements SourceCreator {
                             superMd.getReturnTypeDesc())) {
                 generatedMd.setReturnTypeDesc((TypeDesc) superMd
                         .getReturnTypeDesc().clone());
+            }
+            // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
+            // GeneratedにあるアノテーションのうちBaseにもあるものを除去しておく。
+            if (baseMd != null && generated.getMethodDesc(generatedMd) != null) {
+                List<AnnotationDesc> list = new ArrayList<AnnotationDesc>();
+                for (AnnotationDesc ad : generatedMd.getAnnotationDescs()) {
+                    if (DescUtils.isMetaAnnotation(ad)
+                            || baseMd.getAnnotationDesc(ad.getName()) == null) {
+                        list.add(ad);
+                    }
+                }
+                generatedMd.setAnnotationDescs(list
+                        .toArray(new AnnotationDesc[0]));
             }
         }
 

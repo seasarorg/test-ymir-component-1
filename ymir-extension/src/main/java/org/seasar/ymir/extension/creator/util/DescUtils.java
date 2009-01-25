@@ -16,9 +16,15 @@ import java.util.Map;
 import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Metas;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
+import org.seasar.ymir.extension.creator.BodyDesc;
+import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.MetasAnnotationDesc;
+import org.seasar.ymir.extension.creator.MethodDesc;
+import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.impl.AnnotationDescImpl;
+import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.MetasAnnotationDescImpl;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
@@ -292,5 +298,104 @@ public class DescUtils {
                 || "int".equals(name) || "long".equals(name)
                 || "float".equals(name) || "double".equals(name)
                 || "char".equals(name) || "boolean".equals(name));
+    }
+
+    public static boolean isMetaAnnotation(AnnotationDesc ad) {
+        return ad != null
+                && (Meta.class.getName().equals(ad.getName()) || Metas.class
+                        .getName().equals(ad.getName()));
+    }
+
+    public static void merge(PropertyDesc pd1, PropertyDesc pd2, boolean force) {
+        DescUtils.merge(pd1.getTypeDesc(), pd2.getTypeDesc(), force);
+        pd1.addMode(pd2.getMode());
+        pd1.setAnnotationDescs(DescUtils.merge(pd1.getAnnotationDescs(), pd2
+                .getAnnotationDescs(), force));
+        pd1.setAnnotationDescsForGetter(DescUtils.merge(pd1
+                .getAnnotationDescsForGetter(), pd2
+                .getAnnotationDescsForGetter(), force));
+        pd1.setAnnotationDescsForSetter(DescUtils.merge(pd1
+                .getAnnotationDescsForSetter(), pd2
+                .getAnnotationDescsForSetter(), force));
+    }
+
+    public static void merge(MethodDesc md1, MethodDesc md2, boolean force) {
+        if (force) {
+            // パラメータ名をコピーするためにこうしている。
+            md1.setParameterDescs(md2.getParameterDescs());
+        }
+
+        TypeDesc returnTd = md1.getReturnTypeDesc();
+        TypeDesc returnTypeDesc = md2.getReturnTypeDesc();
+        if (DescUtils.merge(returnTd, returnTypeDesc, force)) {
+            BodyDesc bodyDesc = md2.getBodyDesc();
+            if (bodyDesc != null) {
+                md1.setBodyDesc(md2.getBodyDesc());
+            }
+        }
+        md1.setAnnotationDescs(DescUtils.merge(md1.getAnnotationDescs(), md2
+                .getAnnotationDescs(), force));
+    }
+
+    public static boolean merge(TypeDesc td, TypeDesc typeDesc, boolean force) {
+        if (td.equals(typeDesc)) {
+            // force == trueの場合は強制的に上書き扱いなので、上書きしたということにするためにtrueを返すようになっている。
+            return force;
+        } else if (!force && !td.isExplicit() && typeDesc.isExplicit() || force
+                && (!td.isExplicit() || typeDesc.isExplicit())) {
+            td.transcript(typeDesc);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static AnnotationDesc[] merge(AnnotationDesc[] ads,
+            AnnotationDesc[] annotationDescs, boolean force) {
+        ClassDesc dummyCd = new ClassDescImpl("");
+        Map<String, AnnotationDesc> adMap = new LinkedHashMap<String, AnnotationDesc>();
+        for (AnnotationDesc ad : ads) {
+            if (isMetaAnnotation(ad)) {
+                dummyCd.setAnnotationDesc(ad);
+            } else {
+                adMap.put(ad.getName(), ad);
+            }
+        }
+        for (AnnotationDesc annotationDesc : annotationDescs) {
+            if (isMetaAnnotation(annotationDesc)) {
+                if (force) {
+                    dummyCd.setAnnotationDesc(annotationDesc);
+                } else {
+                    ClassDesc dummyCd2 = new ClassDescImpl("");
+                    dummyCd2.setAnnotationDesc(annotationDesc);
+                    for (MetaAnnotationDesc mad : dummyCd2
+                            .getMetaAnnotationDescs()) {
+                        if (!dummyCd.hasMeta(mad.getMetaName())) {
+                            dummyCd.setAnnotationDesc(mad);
+                        }
+                    }
+                }
+            } else {
+                AnnotationDesc ad = adMap.get(annotationDesc.getName());
+                if (force || ad == null) {
+                    adMap.put(annotationDesc.getName(),
+                            (AnnotationDesc) annotationDesc.clone());
+                }
+            }
+        }
+
+        AnnotationDesc metasAd = dummyCd.getAnnotationDesc(Metas.class
+                .getName());
+        if (metasAd != null) {
+            adMap.put(metasAd.getName(), metasAd);
+        } else {
+            AnnotationDesc metaAd = dummyCd.getAnnotationDesc(Meta.class
+                    .getName());
+            if (metaAd != null) {
+                adMap.put(metaAd.getName(), metaAd);
+            }
+        }
+
+        return adMap.values().toArray(new AnnotationDesc[0]);
     }
 }

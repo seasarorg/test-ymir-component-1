@@ -296,7 +296,8 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         pd.setAnnotationDesc(new AnnotationDescImpl("name1"));
         pd.setAnnotationDescForGetter(new MetaAnnotationDescImpl("a_getter",
                 new String[0], new Class[0]));
-        pd.setAnnotationDescForGetter(new AnnotationDescImpl("name1_getter"));
+        pd.setAnnotationDescForGetter(new AnnotationDescImpl("name1_getter",
+                "body1"));
         pd.setAnnotationDescForSetter(new MetaAnnotationDescImpl("a_setter",
                 new String[0], new Class[0]));
         pd.setAnnotationDescForSetter(new AnnotationDescImpl("name1_setter"));
@@ -313,6 +314,8 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         pd.setAnnotationDesc(new AnnotationDescImpl("name2"));
         pd.setAnnotationDescForGetter(new MetaAnnotationDescImpl("b_getter",
                 new String[0], new Class[0]));
+        pd.setAnnotationDescForGetter(new AnnotationDescImpl("name1_getter",
+                "body2"));
         pd.setAnnotationDescForGetter(new AnnotationDescImpl("name2_getter"));
         pd.setAnnotationDescForSetter(new MetaAnnotationDescImpl("b_setter",
                 new String[0], new Class[0]));
@@ -336,6 +339,9 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
                 .hasMetaOnGetter("b_getter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
                 "param1").getAnnotationDescForGetter("name1_getter"));
+        assertEquals("Meta系でないアノテーションは同じアノテーションの場合forceに従って片方が優先されること",
+                "body1", actual.getPropertyDesc("param1")
+                        .getAnnotationDescForGetter("name1_getter").getBody());
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
                 "param1").getAnnotationDescForGetter("name2_getter"));
 
