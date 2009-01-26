@@ -16,7 +16,7 @@
   <li>Genericタイプを指定した型名（例：java.util.List&lt;java.lang.String&gt;）</li>
   <li>パッケージ名を省略したクラス名。パッケージ名が指定されなかった場合は以下の規則にしたがってクラスが見つかるまで探索します。
     <ol>
-      <li>パッケージ名として「java.lang」「java.util」を補完</li>
+      <li>パッケージ名として「java.lang」「java.util」「net.skirnir.freyja.render.html」を補完</li>
       <li>所属クラス（Pageの親クラスについてはPage、Dtoに対応するEntityクラスについてはDto、プロパティ型についてはプロパティを持つクラス）のパッケージ、その親パッケージ、…を補完</li>
       <li>ルートパッケージ以下のクラスのうち名前が同じもの（複数ある場合は最初に見つかったもの）</li>
     </ol>
