@@ -29,6 +29,13 @@ public class SqlTimestampConverter extends DateConverterBase<Timestamp> {
                         value.toString()).getTime());
             }
         } catch (Exception ex) {
+            if (log_.isDebugEnabled()) {
+                log_.debug("Conversion error occured."
+                        + " You may add a constraint annotation"
+                        + " to the corresponding property"
+                        + " in order to notify validation error to a user: "
+                        + value, ex);
+            }
             return defaultValue_;
         }
     }

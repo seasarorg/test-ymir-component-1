@@ -20,6 +20,7 @@ import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.handler.ScopeAttributePopulator;
 import org.seasar.ymir.util.BeanUtils;
+import org.seasar.ymir.util.ClassUtils;
 
 public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
     private Scope scope_;
@@ -33,6 +34,9 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
     private Map<Method, Entry> entryByMethodMap_ = new HashMap<Method, Entry>();
 
     private Map<String, Entry> entryByNameMap_ = new HashMap<String, Entry>();
+
+    private static final Log log_ = LogFactory
+            .getLog(ScopeAttributePopulatorImpl.class);
 
     public ScopeAttributePopulatorImpl(Scope scope,
             AnnotationHandler annotationHandler, ScopeManager scopeManager,
@@ -130,6 +134,11 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
                 return;
             }
 
+            if (log_.isDebugEnabled()) {
+                log_.debug("[POPULATE] Set "
+                        + ClassUtils.getShorterName(component) + "#" + name
+                        + " from " + ClassUtils.getShorterName(scope_));
+            }
             Object value = scopeManager_.getAttribute(scope_, name, handler
                     .getPropertyType(), annotationHandler_
                     .getMarkedAnnotations(handler.getWriteMethod(),

@@ -22,6 +22,11 @@ public class DateConverter extends DateConverterBase<Date> {
             return new SimpleDateFormat(getPattern(hint)).parse(value
                     .toString());
         } catch (Exception ex) {
+            log_.debug("Conversion error occured."
+                    + " You may add a constraint annotation"
+                    + " to the corresponding property"
+                    + " in order to notify validation error to a user: "
+                    + value, ex);
             return defaultValue_;
         }
     }

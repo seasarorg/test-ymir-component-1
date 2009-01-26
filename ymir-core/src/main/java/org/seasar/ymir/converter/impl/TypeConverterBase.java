@@ -2,6 +2,8 @@ package org.seasar.ymir.converter.impl;
 
 import java.lang.annotation.Annotation;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.ymir.converter.TypeConverter;
 
 /**
@@ -14,6 +16,8 @@ abstract public class TypeConverterBase<T> implements TypeConverter<T> {
     protected Class<T> type_;
 
     protected T defaultValue_;
+
+    protected final Log log_ = LogFactory.getLog(getClass());
 
     public Class<T> getType() {
         return type_;

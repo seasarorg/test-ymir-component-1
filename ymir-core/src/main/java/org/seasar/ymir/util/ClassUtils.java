@@ -147,6 +147,26 @@ public class ClassUtils {
         return primitiveMap_.get(clazz);
     }
 
+    /**
+     * @since 1.0.1
+     */
+    public static String getShortName(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        return getShortName(obj.getClass());
+    }
+
+    /**
+     * @since 1.0.1
+     */
+    public static String getShortName(Class<?> clazz) {
+        if (clazz == null) {
+            return null;
+        }
+        return getShortName(clazz.getName());
+    }
+
     public static String getShortName(String className) {
         if (className == null) {
             return null;
@@ -157,5 +177,49 @@ public class ClassUtils {
         } else {
             return className;
         }
+    }
+
+    /**
+     * @since 1.0.1
+     */
+    public static String getShorterName(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        return getShorterName(obj.getClass());
+    }
+
+    /**
+     * @since 1.0.1
+     */
+    public static String getShorterName(Class<?> clazz) {
+        if (clazz == null) {
+            return null;
+        }
+        return getShorterName(clazz.getName());
+    }
+
+    /**
+     * @since 1.0.1
+     */
+    public static String getShorterName(String className) {
+        if (className == null) {
+            return null;
+        }
+        String shorterName;
+        int dot = className.lastIndexOf('.');
+        if (dot >= 0) {
+            shorterName = className.substring(dot + 1);
+        } else {
+            shorterName = className;
+        }
+        for (int i = 0; i < shorterName.length(); i++) {
+            char ch = shorterName.charAt(i);
+            if (!(ch >= '0' && ch <= '9' || ch >= 'a' && ch <= 'z' || ch >= 'A'
+                    && ch <= 'Z' || ch == '_')) {
+                return shorterName.substring(0, i);
+            }
+        }
+        return shorterName;
     }
 }
