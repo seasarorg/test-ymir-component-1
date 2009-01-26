@@ -12,12 +12,11 @@ public class YmirTalTagEvaluator extends TalTagEvaluator {
     @Override
     protected String renderEvaluatedValue(TemplateContext context,
             Object evaluated) {
-        return getTypeConversionManager()
-                .convert(
-                        evaluated,
-                        String.class,
-                        (Annotation[]) context
-                                .getAttribute(YmirBeanPathResolver.ATTR_TYPECONVERSION_HINT));
+        return getTypeConversionManager().convert(
+                evaluated,
+                String.class,
+                (Annotation[]) context
+                        .getAttribute(YmirUtils.ATTR_TYPECONVERSION_HINT));
     }
 
     protected TypeConversionManager getTypeConversionManager() {

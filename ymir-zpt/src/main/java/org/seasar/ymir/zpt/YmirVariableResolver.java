@@ -10,6 +10,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.Request;
@@ -48,6 +50,9 @@ public class YmirVariableResolver extends VariableResolverImpl {
     private TokenManager tokenManager_;
 
     private Token token_;
+
+    private static final Log log_ = LogFactory
+            .getLog(YmirVariableResolver.class);
 
     public YmirVariableResolver(Request ymirRequest,
             HttpServletRequest request, S2Container container) {
@@ -105,9 +110,14 @@ public class YmirVariableResolver extends VariableResolverImpl {
 
         Object component = request_.getAttribute(RequestProcessor.ATTR_SELF);
         if (component != null) {
+            YmirUtils.preserveTypeConversionHint(context, component, name);
             try {
                 return PropertyUtils.getProperty(component, name);
-            } catch (Throwable ignore) {
+            } catch (Throwable ex) {
+                if (log_.isDebugEnabled()) {
+                    log_.debug("Can't get Property: self=" + component
+                            + ", name=" + name, ex);
+                }
             }
         }
 
@@ -168,7 +178,11 @@ public class YmirVariableResolver extends VariableResolverImpl {
                 if (PropertyUtils.getPropertyDescriptor(component, name) != null) {
                     return true;
                 }
-            } catch (Throwable ignore) {
+            } catch (Throwable ex) {
+                if (log_.isDebugEnabled()) {
+                    log_.debug("Can't get Property: self=" + component
+                            + ", name=" + name, ex);
+                }
             }
         }
 
@@ -213,6 +227,7 @@ public class YmirVariableResolver extends VariableResolverImpl {
         Object component = request_
                 .getAttribute(RequestProcessorImpl.ATTR_SELF);
         if (component != null) {
+            YmirUtils.preserveTypeConversionHint(context, component, name);
             try {
                 PropertyDescriptor pd = PropertyUtils.getPropertyDescriptor(
                         component, name);
@@ -223,7 +238,11 @@ public class YmirVariableResolver extends VariableResolverImpl {
                                 PropertyUtils.getProperty(component, name));
                     }
                 }
-            } catch (Throwable ignore) {
+            } catch (Throwable ex) {
+                if (log_.isDebugEnabled()) {
+                    log_.debug("Can't get Property: self=" + component
+                            + ", name=" + name, ex);
+                }
             }
         }
 

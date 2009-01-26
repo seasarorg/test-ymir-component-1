@@ -2,6 +2,8 @@ package org.seasar.ymir.zpt;
 
 import org.seasar.ymir.message.impl.NoteRendererImpl;
 
+import net.skirnir.freyja.TemplateContext;
+import net.skirnir.freyja.VariableResolver;
 import net.skirnir.freyja.zpt.tales.NoteLocalizer;
 import net.skirnir.freyja.zpt.tales.PathTypePrefixHandler;
 import net.skirnir.freyja.zpt.tales.UtilityPathResolver;
@@ -29,5 +31,13 @@ public class YmirTalesExpressionEvaluator extends
 
     protected YmirNoteLocalizer newNoteLocalilzer() {
         return new YmirNoteLocalizer(new NoteRendererImpl());
+    }
+
+    @Override
+    public Object evaluate(TemplateContext context,
+            VariableResolver varResolver, String expression) {
+        context.setAttribute(YmirUtils.ATTR_TYPECONVERSION_HINT, null);
+
+        return super.evaluate(context, varResolver, expression);
     }
 }
