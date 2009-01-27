@@ -58,5 +58,5 @@ public @interface RequestParameter {
      * 
      * @return 属性の値がnullである場合もポピュレートを行なうかどうか。
      */
-    boolean populateWhereNull() default false;
+    boolean populateWhereNull() default true;
 }
