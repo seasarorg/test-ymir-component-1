@@ -88,7 +88,7 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
     }
 
     String getInstanceName(String name) {
-        return uncapFirst(ClassUtils.getShortName(name));
+        return uncapFirst(ClassUtils.getShorterName(name)) + "Value";
     }
 
     String uncapFirst(String string) {

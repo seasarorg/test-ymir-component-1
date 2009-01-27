@@ -337,4 +337,20 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         assertEquals(readResource(getClass(),
                 "testGenerateBaseSource_Converter2.expected"), actual);
     }
+
+    public void test_YMIR_283_GenerateBaseSource_Page7_プリミティブ型の引数を持つメソッドの引数名が適切に生成されること()
+            throws Exception {
+        ClassDesc classDesc = new ClassDescImpl("com.example.page.TestPage");
+        MethodDesc methodDesc = new MethodDescImpl("_get");
+        methodDesc.setReturnTypeDesc("void");
+        methodDesc
+                .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                        Integer.TYPE) });
+        classDesc.setMethodDesc(methodDesc);
+
+        String actual = target_.generateBaseSource(classDesc);
+
+        assertEquals(readResource(getClass(),
+                "testGenerateBaseSource_Page7.expected"), actual);
+    }
 }

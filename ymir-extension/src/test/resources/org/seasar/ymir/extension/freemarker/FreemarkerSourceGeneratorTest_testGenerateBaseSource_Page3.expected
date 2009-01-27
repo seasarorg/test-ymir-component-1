@@ -10,7 +10,7 @@ public class Hoe3PageBase {
         throw ex;
     }
 
-    public void _validationFailed(org.seasar.ymir.message.Notes notes) {
+    public void _validationFailed(org.seasar.ymir.message.Notes notesValue) {
 
     }
 }

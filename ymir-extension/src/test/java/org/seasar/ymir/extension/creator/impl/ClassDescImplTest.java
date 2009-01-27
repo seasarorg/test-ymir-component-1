@@ -10,7 +10,7 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
     public void testGetInstanceName() throws Exception {
         String actual = new ClassDescImpl("com.example.dto.TestDto")
                 .getInstanceName();
-        assertEquals("testDto", actual);
+        assertEquals("testDtoValue", actual);
     }
 
     public void testMerge() throws Exception {

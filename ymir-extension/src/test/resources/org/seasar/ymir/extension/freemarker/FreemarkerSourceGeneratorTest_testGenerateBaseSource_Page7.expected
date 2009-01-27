@@ -1,0 +1,9 @@
+package com.example.page;
+
+@SuppressWarnings("unchecked")
+public class TestPageBase {
+
+    public void _get(int intValue) {
+
+    }
+}
