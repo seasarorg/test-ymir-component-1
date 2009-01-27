@@ -594,7 +594,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     ConstraintInterceptor.ACTION_VALIDATIONFAILED);
             methodDesc
                     .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
-                            Notes.class) });
+                            Notes.class, "notes") });
             pageClassDesc.setMethodDesc(methodDesc);
             // _permissionDenied(PemissionDeniedException)を追加する。
             methodDesc = new MethodDescImpl(

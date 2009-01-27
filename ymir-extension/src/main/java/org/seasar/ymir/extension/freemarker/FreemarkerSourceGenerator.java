@@ -56,9 +56,21 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
         for (int i = 0; i < mds.length; i++) {
             String evaluatedBody = generateBodySource(mds[i].getBodyDesc());
             mds[i].setEvaluatedBody(evaluatedBody);
+
+            boolean shouldRemainSourceMeta = false;
             if (evaluatedBody != null && evaluatedBody.length() > 0) {
+                shouldRemainSourceMeta = true;
+            } else {
+                for (ParameterDesc pd : mds[i].getParameterDescs()) {
+                    if (pd.getNameAsIs() != null) {
+                        shouldRemainSourceMeta = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldRemainSourceMeta) {
                 List<String> list = new ArrayList<String>();
-                list.add(evaluatedBody);
+                list.add(evaluatedBody != null ? evaluatedBody : "");
                 for (ParameterDesc pd : mds[i].getParameterDescs()) {
                     list.add(pd.getName());
                 }
