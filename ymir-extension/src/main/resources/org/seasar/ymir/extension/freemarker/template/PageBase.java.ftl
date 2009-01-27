@@ -27,7 +27,7 @@ public <#if classDesc.baseClassAbstract>abstract </#if>class ${classDesc.shortNa
 <#list classDesc.methodDescs as methodDesc>
 
 <#list methodDesc.annotationDescs as annotationDesc>    ${annotationDesc.string}
-</#list>    public ${methodDesc.returnTypeDesc.name} ${methodDesc.name}(<#list methodDesc.parameterDescs as parameterDesc>${parameterDesc.typeDesc.name} ${parameterDesc.name}<#if parameterDesc_has_next>, </#if></#list>)<#if !methodDesc.throwsDesc.empty>
+</#list>    public ${methodDesc.returnTypeDesc.name} ${methodDesc.name}(<#list methodDesc.parameterDescs as parameterDesc>${parameterDesc.typeDesc.name} <#if parameterDesc.nameAsIs??>${parameterDesc.nameAsIs}<#else>arg${parameterDesc_index}</#if><#if parameterDesc_has_next>, </#if></#list>)<#if !methodDesc.throwsDesc.empty>
         throws </#if><#list methodDesc.throwsDesc.throwableClassNames as throwableClassName>${throwableClassName}<#if throwableClassName_has_next>, </#if></#list> {
 <#if methodDesc.evaluatedBody?exists>        ${methodDesc.evaluatedBody}<#elseif methodDesc.returnTypeDesc.name != "void">        return ${methodDesc.returnTypeDesc.defaultValue};</#if>
     }
