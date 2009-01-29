@@ -1,7 +1,7 @@
 package org.seasar.ymir.util;
 
-public class Hoe {
-    public Object method(String arg1) {
+public class Hoe<T> {
+    public T method(String arg1) {
         return null;
     }
 

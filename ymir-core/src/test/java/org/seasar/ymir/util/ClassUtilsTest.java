@@ -50,15 +50,4 @@ public class ClassUtilsTest extends TestCase {
         assertTrue(methodStringObjectExists);
         assertTrue(methodStringStringExists);
     }
-
-    public void testIsCovariantOverriddenMethod() throws Exception {
-        assertTrue(ClassUtils.isCovariantOverriddenMethod(Hoe.class.getMethod(
-                "method", new Class[] { String.class }), SubHoe.class));
-
-        assertFalse(ClassUtils.isCovariantOverriddenMethod(Hoe.class.getMethod(
-                "method", new Class[] { Object.class }), SubHoe.class));
-
-        assertFalse(ClassUtils.isCovariantOverriddenMethod(Hoe.class.getMethod(
-                "method2", new Class[] { String.class }), SubHoe.class));
-    }
 }
