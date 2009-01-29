@@ -75,26 +75,11 @@ public class ClassUtils {
         Method[] methods = clazz.getMethods();
         List<Method> methodList = new ArrayList<Method>();
         for (int i = 0; i < methods.length; i++) {
-            if (!isCovariantOverriddenMethod(methods[i], clazz)) {
+            if (!methods[i].isBridge() && !methods[i].isSynthetic()) {
                 methodList.add(methods[i]);
             }
         }
         return methodList.toArray(new Method[0]);
-    }
-
-    static boolean isCovariantOverriddenMethod(Method method, Class<?> clazz) {
-        // getDeclaredMedhod()で引いてきたMethodオブジェクトの返り値が同じでなければ
-        // 共変戻り値の被オーバライドメソッド。
-        // 「対象メソッドが祖先クラスにあり、かつ対象クラスに同じ名前・引数のメソッドがあれば」というルール
-        // ではブリッジメソッドをうまく判定できない。
-
-        try {
-            Method declaredMethod = clazz.getDeclaredMethod(method.getName(),
-                    method.getParameterTypes());
-            return (declaredMethod.getReturnType() != method.getReturnType());
-        } catch (NoSuchMethodException ex) {
-            return false;
-        }
     }
 
     public static Method[] getMethods(Object object, String methodName) {
