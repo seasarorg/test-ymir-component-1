@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
@@ -19,11 +20,22 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
 
     private Map<Key, Annotation[]> markedAnnotationsMap_;
 
+    private boolean inherited_ = true;
+
     @Binding(bindingType = BindingType.MUST)
     public void setCacheManager(CacheManager cacheManager) {
         presentMap_ = cacheManager.newMap();
         annotationsMap_ = cacheManager.newMap();
         markedAnnotationsMap_ = cacheManager.newMap();
+    }
+
+    public boolean isInherited() {
+        return inherited_;
+    }
+
+    @Binding(bindingType = BindingType.MAY)
+    public void setInherited(boolean inherited) {
+        inherited_ = inherited;
     }
 
     public boolean isAnnotationPresent(AnnotatedElement element,
@@ -46,12 +58,54 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
             Class<? extends Annotation> annotationClass) {
         AnnotationExistenceChecker checker = new AnnotationExistenceChecker(
                 annotationClass);
-        for (Annotation annotation : element.getAnnotations()) {
+        for (Annotation annotation : getAnnotations(element)) {
             if (AnnotationElements.newInstance(annotation).accept(checker) != null) {
                 return true;
             }
         }
         return false;
+    }
+
+    protected Annotation[] getAnnotations(AnnotatedElement element) {
+        if (inherited_) {
+            if (element instanceof Method) {
+                Method method = (Method) element;
+                Map<Class<?>, Annotation> map = new LinkedHashMap<Class<?>, Annotation>();
+                do {
+                    for (Annotation annotation : method.getAnnotations()) {
+                        if (!map.containsKey(annotation.annotationType())) {
+                            map.put(annotation.annotationType(), annotation);
+                        }
+                    }
+                    Class<?> clazz = method.getDeclaringClass().getSuperclass();
+                    if (clazz != null) {
+                        try {
+                            method = clazz.getDeclaredMethod(method.getName(),
+                                    method.getParameterTypes());
+                        } catch (NoSuchMethodException ex) {
+                            method = null;
+                        }
+                    } else {
+                        method = null;
+                    }
+                } while (method != null);
+                return map.values().toArray(new Annotation[0]);
+            } else if (element instanceof Class) {
+                Class<?> clazz = (Class<?>) element;
+                Map<Class<?>, Annotation> map = new LinkedHashMap<Class<?>, Annotation>();
+                do {
+                    for (Annotation annotation : clazz.getAnnotations()) {
+                        if (!map.containsKey(annotation.annotationType())) {
+                            map.put(annotation.annotationType(), annotation);
+                        }
+                    }
+                    clazz = clazz.getSuperclass();
+                } while (clazz != Object.class && clazz != null);
+                return map.values().toArray(new Annotation[0]);
+            }
+        }
+
+        return element.getAnnotations();
     }
 
     @SuppressWarnings("unchecked")
@@ -73,7 +127,7 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
     @SuppressWarnings("unchecked")
     protected <T extends Annotation> T[] getAnnotations0(
             AnnotatedElement element, Class<T> annotationClass) {
-        return getAnnotations0(element.getAnnotations(), annotationClass);
+        return getAnnotations0(getAnnotations(element), annotationClass);
     }
 
     @SuppressWarnings("unchecked")
@@ -118,7 +172,7 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
 
     protected Annotation[] getMarkedAnnotations0(AnnotatedElement element,
             Class<? extends Annotation> metaAnnotationClass) {
-        return getMarkedAnnotations0(element.getAnnotations(),
+        return getMarkedAnnotations0(getAnnotations(element),
                 metaAnnotationClass);
     }
 

@@ -1,11 +1,14 @@
 package org.seasar.ymir.annotation.handler.impl;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Comparator;
 
 import junit.framework.TestCase;
 
 import org.seasar.ymir.cache.impl.CacheManagerImpl;
+import org.seasar.ymir.constraint.annotation.Numeric;
+import org.seasar.ymir.constraint.annotation.Required;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.impl.Hoe;
 import org.seasar.ymir.impl.HoeAlias;
@@ -28,7 +31,7 @@ public class AnnotationHandlerImplTest extends TestCase {
                 "testIsAnnotationPresent", new Class[0]), Hoe.class));
     }
 
-    public void testGetAnnotations() throws Exception {
+    public void testGetAnnotations_Class_Class() throws Exception {
         Hoe[] actual = target_.getAnnotations(HoeHolder.class, Hoe.class);
         Arrays.sort(actual, new Comparator<Hoe>() {
             public int compare(Hoe o1, Hoe o2) {
@@ -62,5 +65,40 @@ public class AnnotationHandlerImplTest extends TestCase {
         assertEquals("3", actual[idx++].value());
         assertEquals("4", actual[idx++].value());
         assertEquals("5", actual[idx++].value());
+    }
+
+    public void testGetAnnotations_classのアノテーションが正しく取得できること() throws Exception {
+        Annotation[] actual = target_.getAnnotations(Inherited.class);
+
+        Arrays.sort(actual, new Comparator<Annotation>() {
+            public int compare(Annotation o1, Annotation o2) {
+                return o1.annotationType().getName().compareTo(
+                        o2.annotationType().getName());
+            }
+        });
+
+        assertEquals(2, actual.length);
+        int idx = 0;
+        assertEquals(Numeric.class, actual[idx++].annotationType());
+        assertEquals(Required.class, actual[idx].annotationType());
+        assertTrue(((Required) actual[idx++]).allowWhitespace());
+    }
+
+    public void testGetAnnotations_methodのアノテーションが正しく取得できること() throws Exception {
+        Annotation[] actual = target_.getAnnotations(Inherited.class
+                .getMethod("hoe"));
+
+        Arrays.sort(actual, new Comparator<Annotation>() {
+            public int compare(Annotation o1, Annotation o2) {
+                return o1.annotationType().getName().compareTo(
+                        o2.annotationType().getName());
+            }
+        });
+
+        assertEquals(2, actual.length);
+        int idx = 0;
+        assertEquals(Numeric.class, actual[idx++].annotationType());
+        assertEquals(Required.class, actual[idx].annotationType());
+        assertTrue(((Required) actual[idx++]).allowWhitespace());
     }
 }
