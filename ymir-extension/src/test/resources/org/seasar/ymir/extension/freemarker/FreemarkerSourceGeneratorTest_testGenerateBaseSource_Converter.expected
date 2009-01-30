@@ -139,36 +139,16 @@ public class HoeConverterBase {
      *   <li>eee</li>
      * </ul>
      * 
-     * @param dto Destination object.
      * @param entity Source object.
+     * @param dto Destination object.
      * @return The first argument of this method.
      */
-    public HoeDto copyTo(HoeDto dto, Hoe<List> entity) {
-        copyAaaTo(dto, entity);
-        copyCccTo(dto, entity);
-        copyEeeTo(dto, entity);
+    public HoeDto copyEntityToDto(Hoe<List> entity, HoeDto dto) {
+        reflectAaaToDto(entity, dto);
+        reflectCccToDto(entity, dto);
+        reflectEeeToDto(entity, dto);
 
         return dto;
-    }
-
-    /**
-     * Copies an array of Hoe<List> entity to an array of HoeDto.
-     * <p>This methods copies the following properties automatically:</p>
-     * <ul>
-     *   <li>aaa</li>
-     *   <li>ccc</li>
-     *   <li>eee</li>
-     * </ul>
-     * 
-     * @param entities Source array.
-     * @return Copied array of Dto.
-     */
-    public HoeDto[] copyTo(Hoe<List>[] entities) {
-        HoeDto[] dtos = new HoeDto[entities.length];
-        for (int i = 0; i < entities.length; i++) {
-            dtos[i] = copyTo(new HoeDto(), entities[i]);
-        }
-        return dtos;
     }
 
     /**
@@ -183,10 +163,10 @@ public class HoeConverterBase {
      * @param entityList Source List.
      * @return Copied List of Dto.
      */
-    public List<HoeDto> copyToDtoList(List<Hoe<List>> entityList) {
+    public List<HoeDto> toDtoList(List<Hoe<List>> entityList) {
         List<HoeDto> dtoList = new ArrayList<HoeDto>();
         for (Hoe<List> entity : entityList) {
-            dtoList.add(copyTo(new HoeDto(), entity));
+            dtoList.add(copyEntityToDto(entity, new HoeDto()));
         }
         return dtoList;
     }
@@ -194,31 +174,61 @@ public class HoeConverterBase {
     /**
      * Copies 'aaa' property of Hoe<List> entity to HoeDto instance's 'aaa' property.
      * 
-     * @param dto Destination object.
      * @param entity Source object.
+     * @param dto Destination object.
      */
-    protected void copyAaaTo(HoeDto dto, Hoe<List> entity) {
-        dto.setAaa(convert(entity.getAaa(), String.class));
+    protected void reflectAaaToDto(Hoe<List> entity, HoeDto dto) {
+        dto.setAaa(extractAaaFromEntity(entity));
+    }
+
+    /**
+     * Extracts 'aaa' property of Hoe<List> entity in order to copy to HoeDto instance's 'aaa' property.
+     * 
+     * @param entity Source object.
+     * @return Extracted value.
+     */
+    protected String extractAaaFromEntity(Hoe<List> entity) {
+        return convert(entity.getAaa(), String.class);
     }
 
     /**
      * Copies 'ccc' property of Hoe<List> entity to HoeDto instance's 'ccc' property.
      * 
-     * @param dto Destination object.
      * @param entity Source object.
+     * @param dto Destination object.
      */
-    protected void copyCccTo(HoeDto dto, Hoe<List> entity) {
-        dto.setCcc(convert(entity.isCcc(), String.class));
+    protected void reflectCccToDto(Hoe<List> entity, HoeDto dto) {
+        dto.setCcc(extractCccFromEntity(entity));
+    }
+
+    /**
+     * Extracts 'ccc' property of Hoe<List> entity in order to copy to HoeDto instance's 'ccc' property.
+     * 
+     * @param entity Source object.
+     * @return Extracted value.
+     */
+    protected String extractCccFromEntity(Hoe<List> entity) {
+        return convert(entity.isCcc(), String.class);
     }
 
     /**
      * Copies 'eee' property of Hoe<List> entity to HoeDto instance's 'eee' property.
      * 
-     * @param dto Destination object.
      * @param entity Source object.
+     * @param dto Destination object.
      */
-    protected void copyEeeTo(HoeDto dto, Hoe<List> entity) {
-        dto.setEee(convert(entity.getEee(), String.class));
+    protected void reflectEeeToDto(Hoe<List> entity, HoeDto dto) {
+        dto.setEee(extractEeeFromEntity(entity));
+    }
+
+    /**
+     * Extracts 'eee' property of Hoe<List> entity in order to copy to HoeDto instance's 'eee' property.
+     * 
+     * @param entity Source object.
+     * @return Extracted value.
+     */
+    protected String extractEeeFromEntity(Hoe<List> entity) {
+        return convert(entity.getEee(), String.class);
     }
 
     /**
@@ -230,37 +240,16 @@ public class HoeConverterBase {
      *   <li>ddd</li>
      * </ul>
      * 
-     * @param entity Destination object.
      * @param dto Source object.
+     * @param entity Destination object.
      * @return The first argument of this method.
      */
-    public Hoe<List> copyTo(Hoe<List> entity, HoeDto dto) {
-        copyAaaTo(entity, dto);
-        copyBbbTo(entity, dto);
-        copyDddTo(entity, dto);
+    public Hoe<List> copyDtoToEntity(HoeDto dto, Hoe<List> entity) {
+        reflectAaaToEntity(dto, entity);
+        reflectBbbToEntity(dto, entity);
+        reflectDddToEntity(dto, entity);
 
         return entity;
-    }
-
-    /**
-     * Copies an array of HoeDto entity to an array of Hoe<List>.
-     * <p>This methods copies the following properties automatically:</p>
-     * <ul>
-     *   <li>aaa</li>
-     *   <li>bbb</li>
-     *   <li>ddd</li>
-     * </ul>
-     * 
-     * @param dtos Source array.
-     * @return Copied array of entity.
-     */
-    public Hoe<List>[] copyTo(HoeDto[] dtos) {
-        @SuppressWarnings("unchecked")
-        Hoe<List>[] entities = new Hoe[dtos.length];
-        for (int i = 0; i < dtos.length; i++) {
-            entities[i] = copyTo(new Hoe<List>(), dtos[i]);
-        }
-        return entities;
     }
 
     /**
@@ -275,10 +264,10 @@ public class HoeConverterBase {
      * @param dtoList Source List.
      * @return Copied List of entity.
      */
-    public List<Hoe<List>> copyToEntityList(List<HoeDto> dtoList) {
+    public List<Hoe<List>> toEntityList(List<HoeDto> dtoList) {
         List<Hoe<List>> entityList = new ArrayList<Hoe<List>>();
         for (HoeDto dto : dtoList) {
-            entityList.add(copyTo(new Hoe<List>(), dto));
+            entityList.add(copyDtoToEntity(dto, new Hoe<List>()));
         }
         return entityList;
     }
@@ -286,31 +275,61 @@ public class HoeConverterBase {
     /**
      * Copies 'aaa' property of HoeDto entity to Hoe<List> instance's 'aaa' property.
      * 
-     * @param entity Destination object.
      * @param dto Source object.
+     * @param entity Destination object.
      */
-    protected void copyAaaTo(Hoe<List> entity, HoeDto dto) {
-        entity.setAaa(convertForEntity(dto.getAaa(), String.class));
+    protected void reflectAaaToEntity(HoeDto dto, Hoe<List> entity) {
+        entity.setAaa(extractAaaFromDto(dto));
+    }
+
+    /**
+     * Extracts 'aaa' property of HoeDto entity in order to copy to Hoe<List> instance's 'aaa' property.
+     * 
+     * @param dto Source object.
+     * @return Extracted value.
+     */
+    protected String extractAaaFromDto(HoeDto dto) {
+        return convertForEntity(dto.getAaa(), String.class);
     }
 
     /**
      * Copies 'bbb' property of HoeDto entity to Hoe<List> instance's 'bbb' property.
      * 
-     * @param entity Destination object.
      * @param dto Source object.
+     * @param entity Destination object.
      */
-    protected void copyBbbTo(Hoe<List> entity, HoeDto dto) {
-        entity.setBbb(convertForEntity(dto.isBbb(), String.class));
+    protected void reflectBbbToEntity(HoeDto dto, Hoe<List> entity) {
+        entity.setBbb(extractBbbFromDto(dto));
+    }
+
+    /**
+     * Extracts 'bbb' property of HoeDto entity in order to copy to Hoe<List> instance's 'bbb' property.
+     * 
+     * @param dto Source object.
+     * @return Extracted value.
+     */
+    protected String extractBbbFromDto(HoeDto dto) {
+        return convertForEntity(dto.isBbb(), String.class);
     }
 
     /**
      * Copies 'ddd' property of HoeDto entity to Hoe<List> instance's 'ddd' property.
      * 
-     * @param entity Destination object.
      * @param dto Source object.
+     * @param entity Destination object.
      */
-    protected void copyDddTo(Hoe<List> entity, HoeDto dto) {
-        entity.setDdd(convertForEntity(dto.getDdd(), String.class));
+    protected void reflectDddToEntity(HoeDto dto, Hoe<List> entity) {
+        entity.setDdd(extractDddFromDto(dto));
+    }
+
+    /**
+     * Extracts 'ddd' property of HoeDto entity in order to copy to Hoe<List> instance's 'ddd' property.
+     * 
+     * @param dto Source object.
+     * @return Extracted value.
+     */
+    protected String extractDddFromDto(HoeDto dto) {
+        return convertForEntity(dto.getDdd(), String.class);
     }
 
 }

@@ -143,16 +143,36 @@ public class ${classDesc.shortName}Base {
 </#if></#if></#list>
      * </ul>
      * 
-     * @param entity Source object.
      * @param dto Destination object.
+     * @param entity Source object.
      * @return The first argument of this method.
      */
-    public ${targetClassDesc.shortName} copyEntityToDto(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto) {
+    public ${targetClassDesc.shortName} copyTo(${targetClassDesc.shortName} dto, ${pairTypeDesc.shortName} entity) {
 <#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
-        reflect${propertyDesc.name?cap_first}ToDto(entity, dto);
+        copy${propertyDesc.name?cap_first}To(dto, entity);
 </#if></#if></#list>
 
         return dto;
+    }
+
+    /**
+     * Copies an array of ${pairTypeDesc.shortName} entity to an array of ${targetClassDesc.shortName}.
+     * <p>This methods copies the following properties automatically:</p>
+     * <ul>
+<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+     *   <li>${propertyDesc.name}</li>
+</#if></#if></#list>
+     * </ul>
+     * 
+     * @param entities Source array.
+     * @return Copied array of Dto.
+     */
+    public ${targetClassDesc.shortName}[] copyTo(${pairTypeDesc.shortName}[] entities) {
+        ${targetClassDesc.shortName}[] dtos = new ${targetClassDesc.shortName}[entities.length];
+        for (int i = 0; i < entities.length; i++) {
+            dtos[i] = copyTo(new ${targetClassDesc.shortName}(), entities[i]);
+        }
+        return dtos;
     }
 
     /**
@@ -167,10 +187,10 @@ public class ${classDesc.shortName}Base {
      * @param entityList Source List.
      * @return Copied List of Dto.
      */
-    public List<${targetClassDesc.shortName}> toDtoList(List<${pairTypeDesc.shortName}> entityList) {
+    public List<${targetClassDesc.shortName}> copyToDtoList(List<${pairTypeDesc.shortName}> entityList) {
         List<${targetClassDesc.shortName}> dtoList = new ArrayList<${targetClassDesc.shortName}>();
         for (${pairTypeDesc.shortName} entity : entityList) {
-            dtoList.add(copyEntityToDto(entity, new ${targetClassDesc.shortName}()));
+            dtoList.add(copyTo(new ${targetClassDesc.shortName}(), entity));
         }
         return dtoList;
     }
@@ -179,21 +199,11 @@ public class ${classDesc.shortName}Base {
     /**
      * Copies '${propertyDesc.name}' property of ${pairTypeDesc.shortName} entity to ${targetClassDesc.shortName} instance's '${propertyDesc.name}' property.
      * 
-     * @param entity Source object.
      * @param dto Destination object.
-     */
-    protected void reflect${propertyDesc.name?cap_first}ToDto(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto) {
-        dto.set${propertyDesc.name?cap_first}(extract${propertyDesc.name?cap_first}FromEntity(entity));
-    }
-
-    /**
-     * Extracts '${propertyDesc.name}' property of ${pairTypeDesc.shortName} entity in order to copy to ${targetClassDesc.shortName} instance's '${propertyDesc.name}' property.
-     * 
      * @param entity Source object.
-     * @return Extracted value.
      */
-    protected ${propertyDesc.typeDesc.name} extract${propertyDesc.name?cap_first}FromEntity(${pairTypeDesc.shortName} entity) {
-        return convert(entity.${pd.getterName}(), ${propertyDesc.typeDesc.name}.class);
+    protected void copy${propertyDesc.name?cap_first}To(${targetClassDesc.shortName} dto, ${pairTypeDesc.shortName} entity) {
+        dto.set${propertyDesc.name?cap_first}(convert(entity.${pd.getterName}(), ${propertyDesc.getTypeDesc().getName()}.class));
     }
 </#if></#if></#list>
 
@@ -206,16 +216,37 @@ public class ${classDesc.shortName}Base {
 </#if></#if></#list>
      * </ul>
      * 
-     * @param dto Source object.
      * @param entity Destination object.
+     * @param dto Source object.
      * @return The first argument of this method.
      */
-    public ${pairTypeDesc.shortName} copyDtoToEntity(${targetClassDesc.shortName} dto, ${pairTypeDesc.shortName} entity) {
+    public ${pairTypeDesc.shortName} copyTo(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto) {
 <#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
-        reflect${propertyDesc.name?cap_first}ToEntity(dto, entity);
+        copy${propertyDesc.name?cap_first}To(entity, dto);
 </#if></#if></#list>
 
         return entity;
+    }
+
+    /**
+     * Copies an array of ${targetClassDesc.shortName} entity to an array of ${pairTypeDesc.shortName}.
+     * <p>This methods copies the following properties automatically:</p>
+     * <ul>
+<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+     *   <li>${propertyDesc.name}</li>
+</#if></#if></#list>
+     * </ul>
+     * 
+     * @param dtos Source array.
+     * @return Copied array of entity.
+     */
+    public ${pairTypeDesc.shortName}[] copyTo(${targetClassDesc.shortName}[] dtos) {
+<#if pairTypeDesc.generic>        @SuppressWarnings("unchecked")</#if>
+        ${pairTypeDesc.shortName}[] entities = new ${pairTypeDesc.shortClassName}[dtos.length];
+        for (int i = 0; i < dtos.length; i++) {
+            entities[i] = copyTo(new ${pairTypeDesc.shortName}(), dtos[i]);
+        }
+        return entities;
     }
 
     /**
@@ -230,10 +261,10 @@ public class ${classDesc.shortName}Base {
      * @param dtoList Source List.
      * @return Copied List of entity.
      */
-    public List<${pairTypeDesc.shortName}> toEntityList(List<${targetClassDesc.shortName}> dtoList) {
+    public List<${pairTypeDesc.shortName}> copyToEntityList(List<${targetClassDesc.shortName}> dtoList) {
         List<${pairTypeDesc.shortName}> entityList = new ArrayList<${pairTypeDesc.shortName}>();
         for (${targetClassDesc.shortName} dto : dtoList) {
-            entityList.add(copyDtoToEntity(dto, new ${pairTypeDesc.shortName}()));
+            entityList.add(copyTo(new ${pairTypeDesc.shortName}(), dto));
         }
         return entityList;
     }
@@ -242,21 +273,11 @@ public class ${classDesc.shortName}Base {
     /**
      * Copies '${propertyDesc.name}' property of ${targetClassDesc.shortName} entity to ${pairTypeDesc.shortName} instance's '${propertyDesc.name}' property.
      * 
-     * @param dto Source object.
      * @param entity Destination object.
-     */
-    protected void reflect${propertyDesc.name?cap_first}ToEntity(${targetClassDesc.shortName} dto, ${pairTypeDesc.shortName} entity) {
-        entity.set${propertyDesc.name?cap_first}(extract${propertyDesc.name?cap_first}FromDto(dto));
-    }
-
-    /**
-     * Extracts '${propertyDesc.name}' property of ${targetClassDesc.shortName} entity in order to copy to ${pairTypeDesc.shortName} instance's '${propertyDesc.name}' property.
-     * 
      * @param dto Source object.
-     * @return Extracted value.
      */
-    protected ${propertyDesc.typeDesc.name} extract${propertyDesc.name?cap_first}FromDto(${targetClassDesc.shortName} dto) {
-        return convertForEntity(dto.${pd.getterName}(), ${propertyDesc.typeDesc.name}.class);
+    protected void copy${propertyDesc.name?cap_first}To(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto) {
+        entity.set${propertyDesc.name?cap_first}(convertForEntity(dto.${pd.getterName}(), ${propertyDesc.typeDesc.name}.class));
     }
 </#if></#if></#list>
 
