@@ -428,8 +428,10 @@ public class TypeDescImpl implements TypeDesc {
     public String getInitialValue() {
         if (collection_) {
             if (collectionClassName_ != null) {
+                // 配列でないコレクションの場合（何を生成すればいいかも分からないし）、外からぶら下げてもらうことが多いのでnullにする。
                 return null;
             } else {
+                // 配列の場合は（何を生成すればいいかも分かるし）空の配列をぶら下げておく。
                 return "new " + normalizePackage(componentClassDesc_.getName())
                         + "[0]";
             }
@@ -437,10 +439,19 @@ public class TypeDescImpl implements TypeDesc {
             if (componentClassDesc_.getPackageName().startsWith(
                     PACKAGEPREFIX_FREYJA_RENDER_CLASS)
                     || componentClassDesc_.getName().endsWith(SUFFIX_DTO)) {
-                return "new " + getName() + "()";
-            } else {
-                return null;
+                try {
+                    Class<?> clazz = Class.forName(componentClassDesc_
+                            .getName());
+                    try {
+                        clazz.newInstance();
+                        return "new " + getName() + "()";
+                    } catch (InstantiationException ignore) {
+                    } catch (IllegalAccessException ignore) {
+                    }
+                } catch (ClassNotFoundException ignore) {
+                }
             }
+            return null;
         }
     }
 }

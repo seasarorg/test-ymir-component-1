@@ -67,7 +67,14 @@ public class TypeDescImplTest extends TestCase {
         assertEquals("new int[0]", actual);
 
         actual = new TypeDescImpl("com.example.dto.TestDto").getInitialValue();
-        assertEquals("new com.example.dto.TestDto()", actual);
+        assertNull("Dtoが存在しない場合はnullになること", actual);
+
+        actual = new TypeDescImpl("com.example.dto.Test1Dto").getInitialValue();
+        assertEquals("デフォルトコンストラクタでインスタンスを生成できる場合はnew記述になること",
+                "new com.example.dto.Test1Dto()", actual);
+
+        actual = new TypeDescImpl("com.example.dto.Test2Dto").getInitialValue();
+        assertNull("デフォルトコンストラクタがないばあいはnullになること", actual);
 
         actual = new TypeDescImpl("net.skirnir.freyja.render.html.OptionTag")
                 .getInitialValue();
