@@ -67,7 +67,8 @@ public class TypeDescImplTest extends TestCase {
         assertEquals("new int[0]", actual);
 
         actual = new TypeDescImpl("com.example.dto.TestDto").getInitialValue();
-        assertNull("Dtoが存在しない場合はnullになること", actual);
+        assertEquals("Dtoが存在しない場合はnew記述になること", "new com.example.dto.TestDto()",
+                actual);
 
         actual = new TypeDescImpl("com.example.dto.Test1Dto").getInitialValue();
         assertEquals("デフォルトコンストラクタでインスタンスを生成できる場合はnew記述になること",

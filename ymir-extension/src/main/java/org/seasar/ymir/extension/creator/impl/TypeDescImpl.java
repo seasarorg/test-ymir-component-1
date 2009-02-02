@@ -439,16 +439,22 @@ public class TypeDescImpl implements TypeDesc {
             if (componentClassDesc_.getPackageName().startsWith(
                     PACKAGEPREFIX_FREYJA_RENDER_CLASS)
                     || componentClassDesc_.getName().endsWith(SUFFIX_DTO)) {
+                boolean generateInitialValue = false;
                 try {
                     Class<?> clazz = Class.forName(componentClassDesc_
                             .getName());
                     try {
                         clazz.newInstance();
-                        return "new " + getName() + "()";
+                        generateInitialValue = true;
                     } catch (InstantiationException ignore) {
                     } catch (IllegalAccessException ignore) {
                     }
-                } catch (ClassNotFoundException ignore) {
+                } catch (ClassNotFoundException ex) {
+                    // まだ生成されていないDTO。自動生成対象のDTOはデフォルトコンストラクタを持つので非nullを返すようにする。
+                    generateInitialValue = true;
+                }
+                if (generateInitialValue) {
+                    return "new " + getName() + "()";
                 }
             }
             return null;
