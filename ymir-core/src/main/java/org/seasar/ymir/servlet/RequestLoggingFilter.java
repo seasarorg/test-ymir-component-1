@@ -267,8 +267,7 @@ public class RequestLoggingFilter implements Filter {
             Object attr = request.getAttribute(name);
             sb.append(IND);
             sb.append("[request] ").append(name).append("=").append(
-                    LogUtils.addIndent(
-                            filterAttribute(LogUtils.toString(attr)), IND));
+                    LogUtils.addIndent(filterAttribute(attr), IND));
             sb.append(LF);
         }
     }
@@ -285,8 +284,7 @@ public class RequestLoggingFilter implements Filter {
             final Object attr = session.getAttribute(name);
             sb.append(IND);
             sb.append("[session] ").append(name).append("=").append(
-                    LogUtils.addIndent(
-                            filterAttribute(LogUtils.toString(attr)), IND));
+                    LogUtils.addIndent(filterAttribute(attr), IND));
             sb.append(LF);
         }
     }
@@ -297,7 +295,7 @@ public class RequestLoggingFilter implements Filter {
             return attribute.getClass().getName() + "@"
                     + System.identityHashCode(attribute);
         } else {
-            return attribute;
+            return LogUtils.toString(attribute);
         }
     }
 
