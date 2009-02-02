@@ -1,0 +1,12 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+  <form action="./index.html" method="post">
+    <input type="submit" name="button" value="Go" />
+    <input type="submit" value="Go" />
+  </form>
+  <a href="./index.html">BACK</a>
+  </body>
+</html>

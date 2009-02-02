@@ -41,9 +41,8 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
     Response actDefault(Request request, PathMetaData pathMetaData) {
         String path = request.getCurrentDispatch().getPath();
         HttpMethod method = request.getMethod();
-        String actionName = getSourceCreator()
-                .getExtraPathMapping(path, method).newActionMethodDesc(
-                        new ActionSelectorSeedImpl()).getName();
+        String actionName = getSourceCreator().newActionMethodDesc(path,
+                method, new ActionSelectorSeedImpl()).getName();
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
@@ -69,8 +68,8 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
         ClassDesc classDesc = getSourceCreator().newClassDesc(
                 pathMetaData.getClassName(), null);
         String path = request.getCurrentDispatch().getPath();
-        MethodDesc actionMethodDesc = getSourceCreator().getExtraPathMapping(
-                path, method).newActionMethodDesc(new ActionSelectorSeedImpl());
+        MethodDesc actionMethodDesc = getSourceCreator().newActionMethodDesc(
+                path, method, new ActionSelectorSeedImpl());
         actionMethodDesc.setReturnTypeDesc(String.class.getName(), true);
         if (transition != null && transition.trim().length() > 0) {
             if (redirect) {

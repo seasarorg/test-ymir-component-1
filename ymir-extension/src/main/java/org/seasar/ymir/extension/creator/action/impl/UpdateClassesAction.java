@@ -31,7 +31,6 @@ import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
-import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.type.Token;
@@ -269,24 +268,22 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         openJavaCodeInEclipseEditor(pathMetaData.getClassName());
 
         String path = request.getCurrentDispatch().getPath();
-        ExtraPathMapping mapping = getSourceCreator().getExtraPathMapping(path,
-                method);
-
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("method", method);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("pathMetaData", pathMetaData);
         variableMap.put("classDescBag", classDescBag);
-        variableMap.put("actionName", mapping.newActionMethodDesc(
-                new ActionSelectorSeedImpl()).getName());
+        variableMap.put("actionName", getSourceCreator().newActionMethodDesc(
+                path, method, new ActionSelectorSeedImpl()).getName());
         variableMap.put("suggestionExists", Boolean
                 .valueOf(classDescBag.getClassDescMap(ClassType.PAGE).size()
                         + classDescBag.getCreatedClassDescMap(ClassType.BEAN)
                                 .size() > 0));
         variableMap.put("pageClassDescs", classDescBag
                 .getClassDescs(ClassType.PAGE));
-        variableMap.put("renderActionName", mapping
+        variableMap.put("renderActionName", getSourceCreator()
+                .getExtraPathMapping(path, method)
                 .newPrerenderActionMethodDesc(new ActionSelectorSeedImpl())
                 .getName());
         variableMap.put("createdBeanClassDescs", classDescBag

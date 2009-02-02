@@ -16,6 +16,7 @@ import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Path;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.FormDesc;
+import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.impl.AnnotationDescImpl;
@@ -389,9 +390,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             return new FormDescImpl(creator, classDesc, dtoClassDesc, formName,
                     path.getTrunk(), method);
         } else {
-            classDesc.setMethodDesc(creator.getExtraPathMapping(
-                    path.getTrunk(), method).newActionMethodDesc(
-                    new ActionSelectorSeedImpl()));
+            MethodDesc methodDesc = creator.newActionMethodDesc(
+                    path.getTrunk(), method, new ActionSelectorSeedImpl());
+            classDesc.setMethodDesc(methodDesc);
 
             return null;
         }

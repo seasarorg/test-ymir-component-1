@@ -15,7 +15,6 @@ import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.extension.creator.impl.BodyDescImpl;
-import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 
 public class CreateClassAndTemplateAction extends AbstractAction implements
@@ -93,10 +92,8 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
         ClassDesc classDesc = getSourceCreator().newClassDesc(
                 pathMetaData.getClassName(), null);
         String path = request.getCurrentDispatch().getPath();
-        ExtraPathMapping mapping = getSourceCreator().getExtraPathMapping(path,
-                method);
-        MethodDesc methodDesc = mapping
-                .newActionMethodDesc(new ActionSelectorSeedImpl());
+        MethodDesc methodDesc = getSourceCreator().newActionMethodDesc(path,
+                method, new ActionSelectorSeedImpl());
         methodDesc.setReturnTypeDesc(String.class.getName(), true);
         methodDesc.setBodyDesc(new BodyDescImpl("return "
                 + quote("redirect:" + redirectPath) + ";"));

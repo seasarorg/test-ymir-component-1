@@ -111,6 +111,7 @@ import org.seasar.ymir.extension.creator.action.impl.DoUpdateTemplateAction;
 import org.seasar.ymir.extension.creator.action.impl.ResourceAction;
 import org.seasar.ymir.extension.creator.action.impl.SystemConsoleAction;
 import org.seasar.ymir.extension.creator.action.impl.UpdateClassesAction;
+import org.seasar.ymir.extension.creator.mapping.ActionSelectorSeed;
 import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
 import org.seasar.ymir.extension.creator.mapping.PathMappingExtraData;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
@@ -623,8 +624,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 return null;
             }
         }
-        return getExtraPathMapping(path, method).newActionMethodDesc(
-                new ActionSelectorSeedImpl());
+        return newActionMethodDesc(path, method, new ActionSelectorSeedImpl());
     }
 
     @Begin
@@ -1758,5 +1758,22 @@ public class SourceCreatorImpl implements SourceCreator {
             pre = dot - 1;
         }
         return null;
+    }
+
+    public MethodDesc newActionMethodDesc(String path, HttpMethod method,
+            ActionSelectorSeed seed) {
+        MethodDesc methodDesc = getExtraPathMapping(path, method)
+                .newActionMethodDesc(seed);
+        String returnType = setting_.getActionReturnType(method);
+        methodDesc.setReturnTypeDesc(returnType);
+        if (returnType.equals(String.class.getName())) {
+            methodDesc
+                    .setBodyDesc(new BodyDescImpl("return \"passthrough:\";"));
+        } else if (returnType.equals(Response.class.getName())) {
+            methodDesc
+                    .setBodyDesc(new BodyDescImpl(
+                            "return new org.seasar.ymir.response.PassthroughResponse();"));
+        }
+        return methodDesc;
     }
 }

@@ -20,12 +20,14 @@ import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
 import org.seasar.ymir.extension.creator.ClassDescSet;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
+import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.SourceGenerator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateProvider;
+import org.seasar.ymir.extension.creator.mapping.ActionSelectorSeed;
 import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
 import org.seasar.ymir.extension.creator.util.PersistentProperties;
 
@@ -257,6 +259,11 @@ public class MockSourceCreator implements SourceCreator {
     }
 
     public Class<?> findClass(String name, String baseClassName) {
+        return null;
+    }
+
+    public MethodDesc newActionMethodDesc(String path, HttpMethod method,
+            ActionSelectorSeed seed) {
         return null;
     }
 }

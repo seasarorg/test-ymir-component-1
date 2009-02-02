@@ -13,6 +13,7 @@ import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.Updater;
+import org.seasar.ymir.extension.creator.mapping.ActionSelectorSeed;
 import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
 import org.seasar.ymir.extension.creator.util.PersistentProperties;
 
@@ -123,4 +124,7 @@ public interface SourceCreator extends Updater {
     ExtraPathMapping getExtraPathMapping(String path, HttpMethod method);
 
     Class<?> findClass(String name, String baseClassName);
+
+    MethodDesc newActionMethodDesc(String path, HttpMethod method,
+            ActionSelectorSeed seed);
 }

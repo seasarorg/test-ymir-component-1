@@ -3,6 +3,7 @@ package org.seasar.ymir.extension.creator.impl;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.FormDesc;
+import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 
@@ -37,9 +38,9 @@ public class FormDescImpl implements FormDesc {
     }
 
     public void setActionMethodDesc(String parameterName) {
-        classDesc_.setMethodDesc(sourceCreator_.getExtraPathMapping(path_,
-                method_).newActionMethodDesc(
-                new ActionSelectorSeedImpl(parameterName)));
+        MethodDesc methodDesc = sourceCreator_.newActionMethodDesc(path_,
+                method_, new ActionSelectorSeedImpl(parameterName));
+        classDesc_.setMethodDesc(methodDesc);
     }
 
     public String getActionPageClassName() {

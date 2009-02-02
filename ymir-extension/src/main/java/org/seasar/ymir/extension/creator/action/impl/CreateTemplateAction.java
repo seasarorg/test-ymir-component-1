@@ -112,7 +112,7 @@ public class CreateTemplateAction extends AbstractAction implements
                     pathMetaData.getClassName(), null);
             String path = request.getCurrentDispatch().getPath();
             MethodDesc actionMethodDesc = getSourceCreator()
-                    .getExtraPathMapping(path, method).newActionMethodDesc(
+                    .newActionMethodDesc(path, method,
                             new ActionSelectorSeedImpl());
             actionMethodDesc.setReturnTypeDesc(String.class.getName(), true);
             if (redirect) {

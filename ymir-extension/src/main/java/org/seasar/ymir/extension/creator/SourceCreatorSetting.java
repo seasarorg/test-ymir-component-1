@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.collection.MapProperties;
 import org.seasar.ymir.Application;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.extension.creator.util.SourceCreatorUtils;
 import org.seasar.ymir.util.ServletUtils;
 
@@ -41,6 +42,8 @@ public class SourceCreatorSetting {
 
     public static final String APPKEY_SOURCECREATOR_ENABLECONTROLPANEL = "extension.sourceCreator.enableControlPanel";
 
+    public static final String APPKEYPREFIX_SOURCECREATOR_ACTION_RETURNTYPE = "extension.sourceCreator.action.returnType.";
+
     public static final String APPKEY_SOURCECREATOR_FEATURE_CREATEMESSAGE_ENABLE = "extension.sourceCreator.feature.createMessage.enable";
 
     public static final String APPKEY_SOURCECREATOR_FEATURE_CREATEMESSAGES_ENABLE = "extension.sourceCreator.feature.createMessages.enable";
@@ -66,6 +69,8 @@ public class SourceCreatorSetting {
     private static final String DEFAULT_SOURCECREATOR_FIELDSUFFIX = "_";
 
     private static final String APPKEY_BEANTABLE_ENABLE = "beantable.enable";
+
+    private static final String DEFAULT_ACTION_RETURNTYPE = "void";
 
     private SourceCreator sourceCreator_;
 
@@ -296,5 +301,10 @@ public class SourceCreatorSetting {
     public boolean isBeantableEnabled() {
         return PropertyUtils.valueOf(getProperty(APPKEY_BEANTABLE_ENABLE),
                 false);
+    }
+
+    public String getActionReturnType(HttpMethod method) {
+        return getProperty(APPKEYPREFIX_SOURCECREATOR_ACTION_RETURNTYPE
+                + method.name(), DEFAULT_ACTION_RETURNTYPE);
     }
 }

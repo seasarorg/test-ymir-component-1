@@ -17,6 +17,7 @@ import junit.framework.TestCase;
 import org.seasar.framework.container.factory.S2ContainerFactory;
 import org.seasar.framework.convention.impl.NamingConventionImpl;
 import org.seasar.kvasir.util.el.VariableResolver;
+import org.seasar.ymir.Application;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
@@ -1147,5 +1148,37 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals("リピート対象変数がOptionTagのListになること",
                 "java.util.List<net.skirnir.freyja.render.html.OptionTag>", pd
                         .getTypeDesc().getName());
+    }
+
+    public void testAnalyze64_YMIR_288_postアクションの戻り値の型を変更可能であること()
+            throws Exception {
+
+        Application application = sourceCreator_.getApplication();
+        application
+                .setProperty(
+                        SourceCreatorSetting.APPKEYPREFIX_SOURCECREATOR_ACTION_RETURNTYPE
+                                + "GET", "org.seasar.ymir.Response");
+        application
+                .setProperty(
+                        SourceCreatorSetting.APPKEYPREFIX_SOURCECREATOR_ACTION_RETURNTYPE
+                                + "POST", "java.lang.String");
+
+        act("testAnalyze64");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        assertNotNull(cd);
+
+        MethodDesc md = cd.getMethodDesc(new MethodDescImpl("GET"));
+        assertNotNull(md);
+        assertEquals("org.seasar.ymir.Response", md.getReturnTypeDesc()
+                .getName());
+
+        md = cd.getMethodDesc(new MethodDescImpl("POST"));
+        assertNotNull(md);
+        assertEquals("String", md.getReturnTypeDesc().getName());
+
+        md = cd.getMethodDesc(new MethodDescImpl("POST_button"));
+        assertNotNull(md);
+        assertEquals("String", md.getReturnTypeDesc().getName());
     }
 }
