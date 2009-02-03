@@ -14,6 +14,10 @@ import net.skirnir.freyja.TemplateContext;
 public interface TagRenderingInterceptor {
     /**
      * レンダリング時に特別な処理をしたいタグの名前の正規表現の配列を返します。
+     * <p>このメソッドが返す正規表現に名前が部分一致するようなタグのレンダリング処理がインターセプトされます。
+     * 例えば<code>"^custom:"</code>という正規表現を返すようにすることで、
+     * <code>&lt;custom:process&gt;YYY&lt;/custom:process&gt;</code>のようなタグのレンダリング処理がインターセプトされるようになります。
+     * </p>
      * <p>あるタグについてレンダリング処理をインターセプトしたい場合は、
      * そのタグの名前のパターンまたはそのタグが持つ属性名のパターンをこのメソッドか
      * {@link #getSpecialAttributePatternStrings()}が返すようにしておく必要があります。
@@ -26,6 +30,10 @@ public interface TagRenderingInterceptor {
 
     /**
      * レンダリング時に特別な処理をしたいタグの属性名の正規表現の配列を返します。
+     * <p>このメソッドが返す正規表現に名前が部分一致するような属性を持つタグのレンダリング処理がインターセプトされます。
+     * 例えば<code>"^custom:"</code>という正規表現を返すようにすることで、
+     * <code>&lt;a custom:id="XXX"&gt;YYY&lt;/a&gt;</code>のようなタグのレンダリング処理がインターセプトされるようになります。
+     * </p>
      * <p>あるタグについてレンダリング処理をインターセプトしたい場合は、
      * そのタグの名前のパターンまたはそのタグが持つ属性名のパターンを
      * {@link #getSpecialTagPatternStrings()}かこのメソッドが返すようにしておく必要があります。
