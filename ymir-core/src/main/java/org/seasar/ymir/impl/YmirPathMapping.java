@@ -40,6 +40,10 @@ public class YmirPathMapping implements PathMapping {
 
     public static final String KEY_PATTERN = "pattern";
 
+    public static final String KEY_TEMPLATE = "template";
+
+    public static final String KEY_PAGECOMPONENTNAME_PATTERN = "pageComponentNamePattern";
+
     public static final String KEY_PAGECOMPONENTNAME_TEMPLATE = "pageComponentNameTemplate";
 
     public static final String KEY_ACTIONNAME_TEMPLATE = "actionNameTemplate";
@@ -65,6 +69,8 @@ public class YmirPathMapping implements PathMapping {
 
     private Pattern pattern_;
 
+    private String template_;
+
     private String pageComponentNameTemplate_;
 
     private String actionNameTemplate_;
@@ -81,6 +87,8 @@ public class YmirPathMapping implements PathMapping {
     private boolean denied_;
 
     private Pattern pageComponentNameTemplatePattern_;
+
+    private Pattern pageComponentNamePattern_;
 
     private ActionManager actionManager_;
 
@@ -189,6 +197,12 @@ public class YmirPathMapping implements PathMapping {
                 .get(KEY_PARAMETER_TEMPLATE), (String) null);
         map.remove(KEY_PARAMETER_TEMPLATE);
 
+        setReverseMapping(PropertyUtils.valueOf(map
+                .get(KEY_PAGECOMPONENTNAME_PATTERN), (String) null),
+                PropertyUtils.valueOf(map.get(KEY_TEMPLATE), (String) null));
+        map.remove(KEY_PAGECOMPONENTNAME_PATTERN);
+        map.remove(KEY_TEMPLATE);
+
         if (!map.isEmpty()) {
             // キーのtypoなどを早めに検知するためにこうしている。
             StringBuilder sb = new StringBuilder();
@@ -199,6 +213,14 @@ public class YmirPathMapping implements PathMapping {
             }
             throw new IllegalArgumentException(sb.toString());
         }
+    }
+
+    public void setReverseMapping(
+            String pageComponentNamePatternString, String template) {
+        pageComponentNamePattern_ = pageComponentNamePatternString != null ? Pattern
+                .compile(pageComponentNamePatternString)
+                : null;
+        template_ = template;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -229,27 +251,34 @@ public class YmirPathMapping implements PathMapping {
     public VariableResolver match(String path, HttpMethod method) {
         Matcher matcher = pattern_.matcher(path);
         if (matcher.matches()) {
-            Map<String, String> prop = new HashMap<String, String>();
-            int count = matcher.groupCount();
-            for (int j = 0; j <= count; j++) {
-                String matched = matcher.group(j);
-                prop.put(String.valueOf(j), matched);
-                prop.put(j + "u", upper(matched));
-                prop.put(j + "l", lower(matched));
-                prop.put(j + "d", decapitalize(matched));
-            }
-            prop.put("`", path.substring(0, matcher.start()));
-            prop.put("&", path.substring(matcher.start(), matcher.end()));
-            prop.put("'", path.substring(matcher.end()));
-            prop.put("METHOD", method.name());
+            Map<String, String> map = createVariableResolverAsMap(path, matcher);
+            map.put("METHOD", method.name());
             String lmethod = method.name().toLowerCase();
-            prop.put("method", lmethod);
-            prop.put("Method", upper(lmethod));
+            map.put("method", lmethod);
+            map.put("Method", upper(lmethod));
 
-            return new MapVariableResolver(prop);
+            return new MapVariableResolver(map);
         } else {
             return null;
         }
+    }
+
+    Map<String, String> createVariableResolverAsMap(String pattern,
+            Matcher matcher) {
+        Map<String, String> map = new HashMap<String, String>();
+        int count = matcher.groupCount();
+        for (int j = 0; j <= count; j++) {
+            String matched = matcher.group(j);
+            map.put(String.valueOf(j), matched);
+            map.put(j + "u", upper(matched));
+            map.put(j + "l", lower(matched));
+            map.put(j + "d", decapitalize(matched));
+        }
+        map.put("`", pattern.substring(0, matcher.start()));
+        map.put("&", pattern.substring(matcher.start(), matcher.end()));
+        map.put("'", pattern.substring(matcher.end()));
+
+        return map;
     }
 
     String upper(String str) {
@@ -598,5 +627,27 @@ public class YmirPathMapping implements PathMapping {
         public String[] getParameters() {
             return parameters_;
         }
+    }
+
+    public VariableResolver matchPageComponentName(String pageComponentName) {
+        if (pageComponentNamePattern_ == null || template_ == null) {
+            return null;
+        }
+
+        Matcher matcher = pageComponentNamePattern_.matcher(pageComponentName);
+        if (matcher.matches()) {
+            return new MapVariableResolver(createVariableResolverAsMap(
+                    pageComponentName, matcher));
+        } else {
+            return null;
+        }
+    }
+
+    public String getPath(VariableResolver resolver) {
+        if (pageComponentNamePattern_ == null || template_ == null) {
+            return null;
+        }
+
+        return evaluate(template_, resolver);
     }
 }

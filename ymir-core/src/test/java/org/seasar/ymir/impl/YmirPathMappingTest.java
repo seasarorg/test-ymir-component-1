@@ -192,4 +192,22 @@ public class YmirPathMappingTest extends ComponentClientTestCase {
         assertEquals("1", button.getParameters()[idx++]);
         assertEquals("2", button.getParameters()[idx++]);
     }
+
+    public void testGetPath() throws Exception {
+        YmirPathMapping target = new YmirPathMapping(
+                "/([a-zA-Z][a-zA-Z0-9]*)\\.html", "${1}Page");
+        target.setActionManager(getComponent(ActionManager.class));
+        target.setReverseMapping("([a-zA-Z][a-zA-Z0-9]*)Page", "/${1}.html");
+
+        assertEquals("/index.html", target.getPath(target
+                .matchPageComponentName("indexPage")));
+    }
+
+    public void testGetPath_リバースマッピングがない場合はnullを返すこと() throws Exception {
+        YmirPathMapping target = new YmirPathMapping(
+                "/([a-zA-Z][a-zA-Z0-9]*)\\.html", "${1}Page");
+        target.setActionManager(getComponent(ActionManager.class));
+
+        assertNull(target.getPath(target.matchPageComponentName("indexPage")));
+    }
 }

@@ -98,4 +98,35 @@ public interface PathMapping {
      */
     Action getPrerenderAction(PageComponent pageComponent, Request request,
             VariableResolver resolver);
+
+    /**
+     * 指定されたPageコンポーネント名とのマッチングを行ないます。
+     * <p>Pageコンポーネント名がこのオブジェクトが持つパターンとマッチした場合は、
+     * マッチング結果の情報を持つ{@link VariableResolver}オブジェクトを返します。
+     * マッチしなかった場合はnullを返します。
+     * </p>
+     * <p>このメソッドが返すVariableResolverは{@link #getPath(VariableResolver)}メソッドの引数として使用することができます。
+     * </p>
+     * 
+     * @param pageComponentName Pageコンポーネント名。
+     * @return Pageコンポーネント名中から取り出したパラメータを持つ{@link VariableResolver}オブジェクト。
+     * @see #getPath(VariableResolver)
+     * @since 1.0.2
+     */
+    VariableResolver matchPageComponentName(String pageComponentName);
+
+    /**
+     * Pageコンポーネント名に対応するパスを返します。
+     * <p>このメソッドの引数には{@link #matchPageComponentName(String, String)}が返す{@link VariableResolver}オブジェクトを指定して下さい。
+     * </p>
+     * <p><strong>[注意]<strong> マッピングパターンによってはPageコンポーネント名に対応するパスを特定できないことがあります。
+     * その場合はこのメソッドはnullを返します。
+     * </p>
+     * 
+     * @param resolver {@link #matchPageComponentName(String, String)}が返す{@link VariableResolver}オブジェクト。
+     * @return パス。
+     * @see #matchPageComponentName(String)
+     * @since 1.0.2
+     */
+    String getPath(VariableResolver resolver);
 }

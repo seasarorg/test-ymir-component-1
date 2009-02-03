@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 
 /**
@@ -200,4 +201,26 @@ public interface Ymir {
      * @return 構築したMatchedPathMappingオブジェクト。
      */
     MatchedPathMapping findMatchedPathMapping(String path, HttpMethod method);
+
+    /**
+     * Pageクラスに対応するコンテキスト相対のパスを返します。
+     * <p>Pageクラスからパスを特定できない場合はnullを返します。
+     * </p>
+     * 
+     * @param pageClass Pageクラス。
+     * @return コンテキスト相対パス。
+     * @since 1.0.2
+     */
+    String getPathOfPageClass(Class<?> pageClass);
+
+    /**
+     * Pageクラス名に対応するコンテキスト相対のパスを返します。
+     * <p>Pageクラス名からパスを特定できない場合はnullを返します。
+     * </p>
+     * 
+     * @param pageClassName Pageクラス名。
+     * @return コンテキスト相対パス。
+     * @since 1.0.2
+     */
+    String getPathOfPageClass(String pageClassName);
 }

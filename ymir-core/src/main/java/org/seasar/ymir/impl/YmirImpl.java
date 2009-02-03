@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.cms.pluggable.Configuration;
+import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.el.VariableResolver;
@@ -29,11 +30,14 @@ import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.LifecycleListener;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PathMapping;
+import org.seasar.ymir.PathMappingProvider;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseProcessor;
 import org.seasar.ymir.Ymir;
+import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.util.ServletUtils;
 import org.seasar.ymir.util.YmirUtils;
@@ -49,6 +53,8 @@ public class YmirImpl implements Ymir {
     private Configuration configuration_;
 
     private ApplicationManager applicationManager_;
+
+    private YmirNamingConvention ymirNamingConvention_;
 
     private RequestProcessor requestProcessor_;
 
@@ -97,6 +103,12 @@ public class YmirImpl implements Ymir {
     public void setApplicationManager(
             final ApplicationManager applicationManager) {
         applicationManager_ = applicationManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setYmirNamingConvention(
+            YmirNamingConvention ymirNamingConvention) {
+        ymirNamingConvention_ = ymirNamingConvention;
     }
 
     public void init() {
@@ -317,5 +329,24 @@ public class YmirImpl implements Ymir {
     protected RequestImpl getUnwrappedRequest() {
         return YmirUtils.unwrapRequest(((Request) getApplication()
                 .getS2Container().getComponent(Request.class)));
+    }
+
+    public String getPathOfPageClass(Class<?> pageClass) {
+        return getPathOfPageClass(pageClass != null ? pageClass.getName() : null);
+    }
+
+    public String getPathOfPageClass(String pageClassName) {
+        final PathMapping[] pathMappings = getPathMappings();
+        if (pathMappings != null) {
+            for (int i = 0; i < pathMappings.length; i++) {
+                VariableResolver resolver = pathMappings[i]
+                        .matchPageComponentName(ymirNamingConvention_
+                                .fromClassNameToComponentName(pageClassName));
+                if (resolver != null) {
+                    return pathMappings[i].getPath(resolver);
+                }
+            }
+        }
+        return null;
     }
 }
