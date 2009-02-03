@@ -97,6 +97,16 @@ abstract public class YmirTestCase extends TestCase {
     private String webappRoot_ = DEFAULT_WEBAPPROOT;
 
     /**
+     * テストに使用されるYmirオブジェクトを返します。
+     *
+     * @return Ymirオブジェクト。
+     * @since 1.0.2
+     */
+    protected Ymir getYmir() {
+        return ymir_;
+    }
+
+    /**
      * テストに使用されるServletContextオブジェクトを返します。
      *
      * @return ServletContextオブジェクト。
