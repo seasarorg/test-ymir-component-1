@@ -12,6 +12,10 @@
   <component class="org.seasar.ymir.impl.YmirPathMapping">
     <arg>""</arg>
     <arg>"_RootPage"</arg>
+    <initMethod name="setReverseMapping">
+      <arg>"_RootPage"</arg>
+      <arg>""</arg>
+    </initMethod>
   </component>
   <component class="org.seasar.ymir.impl.YmirPathMapping">
     <arg>"/(pageTestCaseTest)\\.html"</arg>
@@ -28,6 +32,10 @@
     <arg>""</arg>
     <arg>null</arg>
     <arg>"redirect:/${1}.html"</arg>
+    <initMethod name="setReverseMapping">
+      <arg>"([a-zA-Z][a-zA-Z0-9]*)Page"</arg>
+      <arg>"/${1}.html"</arg>
+    </initMethod>
   </component>
   <component class="org.seasar.ymir.impl.DeniedYmirPathMapping">
     <arg>"/forwardResponseITest8\\..*\\.html"</arg>
