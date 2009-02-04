@@ -3,6 +3,8 @@ package org.seasar.ymir.conversation;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.response.RedirectResponse;
 import org.seasar.ymir.testing.YmirTestCase;
 
 import com.example.web.Conversation2Phase2Page;
@@ -98,5 +100,111 @@ public class ConversationITest extends YmirTestCase {
                     .getName());
             assertEquals("以前の状態が保たれていること", "phase1", conversation.getPhase());
         }
+    }
+
+    public void test_YMIR_313_返り値型がvoid型であるアクションにEndアノテーションを付与できないこと()
+            throws Exception {
+        // conversationを開始する。
+        Request request = prepareForProcessing("/conversation4Phase1.html",
+                HttpMethod.GET);
+        processRequest(request);
+
+        // sub conversationの開始準備をする。
+        request = prepareForProcessing("/conversation4Phase1.html?beginsub=",
+                HttpMethod.GET);
+        processRequest(request);
+
+        // sub conversationを開始する。
+        request = prepareForProcessing("/conversation5Phase1.html",
+                HttpMethod.GET);
+        processRequest(request);
+
+        // sub conversationを終了する。（返り値型void）
+        request = prepareForProcessing("/conversation5Phase1.html?endVoid=",
+                HttpMethod.GET);
+        try {
+            // この時点で失敗する。
+            processRequest(request);
+            fail();
+        } catch (IllegalClientCodeRuntimeException expected) {
+        }
+    }
+
+    public void test_YMIR_313_返り値型がObject型であるアクションにEndアノテーションを付与できること()
+            throws Exception {
+        // conversationを開始する。
+        Request request = prepareForProcessing("/conversation4Phase1.html",
+                HttpMethod.GET);
+        processRequest(request);
+
+        // sub conversationの開始準備をする。
+        request = prepareForProcessing("/conversation4Phase1.html?beginsub=",
+                HttpMethod.GET);
+        processRequest(request);
+
+        // sub conversationを開始する。
+        request = prepareForProcessing("/conversation5Phase1.html",
+                HttpMethod.GET);
+        processRequest(request);
+
+        // sub conversationを終了する。（返り値型Object）
+        request = prepareForProcessing("/conversation5Phase1.html?endObject=",
+                HttpMethod.GET);
+        Response response = processRequest(request);
+        assertTrue(response instanceof RedirectResponse);
+        assertEquals("conversation4Phase1.html?continue=",
+                ((RedirectResponse) response).getPath());
+    }
+
+    public void test_YMIR_313_返り値型がString型であるアクションにEndアノテーションを付与できること()
+            throws Exception {
+        // conversationを開始する。
+        Request request = prepareForProcessing("/conversation4Phase1.html",
+                HttpMethod.GET);
+        processRequest(request);
+
+        // sub conversationの開始準備をする。
+        request = prepareForProcessing("/conversation4Phase1.html?beginsub=",
+                HttpMethod.GET);
+        processRequest(request);
+
+        // sub conversationを開始する。
+        request = prepareForProcessing("/conversation5Phase1.html",
+                HttpMethod.GET);
+        processRequest(request);
+
+        // sub conversationを終了する。（返り値型String）
+        request = prepareForProcessing("/conversation5Phase1.html?endString=",
+                HttpMethod.GET);
+        Response response = processRequest(request);
+        assertTrue(response instanceof RedirectResponse);
+        assertEquals("conversation4Phase1.html?continue=",
+                ((RedirectResponse) response).getPath());
+    }
+
+    public void test_YMIR_313_返り値型がResponse型であるアクションにEndアノテーションを付与できること()
+            throws Exception {
+        // conversationを開始する。
+        Request request = prepareForProcessing("/conversation4Phase1.html",
+                HttpMethod.GET);
+        processRequest(request);
+
+        // sub conversationの開始準備をする。
+        request = prepareForProcessing("/conversation4Phase1.html?beginsub=",
+                HttpMethod.GET);
+        processRequest(request);
+
+        // sub conversationを開始する。
+        request = prepareForProcessing("/conversation5Phase1.html",
+                HttpMethod.GET);
+        processRequest(request);
+
+        // sub conversationを終了する。（返り値型Response）
+        request = prepareForProcessing(
+                "/conversation5Phase1.html?endResponse=", HttpMethod.GET);
+        Response response = processRequest(request);
+        assertTrue(response instanceof RedirectResponse);
+        assertEquals("conversation4Phase1.html?continue=",
+                ((RedirectResponse) response).getPath());
     }
 }
