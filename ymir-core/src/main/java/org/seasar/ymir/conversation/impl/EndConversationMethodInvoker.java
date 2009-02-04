@@ -1,12 +1,18 @@
 package org.seasar.ymir.conversation.impl;
 
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.MethodInvokerWrapper;
+import org.seasar.ymir.Response;
 import org.seasar.ymir.conversation.ConversationUtils;
 
 public class EndConversationMethodInvoker extends MethodInvokerWrapper {
-    public EndConversationMethodInvoker(MethodInvoker methodInvoker) {
+    private ActionManager actionManager_;
+
+    public EndConversationMethodInvoker(MethodInvoker methodInvoker,
+            ActionManager actionManager) {
         super(methodInvoker);
+        actionManager_ = actionManager;
     }
 
     public Object invoke(Object component) {
@@ -25,7 +31,14 @@ public class EndConversationMethodInvoker extends MethodInvokerWrapper {
             if (exception != null) {
                 throw exception;
             } else if (reenterResponse != null) {
-                returned = reenterResponse;
+                if (methodInvoker_.getReturnType() == Response.class) {
+                    // Pageオブジェクトとしてnullを渡しているのは、今のところsub conversationを開始したPageオブジェクトを保存するようになっていないから。
+                    // 従って、reenterとして「path(a,b)」形式のようなパスを指定することはできない。
+                    returned = actionManager_.constructResponse(null,
+                            reenterResponse.getClass(), reenterResponse);
+                } else {
+                    returned = reenterResponse;
+                }
             }
         }
         return returned;

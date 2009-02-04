@@ -16,6 +16,7 @@ import org.seasar.ymir.Path;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.Ymir;
+import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.response.TransitionResponse;
 import org.seasar.ymir.response.scheme.Strategy;
 
@@ -23,13 +24,6 @@ abstract public class AbstractTransitionStrategy implements Strategy {
     private static final String ENCODING = "UTF-8";
 
     private static final TextTemplateEvaluator evaluator_ = new SimpleTextTemplateEvaluator();
-
-    private Ymir ymir_;
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setYmir(Ymir ymir) {
-        ymir_ = ymir;
-    }
 
     public Response constructResponse(String path, Object component) {
         TransitionResponse response = newResponse();
@@ -71,8 +65,9 @@ abstract public class AbstractTransitionStrategy implements Strategy {
     }
 
     String getCharacterEncoding() {
-        return ((Request) ymir_.getApplication().getS2Container().getComponent(
-                Request.class)).getCharacterEncoding();
+        return ((Request) YmirContext.getYmir().getApplication()
+                .getS2Container().getComponent(Request.class))
+                .getCharacterEncoding();
     }
 
     void parseFunctionTypeParameters(String parameter, Object component,

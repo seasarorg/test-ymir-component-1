@@ -2,15 +2,27 @@ package org.seasar.ymir.impl;
 
 import java.lang.reflect.Method;
 
+import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.MethodInvoker;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.response.constructor.ResponseConstructor;
+import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
 import org.seasar.ymir.scope.ScopeManager;
 
 public class ActionManagerImpl implements ActionManager {
+    private ResponseConstructorSelector responseConstructorSelector_;
+
     private ScopeManager scopeManager_;
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setResponseConstructorSelector(
+            ResponseConstructorSelector responseConstructorSelector) {
+        responseConstructorSelector_ = responseConstructorSelector;
+    }
 
     @Binding(bindingType = BindingType.MUST)
     public void setScopeManager(ScopeManager scopeManager) {
@@ -43,5 +55,30 @@ public class ActionManagerImpl implements ActionManager {
 
     public Action newVoidAction(Object page) {
         return newAction(page, VoidMethodInvoker.INSTANCE);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Response constructResponse(Object page, Class<?> returnType,
+            Object returnValue) {
+        ResponseConstructor<?> constructor = responseConstructorSelector_
+                .getResponseConstructor(returnType);
+        if (constructor == null) {
+            throw new ComponentNotFoundRuntimeException(
+                    "Can't find ResponseConstructor for type '" + returnType
+                            + "' in ResponseConstructorSelector");
+        }
+
+        ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            if (page != null) {
+                // XXX request.getComponentClass().getClassLoader()にすべきか？
+                Thread.currentThread().setContextClassLoader(
+                        page.getClass().getClassLoader());
+            }
+            return ((ResponseConstructor<Object>) constructor)
+                    .constructResponse(page, returnValue);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldLoader);
+        }
     }
 }

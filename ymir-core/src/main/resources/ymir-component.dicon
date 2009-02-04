@@ -3,6 +3,30 @@
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
   <include path="ymir-converter.dicon" />
+  <component
+    class="org.seasar.cms.pluggable.container.autoregister.ComponentAutoRegister">
+    <property name="customizer" bindingType="none" />
+    <initMethod name="addReferenceClass">
+      <arg>@org.seasar.ymir.Ymir@class</arg>
+    </initMethod>
+    <initMethod name="addClassPattern">
+      <arg>"org.seasar.ymir.response.constructor.impl"</arg>
+      <arg>".*ResponseConstructor"</arg>
+    </initMethod>
+    <initMethod name="addIgnoreClassPattern">
+      <arg>"org.seasar.ymir.response.constructor.impl"</arg>
+      <arg>"Abstract.*"</arg>
+    </initMethod>
+    <initMethod name="addClassPattern">
+      <arg>"org.seasar.ymir.response.scheme.impl"</arg>
+      <arg>".*Strategy"</arg>
+    </initMethod>
+    <initMethod name="addIgnoreClassPattern">
+      <arg>"org.seasar.ymir.response.scheme.impl"</arg>
+      <arg>"Abstract.*"</arg>
+    </initMethod>
+    <initMethod name="registerAll" />
+  </component>
   <component name="applicationManager"
     class="org.seasar.ymir.impl.ApplicationManagerImpl" />
   <component name="cacheManager"
@@ -43,6 +67,10 @@
     class="org.seasar.ymir.scope.impl.ScopeManagerImpl" />
   <component name="actionManager"
     class="org.seasar.ymir.impl.ActionManagerImpl" />
+  <component
+    class="org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl" />
+  <component
+    class="org.seasar.ymir.response.scheme.impl.StrategySelectorImpl" />
   <!-- HotdeployFitter -->
   <component name="listFitter"
     class="org.seasar.ymir.hotdeploy.fitter.impl.ListFitter" />

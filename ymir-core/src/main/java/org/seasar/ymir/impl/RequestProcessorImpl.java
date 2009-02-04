@@ -59,8 +59,6 @@ public class RequestProcessorImpl implements RequestProcessor {
 
     private ComponentMetaDataFactory componentMetaDataFactory_;
 
-    private ResponseConstructorSelector responseConstructorSelector_;
-
     private Updater[] updaters_ = new Updater[0];
 
     private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
@@ -94,12 +92,6 @@ public class RequestProcessorImpl implements RequestProcessor {
             ComponentMetaDataFactory componentMetaDataFactory) {
         componentMetaDataFactory_ = componentMetaDataFactory;
         initPageComponentVisitor();
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setResponseConstructorSelector(
-            ResponseConstructorSelector responseConstructorSelector) {
-        responseConstructorSelector_ = responseConstructorSelector;
     }
 
     public void setUpdaters(Updater[] updaters) {
@@ -378,8 +370,8 @@ public class RequestProcessorImpl implements RequestProcessor {
                 log_.debug("INVOKE: " + action.getTarget().getClass() + "#"
                         + action.getMethodInvoker());
             }
-            response = constructResponse(action.getTarget(), action
-                    .getReturnType(), action.invoke());
+            response = actionManager_.constructResponse(action.getTarget(),
+                    action.getReturnType(), action.invoke());
             if (log_.isDebugEnabled()) {
                 log_.debug("RESPONSE: " + response);
             }
@@ -394,7 +386,8 @@ public class RequestProcessorImpl implements RequestProcessor {
             Object returnValue = dispatch.getMatchedPathMapping()
                     .getDefaultReturnValue();
             if (returnValue != null) {
-                response = constructResponse(page, Object.class, returnValue);
+                response = actionManager_.constructResponse(page, Object.class,
+                        returnValue);
             }
         }
 
@@ -423,31 +416,6 @@ public class RequestProcessorImpl implements RequestProcessor {
             // このメソッドでは指定されたpathに対応するリソースが存在してかつそれがファイル（＝ディレクトリではない）
             // である場合にtrueを返したいので、getResource(String)ではまずい。
             return pathSet.contains(path);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    Response constructResponse(Object page, Class<?> returnType,
-            Object returnValue) {
-        ResponseConstructor<?> constructor = responseConstructorSelector_
-                .getResponseConstructor(returnType);
-        if (constructor == null) {
-            throw new ComponentNotFoundRuntimeException(
-                    "Can't find ResponseConstructor for type '" + returnType
-                            + "' in ResponseConstructorSelector");
-        }
-
-        ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            if (page != null) {
-                // XXX request.getComponentClass().getClassLoader()にすべきか？
-                Thread.currentThread().setContextClassLoader(
-                        page.getClass().getClassLoader());
-            }
-            return ((ResponseConstructor<Object>) constructor)
-                    .constructResponse(page, returnValue);
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldLoader);
         }
     }
 

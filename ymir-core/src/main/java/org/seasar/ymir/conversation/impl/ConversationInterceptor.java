@@ -11,6 +11,7 @@ import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.conversation.ConversationUtils;
 import org.seasar.ymir.conversation.Conversations;
@@ -84,16 +85,16 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
                                     + actionMethod.getName());
                 }
                 if (conversations.isInSubConversation()
-                        && !action.getReturnType().isAssignableFrom(
-                                String.class)) {
+                        && !isValidReturnTypeAsSubConversationEndAction(action
+                                .getReturnType())) {
                     throw new IllegalClientCodeRuntimeException(
-                            "@End must annote a method whose return type is assignable from String: "
+                            "@End must annote a method whose return type is Object, String or Response: "
                                     + action.getTarget().getClass().getName()
                                     + "#" + action.getName() + "()");
                 }
                 action = actionManager_.newAction(action.getTarget(),
                         new EndConversationMethodInvoker(action
-                                .getMethodInvoker()));
+                                .getMethodInvoker(), actionManager_));
             } else {
                 if (beginSubConversation != null) {
                     action = actionManager_.newAction(action.getTarget(),
@@ -104,6 +105,12 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
         }
 
         return action;
+    }
+
+    boolean isValidReturnTypeAsSubConversationEndAction(
+            Class<? extends Object> returnType) {
+        return returnType.isAssignableFrom(String.class)
+                || returnType == Response.class;
     }
 
     S2Container getS2Container() {
