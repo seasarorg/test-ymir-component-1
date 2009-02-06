@@ -6,10 +6,12 @@ import java.util.Map;
 
 import org.seasar.framework.util.ResourceUtil;
 import org.seasar.ymir.HttpMethod;
+import org.seasar.ymir.Request;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescSet;
 import org.seasar.ymir.extension.creator.impl.PathMetaDataImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImplTestBase;
+import org.seasar.ymir.mock.MockRequest;
 
 public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
 
@@ -36,15 +38,16 @@ public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
 
         clean(getProjectRootDir());
 
+        Request request = new MockRequest();
         PathMetaDataImpl pathMetaData = new PathMetaDataImpl(null, null, false,
                 null, null, null, null, getSourceCreator().getSourceFile(
                         "com.example.web.TestPage"), getSourceCreator()
                         .getTemplate("/test.html"));
         getSourceCreator().getSourceCreatorProperties().clear();
-        assertTrue("ソースファイルが存在しない場合は最初だけtrueになること", target_
-                .shouldUpdate(pathMetaData));
-        assertFalse("ソースファイルが存在しない場合は最初だけtrueになること", target_
-                .shouldUpdate(pathMetaData));
+        assertTrue("ソースファイルが存在しない場合は最初だけtrueになること", target_.shouldUpdate(
+                request, pathMetaData));
+        assertFalse("ソースファイルが存在しない場合は最初だけtrueになること", target_.shouldUpdate(
+                request, pathMetaData));
 
         Map<String, ClassDesc> classDescMap = new LinkedHashMap<String, ClassDesc>();
         getSourceCreator().gatherClassDescs(
@@ -71,7 +74,7 @@ public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
         assertTrue(new File(sourceDir, "com/example/dto/EntityDtoBase.java")
                 .exists());
 
-        assertFalse(target_.shouldUpdate(pathMetaData));
+        assertFalse(target_.shouldUpdate(request, pathMetaData));
     }
 
     public void testResolveTypeName() throws Exception {

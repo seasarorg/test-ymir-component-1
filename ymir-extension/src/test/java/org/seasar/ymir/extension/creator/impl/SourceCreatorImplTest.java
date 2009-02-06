@@ -314,7 +314,15 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         + "<input type=\"hidden\" name=\"aaa\" value=\"a%26%3F\" />"
                         + "<input type=\"hidden\" name=\"aaa\" value=\"b\" />"
                         + "<input type=\"hidden\" name=\"bbb\" value=\"c\" />"
-                        + "<input type=\"submit\" value=\"[TO SYSTEM CONSOLE]\" />"
+                        + "<input type=\"submit\" value=\"SYSTEM CONSOLE\" />"
+                        + "</form>"
+                        + "<form action=\"/context/path\" method=\"post\">"
+                        + "<input type=\"hidden\" name=\"__ymir__task\" value=\"updateClasses\" />"
+                        + "<input type=\"hidden\" name=\"__ymir__method\" value=\"GET\" />"
+                        + "<input type=\"hidden\" name=\"aaa\" value=\"a%26%3F\" />"
+                        + "<input type=\"hidden\" name=\"aaa\" value=\"b\" />"
+                        + "<input type=\"hidden\" name=\"bbb\" value=\"c\" />"
+                        + "<input type=\"submit\" value=\"UPDATE CLASSES\" />"
                         + "</form></div></body></html>",
                 target_
                         .filterResponse("<html><head></head><body></body></html>"));
@@ -456,7 +464,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         String actual = target_.createControlPanelFormHTML(request);
 
         assertEquals(
-                "<form action=\"/context/path\" method=\"post\"><input type=\"hidden\" name=\"__ymir__task\" value=\"systemConsole\" /><input type=\"hidden\" name=\"__ymir__method\" value=\"GET\" /><input type=\"hidden\" name=\"aaa\" value=\"a%26%3F\" /><input type=\"hidden\" name=\"aaa\" value=\"b\" /><input type=\"hidden\" name=\"bbb\" value=\"c\" /><input type=\"submit\" value=\"[TO SYSTEM CONSOLE]\" /></form>",
+                "<form action=\"/context/path\" method=\"post\"><input type=\"hidden\" name=\"__ymir__task\" value=\"systemConsole\" /><input type=\"hidden\" name=\"__ymir__method\" value=\"GET\" /><input type=\"hidden\" name=\"aaa\" value=\"a%26%3F\" /><input type=\"hidden\" name=\"aaa\" value=\"b\" /><input type=\"hidden\" name=\"bbb\" value=\"c\" /><input type=\"submit\" value=\"SYSTEM CONSOLE\" /></form>",
                 actual);
     }
 

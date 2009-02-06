@@ -47,15 +47,15 @@
         <dt>extension.sourceCreator.superclass</dt>
         <dd><p>Pageクラスの共通の親クラス名を指定して下さい。何も指定しないと親クラスは設定されません。</p>
           <p>
-            <input type="text" name="__ymir__key_extension.sourceCreator.superclass" tal:attributes="value setting/pageSuperClassName" size="48" />
+            <input type="text" name="__ymir__key_extension.sourceCreator.superclass" tal:attributes="value setting/pageSuperclassName" size="48" />
           </p>
         </dd>
-        <dt>extension.sourceCreatoruseFreyjaRenderClasses</dt>
+        <dt>extension.sourceCreator.useFreyjaRenderClasses</dt>
         <dd><p>DTOを生成する際、Freyjaが持つレンダリングクラスが使える場合はレンダリングクラスを使うようにするかどうかを指定して下さい。
                例えば種別を選択するためのラジオボタンの組をレンダリングするためのオブジェクトを返す「typeRadioInputTags」というプロパティが
                ある場合、この設定が「利用する」になっていればプロパティの型は生成されたTypeRadioInputTagsDtoクラスではなく
                Freyjaが持つRadioInputTagsクラスになります。</p>
-          <p tal:define="flag setting/usingFreyjaRenderClass">
+          <p tal:define="flag setting/usingFreyjaRenderClasses">
             <input type="radio" name="__ymir__key_extension.sourceCreator.useFreyjaRenderClasses" value="true" tal:attributes="checked flag" /> 利用する
             <input type="radio" name="__ymir__key_extension.sourceCreator.useFreyjaRenderClasses" value="false" checked="checked" tal:attributes="checked not:flag" /> 利用しない
           </p>
@@ -93,6 +93,13 @@
           <p tal:define="flag setting/converterCreationFeatureEnabled">
             <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="true" tal:attributes="checked flag" /> 自動生成する
             <input type="radio" name="__ymir__key_extension.sourceCreator.feature.createConverter.enable" value="false" checked="checked" tal:attributes="checked not:flag" /> 自動生成しない
+          </p>
+        </dd>
+        <dt>extension.sourceCreator.tryToUpdateClassesWhenTemplateModified</dt>
+        <dd><p>テンプレートの更新をトリガとした自動生成処理の呼び出しを行なうかどうかを指定して下さい。</p>
+          <p tal:define="flag setting/tryingToUpdateClassesWhenTemplateModified">
+            <input type="radio" name="__ymir__key_extension.sourceCreator.tryToUpdateClassesWhenTemplateModified" value="true" tal:attributes="checked flag" /> テンプレートの更新をトリガとする
+            <input type="radio" name="__ymir__key_extension.sourceCreator.tryToUpdateClassesWhenTemplateModified" value="false" checked="checked" tal:attributes="checked not:flag" /> テンプレートの更新をトリガとしない
           </p>
         </dd>
       </dl>

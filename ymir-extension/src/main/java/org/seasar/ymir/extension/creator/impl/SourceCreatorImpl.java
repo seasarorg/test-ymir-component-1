@@ -1642,6 +1642,7 @@ public class SourceCreatorImpl implements SourceCreator {
             response = response.replace("</body>",
                     "<div id=\"__ymir__controlPanel\">"
                             + createControlPanelFormHTML(getRequest())
+                            + createUpdateClassesButtonHTML(getRequest())
                             + "</div></body>");
         }
 
@@ -1649,16 +1650,20 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     String createControlPanelFormHTML(Request request) {
+        return createButtonHTML(request, "systemConsole", "SYSTEM CONSOLE");
+    }
+
+    String createUpdateClassesButtonHTML(Request request) {
+        return createButtonHTML(request, "updateClasses", "UPDATE CLASSES");
+    }
+
+    String createButtonHTML(Request request, String taskName, String buttonLabel) {
         StringBuilder sb = new StringBuilder();
-        sb
-                .append("<form action=\"")
-                .append(request.getAbsolutePath())
-                .append("\" method=\"post\">")
-                .append("<input type=\"hidden\" name=\"")
-                .append(PARAM_TASK)
-                .append(
-                        "\" value=\"systemConsole\" /><input type=\"hidden\" name=\"")
-                .append(PARAM_METHOD).append("\" value=\"").append(
+        sb.append("<form action=\"").append(request.getAbsolutePath()).append(
+                "\" method=\"post\">").append("<input type=\"hidden\" name=\"")
+                .append(PARAM_TASK).append("\" value=\"").append(taskName)
+                .append("\" /><input type=\"hidden\" name=\"").append(
+                        PARAM_METHOD).append("\" value=\"").append(
                         request.getMethod()).append("\" />");
         for (Iterator<String> itr = request.getParameterNames(); itr.hasNext();) {
             String name = itr.next();
@@ -1685,8 +1690,8 @@ public class SourceCreatorImpl implements SourceCreator {
                                 "\" />");
             }
         }
-        sb
-                .append("<input type=\"submit\" value=\"[TO SYSTEM CONSOLE]\" /></form>");
+        sb.append("<input type=\"submit\" value=\"").append(buttonLabel)
+                .append("\" /></form>");
         return sb.toString();
     }
 

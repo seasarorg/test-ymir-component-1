@@ -23,6 +23,8 @@ public class SourceCreatorSetting {
     public static final String APPKEYPREFIX_SOURCECREATOR_ENABLE = APPKEY_SOURCECREATOR_ENABLE
             + ".";
 
+    public static final String APPKEY_SOURCECREATOR_TRYTOUPDATECLASSESWHENTEMPLATEMODIFIED = "extension.sourceCreator.tryToUpdateClassesWhenTemplateModified";
+
     public static final String APPKEY_SOURCECREATOR_USEFREYJARENDERCLASSES = "extension.sourceCreator.useFreyjaRenderClasses";
 
     public static final String APPKEY_SOURCECREATOR_GENERATEREPEATEDPROPERTYASLIST = "extension.sourceCreator.generateRepeatedPropertyAsList";
@@ -218,6 +220,13 @@ public class SourceCreatorSetting {
             setProperty(APPKEYPREFIX_SOURCECREATOR_ENABLE
                     + ServletUtils.normalizePath(path), String.valueOf(enabled));
         }
+    }
+
+    public boolean isTryingToUpdateClassesWhenTemplateModified() {
+        return PropertyUtils
+                .valueOf(
+                        getProperty(APPKEY_SOURCECREATOR_TRYTOUPDATECLASSESWHENTEMPLATEMODIFIED),
+                        true);
     }
 
     public String getSuperclassName(String className) {

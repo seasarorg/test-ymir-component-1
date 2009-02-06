@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
+import static org.seasar.ymir.extension.creator.SourceCreator.PARAM_TASK;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,7 +90,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
     }
 
     Response actDefault(Request request, PathMetaData pathMetaData) {
-        if (!shouldUpdate(pathMetaData)) {
+        if (!shouldUpdate(request, pathMetaData)) {
             return null;
         }
 
@@ -336,17 +338,25 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         return type.getAsString();
     }
 
-    boolean shouldUpdate(PathMetaData pathMetaData) {
+    boolean shouldUpdate(Request request, PathMetaData pathMetaData) {
         Template template = pathMetaData.getTemplate();
         if (template == null || !template.exists()) {
             return false;
         }
-        boolean shouldUpdate = (template.lastModified() > getSourceCreator()
-                .getCheckedTime(template));
-        if (shouldUpdate) {
-            getSourceCreator().updateCheckedTime(template);
+
+        if (getSourceCreatorSetting()
+                .isTryingToUpdateClassesWhenTemplateModified()) {
+            boolean shouldUpdate = (template.lastModified() > getSourceCreator()
+                    .getCheckedTime(template));
+            if (shouldUpdate) {
+                getSourceCreator().updateCheckedTime(template);
+            }
+            return shouldUpdate;
+        } else {
+            // タスクが明示的に指定されている場合は「UPDATE CLASSES」ボタンからの遷移なので
+            // Update処理を行なうことにする。そうでない場合はUpdate処理は行なわない。
+            return request.getParameter(PARAM_TASK) != null;
         }
-        return shouldUpdate;
     }
 
     protected static class ClassNameMapping {
