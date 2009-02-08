@@ -204,7 +204,8 @@ public interface Ymir {
 
     /**
      * Pageクラスに対応するコンテキスト相対のパスを返します。
-     * <p>Pageクラスからパスを特定できない場合はnullを返します。
+     * <p>Pageクラスに対応するパスが存在しない場合や、
+     * Pageクラスからパスを特定できない場合はnullを返します。
      * </p>
      * 
      * @param pageClass Pageクラス。
@@ -215,7 +216,8 @@ public interface Ymir {
 
     /**
      * Pageクラス名に対応するコンテキスト相対のパスを返します。
-     * <p>Pageクラス名からパスを特定できない場合はnullを返します。
+     * <p>Pageクラス名に対応するパスが存在しない場合や、
+     * Pageクラス名からパスを特定できない場合はnullを返します。
      * </p>
      * 
      * @param pageClassName Pageクラス名。
@@ -223,4 +225,26 @@ public interface Ymir {
      * @since 1.0.2
      */
     String getPathOfPageClass(String pageClassName);
+
+    /**
+     * パスに対応するPageクラスを返します。
+     * <p>パスに対応するPageクラスが存在しない場合はnullを返します。
+     * </p>
+     * 
+     * @param path コンテキスト相対パス。
+     * @param Pageクラス。
+     * @since 1.0.2
+     */
+    Class<?> getPageClassOfPath(String path);
+
+    /**
+     * パスに対応するPageクラス名を返します。
+     * <p>パスに対応するPageクラス名が存在しない場合はnullを返します。
+     * </p>
+     * 
+     * @param path コンテキスト相対パス。
+     * @param Pageクラス名。
+     * @since 1.0.2
+     */
+    String getPageClassNameOfPath(String path);
 }

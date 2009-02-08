@@ -332,7 +332,8 @@ public class YmirImpl implements Ymir {
     }
 
     public String getPathOfPageClass(Class<?> pageClass) {
-        return getPathOfPageClass(pageClass != null ? pageClass.getName() : null);
+        return getPathOfPageClass(pageClass != null ? pageClass.getName()
+                : null);
     }
 
     public String getPathOfPageClass(String pageClassName) {
@@ -348,5 +349,33 @@ public class YmirImpl implements Ymir {
             }
         }
         return null;
+    }
+
+    public Class<?> getPageClassOfPath(String path) {
+        MatchedPathMapping matched = findMatchedPathMapping(path,
+                HttpMethod.GET);
+        if (matched == null) {
+            return null;
+        } else {
+            String componentName = matched.getPageComponentName();
+            S2Container s2container = getApplication().getS2Container();
+            if (s2container.hasComponentDef(componentName)) {
+                return s2container.getComponentDef(componentName)
+                        .getComponentClass();
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public String getPageClassNameOfPath(String path) {
+        MatchedPathMapping matched = findMatchedPathMapping(path,
+                HttpMethod.GET);
+        if (matched == null) {
+            return null;
+        } else {
+            return ymirNamingConvention_.fromComponentNameToClassName(matched
+                    .getPageComponentName());
+        }
     }
 }

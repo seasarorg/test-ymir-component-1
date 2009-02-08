@@ -114,10 +114,19 @@ public class MockYmir implements Ymir {
     }
 
     public String getPathOfPageClass(Class<?> pageClass) {
-        return getPathOfPageClass(pageClass != null ? pageClass.getName() : null);
+        return getPathOfPageClass(pageClass != null ? pageClass.getName()
+                : null);
     }
 
     public String getPathOfPageClass(String pageClassName) {
+        return null;
+    }
+
+    public String getPageClassNameOfPath(String path) {
+        return null;
+    }
+
+    public Class<?> getPageClassOfPath(String path) {
         return null;
     }
 }
