@@ -26,6 +26,6 @@ abstract public class PageTestCase<P> extends YmirTestCase {
     @SuppressWarnings("unchecked")
     protected P getPage() {
         checkStatus(STATUS_PREPARED);
-        return (P) getContainer().getComponent(getPageClass());
+        return getComponent(getPageClass());
     }
 }

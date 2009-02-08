@@ -3,9 +3,14 @@ package org.seasar.ymir.testing;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -583,6 +588,25 @@ abstract public class YmirTestCase extends TestCase {
         return request_;
     }
 
+    final protected Class<?> getPageClass(String path) {
+        Class<?> pageClass = ymir_.getPageClassOfPath(path);
+        if (pageClass == null) {
+            throw new IllegalArgumentException(
+                    "Can't find page class corresponding path (" + path + ")");
+        }
+        return pageClass;
+    }
+
+    final protected String getPathOfPageClass(Class<?> pageClass) {
+        String path = ymir_.getPathOfPageClass(pageClass);
+        if (path == null) {
+            throw new IllegalArgumentException(
+                    "Can't find path corresponding page class ("
+                            + pageClass.getName() + ")");
+        }
+        return path;
+    }
+
     protected MockHttpServletResponse newHttpServletResponse(
             MockHttpServletRequest httpRequest) {
         return new MockHttpServletResponseImpl(httpRequest);
@@ -782,5 +806,111 @@ abstract public class YmirTestCase extends TestCase {
         }
 
         abstract protected void test() throws Throwable;
+    }
+
+    /**
+     * Pageクラスのアクション呼び出しのための準備を行ないます。
+     *
+     * @param pageClass アクションを呼び出すPageクラス。
+     * @param method HTTPメソッド。
+     * @return 構築されたRequestオブジェクト。
+     * @since 1.0.2
+     */
+    protected Request prepareForProcessing(Class<?> pageClass, HttpMethod method) {
+        return prepareForProcessing(getPathOfPageClass(pageClass), method,
+                (String) null);
+    }
+
+    /**
+     * Pageクラスのアクション呼び出しのための準備を行ないます。
+     *
+     * @param pageClass アクションを呼び出すPageクラス。
+     * @param method HTTPメソッド。
+     * @param queryString クエリ文字列。「<code>a=b&c=d</code>」のように記述して下さい。
+     * @return 構築されたRequestオブジェクト。
+     * @since 1.0.2
+     */
+    protected Request prepareForProcessing(Class<?> pageClass,
+            HttpMethod method, String queryString) {
+        return prepareForProcessing(getPathOfPageClass(pageClass), method,
+                queryString);
+    }
+
+    /**
+     * Pageクラスのアクション呼び出しのための準備を行ないます。
+     *
+     * @param pageClass アクションを呼び出すPageクラス。
+     * @param method HTTPメソッド。
+     * @param param1Name 最初のリクエストパラメータの名前。
+     * @param param1Value1 最初のリクエストパラメータの値。
+     * StringかString[]かFormFileかFormFile[]の非null値を指定して下さい。
+     * @param theOtherParams 残りのリクエストパラメータ。
+     * 値は必ず偶数個（パラメータ名, パラメータ値のペア, ...）指定して下さい。
+     * パラメータ名としてはStringの非null値を指定して下さい。
+     * パラメータ値としてはStringかString[]かFormFileかFormFile[]の非null値を指定して下さい。
+     * @return 構築されたRequestオブジェクト。
+     * @since 1.0.2
+     */
+    protected Request prepareForProcessing(Class<?> pageClass,
+            HttpMethod method, String param1Name, Object param1Value1,
+            Object... theOtherParams) {
+        Map<String, String[]> parameterMap = new LinkedHashMap<String, String[]>();
+        Map<String, FormFile[]> fileParameterMap = new LinkedHashMap<String, FormFile[]>();
+        addParameter(param1Name, param1Value1, parameterMap, fileParameterMap);
+        if (theOtherParams != null) {
+            if (theOtherParams.length % 2 == 1) {
+                throw new IllegalArgumentException(
+                        "The number of theOtherParams must be even");
+            }
+            for (int i = 0; i < theOtherParams.length; i += 2) {
+                addParameter(theOtherParams[i], theOtherParams[i + 1],
+                        parameterMap, fileParameterMap);
+            }
+        }
+        return prepareForProcessing(getPathOfPageClass(pageClass), method,
+                parameterMap, fileParameterMap);
+    }
+
+    private void addParameter(Object name, Object value,
+            Map<String, String[]> parameterMap,
+            Map<String, FormFile[]> fileParameterMap) {
+        if (!(name instanceof String)) {
+            throw new IllegalArgumentException(
+                    "Parameter name must be a string: " + name);
+        }
+        String stringName = (String) name;
+        if (value instanceof String) {
+            String v = (String) value;
+            addToMap(parameterMap, stringName, new String[] { v });
+        } else if (value instanceof String[]) {
+            String[] vs = (String[]) value;
+            addToMap(parameterMap, stringName, vs);
+        } else if (value instanceof FormFile) {
+            FormFile v = (FormFile) value;
+            addToMap(fileParameterMap, stringName, new FormFile[] { v });
+        } else if (value instanceof FormFile[]) {
+            FormFile[] vs = (FormFile[]) value;
+            addToMap(fileParameterMap, stringName, vs);
+        } else {
+            throw new IllegalArgumentException(
+                    "Parameter value must be a String, String[], FormFile or FormFile[]: "
+                            + value);
+        }
+    }
+
+    private <V> void addToMap(Map<String, V[]> map, String name, V[] values) {
+        V[] vs = map.get(name);
+        if (vs == null) {
+            vs = values;
+        } else {
+            List<V> list = new ArrayList<V>();
+            list.addAll(Arrays.asList(vs));
+            list.addAll(Arrays.asList(values));
+            @SuppressWarnings("unchecked")
+            V[] newVs = list.toArray((V[]) Array.newInstance(vs.getClass()
+                    .getComponentType(), 0));
+            vs = newVs;
+        }
+        map.put(name, vs);
     }
 }
