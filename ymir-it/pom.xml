@@ -15,6 +15,18 @@
   </description>
   <build>
     <defaultGoal>install</defaultGoal>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <excludes>
+              <exclude>**/*TestCase.java</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <artifactId>maven-source-plugin</artifactId>
@@ -77,6 +89,12 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>ymir-core</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ymir-zpt</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

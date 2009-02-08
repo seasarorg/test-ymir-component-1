@@ -37,6 +37,8 @@ public class YmirVariableResolver extends VariableResolverImpl {
 
     private static final String NAME_VARIABLES = "variables";
 
+    private static final String NAME_PARAM_SELF = "param-self";
+
     private Request ymirRequest_;
 
     private HttpServletRequest request_;
@@ -50,6 +52,12 @@ public class YmirVariableResolver extends VariableResolverImpl {
     private TokenManager tokenManager_;
 
     private Token token_;
+
+    private boolean selfLoaded_;
+
+    private Object self_;
+
+    private ParamSelf paramSelf_;
 
     private static final Log log_ = LogFactory
             .getLog(YmirVariableResolver.class);
@@ -89,6 +97,8 @@ public class YmirVariableResolver extends VariableResolverImpl {
             return getToken();
         } else if (NAME_VARIABLES.equals(name)) {
             return Variables.INSTANCE;
+        } else if (NAME_PARAM_SELF.equals(name)) {
+            return getParamSelf();
         } else if (super.containsVariable(name)) {
             return super.getVariable(context, name);
         } else if (parent_ != null) {
@@ -108,15 +118,15 @@ public class YmirVariableResolver extends VariableResolverImpl {
             return value;
         }
 
-        Object component = request_.getAttribute(RequestProcessor.ATTR_SELF);
-        if (component != null) {
-            YmirUtils.preserveTypeConversionHint(context, component, name);
+        Object self = getSelf();
+        if (self != null) {
+            YmirUtils.preserveTypeConversionHint(context, self, name);
             try {
-                return PropertyUtils.getProperty(component, name);
+                return PropertyUtils.getProperty(self, name);
             } catch (Throwable ex) {
                 if (log_.isDebugEnabled()) {
-                    log_.debug("Can't get Property: self=" + component
-                            + ", name=" + name, ex);
+                    log_.debug("Can't get Property: self=" + self + ", name="
+                            + name, ex);
                 }
             }
         }
@@ -133,6 +143,7 @@ public class YmirVariableResolver extends VariableResolverImpl {
         nameSet.add(RequestProcessor.ATTR_NOTES);
         nameSet.add(NAME_TOKEN);
         nameSet.add(NAME_VARIABLES);
+        nameSet.add(NAME_PARAM_SELF);
         nameSet.addAll(Arrays.asList(super.getVariableNames()));
         if (parent_ != null) {
             nameSet.addAll(Arrays.asList(parent_.getVariableNames()));
@@ -141,11 +152,10 @@ public class YmirVariableResolver extends VariableResolverImpl {
                 .hasMoreElements();) {
             nameSet.add(enm.nextElement());
         }
-        Object component = request_
-                .getAttribute(RequestProcessorImpl.ATTR_SELF);
-        if (component != null) {
+        Object self = getSelf();
+        if (self != null) {
             PropertyDescriptor[] pds = PropertyUtils
-                    .getPropertyDescriptors(component);
+                    .getPropertyDescriptors(self);
             for (int i = 0; i < pds.length; i++) {
                 String name = pds[i].getName();
                 if (pds[i].getReadMethod() != null) {
@@ -159,7 +169,7 @@ public class YmirVariableResolver extends VariableResolverImpl {
     public boolean containsVariable(String name) {
         if (NAME_YMIRREQUEST.equals(name) || NAME_CONTAINER.equals(name)
                 || NAME_MESSAGES.equals(name) || NAME_TOKEN.equals(name)
-                || NAME_VARIABLES.equals(name)) {
+                || NAME_VARIABLES.equals(name) || NAME_PARAM_SELF.equals(name)) {
             return true;
         } else if (RequestProcessor.ATTR_NOTES.equals(name)) {
             return getNotes() != null;
@@ -171,17 +181,16 @@ public class YmirVariableResolver extends VariableResolverImpl {
             return true;
         }
 
-        Object component = request_
-                .getAttribute(RequestProcessorImpl.ATTR_SELF);
-        if (component != null) {
+        Object self = getSelf();
+        if (self != null) {
             try {
-                if (PropertyUtils.getPropertyDescriptor(component, name) != null) {
+                if (PropertyUtils.getPropertyDescriptor(self, name) != null) {
                     return true;
                 }
             } catch (Throwable ex) {
                 if (log_.isDebugEnabled()) {
-                    log_.debug("Can't get Property: self=" + component
-                            + ", name=" + name, ex);
+                    log_.debug("Can't get Property: self=" + self + ", name="
+                            + name, ex);
                 }
             }
         }
@@ -207,6 +216,8 @@ public class YmirVariableResolver extends VariableResolverImpl {
             return new TokenEntry(name);
         } else if (NAME_VARIABLES.equals(name)) {
             return new EntryImpl(name, Variables.class, Variables.INSTANCE);
+        } else if (NAME_PARAM_SELF.equals(name)) {
+            return new EntryImpl(name, ParamSelf.class, getParamSelf());
         }
 
         Entry entry = super.getVariableEntry(context, name);
@@ -224,24 +235,23 @@ public class YmirVariableResolver extends VariableResolverImpl {
             return new EntryImpl(name, String.class, value);
         }
 
-        Object component = request_
-                .getAttribute(RequestProcessorImpl.ATTR_SELF);
-        if (component != null) {
-            YmirUtils.preserveTypeConversionHint(context, component, name);
+        Object self = getSelf();
+        if (self != null) {
+            YmirUtils.preserveTypeConversionHint(context, self, name);
             try {
                 PropertyDescriptor pd = PropertyUtils.getPropertyDescriptor(
-                        component, name);
+                        self, name);
                 if (pd != null) {
                     Method readMethod = pd.getReadMethod();
                     if (readMethod != null) {
                         return new EntryImpl(name, readMethod.getReturnType(),
-                                PropertyUtils.getProperty(component, name));
+                                PropertyUtils.getProperty(self, name));
                     }
                 }
             } catch (Throwable ex) {
                 if (log_.isDebugEnabled()) {
-                    log_.debug("Can't get Property: self=" + component
-                            + ", name=" + name, ex);
+                    log_.debug("Can't get Property: self=" + self + ", name="
+                            + name, ex);
                 }
             }
         }
@@ -279,5 +289,20 @@ public class YmirVariableResolver extends VariableResolverImpl {
         public Object getValue() {
             return getToken();
         }
+    }
+
+    public Object getSelf() {
+        if (!selfLoaded_) {
+            self_ = request_.getAttribute(RequestProcessorImpl.ATTR_SELF);
+            selfLoaded_ = true;
+        }
+        return self_;
+    }
+
+    public ParamSelf getParamSelf() {
+        if (paramSelf_ == null) {
+            paramSelf_ = new ParamSelf(request_, getSelf());
+        }
+        return paramSelf_;
     }
 }

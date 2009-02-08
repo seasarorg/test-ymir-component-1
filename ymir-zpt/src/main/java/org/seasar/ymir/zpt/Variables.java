@@ -1,7 +1,7 @@
 package org.seasar.ymir.zpt;
 
-public class Variables {
-    public static final Variables INSTANCE = new Variables();
+class Variables {
+    static final Variables INSTANCE = new Variables();
 
     private Variables() {
     }

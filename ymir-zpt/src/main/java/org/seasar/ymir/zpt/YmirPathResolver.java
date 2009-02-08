@@ -40,7 +40,8 @@ public class YmirPathResolver implements PathResolver {
 
     public boolean accept(TemplateContext context,
             VariableResolver varResolver, Object obj, String child) {
-        return (obj instanceof Notes || obj instanceof Note || obj instanceof Variables);
+        return (obj instanceof Notes || obj instanceof Note
+                || obj instanceof Variables || obj instanceof ParamSelf);
     }
 
     public Object resolve(TemplateContext context,
@@ -76,6 +77,8 @@ public class YmirPathResolver implements PathResolver {
             }
         } else if (obj instanceof Variables) {
             return varResolver.getVariable(context, child);
+        } else if (obj instanceof ParamSelf) {
+            return ((ParamSelf) obj).get(context, child);
         }
         return null;
     }

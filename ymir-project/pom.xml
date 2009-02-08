@@ -141,9 +141,7 @@
             <docencoding>UTF-8</docencoding>
             <charset>UTF-8</charset>
             <links>
-              <link>
-                http://java.sun.com/j2se/1.5.0/ja/docs/ja/api/
-              </link>
+              <link>http://java.sun.com/j2se/1.5.0/ja/docs/ja/api/</link>
               <link>http://java.sun.com/j2ee/1.4/docs/api/</link>
               <link>http://aopalliance.sourceforge.net/doc/</link>
             </links>
@@ -229,8 +227,8 @@
   <modules>
     <module>../ymir-core</module>
     <module>../ymir-testing</module>
-    <module>../ymir-it</module>
     <module>../ymir-zpt</module>
+    <module>../ymir-it</module>
     <module>../ymir-beantable</module>
     <module>../ymir-extension</module>
     <module>../ymir-json</module>
