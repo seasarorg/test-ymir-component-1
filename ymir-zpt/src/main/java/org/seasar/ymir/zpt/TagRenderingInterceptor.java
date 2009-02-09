@@ -59,6 +59,7 @@ public interface TagRenderingInterceptor {
      * @param name タグの名前。
      * @param attributes タグの属性の配列。属性の値はHTMLエスケープされている状態で格納されていますので、
      * レンダリング結果に含める際に改めてHTMLエスケープする必要はありません。
+     * <strong>[重要]</strong> この配列の内容を変更してはいけません。
      * @param body タグのボディ。nullであることもあります。
      * @param chain レンダリングインターセプタのチェイン。
      * @return タグのレンダリング結果。nullを返してはいけません。
