@@ -10,6 +10,12 @@ import net.skirnir.freyja.TagEvaluatorUtils;
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.webapp.ServletVariableResolver;
 
+/**
+ * ZPTテンプレート中のタグが持つURL指定用の属性（action, href, src）のうち、現在のページ基準の相対URLであるものについて、
+ * URLに必要に応じてセッションIDを付与するためのInterceptorです。
+ * 
+ * @since 1.0.2
+ */
 public class SessionIdEmbeddingInterceptor implements TagRenderingInterceptor {
     private static final String ATTR_ACTION = "action";
 
