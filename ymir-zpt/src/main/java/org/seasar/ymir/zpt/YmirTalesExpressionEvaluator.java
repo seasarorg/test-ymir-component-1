@@ -19,6 +19,7 @@ public class YmirTalesExpressionEvaluator extends
                 .addPathResolver(
                         new LocalizationPathResolver()
                                 .setNoteLocalizer(noteLocalizer));
+        addTypePrefix(TYPE_PAGE, new YmirPageTypePrefixHandler());
         addTypePrefix(TYPE_I18NPAGE, new I18NPageTypePrefixHandler());
     }
 
