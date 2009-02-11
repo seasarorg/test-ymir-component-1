@@ -535,7 +535,8 @@ public class ZptAnalyzerTest extends TestCase {
 
         act("testAnalyze21", new String[] { "self" });
 
-        assertNull("無視するように指定した変数が正しく無視されること", getClassDesc(CLASSNAME));
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        assertNull("無視するように指定した変数が正しく無視されること", cd.getPropertyDesc("self"));
     }
 
     public void testAnalyze22() throws Exception {
@@ -1246,5 +1247,14 @@ public class ZptAnalyzerTest extends TestCase {
                 .getTypeDesc().getName());
         assertEquals("Object", getClassDesc("com.example.dto.FormDto")
                 .getPropertyDesc("text").getTypeDesc().getName());
+    }
+
+    public void testAnalyze70_Pageオブジェクトへの参照がない場合でも空のPageが生成されること()
+            throws Exception {
+
+        act("testAnalyze70");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        assertNotNull(cd);
     }
 }

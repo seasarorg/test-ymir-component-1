@@ -386,6 +386,10 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     public void close() {
+        // 自動生成対象のHTMLからPageオブジェクトのロジックを全く参照していない場合でも
+        // 空のPageを自動生成する方が便利なので、空のPageを自動生成するためにこうしている。
+        getTemporaryClassDesc(pageClassName_);
+
         for (Iterator<ClassDesc> itr = temporaryClassDescMap_.values()
                 .iterator(); itr.hasNext();) {
             ClassDesc classDesc = itr.next();
