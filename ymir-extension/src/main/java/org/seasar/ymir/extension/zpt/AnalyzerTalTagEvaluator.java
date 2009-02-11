@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.zpt;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,6 +16,7 @@ import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Path;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.FormDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -350,21 +352,56 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             if (!shouldGeneratePropertyForParameter(name)) {
                 continue;
             }
-            PropertyDesc propertyDesc;
             if (BeanUtils.isSingleSegment(name)) {
-                propertyDesc = classDesc.addProperty(name, PropertyDesc.WRITE
-                        | PropertyDesc.READ);
-                propertyDesc.setAnnotationDescForSetter(new AnnotationDescImpl(
-                        RequestParameter.class.getName()));
+                ParameterRole role = inferParameterRole(analyzerContext, path,
+                        className, name);
+                switch (role) {
+                case PARAMETER:
+                    PropertyDesc propertyDesc = classDesc.addProperty(name,
+                            PropertyDesc.WRITE | PropertyDesc.READ);
+                    propertyDesc
+                            .setAnnotationDescForSetter(new AnnotationDescImpl(
+                                    RequestParameter.class.getName()));
+                    analyzerContext.adjustPropertyType(classDesc.getName(),
+                            propertyDesc);
+                    propertyDesc.notifyUpdatingType();
+                    break;
+
+                case BUTTON:
+                    MethodDesc methodDesc = analyzerContext.getSourceCreator()
+                            .newActionMethodDesc(path.getTrunk(),
+                                    HttpMethod.GET,
+                                    new ActionSelectorSeedImpl(name));
+                    if (classDesc.getMethodDesc(methodDesc) == null) {
+                        classDesc.setMethodDesc(methodDesc);
+                    }
+                    break;
+
+                case UNDECIDED:
+                    String[] parameters = (String[]) classDesc
+                            .getAttribute(ZptAnalyzer.ATTR_UNDECIDEDPARAMETERNAMES);
+                    if (parameters == null) {
+                        parameters = new String[] { name };
+                    } else {
+                        parameters = (String[]) ArrayUtil.add(parameters, name);
+                    }
+                    classDesc.setAttribute(
+                            ZptAnalyzer.ATTR_UNDECIDEDPARAMETERNAMES,
+                            parameters);
+                    break;
+
+                default:
+                    throw new RuntimeException("Logic error");
+                }
             } else {
-                propertyDesc = classDesc.addProperty(BeanUtils
+                PropertyDesc propertyDesc = classDesc.addProperty(BeanUtils
                         .getFirstSimpleSegment(name), PropertyDesc.READ);
                 propertyDesc.setAnnotationDescForGetter(new AnnotationDescImpl(
                         RequestParameter.class.getName()));
+                analyzerContext.adjustPropertyType(classDesc.getName(),
+                        propertyDesc);
+                propertyDesc.notifyUpdatingType();
             }
-            analyzerContext.adjustPropertyType(classDesc.getName(),
-                    propertyDesc);
-            propertyDesc.notifyUpdatingType();
         }
 
         if (form) {
@@ -402,6 +439,43 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
 
             return null;
         }
+    }
+
+    ParameterRole inferParameterRole(AnalyzerContext context, Path path,
+            String className, String parameterName) {
+        String[] parameterValue = path.getParameterMap().get(parameterName);
+        if (parameterValue == null || parameterValue.length != 1
+                || !"".equals(parameterValue[0])) {
+            return ParameterRole.PARAMETER;
+        }
+
+        SourceCreator sourceCreator = context.getSourceCreator();
+
+        ClassHint classHint = context.getClassHint(className);
+        if (classHint != null) {
+            ParameterRole role = classHint.getParameterRole(parameterName);
+            if (role != ParameterRole.UNDECIDED) {
+                return role;
+            }
+        }
+
+        if (sourceCreator.getPropertyDescriptor(className, parameterName) != null) {
+            return ParameterRole.PARAMETER;
+        }
+
+        String methodName = sourceCreator.newActionMethodDesc(path.getTrunk(),
+                HttpMethod.GET, new ActionSelectorSeedImpl(parameterName))
+                .getName();
+        Class<?> clazz = sourceCreator.getClass(className);
+        if (clazz != null) {
+            for (Method method : clazz.getMethods()) {
+                if (method.getName().equals(methodName)) {
+                    return ParameterRole.BUTTON;
+                }
+            }
+        }
+
+        return ParameterRole.UNDECIDED;
     }
 
     Path constructPath(String basePath, String pathWithParameters) {

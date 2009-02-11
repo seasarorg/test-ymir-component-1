@@ -24,6 +24,8 @@ public class ClassDescDto {
 
     private boolean formDto_;
 
+    private String[] undecidedParameterNames_;
+
     public ClassDescDto(ClassDesc classDesc, boolean checked) {
         name_ = classDesc.getName();
         PropertyDesc[] pds = classDesc.getPropertyDescs();
@@ -43,6 +45,8 @@ public class ClassDescDto {
         superclassName_ = superclassName;
         formDto_ = PropertyUtils.valueOf((Boolean) classDesc
                 .getAttribute(ZptAnalyzer.ATTR_FORMDTO), false);
+        undecidedParameterNames_ = (String[]) classDesc
+                .getAttribute(ZptAnalyzer.ATTR_UNDECIDEDPARAMETERNAMES);
     }
 
     public boolean isChecked() {
@@ -75,5 +79,9 @@ public class ClassDescDto {
 
     public boolean isFormDto() {
         return formDto_;
+    }
+
+    public String[] getUndecidedParameterNames() {
+        return undecidedParameterNames_;
     }
 }

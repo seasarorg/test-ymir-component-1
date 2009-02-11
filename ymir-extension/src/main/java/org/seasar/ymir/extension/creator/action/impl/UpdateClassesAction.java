@@ -38,6 +38,7 @@ import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.type.Token;
 import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
+import org.seasar.ymir.extension.zpt.ParameterRole;
 import org.seasar.ymir.util.BeanUtils;
 
 public class UpdateClassesAction extends AbstractAction implements UpdateAction {
@@ -58,6 +59,9 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
 
     protected static final String PARAMPREFIX_SUPERCLASSNAME = SourceCreator.PARAM_PREFIX
             + "superclassName_";
+
+    protected static final String PARAMPREFIX_PARAMETERROLE = SourceCreator.PARAM_PREFIX
+            + "parameterRole_";
 
     protected static final String PREFIX_CLASSCHECKED = "updateClassesAction.class.checked.";
 
@@ -183,7 +187,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 .getParameterMap());
 
         List<PropertyTypeHint> propertyTypeHintList = new ArrayList<PropertyTypeHint>();
-        List<ClassHint> classHintList = new ArrayList<ClassHint>();
+        Map<String, ClassHint> classHintMap = new HashMap<String, ClassHint>();
         for (Iterator<String> itr = request.getParameterNames(); itr.hasNext();) {
             String name = itr.next();
             if (name.startsWith(PARAMPREFIX_PROPERTYTYPE)) {
@@ -215,14 +219,39 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 String actualClassName = classNameMapping.toActual(className);
                 String superclassName = resolveTypeName(request
                         .getParameter(name), actualClassName);
-                classHintList
-                        .add(new ClassHint(actualClassName, superclassName));
+
+                ClassHint classHint = classHintMap.get(actualClassName);
+                if (classHint == null) {
+                    classHint = new ClassHint(actualClassName);
+                    classHintMap.put(actualClassName, classHint);
+                }
+                classHint.setSuperclassName(superclassName);
+            } else if (name.startsWith(PARAMPREFIX_PARAMETERROLE)) {
+                String classAndParameterName = name
+                        .substring(PARAMPREFIX_PARAMETERROLE.length());
+                int slash = classAndParameterName.indexOf('/');
+                if (slash < 0) {
+                    continue;
+                }
+                String actualClassName = classNameMapping
+                        .toActual(classAndParameterName.substring(0, slash));
+                String parameterName = classAndParameterName
+                        .substring(slash + 1);
+                ParameterRole role = ParameterRole.valueOf(request
+                        .getParameter(name));
+
+                ClassHint classHint = classHintMap.get(actualClassName);
+                if (classHint == null) {
+                    classHint = new ClassHint(actualClassName);
+                    classHintMap.put(actualClassName, classHint);
+                }
+                classHint.setParameterRole(parameterName, role);
             }
         }
 
         ClassCreationHintBag hintBag = new ClassCreationHintBag(
                 propertyTypeHintList.toArray(new PropertyTypeHint[0]),
-                classHintList.toArray(new ClassHint[0]));
+                classHintMap.values().toArray(new ClassHint[0]));
         ClassDescBag classDescBag = getSourceCreator().gatherClassDescs(
                 new PathMetaData[] { pathMetaData }, hintBag, null);
 

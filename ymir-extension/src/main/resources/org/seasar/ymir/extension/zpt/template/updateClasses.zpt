@@ -71,6 +71,20 @@
           </td>
         </tr>
       </table>
+      <table tal:condition="classDesc/undecidedParameterNames">
+        <tr>
+          <td colspan="2">通常のパラメータかボタン名か判別できなかったパラメータ：</td>
+        </tr>
+        <tr tal:repeat="name classDesc/undecidedParameterNames">
+          <th align="right" nowrap="nowrap">
+            <span tal:replace="name">NAME</span>パラメータ
+          </th>
+          <td align="left" nowrap="nowrap">
+            <input type="radio" tal:attributes="name string:__ymir__parameterRole_${classDesc/name}/${name}" name="parameterRole" value="PARAMETER" /> 通常のパラメータ&nbsp;&nbsp;
+            <input type="radio" checked="checked" tal:attributes="name string:__ymir__parameterRole_${classDesc/name}/${name}" name="parameterRole" value="BUTTON" /> ボタン名
+          </td>
+        </tr>
+      </table>
     </li>
   </ul>
   </div>
@@ -91,6 +105,20 @@
           <td align="left" nowrap="nowrap">
             <span tal:condition="classDesc/formDto">（Pageクラスの<span tal:replace="propertyDesc/name"></span>プロパティと同じ型）</span>
             <input type="text" tal:condition="not:classDesc/formDto" tal:attributes="name string:__ymir__propertyType_${classDesc/name}/${propertyDesc/name}; value propertyDesc/typeName" size="48" />
+          </td>
+        </tr>
+      </table>
+      <table tal:condition="classDesc/undecidedParameterNames">
+        <tr>
+          <td colspan="2">通常のパラメータかボタン名か判別できなかったパラメータ：</td>
+        </tr>
+        <tr tal:repeat="name classDesc/undecidedParameterNames">
+          <th align="right" nowrap="nowrap">
+            <span tal:replace="name">NAME</span>パラメータ
+          </th>
+          <td align="left" nowrap="nowrap">
+            <input type="radio" tal:attributes="name string:__ymir__parameterRole_${classDesc/name}/${name}" name="parameterRole" value="PARAMETER" /> 通常のパラメータ&nbsp;&nbsp;
+            <input type="radio" checked="checked" tal:attributes="name string:__ymir__parameterRole_${classDesc/name}/${name}" name="parameterRole" value="BUTTON" /> ボタン名
           </td>
         </tr>
       </table>

@@ -23,6 +23,7 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.FormDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -699,6 +700,14 @@ public class AnalyzerContext extends ZptTemplateContext {
             String propertyName) {
         if (hintBag_ != null) {
             return hintBag_.getPropertyTypeHint(className, propertyName);
+        } else {
+            return null;
+        }
+    }
+
+    public ClassHint getClassHint(String className) {
+        if (hintBag_ != null) {
+            return hintBag_.getClassHint(className);
         } else {
             return null;
         }

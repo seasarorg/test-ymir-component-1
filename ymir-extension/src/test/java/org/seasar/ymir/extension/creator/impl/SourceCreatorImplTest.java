@@ -189,12 +189,11 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testNewClassDesc_hintが指定されていればスーパークラス名がhintを基に設定されること()
             throws Exception {
+        ClassHint classHint = new ClassHint("com.example.web.IndexPage");
+        classHint.setSuperclassName("com.example.web.PageBase");
         assertEquals("com.example.web.PageBase", target_.newClassDesc(
                 "com.example.web.IndexPage",
-                new ClassCreationHintBag(null,
-                        new ClassHint[] { new ClassHint(
-                                "com.example.web.IndexPage",
-                                "com.example.web.PageBase") }))
+                new ClassCreationHintBag(null, new ClassHint[] { classHint }))
                 .getSuperclassName());
     }
 

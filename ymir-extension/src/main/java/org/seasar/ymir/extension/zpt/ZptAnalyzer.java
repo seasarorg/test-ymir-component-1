@@ -36,6 +36,8 @@ import net.skirnir.freyja.zpt.webapp.PageTypePrefixHandler;
 public class ZptAnalyzer implements TemplateAnalyzer {
     public static final String ATTR_FORMDTO = "formDto";
 
+    public static final String ATTR_UNDECIDEDPARAMETERNAMES = "undecidedParameterNames";
+
     private TemplateEvaluator evaluator_;
 
     private SourceCreator sourceCreator_;

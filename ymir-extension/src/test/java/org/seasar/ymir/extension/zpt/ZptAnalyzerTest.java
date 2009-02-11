@@ -1257,4 +1257,33 @@ public class ZptAnalyzerTest extends TestCase {
         ClassDesc cd = getClassDesc(CLASSNAME);
         assertNotNull(cd);
     }
+
+    public void testAnalyze71_YMIR_301() throws Exception {
+
+        act("testAnalyze71");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        assertNotNull(cd);
+
+        String[] names = (String[]) cd
+                .getAttribute(ZptAnalyzer.ATTR_UNDECIDEDPARAMETERNAMES);
+        assertNotNull(names);
+        assertEquals("パラメータかボタン名かあいまいなものが検出されること", "edit", names[0]);
+
+        ClassHint classHint = new ClassHint(CLASSNAME);
+        classHint.setParameterRole("edit", ParameterRole.BUTTON);
+        ClassCreationHintBag bag = new ClassCreationHintBag(
+                new PropertyTypeHint[0], new ClassHint[] { classHint });
+        act("testAnalyze71", bag);
+
+        cd = getClassDesc(CLASSNAME);
+        assertNotNull(cd);
+
+        names = (String[]) cd
+                .getAttribute(ZptAnalyzer.ATTR_UNDECIDEDPARAMETERNAMES);
+        assertNull(names);
+        assertNull("プロパティが生成されないこと", cd.getPropertyDesc("edit"));
+        assertNotNull("ボタンに対応するメソッドが生成されること", cd
+                .getMethodDesc(new MethodDescImpl("GET_edit")));
+    }
 }
