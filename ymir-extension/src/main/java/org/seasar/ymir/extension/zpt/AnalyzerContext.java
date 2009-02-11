@@ -315,11 +315,19 @@ public class AnalyzerContext extends ZptTemplateContext {
             return Messages.class.getName();
         } else if (YmirVariableResolver.NAME_TOKEN.equals(propertyName)) {
             return Token.class.getName();
+        } else if (YmirVariableResolver.NAME_VARIABLES.equals(propertyName)) {
+            return VariableResolver.class.getName();
+        } else if (YmirVariableResolver.NAME_PARAM_SELF.equals(propertyName)) {
+            // param-selfに指定されたプロパティ名をPageのプロパティ名とみなさせる方が
+            // 都合が良いのでこうしている。
+            return getPageClassName();
         } else if (usingFreyjaRenderClasses_) {
             String className = findRenderClassName(propertyName);
             if (className != null) {
                 return className;
             }
+        } else if (!AnalyzerUtils.isValidVariableName(propertyName)) {
+            return Object.class.getName();
         }
 
         return getDtoClassName(classDesc, propertyName);
@@ -331,7 +339,9 @@ public class AnalyzerContext extends ZptTemplateContext {
                 || YmirVariableResolver.NAME_YMIRREQUEST.equals(name)
                 || YmirVariableResolver.NAME_CONTAINER.equals(name)
                 || YmirVariableResolver.NAME_MESSAGES.equals(name)
-                || YmirVariableResolver.NAME_TOKEN.equals(name);
+                || YmirVariableResolver.NAME_TOKEN.equals(name)
+                || YmirVariableResolver.NAME_VARIABLES.equals(name)
+                || YmirVariableResolver.NAME_PARAM_SELF.equals(name);
     }
 
     public String getPageClassName() {

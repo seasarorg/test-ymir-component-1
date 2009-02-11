@@ -12,14 +12,14 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.response.SelfContainedResponse;
+import org.seasar.ymir.zpt.YmirTagEvaluator;
+import org.seasar.ymir.zpt.YmirTalesExpressionEvaluator;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.TemplateEvaluator;
 import net.skirnir.freyja.VariableResolver;
 import net.skirnir.freyja.impl.TemplateEvaluatorImpl;
 import net.skirnir.freyja.impl.VariableResolverImpl;
-import net.skirnir.freyja.zpt.MetalTagEvaluator;
-import net.skirnir.freyja.zpt.tales.TalesExpressionEvaluator;
 
 public class ZptResponseCreator implements ResponseCreator {
     private static final String TEMPLATE_PREFIX = "template/";
@@ -29,7 +29,7 @@ public class ZptResponseCreator implements ResponseCreator {
     private ApplicationManager applicationManager_;
 
     private final TemplateEvaluator evaluator_ = new TemplateEvaluatorImpl(
-            new MetalTagEvaluator(), new TalesExpressionEvaluator());
+            new YmirTagEvaluator(), new YmirTalesExpressionEvaluator());
 
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {

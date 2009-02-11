@@ -1181,4 +1181,15 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(md);
         assertEquals("String", md.getReturnTypeDesc().getName());
     }
+
+    public void testAnalyze65_paramSelfを認識すること() throws Exception {
+
+        act("testAnalyze65");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        assertNotNull(cd);
+
+        PropertyDesc pd = cd.getPropertyDesc("text");
+        assertNotNull(pd);
+    }
 }
