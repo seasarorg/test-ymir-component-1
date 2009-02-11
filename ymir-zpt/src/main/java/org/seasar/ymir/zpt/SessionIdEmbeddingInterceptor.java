@@ -49,8 +49,8 @@ public class SessionIdEmbeddingInterceptor implements TagRenderingInterceptor {
                             .filter(addSessionId(context, attrValue)),
                             attribute.getQuote());
                 }
-                list.add(attribute);
             }
+            list.add(attribute);
         }
         return chain
                 .render(context, name, list.toArray(new Attribute[0]), body);
