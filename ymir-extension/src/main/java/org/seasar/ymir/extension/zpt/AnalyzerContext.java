@@ -706,7 +706,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         if (hint != null) {
             StringBuilder sb = new StringBuilder();
             sb.append(hint.getTypeName());
-            if (hint.isArray()) {
+            if (hint.isCollection()) {
                 sb.append(ARRAY_SUFFIX);
             }
             typeName = sb.toString();

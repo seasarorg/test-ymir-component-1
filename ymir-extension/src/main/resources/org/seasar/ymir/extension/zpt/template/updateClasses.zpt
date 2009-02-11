@@ -66,7 +66,8 @@
             <span tal:replace="propertyDesc/name">PROPERTYNAME</span>プロパティ
           </th>
           <td align="left" nowrap="nowrap">
-            <input type="text" tal:attributes="name string:__ymir__propertyType_${classDesc/name}/${propertyDesc/name}; value propertyDesc/typeName" size="48" />
+            <span tal:condition="classDesc/formDto">（Pageクラスの<span tal:replace="propertyDesc/name"></span>プロパティと同じ型）</span>
+            <input tal:condition="not:classDesc/formDto" type="text" tal:attributes="name string:__ymir__propertyType_${classDesc/name}/${propertyDesc/name}; value propertyDesc/typeName" size="48" />
           </td>
         </tr>
       </table>
@@ -88,7 +89,8 @@
             <span tal:replace="propertyDesc/name">PROPERTYNAME</span>プロパティ
           </th>
           <td align="left" nowrap="nowrap">
-            <input type="text" tal:attributes="name string:__ymir__propertyType_${classDesc/name}/${propertyDesc/name}; value propertyDesc/typeName" size="48" />
+            <span tal:condition="classDesc/formDto">（Pageクラスの<span tal:replace="propertyDesc/name"></span>プロパティと同じ型）</span>
+            <input type="text" tal:condition="not:classDesc/formDto" tal:attributes="name string:__ymir__propertyType_${classDesc/name}/${propertyDesc/name}; value propertyDesc/typeName" size="48" />
           </td>
         </tr>
       </table>

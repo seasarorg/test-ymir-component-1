@@ -1,0 +1,11 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <form name="form" action="./index.html">
+      <input type="text" name="text" />
+    </form>
+    <p tal:condition="self/form/text">TEXT</p>
+  </body>
+</html>

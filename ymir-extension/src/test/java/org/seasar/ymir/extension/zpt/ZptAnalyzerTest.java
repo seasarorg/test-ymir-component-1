@@ -1209,4 +1209,42 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(pd);
         assertFalse("ラジオボタンは例外", pd.getTypeDesc().isCollection());
     }
+
+    public void testAnalyze67_conditionで参照されているプロパティであってもcondition以外でも参照されていたら型がStringになること()
+            throws Exception {
+
+        act("testAnalyze67");
+
+        assertEquals("最初に非conditionで参照、次にconditionで参照されている場合", "String",
+                getClassDesc(CLASSNAME).getPropertyDesc("text").getTypeDesc()
+                        .getName());
+        assertEquals("最初にconditionで参照、次に非conditionで参照されている場合", "String",
+                getClassDesc(CLASSNAME).getPropertyDesc("text2").getTypeDesc()
+                        .getName());
+    }
+
+    public void testAnalyze68_conditionで参照されている場合でもPageのプロパティの型とFormDtoのプロパティ型が一致すること()
+            throws Exception {
+
+        act("testAnalyze68");
+
+        assertEquals("String", getClassDesc(CLASSNAME).getPropertyDesc("text")
+                .getTypeDesc().getName());
+        assertEquals("String", getClassDesc("com.example.dto.FormDto")
+                .getPropertyDesc("text").getTypeDesc().getName());
+    }
+
+    public void testAnalyze69_Pageのプロパティ型を変えた場合にFormDtoのプロパティ型も変更されること()
+            throws Exception {
+
+        ClassCreationHintBag bag = new ClassCreationHintBag(
+                new PropertyTypeHint[] { new PropertyTypeHint(CLASSNAME,
+                        "text", "Object", false) }, new ClassHint[0]);
+        act("testAnalyze69", bag);
+
+        assertEquals("Object", getClassDesc(CLASSNAME).getPropertyDesc("text")
+                .getTypeDesc().getName());
+        assertEquals("Object", getClassDesc("com.example.dto.FormDto")
+                .getPropertyDesc("text").getTypeDesc().getName());
+    }
 }

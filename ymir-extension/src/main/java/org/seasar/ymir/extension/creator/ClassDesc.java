@@ -69,4 +69,8 @@ public interface ClassDesc extends AnnotatedDesc, Cloneable {
     Map<String, Object> getOptionalSourceGeneratorParameter();
 
     void setOptionalSourceGeneratorParameter(Map<String, Object> parameter);
+
+    Object getAttribute(String name);
+
+    void setAttribute(String name, Object value);
 }

@@ -34,6 +34,8 @@ import net.skirnir.freyja.zpt.tales.TalesExpressionEvaluator;
 import net.skirnir.freyja.zpt.webapp.PageTypePrefixHandler;
 
 public class ZptAnalyzer implements TemplateAnalyzer {
+    public static final String ATTR_FORMDTO = "formDto";
+
     private TemplateEvaluator evaluator_;
 
     private SourceCreator sourceCreator_;

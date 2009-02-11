@@ -9,6 +9,8 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
         ClassDesc {
     private Map<String, Object> parameter_;
 
+    private Map<String, Object> attributeMap_ = new HashMap<String, Object>();
+
     private ClassType type_;
 
     abstract public String getName();
@@ -116,5 +118,13 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
     public void clear() {
         super.clear();
         parameter_ = null;
+    }
+
+    public Object getAttribute(String name) {
+        return attributeMap_.get(name);
+    }
+
+    public void setAttribute(String name, Object value) {
+        attributeMap_.put(name, value);
     }
 }

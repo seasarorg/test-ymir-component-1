@@ -4,6 +4,7 @@ import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.zpt.ZptAnalyzer;
 
 public class ClassDescDto {
 
@@ -21,6 +22,8 @@ public class ClassDescDto {
 
     private String superclassName_;
 
+    private boolean formDto_;
+
     public ClassDescDto(ClassDesc classDesc, boolean checked) {
         name_ = classDesc.getName();
         PropertyDesc[] pds = classDesc.getPropertyDescs();
@@ -31,13 +34,15 @@ public class ClassDescDto {
         checked_ = checked;
         dto_ = classDesc.isTypeOf(ClassType.DTO);
         page_ = classDesc.isTypeOf(ClassType.PAGE);
-        pairTypeName_ = PropertyUtils.join(classDesc
-                .getMetaValue("conversion"));
+        pairTypeName_ = PropertyUtils
+                .join(classDesc.getMetaValue("conversion"));
         String superclassName = classDesc.getSuperclassName();
         if (Object.class.getName().equals(superclassName)) {
             superclassName = null;
         }
         superclassName_ = superclassName;
+        formDto_ = PropertyUtils.valueOf((Boolean) classDesc
+                .getAttribute(ZptAnalyzer.ATTR_FORMDTO), false);
     }
 
     public boolean isChecked() {
@@ -66,5 +71,9 @@ public class ClassDescDto {
 
     public String getSuperclassName() {
         return superclassName_;
+    }
+
+    public boolean isFormDto() {
+        return formDto_;
     }
 }

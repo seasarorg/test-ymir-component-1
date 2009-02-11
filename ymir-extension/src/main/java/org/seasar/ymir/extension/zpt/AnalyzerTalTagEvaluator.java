@@ -19,6 +19,7 @@ import org.seasar.ymir.extension.creator.FormDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.impl.AnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.FormDescImpl;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
@@ -379,6 +380,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                             .getTemporaryClassDesc(analyzerContext
                                     .fromPropertyNameToClassName(classDesc,
                                             name));
+                    dtoClassDesc.setAttribute(ZptAnalyzer.ATTR_FORMDTO,
+                            Boolean.TRUE);
                     PropertyDesc propertyDesc = classDesc.addProperty(name,
                             PropertyDesc.NONE);
                     propertyDesc
@@ -497,8 +500,17 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             Map<String, Attribute> attrMap, String annotation, FormDesc formDesc) {
         String name = getAttributeValue(attrMap, "name", null);
         if (name != null && shouldGeneratePropertyForParameter(name)) {
-            return context.getPropertyDesc(formDesc.getClassDesc(), name,
-                    PropertyDesc.READ | PropertyDesc.WRITE);
+            PropertyDesc pd = context.getPropertyDesc(formDesc.getClassDesc(),
+                    name, PropertyDesc.READ | PropertyDesc.WRITE);
+            // conditionで使われていた際にbooleanで上書きされないようにこうしている。
+            if (!pd.isTypeAlreadySet()) {
+                TypeDesc td = pd.getTypeDesc();
+                pd.setTypeDesc(new TypeDescImpl(String.class.getName()
+                        + (td.isCollection() ? "[]" : "")));
+                pd.notifyUpdatingType();
+            }
+
+            return pd;
         }
 
         return null;
