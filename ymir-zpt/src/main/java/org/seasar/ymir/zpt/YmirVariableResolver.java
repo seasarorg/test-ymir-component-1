@@ -35,9 +35,9 @@ public class YmirVariableResolver extends VariableResolverImpl {
 
     public static final String NAME_TOKEN = "token";
 
-    private static final String NAME_VARIABLES = "variables";
+    public static final String NAME_VARIABLES = "variables";
 
-    private static final String NAME_PARAM_SELF = "param-self";
+    public static final String NAME_PARAM_SELF = "param-self";
 
     private Request ymirRequest_;
 
