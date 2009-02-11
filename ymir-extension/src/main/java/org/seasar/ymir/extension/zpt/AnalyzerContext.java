@@ -97,6 +97,8 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private Map<String, String> globalVariableExpression_ = new HashMap<String, String>();
 
+    private int repeatDepth_;
+
     static {
         final List<ClassNamePattern> list = new ArrayList<ClassNamePattern>();
         ClassTraverser traverser = new ClassTraverser();
@@ -204,6 +206,7 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     public RepeatInfo pushRepeatInfo(String name, Object[] objs) {
+        repeatDepth_++;
         setUsedAsLocalVariable(name);
         if (objs != null && objs.length == 1 && objs[0] instanceof DescWrapper) {
             DescWrapper wrapper = (DescWrapper) objs[0];
@@ -238,6 +241,16 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
 
         return super.pushRepeatInfo(name, objs);
+    }
+
+    @Override
+    public void popRepeatInfo(String name) {
+        super.popRepeatInfo(name);
+        repeatDepth_--;
+    }
+
+    public boolean isInRepeat() {
+        return repeatDepth_ > 0;
     }
 
     public HttpMethod getMethod() {

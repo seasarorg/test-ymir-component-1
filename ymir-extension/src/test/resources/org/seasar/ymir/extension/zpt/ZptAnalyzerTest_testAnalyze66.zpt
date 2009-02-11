@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <form action="./index.html">
+      <ul>
+        <li tal:repeat="input self/inputs">
+          <input type="checkbox" name="fruits" />
+        </li>
+      </ul>
+      <ul>
+        <li tal:repeat="input self/inputs">
+          <input type="radio" name="one" />
+        </li>
+      </ul>
+    </form>
+  </body>
+</html>

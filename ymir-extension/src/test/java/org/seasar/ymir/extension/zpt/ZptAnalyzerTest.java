@@ -1192,4 +1192,21 @@ public class ZptAnalyzerTest extends TestCase {
         PropertyDesc pd = cd.getPropertyDesc("text");
         assertNotNull(pd);
     }
+
+    public void testAnalyze66_リピートされているパラメータに対応するプロパティはコレクションになること()
+            throws Exception {
+
+        act("testAnalyze66");
+
+        ClassDesc cd = getClassDesc(CLASSNAME);
+        assertNotNull(cd);
+
+        PropertyDesc pd = cd.getPropertyDesc("fruits");
+        assertNotNull(pd);
+        assertTrue(pd.getTypeDesc().isCollection());
+
+        pd = cd.getPropertyDesc("one");
+        assertNotNull(pd);
+        assertFalse("ラジオボタンは例外", pd.getTypeDesc().isCollection());
+    }
 }

@@ -136,6 +136,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     }
 
                     if (!propertyDesc.getTypeDesc().isExplicit()) {
+                        if (analyzerContext.isInRepeat()) {
+                            propertyDesc.getTypeDesc().setCollection(true);
+                        }
                         if ("input".equals(name)) {
                             if ("file".equals(type)) {
                                 propertyDesc.getTypeDesc()
