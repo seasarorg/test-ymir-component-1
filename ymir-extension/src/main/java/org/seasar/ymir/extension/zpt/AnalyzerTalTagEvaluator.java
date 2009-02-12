@@ -505,6 +505,26 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             }
         }
 
+        String parameter;
+        int semicolon = absolutePath.indexOf(';');
+        int question = absolutePath.indexOf('?');
+        if (semicolon < 0) {
+            if (question < 0) {
+                parameter = "";
+            } else {
+                parameter = absolutePath.substring(question);
+                absolutePath = absolutePath.substring(0, question);
+            }
+        } else {
+            if (question < 0 || semicolon < question) {
+                parameter = absolutePath.substring(semicolon);
+                absolutePath = absolutePath.substring(0, semicolon);
+            } else {
+                parameter = absolutePath.substring(question);
+                absolutePath = absolutePath.substring(0, question);
+            }
+        }
+
         int pre = 0;
         int idx;
         LinkedList<String> segmentList = new LinkedList<String>();
@@ -537,6 +557,11 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             sb.append(delim).append(itr.next());
             delim = "/";
         }
+        if (absolutePath.endsWith("/") || absolutePath.endsWith("/.")
+                || absolutePath.endsWith("/..")) {
+            sb.append("/");
+        }
+        sb.append(parameter);
 
         return sb.toString();
     }

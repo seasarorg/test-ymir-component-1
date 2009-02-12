@@ -52,6 +52,7 @@ import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
 import org.seasar.ymir.scope.annotation.RequestParameter;
+import org.seasar.ymir.util.ServletUtils;
 
 import com.example.dto.SaruDto;
 import com.example.web.Test47Page;
@@ -62,6 +63,7 @@ public class ZptAnalyzerTest extends TestCase {
     private static final String CLASSNAME = "com.example.web.IndexPage";
 
     private PathMapping[] mappings_ = new PathMapping[] {
+        new YmirPathMapping("", "_RootPage", "${METHOD}", "", null),
         new YmirPathMapping("/([^/]+)\\.(.+)", "${1}Page", "${METHOD}", "",
                 null),
         new YmirPathMapping("/[^/]+/(.+)\\.(.+)", "${1}Page", "${METHOD}", "",
@@ -104,9 +106,10 @@ public class ZptAnalyzerTest extends TestCase {
             @Override
             public MatchedPathMapping findMatchedPathMapping(String path,
                     HttpMethod method) {
+                String normalizedPath = ServletUtils.normalizePath(path);
                 for (int i = 0; i < mappings_.length; i++) {
-                    VariableResolver resolver = mappings_[i]
-                            .match(path, method);
+                    VariableResolver resolver = mappings_[i].match(
+                            normalizedPath, method);
                     if (resolver != null) {
                         return new MatchedPathMappingImpl(mappings_[i],
                                 resolver);
@@ -128,7 +131,9 @@ public class ZptAnalyzerTest extends TestCase {
 
             @Override
             public String getClassName(String componentName) {
-                if (componentName.endsWith("Page")) {
+                if (componentName.equals("_RootPage")) {
+                    return "com.example.web._RootPage";
+                } else if (componentName.endsWith("Page")) {
                     int underscore = componentName.indexOf('_');
                     if (underscore < 0) {
                         return "com.example.web."
