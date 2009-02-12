@@ -1,9 +1,5 @@
 package org.seasar.ymir.extension.zpt;
 
-import static org.seasar.ymir.extension.creator.impl.SourceCreatorImpl.MOCK_REQUEST;
-import static org.seasar.ymir.extension.creator.impl.SourceCreatorImpl.MOCK_RESPONSE;
-import static org.seasar.ymir.extension.creator.impl.SourceCreatorImpl.MOCK_SERVLETCONTEXT;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,10 +8,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import junit.framework.TestCase;
 
 import org.seasar.framework.container.factory.S2ContainerFactory;
 import org.seasar.framework.convention.impl.NamingConventionImpl;
+import org.seasar.framework.mock.servlet.MockHttpServletRequestImpl;
+import org.seasar.framework.mock.servlet.MockHttpServletResponseImpl;
+import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.FormFile;
@@ -46,6 +49,8 @@ import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.impl.YmirPathMapping;
 import org.seasar.ymir.message.Note;
 import org.seasar.ymir.mock.MockApplication;
+import org.seasar.ymir.mock.MockDispatch;
+import org.seasar.ymir.mock.MockRequest;
 import org.seasar.ymir.scope.annotation.RequestParameter;
 
 import com.example.dto.SaruDto;
@@ -214,8 +219,17 @@ public class ZptAnalyzerTest extends TestCase {
 
     private void act(final String methodName, String pageClassName,
             ClassCreationHintBag hintBag, String[] ignoreVariables) {
-        target_.analyze(MOCK_SERVLETCONTEXT, MOCK_REQUEST, MOCK_RESPONSE,
-                path_, HttpMethod.GET, classDescMap_, new Template() {
+        ServletContext servletContext = new MockServletContextImpl("/context");
+        HttpServletRequest request = new MockHttpServletRequestImpl(
+                servletContext, "/index.html");
+        HttpServletResponse response = new MockHttpServletResponseImpl(request);
+        MockRequest ymirRequest = new MockRequest();
+        MockDispatch dispatch = new MockDispatch();
+        dispatch.setPath("/index.html");
+        ymirRequest.enterDispatch(dispatch);
+        ymirRequest.setContextPath("/context");
+        target_.analyze(servletContext, request, response, ymirRequest, path_,
+                HttpMethod.GET, classDescMap_, new Template() {
                     public InputStream getInputStream() throws IOException {
                         return getClass().getResourceAsStream(
                                 "ZptAnalyzerTest_" + methodName + ".zpt");
@@ -1285,5 +1299,12 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull("プロパティが生成されないこと", cd.getPropertyDesc("edit"));
         assertNotNull("ボタンに対応するメソッドが生成されること", cd
                 .getMethodDesc(new MethodDescImpl("GET_edit")));
+    }
+
+    public void testAnalyze72_自分を表す書式を正しく解釈できること() throws Exception {
+
+        act("testAnalyze72");
+
+        assertNotNull(getClassDesc(CLASSNAME).getPropertyDesc("a"));
     }
 }

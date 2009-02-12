@@ -1,6 +1,8 @@
 package org.seasar.ymir.extension.zpt;
 
+import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.zpt.YmirVariableResolver;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;
@@ -22,7 +24,7 @@ public class AnalyzerVariableResolver implements VariableResolver {
 
         if (analyzerContext != null
                 && !analyzerContext.shouldIgnoreVariable(name)
-                && analyzerContext.isSystemVariable(name)) {
+                && isPageSystemVariable(name)) {
             ClassDesc classDesc = analyzerContext
                     .getTemporaryClassDesc(analyzerContext
                             .fromPropertyNameToClassName(analyzerContext
@@ -32,6 +34,11 @@ public class AnalyzerVariableResolver implements VariableResolver {
         } else {
             return delegated_.getVariable(context, name);
         }
+    }
+
+    boolean isPageSystemVariable(String name) {
+        return YmirVariableResolver.NAME_PARAM_SELF.equals(name)
+                || RequestProcessor.ATTR_SELF.equals(name);
     }
 
     public Entry getVariableEntry(TemplateContext context, String name) {

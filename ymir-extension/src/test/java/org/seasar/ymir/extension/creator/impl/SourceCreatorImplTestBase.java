@@ -22,6 +22,7 @@ import org.seasar.framework.mock.servlet.MockHttpServletResponseImpl;
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.framework.util.ResourceUtil;
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.Globals;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Ymir;
@@ -44,9 +45,13 @@ import org.seasar.ymir.impl.RequestProcessorImpl;
 import org.seasar.ymir.impl.SingleApplication;
 import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.impl.YmirPathMapping;
+import org.seasar.ymir.locale.impl.LocaleManagerImpl;
+import org.seasar.ymir.message.impl.MessagesImpl;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
+import org.seasar.ymir.session.impl.SessionManagerImpl;
 import org.seasar.ymir.testing.TestCaseBase;
+import org.seasar.ymir.token.impl.TokenManagerImpl;
 
 abstract public class SourceCreatorImplTestBase extends TestCaseBase {
 
@@ -104,6 +109,10 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         container_.register(ConfigurationImpl.class);
         container_.register(ApplicationManagerImpl.class);
         container_.register(HotdeployManagerImpl.class);
+        container_.register(MessagesImpl.class, Globals.NAME_MESSAGES);
+        container_.register(LocaleManagerImpl.class);
+        container_.register(SessionManagerImpl.class);
+        container_.register(TokenManagerImpl.class);
 
         LocalHotdeployS2Container localHotdeployS2Container = (LocalHotdeployS2Container) container_
                 .getComponent(LocalHotdeployS2Container.class);

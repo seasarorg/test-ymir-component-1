@@ -347,17 +347,6 @@ public class AnalyzerContext extends ZptTemplateContext {
         return getDtoClassName(classDesc, propertyName);
     }
 
-    public boolean isSystemVariable(String name) {
-        return RequestProcessor.ATTR_SELF.equals(name)
-                || RequestProcessor.ATTR_NOTES.equals(name)
-                || YmirVariableResolver.NAME_YMIRREQUEST.equals(name)
-                || YmirVariableResolver.NAME_CONTAINER.equals(name)
-                || YmirVariableResolver.NAME_MESSAGES.equals(name)
-                || YmirVariableResolver.NAME_TOKEN.equals(name)
-                || YmirVariableResolver.NAME_VARIABLES.equals(name)
-                || YmirVariableResolver.NAME_PARAM_SELF.equals(name);
-    }
-
     public String getPageClassName() {
         return pageClassName_;
     }

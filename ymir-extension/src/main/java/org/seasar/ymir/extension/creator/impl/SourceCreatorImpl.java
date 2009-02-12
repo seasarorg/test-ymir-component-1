@@ -47,9 +47,6 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.convention.NamingConvention;
-import org.seasar.framework.mock.servlet.MockHttpServletRequestImpl;
-import org.seasar.framework.mock.servlet.MockHttpServletResponseImpl;
-import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.framework.util.ClassTraversal;
 import org.seasar.kvasir.util.StringUtils;
 import org.seasar.kvasir.util.collection.MapProperties;
@@ -135,21 +132,6 @@ public class SourceCreatorImpl implements SourceCreator {
     private static final String SOURCECREATOR_PREFS = "org.seasar.ymir.extension.sourceCreator.prefs";
 
     private static final String MAPPING_PREFS = "org.seasar.ymir.extension.mapping.prefs";
-
-    public static final ServletContext MOCK_SERVLETCONTEXT = new MockServletContextImpl(
-            "/") {
-        private static final long serialVersionUID = 0;
-
-        public String getServletContextName() {
-            return "";
-        }
-    };
-
-    public static final HttpServletRequest MOCK_REQUEST = new MockHttpServletRequestImpl(
-            MOCK_SERVLETCONTEXT, "/");
-
-    public static final HttpServletResponse MOCK_RESPONSE = new MockHttpServletResponseImpl(
-            MOCK_REQUEST);
 
     private static final String PROPERTY_ID = "id";
 
@@ -564,9 +546,9 @@ public class SourceCreatorImpl implements SourceCreator {
         HttpMethod method = pathMetaData.getMethod();
         String pageClassName = pathMetaData.getClassName();
         analyzer_.analyze(getServletContext(), getHttpServletRequest(),
-                getHttpServletResponse(), path, method, classDescMap,
-                pathMetaData.getTemplate(), pageClassName, hintBag,
-                ignoreVariables);
+                getHttpServletResponse(), getRequest(), path, method,
+                classDescMap, pathMetaData.getTemplate(), pageClassName,
+                hintBag, ignoreVariables);
 
         for (int i = 0; i < classDescModifiers_.length; i++) {
             classDescModifiers_[i].modify(classDescMap, pathMetaData);

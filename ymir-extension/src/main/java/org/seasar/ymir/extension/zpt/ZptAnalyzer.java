@@ -17,12 +17,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.HttpMethod;
+import org.seasar.ymir.Request;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateAnalyzer;
 import org.seasar.ymir.util.ServletUtils;
+import org.seasar.ymir.zpt.YmirVariableResolver;
 
 import net.skirnir.freyja.ExpressionEvaluator;
 import net.skirnir.freyja.IllegalSyntaxException;
@@ -30,6 +32,7 @@ import net.skirnir.freyja.TagEvaluator;
 import net.skirnir.freyja.TagEvaluatorWrapper;
 import net.skirnir.freyja.TemplateEvaluator;
 import net.skirnir.freyja.impl.TemplateEvaluatorImpl;
+import net.skirnir.freyja.webapp.FreyjaServlet;
 import net.skirnir.freyja.zpt.tales.TalesExpressionEvaluator;
 import net.skirnir.freyja.zpt.webapp.PageTypePrefixHandler;
 
@@ -102,11 +105,16 @@ public class ZptAnalyzer implements TemplateAnalyzer {
 
     public void analyze(ServletContext servletContext,
             HttpServletRequest request, HttpServletResponse response,
-            String path, HttpMethod method,
+            Request ymirRequest, String path, HttpMethod method,
             Map<String, ClassDesc> classDescMap, Template template,
             String className, ClassCreationHintBag hintBag,
             String[] ignoreVariables) {
         Zpt zpt = getZpt();
+
+        // 本来ZptYmir#processResponse()でやってくれることであるが、
+        // 自動生成処理がprocessResponse()より前に動くためにここでprocessResponse()
+        // と同じことをするようにしている。
+        emulateZptYmirProcessResponse(request, response, ymirRequest);
 
         path = zpt.getTemplatePathResolver().resolve(
                 ServletUtils.normalizePath(path), request);
@@ -152,5 +160,18 @@ public class ZptAnalyzer implements TemplateAnalyzer {
                 }
             }
         }
+    }
+
+    private void emulateZptYmirProcessResponse(HttpServletRequest request,
+            HttpServletResponse response, Request ymirRequest) {
+        String contentType = response.getContentType();
+        if (contentType != null) {
+            request.setAttribute(FreyjaServlet.ATTR_RESPONSECONTENTTYPE,
+                    contentType);
+        }
+
+        request.setAttribute(FreyjaServlet.ATTR_VARIABLERESOLVER,
+                new YmirVariableResolver(ymirRequest, request, sourceCreator_
+                        .getApplication().getS2Container()));
     }
 }
