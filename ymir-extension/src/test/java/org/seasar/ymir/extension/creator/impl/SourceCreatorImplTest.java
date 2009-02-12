@@ -29,6 +29,7 @@ import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.TypeDesc;
+import org.seasar.ymir.extension.zpt.ZptAnalyzer;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
@@ -551,4 +552,52 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertNotNull(actual.getMetaFirstValue(Globals.META_NAME_SOURCE));
         assertNotNull(actual.getBodyDesc());
     }
+//
+//    public void testAdjustByExistentClass2_由来が同じプロパティのうち生成されたClassDescに含まれていないものが削除されること()
+//            throws Exception {
+//        ClassDesc classDesc = new ClassDescImpl(Adjust2Page.class.getName());
+//        classDesc.setAttribute(ZptAnalyzer.ATTR_BORNOF, Adjust2PageBase.class
+//                .getName());
+//        classDesc.addProperty("param4", PropertyDesc.READ | PropertyDesc.WRITE);
+//
+//        target_.adjustByExistentClass(classDesc);
+//
+//        PropertyDesc pd = classDesc.getPropertyDesc("param1");
+//        assertNotNull(pd);
+//        assertFalse(pd.isReadable());
+//        assertTrue(pd.isWritable());
+//
+//        assertNull(classDesc.getPropertyDesc("param2"));
+//
+//        pd = classDesc.getPropertyDesc("param3");
+//        assertNotNull(pd);
+//        assertTrue(pd.isReadable());
+//        assertTrue(pd.isWritable());
+//
+//        pd = classDesc.getPropertyDesc("param4");
+//        assertNotNull(pd);
+//        assertTrue(pd.isReadable());
+//        assertTrue(pd.isWritable());
+//    }
+//
+//    public void testAdjustByExistentClass3_由来が同じメソッドのうち生成されたClassDescに含まれていないものが削除されること()
+//            throws Exception {
+//        ClassDesc classDesc = new ClassDescImpl(Adjust3Page.class.getName());
+//        classDesc.setAttribute(ZptAnalyzer.ATTR_BORNOF, Adjust3PageBase.class
+//                .getName());
+//        classDesc.setMethodDesc(new MethodDescImpl("_get_write"));
+//
+//        target_.adjustByExistentClass(classDesc);
+//
+//        MethodDesc md = classDesc.getMethodDesc(new MethodDescImpl("_get"));
+//        assertNotNull(md);
+//
+//        assertNull(classDesc.getMethodDesc(new MethodDescImpl("_get_output")));
+//
+//        md = classDesc.getMethodDesc(new MethodDescImpl("_get_list"));
+//        assertNotNull(md);
+//
+//        md = classDesc.getMethodDesc(new MethodDescImpl("_get_write"));
+//        assertNotNull(md);
+//    }
 }
