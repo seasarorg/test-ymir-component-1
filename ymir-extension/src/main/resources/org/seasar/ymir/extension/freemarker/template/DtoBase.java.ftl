@@ -16,8 +16,8 @@ public class ${classDesc.shortName}Base
     public ${classDesc.shortName}Base() {
     }
 
-    public ${classDesc.shortName}Base(<#list classDesc.propertyDescs as propertyDesc>${propertyDesc.typeDesc.name} ${propertyDesc.name}<#if propertyDesc_has_next>, </#if></#list>) {
-<#list classDesc.propertyDescs as propertyDesc>
+    public ${classDesc.shortName}Base(<#list classDesc.propertyDescsOrderByName as propertyDesc>${propertyDesc.typeDesc.name} ${propertyDesc.name}<#if propertyDesc_has_next>, </#if></#list>) {
+<#list classDesc.propertyDescsOrderByName as propertyDesc>
         ${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix} = ${propertyDesc.name};
 </#list>
     }

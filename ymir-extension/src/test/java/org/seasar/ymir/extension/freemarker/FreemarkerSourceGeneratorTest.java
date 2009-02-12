@@ -135,7 +135,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         propertyDesc.setMode(PropertyDesc.WRITE);
         classDesc.setPropertyDesc(propertyDesc);
         // 順番をアルファベット順でないようにしているのは、プロパティやメソッドがアルファベット順に
-        // 生成されることを検証するため。
+        // 生成されることを検証するため。（Dtoではコンストラクタのみアルファベット順）
         propertyDesc = new PropertyDescImpl("param4");
         propertyDesc.setMode(PropertyDesc.READ | PropertyDesc.WRITE);
         propertyDesc.setTypeDesc("java.lang.Integer[]", true);

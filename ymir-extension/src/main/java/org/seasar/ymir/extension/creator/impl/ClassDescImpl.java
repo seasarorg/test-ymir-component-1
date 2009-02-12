@@ -1,9 +1,10 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.seasar.ymir.extension.creator.AbstractClassDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -17,9 +18,9 @@ public class ClassDescImpl extends AbstractClassDesc {
 
     private String superclassName_;
 
-    private Map<String, PropertyDesc> propertyDescMap_ = new TreeMap<String, PropertyDesc>();
+    private Map<String, PropertyDesc> propertyDescMap_ = new LinkedHashMap<String, PropertyDesc>();
 
-    private Map<MethodDescKey, MethodDesc> methodDescMap_ = new TreeMap<MethodDescKey, MethodDesc>();
+    private Map<MethodDescKey, MethodDesc> methodDescMap_ = new LinkedHashMap<MethodDescKey, MethodDesc>();
 
     private boolean baseClassAbstract_;
 
@@ -75,32 +76,46 @@ public class ClassDescImpl extends AbstractClassDesc {
     }
 
     public void removePropertyDesc(String name) {
-
         propertyDescMap_.remove(name);
     }
 
     public PropertyDesc[] getPropertyDescs() {
-
         return propertyDescMap_.values().toArray(new PropertyDesc[0]);
     }
 
-    public MethodDesc getMethodDesc(MethodDesc methodDesc) {
+    public PropertyDesc[] getPropertyDescsOrderByName() {
+        PropertyDesc[] pds = getPropertyDescs();
+        Arrays.sort(pds, new Comparator<PropertyDesc>() {
+            public int compare(PropertyDesc o1, PropertyDesc o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        return pds;
+    }
 
+    public MethodDesc getMethodDesc(MethodDesc methodDesc) {
         return methodDescMap_.get(new MethodDescKey(methodDesc));
     }
 
     public void setMethodDesc(MethodDesc methodDesc) {
-
         methodDescMap_.put(new MethodDescKey(methodDesc), methodDesc);
     }
 
     public MethodDesc[] getMethodDescs() {
-
         return methodDescMap_.values().toArray(new MethodDesc[0]);
     }
 
-    public void removeMethodDesc(MethodDesc methodDesc) {
+    public MethodDesc[] getMethodDescsOrderByName() {
+        MethodDesc[] mds = getMethodDescs();
+        Arrays.sort(mds, new Comparator<MethodDesc>() {
+            public int compare(MethodDesc o1, MethodDesc o2) {
+                return new MethodDescKey(o1).compareTo(new MethodDescKey(o2));
+            }
+        });
+        return mds;
+    }
 
+    public void removeMethodDesc(MethodDesc methodDesc) {
         methodDescMap_.remove(new MethodDescKey(methodDesc));
     }
 
@@ -165,5 +180,19 @@ public class ClassDescImpl extends AbstractClassDesc {
         super.clear();
         propertyDescMap_.clear();
         methodDescMap_.clear();
+    }
+
+    public void setPropertyDescs(PropertyDesc[] propertyDescs) {
+        propertyDescMap_.clear();
+        for (PropertyDesc propertyDesc : propertyDescs) {
+            setPropertyDesc(propertyDesc);
+        }
+    }
+
+    public void setMethodDescs(MethodDesc[] methodDescs) {
+        methodDescMap_.clear();
+        for (MethodDesc methodDesc : methodDescs) {
+            setMethodDesc(methodDesc);
+        }
     }
 }

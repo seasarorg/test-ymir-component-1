@@ -22,9 +22,11 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -690,6 +692,11 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
+        Arrays.sort(pds, new Comparator<PropertyDescriptor>() {
+            public int compare(PropertyDescriptor o1, PropertyDescriptor o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
         for (int i = 0; i < pds.length; i++) {
             Method readMethod = pds[i].getReadMethod();
             Method writeMethod = pds[i].getWriteMethod();
@@ -762,6 +769,27 @@ public class SourceCreatorImpl implements SourceCreator {
             }
             methods = methodList.toArray(new Method[0]);
         }
+        Arrays.sort(methods, new Comparator<Method>() {
+            public int compare(Method o1, Method o2) {
+                int cmp = o1.getName().compareTo(o2.getName());
+                if (cmp != 0) {
+                    return cmp;
+                }
+                Type[] types1 = o1.getGenericParameterTypes();
+                Type[] types2 = o2.getGenericParameterTypes();
+                cmp = types1.length - types2.length;
+                if (cmp != 0) {
+                    return cmp;
+                }
+                for (int i = 0; i < types1.length; i++) {
+                    cmp = types1[i].toString().compareTo(types2[i].toString());
+                    if (cmp != 0) {
+                        return cmp;
+                    }
+                }
+                return 0;
+            }
+        });
         for (int i = 0; i < methods.length; i++) {
             String name = methods[i].getName();
             if (name.startsWith("get") || name.startsWith("is")
@@ -785,6 +813,11 @@ public class SourceCreatorImpl implements SourceCreator {
         // 特別な処理を行なう。
 
         Field[] fields = clazz.getDeclaredFields();
+        Arrays.sort(fields, new Comparator<Field>() {
+            public int compare(Field o1, Field o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
         for (int i = 0; i < fields.length; i++) {
             Meta meta = fields[i].getAnnotation(Meta.class);
             if (meta != null && Globals.META_NAME_PROPERTY.equals(meta.name())) {
@@ -1136,6 +1169,18 @@ public class SourceCreatorImpl implements SourceCreator {
                         .toArray(new AnnotationDesc[0]));
             }
         }
+
+        // マージ後にもgenerated側のプロパティやメソッドの順番を保持したいため、こうしている。
+
+        PropertyDesc[] pdsTemp = desc.getPropertyDescs();
+        PropertyDesc[] generatedPdsTemp = generated.getPropertyDescs();
+        desc.setPropertyDescs(generatedPdsTemp);
+        generated.setPropertyDescs(pdsTemp);
+
+        MethodDesc[] mdsTemp = desc.getMethodDescs();
+        MethodDesc[] generatedMdsTemp = generated.getMethodDescs();
+        desc.setMethodDescs(generatedMdsTemp);
+        generated.setMethodDescs(mdsTemp);
 
         desc.merge(generated, true);
     }

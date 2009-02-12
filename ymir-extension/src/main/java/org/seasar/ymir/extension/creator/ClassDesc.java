@@ -25,9 +25,13 @@ public interface ClassDesc extends AnnotatedDesc, Cloneable {
 
     MethodDesc[] getMethodDescs();
 
+    MethodDesc[] getMethodDescsOrderByName();
+
     PropertyDesc getPropertyDesc(String name);
 
     PropertyDesc[] getPropertyDescs();
+
+    PropertyDesc[] getPropertyDescsOrderByName();
 
     void setPropertyDesc(PropertyDesc propertyDesc);
 
@@ -73,4 +77,8 @@ public interface ClassDesc extends AnnotatedDesc, Cloneable {
     Object getAttribute(String name);
 
     void setAttribute(String name, Object value);
+
+    void setPropertyDescs(PropertyDesc[] propertyDescs);
+
+    void setMethodDescs(MethodDesc[] methodDescs);
 }

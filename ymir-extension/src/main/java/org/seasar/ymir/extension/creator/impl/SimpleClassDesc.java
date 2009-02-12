@@ -28,7 +28,15 @@ public class SimpleClassDesc extends AbstractClassDesc {
         return new MethodDesc[0];
     }
 
+    public MethodDesc[] getMethodDescsOrderByName() {
+        return new MethodDesc[0];
+    }
+
     public PropertyDesc[] getPropertyDescs() {
+        return new PropertyDesc[0];
+    }
+
+    public PropertyDesc[] getPropertyDescsOrderByName() {
         return new PropertyDesc[0];
     }
 
@@ -88,5 +96,13 @@ public class SimpleClassDesc extends AbstractClassDesc {
     }
 
     public void removePropertyDesc(String name) {
+    }
+
+    public void setPropertyDescs(PropertyDesc[] propertyDescs) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setMethodDescs(MethodDesc[] methodDescs) {
+        throw new UnsupportedOperationException();
     }
 }
