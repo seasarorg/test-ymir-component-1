@@ -82,6 +82,7 @@ import org.seasar.ymir.extension.creator.DescValidator;
 import org.seasar.ymir.extension.creator.EntityMetaData;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
 import org.seasar.ymir.extension.creator.MethodDesc;
+import org.seasar.ymir.extension.creator.MethodDescKey;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -1172,15 +1173,42 @@ public class SourceCreatorImpl implements SourceCreator {
 
         // マージ後にもgenerated側のプロパティやメソッドの順番を保持したいため、こうしている。
 
-        PropertyDesc[] pdsTemp = desc.getPropertyDescs();
-        PropertyDesc[] generatedPdsTemp = generated.getPropertyDescs();
-        desc.setPropertyDescs(generatedPdsTemp);
-        generated.setPropertyDescs(pdsTemp);
+        Map<String, PropertyDesc> newDescPdMap = new LinkedHashMap<String, PropertyDesc>();
+        Map<String, PropertyDesc> descPdMap = new LinkedHashMap<String, PropertyDesc>();
+        for (PropertyDesc descPd : desc.getPropertyDescs()) {
+            descPdMap.put(descPd.getName(), descPd);
+        }
+        for (PropertyDesc generatedPd : generated.getPropertyDescs()) {
+            String key = generatedPd.getName();
+            PropertyDesc pd = descPdMap.get(key);
+            if (pd != null) {
+                newDescPdMap.put(key, pd);
+                descPdMap.remove(key);
+            }
+        }
+        for (PropertyDesc descPd : descPdMap.values()) {
+            newDescPdMap.put(descPd.getName(), descPd);
+        }
+        desc.setPropertyDescs(newDescPdMap.values()
+                .toArray(new PropertyDesc[0]));
 
-        MethodDesc[] mdsTemp = desc.getMethodDescs();
-        MethodDesc[] generatedMdsTemp = generated.getMethodDescs();
-        desc.setMethodDescs(generatedMdsTemp);
-        generated.setMethodDescs(mdsTemp);
+        Map<MethodDescKey, MethodDesc> newDescMdMap = new LinkedHashMap<MethodDescKey, MethodDesc>();
+        Map<MethodDescKey, MethodDesc> descMdMap = new LinkedHashMap<MethodDescKey, MethodDesc>();
+        for (MethodDesc descMd : desc.getMethodDescs()) {
+            descMdMap.put(new MethodDescKey(descMd), descMd);
+        }
+        for (MethodDesc generatedMd : generated.getMethodDescs()) {
+            MethodDescKey key = new MethodDescKey(generatedMd);
+            MethodDesc md = descMdMap.get(key);
+            if (md != null) {
+                newDescMdMap.put(key, md);
+                descMdMap.remove(key);
+            }
+        }
+        for (MethodDesc descMd : descMdMap.values()) {
+            newDescMdMap.put(new MethodDescKey(descMd), descMd);
+        }
+        desc.setMethodDescs(newDescMdMap.values().toArray(new MethodDesc[0]));
 
         desc.merge(generated, true);
     }
