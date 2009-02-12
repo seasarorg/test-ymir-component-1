@@ -1,14 +1,12 @@
 package org.seasar.ymir.extension.zpt;
 
-import org.seasar.ymir.zpt.YmirPageTypePrefixHandler;
-
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;
 import net.skirnir.freyja.zpt.tales.TalesExpressionEvaluator;
 import net.skirnir.freyja.zpt.webapp.PageTypePrefixHandler;
 import net.skirnir.freyja.zpt.webapp.ServletTalesExpressionEvaluator;
 
-public class AnalyzerPageTypePrefixHandler extends YmirPageTypePrefixHandler {
+public class AnalyzerPageTypePrefixHandler extends PageTypePrefixHandler {
 
     private ServletTalesExpressionEvaluator evaluator_;
 
@@ -36,9 +34,13 @@ public class AnalyzerPageTypePrefixHandler extends YmirPageTypePrefixHandler {
             } else {
                 return path.substring(contextPath.length(), semicolon);
             }
-        } else {
+        } else if (path.startsWith("/") || path.startsWith("http:")
+                || path.startsWith("https:")) {
             // 別のコンテキストのパスなので、誤解釈されないようnullにしておく。
             return null;
+        } else {
+            // 相対パス。
+            return path;
         }
     }
 }

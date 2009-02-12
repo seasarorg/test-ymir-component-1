@@ -1301,10 +1301,12 @@ public class ZptAnalyzerTest extends TestCase {
                 .getMethodDesc(new MethodDescImpl("GET_edit")));
     }
 
-    public void testAnalyze72_自分を表す書式を正しく解釈できること() throws Exception {
+    public void testAnalyze72_相対パスを正しく解釈できること() throws Exception {
 
         act("testAnalyze72");
 
         assertNotNull(getClassDesc(CLASSNAME).getPropertyDesc("a"));
+        assertNotNull(getClassDesc("com.example.web.Index2Page")
+                .getPropertyDesc("a"));
     }
 }

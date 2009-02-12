@@ -66,8 +66,8 @@ public class AnalyzerTalTagEvaluatorTest extends TestCase {
         assertEquals("/path/page2.html", evaluator.toAbsolutePath(
                 "/path/to/page.html", "../page2.html"));
 
-        assertEquals("/path/to/page.html", evaluator.toAbsolutePath(
-                "/path/to/page.html", "./page.html"));
+        assertEquals("/path/to/page2.html", evaluator.toAbsolutePath(
+                "/path/to/page.html", "./page2.html"));
 
         assertEquals("/path/to/page.html#", evaluator.toAbsolutePath(
                 "/path/to/page.html", "#"));
