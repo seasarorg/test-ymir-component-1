@@ -1,6 +1,5 @@
 package org.seasar.ymir.extension.freemarker;
 
-@SuppressWarnings("unchecked")
 public class Hoe3PageBase {
 
     @org.seasar.ymir.annotation.Meta(name="source",value={"throw ex;","ex"})

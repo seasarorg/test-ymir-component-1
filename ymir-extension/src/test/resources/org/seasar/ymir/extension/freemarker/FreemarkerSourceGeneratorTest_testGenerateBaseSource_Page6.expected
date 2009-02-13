@@ -1,6 +1,5 @@
 package org.seasar.ymir.extension.freemarker;
 
-@SuppressWarnings("unchecked")
 public class Hoe6PageBase {
     @org.seasar.ymir.annotation.Meta(name="property",value="form")
     protected com.example.dto.FormDto form_ = new com.example.dto.FormDto();

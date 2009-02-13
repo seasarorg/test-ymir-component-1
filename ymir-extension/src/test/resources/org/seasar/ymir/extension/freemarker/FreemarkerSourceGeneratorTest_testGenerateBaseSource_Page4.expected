@@ -1,6 +1,5 @@
 package com.example.web;
 
-@SuppressWarnings("unchecked")
 public class TestPageBase {
 
     @org.seasar.ymir.annotation.Meta(name="source",value={"throw ex;","ex"})

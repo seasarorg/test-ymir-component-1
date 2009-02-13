@@ -21,7 +21,8 @@ import ${importClassName};
  * and add methods to gain conversion ability.
  * </p>
  */
-public class ${classDesc.shortName}Base {
+<#list classDesc.annotationDescs as annotationDesc>${annotationDesc.string}
+</#list>public class ${classDesc.shortName}Base {
     protected TypeConversionManager ${fieldPrefix}typeConversionManager${fieldSuffix};
 
     protected Messages ${fieldPrefix}messages${fieldSuffix};

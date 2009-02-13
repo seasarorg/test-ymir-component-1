@@ -2,7 +2,6 @@ package com.example.dto;
 
 import java.io.Serializable;
 
-@SuppressWarnings("unchecked")
 public class TestDtoBase
     implements Serializable {
     private static final long serialVersionUID = 1L;

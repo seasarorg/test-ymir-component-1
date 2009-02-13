@@ -1,6 +1,5 @@
 package com.example.page;
 
-@SuppressWarnings("unchecked")
 public class TestPageBase extends com.example.page.TestPageBaseBase {
     protected boolean param1_;
 
