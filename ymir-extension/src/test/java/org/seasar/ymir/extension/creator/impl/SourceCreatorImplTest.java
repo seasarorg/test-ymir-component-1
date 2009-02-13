@@ -552,7 +552,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertNotNull(actual.getMetaFirstValue(Globals.META_NAME_SOURCE));
         assertNotNull(actual.getBodyDesc());
     }
-//
+
 //    public void testAdjustByExistentClass2_由来が同じプロパティのうち生成されたClassDescに含まれていないものが削除されること()
 //            throws Exception {
 //        ClassDesc classDesc = new ClassDescImpl(Adjust2Page.class.getName());
