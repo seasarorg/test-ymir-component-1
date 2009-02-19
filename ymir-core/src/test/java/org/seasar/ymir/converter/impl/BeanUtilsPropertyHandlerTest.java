@@ -1,10 +1,14 @@
 package org.seasar.ymir.converter.impl;
 
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+
 import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.seasar.ymir.converter.impl.BeanUtilsPropertyHandler;
 import org.seasar.ymir.impl.Bean;
+import org.seasar.ymir.impl.Bean.Aaa;
 import org.seasar.ymir.impl.Bean.Bbb;
 
 public class BeanUtilsPropertyHandlerTest extends TestCase {
@@ -69,5 +73,61 @@ public class BeanUtilsPropertyHandlerTest extends TestCase {
 
         target3_.setProperty("value3");
         assertEquals("value3", target3Bean_.getAaa(1).getBbb("key").getSimple());
+    }
+
+    public void testGetPropertyType2_プロパティキーが配列型のプロパティを指す場合は配列型を返すこと()
+            throws Exception {
+        PropertyUtilsBean pub = new PropertyUtilsBean();
+        Bean bean = new Bean();
+        BeanUtilsPropertyHandler target = new BeanUtilsPropertyHandler(pub, pub
+                .getPropertyDescriptor(bean, "aaas"), bean, "aaas");
+
+        assertEquals(Aaa[].class, target.getPropertyType());
+    }
+
+    public void testGetPropertyType3_プロパティキーが配列型のプロパティの要素を指す場合はコンポーネント型を返すこと()
+            throws Exception {
+        PropertyUtilsBean pub = new PropertyUtilsBean();
+        Bean bean = new Bean();
+        BeanUtilsPropertyHandler target = new BeanUtilsPropertyHandler(pub, pub
+                .getPropertyDescriptor(bean, "aaas[1]"), bean, "aaas[1]");
+
+        assertEquals(Aaa.class, target.getPropertyType());
+    }
+
+    public void testGetPropertyType4_プロパティキーがList型のプロパティを指す場合はList型を返すこと()
+            throws Exception {
+        PropertyUtilsBean pub = new PropertyUtilsBean();
+        Bean bean = new Bean();
+        BeanUtilsPropertyHandler target = new BeanUtilsPropertyHandler(pub, pub
+                .getPropertyDescriptor(bean, "aaaList"), bean, "aaaList");
+
+        assertEquals(List.class, target.getPropertyType());
+    }
+
+    public void testGetPropertyType5_プロパティキーがList型のプロパティの要素を指す場合はコンポーネント型を返すこと()
+            throws Exception {
+        PropertyUtilsBean pub = new PropertyUtilsBean();
+        Bean bean = new Bean();
+        BeanUtilsPropertyHandler target = new BeanUtilsPropertyHandler(pub, pub
+                .getPropertyDescriptor(bean, "aaaList[1]"), bean, "aaaList[1]");
+
+        assertEquals(Aaa.class, target.getPropertyType());
+    }
+
+    public void testToClass() throws Exception {
+        assertNull(target1_.toClass(null));
+
+        Method method = getClass().getMethod("method1", String.class,
+                List.class);
+
+        assertEquals(String.class, target1_.toClass(method
+                .getGenericParameterTypes()[0]));
+
+        assertEquals(List.class, target1_.toClass(method
+                .getGenericParameterTypes()[1]));
+    }
+
+    public void method1(String arg0, List<String> arg1) {
     }
 }

@@ -1,6 +1,7 @@
 package org.seasar.ymir.impl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Bean {
@@ -8,6 +9,14 @@ public class Bean {
 
     public Aaa getAaa(int index) {
         return aaas_[index];
+    }
+
+    public Aaa[] getAaas() {
+        return aaas_;
+    }
+
+    public List<Aaa> getAaaList() {
+        return null;
     }
 
     public static class Aaa {

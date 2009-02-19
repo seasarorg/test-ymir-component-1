@@ -4,12 +4,20 @@ import java.beans.IndexedPropertyDescriptor;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.beanutils.MappedPropertyDescriptor;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.seasar.ymir.converter.PropertyHandler;
 
 public class BeanUtilsPropertyHandler implements PropertyHandler {
+    private static final String INDEXED_DELIM2 = "]";
+
+    private static final String MAPPED_DELIM2 = ")";
+
     private PropertyUtilsBean propertyUtilsBean_;
 
     private PropertyDescriptor propertyDescriptor_;
@@ -22,6 +30,8 @@ public class BeanUtilsPropertyHandler implements PropertyHandler {
 
     private boolean mapped_;
 
+    private Class<?> propertyType;
+
     public BeanUtilsPropertyHandler(PropertyUtilsBean propertyUtilsBean,
             PropertyDescriptor propertyDescriptor, Object bean, String name) {
         propertyUtilsBean_ = propertyUtilsBean;
@@ -32,18 +42,67 @@ public class BeanUtilsPropertyHandler implements PropertyHandler {
             indexed_ = true;
         } else if (propertyDescriptor instanceof MappedPropertyDescriptor) {
             mapped_ = true;
+        } else {
+            if (name.endsWith(INDEXED_DELIM2)) {
+                Class<?> type = propertyDescriptor.getPropertyType();
+                if (type.isArray()) {
+                    propertyType = type.getComponentType();
+                } else if (List.class.isAssignableFrom(type)) {
+                    Method method = propertyDescriptor.getReadMethod();
+                    if (method != null) {
+                        Type returnType = method.getGenericReturnType();
+                        if (returnType instanceof ParameterizedType) {
+                            propertyType = toClass(((ParameterizedType) returnType)
+                                    .getActualTypeArguments()[0]);
+                        } else {
+                            propertyType = Object.class;
+                        }
+                    }
+                }
+            } else if (name.endsWith(MAPPED_DELIM2)) {
+                Class<?> type = propertyDescriptor.getPropertyType();
+                if (Map.class.isAssignableFrom(type)) {
+                    Method method = propertyDescriptor.getReadMethod();
+                    if (method != null) {
+                        Type returnType = method.getGenericReturnType();
+                        if (returnType instanceof ParameterizedType) {
+                            propertyType = toClass(((ParameterizedType) returnType)
+                                    .getActualTypeArguments()[1]);
+                        } else {
+                            propertyType = Object.class;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Class<?> toClass(Type type) {
+        if (type == null) {
+            return null;
+        }
+        if (type instanceof ParameterizedType) {
+            return toClass(((ParameterizedType) type).getRawType());
+        } else if (type instanceof Class) {
+            return (Class<?>) type;
+        } else {
+            return Object.class;
         }
     }
 
     public Class<?> getPropertyType() {
-        if (indexed_) {
-            return ((IndexedPropertyDescriptor) propertyDescriptor_)
-                    .getIndexedPropertyType();
-        } else if (mapped_) {
-            return ((MappedPropertyDescriptor) propertyDescriptor_)
-                    .getMappedPropertyType();
+        if (propertyType != null) {
+            return propertyType;
         } else {
-            return propertyDescriptor_.getPropertyType();
+            if (indexed_) {
+                return ((IndexedPropertyDescriptor) propertyDescriptor_)
+                        .getIndexedPropertyType();
+            } else if (mapped_) {
+                return ((MappedPropertyDescriptor) propertyDescriptor_)
+                        .getMappedPropertyType();
+            } else {
+                return propertyDescriptor_.getPropertyType();
+            }
         }
     }
 
