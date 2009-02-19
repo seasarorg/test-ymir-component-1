@@ -5,6 +5,7 @@ public class TestPageBase extends com.example.page.TestPageBaseBase {
 
     protected String param2_;
 
+    @org.seasar.ymir.annotation.Meta(name="initialValue",value="new Integer[0]")
     protected Integer[] param4_ = new Integer[0];
 
     protected String param3_;

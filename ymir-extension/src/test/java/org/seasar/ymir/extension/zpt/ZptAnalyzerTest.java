@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -447,8 +448,12 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc cd = getClassDesc("com.example.web.ActionPage");
         PropertyDesc pd = cd.getPropertyDesc("tests");
-        assertTrue("フォームパラメータ名に添字指定がある場合は配列になること", pd.getTypeDesc()
-                .isCollection());
+        assertTrue("添字指定がある場合はListになること", pd.getTypeDesc().isCollection());
+        assertEquals(List.class.getName(), pd.getTypeDesc()
+                .getCollectionClassName());
+        assertEquals(
+                "new org.seasar.ymir.util.FlexibleList<com.example.dto.TestDto>()",
+                pd.getInitialValue());
         assertEquals("tests配列プロパティのDto型名は単数形になること", "com.example.dto.TestDto",
                 pd.getTypeDesc().getComponentClassDesc().getName());
     }
@@ -460,8 +465,13 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc cd = getClassDesc("com.example.dto.TestDto");
         PropertyDesc pd = cd.getPropertyDesc("files");
-        assertEquals(FormFile.class.getName() + "[]", pd.getTypeDesc()
-                .getName());
+        assertEquals(List.class.getName(), pd.getTypeDesc()
+                .getCollectionClassName());
+        assertEquals(
+                "new org.seasar.ymir.util.FlexibleList<org.seasar.ymir.FormFile>()",
+                pd.getInitialValue());
+        assertEquals(FormFile.class.getName(), pd.getTypeDesc()
+                .getComponentClassDesc().getName());
     }
 
     public void testAnalyze13() throws Exception {
@@ -819,7 +829,8 @@ public class ZptAnalyzerTest extends TestCase {
         ClassDesc cd = getClassDesc(CLASSNAME);
         PropertyDesc pd = cd.getPropertyDesc("entries");
         assertNotNull(pd);
-        assertEquals("com.example.dto.EntryDto[]", pd.getTypeDesc().getName());
+        assertEquals("java.util.List<com.example.dto.EntryDto>", pd
+                .getTypeDesc().getName());
 
         assertNull("副作用で添え字部分以外の部分が実行時に決定されるinputタグが自動生成対象になったりしていないこと", cd
                 .getPropertyDesc("entry"));
@@ -997,7 +1008,7 @@ public class ZptAnalyzerTest extends TestCase {
         ClassCreationHintBag hintBag = new ClassCreationHintBag(
                 new PropertyTypeHint[] { new PropertyTypeHint(
                         "com.example.web.IndexPage", "hoes",
-                        "com.example.dto.HoeDto", true) }, null);
+                        "com.example.dto.HoeDto[]") }, null);
 
         act("testAnalyze57", hintBag);
 
@@ -1053,7 +1064,7 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassCreationHintBag bag = new ClassCreationHintBag(
                 new PropertyTypeHint[] { new PropertyTypeHint(CLASSNAME,
-                        "file", "java.lang.String", false) }, new ClassHint[0]);
+                        "file", "java.lang.String") }, new ClassHint[0]);
         act("testAnalyze59", CLASSNAME, bag, null);
 
         ClassDesc cd = getClassDesc(CLASSNAME);
@@ -1081,7 +1092,8 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(cd);
         PropertyDesc pd = cd.getPropertyDesc("items");
         assertNotNull(pd);
-        assertEquals("com.example.dto.ItemDto[]", pd.getTypeDesc().getName());
+        assertEquals("java.util.List<com.example.dto.ItemDto>", pd
+                .getTypeDesc().getName());
 
         cd = getClassDesc("com.example.dto.ItemDto");
         assertNotNull(cd);
@@ -1259,7 +1271,7 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassCreationHintBag bag = new ClassCreationHintBag(
                 new PropertyTypeHint[] { new PropertyTypeHint(CLASSNAME,
-                        "text", "Object", false) }, new ClassHint[0]);
+                        "text", "Object") }, new ClassHint[0]);
         act("testAnalyze69", bag);
 
         assertEquals("Object", getClassDesc(CLASSNAME).getPropertyDesc("text")

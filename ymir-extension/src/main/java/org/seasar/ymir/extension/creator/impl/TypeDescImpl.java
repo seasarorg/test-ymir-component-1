@@ -1,6 +1,8 @@
 package org.seasar.ymir.extension.creator.impl;
 
 import static org.seasar.ymir.extension.creator.util.DescUtils.getComponentName;
+import static org.seasar.ymir.extension.creator.util.DescUtils.isArray;
+import static org.seasar.ymir.extension.creator.util.DescUtils.normalizePackage;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,8 +23,6 @@ import org.seasar.ymir.util.ClassUtils;
 public class TypeDescImpl implements TypeDesc {
     private static final String ARRAY_SUFFIX = "[]";
 
-    private static final String PACKAGE_JAVA_LANG = "java.lang.";
-
     private static final String NULL_VALUE = "null";
 
     private String name_;
@@ -33,15 +33,13 @@ public class TypeDescImpl implements TypeDesc {
 
     private String collectionClassName_;
 
+    private String collectionImplementationClassName_;
+
     private boolean explicit_;
 
     private static final Map<String, String> DEFAULT_VALUE_MAP;
 
     private static final Map<String, String> WRAPPER_MAP;
-
-    private static final String PACKAGEPREFIX_FREYJA_RENDER_CLASS = "net.skirnir.freyja.render.";
-
-    private static final String SUFFIX_DTO = "Dto";
 
     static {
         DEFAULT_VALUE_MAP = new HashMap<String, String>();
@@ -76,28 +74,6 @@ public class TypeDescImpl implements TypeDesc {
     public TypeDescImpl(String typeName, boolean explicit) {
         setName(typeName);
         explicit_ = explicit;
-    }
-
-    String normalizePackage(String typeName) {
-        if (typeName == null) {
-            return null;
-        }
-
-        TypeToken typeToken = new TypeToken(typeName);
-        typeToken.accept(new TokenVisitor<Object>() {
-            public Object visit(Token acceptor) {
-                String baseName = acceptor.getBaseName();
-                StringBuilder sb = new StringBuilder();
-                if (baseName.startsWith(PACKAGE_JAVA_LANG)) {
-                    sb.append(baseName.substring(PACKAGE_JAVA_LANG.length()));
-                } else {
-                    sb.append(baseName);
-                }
-                acceptor.setBaseName(sb.toString());
-                return null;
-            }
-        });
-        return typeToken.getAsString();
     }
 
     public TypeDescImpl(ClassDesc classDesc) {
@@ -168,7 +144,7 @@ public class TypeDescImpl implements TypeDesc {
     public void setName(String typeName, Map<String, ClassDesc> classDescMap) {
         componentClassDesc_ = null;
         collectionClassName_ = null;
-        collection_ = DescUtils.isArray(typeName);
+        collection_ = isArray(typeName);
         name_ = normalizePackage(typeName.replace('$', '.'));
 
         String componentClassName;
@@ -222,6 +198,15 @@ public class TypeDescImpl implements TypeDesc {
     public void setCollectionClassName(String collectionClassName) {
         collectionClassName_ = collectionClassName;
         name_ = null;
+    }
+
+    public String getCollectionImplementationClassName() {
+        return collectionImplementationClassName_;
+    }
+
+    public void setCollectionImplementationClassName(
+            String collectionImplementationClassName) {
+        collectionImplementationClassName_ = collectionImplementationClassName;
     }
 
     public boolean isExplicit() {
@@ -422,42 +407,6 @@ public class TypeDescImpl implements TypeDesc {
             return wrapperName;
         } else {
             return name;
-        }
-    }
-
-    public String getInitialValue() {
-        if (collection_) {
-            if (collectionClassName_ != null) {
-                // 配列でないコレクションの場合（何を生成すればいいかも分からないし）、外からぶら下げてもらうことが多いのでnullにする。
-                return null;
-            } else {
-                // 配列の場合は（何を生成すればいいかも分かるし）空の配列をぶら下げておく。
-                return "new " + normalizePackage(componentClassDesc_.getName())
-                        + "[0]";
-            }
-        } else {
-            if (componentClassDesc_.getPackageName().startsWith(
-                    PACKAGEPREFIX_FREYJA_RENDER_CLASS)
-                    || componentClassDesc_.getName().endsWith(SUFFIX_DTO)) {
-                boolean generateInitialValue = false;
-                try {
-                    Class<?> clazz = Class.forName(componentClassDesc_
-                            .getName());
-                    try {
-                        clazz.newInstance();
-                        generateInitialValue = true;
-                    } catch (InstantiationException ignore) {
-                    } catch (IllegalAccessException ignore) {
-                    }
-                } catch (ClassNotFoundException ex) {
-                    // まだ生成されていないDTO。自動生成対象のDTOはデフォルトコンストラクタを持つので非nullを返すようにする。
-                    generateInitialValue = true;
-                }
-                if (generateInitialValue) {
-                    return "new " + getName() + "()";
-                }
-            }
-            return null;
         }
     }
 }

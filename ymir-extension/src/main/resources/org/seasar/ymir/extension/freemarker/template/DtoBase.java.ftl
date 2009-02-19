@@ -7,8 +7,8 @@ import java.io.Serializable;
     implements Serializable {
     private static final long serialVersionUID = 1L;
 
-<#list classDesc.propertyDescs as propertyDesc>
-    protected ${propertyDesc.typeDesc.name} ${fieldPrefix}${propertyDesc.name}${fieldSuffix}<#if propertyDesc.typeDesc.initialValue??> = ${propertyDesc.typeDesc.initialValue}</#if>;
+<#list classDesc.propertyDescs as propertyDesc><#list propertyDesc.annotationDescs as annotationDesc>    ${annotationDesc.string}
+</#list>    protected ${propertyDesc.typeDesc.name} ${fieldPrefix}${propertyDesc.name}${fieldSuffix}<#if propertyDesc.initialValue??> = ${propertyDesc.initialValue}</#if>;
 
 </#list>
 

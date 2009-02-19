@@ -62,4 +62,6 @@ public interface PropertyDesc extends AnnotatedDesc, Cloneable {
     boolean hasMetaOnSetter(String name);
 
     String getMetaFirstValueOnSetter(String name);
+
+    String getInitialValue();
 }

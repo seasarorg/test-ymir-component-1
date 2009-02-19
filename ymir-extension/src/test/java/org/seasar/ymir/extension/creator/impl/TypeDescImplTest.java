@@ -55,37 +55,6 @@ public class TypeDescImplTest extends TestCase {
         assertEquals("java.util.List<String>", actual.getName());
     }
 
-    public void testGetInitialValue() throws Exception {
-        String actual = new TypeDescImpl("com.example.dto.TestDto[]")
-                .getInitialValue();
-        assertEquals("new com.example.dto.TestDto[0]", actual);
-
-        actual = new TypeDescImpl("java.lang.Integer[]").getInitialValue();
-        assertEquals("new Integer[0]", actual);
-
-        actual = new TypeDescImpl("int[]").getInitialValue();
-        assertEquals("new int[0]", actual);
-
-        actual = new TypeDescImpl("com.example.dto.TestDto").getInitialValue();
-        assertEquals("Dtoが存在しない場合はnew記述になること", "new com.example.dto.TestDto()",
-                actual);
-
-        actual = new TypeDescImpl("com.example.dto.Test1Dto").getInitialValue();
-        assertEquals("デフォルトコンストラクタでインスタンスを生成できる場合はnew記述になること",
-                "new com.example.dto.Test1Dto()", actual);
-
-        actual = new TypeDescImpl("com.example.dto.Test2Dto").getInitialValue();
-        assertNull("デフォルトコンストラクタがないばあいはnullになること", actual);
-
-        actual = new TypeDescImpl("net.skirnir.freyja.render.html.OptionTag")
-                .getInitialValue();
-        assertEquals("new net.skirnir.freyja.render.html.OptionTag()", actual);
-
-        actual = new TypeDescImpl("com.example.converter.HoeConverter")
-                .getInitialValue();
-        assertNull(actual);
-    }
-
     public void testSetName() throws Exception {
         TypeDescImpl target = new TypeDescImpl();
         target.setName("java.lang.Date");

@@ -40,6 +40,7 @@ import org.seasar.ymir.message.Messages;
 import org.seasar.ymir.message.Note;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.token.Token;
+import org.seasar.ymir.util.FlexibleList;
 import org.seasar.ymir.zpt.YmirVariableResolver;
 
 import net.skirnir.freyja.EvaluationRuntimeException;
@@ -59,8 +60,6 @@ public class AnalyzerContext extends ZptTemplateContext {
     private static final char STR_ARRAY_LPAREN = '[';
 
     private static final char CHAR_ARRAY_RPAREN = ']';
-
-    private static final String ARRAY_SUFFIX = "[]";
 
     private static final String PROP_LENGTH = "length";
 
@@ -589,31 +588,33 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     PropertyDesc getSinglePropertyDesc(ClassDesc classDesc, String name,
             int mode, boolean setAsArrayIfSetterExists) {
-        boolean array = false;
+        boolean collection = false;
         int lparen = name.indexOf(STR_ARRAY_LPAREN);
         int rparen = name.indexOf(CHAR_ARRAY_RPAREN);
         if (lparen >= 0 && rparen > lparen) {
-            array = true;
+            collection = true;
             name = name.substring(0, lparen);
         } else {
             // 今のところ、添え字つきパラメータの型が配列というのはサポートできていない。
             if (setAsArrayIfSetterExists) {
-                array = (classDesc.getPropertyDesc(name) != null && classDesc
+                collection = (classDesc.getPropertyDesc(name) != null && classDesc
                         .getPropertyDesc(name).isWritable());
             }
         }
         PropertyDesc propertyDesc = classDesc.addProperty(name, mode);
-        if (array) {
+        if (collection) {
             // なるべく元の状態を壊さないようにこうしている。
             // （添字があるならば配列である、は真であるが、裏は真ではない。）
-            // つまり、arrayがtrueの時だけsetArray()している、ということ。
+            // つまり、collectionがtrueの時だけsetCollection()している、ということ。
             TypeDesc typeDesc = propertyDesc.getTypeDesc();
             if (!typeDesc.isCollection()) {
                 typeDesc.getComponentClassDesc()
                         .removePropertyDesc(PROP_LENGTH);
             }
-            typeDesc.setCollection(array);
-
+            typeDesc.setCollection(collection);
+            typeDesc.setCollectionClassName(List.class.getName());
+            typeDesc.setCollectionImplementationClassName(FlexibleList.class
+                    .getName());
         }
         return adjustPropertyType(classDesc.getName(), propertyDesc);
     }
@@ -706,12 +707,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         PropertyTypeHint hint = getPropertyTypeHint(className, pd.getName());
         String typeName;
         if (hint != null) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(hint.getTypeName());
-            if (hint.isCollection()) {
-                sb.append(ARRAY_SUFFIX);
-            }
-            typeName = sb.toString();
+            typeName = hint.getTypeName();
         } else {
             PropertyDescriptor descriptor = getSourceCreator()
                     .getPropertyDescriptor(className, pd.getName());
@@ -733,6 +729,12 @@ public class AnalyzerContext extends ZptTemplateContext {
         Map<String, ClassDesc> map = new HashMap<String, ClassDesc>();
         map.put(cname, getTemporaryClassDesc(cname));
         td.setName(typeName, map);
+
+        if (td.isCollection()
+                && List.class.getName().equals(td.getCollectionClassName())) {
+            td.setCollectionImplementationClassName(pd.getTypeDesc()
+                    .getCollectionImplementationClassName());
+        }
 
         pd.setTypeDesc(td);
         pd.notifyUpdatingType();

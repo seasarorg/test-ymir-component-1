@@ -27,6 +27,11 @@ public interface TypeDesc extends Cloneable {
 
     void setCollectionClassName(String collectionClassName);
 
+    String getCollectionImplementationClassName();
+
+    void setCollectionImplementationClassName(
+            String collectionImplementationClassName);
+
     boolean isExplicit();
 
     void setExplicit(boolean explicit);
@@ -48,6 +53,4 @@ public interface TypeDesc extends Cloneable {
     String getDefaultValue();
 
     String getInstanceName();
-
-    String getInitialValue();
 }

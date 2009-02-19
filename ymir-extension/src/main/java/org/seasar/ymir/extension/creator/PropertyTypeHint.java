@@ -7,24 +7,17 @@ public class PropertyTypeHint {
 
     private String typeName_;
 
-    private boolean collection_;
-
     public PropertyTypeHint(String className, String propertyName,
-            String typeName, boolean collection) {
+            String typeName) {
         className_ = className;
         propertyName_ = propertyName;
         typeName_ = typeName;
-        collection_ = collection;
     }
 
     @Override
     public String toString() {
         return "className=" + className_ + ", propertyName=" + propertyName_
-                + ", typeName=" + typeName_ + ", collection=" + collection_;
-    }
-
-    public boolean isCollection() {
-        return collection_;
+                + ", typeName=" + typeName_;
     }
 
     public String getClassName() {

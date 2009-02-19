@@ -701,27 +701,34 @@ public class SourceCreatorImpl implements SourceCreator {
         for (int i = 0; i < pds.length; i++) {
             Method readMethod = pds[i].getReadMethod();
             Method writeMethod = pds[i].getWriteMethod();
-            String name = adjustPropertyName(pds[i].getName(), clazz,
-                    readMethod, writeMethod);
+
+            if (readMethod != null
+                    && readMethod.getDeclaringClass() == Object.class
+                    || writeMethod != null
+                    && writeMethod.getDeclaringClass() == Object.class) {
+                // Objectクラスのプロパティは対象外とする。
+                continue;
+            }
+
             if (onlyDeclared) {
                 // このクラスで定義されているプロパティだけを対象とする。
                 if (readMethod != null
-                        && readMethod.getDeclaringClass() != clazz) {
-                    readMethod = null;
-                }
-                if (writeMethod != null
+                        && readMethod.getDeclaringClass() != clazz
+                        || writeMethod != null
                         && writeMethod.getDeclaringClass() != clazz) {
-                    writeMethod = null;
+                    continue;
                 }
-            } else {
-                // 祖先クラスにあるプロパティも対象とする。ただしObjectクラスのプロパティは対象外とする。
-                if (readMethod != null
-                        && readMethod.getDeclaringClass() == Object.class) {
-                    readMethod = null;
-                }
-                if (writeMethod != null
-                        && writeMethod.getDeclaringClass() == Object.class) {
-                    writeMethod = null;
+            }
+
+            String name = adjustPropertyName(pds[i].getName(), clazz,
+                    readMethod, writeMethod);
+            Field propertyField = null;
+            if ((readMethod == null || readMethod.getDeclaringClass() == clazz)
+                    && (writeMethod == null || writeMethod.getDeclaringClass() == clazz)) {
+                try {
+                    propertyField = clazz.getDeclaredField(name);
+                } catch (SecurityException ignore) {
+                } catch (NoSuchFieldException ignore) {
                 }
             }
 
@@ -734,9 +741,11 @@ public class SourceCreatorImpl implements SourceCreator {
             if (writeMethod != null) {
                 mode |= PropertyDesc.WRITE;
             }
-            if (mode == PropertyDesc.NONE) {
+
+            if (mode == PropertyDesc.NONE && propertyField == null) {
                 continue;
             }
+
             propertyDesc.setMode(mode);
 
             propertyDesc.setTypeDesc(DescUtils
@@ -749,6 +758,10 @@ public class SourceCreatorImpl implements SourceCreator {
             ads = DescUtils.newAnnotationDescs(writeMethod);
             for (int j = 0; j < ads.length; j++) {
                 propertyDesc.setAnnotationDescForSetter(ads[j]);
+            }
+            ads = DescUtils.newAnnotationDescs(propertyField);
+            for (int j = 0; j < ads.length; j++) {
+                propertyDesc.setAnnotationDesc(ads[j]);
             }
 
             classDesc.setPropertyDesc(propertyDesc);

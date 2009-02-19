@@ -1,10 +1,14 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import static org.seasar.ymir.extension.creator.util.DescUtils.normalizePackage;
+
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AbstractAnnotatedDesc;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
+import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
@@ -16,6 +20,10 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
     public static final int READ = 1;
 
     public static final int WRITE = 2;
+
+    private static final String PACKAGEPREFIX_FREYJA_RENDER_CLASS = "net.skirnir.freyja.render.";
+
+    private static final String SUFFIX_DTO = "Dto";
 
     private String name_;
 
@@ -207,5 +215,61 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
 
     public boolean hasMetaOnSetter(String name) {
         return DescUtils.hasMeta(annotationDescForSetterMap_, name);
+    }
+
+    public String getInitialValue() {
+        if (typeDesc_ == null) {
+            return null;
+        }
+
+        String initialValue = null;
+
+        ClassDesc componentClassDesc = typeDesc_.getComponentClassDesc();
+        if (typeDesc_.isCollection()) {
+            String collectionClassName = typeDesc_.getCollectionClassName();
+            if (collectionClassName != null) {
+                String collectionImplementationClassName = typeDesc_
+                        .getCollectionImplementationClassName();
+                if (collectionImplementationClassName != null) {
+                    initialValue = "new "
+                            + normalizePackage(collectionImplementationClassName
+                                    + "<" + componentClassDesc.getName() + ">")
+                            + "()";
+                }
+            } else {
+                // 配列の場合は（何を生成すればいいかも分かるし）空の配列をぶら下げておく。
+                initialValue = "new "
+                        + normalizePackage(componentClassDesc.getName())
+                        + "[0]";
+            }
+        } else {
+            if (componentClassDesc.getPackageName().startsWith(
+                    PACKAGEPREFIX_FREYJA_RENDER_CLASS)
+                    || componentClassDesc.getName().endsWith(SUFFIX_DTO)) {
+                boolean generateInitialValue = false;
+                try {
+                    Class<?> clazz = Class
+                            .forName(componentClassDesc.getName());
+                    try {
+                        clazz.newInstance();
+                        generateInitialValue = true;
+                    } catch (InstantiationException ignore) {
+                    } catch (IllegalAccessException ignore) {
+                    }
+                } catch (ClassNotFoundException ex) {
+                    // まだ生成されていないDTO。自動生成対象のDTOはデフォルトコンストラクタを持つので非nullを返すようにする。
+                    generateInitialValue = true;
+                }
+                if (generateInitialValue) {
+                    initialValue = "new " + typeDesc_.getName() + "()";
+                }
+            }
+        }
+
+        if (initialValue == null) {
+            initialValue = getMetaFirstValue(Globals.META_NAME_INITIALVALUE);
+        }
+
+        return initialValue;
     }
 }

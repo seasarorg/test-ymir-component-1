@@ -65,8 +65,6 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
 
     protected static final String PREFIX_CLASSCHECKED = "updateClassesAction.class.checked.";
 
-    private static final String SUFFIX_ARRAY = "[]";
-
     private static final Set<String> primitiveSet_;
 
     static {
@@ -202,17 +200,9 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 String propertyName = classAndPropertyName.substring(slash + 1);
                 String typeName = request.getParameter(name);
 
-                boolean array;
-                if (typeName.endsWith(SUFFIX_ARRAY)) {
-                    array = true;
-                    typeName = typeName.substring(0, typeName.length()
-                            - SUFFIX_ARRAY.length());
-                } else {
-                    array = false;
-                }
                 typeName = resolveTypeName(typeName, actualClassName);
                 propertyTypeHintList.add(new PropertyTypeHint(actualClassName,
-                        propertyName, typeName, array));
+                        propertyName, typeName));
             } else if (name.startsWith(PARAMPREFIX_SUPERCLASSNAME)) {
                 String className = name.substring(PARAMPREFIX_SUPERCLASSNAME
                         .length());

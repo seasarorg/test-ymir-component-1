@@ -603,9 +603,15 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     name, PropertyDesc.READ | PropertyDesc.WRITE);
             // conditionで使われていた際にbooleanで上書きされないようにこうしている。
             if (!pd.isTypeAlreadySet()) {
-                TypeDesc td = pd.getTypeDesc();
-                pd.setTypeDesc(new TypeDescImpl(String.class.getName()
-                        + (td.isCollection() ? "[]" : "")));
+                TypeDesc oldTd = pd.getTypeDesc();
+                TypeDesc td = new TypeDescImpl();
+                td.setComponentClassDesc(new SimpleClassDesc(String.class
+                        .getName()));
+                td.setCollection(pd.getTypeDesc().isCollection());
+                td.setCollectionClassName(oldTd.getCollectionClassName());
+                td.setCollectionImplementationClassName(pd.getTypeDesc()
+                        .getCollectionImplementationClassName());
+                pd.setTypeDesc(td);
                 pd.notifyUpdatingType();
             }
 

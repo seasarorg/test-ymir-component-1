@@ -107,6 +107,9 @@ public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
 
         assertEquals("com.example.dto.HoeDto", target_.resolveTypeName(
                 "HoeDto", "com.example.dto.aaa.bbb.CccDto"));
+
+        assertEquals("com.example.dto.HoeDto[]", target_.resolveTypeName(
+                "HoeDto[]", "com.example.dto.aaa.bbb.CccDto"));
     }
 
     public void testResolveTypeNames() throws Exception {

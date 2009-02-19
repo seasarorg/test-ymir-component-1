@@ -27,10 +27,14 @@ import org.seasar.ymir.extension.creator.impl.AnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.MetasAnnotationDescImpl;
+import org.seasar.ymir.extension.creator.util.type.Token;
+import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
 
 public class DescUtils {
     private static final String SUFFIX_ARRAY = "[]";
+
+    private static final String PACKAGE_JAVA_LANG = "java.lang.";
 
     private DescUtils() {
     }
@@ -176,13 +180,18 @@ public class DescUtils {
                 MetaAnnotationDesc meta = (MetaAnnotationDesc) annotationDescMap
                         .get(Meta.class.getName());
 
-                // MetasがなくてMetaがあればMetasに統合する。
-                if (meta != null
-                        && !meta.getMetaName().equals(metaAd.getMetaName())) {
-                    annotationDescMap.put(Metas.class.getName(),
-                            new MetasAnnotationDescImpl(
-                                    new MetaAnnotationDesc[] { meta, metaAd }));
-                    annotationDescMap.remove(Meta.class.getName());
+                if (meta != null) {
+                    if (!meta.getMetaName().equals(metaAd.getMetaName())) {
+                        // MetasがなくてMetaがあればMetasに統合する。
+                        annotationDescMap
+                                .put(Metas.class.getName(),
+                                        new MetasAnnotationDescImpl(
+                                                new MetaAnnotationDesc[] {
+                                                    meta, metaAd }));
+                        annotationDescMap.remove(Meta.class.getName());
+                    } else {
+                        annotationDescMap.put(Meta.class.getName(), metaAd);
+                    }
                     return;
                 }
             }
@@ -397,5 +406,27 @@ public class DescUtils {
         }
 
         return adMap.values().toArray(new AnnotationDesc[0]);
+    }
+
+    public static String normalizePackage(String typeName) {
+        if (typeName == null) {
+            return null;
+        }
+
+        TypeToken typeToken = new TypeToken(typeName);
+        typeToken.accept(new TokenVisitor<Object>() {
+            public Object visit(Token acceptor) {
+                String baseName = acceptor.getBaseName();
+                StringBuilder sb = new StringBuilder();
+                if (baseName.startsWith(PACKAGE_JAVA_LANG)) {
+                    sb.append(baseName.substring(PACKAGE_JAVA_LANG.length()));
+                } else {
+                    sb.append(baseName);
+                }
+                acceptor.setBaseName(sb.toString());
+                return null;
+            }
+        });
+        return typeToken.getAsString();
     }
 }
