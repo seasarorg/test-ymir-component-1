@@ -76,17 +76,10 @@ public class DescValidator {
             return true;
         } else if (classDescSet != null && classDescSet.contains(className)) {
             return true;
+        } else if (DescUtils.getClass(className) != null) {
+            return true;
         } else {
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            if (cl == null) {
-                cl = DescValidator.class.getClassLoader();
-            }
-            try {
-                Class.forName(className, false, cl);
-                return true;
-            } catch (ClassNotFoundException ex) {
-                return false;
-            }
+            return false;
         }
     }
 

@@ -57,9 +57,9 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private static final String SINGULAR_SUFFIX2 = "";
 
-    private static final char STR_ARRAY_LPAREN = '[';
+    static final char CHAR_ARRAY_LPAREN = '[';
 
-    private static final char CHAR_ARRAY_RPAREN = ']';
+    static final char CHAR_ARRAY_RPAREN = ']';
 
     private static final String PROP_LENGTH = "length";
 
@@ -568,9 +568,15 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     public PropertyDesc getPropertyDesc(ClassDesc classDesc, String name,
             int mode) {
+        return getPropertyDesc(classDesc, name, mode, false);
+    }
+
+    PropertyDesc getPropertyDesc(ClassDesc classDesc, String name, int mode,
+            boolean descendantOfIndexedProperty) {
         int dot = name.indexOf('.');
         if (dot < 0) {
-            return getSinglePropertyDesc(classDesc, name, mode, true);
+            return getSinglePropertyDesc(classDesc, name, mode,
+                    !descendantOfIndexedProperty);
         } else {
             String baseName = name.substring(0, dot);
             PropertyDesc propertyDesc = getSinglePropertyDesc(classDesc,
@@ -578,8 +584,10 @@ public class AnalyzerContext extends ZptTemplateContext {
             ClassDesc typeClassDesc = preparePropertyTypeClassDesc(classDesc,
                     propertyDesc);
             if (typeClassDesc != null) {
+                // 添え字つきプロパティか添え字つきプロパティの子孫の場合はプロパティをコレクションにしないようにしている。
                 return getPropertyDesc(typeClassDesc, name.substring(dot + 1),
-                        mode);
+                        mode, descendantOfIndexedProperty ? true : baseName
+                                .indexOf(CHAR_ARRAY_LPAREN) >= 0);
             } else {
                 return propertyDesc;
             }
@@ -587,11 +595,11 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     PropertyDesc getSinglePropertyDesc(ClassDesc classDesc, String name,
-            int mode, boolean setAsArrayIfSetterExists) {
+            int mode, boolean setAsCollectionIfSetterExists) {
         boolean collection = false;
         String collectionClassName = null;
         String collectionImplementationClassName = null;
-        int lparen = name.indexOf(STR_ARRAY_LPAREN);
+        int lparen = name.indexOf(CHAR_ARRAY_LPAREN);
         int rparen = name.indexOf(CHAR_ARRAY_RPAREN);
         if (lparen >= 0 && rparen > lparen) {
             // 添え字つきパラメータを受けるプロパティはList。
@@ -601,7 +609,7 @@ public class AnalyzerContext extends ZptTemplateContext {
             name = name.substring(0, lparen);
         } else {
             // 今のところ、添え字つきパラメータの型が配列というのはサポートできていない。
-            if (setAsArrayIfSetterExists) {
+            if (setAsCollectionIfSetterExists) {
                 // 添え字なしパラメータを複数受けるプロパティは配列。
                 collection = (classDesc.getPropertyDesc(name) != null && classDesc
                         .getPropertyDesc(name).isWritable());

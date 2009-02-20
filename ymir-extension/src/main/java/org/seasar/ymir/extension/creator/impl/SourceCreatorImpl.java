@@ -777,7 +777,10 @@ public class SourceCreatorImpl implements SourceCreator {
             if (List.class.isAssignableFrom(pds[i].getPropertyType())
                     && propertyField != null) {
                 // Listのプロパティについては初期値の実装型情報をコピーする。
+                boolean accessible = propertyField.isAccessible();
                 try {
+                    propertyField.setAccessible(true);
+
                     Object instance = ClassUtils.newInstance(clazz);
                     Object value = propertyField.get(instance);
                     if (value != null) {
@@ -785,6 +788,10 @@ public class SourceCreatorImpl implements SourceCreator {
                                 .getClass().getName());
                     }
                 } catch (Throwable ignore) {
+                    log_.debug("Can't get initial value of field (" + name
+                            + "): class=" + clazz.getName(), ignore);
+                } finally {
+                    propertyField.setAccessible(accessible);
                 }
             }
 

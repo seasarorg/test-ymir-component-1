@@ -437,4 +437,20 @@ public class DescUtils {
         });
         return typeToken.getAsString();
     }
+
+    public static Class<?> getClass(String className) {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        try {
+            if (cl != null) {
+                return cl.loadClass(className);
+            } else {
+                return DescUtils.class.getClassLoader().loadClass(className);
+            }
+        } catch (ClassNotFoundException ignore) {
+        } finally {
+            Thread.currentThread().setContextClassLoader(cl);
+        }
+
+        return null;
+    }
 }

@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.zpt;
 
+import static org.seasar.ymir.util.BeanUtils.getFirstSimpleSegment;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -138,9 +140,18 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         break;
                     }
 
+                    String parameterName = getAttributeValue(attrMap, "name",
+                            null);
+
                     if (!propertyDesc.getTypeDesc().isExplicit()) {
                         if (analyzerContext.isInRepeat()) {
-                            propertyDesc.getTypeDesc().setCollection(true);
+                            // repeatタグの中であれば同一名のinputタグが複数あることになるため、プロパティの型をコレクションにする。
+                            // ただし添え字つきパラメータの場合は、同一名のinputタグが複数存在するわけではないため、
+                            // コレクションにはしない。
+                            if (parameterName
+                                    .indexOf(AnalyzerContext.CHAR_ARRAY_LPAREN) < 0) {
+                                propertyDesc.getTypeDesc().setCollection(true);
+                            }
                         }
                         if ("input".equals(name)) {
                             if ("file".equals(type)) {
@@ -155,18 +166,19 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         }
                     }
 
-                    String parameterName = getAttributeValue(attrMap, "name",
-                            null);
-                    if (BeanUtils.isSingleSegment(parameterName)
-                            && formDesc.getDtoClassDesc() != null) {
+                    PropertyDesc firstPropertyDesc = formDesc.getClassDesc()
+                            .getPropertyDesc(
+                                    getFirstSimpleSegment(parameterName));
+
+                    if (formDesc.getDtoClassDesc() != null) {
                         formDesc.getDtoClassDesc().setPropertyDesc(
-                                (PropertyDesc) propertyDesc.clone());
-                        propertyDesc
+                                (PropertyDesc) firstPropertyDesc.clone());
+                        firstPropertyDesc
                                 .setAnnotationDescForGetter(new MetaAnnotationDescImpl(
                                         org.seasar.ymir.extension.Globals.META_NAME_FORMPROPERTY,
                                         new String[] { formDesc.getName() },
                                         new Class[0]));
-                        propertyDesc
+                        firstPropertyDesc
                                 .setAnnotationDescForSetter(new MetaAnnotationDescImpl(
                                         org.seasar.ymir.extension.Globals.META_NAME_FORMPROPERTY,
                                         new String[] { formDesc.getName() },
@@ -178,12 +190,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                                 .setAnnotationDescForSetter(new AnnotationDescImpl(
                                         RequestParameter.class.getName()));
                     } else {
-                        formDesc.getClassDesc().getPropertyDesc(
-                                BeanUtils.getFirstSimpleSegment(parameterName))
-                                .setAnnotationDescForGetter(
-                                        new AnnotationDescImpl(
-                                                RequestParameter.class
-                                                        .getName()));
+                        firstPropertyDesc
+                                .setAnnotationDescForGetter(new AnnotationDescImpl(
+                                        RequestParameter.class.getName()));
                     }
                 } while (false);
             } else if ("option".equals(name)

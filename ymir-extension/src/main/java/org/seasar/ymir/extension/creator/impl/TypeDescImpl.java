@@ -154,10 +154,9 @@ public class TypeDescImpl implements TypeDesc {
         } else {
             // 配列でない場合はコレクションクラスである場合についての処理を行なう。
             TypeToken token = new TypeToken(typeName);
-            try {
-                collection_ = Collection.class.isAssignableFrom(Class
-                        .forName(token.getBaseName()));
-            } catch (ClassNotFoundException ignore) {
+            Class<?> clazz = DescUtils.getClass(token.getBaseName());
+            if (clazz != null) {
+                collection_ = Collection.class.isAssignableFrom(clazz);
             }
             if (collection_) {
                 collectionClassName_ = token.getBaseName();

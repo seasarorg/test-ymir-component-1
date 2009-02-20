@@ -38,6 +38,7 @@ import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.Template;
+import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
 import org.seasar.ymir.extension.creator.impl.ParameterDescImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
@@ -53,6 +54,7 @@ import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
 import org.seasar.ymir.scope.annotation.RequestParameter;
+import org.seasar.ymir.util.FlexibleList;
 import org.seasar.ymir.util.ServletUtils;
 
 import com.example.dto.SaruDto;
@@ -1328,5 +1330,32 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(getClassDesc(CLASSNAME).getPropertyDesc("a"));
         assertNotNull(getClassDesc("com.example.web.Index2Page")
                 .getPropertyDesc("a"));
+    }
+
+    public void testAnalyze73_添え字つきパラメータの扱いが正しいこと() throws Exception {
+
+        act("testAnalyze73");
+
+        PropertyDesc pd = getClassDesc(CLASSNAME).getPropertyDesc("entries");
+        assertNotNull(pd);
+        assertTrue(pd.isReadable());
+        assertEquals("form", pd.getMetaFirstValueOnGetter("formProperty"));
+
+        pd = getClassDesc("com.example.dto.FormDto").getPropertyDesc("entries");
+        assertNotNull(pd);
+        TypeDesc td = pd.getTypeDesc();
+        assertEquals("com.example.dto.EntryDto", td.getComponentClassDesc()
+                .getName());
+        assertTrue(td.isCollection());
+        assertEquals(List.class.getName(), td.getCollectionClassName());
+        assertEquals(FlexibleList.class.getName(), td
+                .getCollectionImplementationClassName());
+
+        pd = getClassDesc("com.example.dto.EntryDto").getPropertyDesc("name");
+        assertNotNull(pd);
+        td = pd.getTypeDesc();
+        assertEquals(String.class.getName(), td.getComponentClassDesc()
+                .getName());
+        assertFalse(td.isCollection());
     }
 }

@@ -250,16 +250,16 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
                     PACKAGEPREFIX_FREYJA_RENDER_CLASS)
                     || componentClassDesc.getName().endsWith(SUFFIX_DTO)) {
                 boolean generateInitialValue = false;
-                try {
-                    Class<?> clazz = Class
-                            .forName(componentClassDesc.getName());
+                Class<?> clazz = DescUtils.getClass(componentClassDesc
+                        .getName());
+                if (clazz != null) {
                     try {
                         clazz.newInstance();
                         generateInitialValue = true;
                     } catch (InstantiationException ignore) {
                     } catch (IllegalAccessException ignore) {
                     }
-                } catch (ClassNotFoundException ex) {
+                } else {
                     // まだ生成されていないDTO。自動生成対象のDTOはデフォルトコンストラクタを持つので非nullを返すようにする。
                     generateInitialValue = true;
                 }

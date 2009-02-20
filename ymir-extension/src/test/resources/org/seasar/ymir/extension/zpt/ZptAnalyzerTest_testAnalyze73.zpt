@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body tal:define="form self/form">
+  <form name="form" action="./index.html" method="post">
+    <table border="1">
+      <tbody>
+        <tr tal:repeat="entry form/entries">
+          <td tal:content="entry/id">ID</td>
+          <td>
+            <input type="text" tal:define="name string:entries[${entry/id}].name" tal:attributes="name name; value param-self/?name" />
+          </td>
+          <td>
+            <input type="submit" value="go" tal:attributes="name string:update[${entry/id}]" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+  </body>
+</html>
