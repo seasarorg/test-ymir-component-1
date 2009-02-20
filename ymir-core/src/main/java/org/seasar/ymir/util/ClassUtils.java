@@ -1,6 +1,7 @@
 package org.seasar.ymir.util;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,7 +38,25 @@ public class ClassUtils {
     private ClassUtils() {
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * @since 1.0.2
+     */
+    public static <T> T newInstance(Class<T> clazz) {
+        if (Modifier.isAbstract(clazz.getModifiers())) {
+            return newInstanceFromAbstractClass(clazz);
+        } else {
+            try {
+                return clazz.newInstance();
+            } catch (InstantiationException ex) {
+                throw new RuntimeException("Can't instantiate: "
+                        + clazz.getName(), ex);
+            } catch (IllegalAccessException ex) {
+                throw new RuntimeException("Can't access to constructor: "
+                        + clazz.getName(), ex);
+            }
+        }
+    }
+
     public static <T> T newInstanceFromAbstractClass(Class<T> clazz) {
         CtClass cc;
         synchronized (cp_) {
@@ -58,7 +77,9 @@ public class ClassUtils {
         }
 
         try {
-            return (T) cc.toClass().newInstance();
+            @SuppressWarnings("unchecked")
+            T instance = (T) cc.toClass().newInstance();
+            return instance;
         } catch (InstantiationException ex) {
             throw new RuntimeException("Can't instantiate: " + clazz.getName(),
                     ex);
