@@ -589,14 +589,20 @@ public class AnalyzerContext extends ZptTemplateContext {
     PropertyDesc getSinglePropertyDesc(ClassDesc classDesc, String name,
             int mode, boolean setAsArrayIfSetterExists) {
         boolean collection = false;
+        String collectionClassName = null;
+        String collectionImplementationClassName = null;
         int lparen = name.indexOf(STR_ARRAY_LPAREN);
         int rparen = name.indexOf(CHAR_ARRAY_RPAREN);
         if (lparen >= 0 && rparen > lparen) {
+            // 添え字つきパラメータを受けるプロパティはList。
             collection = true;
+            collectionClassName = List.class.getName();
+            collectionImplementationClassName = FlexibleList.class.getName();
             name = name.substring(0, lparen);
         } else {
             // 今のところ、添え字つきパラメータの型が配列というのはサポートできていない。
             if (setAsArrayIfSetterExists) {
+                // 添え字なしパラメータを複数受けるプロパティは配列。
                 collection = (classDesc.getPropertyDesc(name) != null && classDesc
                         .getPropertyDesc(name).isWritable());
             }
@@ -612,9 +618,9 @@ public class AnalyzerContext extends ZptTemplateContext {
                         .removePropertyDesc(PROP_LENGTH);
             }
             typeDesc.setCollection(collection);
-            typeDesc.setCollectionClassName(List.class.getName());
-            typeDesc.setCollectionImplementationClassName(FlexibleList.class
-                    .getName());
+            typeDesc.setCollectionClassName(collectionClassName);
+            typeDesc
+                    .setCollectionImplementationClassName(collectionImplementationClassName);
         }
         return adjustPropertyType(classDesc.getName(), propertyDesc);
     }

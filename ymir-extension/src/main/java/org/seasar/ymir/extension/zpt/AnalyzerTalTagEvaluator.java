@@ -607,9 +607,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 TypeDesc td = new TypeDescImpl();
                 td.setComponentClassDesc(new SimpleClassDesc(String.class
                         .getName()));
-                td.setCollection(pd.getTypeDesc().isCollection());
+                td.setCollection(oldTd.isCollection());
                 td.setCollectionClassName(oldTd.getCollectionClassName());
-                td.setCollectionImplementationClassName(pd.getTypeDesc()
+                td.setCollectionImplementationClassName(oldTd
                         .getCollectionImplementationClassName());
                 pd.setTypeDesc(td);
                 pd.notifyUpdatingType();

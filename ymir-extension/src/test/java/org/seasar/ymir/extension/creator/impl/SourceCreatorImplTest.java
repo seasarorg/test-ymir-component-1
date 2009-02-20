@@ -552,9 +552,11 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertNotNull(actual.getBodyDesc());
     }
 
-    public void testAdjustByExistentClass_BaseにあるプロパティのinitialValueメタアノテーションの値が参照されること()
+    public void testAdjustByExistentClass_Baseにあるプロパティの初期値情報が正しくマージされること()
             throws Exception {
-        ClassDesc classDesc = target_.getClassDesc(Adjust4Page.class);
+        ClassDesc classDesc = target_.getClassDesc(Adjust4Page.class, false);
+        classDesc.getPropertyDesc("list").getTypeDesc()
+                .setCollectionImplementationClassName(null);
         target_.adjustByExistentClass(classDesc);
 
         PropertyDesc actual = classDesc.getPropertyDesc("list");
@@ -563,16 +565,20 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 .getInitialValue());
     }
 
-//    public void testAdjustByExistentClass_BaseにあるプロパティのinitialValueメタアノテーションの値よりもClassDescのプロパティの型情報が優先されること()
-//            throws Exception {
-//        ClassDesc classDesc = target_.getClassDesc(Adjust5Page.class);
-//        target_.adjustByExistentClass(classDesc);
-//
-//        PropertyDesc actual = classDesc.getPropertyDesc("list");
-//        assertNotNull(actual);
-//        assertEquals("new org.seasar.ymir.util.FlexibleList<String>()", actual
-//                .getInitialValue());
-//    }
+    public void testAdjustByExistentClass_Baseにあるプロパティの初期値情報よりもClassDescのプロパティの型情報が優先されること()
+            throws Exception {
+        ClassDesc classDesc = target_.getClassDesc(Adjust5Page.class, false);
+        classDesc.getPropertyDesc("list").getTypeDesc().setComponentClassDesc(
+                new SimpleClassDesc(String.class.getName()));
+        classDesc.getPropertyDesc("list").getTypeDesc()
+                .setCollectionImplementationClassName(null);
+        target_.adjustByExistentClass(classDesc);
+
+        PropertyDesc actual = classDesc.getPropertyDesc("list");
+        assertNotNull(actual);
+        assertEquals("new org.seasar.ymir.util.FlexibleList<String>()", actual
+                .getInitialValue());
+    }
 
     //    public void testAdjustByExistentClass2_由来が同じプロパティのうち生成されたClassDescに含まれていないものが削除されること()
     //            throws Exception {

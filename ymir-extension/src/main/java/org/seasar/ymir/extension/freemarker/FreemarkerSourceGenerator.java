@@ -18,7 +18,6 @@ import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.EntityMetaData;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
-import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceGenerator;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
@@ -53,16 +52,6 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
     }
 
     public String generateClassSource(String templateName, ClassDesc classDesc) {
-        PropertyDesc[] pds = classDesc.getPropertyDescs();
-        for (int i = 0; i < pds.length; i++) {
-            String initialValue = pds[i].getInitialValue();
-            if (initialValue != null) {
-                pds[i].setAnnotationDesc(new MetaAnnotationDescImpl(
-                        Globals.META_NAME_INITIALVALUE,
-                        new String[] { initialValue }, new Class[0]));
-            }
-        }
-
         MethodDesc[] mds = classDesc.getMethodDescs();
         for (int i = 0; i < mds.length; i++) {
             String evaluatedBody = generateBodySource(mds[i].getBodyDesc());

@@ -722,11 +722,33 @@ public class SourceCreatorImpl implements SourceCreator {
 
             String name = adjustPropertyName(pds[i].getName(), clazz,
                     readMethod, writeMethod);
+
+            Class<?> declaringClass;
+            if (readMethod == null) {
+                if (writeMethod == null) {
+                    declaringClass = null;
+                } else {
+                    declaringClass = writeMethod.getDeclaringClass();
+                }
+            } else {
+                if (writeMethod == null) {
+                    declaringClass = readMethod.getDeclaringClass();
+                } else {
+                    // より祖先側のクラスで定義されているメソッドと同じクラスにフィールドがあるとみなす。
+                    Class<?> r = readMethod.getDeclaringClass();
+                    Class<?> w = writeMethod.getDeclaringClass();
+                    if (r.isAssignableFrom(w)) {
+                        declaringClass = r;
+                    } else {
+                        declaringClass = w;
+                    }
+                }
+            }
+
             Field propertyField = null;
-            if ((readMethod == null || readMethod.getDeclaringClass() == clazz)
-                    && (writeMethod == null || writeMethod.getDeclaringClass() == clazz)) {
+            if (declaringClass != null) {
                 try {
-                    propertyField = clazz.getDeclaredField(name);
+                    propertyField = declaringClass.getDeclaredField(name);
                 } catch (SecurityException ignore) {
                 } catch (NoSuchFieldException ignore) {
                 }
@@ -748,8 +770,23 @@ public class SourceCreatorImpl implements SourceCreator {
 
             propertyDesc.setMode(mode);
 
-            propertyDesc.setTypeDesc(DescUtils
+            TypeDesc typeDesc = new TypeDescImpl(DescUtils
                     .getGenericPropertyTypeName(pds[i]));
+            propertyDesc.setTypeDesc(typeDesc);
+
+            if (List.class.isAssignableFrom(pds[i].getPropertyType())
+                    && propertyField != null) {
+                // Listのプロパティについては初期値の実装型情報をコピーする。
+                try {
+                    Object instance = ClassUtils.newInstance(clazz);
+                    Object value = propertyField.get(instance);
+                    if (value != null) {
+                        typeDesc.setCollectionImplementationClassName(value
+                                .getClass().getName());
+                    }
+                } catch (Throwable ignore) {
+                }
+            }
 
             ads = DescUtils.newAnnotationDescs(readMethod);
             for (int j = 0; j < ads.length; j++) {
@@ -1094,28 +1131,30 @@ public class SourceCreatorImpl implements SourceCreator {
 
         PropertyDesc[] pds = generated.getPropertyDescs();
         for (int i = 0; i < pds.length; i++) {
-            PropertyDesc basePd = baseDesc.getPropertyDesc(pds[i].getName());
+            PropertyDesc generatedPd = pds[i];
+            PropertyDesc basePd = baseDesc.getPropertyDesc(generatedPd
+                    .getName());
+
             if (basePd == null || !basePd.isReadable()) {
-                removeModeFrom(pds[i], PropertyDesc.READ, gapDesc);
-                removeModeFrom(pds[i], PropertyDesc.READ, superDesc);
+                removeModeFrom(generatedPd, PropertyDesc.READ, gapDesc);
+                removeModeFrom(generatedPd, PropertyDesc.READ, superDesc);
             }
             if (basePd == null || !basePd.isWritable()) {
-                removeModeFrom(pds[i], PropertyDesc.WRITE, gapDesc);
-                removeModeFrom(pds[i], PropertyDesc.WRITE, superDesc);
+                removeModeFrom(generatedPd, PropertyDesc.WRITE, gapDesc);
+                removeModeFrom(generatedPd, PropertyDesc.WRITE, superDesc);
             }
-            if (!pds[i].isReadable() && !pds[i].isWritable()) {
+            if (!generatedPd.isReadable() && !generatedPd.isWritable()) {
                 // GetterもSetterもないものは削除する。
                 // ただし@Meta(name="property")なプロパティはformのDTOのフィールドを生成するために残す。
                 // superclassがformのDTOのフィールドを持っている時は削除する。
                 if (!pds[i].hasMeta(Globals.META_NAME_PROPERTY)
-                        || isFormDtoFieldPresent(superDesc, pds[i].getName())) {
-                    generated.removePropertyDesc(pds[i].getName());
+                        || isFormDtoFieldPresent(superDesc, generatedPd
+                                .getName())) {
+                    generated.removePropertyDesc(generatedPd.getName());
                 }
             }
             // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
             // GeneratedにあるアノテーションのうちBaseにもあるものを除去しておく。
-            PropertyDesc generatedPd = generated.getPropertyDesc(pds[i]
-                    .getName());
             if (basePd != null && generatedPd != null) {
                 List<AnnotationDesc> list = new ArrayList<AnnotationDesc>();
                 for (AnnotationDesc ad : generatedPd.getAnnotationDescs()) {

@@ -2,17 +2,14 @@ package org.seasar.ymir.extension.creator.impl;
 
 import java.util.List;
 
-import org.seasar.ymir.annotation.Meta;
-
 public class Adjust5PageBase {
-    @Meta(name = "initialValue", value = "new org.seasar.ymir.util.FlexibleList<Integer>()")
-    protected List<String> list;
+    protected List<Integer> list = new org.seasar.ymir.util.FlexibleList<Integer>();
 
-    public List<String> getList() {
+    public List<Integer> getList() {
         return list;
     }
 
-    public void setList(List<String> list) {
+    public void setList(List<Integer> list) {
         this.list = list;
     }
 }

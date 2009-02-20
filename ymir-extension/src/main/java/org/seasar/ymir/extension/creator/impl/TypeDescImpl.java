@@ -218,9 +218,24 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public void transcript(TypeDesc typeDesc) {
+        boolean transcriptCollectionImplementationClassName = true;
+        if (collectionClassName_ != null
+                && collectionClassName_.equals(typeDesc
+                        .getCollectionClassName())
+                && typeDesc.getCollectionImplementationClassName() == null) {
+            // このTypeDescのcollectionClassNameがtranscript元と同じでかつ
+            // transcript元のcollectionImplementationClassNameがnullの場合は、
+            // このTypeDescのcollectionImplementationClassName情報をnullにしてしまわないようにする。
+            transcriptCollectionImplementationClassName = false;
+        }
+
         setComponentClassDesc(typeDesc.getComponentClassDesc());
         collection_ = typeDesc.isCollection();
         collectionClassName_ = typeDesc.getCollectionClassName();
+        if (transcriptCollectionImplementationClassName) {
+            collectionImplementationClassName_ = typeDesc
+                    .getCollectionImplementationClassName();
+        }
         name_ = typeDesc.getName();
     }
 

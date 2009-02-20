@@ -452,6 +452,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals(List.class.getName(), pd.getTypeDesc()
                 .getCollectionClassName());
         assertEquals(
+                "添え字指定がある場合は初期値が設定されること",
                 "new org.seasar.ymir.util.FlexibleList<com.example.dto.TestDto>()",
                 pd.getInitialValue());
         assertEquals("tests配列プロパティのDto型名は単数形になること", "com.example.dto.TestDto",
@@ -568,14 +569,15 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull("無視するように指定した変数が正しく無視されること", cd.getPropertyDesc("self"));
     }
 
-    public void testAnalyze22() throws Exception {
+    public void testAnalyze22_同一のnameを持つパラメータが複数存在する場合は配列になること()
+            throws Exception {
 
         act("testAnalyze22");
 
         ClassDesc cd = getClassDesc("com.example.web.ActionPage");
         PropertyDesc pd = cd.getPropertyDesc("check");
-        assertTrue("同一のnameを持つパラメータが複数存在する場合は配列になること", pd.getTypeDesc()
-                .isCollection());
+        assertTrue(pd.getTypeDesc().isCollection());
+        assertNull(pd.getTypeDesc().getCollectionClassName());
     }
 
     public void testAnalyze23() throws Exception {
@@ -1127,6 +1129,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals("プロパティを持つリピート対象変数はDtoのListになること",
                 "java.util.List<com.example.dto.EntityDto>", pd.getTypeDesc()
                         .getName());
+        assertNull("表示系のListの初期値はnullであること", pd.getInitialValue());
         cd = getClassDesc("com.example.dto.EntityDto");
         assertNotNull("プロパティを持つリピート対象変数の型が生成されていること", cd);
         assertNotNull("Dto型がプロパティを持つこと", cd.getPropertyDesc("content"));

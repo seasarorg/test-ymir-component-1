@@ -334,9 +334,9 @@ public class DescUtils {
             md1.setParameterDescs(md2.getParameterDescs());
         }
 
-        TypeDesc returnTd = md1.getReturnTypeDesc();
-        TypeDesc returnTypeDesc = md2.getReturnTypeDesc();
-        if (DescUtils.merge(returnTd, returnTypeDesc, force)) {
+        TypeDesc returnTd1 = md1.getReturnTypeDesc();
+        TypeDesc returnTd2 = md2.getReturnTypeDesc();
+        if (DescUtils.merge(returnTd1, returnTd2, force)) {
             BodyDesc bodyDesc = md2.getBodyDesc();
             if (bodyDesc != null) {
                 md1.setBodyDesc(md2.getBodyDesc());
@@ -346,37 +346,46 @@ public class DescUtils {
                 .getAnnotationDescs(), force));
     }
 
-    public static boolean merge(TypeDesc td, TypeDesc typeDesc, boolean force) {
-        if (td.equals(typeDesc)) {
-            // force == trueの場合は強制的に上書き扱いなので、上書きしたということにするためにtrueを返すようになっている。
+    public static boolean merge(TypeDesc td1, TypeDesc td2, boolean force) {
+        if (td1.equals(td2)) {
+            // force == trueの場合は強制的に上書き扱いなので、上書きしたということにするためにtrueを返すようにしている。
             return force;
-        } else if (!force && !td.isExplicit() && typeDesc.isExplicit() || force
-                && (!td.isExplicit() || typeDesc.isExplicit())) {
-            td.transcript(typeDesc);
+        } else if (!force && !td1.isExplicit() && td2.isExplicit() || force
+                && (!td1.isExplicit() || td2.isExplicit())) {
+            td1.transcript(td2);
             return true;
         } else {
+            // マージしない。その場合でも、コレクションの実装型情報だけは補完するようにする。
+            if (td1.getCollectionClassName() != null
+                    && td1.getCollectionClassName().equals(
+                            td2.getCollectionClassName())
+                    && td1.getCollectionImplementationClassName() == null) {
+                td1.setCollectionImplementationClassName(td2
+                        .getCollectionImplementationClassName());
+            }
+
             return false;
         }
     }
 
-    public static AnnotationDesc[] merge(AnnotationDesc[] ads,
-            AnnotationDesc[] annotationDescs, boolean force) {
+    public static AnnotationDesc[] merge(AnnotationDesc[] ad1s,
+            AnnotationDesc[] ad2s, boolean force) {
         ClassDesc dummyCd = new ClassDescImpl("");
         Map<String, AnnotationDesc> adMap = new LinkedHashMap<String, AnnotationDesc>();
-        for (AnnotationDesc ad : ads) {
+        for (AnnotationDesc ad : ad1s) {
             if (isMetaAnnotation(ad)) {
                 dummyCd.setAnnotationDesc(ad);
             } else {
                 adMap.put(ad.getName(), ad);
             }
         }
-        for (AnnotationDesc annotationDesc : annotationDescs) {
-            if (isMetaAnnotation(annotationDesc)) {
+        for (AnnotationDesc ad : ad2s) {
+            if (isMetaAnnotation(ad)) {
                 if (force) {
-                    dummyCd.setAnnotationDesc(annotationDesc);
+                    dummyCd.setAnnotationDesc(ad);
                 } else {
                     ClassDesc dummyCd2 = new ClassDescImpl("");
-                    dummyCd2.setAnnotationDesc(annotationDesc);
+                    dummyCd2.setAnnotationDesc(ad);
                     for (MetaAnnotationDesc mad : dummyCd2
                             .getMetaAnnotationDescs()) {
                         if (!dummyCd.hasMeta(mad.getMetaName())) {
@@ -385,10 +394,9 @@ public class DescUtils {
                     }
                 }
             } else {
-                AnnotationDesc ad = adMap.get(annotationDesc.getName());
-                if (force || ad == null) {
-                    adMap.put(annotationDesc.getName(),
-                            (AnnotationDesc) annotationDesc.clone());
+                AnnotationDesc a = adMap.get(ad.getName());
+                if (force || a == null) {
+                    adMap.put(ad.getName(), (AnnotationDesc) ad.clone());
                 }
             }
         }

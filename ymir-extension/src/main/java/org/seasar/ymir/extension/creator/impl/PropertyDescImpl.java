@@ -5,7 +5,6 @@ import static org.seasar.ymir.extension.creator.util.DescUtils.normalizePackage;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AbstractAnnotatedDesc;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -68,6 +67,10 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
             sb.append("w");
         }
         sb.append(")");
+        String initialValue = getInitialValue();
+        if (initialValue != null) {
+            sb.append(" = ").append(initialValue);
+        }
         return sb.toString();
     }
 
@@ -264,10 +267,6 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
                     initialValue = "new " + typeDesc_.getName() + "()";
                 }
             }
-        }
-
-        if (initialValue == null) {
-            initialValue = getMetaFirstValue(Globals.META_NAME_INITIALVALUE);
         }
 
         return initialValue;
