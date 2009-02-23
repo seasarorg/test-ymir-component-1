@@ -93,7 +93,7 @@ public class ResponseProcessorImpl implements ResponseProcessor {
                 throw new NullPointerException(
                         "Redirection path is null: may logic is wrong");
             }
-            if (resolved.startsWith("/")) {
+            if (resolved.indexOf(":") < 0) {
                 // 内部パスの場合はエンコードする。
                 resolved = encodeRedirectURL(httpResponse, resolved);
             }
