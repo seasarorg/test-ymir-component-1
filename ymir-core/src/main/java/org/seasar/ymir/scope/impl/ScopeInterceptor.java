@@ -92,8 +92,8 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
                 .getClass());
         // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
         // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
-        scopeManager_.injectScopeAttributes(pageComponent, null);
-        scopeManager_.populateScopeAttributes(pageComponent, null);
+        pageComponent.accept(new VisitorForInjecting(null));
+        pageComponent.accept(new VisitorForPopulating(null));
 
         return handler;
     }
@@ -104,7 +104,7 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
         PageComponent pageComponent = new PageComponentImpl(handler, handler
                 .getClass());
         // 各コンテキストに属性をoutjectする。
-        scopeManager_.outjectScopeAttributes(pageComponent, null);
+        pageComponent.accept(new VisitorForOutjecting(null));
 
         return response;
     }
