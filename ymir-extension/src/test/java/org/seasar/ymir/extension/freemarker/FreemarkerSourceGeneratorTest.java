@@ -6,14 +6,12 @@ import org.seasar.ymir.Application;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.convention.YmirNamingConvention;
-import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
-import org.seasar.ymir.extension.creator.impl.AnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.BodyDescImpl;
 import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
@@ -204,7 +202,6 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 "testGenerateBaseSource_Page3.expected"), actual);
     }
 
-    @Begin
     public void testGenerateBaseSource_Page4() throws Exception {
         ClassDesc classDesc = new ClassDescImpl("com.example.web.TestPage");
         MethodDesc methodDesc = new MethodDescImpl("_permissionDenied");
@@ -216,10 +213,6 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         methodDesc.setBodyDesc(new BodyDescImpl(
                 ConstraintInterceptor.ACTION_PERMISSIONDENIED,
                 new HashMap<String, Object>()));
-        methodDesc.setAnnotationDesc(new AnnotationDescImpl(
-                FreemarkerSourceGeneratorTest.class.getDeclaredMethod(
-                        "testGenerateBaseSource_Page4", new Class<?>[0])
-                        .getAnnotation(Begin.class)));
         classDesc.setMethodDesc(methodDesc);
 
         String actual = target_.generateBaseSource(classDesc);

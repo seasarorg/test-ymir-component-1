@@ -593,8 +593,6 @@ public class SourceCreatorImpl implements SourceCreator {
             methodDesc.setBodyDesc(new BodyDescImpl(
                     BodyDesc.KEY_PERMISSIONDENIED,
                     new HashMap<String, Object>()));
-            methodDesc.setAnnotationDesc(new AnnotationDescImpl(
-                    getBeginAnnotation()));
             pageClassDesc.setMethodDesc(methodDesc);
         }
     }

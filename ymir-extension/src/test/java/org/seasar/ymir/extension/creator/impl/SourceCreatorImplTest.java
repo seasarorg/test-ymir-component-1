@@ -137,7 +137,6 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 PermissionDeniedException.class) });
         md = actual[0].getMethodDesc(md);
         assertNotNull(md);
-        assertNotNull(md.getAnnotationDesc(Begin.class.getName()));
     }
 
     public void testGatherClassDescs2_hintとして外部のDtoクラスを指定していても正しく利用されること()
