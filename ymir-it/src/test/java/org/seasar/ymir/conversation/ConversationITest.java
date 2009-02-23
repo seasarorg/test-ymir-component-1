@@ -7,6 +7,7 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.response.RedirectResponse;
 import org.seasar.ymir.testing.YmirTestCase;
 
+import com.example.web.Conversation2Phase1Page;
 import com.example.web.Conversation2Phase2Page;
 
 public class ConversationITest extends YmirTestCase {
@@ -47,13 +48,9 @@ public class ConversationITest extends YmirTestCase {
                 HttpMethod.GET);
         processRequest(request);
 
-        request = prepareForProcessing("/conversation2Phase2.html",
-                HttpMethod.GET, "pop=");
-        processRequest(request);
+        Conversation2Phase1Page page1 = getComponent(Conversation2Phase1Page.class);
 
-        Conversation2Phase2Page page = getComponent(Conversation2Phase2Page.class);
-
-        assertNull(page.getCurrentValue());
+        assertNull(page1.getCurrentValue());
     }
 
     public void test_alwaysBeginがfalseの場合は既に同一conversationが始まっていれば新たにconversationを開始しないこと()
