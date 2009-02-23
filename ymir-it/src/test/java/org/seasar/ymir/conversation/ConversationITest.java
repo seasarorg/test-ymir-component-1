@@ -34,7 +34,7 @@ public class ConversationITest extends YmirTestCase {
         }
     }
 
-    public void test_alwaysBeginがtrueの場合は既に同一conversationが始まっていても新たにconversationを開始すること()
+    public void test_conditionがALWAYSの場合は既に同一conversationが始まっていても新たにconversationを開始すること()
             throws Exception {
         Request request = prepareForProcessing("/conversation2Phase1.html",
                 HttpMethod.GET);
@@ -53,7 +53,7 @@ public class ConversationITest extends YmirTestCase {
         assertNull(page1.getCurrentValue());
     }
 
-    public void test_alwaysBeginがfalseの場合は既に同一conversationが始まっていれば新たにconversationを開始しないこと()
+    public void test_conditionがEXCEPT_FOR_SAME_CONVERSATIONの場合は既に同一conversationが始まっていれば新たにconversationを開始しないこと()
             throws Exception {
         Request request = prepareForProcessing("/conversation2Phase1.html",
                 HttpMethod.GET);
@@ -74,6 +74,54 @@ public class ConversationITest extends YmirTestCase {
         Conversation2Phase2Page page = getComponent(Conversation2Phase2Page.class);
 
         assertEquals("value", page.getCurrentValue());
+    }
+
+    public void test_conditionがEXCEPT_FOR_SAME_CONVERSATION_AND_SAME_PHASEの場合は既に同一conversationの同一フェーズにいれば新たにconversationを開始しないこと1()
+            throws Exception {
+        Request request = prepareForProcessing("/conversation2Phase1.html",
+                HttpMethod.GET);
+        processRequest(request);
+
+        request = prepareForProcessing("/conversation2Phase2.html",
+                HttpMethod.GET, "push=");
+        processRequest(request);
+
+        request = prepareForProcessing("/conversation2Phase1.html",
+                HttpMethod.GET, "continuing2=true");
+        processRequest(request);
+
+        request = prepareForProcessing("/conversation2Phase2.html",
+                HttpMethod.GET, "pop=");
+        processRequest(request);
+
+        Conversation2Phase2Page page = getComponent(Conversation2Phase2Page.class);
+
+        assertNull("同一conversationでもフェーズが違う場合は新た開始されること", page
+                .getCurrentValue());
+    }
+
+    public void test_conditionがEXCEPT_FOR_SAME_CONVERSATION_AND_SAME_PHASEの場合は既に同一conversationの同一フェーズにいれば新たにconversationを開始しないこと2()
+            throws Exception {
+        Request request = prepareForProcessing("/conversation2Phase1.html",
+                HttpMethod.GET);
+        processRequest(request);
+
+        request = prepareForProcessing("/conversation2Phase2.html",
+                HttpMethod.GET, "push=");
+        processRequest(request);
+
+        request = prepareForProcessing("/conversation2Phase2.html",
+                HttpMethod.GET, "continuing=true");
+        processRequest(request);
+
+        request = prepareForProcessing("/conversation2Phase2.html",
+                HttpMethod.GET, "pop=");
+        processRequest(request);
+
+        Conversation2Phase2Page page = getComponent(Conversation2Phase2Page.class);
+
+        assertEquals("同一conversationでフェーズも同一の場合は新た開始されないこと", "value", page
+                .getCurrentValue());
     }
 
     public void test_不正な遷移をした場合に正しく検出されること() throws Exception {
@@ -204,4 +252,36 @@ public class ConversationITest extends YmirTestCase {
         assertEquals("conversation4Phase1.html?continue=",
                 ((RedirectResponse) response).getPath());
     }
+
+    public void test_YMIR_320_subConversationで再Beginするケースでは親Conversationの情報をクリアしてしまわないこと()
+            throws Exception {
+        Request request = prepareForProcessing("/conversation6Phase1.html",
+                HttpMethod.GET);
+        processRequest(request);
+
+        request = prepareForProcessing("/conversation6Phase1.html",
+                HttpMethod.GET, "beginSub=");
+        processRequest(request);
+
+        request = prepareForProcessing("/conversation7Phase1.html",
+                HttpMethod.GET);
+        processRequest(request);
+
+        request = prepareForProcessing("/conversation7Phase2.html",
+                HttpMethod.GET);
+        processRequest(request);
+        request = prepareForProcessing("/conversation7Phase1.html",
+                HttpMethod.GET);
+        processRequest(request);
+
+        request = prepareForProcessing("/conversation7Phase1.html",
+                HttpMethod.GET, "end=");
+        processRequest(request);
+
+        ConversationManager conversationManager = getComponent(ConversationManager.class);
+
+        assertEquals("conversation6", conversationManager.getConversations()
+                .getCurrentConversationName());
+    }
+
 }

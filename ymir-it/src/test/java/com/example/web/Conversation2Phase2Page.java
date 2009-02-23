@@ -1,5 +1,7 @@
 package com.example.web;
 
+import org.seasar.ymir.conversation.BeginCondition;
+import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.conversation.annotation.Conversation;
 import org.seasar.ymir.conversation.impl.ConversationScope;
 import org.seasar.ymir.scope.annotation.In;
@@ -18,6 +20,10 @@ public class Conversation2Phase2Page {
     }
 
     public void _get_pop() {
+    }
+
+    @Begin(where = BeginCondition.EXCEPT_FOR_SAME_CONVERSATION_AND_SAME_PHASE)
+    public void _get_continuing() {
     }
 
     @Out(scopeClass = ConversationScope.class, actionName = "_get_push")

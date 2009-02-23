@@ -1,5 +1,6 @@
 package com.example.web;
 
+import org.seasar.ymir.conversation.BeginCondition;
 import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.conversation.annotation.Conversation;
 import org.seasar.ymir.conversation.impl.ConversationScope;
@@ -18,8 +19,12 @@ public class Conversation2Phase1Page {
     public void _get() {
     }
 
-    @Begin(alwaysBegin = false)
+    @Begin(where = BeginCondition.EXCEPT_FOR_SAME_CONVERSATION)
     public void _get_continuing() {
+    }
+
+    @Begin(where = BeginCondition.EXCEPT_FOR_SAME_CONVERSATION_AND_SAME_PHASE)
+    public void _get_continuing2() {
     }
 
     public String getCurrentValue() {
