@@ -3,6 +3,10 @@
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
   <include path="ymir-component.dicon" />
+  <component name="conversationInterceptor"
+    class="org.seasar.ymir.conversation.impl.ConversationInterceptor">
+    <property name="priority">25.0</property>
+  </component>
   <component name="scopeInterceptor"
     class="org.seasar.ymir.scope.impl.ScopeInterceptor">
     <property name="priority">50.0</property>
@@ -21,10 +25,6 @@
   </component>
   <component name="redirectionInterceptor"
     class="org.seasar.ymir.redirection.impl.RedirectionInterceptor">
-    <property name="priority">100.0</property>
-  </component>
-  <component name="conversationInterceptor"
-    class="org.seasar.ymir.conversation.impl.ConversationInterceptor">
     <property name="priority">100.0</property>
   </component>
   <component name="sessionInterceptor"
