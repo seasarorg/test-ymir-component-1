@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.seasar.ymir.conversation.BeginCondition;
 import org.seasar.ymir.conversation.Conversations;
 
 /**
@@ -19,16 +20,11 @@ import org.seasar.ymir.conversation.Conversations;
 @Target(ElementType.METHOD)
 public @interface Begin {
     /**
-     * 既に同一名のconversationが開始されていても再度開始するかどうかです。
-     * <p>直前のconversationの名前が新たなconversationの名前と一致する場合は、
-     * alwaysBeginがfalseであればconversationを開始しません。
-     * alwaysBeginがtrueであれば常にconversationを開始します。
-     * （ただし直前のフェーズ名と新しいフェーズ名が一致した場合はconversationを開始しません。）
-     * </p>
+     * conversationを開始する条件です。
      * 
-     * @return 既に同一名のconversationが開始されていても
-     * 再度開始するかどうか。
-     * @see Conversations#begin(String, String, boolean)
+     * @return conversationを開始する条件。
+     * @see Conversations#begin(String, String, BeginCondition)
+     * @since 1.0.2
      */
-    boolean alwaysBegin() default true;
+    BeginCondition where() default BeginCondition.ALWAYS;
 }

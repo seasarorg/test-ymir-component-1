@@ -13,6 +13,7 @@ import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
+import org.seasar.ymir.conversation.BeginCondition;
 import org.seasar.ymir.conversation.ConversationUtils;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.conversation.Globals;
@@ -62,15 +63,14 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
                     Begin.class);
             if (begin != null) {
                 conversations.begin(annotation.name(), annotation.phase(),
-                        begin.alwaysBegin());
-            } else if (isDisableBeginCheck()
-                    && !annotation.name().equals(
-                            conversations.getCurrentConversationName())) {
+                        begin.where());
+            } else if (isDisableBeginCheck()) {
                 // Beginチェックを無効にする旨の指定がされている場合はbeginする。
                 // ただし、conversationが同一であればbeginしない。
                 // （こうしないと不便なことがありそうだから。不便なことがなければ、
                 // 何も考えずにbeginしちゃって良いと思う。）
-                conversations.begin(annotation.name(), annotation.phase());
+                conversations.begin(annotation.name(), annotation.phase(),
+                        BeginCondition.EXCEPT_FOR_SAME_CONVERSATION);
             }
 
             conversations.join(annotation.name(), annotation.phase(),

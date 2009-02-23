@@ -1,5 +1,6 @@
 package org.seasar.ymir.conversation.impl;
 
+import org.seasar.ymir.conversation.BeginCondition;
 import org.seasar.ymir.conversation.IllegalTransitionRuntimeException;
 
 import junit.framework.TestCase;
@@ -17,7 +18,7 @@ public class ConversationsImplTest extends TestCase {
         assertNull(target_.getCurrentConversationName());
         assertNull(target_.getSuperConversation());
 
-        target_.begin("conversation1", "phase1");
+        target_.begin("conversation1", "phase1", BeginCondition.ALWAYS);
 
         assertEquals("conversation1", target_.getCurrentConversationName());
         assertEquals("phase1", target_.getCurrentConversation().getPhase());
@@ -26,7 +27,7 @@ public class ConversationsImplTest extends TestCase {
     }
 
     public void testEnd() throws Exception {
-        target_.begin("conversation1", "phase1");
+        target_.begin("conversation1", "phase1", BeginCondition.ALWAYS);
 
         assertEquals("conversation1", target_.getCurrentConversationName());
 
@@ -39,7 +40,7 @@ public class ConversationsImplTest extends TestCase {
     }
 
     public void testJoin() throws Exception {
-        target_.begin("conversation1", "phase1");
+        target_.begin("conversation1", "phase1", BeginCondition.ALWAYS);
 
         assertEquals("conversation1", target_.getCurrentConversationName());
         assertEquals("phase1", target_.getCurrentConversation().getPhase());
@@ -51,7 +52,7 @@ public class ConversationsImplTest extends TestCase {
     }
 
     public void testJoin_別のconversationに遷移できないこと() throws Exception {
-        target_.begin("conversation1", "phase1");
+        target_.begin("conversation1", "phase1", BeginCondition.ALWAYS);
 
         try {
             target_.join("conversation2", "phase2", new String[] { "phase1" });
@@ -61,7 +62,7 @@ public class ConversationsImplTest extends TestCase {
     }
 
     public void testJoin_followAfter以外のphaseからは遷移できないこと() throws Exception {
-        target_.begin("conversation1", "phase1");
+        target_.begin("conversation1", "phase1", BeginCondition.ALWAYS);
 
         try {
             target_.join("conversation2", "phase3", new String[] { "phase2" });
@@ -71,7 +72,7 @@ public class ConversationsImplTest extends TestCase {
     }
 
     public void testBeginSubconversation() throws Exception {
-        target_.begin("conversation1", "phase1");
+        target_.begin("conversation1", "phase1", BeginCondition.ALWAYS);
 
         target_.beginSubConversation("/reenter.html");
 
@@ -82,7 +83,7 @@ public class ConversationsImplTest extends TestCase {
         assertEquals("/reenter.html", target_.getSuperConversation()
                 .getReenterResponse());
 
-        target_.begin("conversation2", "phase1");
+        target_.begin("conversation2", "phase1", BeginCondition.ALWAYS);
 
         assertEquals("conversation2", target_.getCurrentConversationName());
         assertNotNull(target_.getSuperConversation());
@@ -106,12 +107,12 @@ public class ConversationsImplTest extends TestCase {
 
     public void testBeginSubconversation_subconversationからsubconversationを開始することもできること()
             throws Exception {
-        target_.begin("conversation1", "phase1");
+        target_.begin("conversation1", "phase1", BeginCondition.ALWAYS);
         target_.beginSubConversation("/reenter1.html");
-        target_.begin("conversation2", "phase1");
+        target_.begin("conversation2", "phase1", BeginCondition.ALWAYS);
 
         target_.beginSubConversation("/reenter2.html");
-        target_.begin("conversation3", "phase1");
+        target_.begin("conversation3", "phase1", BeginCondition.ALWAYS);
 
         assertEquals("conversation3", target_.getCurrentConversationName());
         assertNotNull(target_.getSuperConversation());
@@ -133,13 +134,13 @@ public class ConversationsImplTest extends TestCase {
     }
 
     public void testname() throws Exception {
-        target_.begin("conversation1", "phase1");
+        target_.begin("conversation1", "phase1", BeginCondition.ALWAYS);
         target_.beginSubConversation("/reenter1.html");
-        target_.begin("conversation2", "phase1");
+        target_.begin("conversation2", "phase1", BeginCondition.ALWAYS);
 
         target_.beginSubConversation("/reenter2.html");
-        target_.begin("conversation3", "phase1");
-        
+        target_.begin("conversation3", "phase1", BeginCondition.ALWAYS);
+
         target_.setAttribute("attr1", "value1");
         target_.setAttribute("attr2", "value2");
 

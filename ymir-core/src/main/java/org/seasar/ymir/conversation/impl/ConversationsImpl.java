@@ -12,12 +12,12 @@ import java.util.LinkedList;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.conversation.BeginCondition;
 import org.seasar.ymir.conversation.Conversation;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.conversation.IllegalTransitionRuntimeException;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.util.LogUtils;
-import org.seasar.ymir.util.StringUtils;
 
 /**
  * このクラスはスレッドセーフです。
@@ -33,8 +33,6 @@ public class ConversationsImpl implements Conversations, Serializable {
 
     private Conversation currentConversation_;
 
-    private boolean enteredInSubConversation_;
-
     public void setHotdeployManager(HotdeployManager hotdeployManager) {
         hotdeployManager_ = hotdeployManager;
     }
@@ -47,8 +45,6 @@ public class ConversationsImpl implements Conversations, Serializable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(super.toString()).append("{").append(LS);
-        sb.append(INDENT).append("enteredInSubConversation=").append(
-                enteredInSubConversation_).append(LS);
         sb.append(INDENT).append("current=").append(
                 LogUtils.addIndent(currentConversation_, "  ")).append(LS);
         if (!conversationStack_.isEmpty()) {
@@ -120,30 +116,21 @@ public class ConversationsImpl implements Conversations, Serializable {
         }
     }
 
-    public synchronized void begin(String conversationName, String phase) {
-        begin(conversationName, phase, true);
-    }
-
     public synchronized void begin(String conversationName, String phase,
-            boolean alwaysBegin) {
-        if (currentConversation_ != null
-                && currentConversation_.getName().equals(conversationName)) {
-            // 既に同一名のConversationが始まっている場合、
-            if (!alwaysBegin || equals(currentConversation_.getPhase(), phase)) {
-                // alwaysBegin == falseなら再beginしないようにする。
-                // また、alwaysBegin == trueである場合でも、フェーズが同じなら何もしない。
+            BeginCondition condition) {
+        if (equals(getCurrentConversationName(), conversationName)) {
+            if (condition == BeginCondition.EXCEPT_FOR_SAME_CONVERSATION) {
                 return;
             }
-        }
-
-        if (!enteredInSubConversation_) {
-            // sub-conversationが開始されている場合*以外*は以前のconversationを破棄する。
-            clear();
+            if (equals(currentConversation_.getPhase(), phase)) {
+                if (condition == BeginCondition.EXCEPT_FOR_SAME_CONVERSATION_AND_SAME_PHASE) {
+                    return;
+                }
+            }
         }
 
         currentConversation_ = newConversation(conversationName);
         currentConversation_.setPhase(phase);
-        enteredInSubConversation_ = false;
     }
 
     boolean equals(String s1, String s2) {
@@ -218,12 +205,10 @@ public class ConversationsImpl implements Conversations, Serializable {
         if (currentConversation_ != null) {
             currentConversation_ = null;
         }
-        enteredInSubConversation_ = false;
     }
 
     void clear() {
         currentConversation_ = null;
-        enteredInSubConversation_ = false;
         conversationStack_.clear();
     }
 
@@ -236,7 +221,6 @@ public class ConversationsImpl implements Conversations, Serializable {
         currentConversation_.setReenterResponse(reenterResponse);
         conversationStack_.addLast(currentConversation_);
         currentConversation_ = null;
-        enteredInSubConversation_ = true;
     }
 
     LinkedList<Conversation> getConversationStack() {

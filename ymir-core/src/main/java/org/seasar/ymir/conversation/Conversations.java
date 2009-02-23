@@ -67,17 +67,6 @@ public interface Conversations {
 
     /**
      * conversationを開始します。
-     * <p>このメソッドはbegin(conversationName, phase, true)</code>
-     * と同じです。
-     * </p>
-     * 
-     * @param conversationName 開始するconversationの名前。
-     * @param phase 開始するフェーズの名前。
-     */
-    void begin(String conversationName, String phase);
-
-    /**
-     * conversationを開始します。
      * <p>現在のconversationの名前が指定された名前と一致しない場合は、
      * conversationを新規に開始します。
      * </p>
@@ -90,9 +79,9 @@ public interface Conversations {
      * 
      * @param conversationName 開始するconversationの名前。
      * @param phase 開始するフェーズの名前。
-     * @param alwaysBegin 既に同一名のconversationが開始されていても再度開始するかどうか。
+     * @param condition 開始条件。
      */
-    void begin(String conversationName, String phase, boolean alwaysBegin);
+    void begin(String conversationName, String phase, BeginCondition condition);
 
     /**
      * 現在のconversationに参加します。
