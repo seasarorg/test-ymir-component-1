@@ -77,7 +77,7 @@ public class CreateActionAction extends AbstractAction implements
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("pathMetaData", pathMetaData);
-        variableMap.put("actionName", actionMethodDesc);
+        variableMap.put("actionName", actionMethodDesc.getName());
         variableMap.put("lackingClassNames", lackingClassNames);
         variableMap.put("successfullySynchronized", successfullySynchronized);
         return getSourceCreator().getResponseCreator().createResponse(

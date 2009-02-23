@@ -1699,13 +1699,14 @@ public class SourceCreatorImpl implements SourceCreator {
             Class<?> clazz = getClass(className);
             if (clazz != null) {
                 Class<?> superclass = clazz.getSuperclass();
-                if (superclass != null) {
+                if (superclass != null && superclass != Object.class) {
                     if (superclass.getName().endsWith("Base")) {
                         superclass = superclass.getSuperclass();
                     }
                     superclassName = superclass.getName();
                 }
-            } else {
+            }
+            if (superclassName == null) {
                 superclassName = setting_.getSuperclassName(className);
                 if (superclassName == null && type == ClassType.PAGE) {
                     superclassName = setting_.getPageSuperclassName();
