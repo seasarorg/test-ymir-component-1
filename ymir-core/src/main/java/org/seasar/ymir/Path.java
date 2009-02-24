@@ -108,16 +108,24 @@ public class Path {
     }
 
     void addEncodedParameter(String encodedParam) {
+        String encodedName;
+        String encodedValue;
+
         int equal = encodedParam.indexOf('=');
         if (equal >= 0) {
-            try {
-                addParameter(URLDecoder.decode(
-                        encodedParam.substring(0, equal), parameterEncoding_),
-                        URLDecoder.decode(encodedParam.substring(equal + 1),
-                                parameterEncoding_));
-            } catch (UnsupportedEncodingException ex) {
-                throw new RuntimeException(ex);
-            }
+            encodedName = encodedParam.substring(0, equal);
+            encodedValue = encodedParam.substring(equal + 1);
+        } else {
+            // 値が空文字列であるとみなす。
+            encodedName = encodedParam;
+            encodedValue = "";
+        }
+
+        try {
+            addParameter(URLDecoder.decode(encodedName, parameterEncoding_),
+                    URLDecoder.decode(encodedValue, parameterEncoding_));
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
         }
     }
 

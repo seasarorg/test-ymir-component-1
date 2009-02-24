@@ -67,9 +67,9 @@
     class="org.seasar.ymir.scope.impl.ScopeManagerImpl" />
   <component name="actionManager"
     class="org.seasar.ymir.impl.ActionManagerImpl" />
-  <component
+  <component name="responseConstructorSelector"
     class="org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl" />
-  <component
+  <component name="strategySelector"
     class="org.seasar.ymir.response.scheme.impl.StrategySelectorImpl" />
   <!-- HotdeployFitter -->
   <component name="listFitter"

@@ -23,7 +23,14 @@ import org.seasar.ymir.response.scheme.Strategy;
 abstract public class AbstractTransitionStrategy implements Strategy {
     private static final String ENCODING = "UTF-8";
 
+    private boolean richPathExpressionAvailable_ = true;
+
     private static final TextTemplateEvaluator evaluator_ = new SimpleTextTemplateEvaluator();
+
+    public void setRichPathExpressionAvailable(
+            boolean richPathExpressionAvailable) {
+        richPathExpressionAvailable_ = richPathExpressionAvailable;
+    }
 
     public Response constructResponse(String path, Object component) {
         TransitionResponse response = newResponse();
@@ -33,7 +40,11 @@ abstract public class AbstractTransitionStrategy implements Strategy {
 
     abstract public TransitionResponse newResponse();
 
-    String constructPath(String path, Object component) {
+    protected String constructPath(String path, Object component) {
+        if (!richPathExpressionAvailable_) {
+            return path;
+        }
+
         Path p = null;
         int lparen = path.lastIndexOf('(');
         if (lparen >= 0 && path.endsWith(")")) {

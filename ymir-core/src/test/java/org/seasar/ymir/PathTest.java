@@ -32,6 +32,18 @@ public class PathTest extends TestCase {
         assertEquals(expectedPath, actualPath);
     }
 
+    public void test_値がないパラメータを指定した場合に値が空文字列と解釈されること() throws Exception {
+        Path target = new Path("http://hoehoe.com/fuga?param=a&name&param=b");
+
+        String[] actual = target.getParameterMap().get("name");
+        assertNotNull(actual);
+        assertEquals(1, actual.length);
+        assertEquals("", actual[0]);
+
+        assertEquals("止む無し", "http://hoehoe.com/fuga?param=a&param=b&name=",
+                target.asString());
+    }
+
     private void assertEquals(Path expected, Path actual) {
         Map<String, String[]> expectedParameter = expected.getParameterMap();
         Map<String, String[]> actualParameter = actual.getParameterMap();
