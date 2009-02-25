@@ -1,6 +1,7 @@
 package org.seasar.ymir.scope.impl;
 
 import org.seasar.ymir.ComponentClientTestCase;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.scope.ScopeManager;
@@ -32,5 +33,17 @@ public class ScopeMetaDataImplTest extends ComponentClientTestCase {
         assertEquals("URLString", target_.toAttributeName("getURLString", null));
 
         assertEquals("hoe", target_.toAttributeName("setAttributeName", "hoe"));
+    }
+
+    public void getHoe() {
+    }
+
+    public void testRegisterForOutjectionToScope() throws Exception {
+        try {
+            target_.registerForOutjectionToScope(null, getClass().getMethod(
+                    "getHoe"));
+            fail();
+        } catch (IllegalClientCodeRuntimeException expected) {
+        }
     }
 }

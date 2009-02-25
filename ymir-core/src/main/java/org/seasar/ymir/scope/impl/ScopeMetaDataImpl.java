@@ -118,6 +118,17 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
     }
 
     void registerForPopulationFromScope(Populate populate, Method method) {
+        int modifiers = method.getModifiers();
+        if (Modifier.isStatic(modifiers)) {
+            throw new IllegalClientCodeRuntimeException(
+                    "Logic error: @Populate can't annotate static method: class="
+                            + class_.getName() + ", method=" + method);
+        } else if (!Modifier.isPublic(modifiers)) {
+            throw new IllegalClientCodeRuntimeException(
+                    "Logic error: @Populate can annotate only public method: class="
+                            + class_.getName() + ", method=" + method);
+        }
+
         Scope scope = getScope(populate);
 
         ScopeAttributePopulatorImpl populator = scopeAttributePopulatorMap_
@@ -141,15 +152,15 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
         int modifiers = method.getModifiers();
         if (Modifier.isStatic(modifiers)) {
             throw new IllegalClientCodeRuntimeException(
-                    "Logic error: @In can't annotate static method: class="
+                    "Logic error: @In can't annotate static method. @In usually annotates non-static setter method: class="
                             + class_.getName() + ", method=" + method);
         } else if (!Modifier.isPublic(modifiers)) {
             throw new IllegalClientCodeRuntimeException(
-                    "Logic error: @In can annotate only public method: class="
+                    "Logic error: @In can annotate only public method. @In usually annotates public setter method: class="
                             + class_.getName() + ", method=" + method);
         } else if (method.getParameterTypes().length != 1) {
             throw new IllegalClientCodeRuntimeException(
-                    "Logic error: @In can't annotate this method: class="
+                    "Logic error: @In can't annotate this method. @In usually annotates setter method: class="
                             + class_.getName() + ", method=" + method);
         }
 
@@ -231,15 +242,16 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
         int modifiers = method.getModifiers();
         if (Modifier.isStatic(modifiers)) {
             throw new IllegalClientCodeRuntimeException(
-                    "Logic error: @Out can't annotate static method: class="
+                    "Logic error: @Out can't annotate static method. @Out usually annotates non-static getter method: class="
                             + class_.getName() + ", method=" + method);
         } else if (!Modifier.isPublic(modifiers)) {
             throw new IllegalClientCodeRuntimeException(
-                    "Logic error: @Out can annotate only public method: class="
+                    "Logic error: @Out can annotate only public method. @Out usually annotates public getter method: class="
                             + class_.getName() + ", method=" + method);
-        } else if (method.getParameterTypes().length != 0) {
+        } else if (method.getParameterTypes().length != 0
+                || method.getReturnType() == Void.TYPE) {
             throw new IllegalClientCodeRuntimeException(
-                    "Logic error: @Out can't annotate this method: class="
+                    "Logic error: @Out can't annotate this method. @Out usually annotates getter method: class="
                             + class_.getName() + ", method=" + method);
         }
 
