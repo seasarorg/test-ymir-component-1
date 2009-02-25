@@ -2,6 +2,8 @@ package org.seasar.ymir.extension.creator.impl;
 
 import static org.seasar.ymir.extension.creator.util.DescUtils.normalizePackage;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -238,6 +240,14 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
                             + normalizePackage(collectionImplementationClassName
                                     + "<" + componentClassDesc.getName() + ">")
                             + "()";
+                } else {
+                    // 実装クラスが指定されていない場合は、可能であればインタフェースごとに空の実装クラスをぶら下げておく。
+                    if (List.class.getName().equals(collectionClassName)) {
+                        initialValue = "new "
+                                + normalizePackage(ArrayList.class.getName()
+                                        + "<" + componentClassDesc.getName()
+                                        + ">") + "()";
+                    }
                 }
             } else {
                 // 配列の場合は（何を生成すればいいかも分かるし）空の配列をぶら下げておく。

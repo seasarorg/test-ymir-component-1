@@ -1131,7 +1131,9 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals("プロパティを持つリピート対象変数はDtoのListになること",
                 "java.util.List<com.example.dto.EntityDto>", pd.getTypeDesc()
                         .getName());
-        assertNull("表示系のListの初期値はnullであること", pd.getInitialValue());
+        assertEquals("表示系のListの初期値はArrayListであること",
+                "new java.util.ArrayList<com.example.dto.EntityDto>()", pd
+                        .getInitialValue());
         cd = getClassDesc("com.example.dto.EntityDto");
         assertNotNull("プロパティを持つリピート対象変数の型が生成されていること", cd);
         assertNotNull("Dto型がプロパティを持つこと", cd.getPropertyDesc("content"));
