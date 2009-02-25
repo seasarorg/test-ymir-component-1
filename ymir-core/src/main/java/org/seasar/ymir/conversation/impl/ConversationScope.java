@@ -1,6 +1,6 @@
 package org.seasar.ymir.conversation.impl;
 
-import static org.seasar.ymir.conversation.Globals.APPKEY_USESESSIONSCOPEASCONVERSATIONSCOPE;
+import static org.seasar.ymir.conversation.Globals.APPKEY_CORE_CONVERSATION_USESESSIONSCOPEASCONVERSATIONSCOPE;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -125,7 +125,7 @@ public class ConversationScope implements Scope {
     boolean isUseSessionScopeAsConversationScope() {
         return PropertyUtils.valueOf(applicationManager_
                 .findContextApplication().getProperty(
-                        APPKEY_USESESSIONSCOPEASCONVERSATIONSCOPE), false);
+                        APPKEY_CORE_CONVERSATION_USESESSIONSCOPEASCONVERSATIONSCOPE), false);
     }
 
     public Iterator<String> getAttributeNames() {

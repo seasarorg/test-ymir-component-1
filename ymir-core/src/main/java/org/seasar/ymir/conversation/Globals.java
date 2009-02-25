@@ -11,7 +11,7 @@ public interface Globals extends org.seasar.ymir.Globals {
     /**
      * conversationに関するアプリケーションプロパティのキーの接頭辞です。
      */
-    String APPKEYPREFIX_CONVERSATION = APPKEYPREFIX_CORE + "conversation.";
+    String APPKEYPREFIX_CORE_CONVERSATION = APPKEYPREFIX_CORE + "conversation.";
 
     /**
      * 開始時のチェックを行なわないようにするかどうかを表すアプリケーションプロパティのキーです。
@@ -19,7 +19,7 @@ public interface Globals extends org.seasar.ymir.Globals {
      * </p>
      */
     @ForTesting
-    String APPKEY_DISABLEBEGINCHECK = APPKEYPREFIX_CONVERSATION
+    String APPKEY_CORE_CONVERSATION_DISABLEBEGINCHECK = APPKEYPREFIX_CORE_CONVERSATION
             + "disableBeginCheck";
 
     /**
@@ -28,6 +28,9 @@ public interface Globals extends org.seasar.ymir.Globals {
      * </p>
      */
     @ForTesting
-    String APPKEY_USESESSIONSCOPEASCONVERSATIONSCOPE = APPKEYPREFIX_CONVERSATION
+    String APPKEY_CORE_CONVERSATION_USESESSIONSCOPEASCONVERSATIONSCOPE = APPKEYPREFIX_CORE_CONVERSATION
             + "useSessionScopeAsConversationScope";
+
+    String APPKEY_CORE_CONVERSATION_ACCEPTBROWSERSBACKBUTTON = APPKEYPREFIX_CORE_CONVERSATION
+            + "acceptBrowsersBackButton";
 }

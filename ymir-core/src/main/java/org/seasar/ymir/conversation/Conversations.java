@@ -95,8 +95,10 @@ public interface Conversations {
      * @param conversationName 新しいconversation名。
      * @param phase 新しいフェーズ名。
      * @param followAfter 現在のフェーズ名の制約。
+     * @param acceptBrowsersBackButton ブラウザの「戻る」ボタンを押された場合の遷移を許可するかどうか。
      */
-    void join(String conversationName, String phase, String[] followAfter);
+    void join(String conversationName, String phase, String[] followAfter,
+            boolean acceptBrowsersBackButton);
 
     /**
      * conversationを終了します。

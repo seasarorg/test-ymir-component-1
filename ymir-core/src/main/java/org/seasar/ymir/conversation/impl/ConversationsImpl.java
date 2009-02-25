@@ -80,7 +80,7 @@ public class ConversationsImpl implements Conversations, Serializable {
 
     public synchronized Conversation getSuperConversation() {
         if (conversationStack_.size() > 0) {
-            return conversationStack_.getLast();
+            return conversationStack_.getFirst();
         } else {
             return null;
         }
@@ -118,6 +118,7 @@ public class ConversationsImpl implements Conversations, Serializable {
 
     public synchronized void begin(String conversationName, String phase,
             BeginCondition condition) {
+
         if (equals(getCurrentConversationName(), conversationName)) {
             if (condition == BeginCondition.EXCEPT_FOR_SAME_CONVERSATION) {
                 return;
@@ -127,6 +128,20 @@ public class ConversationsImpl implements Conversations, Serializable {
                     return;
                 }
             }
+        } else if (currentConversation_ != null) {
+            // 現在のカンバセーションが指定されたカンバセーションと一致しない場合。
+            // 一致するものがスタックに見つかるまでスタックのエントリを削除する。
+            // なお現在のカンバセーションがnullの場合はBeginSubConversation直後のBeginなので、
+            // スタック操作は行なわない。
+            for (Iterator<Conversation> itr = conversationStack_.iterator(); itr
+                    .hasNext();) {
+                Conversation conversation = itr.next();
+                itr.remove();
+                if (conversation.getName().equals(conversationName)) {
+                    break;
+                }
+            }
+
         }
 
         currentConversation_ = newConversation(conversationName);
@@ -144,7 +159,7 @@ public class ConversationsImpl implements Conversations, Serializable {
     public synchronized Object end() {
         removeCurrentConversation();
         if (conversationStack_.size() > 0) {
-            currentConversation_ = conversationStack_.removeLast();
+            currentConversation_ = conversationStack_.removeFirst();
             return currentConversation_.getReenterResponse();
         } else {
             return null;
@@ -157,12 +172,42 @@ public class ConversationsImpl implements Conversations, Serializable {
     }
 
     public synchronized void join(String conversationName, String phase,
-            String[] followAfter) {
-        if (currentConversation_ == null
-                || !currentConversation_.getName().equals(conversationName)) {
-            // 現在のconversationが同一conversationではない。
+            String[] followAfter, boolean acceptBrowsersBackButton) {
+        if (currentConversation_ == null) {
+            // カンバセーションに参加していない状態でカンバセーション内に遷移しようとしている場合は不正な遷移。
             illegalTransitionDetected();
             return;
+        }
+
+        if (!currentConversation_.getName().equals(conversationName)) {
+            // 現在のカンバセーションが同一カンバセーションではない場合。
+            // ブラウザバックを許容するのであれば、指定されたカンバセーションがconversationStackにあれば
+            // 現在のカンバセーションを破棄してそこに戻る。
+            // 許容しないのであれば不正な遷移。
+            if (acceptBrowsersBackButton) {
+                int idx = 0;
+                for (Iterator<Conversation> itr = conversationStack_.iterator(); itr
+                        .hasNext(); idx++) {
+                    Conversation conversation = itr.next();
+                    if (conversation.getName().equals(conversationName)) {
+                        break;
+                    }
+                }
+                if (idx < conversationStack_.size()) {
+                    // 指定されたカンバセーションが見つかった。
+                    for (int i = 0; i < idx; i++) {
+                        conversationStack_.removeFirst();
+                    }
+                    end();
+                } else {
+                    // 見つからなかったので不正遷移とする。
+                    illegalTransitionDetected();
+                    return;
+                }
+            } else {
+                illegalTransitionDetected();
+                return;
+            }
         }
 
         String currentPhase = currentConversation_.getPhase();
@@ -171,17 +216,20 @@ public class ConversationsImpl implements Conversations, Serializable {
             return;
         }
 
-        boolean matched = false;
-        for (int i = 0; i < followAfter.length; i++) {
-            if (followAfter[i].equals(currentPhase)) {
-                matched = true;
-                break;
+        if (!acceptBrowsersBackButton) {
+            // ブラウザバックを許容する場合は、同一カンバセーションの場合にfollowAfterを見ない。
+            boolean matched = false;
+            for (int i = 0; i < followAfter.length; i++) {
+                if (followAfter[i].equals(currentPhase)) {
+                    matched = true;
+                    break;
+                }
             }
-        }
-        if (!matched) {
-            // 現在のconversationが指定されたフェーズでない。
-            illegalTransitionDetected();
-            return;
+            if (!matched) {
+                // 現在のカンバセーションが指定されたフェーズでない。
+                illegalTransitionDetected();
+                return;
+            }
         }
 
         currentConversation_.setPhase(phase);
@@ -219,7 +267,7 @@ public class ConversationsImpl implements Conversations, Serializable {
         }
 
         currentConversation_.setReenterResponse(reenterResponse);
-        conversationStack_.addLast(currentConversation_);
+        conversationStack_.addFirst(currentConversation_);
         currentConversation_ = null;
     }
 

@@ -12,6 +12,7 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.annotation.Bool;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.conversation.BeginCondition;
 import org.seasar.ymir.conversation.ConversationUtils;
@@ -74,7 +75,9 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
             }
 
             conversations.join(annotation.name(), annotation.phase(),
-                    annotation.followAfter());
+                    annotation.followAfter(),
+                    isAcceptBrowsersBackButton(annotation
+                            .acceptBrowsersBackButton().booleanValue()));
 
             BeginSubConversation beginSubConversation = annotationHandler_
                     .getAnnotation(actionMethod, BeginSubConversation.class);
@@ -107,6 +110,20 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
         return action;
     }
 
+    boolean isAcceptBrowsersBackButton(Boolean acceptBrowsersBackButton) {
+        if (acceptBrowsersBackButton != null) {
+            return acceptBrowsersBackButton.booleanValue();
+        } else {
+            return PropertyUtils
+                    .valueOf(
+                            applicationManager_
+                                    .findContextApplication()
+                                    .getProperty(
+                                            Globals.APPKEY_CORE_CONVERSATION_ACCEPTBROWSERSBACKBUTTON),
+                            false);
+        }
+    }
+
     boolean isValidReturnTypeAsSubConversationEndAction(
             Class<? extends Object> returnType) {
         return returnType.isAssignableFrom(String.class)
@@ -120,6 +137,7 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
     boolean isDisableBeginCheck() {
         return PropertyUtils.valueOf(applicationManager_
                 .findContextApplication().getProperty(
-                        Globals.APPKEY_DISABLEBEGINCHECK), false);
+                        Globals.APPKEY_CORE_CONVERSATION_DISABLEBEGINCHECK),
+                false);
     }
 }
