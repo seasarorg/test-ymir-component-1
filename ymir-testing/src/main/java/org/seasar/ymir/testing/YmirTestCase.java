@@ -245,7 +245,7 @@ abstract public class YmirTestCase extends TestCase {
     protected void disableBeginCheck() {
         ((Configuration) getContainer().getComponent(Configuration.class))
                 .setProperty(
-                        org.seasar.ymir.conversation.Globals.APPKEY_DISABLEBEGINCHECK,
+                        org.seasar.ymir.conversation.Globals.APPKEY_CORE_CONVERSATION_DISABLEBEGINCHECK,
                         String.valueOf(true));
     }
 
@@ -261,7 +261,7 @@ abstract public class YmirTestCase extends TestCase {
     protected void useSessionScopeAsConversationScope() {
         ((Configuration) getContainer().getComponent(Configuration.class))
                 .setProperty(
-                        org.seasar.ymir.conversation.Globals.APPKEY_USESESSIONSCOPEASCONVERSATIONSCOPE,
+                        org.seasar.ymir.conversation.Globals.APPKEY_CORE_CONVERSATION_USESESSIONSCOPEASCONVERSATIONSCOPE,
                         String.valueOf(true));
     }
 
