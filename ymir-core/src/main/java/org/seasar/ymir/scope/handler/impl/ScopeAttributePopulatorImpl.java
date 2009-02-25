@@ -149,12 +149,15 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
                 try {
                     handler.setProperty(value);
                 } catch (Throwable t) {
-                    // Exceptionをスローしつつ値を消すようにする。
+                    // populateの時はExceptionをスローしない。
+                    // そこがinjectとの違いのひとつ。
                     removeValue = true;
-                    throw new IORuntimeException(
-                            "Can't populate scope attribute: scope=" + scope_
-                                    + ", attribute name=" + name + ", value="
-                                    + value + ", write method=" + method_, t);
+                    if (log_.isDebugEnabled()) {
+                        log_.debug("Can't populate scope attribute: scope="
+                                + scope_ + ", attribute name=" + name
+                                + ", value=" + value + ", write method="
+                                + method_, t);
+                    }
                 } finally {
                     if (removeValue) {
                         scope_.setAttribute(name, null);
