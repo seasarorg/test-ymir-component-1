@@ -5,17 +5,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URLDecoder;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.seasar.framework.container.annotation.tiger.Binding;
-import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.el.EvaluationException;
 import org.seasar.kvasir.util.el.TextTemplateEvaluator;
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.kvasir.util.el.impl.SimpleTextTemplateEvaluator;
+import org.seasar.ymir.Globals;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Path;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
-import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.response.TransitionResponse;
 import org.seasar.ymir.response.scheme.Strategy;
@@ -23,14 +22,7 @@ import org.seasar.ymir.response.scheme.Strategy;
 abstract public class AbstractTransitionStrategy implements Strategy {
     private static final String ENCODING = "UTF-8";
 
-    private boolean richPathExpressionAvailable_ = true;
-
     private static final TextTemplateEvaluator evaluator_ = new SimpleTextTemplateEvaluator();
-
-    public void setRichPathExpressionAvailable(
-            boolean richPathExpressionAvailable) {
-        richPathExpressionAvailable_ = richPathExpressionAvailable;
-    }
 
     public Response constructResponse(String path, Object component) {
         TransitionResponse response = newResponse();
@@ -41,7 +33,7 @@ abstract public class AbstractTransitionStrategy implements Strategy {
     abstract public TransitionResponse newResponse();
 
     protected String constructPath(String path, Object component) {
-        if (!richPathExpressionAvailable_) {
+        if (!isRichPathExpressionAvailable()) {
             return path;
         }
 
@@ -73,6 +65,17 @@ abstract public class AbstractTransitionStrategy implements Strategy {
         } else {
             return path;
         }
+    }
+
+    protected boolean isRichPathExpressionAvailable() {
+        return PropertyUtils
+                .valueOf(
+                        YmirContext
+                                .getYmir()
+                                .getApplication()
+                                .getProperty(
+                                        Globals.APPKEY_CORE_RESPONSE_STRATEGY_RICHPATHEXPRESSIONAVAILABLE),
+                        true);
     }
 
     String getCharacterEncoding() {

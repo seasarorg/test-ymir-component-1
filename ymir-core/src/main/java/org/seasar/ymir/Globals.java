@@ -35,4 +35,10 @@ public interface Globals {
      * フレームワークが管理するアプリケーションプロパティのキーにつける接頭辞です。
      */
     String APPKEYPREFIX_CORE = "core.";
+
+    /**
+     * Responseの文字列表現において、リッチなパス表現を利用可能にするかどうかを指定するためのプロパティのキーです。
+     */
+    String APPKEY_CORE_RESPONSE_STRATEGY_RICHPATHEXPRESSIONAVAILABLE = APPKEYPREFIX_CORE
+            + "response.strategy.richPathExpressionAvailable";
 }
