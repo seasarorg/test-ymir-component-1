@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import static org.seasar.ymir.constraint.Globals.APPKEY_CORE_CONSTRAINT_PERMISSIONDENIEDMETHOD_ENABLE;
+import static org.seasar.ymir.constraint.Globals.APPKEY_CORE_CONSTRAINT_VALIDATIONFAILEDMETHOD_ENABLE;
 import static org.seasar.ymir.extension.creator.util.SourceCreatorUtils.newPageComponent;
 import static org.seasar.ymir.extension.creator.util.SourceCreatorUtils.newRequest;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
@@ -50,6 +52,7 @@ import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.convention.NamingConvention;
 import org.seasar.framework.util.ClassTraversal;
+import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.StringUtils;
 import org.seasar.kvasir.util.collection.MapProperties;
 import org.seasar.kvasir.util.io.IOUtils;
@@ -571,29 +574,36 @@ public class SourceCreatorImpl implements SourceCreator {
             if (actionMethodDesc != null) {
                 pageClassDesc.setMethodDesc(actionMethodDesc);
             }
+
             // _prerender()を追加する。
             MethodDesc prerenderMethodDesc = getExtraPathMapping(path, method)
                     .newPrerenderActionMethodDesc(new ActionSelectorSeedImpl());
             pageClassDesc.setMethodDesc(prerenderMethodDesc);
-            // _validationFailed(Notes)を追加する。
-            MethodDescImpl methodDesc = new MethodDescImpl(
-                    ConstraintInterceptor.ACTION_VALIDATIONFAILED);
-            methodDesc
-                    .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
-                            Notes.class, "notes") });
-            pageClassDesc.setMethodDesc(methodDesc);
-            // _permissionDenied(PemissionDeniedException)を追加する。
-            methodDesc = new MethodDescImpl(
-                    ConstraintInterceptor.ACTION_PERMISSIONDENIED);
-            methodDesc
-                    .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
-                            PermissionDeniedException.class, "ex") });
-            methodDesc.setThrowsDesc(new ThrowsDescImpl(
-                    PermissionDeniedException.class));
-            methodDesc.setBodyDesc(new BodyDescImpl(
-                    BodyDesc.KEY_PERMISSIONDENIED,
-                    new HashMap<String, Object>()));
-            pageClassDesc.setMethodDesc(methodDesc);
+
+            if (isValidationFailedMethodEnabled()) {
+                // _validationFailed(Notes)を追加する。
+                MethodDesc methodDesc = new MethodDescImpl(
+                        ConstraintInterceptor.ACTION_VALIDATIONFAILED);
+                methodDesc
+                        .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                                Notes.class, "notes") });
+                pageClassDesc.setMethodDesc(methodDesc);
+            }
+
+            if (isPermissionDeniedMethodEnabled()) {
+                // _permissionDenied(PemissionDeniedException)を追加する。
+                MethodDesc methodDesc = new MethodDescImpl(
+                        ConstraintInterceptor.ACTION_PERMISSIONDENIED);
+                methodDesc
+                        .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                                PermissionDeniedException.class, "ex") });
+                methodDesc.setThrowsDesc(new ThrowsDescImpl(
+                        PermissionDeniedException.class));
+                methodDesc.setBodyDesc(new BodyDescImpl(
+                        BodyDesc.KEY_PERMISSIONDENIED,
+                        new HashMap<String, Object>()));
+                pageClassDesc.setMethodDesc(methodDesc);
+            }
         }
     }
 
@@ -1893,5 +1903,19 @@ public class SourceCreatorImpl implements SourceCreator {
                             "return new org.seasar.ymir.response.PassthroughResponse();"));
         }
         return methodDesc;
+    }
+
+    boolean isValidationFailedMethodEnabled() {
+        return PropertyUtils.valueOf(applicationManager_
+                .findContextApplication().getProperty(
+                        APPKEY_CORE_CONSTRAINT_VALIDATIONFAILEDMETHOD_ENABLE),
+                true);
+    }
+
+    boolean isPermissionDeniedMethodEnabled() {
+        return PropertyUtils.valueOf(applicationManager_
+                .findContextApplication().getProperty(
+                        APPKEY_CORE_CONSTRAINT_PERMISSIONDENIEDMETHOD_ENABLE),
+                true);
     }
 }
