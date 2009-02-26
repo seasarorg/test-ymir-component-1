@@ -33,6 +33,9 @@
   <component name="default_actionNotFoundRuntimeExceptionHandler"
     class="org.seasar.ymir.handler.impl.ActionNotFoundRuntimeExceptionHandler"
     instance="request" />
+  <component name="default_validationFailedExceptionHandler"
+    class="org.seasar.ymir.handler.impl.ValidationFailedExceptionHandler"
+    instance="request" />
   <component name="default_permissionDeniedExceptionHandler"
     class="org.seasar.ymir.handler.impl.PermissionDeniedExceptionHandler"
     instance="request" />

@@ -19,6 +19,7 @@ import org.seasar.ymir.response.RedirectResponse;
 import org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl;
 import org.seasar.ymir.response.constructor.impl.ResponseResponseConstructor;
 import org.seasar.ymir.response.constructor.impl.StringResponseConstructor;
+import org.seasar.ymir.response.scheme.impl.PassthroughStrategy;
 import org.seasar.ymir.response.scheme.impl.RedirectStrategy;
 import org.seasar.ymir.response.scheme.impl.StrategySelectorImpl;
 import org.seasar.ymir.scope.impl.ScopeManagerImpl;
@@ -52,6 +53,7 @@ public class ExceptionProcessorImplTest extends TestCase {
                 return false;
             }
         });
+        strategySelector.add(new PassthroughStrategy());
         actionManager
                 .setResponseConstructorSelector(responseConstructorSelector);
         ScopeManagerImpl scopeManager = new ScopeManagerImpl();
@@ -75,6 +77,7 @@ public class ExceptionProcessorImplTest extends TestCase {
         };
         exceptionProcessor.setActionManager(actionManager);
         exceptionProcessor.setAnnotationHandler(annotationHandler);
+        exceptionProcessor.setApplicationManager(applicationManager);
         exceptionProcessor.setCacheManager(cacheManager);
         exceptionProcessor.setYmir(new MockYmir());
         return exceptionProcessor;

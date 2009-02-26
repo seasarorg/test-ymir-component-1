@@ -1,5 +1,7 @@
 package org.seasar.ymir.impl;
 
+import static org.seasar.ymir.constraint.Globals.APPKEY_CORE_CONSTRAINT_PERMISSIONDENIEDMETHOD_ENABLE;
+
 import java.beans.Introspector;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -10,10 +12,13 @@ import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionManager;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.ExceptionProcessor;
+import org.seasar.ymir.Globals;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
@@ -28,6 +33,7 @@ import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.response.ForwardResponse;
 import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.util.ClassUtils;
+import org.seasar.ymir.util.ResponseUtils;
 import org.seasar.ymir.util.ThrowableUtils;
 import org.seasar.ymir.util.YmirUtils;
 
@@ -39,6 +45,8 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     private ActionManager actionManager_;
 
     private AnnotationHandler annotationHandler_;
+
+    private ApplicationManager applicationManager_;
 
     private Updater[] updaters_ = new Updater[0];
 
@@ -64,6 +72,11 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     }
 
     @Binding(bindingType = BindingType.MUST)
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
     public void setCacheManager(CacheManager cacheManager) {
         actionMethodHolderMap_ = cacheManager.newMap();
     }
@@ -79,8 +92,10 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         YmirUtils.sortYmirProcessInterceptors(ymirProcessInterceptors_);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings( { "unchecked", "deprecation" })
     public Response process(Request request, Throwable t) {
+        boolean exceptionHandlerInterfaceEnabled = isExceptionHandlerInterfaceEnabled();
+
         t = ThrowableUtils.unwrap(t);
         log_.error("Exception has occured", t);
 
@@ -113,7 +128,6 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         Class<?> handlerClass = null;
         Method actionMethod = null;
         Class<?> exceptionClass = null;
-        boolean localHandler = false;
         if (request != null) {
             Dispatch dispatch = request.getCurrentDispatch();
             if (dispatch != null) {
@@ -131,7 +145,6 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                     if (actionMethod != null) {
                         handler = page;
                         handlerClass = pageClass;
-                        localHandler = true;
                     }
                 }
             }
@@ -169,10 +182,15 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
             handlerClass = handlerCd.getComponentClass();
             actionMethod = findActionMethod(handlerClass, exceptionClass, true);
             if (actionMethod == null) {
-                throw new IllegalClientCodeRuntimeException(
-                        "Exception handler class must have a method annotated by @ExceptionHandler, "
-                                + "or must implements ExceptionHandler interface with valid concrete parameter type: "
-                                + handlerClass.getName());
+                StringBuilder sb = new StringBuilder();
+                sb.append("Exception handler class must have"
+                        + " a method annotated by @ExceptionHandler");
+                if (exceptionHandlerInterfaceEnabled) {
+                    sb.append(", or must implements ExceptionHandler interface"
+                            + " with valid concrete parameter type");
+                }
+                sb.append(": ").append(handlerClass.getName());
+                throw new IllegalClientCodeRuntimeException(sb.toString());
             }
         }
         if (log_.isDebugEnabled()) {
@@ -198,10 +216,13 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                     .responseCreatedByExceptionHandler(handler, response);
         }
 
-        if (!localHandler && response.getType() == ResponseType.PASSTHROUGH) {
-            response = new ForwardResponse(PATH_EXCEPTION_TEMPLATE
-                    + getClassShortName(exceptionClass)
-                    + SUFFIX_EXCEPTION_TEMPLATE);
+        if (exceptionHandlerInterfaceEnabled) {
+            // 互換性のため。
+            if (handler instanceof org.seasar.ymir.handler.ExceptionHandler
+                    && response.getType() == ResponseType.PASSTHROUGH) {
+                response = new ForwardResponse(ResponseUtils
+                        .getExceptionTemplatePath(exceptionClass));
+            }
         }
 
         if (log_.isDebugEnabled()) {
@@ -220,7 +241,8 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
             boolean checkInterface) {
         Method method = getActionMethodHolder(handlerClass).getMethod(
                 exceptionClass);
-        if (method == null && checkInterface) {
+        if (method == null && checkInterface
+                && isExceptionHandlerInterfaceEnabled()) {
             if (org.seasar.ymir.handler.ExceptionHandler.class
                     .isAssignableFrom(handlerClass)) {
                 Method[] methods = ClassUtils.getMethods(handlerClass,
@@ -271,21 +293,21 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     }
 
     String getComponentName(Class<?> clazz) {
-        return Introspector.decapitalize(getClassShortName(clazz))
+        return Introspector.decapitalize(ClassUtils.getShortName(clazz))
                 + SUFFIX_HANDLER;
-    }
-
-    String getClassShortName(Class<?> clazz) {
-        String name = clazz.getName();
-        int dot = name.lastIndexOf('.');
-        if (dot >= 0) {
-            return name.substring(dot + 1);
-        } else {
-            return name;
-        }
     }
 
     S2Container getS2Container() {
         return ymir_.getApplication().getS2Container();
+    }
+
+    boolean isExceptionHandlerInterfaceEnabled() {
+        return PropertyUtils
+                .valueOf(
+                        applicationManager_
+                                .findContextApplication()
+                                .getProperty(
+                                        Globals.APPKEY_CORE_HANDLER_EXCEPTIONHANDLERINTERFACE_ENABLE),
+                        true);
     }
 }

@@ -1,6 +1,8 @@
 package org.seasar.ymir.util;
 
+import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.response.ForwardResponse;
 
 /**
  * @author YOKOTA Takehiko
@@ -63,5 +65,20 @@ public class ResponseUtils {
 
         response.setHeader("Pragma", "No-cache");
         response.setHeader("Cache-Control", "private");
+    }
+
+    /**
+     * 例外に対応するエラーページテンプレートの標準的なパスを返します。
+     * <p>返されるパスはコンテキスト相対パスです。
+     * </p>
+     * 
+     * @param exceptionClass 例外クラス。
+     * @return パス。
+     * @since 1.0.2
+     */
+    public static String getExceptionTemplatePath(Class<?> exceptionClass) {
+        return ExceptionProcessor.PATH_EXCEPTION_TEMPLATE
+                + ClassUtils.getShortName(exceptionClass)
+                + ExceptionProcessor.SUFFIX_EXCEPTION_TEMPLATE;
     }
 }

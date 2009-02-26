@@ -41,4 +41,10 @@ public interface Globals {
      */
     String APPKEY_CORE_RESPONSE_STRATEGY_RICHPATHEXPRESSIONAVAILABLE = APPKEYPREFIX_CORE
             + "response.strategy.richPathExpressionAvailable";
+
+    /**
+     * ExceptionHandlerインタフェースを有効にするかどうかを指定するためのプロパティのキーです。
+     */
+    String APPKEY_CORE_HANDLER_EXCEPTIONHANDLERINTERFACE_ENABLE = APPKEYPREFIX_CORE
+            + "handler.exceptionHandlerInterface.enable";
 }

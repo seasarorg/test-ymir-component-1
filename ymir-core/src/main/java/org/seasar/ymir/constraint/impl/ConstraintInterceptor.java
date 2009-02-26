@@ -1,6 +1,8 @@
 package org.seasar.ymir.constraint.impl;
 
 import static org.seasar.ymir.RequestProcessor.ATTR_NOTES;
+import static org.seasar.ymir.constraint.Globals.APPKEY_CORE_CONSTRAINT_PERMISSIONDENIEDMETHOD_ENABLE;
+import static org.seasar.ymir.constraint.Globals.APPKEY_CORE_CONSTRAINT_VALIDATIONFAILEDMETHOD_ENABLE;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -20,6 +22,7 @@ import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.Application;
@@ -37,12 +40,12 @@ import org.seasar.ymir.constraint.Constraint;
 import org.seasar.ymir.constraint.ConstraintBundle;
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
+import org.seasar.ymir.constraint.Globals;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
 import org.seasar.ymir.constraint.annotation.SuppressConstraints;
 import org.seasar.ymir.constraint.annotation.Validator;
-import org.seasar.ymir.impl.MethodInvokerImpl;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.util.ClassUtils;
@@ -115,29 +118,56 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             if (notes != null) {
                 request.setAttribute(ATTR_NOTES, notes);
 
-                // バリデーションエラーが発生した場合は、エラー処理メソッドが存在すればそれを呼び出す。
-                // メソッドが存在しなければ何もしない（元のアクションメソッドの呼び出しをスキップする）。
-                finalAction = pageComponent
-                        .accept(new VisitorForFindingValidationFailedMethod(
-                                notes));
-                if (finalAction == null) {
-                    finalAction = actionManager_.newVoidAction(pageComponent
-                            .getPage());
+                if (isValidationFailedMethodEnabled()) {
+                    // 互換性のため。
+
+                    // バリデーションエラーが発生した場合は、エラー処理メソッドが存在すればそれを呼び出す。
+                    // メソッドが存在しなければ何もしない（元のアクションメソッドの呼び出しをスキップする）。
+                    finalAction = pageComponent
+                            .accept(new VisitorForFindingValidationFailedMethod(
+                                    notes));
+                    if (finalAction == null) {
+                        finalAction = actionManager_
+                                .newVoidAction(pageComponent.getPage());
+                    }
+                } else {
+                    throw new WrappingRuntimeException(
+                            new ValidationFailedException(notes));
                 }
             } else {
                 finalAction = action;
             }
         } catch (PermissionDeniedException ex) {
-            // 権限エラーが発生した場合は、エラー処理メソッドが存在すればそれを呼び出す。
-            // メソッドが存在しなければPermissionDeniedExceptionを上に再スローする。
-            finalAction = (Action) pageComponent
-                    .accept(new VisitorForFindingPermissionDeniedMethod(ex));
-            if (finalAction == null) {
+            if (isPermissionDeniedMethodEnabled()) {
+                // 互換性のため。
+
+                // 権限エラーが発生した場合は、エラー処理メソッドが存在すればそれを呼び出す。
+                // メソッドが存在しなければPermissionDeniedExceptionを上に再スローする。
+                finalAction = (Action) pageComponent
+                        .accept(new VisitorForFindingPermissionDeniedMethod(ex));
+                if (finalAction == null) {
+                    throw new WrappingRuntimeException(ex);
+                }
+            } else {
                 throw new WrappingRuntimeException(ex);
             }
         }
 
         return finalAction;
+    }
+
+    boolean isValidationFailedMethodEnabled() {
+        return PropertyUtils.valueOf(applicationManager_
+                .findContextApplication().getProperty(
+                        APPKEY_CORE_CONSTRAINT_VALIDATIONFAILEDMETHOD_ENABLE),
+                true);
+    }
+
+    boolean isPermissionDeniedMethodEnabled() {
+        return PropertyUtils.valueOf(applicationManager_
+                .findContextApplication().getProperty(
+                        APPKEY_CORE_CONSTRAINT_PERMISSIONDENIEDMETHOD_ENABLE),
+                true);
     }
 
     Notes confirmConstraint(PageComponent pageComponent, Request request)
