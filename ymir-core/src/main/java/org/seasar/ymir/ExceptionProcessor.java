@@ -1,7 +1,5 @@
 package org.seasar.ymir;
 
-import org.seasar.ymir.handler.ExceptionHandler;
-
 /**
  * 例外発生時の処理を行なうためのインタフェースです。
  * <p>フレームワークがHTTPリクエストを受け取ってからレスポンスを構築し終わるまでの間に発生した例外を処理するためのインタフェースです。
@@ -24,17 +22,17 @@ public interface ExceptionProcessor {
     String SUFFIX_EXCEPTION_TEMPLATE = ".html";
 
     /**
-     * 例外をハンドリングするデフォルトの{@link ExceptionHandler}コンポーネント名の接頭辞です。
+     * 例外をハンドリングするデフォルトのExceptionHandlerコンポーネント名の接頭辞です。
      */
     String NAMEPREFIX_DEFAULT = "default_";
 
     /**
-     * 例外をハンドリングする{@link ExceptionHandler}コンポーネントクラス名の接尾辞です。
+     * 例外をハンドリングするExceptionHandlerコンポーネントクラス名の接尾辞です。
      */
     String SUFFIX_HANDLER = "Handler";
 
     /**
-     * 例外をハンドリングした{@link ExceptionHandler}コンポーネントを画面テンプレート等から取得できるように
+     * 例外をハンドリングしたExceptionHandlerコンポーネントを画面テンプレート等から取得できるように
      * {@link Request}オブジェクトに属性として設定する際の属性名です。
      */
     String ATTR_HANDLER = "handler";

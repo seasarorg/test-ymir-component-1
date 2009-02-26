@@ -11,7 +11,6 @@ import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.Phase;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
-import org.seasar.ymir.handler.ExceptionHandler;
 import org.seasar.ymir.impl.PageComponentImpl;
 import org.seasar.ymir.impl.VisitorForInvoking;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
@@ -85,22 +84,22 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public ExceptionHandler<?> exceptionHandlerInvoking(
-            ExceptionHandler<?> originalHandler, ExceptionHandler<?> handler) {
+    public Action exceptionHandlerActionInvoking(Request request,
+            Action originalAction, Action action) {
         // 各コンテキストが持つ属性をinjectする。
-        PageComponent pageComponent = new PageComponentImpl(handler, handler
-                .getClass());
+        PageComponent pageComponent = new PageComponentImpl(action.getTarget(),
+                action.getTarget().getClass());
         // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
         // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
         pageComponent.accept(new VisitorForInjecting(null));
         pageComponent.accept(new VisitorForPopulating(null));
 
-        return handler;
+        return action;
     }
 
     @Override
-    public Response responseCreatedByExceptionHandler(
-            ExceptionHandler<?> handler, Response response) {
+    public Response responseCreatedByExceptionHandler(Object handler,
+            Response response) {
         PageComponent pageComponent = new PageComponentImpl(handler, handler
                 .getClass());
         // 各コンテキストに属性をoutjectする。

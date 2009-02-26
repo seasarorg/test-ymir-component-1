@@ -1,9 +1,10 @@
 package org.seasar.ymir.handler.impl;
 
 import org.seasar.ymir.WrappingRuntimeException;
-import org.seasar.ymir.handler.ExceptionHandler;
+import org.seasar.ymir.handler.annotation.ExceptionHandler;
 
-public class ThrowableHandler implements ExceptionHandler<Throwable> {
+public class ThrowableHandler {
+    @ExceptionHandler
     public String handle(Throwable t) {
         if (t instanceof Error) {
             throw (Error) t;

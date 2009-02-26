@@ -215,7 +215,7 @@ public class RequestProcessorImpl implements RequestProcessor {
 
                 // リクエストに対応するアクションを決定する。
 
-                Action originalAction = dispatch.getMatchedPathMapping()
+                final Action originalAction = dispatch.getMatchedPathMapping()
                         .getAction(pageComponent, request);
                 dispatch.setAction(originalAction);
 

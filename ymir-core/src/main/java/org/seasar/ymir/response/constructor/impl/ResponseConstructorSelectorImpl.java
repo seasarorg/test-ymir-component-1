@@ -24,7 +24,7 @@ public class ResponseConstructorSelectorImpl implements
             return (ResponseConstructor<T>) constructor;
         } else {
             throw new IllegalClientCodeRuntimeException(
-                    "ResponseConstructor does not exist for class: " + type);
+                    "Action method cannot return instance of : " + type);
         }
     }
 

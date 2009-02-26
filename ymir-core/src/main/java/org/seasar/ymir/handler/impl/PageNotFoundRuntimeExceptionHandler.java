@@ -4,14 +4,13 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.seasar.ymir.PageNotFoundRuntimeException;
-import org.seasar.ymir.handler.ExceptionHandler;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.io.IORuntimeException;
+import org.seasar.ymir.PageNotFoundRuntimeException;
+import org.seasar.ymir.handler.annotation.ExceptionHandler;
 
-public class PageNotFoundRuntimeExceptionHandler implements
-        ExceptionHandler<PageNotFoundRuntimeException> {
+public class PageNotFoundRuntimeExceptionHandler {
     private HttpServletResponse httpResponse_;
 
     @Binding(bindingType = BindingType.MUST)
@@ -19,6 +18,7 @@ public class PageNotFoundRuntimeExceptionHandler implements
         httpResponse_ = httpResponse;
     }
 
+    @ExceptionHandler
     public String handle(PageNotFoundRuntimeException t) {
         try {
             httpResponse_.sendError(HttpServletResponse.SC_NOT_FOUND);

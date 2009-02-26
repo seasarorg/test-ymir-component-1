@@ -8,7 +8,6 @@ import org.seasar.ymir.Action;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
-import org.seasar.ymir.handler.ExceptionHandler;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 
 abstract public class AbstractYmirProcessInterceptor implements
@@ -68,14 +67,13 @@ abstract public class AbstractYmirProcessInterceptor implements
         return null;
     }
 
-    public ExceptionHandler<? extends Throwable> exceptionHandlerInvoking(
-            ExceptionHandler<? extends Throwable> originalHandler,
-            ExceptionHandler<? extends Throwable> handler) {
-        return handler;
+    public Action exceptionHandlerActionInvoking(Request request,
+            Action originalAction, Action action) {
+        return action;
     }
 
-    public Response responseCreatedByExceptionHandler(
-            ExceptionHandler<? extends Throwable> handler, Response response) {
+    public Response responseCreatedByExceptionHandler(Object handler,
+            Response response) {
         return response;
     }
 }

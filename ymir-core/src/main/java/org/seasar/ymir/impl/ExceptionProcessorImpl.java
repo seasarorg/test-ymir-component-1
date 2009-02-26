@@ -1,37 +1,50 @@
 package org.seasar.ymir.impl;
 
 import java.beans.Introspector;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.container.ComponentDef;
-import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.ymir.ComponentMetaDataFactory;
+import org.seasar.ymir.Action;
+import org.seasar.ymir.ActionManager;
+import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.ExceptionProcessor;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
+import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.Ymir;
-import org.seasar.ymir.handler.ExceptionHandler;
+import org.seasar.ymir.annotation.handler.AnnotationHandler;
+import org.seasar.ymir.cache.CacheManager;
+import org.seasar.ymir.handler.annotation.ExceptionHandler;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.response.ForwardResponse;
-import org.seasar.ymir.response.constructor.ResponseConstructor;
-import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
+import org.seasar.ymir.response.PassthroughResponse;
+import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.ThrowableUtils;
 import org.seasar.ymir.util.YmirUtils;
 
 public class ExceptionProcessorImpl implements ExceptionProcessor {
+    private static final String METHODNAME_HANDLE = "handle";
+
     private Ymir ymir_;
 
-    private ResponseConstructorSelector responseConstructorSelector_;
+    private ActionManager actionManager_;
+
+    private AnnotationHandler annotationHandler_;
 
     private Updater[] updaters_ = new Updater[0];
 
     private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
+
+    private Map<Class<?>, ExceptionHandlerActionMethodHolder> actionMethodHolderMap_;
 
     private final Log log_ = LogFactory.getLog(ExceptionProcessorImpl.class);
 
@@ -41,9 +54,18 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     }
 
     @Binding(bindingType = BindingType.MUST)
-    public void setResponseConstructorSelector(
-            ResponseConstructorSelector responseConstructorSelector) {
-        responseConstructorSelector_ = responseConstructorSelector;
+    public void setActionManager(ActionManager actionManager) {
+        actionManager_ = actionManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setAnnotationHandler(AnnotationHandler annotationHandler) {
+        annotationHandler_ = annotationHandler;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setCacheManager(CacheManager cacheManager) {
+        actionMethodHolderMap_ = cacheManager.newMap();
     }
 
     public void setUpdaters(Updater[] updaters) {
@@ -87,50 +109,86 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
             }
         }
 
-        S2Container container = getS2Container();
-        ComponentDef handlerCd = null;
-        Class<?> exceptionClass = t.getClass();
-        do {
-            String componentName = getComponentName(exceptionClass);
-            if (container.hasComponentDef(componentName)) {
-                handlerCd = container.getComponentDef(componentName);
-                break;
-            }
-        } while ((exceptionClass = exceptionClass.getSuperclass()) != Object.class);
+        Object handler = null;
+        Class<?> handlerClass = null;
+        Method actionMethod = null;
+        Class<?> exceptionClass = null;
+        boolean localHandler = false;
+        if (request != null) {
+            Dispatch dispatch = request.getCurrentDispatch();
+            if (dispatch != null) {
+                PageComponent pageComponent = dispatch.getPageComponent();
+                if (pageComponent != null) {
+                    Object page = pageComponent.getPage();
+                    Class<?> pageClass = pageComponent.getPageClass();
 
-        if (handlerCd == null) {
-            // 見つからなかった場合はデフォルトのハンドラを探す。
-            // こうしているのは、(ExceptionHandler)Creatorで定義したコンポーネントは
-            // あらゆるコンポーネント定義よりも優先順位が低くなってしまうため。
+                    exceptionClass = t.getClass();
+                    do {
+                        actionMethod = findActionMethod(pageClass,
+                                exceptionClass, false);
+                    } while (actionMethod == null
+                            && (exceptionClass = exceptionClass.getSuperclass()) != Object.class);
+                    if (actionMethod != null) {
+                        handler = page;
+                        handlerClass = pageClass;
+                        localHandler = true;
+                    }
+                }
+            }
+        }
+        if (actionMethod == null) {
+            S2Container container = getS2Container();
+            ComponentDef handlerCd = null;
             exceptionClass = t.getClass();
             do {
-                String componentName = NAMEPREFIX_DEFAULT
-                        + getComponentName(exceptionClass);
+                String componentName = getComponentName(exceptionClass);
                 if (container.hasComponentDef(componentName)) {
                     handlerCd = container.getComponentDef(componentName);
                     break;
                 }
             } while ((exceptionClass = exceptionClass.getSuperclass()) != Object.class);
-        }
-        // この時点でhandlerCdがnullならymir-convention.diconの記述ミス。
 
-        final ExceptionHandler<? extends Throwable> originalHandler = (ExceptionHandler<? extends Throwable>) handlerCd
-                .getComponent();
+            if (handlerCd == null) {
+                // 見つからなかった場合はデフォルトのハンドラを探す。
+                // こうしているのは、(ExceptionHandler)Creatorで定義したコンポーネントは
+                // あらゆるコンポーネント定義よりも優先順位が低くなってしまうため。
+                exceptionClass = t.getClass();
+                do {
+                    String componentName = NAMEPREFIX_DEFAULT
+                            + getComponentName(exceptionClass);
+                    if (container.hasComponentDef(componentName)) {
+                        handlerCd = container.getComponentDef(componentName);
+                        break;
+                    }
+                } while ((exceptionClass = exceptionClass.getSuperclass()) != Object.class);
+            }
+
+            // この時点でhandlerCdがnullならymir-convention.diconの記述ミス。
+
+            handler = handlerCd.getComponent();
+            handlerClass = handlerCd.getComponentClass();
+            actionMethod = findActionMethod(handlerClass, exceptionClass, true);
+            if (actionMethod == null) {
+                throw new IllegalClientCodeRuntimeException(
+                        "Exception handler class must have a method annotated by @ExceptionHandler, "
+                                + "or must implements ExceptionHandler interface with valid concrete parameter type: "
+                                + handlerClass.getName());
+            }
+        }
         if (log_.isDebugEnabled()) {
-            log_.debug("Raw ExceptionHandler: " + originalHandler);
+            log_.debug("ExceptionHandler: " + handler);
         }
 
-        ExceptionHandler<? extends Throwable> handler = originalHandler;
+        final Action originalAction = getAction(handler, handlerClass,
+                actionMethod, t);
+        Action action = originalAction;
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-            handler = ymirProcessInterceptors_[i].exceptionHandlerInvoking(
-                    originalHandler, handler);
-        }
-        if (log_.isDebugEnabled()) {
-            log_.debug("Final ExceptionHandler: " + handler);
+            action = ymirProcessInterceptors_[i]
+                    .exceptionHandlerActionInvoking(request, originalAction,
+                            action);
         }
 
-        Response response = constructResponse(((ExceptionHandler<Throwable>) handler)
-                .handle(t));
+        Response response = invokeAction(action);
         if (log_.isDebugEnabled()) {
             log_.debug("Raw response: " + response);
         }
@@ -140,7 +198,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                     .responseCreatedByExceptionHandler(handler, response);
         }
 
-        if (response.getType() == ResponseType.PASSTHROUGH) {
+        if (!localHandler && response.getType() == ResponseType.PASSTHROUGH) {
             response = new ForwardResponse(PATH_EXCEPTION_TEMPLATE
                     + getClassShortName(exceptionClass)
                     + SUFFIX_EXCEPTION_TEMPLATE);
@@ -157,16 +215,59 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         return response;
     }
 
-    Response constructResponse(String returnValue) {
-        ResponseConstructor<String> constructor = responseConstructorSelector_
-                .getResponseConstructor(String.class);
-        if (constructor == null) {
-            throw new ComponentNotFoundRuntimeException(
-                    "Can't find ResponseConstructor for type '" + String.class
-                            + "' in ResponseConstructorSelector");
+    @SuppressWarnings("deprecation")
+    Method findActionMethod(Class<?> handlerClass, Class<?> exceptionClass,
+            boolean checkInterface) {
+        Method method = getActionMethodHolder(handlerClass).getMethod(
+                exceptionClass);
+        if (method == null && checkInterface) {
+            if (org.seasar.ymir.handler.ExceptionHandler.class
+                    .isAssignableFrom(handlerClass)) {
+                Method[] methods = ClassUtils.getMethods(handlerClass,
+                        METHODNAME_HANDLE);
+                if (methods.length > 0) {
+                    method = methods[0];
+                }
+            }
+        }
+        return method;
+    }
+
+    ExceptionHandlerActionMethodHolder getActionMethodHolder(
+            Class<?> handlerClass) {
+        ExceptionHandlerActionMethodHolder methodHolder = actionMethodHolderMap_
+                .get(handlerClass);
+        if (methodHolder == null) {
+            methodHolder = new ExceptionHandlerActionMethodHolder(handlerClass,
+                    annotationHandler_);
+            actionMethodHolderMap_.put(handlerClass, methodHolder);
+        }
+        return methodHolder;
+    }
+
+    @SuppressWarnings("deprecation")
+    Action getAction(Object handler, Class<?> handlerClass, Method method,
+            Throwable targetThrowable) {
+        return actionManager_.newAction(handler, handlerClass, method,
+                new Object[] { targetThrowable });
+    }
+
+    Response invokeAction(Action action) {
+        Response response = new PassthroughResponse();
+
+        if (action != null && action.shouldInvoke()) {
+            if (log_.isDebugEnabled()) {
+                log_.debug("INVOKE: " + action.getTarget().getClass() + "#"
+                        + action.getMethodInvoker());
+            }
+            response = actionManager_.constructResponse(action.getTarget(),
+                    action.getReturnType(), action.invoke());
+            if (log_.isDebugEnabled()) {
+                log_.debug("RESPONSE: " + response);
+            }
         }
 
-        return constructor.constructResponse(null, returnValue);
+        return response;
     }
 
     String getComponentName(Class<?> clazz) {

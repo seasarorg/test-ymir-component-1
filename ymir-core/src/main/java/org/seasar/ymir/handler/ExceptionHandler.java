@@ -12,6 +12,7 @@ package org.seasar.ymir.handler;
  * </p>
  * 
  * @author YOKOTA Takehiko
+ * @deprecated 代わりにExceptionHandlerアノテーションを使用して下さい。
  */
 public interface ExceptionHandler<T extends Throwable> {
     /**

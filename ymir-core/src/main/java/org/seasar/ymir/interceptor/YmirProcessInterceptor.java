@@ -10,7 +10,6 @@ import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseProcessor;
-import org.seasar.ymir.handler.ExceptionHandler;
 
 /**
  * Ymirの処理の途中で独自の処理を挟み込むためのインタフェースです。
@@ -165,21 +164,22 @@ public interface YmirProcessInterceptor {
     Response exceptionProcessingStarted(Request request, Throwable t);
 
     /**
-     * 例外ハンドラの処理が実行される前に、
-     * {@link ExceptionHandler}オブジェクトを加工できるように呼び出されるメソッドです。
-     * <p>{@link ExceptionHandler}オブジェクトを加工しない場合は引数で渡された{@link ExceptionHandler}オブジェクトをそのまま返すようにして下さい。
+     * 例外ハンドラのアクションの処理が実行される前に、
+     * Actionオブジェクトを加工できるように呼び出されるメソッドです。
+     * <p>Actionオブジェクトを加工しない場合は引数で渡されたActionオブジェクトをそのまま返すようにして下さい。
      * </p>
      * 
-     * @param originalHandler 元もとの{@link ExceptionHandler}オブジェクト。
-     * @param handler 現在の{@link ExceptionHandler}オブジェクト。
-     * 他のYmirProcessInterceptorによって元もとの{@link ExceptionHandler}ではないものに差し替えられていることがあります。
-     * nullであることはありません。
-     * @return {@link ExceptionHandler}オブジェクト。nullを返してはいけません。
-     * @since 1.0.0
+     * @param request 現在のRequestオブジェクト。
+     * Requestオブジェクトが生成される前に例外が発生した場合など、nullが渡されることもあります。
+     * @param originalAction フレームワークが構築した元もとのActionオブジェクト。
+     * @param action 現在のActionオブジェクト。他のYmirProcessInterceptorによって、
+     * 元もとのActionではないものに差し替えられていることがあります。
+     * nullであることもあります。
+     * @return Actionオブジェクト。nullを返すこともできます。
+     * @since 1.0.2
      */
-    ExceptionHandler<? extends Throwable> exceptionHandlerInvoking(
-            ExceptionHandler<? extends Throwable> originalHandler,
-            ExceptionHandler<? extends Throwable> handler);
+    Action exceptionHandlerActionInvoking(Request request,
+            Action originalAction, Action action);
 
     /**
      * フレームワークが例外ハンドラの処理結果からResponseオブジェクトを構築した際に、
@@ -192,6 +192,5 @@ public interface YmirProcessInterceptor {
      * @return Responseオブジェクト。nullを返してはいけません。
      * @since 1.0.0
      */
-    Response responseCreatedByExceptionHandler(
-            ExceptionHandler<? extends Throwable> handler, Response response);
+    Response responseCreatedByExceptionHandler(Object handler, Response response);
 }
