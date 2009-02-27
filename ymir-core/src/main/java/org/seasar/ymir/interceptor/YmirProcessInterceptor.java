@@ -187,10 +187,13 @@ public interface YmirProcessInterceptor {
      * <p>Responseオブジェクトを加工しない場合は引数で渡されたResponseオブジェクトをそのまま返すようにして下さい。
      * </p>
      * 
-     * @param handler {@link ExceptionHandler}オブジェクト。
+     * @param request 現在のRequestオブジェクト。
+     * Requestオブジェクトが生成される前に例外が発生した場合など、nullが渡されることもあります。
      * @param response フレームワークによって構築されたResponseオブジェクト。
+     * @param handler {@link ExceptionHandler}オブジェクト。
      * @return Responseオブジェクト。nullを返してはいけません。
-     * @since 1.0.0
+     * @since 1.0.2
      */
-    Response responseCreatedByExceptionHandler(Object handler, Response response);
+    Response responseCreatedByExceptionHandler(Request request,
+            Response response, Object handler);
 }

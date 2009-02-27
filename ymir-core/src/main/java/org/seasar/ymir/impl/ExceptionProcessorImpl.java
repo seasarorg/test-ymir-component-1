@@ -218,7 +218,8 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
 
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             response = ymirProcessInterceptors_[i]
-                    .responseCreatedByExceptionHandler(handler, response);
+                    .responseCreatedByExceptionHandler(request, response,
+                            handler);
         }
 
         if (exceptionHandlerInterfaceEnabled) {

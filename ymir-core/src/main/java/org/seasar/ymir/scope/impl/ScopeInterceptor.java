@@ -86,24 +86,38 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
     @Override
     public Action exceptionHandlerActionInvoking(Request request,
             Action originalAction, Action action) {
-        // 各コンテキストが持つ属性をinjectする。
-        PageComponent pageComponent = new PageComponentImpl(action.getTarget(),
-                action.getTarget().getClass());
-        // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
-        // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
-        pageComponent.accept(new VisitorForInjecting(null));
-        pageComponent.accept(new VisitorForPopulating(null));
+        Object handler = action.getTarget();
+        if (request == null
+                || request.getCurrentDispatch() == null
+                || request.getCurrentDispatch().getPageComponent() == null
+                || request.getCurrentDispatch().getPageComponent().getPage() != handler) {
+            // グローバルハンドラなので、各コンテキストが持つ属性をinjectする。
+            // 各コンテキストが持つ属性をinjectする。
+
+            PageComponent pageComponent = new PageComponentImpl(handler,
+                    handler.getClass());
+            // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
+            // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
+            pageComponent.accept(new VisitorForInjecting(null));
+            pageComponent.accept(new VisitorForPopulating(null));
+        }
 
         return action;
     }
 
     @Override
-    public Response responseCreatedByExceptionHandler(Object handler,
-            Response response) {
-        PageComponent pageComponent = new PageComponentImpl(handler, handler
-                .getClass());
-        // 各コンテキストに属性をoutjectする。
-        pageComponent.accept(new VisitorForOutjecting(null));
+    public Response responseCreatedByExceptionHandler(Request request,
+            Response response, Object handler) {
+        if (request == null
+                || request.getCurrentDispatch() == null
+                || request.getCurrentDispatch().getPageComponent() == null
+                || request.getCurrentDispatch().getPageComponent().getPage() != handler) {
+            // グローバルハンドラなので、各コンテキストに属性をoutjectする。
+
+            PageComponent pageComponent = new PageComponentImpl(handler,
+                    handler.getClass());
+            pageComponent.accept(new VisitorForOutjecting(null));
+        }
 
         return response;
     }

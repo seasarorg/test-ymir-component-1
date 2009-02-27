@@ -72,8 +72,8 @@ abstract public class AbstractYmirProcessInterceptor implements
         return action;
     }
 
-    public Response responseCreatedByExceptionHandler(Object handler,
-            Response response) {
+    public Response responseCreatedByExceptionHandler(Request request,
+            Response response, Object handler) {
         return response;
     }
 }
