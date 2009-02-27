@@ -8,8 +8,11 @@ import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.Phase;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseType;
+import org.seasar.ymir.response.PassthroughResponse;
 
-public class VisitorForInvoking extends PageComponentVisitor<Object> {
+public class VisitorForInvoking extends PageComponentVisitor<Response> {
     private ActionManager actionManager_;
 
     private ComponentMetaDataFactory componentMetaDataFactory_;
@@ -23,18 +26,20 @@ public class VisitorForInvoking extends PageComponentVisitor<Object> {
         componentMetaDataFactory_ = componentMetaDataFactory;
     }
 
-    public Object process(PageComponent pageComponent) {
+    public Response process(PageComponent pageComponent) {
+        Response response = new PassthroughResponse();
+
         ComponentMetaData metaData = componentMetaDataFactory_
                 .getInstance(pageComponent.getPageClass());
-        Method[] methods = metaData.getMethods(phase_);
-        if (methods != null) {
-            for (int i = 0; i < methods.length; i++) {
-                actionManager_.newAction(
-                        pageComponent.getPage(),
-                        actionManager_.newMethodInvoker(pageComponent
-                                .getPageClass(), methods[i])).invoke();
+
+        for (Method method : metaData.getMethods(phase_)) {
+            response = actionManager_.invokeAction(actionManager_.newAction(
+                    pageComponent.getPage(), pageComponent.getPageClass(),
+                    method));
+            if (response.getType() != ResponseType.PASSTHROUGH) {
+                break;
             }
         }
-        return null;
+        return response;
     }
 }

@@ -2,6 +2,8 @@ package org.seasar.ymir.impl;
 
 import java.lang.reflect.Method;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
@@ -9,6 +11,7 @@ import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
 import org.seasar.ymir.scope.ScopeManager;
@@ -17,6 +20,8 @@ public class ActionManagerImpl implements ActionManager {
     private ResponseConstructorSelector responseConstructorSelector_;
 
     private ScopeManager scopeManager_;
+
+    private static final Log log_ = LogFactory.getLog(ActionManagerImpl.class);
 
     @Binding(bindingType = BindingType.MUST)
     public void setResponseConstructorSelector(
@@ -55,6 +60,24 @@ public class ActionManagerImpl implements ActionManager {
 
     public Action newVoidAction(Object page) {
         return newAction(page, VoidMethodInvoker.INSTANCE);
+    }
+
+    public Response invokeAction(Action action) {
+        Response response = new PassthroughResponse();
+
+        if (action != null && action.shouldInvoke()) {
+            if (log_.isDebugEnabled()) {
+                log_.debug("INVOKE: " + action.getTarget().getClass() + "#"
+                        + action.getMethodInvoker());
+            }
+            response = constructResponse(action.getTarget(), action
+                    .getReturnType(), action.invoke());
+            if (log_.isDebugEnabled()) {
+                log_.debug("RESPONSE: " + response);
+            }
+        }
+
+        return response;
     }
 
     @SuppressWarnings("unchecked")

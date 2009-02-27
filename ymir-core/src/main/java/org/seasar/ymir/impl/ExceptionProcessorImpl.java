@@ -93,15 +93,15 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     }
 
     @SuppressWarnings( { "unchecked", "deprecation" })
-    public Response process(Request request, Throwable t) {
+    public Response process(Request request, Throwable target) {
         boolean exceptionHandlerInterfaceEnabled = isExceptionHandlerInterfaceEnabled();
 
-        t = ThrowableUtils.unwrap(t);
-        log_.error("Exception has occured", t);
+        target = ThrowableUtils.unwrap(target);
+        log_.error("Exception has occured", target);
 
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             Response response = ymirProcessInterceptors_[i]
-                    .exceptionProcessingStarted(request, t);
+                    .exceptionProcessingStarted(request, target);
             if (response != null) {
                 if (log_.isDebugEnabled()) {
                     log_.debug("Response has been created by: "
@@ -113,7 +113,8 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
 
         if (ymir_.isUnderDevelopment()) {
             for (int i = 0; i < updaters_.length; i++) {
-                Response response = updaters_[i].updateByException(request, t);
+                Response response = updaters_[i].updateByException(request,
+                        target);
                 if (response != null) {
                     if (log_.isDebugEnabled()) {
                         log_.debug("Response has been created by: "
@@ -137,7 +138,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                     Class<?> handlerClass = pageComponent.getPageClass();
 
                     Method actionMethod;
-                    exceptionClass = t.getClass();
+                    exceptionClass = target.getClass();
                     do {
                         actionMethod = findActionMethod(handlerClass,
                                 exceptionClass, false);
@@ -147,12 +148,12 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                     if (actionMethod != null) {
                         try {
                             response = process(request, handler, handlerClass,
-                                    actionMethod, exceptionClass, t);
-                        } catch (Throwable t2) {
-                            t = ThrowableUtils.unwrap(t2);
+                                    actionMethod, exceptionClass, target);
+                        } catch (Throwable t) {
+                            target = ThrowableUtils.unwrap(t);
                             log_.debug(
                                     "Exception handler re-throwed exception in Page class: "
-                                            + handlerClass.getName(), t);
+                                            + handlerClass.getName(), target);
                         }
                     }
                 }
@@ -162,7 +163,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         if (response == null) {
             S2Container container = getS2Container();
             ComponentDef handlerCd = null;
-            exceptionClass = t.getClass();
+            exceptionClass = target.getClass();
             do {
                 String componentName = getComponentName(exceptionClass);
                 if (container.hasComponentDef(componentName)) {
@@ -175,7 +176,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                 // 見つからなかった場合はデフォルトのハンドラを探す。
                 // こうしているのは、(ExceptionHandler)Creatorで定義したコンポーネントは
                 // あらゆるコンポーネント定義よりも優先順位が低くなってしまうため。
-                exceptionClass = t.getClass();
+                exceptionClass = target.getClass();
                 do {
                     String componentName = NAMEPREFIX_DEFAULT
                             + getComponentName(exceptionClass);
@@ -204,7 +205,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                 throw new IllegalClientCodeRuntimeException(sb.toString());
             }
             response = process(request, handler, handlerClass, actionMethod,
-                    exceptionClass, t);
+                    exceptionClass, target);
         }
 
         if (log_.isDebugEnabled()) {
@@ -226,25 +227,25 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         }
 
         if (log_.isDebugEnabled()) {
-            log_.debug("Final response: " + response);
+            log_.debug("FINAL RESPONSE: " + response);
         }
 
         // ExceptionHandlerコンポーネントと例外オブジェクトをattributeとしてバインドしておく。
         request.setAttribute(ATTR_HANDLER, handler);
-        request.setAttribute(ATTR_EXCEPTION, t);
+        request.setAttribute(ATTR_EXCEPTION, target);
 
         return response;
     }
 
     Response process(Request request, Object handler, Class<?> handlerClass,
-            Method actionMethod, Class<?> exceptionClass, Throwable t) {
+            Method actionMethod, Class<?> exceptionClass, Throwable target) {
         if (log_.isDebugEnabled()) {
             log_.debug("Process exception handling. ExceptionHandler: "
                     + handler);
         }
 
         final Action originalAction = getAction(handler, handlerClass,
-                actionMethod, t);
+                actionMethod, target);
         Action action = originalAction;
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             action = ymirProcessInterceptors_[i]
@@ -252,7 +253,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                             action);
         }
 
-        return invokeAction(action);
+        return actionManager_.invokeAction(action);
     }
 
     @SuppressWarnings("deprecation")
@@ -291,24 +292,6 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
             Throwable targetThrowable) {
         return actionManager_.newAction(handler, handlerClass, method,
                 new Object[] { targetThrowable });
-    }
-
-    Response invokeAction(Action action) {
-        Response response = new PassthroughResponse();
-
-        if (action != null && action.shouldInvoke()) {
-            if (log_.isDebugEnabled()) {
-                log_.debug("INVOKE: " + action.getTarget().getClass() + "#"
-                        + action.getMethodInvoker());
-            }
-            response = actionManager_.constructResponse(action.getTarget(),
-                    action.getReturnType(), action.invoke());
-            if (log_.isDebugEnabled()) {
-                log_.debug("RESPONSE: " + response);
-            }
-        }
-
-        return response;
     }
 
     String getComponentName(Class<?> clazz) {

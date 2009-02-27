@@ -12,6 +12,8 @@ import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.util.ClassUtils;
 
 public class ComponentMetaDataImpl implements ComponentMetaData {
+    private static final Method[] EMPTY_METHODS = new Method[0];
+
     private AnnotationHandler annotationHandler_;
 
     private Map<Phase, Method[]> methodsMap_ = new HashMap<Phase, Method[]>();
@@ -40,6 +42,10 @@ public class ComponentMetaDataImpl implements ComponentMetaData {
     }
 
     public Method[] getMethods(Phase phase) {
-        return methodsMap_.get(phase);
+        Method[] methods = methodsMap_.get(phase);
+        if (methods == null) {
+            methods = EMPTY_METHODS;
+        }
+        return methods;
     }
 }

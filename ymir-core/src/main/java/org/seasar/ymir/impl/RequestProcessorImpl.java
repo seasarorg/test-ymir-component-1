@@ -63,11 +63,11 @@ public class RequestProcessorImpl implements RequestProcessor {
 
     private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
 
-    private PageComponentVisitor<Object> visitorForInvokingInPhasePageComponentCreated_;
+    private PageComponentVisitor<Response> visitorForInvokingInPhasePageComponentCreated_;
 
-    private PageComponentVisitor<Object> visitorForInvokingInPhaseActionInvoking_;
+    private PageComponentVisitor<Response> visitorForInvokingInPhaseActionInvoking_;
 
-    private PageComponentVisitor<Object> visitorForInvokingInPhaseActionInvoked_;
+    private PageComponentVisitor<Response> visitorForInvokingInPhaseActionInvoked_;
 
     private final Log log_ = LogFactory.getLog(RequestProcessorImpl.class);
 
@@ -198,50 +198,73 @@ public class RequestProcessorImpl implements RequestProcessor {
                 .getCurrentDispatch());
 
         Response response = new PassthroughResponse();
+        Object page = null;
 
         if (dispatch.isMatched()) {
             PageComponent pageComponent = createPageComponent(dispatch
                     .getPageComponentName());
+
+            // dispatch.isMatched()がtrueの場合でもpageComponentがnullになることがある
+            // ことに注意。
+            // 具体的には、page名が割り当てられているのにまだ対応するPageクラスが作成されていない場合、
+            // またはDeniedPathMappingImplに関して処理をしている場合にnullになる。
             if (pageComponent != null) {
-                dispatch.setPageComponent(pageComponent);
+                do {
+                    dispatch.setPageComponent(pageComponent);
 
-                pageComponent
-                        .accept(visitorForInvokingInPhasePageComponentCreated_);
+                    Response r = pageComponent
+                            .accept(visitorForInvokingInPhasePageComponentCreated_);
+                    if (r.getType() != ResponseType.PASSTHROUGH) {
+                        response = r;
+                        break;
+                    }
 
-                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                    pageComponent = ymirProcessInterceptors_[i]
-                            .pageComponentCreated(request, pageComponent);
-                }
+                    for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                        pageComponent = ymirProcessInterceptors_[i]
+                                .pageComponentCreated(request, pageComponent);
+                    }
 
-                // リクエストに対応するアクションを決定する。
+                    // リクエストに対応するアクションを決定する。
 
-                final Action originalAction = dispatch.getMatchedPathMapping()
-                        .getAction(pageComponent, request);
-                dispatch.setAction(originalAction);
+                    final Action originalAction = dispatch
+                            .getMatchedPathMapping().getAction(pageComponent,
+                                    request);
+                    dispatch.setAction(originalAction);
 
-                Action action = originalAction;
-                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                    action = ymirProcessInterceptors_[i].actionInvoking(
-                            request, originalAction, action);
-                    dispatch.setAction(action);
-                }
+                    Action action = originalAction;
+                    for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                        action = ymirProcessInterceptors_[i].actionInvoking(
+                                request, originalAction, action);
+                        dispatch.setAction(action);
+                    }
+                    page = (action != null ? action.getTarget() : null);
 
-                if (action == null
-                        && dispatch.getDispatcher() == Dispatcher.REQUEST) {
-                    // リクエストに対応するアクションが存在しない場合はリクエストを受け付けない。
-                    // ただしforwardの時はアクションがなくても良いことにしている。
-                    // これは、forward先のパスに対応するPageクラスでは_prerender()だけ
-                    // 呼びたい場合にアクションメソッドを省略できるようにするため。
-                    throw new ActionNotFoundRuntimeException(
-                            dispatch.getPath(), request.getMethod());
-                }
+                    if (action == null
+                            && dispatch.getDispatcher() == Dispatcher.REQUEST) {
+                        // リクエストに対応するアクションが存在しない場合はリクエストを受け付けない。
+                        // ただしforwardの時はアクションがなくても良いことにしている。
+                        // これは、forward先のパスに対応するPageクラスでは_prerender()だけ
+                        // 呼びたい場合にアクションメソッドを省略できるようにするため。
+                        throw new ActionNotFoundRuntimeException(dispatch
+                                .getPath(), request.getMethod());
+                    }
 
-                pageComponent.accept(visitorForInvokingInPhaseActionInvoking_);
+                    r = pageComponent
+                            .accept(visitorForInvokingInPhaseActionInvoking_);
+                    if (r.getType() != ResponseType.PASSTHROUGH) {
+                        response = r;
+                        break;
+                    }
 
-                response = adjustResponse(dispatch, invokeAction(action),
-                        action != null ? action.getTarget() : null);
+                    response = actionManager_.invokeAction(action);
 
-                pageComponent.accept(visitorForInvokingInPhaseActionInvoked_);
+                    r = pageComponent
+                            .accept(visitorForInvokingInPhaseActionInvoked_);
+                    if (r.getType() != ResponseType.PASSTHROUGH) {
+                        response = r;
+                        break;
+                    }
+                } while (false);
 
                 // 画面描画のためのAction呼び出しを行なう。
                 //
@@ -259,16 +282,16 @@ public class RequestProcessorImpl implements RequestProcessor {
                 // Pageコンポーネントをattributeとしてバインドしておく。
                 request.setAttribute(ATTR_PAGECOMPONENT, pageComponent);
                 request.setAttribute(ATTR_SELF, pageComponent.getPage());
-            } else if (dispatch.getPageComponentName() != null) {
-                // pageComponentがnullになるのは、page名が割り当てられているのにまだ
-                // 対応するPageクラスが作成されていない場合、またはDeniedPathMappingImpl
-                // に関して処理をしている場合。
-                // 前者の場合自動生成機能でクラスやテンプレートの自動生成が適切にできるように、
-                // デフォルト値からResponseを作るようにしている。
-                // （例えば、リクエストパス名がテンプレートパス名ではない場合に、リクエストパス名で
-                // テンプレートが作られてしまうとうれしくない。）
-                response = adjustResponse(dispatch, response, null);
             }
+            if (log_.isDebugEnabled()) {
+                log_.debug("Raw response: " + response);
+            }
+
+            // pageComponentがnullの場合でも、自動生成機能でクラスやテンプレートの自動生成が
+            // 適切にできるようにデフォルト値からResponseを作るようにする。
+            // （例えば、リクエストパス名がテンプレートパス名ではない場合に、リクエストパス名で
+            // テンプレートが作られてしまうとうれしくない。）
+            response = adjustResponse(dispatch, response, page);
 
             if (log_.isDebugEnabled()) {
                 log_.debug("FINAL RESPONSE: " + response);
@@ -362,24 +385,6 @@ public class RequestProcessorImpl implements RequestProcessor {
         return request.getAttribute(ATTR_SELF);
     }
 
-    Response invokeAction(final Action action) {
-        Response response = new PassthroughResponse();
-
-        if (action != null && action.shouldInvoke()) {
-            if (log_.isDebugEnabled()) {
-                log_.debug("INVOKE: " + action.getTarget().getClass() + "#"
-                        + action.getMethodInvoker());
-            }
-            response = actionManager_.constructResponse(action.getTarget(),
-                    action.getReturnType(), action.invoke());
-            if (log_.isDebugEnabled()) {
-                log_.debug("RESPONSE: " + response);
-            }
-        }
-
-        return response;
-    }
-
     Response adjustResponse(Dispatch dispatch, Response response, Object page) {
         if (response.getType() == ResponseType.PASSTHROUGH
                 && !fileResourceExists(dispatch.getPath())) {
@@ -389,10 +394,6 @@ public class RequestProcessorImpl implements RequestProcessor {
                 response = actionManager_.constructResponse(page, Object.class,
                         returnValue);
             }
-        }
-
-        if (log_.isDebugEnabled()) {
-            log_.debug("[4]RESPONSE: " + response);
         }
 
         return response;
@@ -430,7 +431,8 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
 
         public Object process(PageComponent pageComponent) {
-            invokeAction(matched_.getPrerenderAction(pageComponent, request_));
+            actionManager_.invokeAction(matched_.getPrerenderAction(
+                    pageComponent, request_));
             return null;
         }
     }

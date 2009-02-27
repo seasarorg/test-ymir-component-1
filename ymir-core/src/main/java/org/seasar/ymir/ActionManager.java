@@ -17,6 +17,8 @@ public interface ActionManager {
 
     Action newVoidAction(Object page);
 
+    Response invokeAction(Action action);
+
     /**
      * 指定されたPageオブジェクトに関してアクションを実行した結果からResponseオブジェクトを構築します。
      * 
