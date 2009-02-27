@@ -45,9 +45,6 @@ import org.seasar.ymir.util.YmirUtils;
 public class YmirImpl implements Ymir {
     public static final String PARAM_METHOD = "__ymir__method";
 
-    private static final String ATTR_RESPONSE = Globals.IDPREFIX
-            + "impl.response";
-
     private LifecycleListener[] lifecycleListeners_ = new LifecycleListener[0];
 
     private Configuration configuration_;
@@ -171,12 +168,25 @@ public class YmirImpl implements Ymir {
         if (matched == null) {
             matched = findMatchedPathMapping(path, request.getMethod());
         }
-        // proceedされてきた場合はqueryStringとして適切な値が渡ってこないので、ここで
-        // 差し替えている。
         if (dispatcher == Dispatcher.FORWARD) {
             Response response = (Response) request.getAttribute(ATTR_RESPONSE);
             if (!response.isSubordinate()) {
+                // proceedされてきた場合。
+
+                // queryStringとして適切な値が渡ってこないので、ここで差し替える。
                 queryString = ServletUtils.getQueryString(response.getPath());
+
+                // 前のページの情報を削除しておく。
+                // XXX ATTR_NOTESは残した方が便利な気がするので消していない。
+                request.removeAttribute(RequestProcessor.ATTR_SELF);
+                request.removeAttribute(RequestProcessor.ATTR_PAGECOMPONENT);
+
+                // 自画面にproceedされたケースに重複して初期化してしまわないよう、
+                // S2からPageコンポーネントを削除しておく。
+                String pageComponentName = matched.getPageComponentName();
+                if (pageComponentName != null) {
+                    request.removeAttribute(pageComponentName);
+                }
             }
         }
         request.enterDispatch(new DispatchImpl(request.getContextPath(), path,

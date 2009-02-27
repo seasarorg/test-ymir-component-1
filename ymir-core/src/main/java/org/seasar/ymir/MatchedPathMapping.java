@@ -32,6 +32,7 @@ public interface MatchedPathMapping {
      * パスに対応するPageコンポーネントの名前を返します。
      * 
      * @return パスに対応するPageコンポーネントの名前。
+     * nullが返されることもあります。
      */
     String getPageComponentName();
 

@@ -1,5 +1,7 @@
 package org.seasar.ymir.scope.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Action;
@@ -25,6 +27,8 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
     private ScopeManager scopeManager_;
 
     private PageComponentVisitor<?> visitorForInvokingInPhaseObjectInjected_;
+
+    private static final Log log_ = LogFactory.getLog(ScopeInterceptor.class);
 
     @Binding(bindingType = BindingType.MUST)
     public void setActionManager(ActionManager actionManager) {
@@ -86,21 +90,20 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
     @Override
     public Action exceptionHandlerActionInvoking(Request request,
             Action originalAction, Action action) {
-        Object handler = action.getTarget();
-        if (request == null
-                || request.getCurrentDispatch() == null
-                || request.getCurrentDispatch().getPageComponent() == null
-                || request.getCurrentDispatch().getPageComponent().getPage() != handler) {
-            // グローバルハンドラなので、各コンテキストが持つ属性をinjectする。
-            // 各コンテキストが持つ属性をinjectする。
+        // 各コンテキストが持つ属性をinjectする。
+        // Page内ハンドラの場合でも、インジェクト処理の前に例外が発生した場合などは
+        // インジェクトが必要かつインジェクトの処理自体に問題があったわけではないので
+        // インジェクト可能。したがってPage内ハンドラであってもインジェクトは行なう。
+        // このため例外の発生箇所によっては同一Pageで二度インジェクト処理が行なわれて
+        // しまうことがあるに注意。
 
-            PageComponent pageComponent = new PageComponentImpl(handler,
-                    handler.getClass());
-            // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
-            // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
-            pageComponent.accept(new VisitorForInjecting(null));
-            pageComponent.accept(new VisitorForPopulating(null));
-        }
+        Object handler = action.getTarget();
+        PageComponent pageComponent = new PageComponentImpl(handler, handler
+                .getClass());
+        // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
+        // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
+        pageComponent.accept(new VisitorForInjecting(null));
+        pageComponent.accept(new VisitorForPopulating(null));
 
         return action;
     }
@@ -108,16 +111,13 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
     @Override
     public Response responseCreatedByExceptionHandler(Request request,
             Response response, Object handler) {
-        if (request == null
-                || request.getCurrentDispatch() == null
-                || request.getCurrentDispatch().getPageComponent() == null
-                || request.getCurrentDispatch().getPageComponent().getPage() != handler) {
-            // グローバルハンドラなので、各コンテキストに属性をoutjectする。
+        // 各コンテキストに属性をoutjectする。
+        // Page内ハンドラであってもここでoutjectしないと正規のフローではもはや
+        // outjectされないため、ここでoutjectする。
 
-            PageComponent pageComponent = new PageComponentImpl(handler,
-                    handler.getClass());
-            pageComponent.accept(new VisitorForOutjecting(null));
-        }
+        PageComponent pageComponent = new PageComponentImpl(handler, handler
+                .getClass());
+        pageComponent.accept(new VisitorForOutjecting(null));
 
         return response;
     }
@@ -131,7 +131,13 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
 
         public Object process(PageComponent pageComponent) {
             // 各コンテキストが持つ属性をinjectする。
+            if (log_.isDebugEnabled()) {
+                log_.debug("Injection start");
+            }
             scopeManager_.injectScopeAttributes(pageComponent, actionName_);
+            if (log_.isDebugEnabled()) {
+                log_.debug("Injection end");
+            }
 
             return null;
         }
@@ -146,7 +152,13 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
 
         public Object process(PageComponent pageComponent) {
             // 各コンテキストが持つ属性をpopulateする。
+            if (log_.isDebugEnabled()) {
+                log_.debug("Population start");
+            }
             scopeManager_.populateScopeAttributes(pageComponent, actionName_);
+            if (log_.isDebugEnabled()) {
+                log_.debug("Population end");
+            }
 
             return null;
         }
@@ -161,7 +173,13 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
 
         public Object process(PageComponent pageComponent) {
             // 各コンテキストに属性をoutjectする。
+            if (log_.isDebugEnabled()) {
+                log_.debug("Outjection start");
+            }
             scopeManager_.outjectScopeAttributes(pageComponent, actionName_);
+            if (log_.isDebugEnabled()) {
+                log_.debug("Outjection end");
+            }
 
             return null;
         }

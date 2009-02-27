@@ -381,10 +381,6 @@ public class RequestProcessorImpl implements RequestProcessor {
         return getS2Container().hasComponentDef(componentKey);
     }
 
-    Object getRequestComponent(Request request) {
-        return request.getAttribute(ATTR_SELF);
-    }
-
     Response adjustResponse(Dispatch dispatch, Response response, Object page) {
         if (response.getType() == ResponseType.PASSTHROUGH
                 && !fileResourceExists(dispatch.getPath())) {
