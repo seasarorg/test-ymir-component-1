@@ -9,6 +9,7 @@ import org.seasar.ymir.scope.impl.ApplicationScope;
 import org.seasar.ymir.scope.impl.RequestParameterScope;
 import org.seasar.ymir.testing.YmirTestCase;
 
+@SuppressWarnings("deprecation")
 public class ScopeInterceptorITest extends YmirTestCase {
     public void test_Pageへのインジェクションとアウトジェクションが行なわれること() throws Exception {
         Request request = prepareForProcessing("/scopeInterceptorITest.html?value=aaa");

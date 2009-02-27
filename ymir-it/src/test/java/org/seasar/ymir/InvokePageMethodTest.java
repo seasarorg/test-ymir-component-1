@@ -2,24 +2,18 @@ package org.seasar.ymir;
 
 import java.util.List;
 
-import org.seasar.ymir.testing.PageTestCase;
+import org.seasar.ymir.testing.YmirTestCase;
 
 import com.example.web.InvokePageMethodTest2Page;
+import com.example.web.InvokePageMethodTest4Page;
 import com.example.web.InvokePageMethodTestPage;
 
-public class InvokePageMethodTest extends
-        PageTestCase<InvokePageMethodTestPage> {
-
-    @Override
-    protected Class<InvokePageMethodTestPage> getPageClass() {
-        return InvokePageMethodTestPage.class;
-    }
-
+public class InvokePageMethodTest extends YmirTestCase {
     public void test() throws Exception {
         Request request = prepareForProcessing("/invokePageMethodTest.html",
                 HttpMethod.GET);
         processRequest(request);
-        InvokePageMethodTestPage actual = getPage();
+        InvokePageMethodTestPage actual = getComponent(InvokePageMethodTestPage.class);
 
         List<Phase> list = actual.getList();
         assertEquals(3, list.size());
@@ -34,9 +28,28 @@ public class InvokePageMethodTest extends
         Request request = prepareForProcessing("/invokePageMethodTest2.html",
                 HttpMethod.GET);
         processRequest(request);
-        InvokePageMethodTest2Page actual = (InvokePageMethodTest2Page) request
-                .getAttribute("self");
+        InvokePageMethodTest2Page actual = getComponent(InvokePageMethodTest2Page.class);
 
         assertEquals("value", actual.getValue());
+    }
+
+    public void test_YMIR323_invokeするメソッドの返り値がpassthroughの場合は処理が継続すること()
+            throws Exception {
+        Request request = prepareForProcessing("/invokePageMethodTest3.html",
+                HttpMethod.GET);
+        Response response = processRequest(request);
+
+        assertEquals(ResponseType.REDIRECT, response.getType());
+    }
+
+    public void test_YMIR323_invokeするメソッドの返り値がpassthroughでない場合は遷移先が変更されること()
+            throws Exception {
+        Request request = prepareForProcessing("/invokePageMethodTest4.html",
+                HttpMethod.GET);
+        Response response = processRequest(request);
+
+        assertEquals(ResponseType.FORWARD, response.getType());
+        assertFalse("アクションは呼ばれないこと", getComponent(
+                InvokePageMethodTest4Page.class).isInvoked());
     }
 }
