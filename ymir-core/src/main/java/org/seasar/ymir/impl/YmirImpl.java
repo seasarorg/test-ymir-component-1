@@ -241,7 +241,7 @@ public class YmirImpl implements Ymir {
             try {
                 lifecycleListeners_[i].destroy();
             } catch (final Throwable t) {
-                log_.error("Can't destroy lifecycleListener: "
+                log_.warn("Can't destroy lifecycleListener: "
                         + lifecycleListeners_[i], t);
             }
         }

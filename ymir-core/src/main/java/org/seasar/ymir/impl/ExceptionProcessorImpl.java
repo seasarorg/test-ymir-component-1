@@ -94,10 +94,11 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
 
     @SuppressWarnings( { "unchecked", "deprecation" })
     public Response process(Request request, Throwable target) {
+        log_.debug("Exception has occured", target);
+
         boolean exceptionHandlerInterfaceEnabled = isExceptionHandlerInterfaceEnabled();
 
         target = ThrowableUtils.unwrap(target);
-        log_.error("Exception has occured", target);
 
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             Response response = ymirProcessInterceptors_[i]
@@ -146,14 +147,17 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                             && (exceptionClass = exceptionClass.getSuperclass()) != Object.class);
 
                     if (actionMethod != null) {
+                        log_.debug("Exception handler in Page ("
+                                + handlerClass.getName() + ")is handling it");
                         try {
                             response = process(request, handler, handlerClass,
                                     actionMethod, exceptionClass, target);
                         } catch (Throwable t) {
                             target = ThrowableUtils.unwrap(t);
-                            log_.debug(
-                                    "Exception handler re-throwed exception in Page class: "
-                                            + handlerClass.getName(), target);
+                            log_
+                                    .debug(
+                                            "In-page exception handler re-throwed exception",
+                                            target);
                         }
                     }
                 }
