@@ -108,7 +108,7 @@ public class ClassUtils {
     }
 
     public static Method getMethod(Object object, String methodName,
-            Class<?>[] parameterTypes) {
+            Class<?>... parameterTypes) {
         return getMethod(object.getClass(), methodName, parameterTypes);
     }
 
@@ -124,7 +124,7 @@ public class ClassUtils {
     }
 
     public static Method getMethod(Class<?> clazz, String methodName,
-            Class<?>[] parameterTypes) {
+            Class<?>... parameterTypes) {
         try {
             return clazz.getMethod(methodName, parameterTypes);
         } catch (SecurityException ex) {
