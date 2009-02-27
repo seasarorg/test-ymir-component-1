@@ -45,12 +45,12 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
 
     public String getBody() {
         StringBuilder sb = new StringBuilder();
-        sb.append("(name=\"").append(metaName_).append("\"");
+        sb.append("(name = \"").append(metaName_).append("\"");
         if (metaValue_.length > 0) {
-            sb.append(",value=").append(toLiteral(metaValue_));
+            sb.append(", value = ").append(toLiteral(metaValue_));
         }
         if (metaClassValue_.length > 0) {
-            sb.append(",classValue=").append(toLiteral(metaClassValue_));
+            sb.append(", classValue = ").append(toLiteral(metaClassValue_));
         }
         sb.append(")");
         return sb.toString();
@@ -67,7 +67,7 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
             String delim = "";
             for (int i = 0; i < objs.length; i++) {
                 sb.append(delim).append(toLiteral(objs[i]));
-                delim = ",";
+                delim = ", ";
             }
             sb.append("}");
             return sb.toString();

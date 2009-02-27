@@ -1,16 +1,16 @@
 package org.seasar.ymir.extension.freemarker;
 
 public class Hoe6PageBase {
-    @org.seasar.ymir.annotation.Meta(name="property",value="form")
+    @org.seasar.ymir.annotation.Meta(name = "property", value = "form")
     protected com.example.dto.FormDto form_ = new com.example.dto.FormDto();
 
 
-    @org.seasar.ymir.annotation.Meta(name="formProperty",value="form")
+    @org.seasar.ymir.annotation.Meta(name = "formProperty", value = "form")
     public String getName() {
         return form_.getName();
     }
 
-    @org.seasar.ymir.annotation.Meta(name="formProperty",value="form")
+    @org.seasar.ymir.annotation.Meta(name = "formProperty", value = "form")
     public void setName(String name) {
         form_.setName(name);
     }

@@ -1,22 +1,22 @@
 package org.seasar.ymir.extension.freemarker;
 
-@org.seasar.ymir.constraint.annotation.Required(allowWhitespace=true,completely=false,matchedParameterRequired=false,value="test")
+@org.seasar.ymir.constraint.annotation.Required("test")
 public class HoePageBase {
     protected String hoe_;
 
 
-    @org.seasar.ymir.constraint.annotation.Required(allowWhitespace=true,completely=false,matchedParameterRequired=false,value="get")
-    @org.seasar.ymir.constraint.annotation.SuppressConstraints({org.seasar.ymir.constraint.ConstraintType.VALIDATION,org.seasar.ymir.constraint.ConstraintType.PERMISSION})
+    @org.seasar.ymir.constraint.annotation.Required("get")
+    @org.seasar.ymir.constraint.annotation.SuppressConstraints
     public String getHoe() {
         return hoe_;
     }
 
-    @org.seasar.ymir.constraint.annotation.Required(allowWhitespace=true,completely=false,matchedParameterRequired=false,value="set")
+    @org.seasar.ymir.constraint.annotation.Required("set")
     public void setHoe(String hoe) {
         hoe_ = hoe;
     }
 
-    @org.seasar.ymir.constraint.annotation.Required(allowWhitespace=true,completely=false,matchedParameterRequired=false,value="method")
+    @org.seasar.ymir.constraint.annotation.Required("method")
     public void _get() {
 
     }

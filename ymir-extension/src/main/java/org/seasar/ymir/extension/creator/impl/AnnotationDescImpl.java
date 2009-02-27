@@ -2,18 +2,16 @@ package org.seasar.ymir.extension.creator.impl;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.seasar.ymir.annotation.Alias;
-import org.seasar.ymir.annotation.handler.impl.AliasAnnotationElement;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
+import org.seasar.ymir.util.MethodUtils;
 
 public class AnnotationDescImpl implements AnnotationDesc {
+    private AnnotationsMetaData metaData_ = new AnnotationsMetaData();
 
     private String name_;
 
@@ -23,68 +21,56 @@ public class AnnotationDescImpl implements AnnotationDesc {
         analyze(annotation);
     }
 
+    public AnnotationDescImpl(String name) {
+        this(name, "");
+    }
+
+    public AnnotationDescImpl(String name, String body) {
+        name_ = name;
+        body_ = body;
+    }
+
     void analyze(Annotation annotation) {
         Class<? extends Annotation> type = annotation.annotationType();
         name_ = type.getName();
 
         Method[] methods = type.getDeclaredMethods();
-        if (methods.length == 0) {
-            body_ = "";
-        } else {
-            boolean hasValueMethod = false;
-            Set<Method> methodSet = new TreeSet<Method>(
-                    new Comparator<Method>() {
-                        public int compare(Method o1, Method o2) {
-                            return o1.getName().compareTo(o2.getName());
-                        }
-                    });
-            for (int i = 0; i < methods.length; i++) {
-                if (shouldIgnore(type, methods[i].getName())) {
-                    continue;
-                }
-                methodSet.add(methods[i]);
-                if ("value".equals(methods[i].getName())) {
-                    hasValueMethod = true;
-                }
+        Set<Method> methodSet = new TreeSet<Method>(new Comparator<Method>() {
+            public int compare(Method o1, Method o2) {
+                return o1.getName().compareTo(o2.getName());
             }
-            StringBuilder sb = new StringBuilder();
+        });
+        for (int i = 0; i < methods.length; i++) {
+            String attribute = methods[i].getName();
+            if (metaData_.isDefaultValue(annotation, attribute, MethodUtils
+                    .invoke(methods[i], annotation))) {
+                continue;
+            }
+            methodSet.add(methods[i]);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        if (!methodSet.isEmpty()) {
+            boolean simple = methodSet.size() == 1
+                    && "value".equals(methodSet.iterator().next().getName());
+
             sb.append("(");
             String delim = "";
-            for (Iterator<Method> itr = methodSet.iterator(); itr.hasNext();) {
-                Method method = itr.next();
+            for (Method method : methodSet) {
                 sb.append(delim);
-                delim = ",";
-                try {
-                    append(sb, method.getName(), method.getReturnType(), method
-                            .invoke(annotation, new Object[0]), hasValueMethod
-                            && methods.length == 1);
-                } catch (IllegalArgumentException ex) {
-                    throw new RuntimeException(ex);
-                } catch (IllegalAccessException ex) {
-                    throw new RuntimeException(ex);
-                } catch (InvocationTargetException ex) {
-                    throw new RuntimeException(ex);
-                }
+                delim = ", ";
+                append(sb, method.getName(), method.getReturnType(),
+                        MethodUtils.invoke(method, annotation), simple);
             }
             sb.append(")");
-            body_ = sb.toString();
         }
+        body_ = sb.toString();
     }
 
-    boolean shouldIgnore(Class<? extends Annotation> annotatonType,
-            String methodName) {
-        if (annotatonType.isAnnotationPresent(Alias.class)
-                && methodName.equals(AliasAnnotationElement.PROP_ALIAS)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    void append(StringBuilder sb, String name, Class<?> type, Object value,
-            boolean isDefault) {
-        if (!isDefault) {
-            sb.append(name).append("=");
+    void append(StringBuilder sb, String attributeName, Class<?> type,
+            Object value, boolean omitAttributeName) {
+        if (!omitAttributeName) {
+            sb.append(attributeName).append(" = ");
         }
         if (type.isArray()) {
             Class<?> componentType = type.getComponentType();
@@ -96,7 +82,7 @@ public class AnnotationDescImpl implements AnnotationDesc {
                 String delim = "";
                 for (int i = 0; i < length; i++) {
                     sb.append(delim);
-                    delim = ",";
+                    delim = ", ";
                     append(sb, componentType, Array.get(value, i));
                 }
                 sb.append("}");
@@ -166,15 +152,6 @@ public class AnnotationDescImpl implements AnnotationDesc {
         }
         sb.append(string);
         return sb;
-    }
-
-    public AnnotationDescImpl(String name) {
-        this(name, "");
-    }
-
-    public AnnotationDescImpl(String name, String body) {
-        name_ = name;
-        body_ = body;
     }
 
     public Object clone() {

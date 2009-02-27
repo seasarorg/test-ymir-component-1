@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import org.seasar.ymir.scope.annotation.RequestParameter;
+
 public class Hoe {
 
     @Annotation3
@@ -60,5 +62,13 @@ public class Hoe {
 
     @Annotation2(annotation = @Annotation3)
     public void method15() {
+    }
+
+    @RequestParameter
+    public void RequestParameter() {
+    }
+
+    @RequestParameter(populateWhereNull = false)
+    public void RequestParameter2() {
     }
 }

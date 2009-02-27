@@ -57,7 +57,7 @@ public class MetasAnnotationDescImpl implements MetasAnnotationDesc {
         String delim = "";
         for (int i = 0; i < metaAnnotationDescs_.length; i++) {
             sb.append(delim).append(metaAnnotationDescs_[i].getString());
-            delim = ",";
+            delim = ", ";
         }
         if (metaAnnotationDescs_.length > 1) {
             sb.append("}");
