@@ -7,6 +7,7 @@ import org.seasar.framework.container.impl.S2ContainerImpl;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
 import org.seasar.ymir.cache.impl.CacheManagerImpl;
+import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.converter.impl.TypeConversionManagerImpl;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.mock.MockApplication;
@@ -161,8 +162,6 @@ public class ExceptionProcessorImplTest extends TestCase {
     public void testProcess_Page内ハンドラ_ExceptionHandlerアノテーション()
             throws Exception {
         final S2Container container = new S2ContainerImpl();
-        container.register(NullPointerExceptionHandler2.class,
-                "nullPointerExceptionHandler");
         ExceptionProcessorImpl target = newExceptionProcessorImpl(container);
 
         MockRequest request = new MockRequest();
@@ -200,5 +199,26 @@ public class ExceptionProcessorImplTest extends TestCase {
 
         assertNotNull(actual);
         assertTrue(actual instanceof PassthroughResponse);
+    }
+
+    public void testProcess_Page内ハンドラでExceptionがスローされたらグローバルハンドラが処理すること()
+            throws Exception {
+        final S2Container container = new S2ContainerImpl();
+        container.register(ValidationFailedExceptionHandler.class,
+                "validationFailedExceptionHandler");
+        ExceptionProcessorImpl target = newExceptionProcessorImpl(container);
+
+        MockRequest request = new MockRequest();
+        MockDispatch dispatch = new MockDispatch();
+        dispatch.setPageComponent(new PageComponentImpl(new Page3(),
+                Page3.class));
+        request.enterDispatch(dispatch);
+
+        Response actual = target.process(request,
+                new IllegalArgumentException());
+
+        assertNotNull(actual);
+        assertTrue(actual instanceof RedirectResponse);
+        assertEquals("path", ((RedirectResponse) actual).getPath());
     }
 }

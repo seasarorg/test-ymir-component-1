@@ -125,31 +125,41 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         }
 
         Object handler = null;
-        Class<?> handlerClass = null;
-        Method actionMethod = null;
         Class<?> exceptionClass = null;
+        Response response = null;
+
         if (request != null) {
             Dispatch dispatch = request.getCurrentDispatch();
             if (dispatch != null) {
                 PageComponent pageComponent = dispatch.getPageComponent();
                 if (pageComponent != null) {
-                    Object page = pageComponent.getPage();
-                    Class<?> pageClass = pageComponent.getPageClass();
+                    handler = pageComponent.getPage();
+                    Class<?> handlerClass = pageComponent.getPageClass();
 
+                    Method actionMethod;
                     exceptionClass = t.getClass();
                     do {
-                        actionMethod = findActionMethod(pageClass,
+                        actionMethod = findActionMethod(handlerClass,
                                 exceptionClass, false);
                     } while (actionMethod == null
                             && (exceptionClass = exceptionClass.getSuperclass()) != Object.class);
+
                     if (actionMethod != null) {
-                        handler = page;
-                        handlerClass = pageClass;
+                        try {
+                            response = process(request, handler, handlerClass,
+                                    actionMethod, exceptionClass, t);
+                        } catch (Throwable t2) {
+                            t = ThrowableUtils.unwrap(t2);
+                            log_.debug(
+                                    "Exception handler re-throwed exception in Page class: "
+                                            + handlerClass.getName(), t);
+                        }
                     }
                 }
             }
         }
-        if (actionMethod == null) {
+
+        if (response == null) {
             S2Container container = getS2Container();
             ComponentDef handlerCd = null;
             exceptionClass = t.getClass();
@@ -179,8 +189,9 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
             // この時点でhandlerCdがnullならymir-convention.diconの記述ミス。
 
             handler = handlerCd.getComponent();
-            handlerClass = handlerCd.getComponentClass();
-            actionMethod = findActionMethod(handlerClass, exceptionClass, true);
+            Class<?> handlerClass = handlerCd.getComponentClass();
+            Method actionMethod = findActionMethod(handlerClass,
+                    exceptionClass, true);
             if (actionMethod == null) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("Exception handler class must have"
@@ -192,21 +203,10 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                 sb.append(": ").append(handlerClass.getName());
                 throw new IllegalClientCodeRuntimeException(sb.toString());
             }
-        }
-        if (log_.isDebugEnabled()) {
-            log_.debug("ExceptionHandler: " + handler);
-        }
-
-        final Action originalAction = getAction(handler, handlerClass,
-                actionMethod, t);
-        Action action = originalAction;
-        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-            action = ymirProcessInterceptors_[i]
-                    .exceptionHandlerActionInvoking(request, originalAction,
-                            action);
+            response = process(request, handler, handlerClass, actionMethod,
+                    exceptionClass, t);
         }
 
-        Response response = invokeAction(action);
         if (log_.isDebugEnabled()) {
             log_.debug("Raw response: " + response);
         }
@@ -234,6 +234,25 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         request.setAttribute(ATTR_EXCEPTION, t);
 
         return response;
+    }
+
+    Response process(Request request, Object handler, Class<?> handlerClass,
+            Method actionMethod, Class<?> exceptionClass, Throwable t) {
+        if (log_.isDebugEnabled()) {
+            log_.debug("Process exception handling. ExceptionHandler: "
+                    + handler);
+        }
+
+        final Action originalAction = getAction(handler, handlerClass,
+                actionMethod, t);
+        Action action = originalAction;
+        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+            action = ymirProcessInterceptors_[i]
+                    .exceptionHandlerActionInvoking(request, originalAction,
+                            action);
+        }
+
+        return invokeAction(action);
     }
 
     @SuppressWarnings("deprecation")

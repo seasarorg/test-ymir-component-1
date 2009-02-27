@@ -155,14 +155,14 @@ public class ScopeManagerImpl implements ScopeManager {
         ScopeAttributeResolver[] resolvers = getMetaData(pageClass)
                 .getScopeAttributeResolversForParameters(method);
         Object[] params = new Object[types.length];
-        int buttonParamsIdx = 0;
+        int extendedParamsIdx = 0;
         for (int i = 0; i < types.length; i++) {
             if (resolvers[i] != null) {
                 params[i] = resolvers[i].getValue();
             } else {
                 Object value = null;
-                if (buttonParamsIdx < extendedParams.length) {
-                    value = extendedParams[buttonParamsIdx++];
+                if (extendedParamsIdx < extendedParams.length) {
+                    value = extendedParams[extendedParamsIdx++];
                 }
                 params[i] = typeConversionManager_.convert(value, types[i],
                         annotationHandler_.getMarkedParameterAnnotations(
