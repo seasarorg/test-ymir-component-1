@@ -83,13 +83,7 @@ public class ServletUtils {
         } else if (dispatcher == Dispatcher.FORWARD) {
             return request.getContextPath();
         } else {
-            String contextPath = (String) request
-                    .getAttribute(ATTR_FORWARD_CONTEXT_PATH);
-            // 念のため。
-            if (contextPath == null) {
-                contextPath = request.getContextPath();
-            }
-            return contextPath;
+            return request.getContextPath();
         }
     }
 
@@ -185,17 +179,8 @@ public class ServletUtils {
             servletPath = request.getServletPath();
             pathInfo = request.getPathInfo();
         } else {
-            servletPath = (String) request
-                    .getAttribute(ATTR_FORWARD_SERVLET_PATH);
-            // 念のため。
-            if (servletPath == null) {
-                servletPath = request.getServletPath();
-            }
-            pathInfo = (String) request.getAttribute(ATTR_FORWARD_PATH_INFO);
-            // 念のため。
-            if (pathInfo == null) {
-                pathInfo = request.getPathInfo();
-            }
+            servletPath = request.getServletPath();
+            pathInfo = request.getPathInfo();
         }
         sb.append(servletPath);
         if (pathInfo != null) {
@@ -242,13 +227,7 @@ public class ServletUtils {
         } else if (dispatcher == Dispatcher.FORWARD) {
             return request.getQueryString();
         } else {
-            String queryString = (String) request
-                    .getAttribute(ATTR_FORWARD_QUERY_STRING);
-            // 念のため。
-            if (queryString == null) {
-                queryString = request.getQueryString();
-            }
-            return queryString;
+            return request.getQueryString();
         }
     }
 

@@ -78,6 +78,7 @@ public class ResponseProcessorImpl implements ResponseProcessor {
         switch (response.getType()) {
         case PASSTHROUGH:
             populateHeaders(response, httpResponse);
+
             return constructResponseFilter(httpRequest, httpResponse, request);
 
         case FORWARD:
