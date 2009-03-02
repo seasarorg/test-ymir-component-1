@@ -7,9 +7,13 @@ import org.apache.commons.logging.LogFactory;
 import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.handler.ScopeAttributeOutjector;
+import org.seasar.ymir.util.ClassUtils;
 
 public class ScopeAttributeOutjectorImpl extends AbstractScopeAttributeHandler
         implements ScopeAttributeOutjector {
+    private static final Log log_ = LogFactory
+            .getLog(ScopeAttributeOutjectorImpl.class);
+
     public ScopeAttributeOutjectorImpl(String name, Scope scope,
             Method outjectionMethod, boolean outjectWhereNull,
             String[] enabledActionNames) {
@@ -32,6 +36,11 @@ public class ScopeAttributeOutjectorImpl extends AbstractScopeAttributeHandler
                             + method_, t);
         }
         if (value != null || invokeWhereNull_) {
+            if (log_.isDebugEnabled()) {
+                log_.debug(ClassUtils.getShorterName(component) + " -> "
+                        + ClassUtils.getShorterName(scope_) + ": property="
+                        + name_ + ", value=" + value);
+            }
             scope_.setAttribute(name_, value);
         }
     }

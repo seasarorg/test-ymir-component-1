@@ -10,6 +10,7 @@ import org.seasar.ymir.scope.AttributeNotFoundRuntimeException;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.handler.ScopeAttributeInjector;
+import org.seasar.ymir.util.ClassUtils;
 
 public class ScopeAttributeInjectorImpl extends AbstractScopeAttributeHandler
         implements ScopeAttributeInjector {
@@ -20,6 +21,9 @@ public class ScopeAttributeInjectorImpl extends AbstractScopeAttributeHandler
     private boolean required_;
 
     private ScopeManager scopeManager_;
+
+    private static final Log log_ = LogFactory
+            .getLog(ScopeAttributeInjectorImpl.class);
 
     public ScopeAttributeInjectorImpl(String name, Class<?> type,
             Annotation[] hint, Scope scope, Method injectionMethod,
@@ -47,6 +51,11 @@ public class ScopeAttributeInjectorImpl extends AbstractScopeAttributeHandler
         }
 
         if (value != null || invokeWhereNull_) {
+            if (log_.isDebugEnabled()) {
+                log_.debug(ClassUtils.getShorterName(scope_) + " -> "
+                        + ClassUtils.getShorterName(component) + ": property="
+                        + name_ + ", value=" + value);
+            }
             boolean removeValue = false;
             try {
                 method_.invoke(component, new Object[] { value });

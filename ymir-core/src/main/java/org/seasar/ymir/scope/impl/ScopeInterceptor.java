@@ -17,6 +17,7 @@ import org.seasar.ymir.impl.PageComponentImpl;
 import org.seasar.ymir.impl.VisitorForInvoking;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.scope.ScopeManager;
+import org.seasar.ymir.util.ClassUtils;
 
 public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
 
@@ -132,11 +133,15 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
         public Object process(PageComponent pageComponent) {
             // 各コンテキストが持つ属性をinjectする。
             if (log_.isDebugEnabled()) {
-                log_.debug("Injection start");
+                log_.debug("Injection to "
+                        + ClassUtils.getShorterName(pageComponent
+                                .getPageClass()) + " start");
             }
             scopeManager_.injectScopeAttributes(pageComponent, actionName_);
             if (log_.isDebugEnabled()) {
-                log_.debug("Injection end");
+                log_.debug("Injection to "
+                        + ClassUtils.getShorterName(pageComponent
+                                .getPageClass()) + " end");
             }
 
             return null;
@@ -153,11 +158,15 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
         public Object process(PageComponent pageComponent) {
             // 各コンテキストが持つ属性をpopulateする。
             if (log_.isDebugEnabled()) {
-                log_.debug("Population start");
+                log_.debug("Population to "
+                        + ClassUtils.getShorterName(pageComponent
+                                .getPageClass()) + " start");
             }
             scopeManager_.populateScopeAttributes(pageComponent, actionName_);
             if (log_.isDebugEnabled()) {
-                log_.debug("Population end");
+                log_.debug("Population to "
+                        + ClassUtils.getShorterName(pageComponent
+                                .getPageClass()) + " end");
             }
 
             return null;
@@ -174,11 +183,15 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
         public Object process(PageComponent pageComponent) {
             // 各コンテキストに属性をoutjectする。
             if (log_.isDebugEnabled()) {
-                log_.debug("Outjection start");
+                log_.debug("Outjection from "
+                        + ClassUtils.getShorterName(pageComponent
+                                .getPageClass()) + " start");
             }
             scopeManager_.outjectScopeAttributes(pageComponent, actionName_);
             if (log_.isDebugEnabled()) {
-                log_.debug("Outjection end");
+                log_.debug("Outjection from "
+                        + ClassUtils.getShorterName(pageComponent
+                                .getPageClass()) + " end");
             }
 
             return null;

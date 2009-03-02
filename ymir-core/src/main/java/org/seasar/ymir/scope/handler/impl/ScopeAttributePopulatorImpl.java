@@ -134,17 +134,17 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
                 return;
             }
 
-            if (log_.isDebugEnabled()) {
-                log_.debug("[POPULATE] Set "
-                        + ClassUtils.getShorterName(component) + "#" + name
-                        + " from " + ClassUtils.getShorterName(scope_));
-            }
             Object value = scopeManager_.getAttribute(scope_, name, handler
                     .getPropertyType(), annotationHandler_
                     .getMarkedAnnotations(handler.getWriteMethod(),
                             TypeConversionHint.class), false, true);
 
             if (value != null || invokeWhereNull_) {
+                if (log_.isDebugEnabled()) {
+                    log_.debug(ClassUtils.getShorterName(scope_) + " -> "
+                            + ClassUtils.getShorterName(component)
+                            + ": property=" + name + ", value=" + value);
+                }
                 boolean removeValue = false;
                 try {
                     handler.setProperty(value);
