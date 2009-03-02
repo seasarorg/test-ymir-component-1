@@ -45,18 +45,30 @@ public class LazyPathMetaData implements PathMetaData {
         sourceCreator_ = sourceCreator;
         path_ = path;
         method_ = method;
-        forwardPath_ = strip(forwardPath);
+        forwardPath_ = stripQueryString(forwardPath);
     }
 
-    String strip(String path) {
+    String stripQueryString(String path) {
         if (path == null) {
             return null;
         }
-        int question = path.indexOf('?');
-        if (question < 0) {
+        int index = path.indexOf('?');
+        if (index < 0) {
+            return stripPathParameter(path);
+        } else {
+            return stripPathParameter(path.substring(0, index));
+        }
+    }
+
+    String stripPathParameter(String path) {
+        if (path == null) {
+            return null;
+        }
+        int index = path.indexOf(';');
+        if (index < 0) {
             return path;
         } else {
-            return path.substring(0, question);
+            return path.substring(0, index);
         }
     }
 
