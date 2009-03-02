@@ -66,7 +66,8 @@ public class RedirectionInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public String encodingRedirectURL(String url) {
+    public String encodingRedirectURL(String url, Request request,
+            Response response) {
         if (redirectionManager_.existsScopeMap()
                 && redirectionManager_.isAddScopeIdAsRequestParameter()) {
             // リクエストパラメータとしてキーを保存する。

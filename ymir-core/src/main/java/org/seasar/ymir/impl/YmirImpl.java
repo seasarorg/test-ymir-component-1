@@ -183,9 +183,11 @@ public class YmirImpl implements Ymir {
 
                 // 自画面にproceedされたケースに重複して初期化してしまわないよう、
                 // S2からPageコンポーネントを削除しておく。
-                String pageComponentName = matched.getPageComponentName();
-                if (pageComponentName != null) {
-                    request.removeAttribute(pageComponentName);
+                if (matched != null) {
+                    String pageComponentName = matched.getPageComponentName();
+                    if (pageComponentName != null) {
+                        request.removeAttribute(pageComponentName);
+                    }
                 }
             }
         }

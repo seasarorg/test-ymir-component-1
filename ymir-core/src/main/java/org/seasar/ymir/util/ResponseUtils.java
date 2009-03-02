@@ -2,6 +2,7 @@ package org.seasar.ymir.util;
 
 import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.response.ForwardResponse;
 
 /**
@@ -80,5 +81,17 @@ public class ResponseUtils {
         return ExceptionProcessor.PATH_EXCEPTION_TEMPLATE
                 + ClassUtils.getShortName(exceptionClass)
                 + ExceptionProcessor.SUFFIX_EXCEPTION_TEMPLATE;
+    }
+
+    /**
+     * 指定されたレスポンスがproceedレスポンスかどうかを返します。
+     * 
+     * @param response レスポンス。nullを指定してはいけません。
+     * @return レスポンスがproceedレスポンスかどうか。
+     * @since 1.0.2
+     */
+    public static boolean isProceed(Response response) {
+        return (response.getType() == ResponseType.FORWARD && !response
+                .isSubordinate());
     }
 }

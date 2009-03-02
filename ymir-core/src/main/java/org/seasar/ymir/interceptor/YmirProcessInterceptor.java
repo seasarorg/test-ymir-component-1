@@ -125,13 +125,15 @@ public interface YmirProcessInterceptor {
      * <p>URLを加工しない場合は引数で渡されたURLをそのまま返すようにして下さい。
      * </p>
      * <p>このメソッドに渡されるURLは内部URLだけです。
-     * また、URLはドメイン相対のURL（コンテキストパスで開始されるURL）です。
+     * また、URLはドメイン相対のURL（コンテキストパスで開始されるURL）またはリクエストパスからの相対URLです。
      * </p>
      *
      * @param url URL。
+     * @param request Requestオブジェクト。
+     * @param response Responseオブジェクト。
      * @return 加工後のURL。
      */
-    String encodingRedirectURL(String url);
+    String encodingRedirectURL(String url, Request request, Response response);
 
     /**
      * フレームワークがHTTPリクエストの処理を完了する直前に呼び出されるメソッドです。

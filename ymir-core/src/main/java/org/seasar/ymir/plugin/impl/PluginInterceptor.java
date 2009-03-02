@@ -162,7 +162,7 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
     public Response responseCreated(Request request, Response response) {
         Pair<?>[] pairs = getPairs();
         for (int i = 0; i < pairs.length; i++) {
-            response = pairs[i].responseCreated(response);
+            response = pairs[i].responseCreated(request, response);
         }
         return response;
     }
@@ -187,10 +187,11 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public String encodingRedirectURL(String url) {
+    public String encodingRedirectURL(String url, Request request,
+            Response response) {
         Pair<?>[] pairs = getPairs();
         for (int i = 0; i < pairs.length; i++) {
-            url = pairs[i].encodingRedirectURL(url);
+            url = pairs[i].encodingRedirectURL(url, request, response);
         }
         return url;
     }
@@ -249,8 +250,8 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
                     annotation_);
         }
 
-        public Response responseCreated(Response response) {
-            return plugin_.responseCreated(response, annotation_);
+        public Response responseCreated(Request request, Response response) {
+            return plugin_.responseCreated(request, response, annotation_);
         }
 
         public void responseProcessingStarted(ServletContext context,
@@ -261,8 +262,10 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
                     httpResponse, request, response, annotation_);
         }
 
-        public String encodingRedirectURL(String url) {
-            return plugin_.encodingRedirectURL(url, annotation_);
+        public String encodingRedirectURL(String url, Request request,
+                Response response) {
+            return plugin_.encodingRedirectURL(url, request, response,
+                    annotation_);
         }
 
         public void leavingRequest(Request request) {

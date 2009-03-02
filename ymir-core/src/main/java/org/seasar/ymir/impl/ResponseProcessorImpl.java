@@ -82,22 +82,32 @@ public class ResponseProcessorImpl implements ResponseProcessor {
 
         case FORWARD:
             populateHeaders(response, httpResponse);
-            context.getRequestDispatcher(response.getPath()).forward(
-                    httpRequest, httpResponse);
+
+            String resolved;
+            if (response.isSubordinate()) {
+                // 通常のforward。
+                resolved = response.getPath();
+            } else {
+                // proceed。
+                resolved = resolveRedirectionPath(response.getPath(),
+                        httpResponse, request, response);
+                String contextPath = request.getContextPath();
+                if (resolved.startsWith(contextPath)) {
+                    resolved = resolved.substring(contextPath.length());
+                }
+                // proceedのパスはクエリストリングの補正に使われるので、
+                // ここで最終的なパスを戻しておく。
+                response.setPath(resolved);
+            }
+            context.getRequestDispatcher(resolved).forward(httpRequest,
+                    httpResponse);
             return null;
 
         case REDIRECT:
-            String resolved = redirectionPathResolver_.resolve(response
-                    .getPath(), request);
-            if (resolved == null) {
-                throw new NullPointerException(
-                        "Redirection path is null: may logic is wrong");
-            }
-            if (resolved.indexOf(":") < 0) {
-                // 内部パスの場合はエンコードする。
-                resolved = encodeRedirectURL(httpResponse, resolved);
-            }
-            httpResponse.sendRedirect(resolved);
+            populateHeaders(response, httpResponse);
+
+            httpResponse.sendRedirect(resolveRedirectionPath(
+                    response.getPath(), httpResponse, request, response));
             return null;
 
         case SELF_CONTAINED:
@@ -141,14 +151,30 @@ public class ResponseProcessorImpl implements ResponseProcessor {
         }
     }
 
-    protected String encodeRedirectURL(HttpServletResponse httpResponse,
-            String url) {
+    String resolveRedirectionPath(String path,
+            HttpServletResponse httpResponse, Request request, Response response) {
+        String resolved = redirectionPathResolver_.resolve(path, request);
+        if (resolved == null) {
+            throw new NullPointerException(
+                    "Redirection path is null: may logic is wrong");
+        }
+        if (resolved.indexOf(":") < 0) {
+            // 内部パスの場合はエンコードする。
+            resolved = encodeRedirectURL(resolved, httpResponse, request,
+                    response);
+        }
+        return resolved;
+    }
+
+    protected String encodeRedirectURL(String url,
+            HttpServletResponse httpResponse, Request request, Response response) {
         if (url == null) {
             return null;
         }
 
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-            url = ymirProcessInterceptors_[i].encodingRedirectURL(url);
+            url = ymirProcessInterceptors_[i].encodingRedirectURL(url, request,
+                    response);
         }
         return httpResponse.encodeRedirectURL(url);
     }

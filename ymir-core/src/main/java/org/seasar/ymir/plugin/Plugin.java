@@ -66,12 +66,18 @@ public interface Plugin<A extends Annotation> {
      * Responseオブジェクトを加工できるように呼び出されるメソッドです。
      * <p>Responseオブジェクトを加工しない場合は引数で渡されたResponseオブジェクトをそのまま返すようにして下さい。
      * </p>
+     * <p><strong>注意：</strong>この時点でrequestオブジェクトのカレントのDispatchには
+     * 通常PageComponentオブジェクトが設定されていますが、開発モードでは自動生成の都合上
+     * PageComponentが設定されていない場合があります。
+     * このメソッドの中でPageComponentを利用する場合は必ずnullチェックを行なうようにして下さい。
+     * </p>
      * 
+     * @param request 現在のRequestオブジェクト。
      * @param response フレームワークによって構築されたResponseオブジェクト。
      * @param annotation プラグイン実行のトリガとなったアノテーション。
      * @return Responseオブジェクト。
      */
-    Response responseCreated(Response response, A annotation);
+    Response responseCreated(Request request, Response response, A annotation);
 
     /**
      * {@link ResponseProcessor#process(ServletContext, HttpServletRequest, HttpServletResponse, Request, Response)}
@@ -93,14 +99,17 @@ public interface Plugin<A extends Annotation> {
      * <p>URLを加工しない場合は引数で渡されたURLをそのまま返すようにして下さい。
      * </p>
      * <p>このメソッドに渡されるURLは内部URLだけです。
-     * また、URLはドメイン相対のURL（コンテキストパスで開始されるURL）です。
+     * また、URLはドメイン相対のURL（コンテキストパスで開始されるURL）またはリクエストパスからの相対URLです。
      * </p>
      *
      * @param url URL。
+     * @param request Requestオブジェクト。
+     * @param response Responseオブジェクト。
      * @param annotation プラグイン実行のトリガとなったアノテーション。
      * @return 加工後のURL。
      */
-    String encodingRedirectURL(String url, A annotation);
+    String encodingRedirectURL(String url, Request request, Response response,
+            A annotation);
 
     /**
      * フレームワークがHTTPリクエストの処理を完了する直前に呼び出されるメソッドです。
