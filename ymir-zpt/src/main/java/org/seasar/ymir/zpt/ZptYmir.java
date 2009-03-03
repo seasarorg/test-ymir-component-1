@@ -2,13 +2,13 @@ package org.seasar.ymir.zpt;
 
 import java.io.IOException;
 
+import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.ymir.AttributeContainer;
-import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
@@ -18,7 +18,7 @@ import net.skirnir.freyja.webapp.FreyjaServlet;
 
 public class ZptYmir extends YmirImpl {
     @Override
-    public Object backupForInclusion(AttributeContainer attributeContainer) {
+    protected Object backupForInclusion(AttributeContainer attributeContainer) {
         return new Backupped(super.backupForInclusion(attributeContainer),
                 attributeContainer
                         .getAttribute(FreyjaServlet.ATTR_RESPONSECONTENTTYPE),
@@ -27,9 +27,9 @@ public class ZptYmir extends YmirImpl {
     }
 
     @Override
-    public HttpServletResponseFilter processResponse(
-            ServletContext servletContext, HttpServletRequest httpRequest,
-            HttpServletResponse httpResponse, Request request, Response response)
+    protected void processResponse(ServletContext servletContext,
+            HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+            Request request, Response response, FilterChain chain)
             throws IOException, ServletException {
         if (response.getType() == ResponseType.PASSTHROUGH
                 || response.getType() == ResponseType.FORWARD) {
@@ -44,12 +44,12 @@ public class ZptYmir extends YmirImpl {
                             getApplication().getS2Container()));
         }
 
-        return super.processResponse(servletContext, httpRequest, httpResponse,
-                request, response);
+        super.processResponse(servletContext, httpRequest, httpResponse,
+                request, response, chain);
     }
 
     @Override
-    public void restoreForInclusion(AttributeContainer attributeContainer,
+    protected void restoreForInclusion(AttributeContainer attributeContainer,
             Object backupped) {
         Backupped b = (Backupped) backupped;
         attributeContainer.setAttribute(FreyjaServlet.ATTR_RESPONSECONTENTTYPE,
