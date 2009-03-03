@@ -2,9 +2,6 @@
 <!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
-  <include path="ymir-component.dicon" />
-  <component name="JSONInterceptor"
-    class="org.seasar.ymir.json.JSONInterceptor" />
   <component name="JSONResponseConstructor"
     class="org.seasar.ymir.json.JSONResponseConstructor" />
 </components>
