@@ -187,16 +187,6 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public String encodingRedirectURL(String url, Request request,
-            Response response) {
-        Pair<?>[] pairs = getPairs();
-        for (int i = 0; i < pairs.length; i++) {
-            url = pairs[i].encodingRedirectURL(url, request, response);
-        }
-        return url;
-    }
-
-    @Override
     public void leavingRequest(Request request) {
         Pair<?>[] pairs = getPairs();
         for (int i = 0; i < pairs.length; i++) {
@@ -260,12 +250,6 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
                 Response response) {
             plugin_.responseProcessingStarted(context, httpRequest,
                     httpResponse, request, response, annotation_);
-        }
-
-        public String encodingRedirectURL(String url, Request request,
-                Response response) {
-            return plugin_.encodingRedirectURL(url, request, response,
-                    annotation_);
         }
 
         public void leavingRequest(Request request) {

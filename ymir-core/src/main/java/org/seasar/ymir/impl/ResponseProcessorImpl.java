@@ -15,14 +15,17 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.HttpServletResponseFilter;
+import org.seasar.ymir.PathResolver;
 import org.seasar.ymir.RedirectionPathResolver;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseHeader;
 import org.seasar.ymir.ResponseProcessor;
+import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
+import org.seasar.ymir.util.ResponseUtils;
 import org.seasar.ymir.util.YmirUtils;
 
 public class ResponseProcessorImpl implements ResponseProcessor {
@@ -34,6 +37,8 @@ public class ResponseProcessorImpl implements ResponseProcessor {
     private Updater[] updaters_ = new Updater[0];
 
     private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
+
+    private PathResolver pathResolver_ = new PathResolverImpl();
 
     private RedirectionPathResolver redirectionPathResolver_ = new RedirectionPathResolverImpl();
 
@@ -54,15 +59,23 @@ public class ResponseProcessorImpl implements ResponseProcessor {
     }
 
     @Binding(bindingType = BindingType.MAY)
+    public void setPathResolver(PathResolver pathResolver) {
+        pathResolver_ = pathResolver;
+    }
+
+    @Binding(bindingType = BindingType.MAY)
     public void setRedirectionPathResolver(
-            RedirectionPathResolver responsePathNormalizer) {
-        redirectionPathResolver_ = responsePathNormalizer;
+            RedirectionPathResolver redirectionPathResolver) {
+        redirectionPathResolver_ = redirectionPathResolver;
     }
 
     public HttpServletResponseFilter process(ServletContext context,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             Request request, Response response) throws IOException,
             ServletException {
+        // responseProcessingStartedの前に、Responseオブジェクトを最終的な状態にしておく。
+        adjustResponse(request, response);
+
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             ymirProcessInterceptors_[i].responseProcessingStarted(context,
                     httpRequest, httpResponse, request, response);
@@ -91,7 +104,7 @@ public class ResponseProcessorImpl implements ResponseProcessor {
             } else {
                 // proceed。
                 resolved = resolveRedirectionPath(response.getPath(),
-                        httpResponse, request, response);
+                        httpResponse, request);
                 String contextPath = request.getContextPath();
                 if (resolved.startsWith(contextPath)) {
                     resolved = resolved.substring(contextPath.length());
@@ -108,7 +121,7 @@ public class ResponseProcessorImpl implements ResponseProcessor {
             populateHeaders(response, httpResponse);
 
             httpResponse.sendRedirect(resolveRedirectionPath(
-                    response.getPath(), httpResponse, request, response));
+                    response.getPath(), httpResponse, request));
             return null;
 
         case SELF_CONTAINED:
@@ -152,8 +165,15 @@ public class ResponseProcessorImpl implements ResponseProcessor {
         }
     }
 
-    String resolveRedirectionPath(String path,
-            HttpServletResponse httpResponse, Request request, Response response) {
+    protected void adjustResponse(Request request, Response response) {
+        if (ResponseUtils.isTransitionResponse(response)) {
+            response
+                    .setPath(pathResolver_.resolve(response.getPath(), request));
+        }
+    }
+
+    protected String resolveRedirectionPath(String path,
+            HttpServletResponse httpResponse, Request request) {
         String resolved = redirectionPathResolver_.resolve(path, request);
         if (resolved == null) {
             throw new NullPointerException(
@@ -161,23 +181,9 @@ public class ResponseProcessorImpl implements ResponseProcessor {
         }
         if (resolved.indexOf(":") < 0) {
             // 内部パスの場合はエンコードする。
-            resolved = encodeRedirectURL(resolved, httpResponse, request,
-                    response);
+            resolved = httpResponse.encodeRedirectURL(resolved);
         }
         return resolved;
-    }
-
-    protected String encodeRedirectURL(String url,
-            HttpServletResponse httpResponse, Request request, Response response) {
-        if (url == null) {
-            return null;
-        }
-
-        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-            url = ymirProcessInterceptors_[i].encodingRedirectURL(url, request,
-                    response);
-        }
-        return httpResponse.encodeRedirectURL(url);
     }
 
     protected void populateHeaders(Response response,

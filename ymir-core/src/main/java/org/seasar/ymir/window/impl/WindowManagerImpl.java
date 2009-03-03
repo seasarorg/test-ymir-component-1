@@ -1,17 +1,21 @@
 package org.seasar.ymir.window.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Globals;
+import org.seasar.ymir.Path;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.session.SessionManager;
+import org.seasar.ymir.util.ResponseUtils;
 import org.seasar.ymir.window.WindowManager;
 
 public class WindowManagerImpl implements WindowManager {
@@ -44,6 +48,7 @@ public class WindowManagerImpl implements WindowManager {
         sessionManager_.addStraddlingAttributeNamePattern(namePattern);
     }
 
+    @Binding(bindingType = BindingType.MAY)
     public void setWindowIdKey(String windowIdKey) {
         windowIdKey_ = windowIdKey;
     }
@@ -52,9 +57,9 @@ public class WindowManagerImpl implements WindowManager {
         return windowIdKey_;
     }
 
-    @SuppressWarnings("unchecked")
     Map<String, Object> getScopeMap(String windowId, boolean create) {
         String key = getKey(windowId);
+        @SuppressWarnings("unchecked")
         Map<String, Object> scopeMap = (Map<String, Object>) sessionManager_
                 .getAttribute(key);
         if (scopeMap == null && create) {
@@ -65,6 +70,10 @@ public class WindowManagerImpl implements WindowManager {
         return scopeMap;
     }
 
+    void removeScopeMap(String windowId) {
+        sessionManager_.setAttribute(getKey(windowId), null);
+    }
+
     String getKey(String windowId) {
         if (windowId == null) {
             return null;
@@ -72,31 +81,38 @@ public class WindowManagerImpl implements WindowManager {
         return ATTRPREFIX_WINDOW_WINDOWID + windowId;
     }
 
-    HttpServletRequest getRequest() {
-        return (HttpServletRequest) getS2Container().getComponent(
-                HttpServletRequest.class);
-    }
-
     @SuppressWarnings("unchecked")
-    public <T> T getScopeAttribute(String name) {
-        Map<String, Object> scopeMap = getScopeMap(findWindowIdFromRequest(),
-                false);
-        if (scopeMap == null) {
-            return null;
-        }
+    public <T> T getScopeAttribute(String windowId, String name) {
+        synchronized (windowId.intern()) {
+            Map<String, Object> scopeMap = getScopeMap(windowId, false);
+            if (scopeMap == null) {
+                return null;
+            }
 
-        return (T) scopeMap.get(name);
+            return (T) scopeMap.get(name);
+        }
     }
 
-    public String findWindowIdFromRequest() {
-        String windowId = getWindowIdFromRequest();
+    public Iterator<String> getScopeAttributeNames(String windowId) {
+        synchronized (windowId.intern()) {
+            Map<String, Object> scopeMap = getScopeMap(windowId, false);
+            if (scopeMap == null) {
+                return new ArrayList<String>().iterator();
+            }
+
+            return scopeMap.keySet().iterator();
+        }
+    }
+
+    public String findWindowId() {
+        String windowId = getWindowId();
         if (windowId == null) {
             windowId = DEFAULT_WINDOWID;
         }
         return windowId;
     }
 
-    public String getWindowIdFromRequest() {
+    public String getWindowId() {
         Request request = (Request) getS2Container()
                 .getComponent(Request.class);
         if (request == null) {
@@ -110,16 +126,45 @@ public class WindowManagerImpl implements WindowManager {
         return applicationManager_.findContextApplication().getS2Container();
     }
 
-    public void setScopeAttribute(String name, Object value) {
-        getScopeMap(findWindowIdFromRequest(), true).put(name, value);
+    public void setScopeAttribute(String windowId, String name, Object value) {
+        synchronized (windowId.intern()) {
+            if (value != null) {
+                getScopeMap(windowId, true).put(name, value);
+            } else {
+                Map<String, Object> scopeMap = getScopeMap(windowId, false);
+                if (scopeMap == null) {
+                    return;
+                }
+                scopeMap.remove(name);
+                if (scopeMap.isEmpty()) {
+                    removeScopeMap(windowId);
+                }
+            }
+        }
     }
 
-    public void removeScopeAttribute(String name) {
-        Map<String, Object> scopeMap = getScopeMap(findWindowIdFromRequest(),
-                false);
-        if (scopeMap == null) {
-            return;
+    public String findWindowIdForNextRequest() {
+        String windowId = getWindowIdForNextRequest();
+        if (windowId == null) {
+            windowId = DEFAULT_WINDOWID;
         }
-        scopeMap.remove(name);
+        return windowId;
+    }
+
+    public String getWindowIdForNextRequest() {
+        Response response = (Response) getS2Container().getComponent(
+                Response.class);
+        if (response != null
+                && (ResponseUtils.isProceed(response) || response.getType() == ResponseType.REDIRECT)) {
+            String[] value = new Path(response.getPath()).getParameterMap()
+                    .get(getWindowIdKey());
+            if (value != null && value.length > 0) {
+                return value[0];
+            } else {
+                return null;
+            }
+        } else {
+            return getWindowId();
+        }
     }
 }

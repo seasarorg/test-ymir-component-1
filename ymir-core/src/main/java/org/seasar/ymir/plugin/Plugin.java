@@ -95,23 +95,6 @@ public interface Plugin<A extends Annotation> {
             Request request, Response response, A annotation);
 
     /**
-     * リダイレクト先のURLを加工できるように呼び出されるメソッドです。
-     * <p>URLを加工しない場合は引数で渡されたURLをそのまま返すようにして下さい。
-     * </p>
-     * <p>このメソッドに渡されるURLは内部URLだけです。
-     * また、URLはドメイン相対のURL（コンテキストパスで開始されるURL）またはリクエストパスからの相対URLです。
-     * </p>
-     *
-     * @param url URL。
-     * @param request Requestオブジェクト。
-     * @param response Responseオブジェクト。
-     * @param annotation プラグイン実行のトリガとなったアノテーション。
-     * @return 加工後のURL。
-     */
-    String encodingRedirectURL(String url, Request request, Response response,
-            A annotation);
-
-    /**
      * フレームワークがHTTPリクエストの処理を完了する直前に呼び出されるメソッドです。
      * 
      * @param request Requestオブジェクト。

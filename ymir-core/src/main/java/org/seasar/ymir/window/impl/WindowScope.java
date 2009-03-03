@@ -11,7 +11,7 @@ import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.window.WindowManager;
 
 /**
- * 同一画面に関してだけ有効なオブジェクトを管理するスコープを表すクラスです。
+ * 同一ウィンドウに関してだけ有効なオブジェクトを管理するスコープを表すクラスです。
  * <p><b>同期化：</b>
  * このクラスはスレッドセーフです。
  * </p>
@@ -20,9 +20,6 @@ import org.seasar.ymir.window.WindowManager;
  * @author YOKOTA Takehiko
  */
 public class WindowScope implements Scope {
-    public static final String KEY_SUBSCOPE = WindowManagerImpl.ATTRPREFIX_WINDOW
-            + "subScope";
-
     private WindowManager windowManager_;
 
     @Binding(bindingType = BindingType.MUST)
@@ -35,26 +32,8 @@ public class WindowScope implements Scope {
             return null;
         }
 
-        Map<String, Object> subScopeMap = getSubScopeMap(false);
-        if (subScopeMap == null) {
-            return null;
-        }
-        return subScopeMap.get(name);
-    }
-
-    @SuppressWarnings("unchecked")
-    Map<String, Object> getSubScopeMap(boolean create) {
-        Map<String, Object> subScopeMap = (Map<String, Object>) windowManager_
-                .getScopeAttribute(KEY_SUBSCOPE);
-        if (subScopeMap == null && create) {
-            subScopeMap = new HashMap<String, Object>();
-            windowManager_.setScopeAttribute(KEY_SUBSCOPE, subScopeMap);
-        }
-        return subScopeMap;
-    }
-
-    void removeSubScopeMap() {
-        windowManager_.removeScopeAttribute(KEY_SUBSCOPE);
+        return windowManager_.getScopeAttribute(windowManager_.findWindowId(),
+                name);
     }
 
     public void setAttribute(String name, Object value) {
@@ -62,25 +41,12 @@ public class WindowScope implements Scope {
             return;
         }
 
-        if (value == null) {
-            Map<String, Object> subScopeMap = getSubScopeMap(false);
-            if (subScopeMap == null) {
-                return;
-            }
-            subScopeMap.remove(name);
-            if (subScopeMap.isEmpty()) {
-                removeSubScopeMap();
-            }
-        } else {
-            getSubScopeMap(true).put(name, value);
-        }
+        windowManager_.setScopeAttribute(windowManager_.findWindowId(), name,
+                value);
     }
 
     public Iterator<String> getAttributeNames() {
-        Map<String, Object> subScopeMap = getSubScopeMap(false);
-        if (subScopeMap == null) {
-            return new ArrayList<String>().iterator();
-        }
-        return subScopeMap.keySet().iterator();
+        return windowManager_.getScopeAttributeNames(windowManager_
+                .findWindowId());
     }
 }

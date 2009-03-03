@@ -14,6 +14,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.cms.pluggable.ThreadContext;
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatcher;
@@ -45,6 +47,8 @@ public class YmirFilter implements Filter {
     private Ymir ymir_;
 
     private YmirProcessInterceptor[] ymirProcessInterceptors_;
+
+    private static final Log log_ = LogFactory.getLog(YmirFilter.class);
 
     public void init(FilterConfig config) throws ServletException {
         context_ = config.getServletContext();
@@ -94,6 +98,7 @@ public class YmirFilter implements Filter {
             }
         }
 
+        ThreadContext context = getThreadContext();
         try {
             Response response = null;
             if (dispatcher == Dispatcher.REQUEST) {
@@ -109,11 +114,12 @@ public class YmirFilter implements Filter {
             AttributeContainer attributeContainer = new HttpServletRequestAttributeContainer(
                     httpRequest);
 
-            ThreadContext context = getThreadContext();
-
             Object backupped = null;
+            Response backuppedResponse = null;
             if (dispatcher == Dispatcher.INCLUDE) {
                 backupped = ymir_.backupForInclusion(attributeContainer);
+                backuppedResponse = (Response) context
+                        .getComponent(Response.class);
             }
 
             Request request;
@@ -141,7 +147,19 @@ public class YmirFilter implements Filter {
                     .getQueryString(httpRequest), dispatcher, matched);
             try {
                 if (response == null) {
-                    response = ymir_.processRequest(request);
+                    try {
+                        response = ymir_.processRequest(request);
+                    } catch (Throwable t) {
+                        if (dispatcher == Dispatcher.REQUEST) {
+                            response = ymir_.processException(request, t);
+                        } else {
+                            rethrow(t);
+                        }
+                    }
+                }
+
+                if (log_.isDebugEnabled()) {
+                    log_.debug("FINAL RESPONSE: " + response);
                 }
 
                 HttpServletResponseFilter responseFilter = ymir_
@@ -151,27 +169,24 @@ public class YmirFilter implements Filter {
                     chain.doFilter(httpRequest, responseFilter);
                     responseFilter.commit();
                 }
-            } catch (Throwable t) {
-                if (dispatcher == Dispatcher.REQUEST) {
-                    ymir_.processResponse(context_, httpRequest, httpResponse,
-                            request, ymir_.processException(request, t));
-                } else {
-                    rethrow(t);
-                }
             } finally {
-                ymir_.leaveDispatch(request);
-
                 if (dispatcher == Dispatcher.REQUEST) {
                     for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
                         ymirProcessInterceptors_[i].leavingRequest(request);
                     }
-                    context.setComponent(Request.class, null);
                 } else if (dispatcher == Dispatcher.INCLUDE) {
+                    context.setComponent(Response.class, backuppedResponse);
                     ymir_.restoreForInclusion(attributeContainer, backupped);
                 }
+
+                ymir_.leaveDispatch(request);
+
+                context.setComponent(Response.class, null);
             }
         } finally {
             if (dispatcher == Dispatcher.REQUEST) {
+                context.setComponent(Request.class, null);
+
                 for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
                     ymirProcessInterceptors_[i].leftRequest();
                 }

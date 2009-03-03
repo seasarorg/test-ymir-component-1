@@ -283,8 +283,9 @@ public class RequestProcessorImpl implements RequestProcessor {
                 request.setAttribute(ATTR_PAGECOMPONENT, pageComponent);
                 request.setAttribute(ATTR_SELF, pageComponent.getPage());
             }
+
             if (log_.isDebugEnabled()) {
-                log_.debug("Raw response: " + response);
+                log_.debug("Raw response (1): " + response);
             }
 
             // pageComponentがnullの場合でも、自動生成機能でクラスやテンプレートの自動生成が
@@ -294,7 +295,7 @@ public class RequestProcessorImpl implements RequestProcessor {
             response = adjustResponse(dispatch, response, page);
 
             if (log_.isDebugEnabled()) {
-                log_.debug("FINAL RESPONSE: " + response);
+                log_.debug("Raw response (2): " + response);
             }
         }
 

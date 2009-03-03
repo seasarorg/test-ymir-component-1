@@ -38,11 +38,7 @@ public class RedirectionScope implements Scope {
             return;
         }
 
-        if (value == null) {
-            redirectionManager_.removeScopeAttribute(name);
-        } else {
-            redirectionManager_.setScopeAttribute(name, value);
-        }
+        redirectionManager_.setScopeAttributeForNextRequest(name, value);
     }
 
     public Iterator<String> getAttributeNames() {

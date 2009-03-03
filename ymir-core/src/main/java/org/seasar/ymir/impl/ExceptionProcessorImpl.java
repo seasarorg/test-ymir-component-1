@@ -1,13 +1,12 @@
 package org.seasar.ymir.impl;
 
-import static org.seasar.ymir.constraint.Globals.APPKEY_CORE_CONSTRAINT_PERMISSIONDENIEDMETHOD_ENABLE;
-
 import java.beans.Introspector;
 import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.seasar.cms.pluggable.ThreadContext;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
@@ -28,10 +27,8 @@ import org.seasar.ymir.Updater;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.cache.CacheManager;
-import org.seasar.ymir.handler.annotation.ExceptionHandler;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.response.ForwardResponse;
-import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.ResponseUtils;
 import org.seasar.ymir.util.ThrowableUtils;
@@ -213,13 +210,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         }
 
         if (log_.isDebugEnabled()) {
-            log_.debug("Raw response: " + response);
-        }
-
-        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-            response = ymirProcessInterceptors_[i]
-                    .responseCreatedByExceptionHandler(request, response,
-                            handler);
+            log_.debug("Raw response (1): " + response);
         }
 
         if (exceptionHandlerInterfaceEnabled) {
@@ -232,7 +223,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         }
 
         if (log_.isDebugEnabled()) {
-            log_.debug("FINAL RESPONSE: " + response);
+            log_.debug("Raw response (2): " + response);
         }
 
         // ExceptionHandlerコンポーネントと例外オブジェクトをattributeとしてバインドしておく。
@@ -316,5 +307,10 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                                 .getProperty(
                                         Globals.APPKEY_CORE_HANDLER_EXCEPTIONHANDLERINTERFACE_ENABLE),
                         true);
+    }
+
+    ThreadContext getThreadContext() {
+        return (ThreadContext) ymir_.getApplication().getS2Container()
+                .getRoot().getComponent(ThreadContext.class);
     }
 }

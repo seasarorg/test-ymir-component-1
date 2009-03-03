@@ -53,12 +53,10 @@ abstract public class AbstractYmirProcessInterceptor implements
             Request request, Response response) {
     }
 
-    public String encodingRedirectURL(String url, Request request,
-            Response response) {
-        return url;
+    public void leavingRequest(Request request) {
     }
 
-    public void leavingRequest(Request request) {
+    public void leavingDispatch(Request request) {
     }
 
     public void leftRequest() {

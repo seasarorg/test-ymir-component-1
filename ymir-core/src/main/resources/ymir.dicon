@@ -28,6 +28,8 @@
     class="org.seasar.ymir.token.constraint.impl.TokenRequiredConstraint" />
   <component
     class="org.seasar.ymir.container.RequestComponentDefFactory" />
+  <component
+    class="org.seasar.ymir.container.ResponseComponentDefFactory" />
   <component name="ymir" class="org.seasar.ymir.impl.YmirImpl">
     <property name="lifecycleListeners" bindingType="none">
       <meta name="delayed">

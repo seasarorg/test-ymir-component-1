@@ -94,4 +94,16 @@ public class ResponseUtils {
         return (response.getType() == ResponseType.FORWARD && !response
                 .isSubordinate());
     }
+
+    /**
+     * 指定されたレスポンスがパスの遷移を表すレスポンスかどうかを返します。
+     * 
+     * @param response レスポンス。nullを指定してはいけません。
+     * @return レスポンスがパスの遷移を表すレスポンスかどうか。
+     * @since 1.0.2
+     */
+    public static boolean isTransitionResponse(Response response) {
+        return (response.getType() == ResponseType.FORWARD || response
+                .getType() == ResponseType.REDIRECT);
+    }
 }

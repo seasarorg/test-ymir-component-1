@@ -99,6 +99,8 @@ public interface YmirProcessInterceptor {
      * PageComponentが設定されていない場合があります。
      * このメソッドの中でPageComponentを利用する場合は必ずnullチェックを行なうようにして下さい。
      * </p>
+     * <p>このメソッドの呼び出し時にはコンテナからRequestオブジェクト及びResponseオブジェクトが取得可能です。
+     * </p>
      * 
      * @param request 現在のRequestオブジェクト。
      * @param response フレームワークによって構築されたResponseオブジェクト。
@@ -109,6 +111,8 @@ public interface YmirProcessInterceptor {
     /**
      * {@link ResponseProcessor#process(ServletContext, HttpServletRequest, HttpServletResponse, Request, Response)}
      * メソッドによってResponseの処理が開始された際に呼び出されるメソッドです。
+     * <p>このメソッドの呼び出し時にはコンテナからRequestオブジェクト及びResponseオブジェクトが取得可能です。
+     * </p>
      * 
      * @param context ServletContextオブジェクト。
      * @param httpRequest HttpServletRequestオブジェクト。
@@ -121,31 +125,29 @@ public interface YmirProcessInterceptor {
             Request request, Response response);
 
     /**
-     * リダイレクト先のURLを加工できるように呼び出されるメソッドです。
-     * <p>URLを加工しない場合は引数で渡されたURLをそのまま返すようにして下さい。
-     * </p>
-     * <p>このメソッドに渡されるURLは内部URLだけです。
-     * また、URLはドメイン相対のURL（コンテキストパスで開始されるURL）またはリクエストパスからの相対URLです。
-     * </p>
-     *
-     * @param url URL。
-     * @param request Requestオブジェクト。
-     * @param response Responseオブジェクト。
-     * @return 加工後のURL。
-     */
-    String encodingRedirectURL(String url, Request request, Response response);
-
-    /**
      * フレームワークがHTTPリクエストの処理を完了する直前に呼び出されるメソッドです。
+     * <p>このメソッドの呼び出し時にはコンテナからRequestオブジェクト及びResponseオブジェクトが取得可能です。
+     * </p>
      * 
      * @param request Requestオブジェクト。
      */
     void leavingRequest(Request request);
 
     /**
+     * フレームワークがディスパッチの処理を完了する直前に呼び出されるメソッドです。
+     * <p>このメソッドの呼び出し時にはコンテナからRequestオブジェクト及びResponseオブジェクトが取得可能です。
+     * </p>
+     * 
+     * @param request Requestオブジェクト。
+     */
+    void leavingDispatch(Request request);
+
+    /**
      * フレームワークがHTTPリクエストの処理を完了した後に呼び出されるメソッドです。
      * <p>このメソッドは{@link #enteringRequest(ServletContext, HttpServletRequest, HttpServletResponse, String)}
      * が呼び出されたならば必ず呼び出されることが保証されています。
+     * </p>
+     * <p>このメソッドの呼び出し時にはコンテナからRequestオブジェクト及びResponseオブジェクトは取得できません。
      * </p>
      */
     void leftRequest();
@@ -156,6 +158,8 @@ public interface YmirProcessInterceptor {
      * <p>nullを返した場合は処理が継続されます。
      * nullでないResponseオブジェクトを返した場合はそのResponseオブジェクトを返り値として
      * {@link ExceptionProcessor#process(Request, Throwable)}の処理を終了します。
+     * </p>
+     * <p>このメソッドの呼び出し時にはコンテナからRequestオブジェクトが取得可能です。Responseオブジェクトは取得できません。
      * </p>
      * 
      * @param request Requestオブジェクト。
@@ -187,6 +191,8 @@ public interface YmirProcessInterceptor {
      * フレームワークが例外ハンドラの処理結果からResponseオブジェクトを構築した際に、
      * Responseオブジェクトを加工できるように呼び出されるメソッドです。
      * <p>Responseオブジェクトを加工しない場合は引数で渡されたResponseオブジェクトをそのまま返すようにして下さい。
+     * </p>
+     * <p>このメソッドの呼び出し時にはコンテナからRequestオブジェクト及びResponseオブジェクトが取得可能です。
      * </p>
      * 
      * @param request 現在のRequestオブジェクト。

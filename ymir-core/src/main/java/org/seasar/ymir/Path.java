@@ -235,7 +235,7 @@ public class Path {
     /**
      * パラメータのMapを返します。
      * 
-     * @return パラメータのMap。nullを返すこともあります。
+     * @return パラメータのMap。
      */
     public Map<String, String[]> getParameterMap() {
         return parameterMap_;

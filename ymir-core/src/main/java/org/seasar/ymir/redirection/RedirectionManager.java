@@ -20,53 +20,6 @@ import org.seasar.ymir.redirection.impl.RedirectionInterceptor;
  */
 public interface RedirectionManager {
     /**
-     * RedirectionScopeのIDをリクエストパラメータとして受け渡しするかどうかを返します。
-     * <p>このメソッドがtrueを返す場合、RedirectionScopeのIDはリクエストパラメータとしてリダイレクト先の画面に渡されます。
-     * falseを返す場合、IDはCookieの値としてリダイレクト先の画面に渡されます。
-     * </p>
-     * 
-     * @return RedirectionScopeのIDをリクエストパラメータとして受け渡しするかどうか。
-     */
-    boolean isAddScopeIdAsRequestParameter();
-
-    /**
-     * RedirectionScopeのIDを保持しているリクエストパラメータの名前返します。
-     * 
-     * @return RedirectionScopeのIDを保持しているリクエストパラメータの名前。
-     */
-    String getRequestParameterNameForScopeId();
-
-    /**
-     * RedirectionScopeのIDを保持しているCookieの名前を返します。
-     * 
-     * @return RedirectionScopeのIDを保持しているCookieの名前。
-     */
-    String getCookieNameForScopeId();
-
-    /**
-     * 現在のリクエストのためのRedirectionScopeを表すMapを削除します。
-     */
-    void removeScopeMap();
-
-    /**
-     * 指定されたIDのRedirectionScopeを表すMapを削除します。
-     * 
-     * @param scopeId ID。
-     */
-    void removeScopeMap(String scopeId);
-
-    /**
-     * 現在のリクエストのためのRedirectionScopeのIDを返します。
-     * <p>このメソッドが返すのは、前のリクエストから引き継がれたRedirectionScopeのIDではなく、
-     * 次のリクエストに引き継ぐためのRedirectionScopeのIDです。
-     * </p>
-     * 
-     * @return 現在のリクエストのためのRedirectionScopeのID。
-     * @see #getScopeIdFromRequest()
-     */
-    String getScopeId();
-
-    /**
      * 現在のリクエストに指定されたRedirectionScopeのIDを返します。
      * <p>このメソッドが返すのは、次のリクエストに引き継ぐためのRedirectionScopeのIDではなく、
      * 前のリクエストから引き継がれたRedirectionScopeのIDです。
@@ -75,9 +28,9 @@ public interface RedirectionManager {
      * </p>
      * 
      * @return 現在のリクエストに指定されたRedirectionScopeのID。
-     * @see #getScopeId()
+     * @see #getScopeIdForNextRequest()
      */
-    String getScopeIdFromRequest();
+    String getScopeId();
 
     /**
      * 前のリクエストから引き継がれたRedirectionScopeから指定された名前の属性を取り出して返します。
@@ -93,18 +46,13 @@ public interface RedirectionManager {
 
     /**
      * 次のリクエストに引き継ぐためのRedirectionScopeに属性を設定します。
+     * <p>valueとしてnullが設定された場合は属性を削除します。
+     * </p>
      * 
      * @param name 属性名。
      * @param value 属性値。
      */
-    void setScopeAttribute(String name, Object value);
-
-    /**
-     * 次のリクエストに引き継ぐためのRedirectionScopeから属性を削除します。
-     * 
-     * @param name 属性名。
-     */
-    void removeScopeAttribute(String name);
+    void setScopeAttributeForNextRequest(String name, Object value);
 
     /**
      * 前のリクエストから引き継がれたRedirectionScopeが持つ全ての属性の名前のIteratorを返します。
@@ -116,9 +64,16 @@ public interface RedirectionManager {
     Iterator<String> getScopeAttributeNames();
 
     /**
-     * 次のリクエストに引き継ぐためのRedirectionScopeを生成済みかどうかを返します。
-     * 
-     * @return 次のリクエストに引き継ぐためのRedirectionScopeを生成済みかどうか。
+     * 前のリクエストから引き継がれたRedirectionScopeを削除します。
      */
-    boolean existsScopeMap();
+    void clearScopeAttributes();
+
+    /**
+     * RedirectionScopeを次のリクエストに引き継ぐためのIDをレスポンスに設定します。
+     * <p>前のリクエストから引き継がれたRedirectionScopeはこの時点で削除されます。
+     * </p>
+     * <p>引き継ぐRedirectionScopeが空の場合はIDは設定されません。
+     * </p>
+     */
+    void populateScopeId();
 }

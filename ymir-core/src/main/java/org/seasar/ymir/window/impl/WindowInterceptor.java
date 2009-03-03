@@ -31,7 +31,7 @@ public class WindowInterceptor extends AbstractYmirProcessInterceptor {
     public void leavingRequest(Request request) {
         // ScopeMapが不要になった場合に削除する。
         String key = ATTRPREFIX_WINDOW_WINDOWID
-                + windowManager_.findWindowIdFromRequest();
+                + windowManager_.findWindowId();
         Map<String, Object> scopeMap = (Map<String, Object>) sessionManager_
                 .getAttribute(key);
         if (scopeMap != null) {

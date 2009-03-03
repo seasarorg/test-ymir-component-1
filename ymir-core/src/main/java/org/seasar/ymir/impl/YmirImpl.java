@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.cms.pluggable.Configuration;
+import org.seasar.cms.pluggable.ThreadContext;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
@@ -216,16 +217,27 @@ public class YmirImpl implements Ymir {
     }
 
     public void leaveDispatch(final Request request) {
+        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+            ymirProcessInterceptors_[i].leavingDispatch(request);
+        }
+
         request.leaveDispatch();
     }
 
     public Response processRequest(final Request request) {
+        ThreadContext context = getThreadContext();
+
         Response response = requestProcessor_.process(request);
+        context.setComponent(Response.class, response);
+
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             response = ymirProcessInterceptors_[i].responseCreated(request,
                     response);
+            context.setComponent(Response.class, response);
         }
+
         request.setAttribute(ATTR_RESPONSE, response);
+
         return response;
     }
 
@@ -278,8 +290,21 @@ public class YmirImpl implements Ymir {
     }
 
     public Response processException(final Request request, final Throwable t) {
+        ThreadContext context = getThreadContext();
+
         Response response = exceptionProcessor_.process(request, t);
+        Object handler = request.getAttribute(ExceptionProcessor.ATTR_HANDLER);
+        context.setComponent(Response.class, response);
+
+        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+            response = ymirProcessInterceptors_[i]
+                    .responseCreatedByExceptionHandler(request, response,
+                            handler);
+            context.setComponent(Response.class, response);
+        }
+
         request.setAttribute(ATTR_RESPONSE, response);
+
         return response;
     }
 
@@ -389,5 +414,10 @@ public class YmirImpl implements Ymir {
             return ymirNamingConvention_.fromComponentNameToClassName(matched
                     .getPageComponentName());
         }
+    }
+
+    ThreadContext getThreadContext() {
+        return (ThreadContext) getApplication().getS2Container().getRoot()
+                .getComponent(ThreadContext.class);
     }
 }

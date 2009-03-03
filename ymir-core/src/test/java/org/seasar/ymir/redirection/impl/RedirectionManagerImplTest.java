@@ -19,7 +19,7 @@ public class RedirectionManagerImplTest extends TestCase {
         target_ = new RedirectionManagerImpl();
         WindowManagerImpl windowManager = new WindowManagerImpl() {
             @Override
-            public String getWindowIdFromRequest() {
+            public String getWindowId() {
                 return null;
             }
         };
@@ -38,7 +38,7 @@ public class RedirectionManagerImplTest extends TestCase {
     }
 
     public void testGetScopeMapしただけではSessionが生成されないこと() throws Exception {
-        target_.getScopeMap("aaa", false);
+        target_.getScopeMap("_self", "aaa", false);
 
         assertFalse(sessionCreated[0]);
     }

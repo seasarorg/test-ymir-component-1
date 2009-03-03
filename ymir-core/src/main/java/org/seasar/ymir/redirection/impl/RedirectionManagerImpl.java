@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
@@ -16,6 +13,7 @@ import org.seasar.ymir.Globals;
 import org.seasar.ymir.LifecycleListener;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.redirection.RedirectionManager;
+import org.seasar.ymir.redirection.ScopeIdManager;
 import org.seasar.ymir.util.StringUtils;
 import org.seasar.ymir.window.WindowManager;
 
@@ -24,20 +22,21 @@ public class RedirectionManagerImpl implements RedirectionManager,
     public static final String ATTRPREFIX_SCOPEMAP = Globals.IDPREFIX
             + "redirection.scopeMap.";
 
-    public static final String KEY_SCOPEID = Globals.IDPREFIX
-            + "redirection.id";
+    protected ApplicationManager applicationManager_;
 
-    private ApplicationManager applicationManager_;
+    private ScopeIdManager scopeIdManager_;
 
     private WindowManager windowManager_;
 
-    private boolean addScopeIdAsRequestParameter_;
-
-    private String scopeIdKey_ = KEY_SCOPEID;
+    @Binding(bindingType = BindingType.MUST)
+    public final void setApplicationManager(
+            ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
+    }
 
     @Binding(bindingType = BindingType.MUST)
-    public void setApplicationManager(ApplicationManager applicationManager) {
-        applicationManager_ = applicationManager;
+    public void setScopeIdManager(ScopeIdManager scopeIdManager) {
+        scopeIdManager_ = scopeIdManager;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -53,79 +52,47 @@ public class RedirectionManagerImpl implements RedirectionManager,
     public void destroy() {
     }
 
-    public void setAddScopeIdAsRequestParameter(
-            boolean addScopeIdAsRequestParameter) {
-        addScopeIdAsRequestParameter_ = addScopeIdAsRequestParameter;
-    }
-
-    public boolean isAddScopeIdAsRequestParameter() {
-        return addScopeIdAsRequestParameter_;
-    }
-
-    public void setScopeIdKey(String scopeIdKey) {
-        scopeIdKey_ = scopeIdKey;
-    }
-
-    public String getRequestParameterNameForScopeId() {
-        return scopeIdKey_;
-    }
-
-    public String getCookieNameForScopeId() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(scopeIdKey_);
-        String windowId = windowManager_.getWindowIdFromRequest();
-        if (windowId != null) {
-            sb.append(".").append(windowId);
-        }
-        return sb.toString();
-    }
-
-    public String getScopeId() {
-        return StringUtils.getScopeKey((getS2Container()
-                .getComponent(Request.class)));
-    }
-
     String getScopeMapAttributeKey(String scopeId) {
         return ATTRPREFIX_SCOPEMAP + scopeId;
     }
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> getScopeMap(String scopeId, boolean create) {
+    Map<String, Object> getScopeMap(String windowId, String scopeId,
+            boolean create) {
         String key = getScopeMapAttributeKey(scopeId);
         Map<String, Object> scopeMap = (Map<String, Object>) windowManager_
-                .getScopeAttribute(key);
+                .getScopeAttribute(windowId, key);
         if (scopeMap == null && create) {
             scopeMap = new HashMap<String, Object>();
-            windowManager_.setScopeAttribute(key, scopeMap);
+            windowManager_.setScopeAttribute(windowId, key, scopeMap);
         }
 
         return scopeMap;
     }
 
-    public void removeScopeMap() {
-        removeScopeMap(getScopeId());
+    void setScopeMap(String windowId, String scopeId,
+            Map<String, Object> scopeMap) {
+        windowManager_.setScopeAttribute(windowId,
+                getScopeMapAttributeKey(scopeId), scopeMap);
     }
 
-    public void removeScopeMap(String scopeId) {
+    void removeScopeMap(String windowId, String scopeId) {
         if (scopeId == null) {
             return;
         }
-        windowManager_.removeScopeAttribute(getScopeMapAttributeKey(scopeId));
-    }
-
-    HttpServletRequest getRequest() {
-        return (HttpServletRequest) getS2Container().getComponent(
-                HttpServletRequest.class);
+        windowManager_.setScopeAttribute(windowId,
+                getScopeMapAttributeKey(scopeId), null);
     }
 
     @SuppressWarnings("unchecked")
     public <T> T getScopeAttribute(String name) {
-        String scopeId = getScopeIdFromRequest();
+        String scopeId = getScopeId();
         if (scopeId == null) {
             return null;
         }
 
-        Map<String, Object> scopeMap = getScopeMap(scopeId, false);
+        Map<String, Object> scopeMap = getScopeMap(windowManager_
+                .findWindowId(), scopeId, false);
         if (scopeMap == null) {
             return null;
         }
@@ -134,12 +101,13 @@ public class RedirectionManagerImpl implements RedirectionManager,
     }
 
     public Iterator<String> getScopeAttributeNames() {
-        String scopeId = getScopeIdFromRequest();
+        String scopeId = getScopeId();
         if (scopeId == null) {
             return new ArrayList<String>().iterator();
         }
 
-        Map<String, Object> scopeMap = getScopeMap(scopeId, false);
+        Map<String, Object> scopeMap = getScopeMap(windowManager_
+                .findWindowId(), scopeId, false);
         if (scopeMap == null) {
             return new ArrayList<String>().iterator();
         }
@@ -147,50 +115,57 @@ public class RedirectionManagerImpl implements RedirectionManager,
         return scopeMap.keySet().iterator();
     }
 
-    public String getScopeIdFromRequest() {
-        S2Container container = getS2Container();
-        if (addScopeIdAsRequestParameter_) {
-            // リクエストパラメータから取り出す。
-            return ((Request) container.getComponent(Request.class))
-                    .getParameter(getRequestParameterNameForScopeId());
-        } else {
-            // Cookieから取り出す。
-            String cookieName = getCookieNameForScopeId();
-            HttpServletRequest httpRequest = (HttpServletRequest) container
-                    .getComponent(HttpServletRequest.class);
-            Cookie[] cookies = httpRequest.getCookies();
-            if (cookies != null) {
-                for (int i = 0; i < cookies.length; i++) {
-                    if (cookieName.equals(cookies[i].getName())) {
-                        return cookies[i].getValue();
-                    }
-                }
-            }
+    public String getScopeId() {
+        return scopeIdManager_.getScopeId();
+    }
 
-            return null;
+    public void setScopeAttributeForNextRequest(String name, Object value) {
+        String windowId = windowManager_.findWindowId();
+        String scopeId = getTemporaryScopeId();
+
+        if (value != null) {
+            getScopeMap(windowId, scopeId, true).put(name, value);
+        } else {
+            Map<String, Object> scopeMap = getScopeMap(windowId, scopeId, false);
+            if (scopeMap == null) {
+                return;
+            }
+            scopeMap.remove(name);
+            if (scopeMap.isEmpty()) {
+                removeScopeMap(windowId, scopeId);
+            }
         }
+    }
+
+    String getTemporaryScopeId() {
+        return StringUtils.getScopeKey(getRequest());
     }
 
     S2Container getS2Container() {
         return applicationManager_.findContextApplication().getS2Container();
     }
 
-    public void setScopeAttribute(String name, Object value) {
-        getScopeMap(getScopeId(), true).put(name, value);
+    Request getRequest() {
+        return (Request) getS2Container().getComponent(Request.class);
     }
 
-    public void removeScopeAttribute(String name) {
-        Map<String, Object> scopeMap = getScopeMap(getScopeId(), false);
-        if (scopeMap == null) {
-            return;
-        }
-        scopeMap.remove(name);
-        if (scopeMap.isEmpty()) {
-            removeScopeMap();
-        }
+    public void clearScopeAttributes() {
+        removeScopeMap(windowManager_.findWindowId(), getScopeId());
     }
 
-    public boolean existsScopeMap() {
-        return getScopeMap(getScopeId(), false) != null;
+    public void populateScopeId() {
+        String windowId = windowManager_.findWindowId();
+        String temporaryScopeId = getTemporaryScopeId();
+
+        Map<String, Object> scopeMap = getScopeMap(windowId, temporaryScopeId,
+                false);
+        String scopeId = scopeIdManager_.populateScopeId(scopeMap != null);
+        if (scopeMap != null) {
+            removeScopeMap(windowId, temporaryScopeId);
+            if (scopeId != null) {
+                setScopeMap(windowManager_.findWindowIdForNextRequest(),
+                        scopeId, scopeMap);
+            }
+        }
     }
 }

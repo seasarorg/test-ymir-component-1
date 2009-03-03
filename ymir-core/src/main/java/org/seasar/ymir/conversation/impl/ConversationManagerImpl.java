@@ -69,11 +69,13 @@ public class ConversationManagerImpl implements ConversationManager,
     }
 
     public Conversations getConversations(boolean create) {
-        Conversations conversations = windowManager_
-                .getScopeAttribute(ATTR_CONVERSATIONS);
+        String windowId = windowManager_.findWindowId();
+        Conversations conversations = windowManager_.getScopeAttribute(
+                windowId, ATTR_CONVERSATIONS);
         if (conversations == null && create) {
             conversations = newConversations();
-            windowManager_.setScopeAttribute(ATTR_CONVERSATIONS, conversations);
+            windowManager_.setScopeAttribute(windowId, ATTR_CONVERSATIONS,
+                    conversations);
         }
         return conversations;
     }

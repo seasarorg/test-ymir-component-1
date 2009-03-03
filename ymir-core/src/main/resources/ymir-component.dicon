@@ -53,6 +53,8 @@
     class="org.seasar.ymir.date.impl.DateManagerImpl" />
   <component name="redirectionManager"
     class="org.seasar.ymir.redirection.impl.RedirectionManagerImpl" />
+  <component name="scopeIdManager"
+    class="org.seasar.ymir.redirection.impl.PathScopeIdManager" />
   <component name="tokenManager"
     class="org.seasar.ymir.token.impl.TokenManagerImpl" />
   <component name="hotdeployManager"
