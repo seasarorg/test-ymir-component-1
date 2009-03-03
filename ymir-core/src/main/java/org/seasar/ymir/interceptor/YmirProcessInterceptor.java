@@ -181,11 +181,12 @@ public interface YmirProcessInterceptor {
      * @param action 現在のActionオブジェクト。他のYmirProcessInterceptorによって、
      * 元もとのActionではないものに差し替えられていることがあります。
      * nullであることもあります。
+     * @param global アクションを持つ例外ハンドラがグローバルハンドラかどうか。
      * @return Actionオブジェクト。nullを返すこともできます。
      * @since 1.0.2
      */
     Action exceptionHandlerActionInvoking(Request request,
-            Action originalAction, Action action);
+            Action originalAction, Action action, boolean global);
 
     /**
      * フレームワークが例外ハンドラの処理結果からResponseオブジェクトを構築した際に、
@@ -199,9 +200,10 @@ public interface YmirProcessInterceptor {
      * Requestオブジェクトが生成される前に例外が発生した場合など、nullが渡されることもあります。
      * @param response フレームワークによって構築されたResponseオブジェクト。
      * @param handler {@link ExceptionHandler}オブジェクト。
+     * @param global アクションを持つ例外ハンドラがグローバルハンドラかどうか。
      * @return Responseオブジェクト。nullを返してはいけません。
      * @since 1.0.2
      */
     Response responseCreatedByExceptionHandler(Request request,
-            Response response, Object handler);
+            Response response, Object handler, boolean global);
 }

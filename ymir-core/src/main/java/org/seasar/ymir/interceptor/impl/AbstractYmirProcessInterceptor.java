@@ -67,12 +67,12 @@ abstract public class AbstractYmirProcessInterceptor implements
     }
 
     public Action exceptionHandlerActionInvoking(Request request,
-            Action originalAction, Action action) {
+            Action originalAction, Action action, boolean global) {
         return action;
     }
 
     public Response responseCreatedByExceptionHandler(Request request,
-            Response response, Object handler) {
+            Response response, Object handler, boolean global) {
         return response;
     }
 }

@@ -90,35 +90,30 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
 
     @Override
     public Action exceptionHandlerActionInvoking(Request request,
-            Action originalAction, Action action) {
-        // 各コンテキストが持つ属性をinjectする。
-        // Page内ハンドラの場合でも、インジェクト処理の前に例外が発生した場合などは
-        // インジェクトが必要かつインジェクトの処理自体に問題があったわけではないので
-        // インジェクト可能。したがってPage内ハンドラであってもインジェクトは行なう。
-        // このため例外の発生箇所によっては同一Pageで二度インジェクト処理が行なわれて
-        // しまうことがあるに注意。
-
-        Object handler = action.getTarget();
-        PageComponent pageComponent = new PageComponentImpl(handler, handler
-                .getClass());
-        // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
-        // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
-        pageComponent.accept(new VisitorForInjecting(null));
-        pageComponent.accept(new VisitorForPopulating(null));
+            Action originalAction, Action action, boolean global) {
+        // グローバルハンドラの場合は各コンテキストが持つ属性をinjectする。
+        if (global) {
+            Object handler = action.getTarget();
+            PageComponent pageComponent = new PageComponentImpl(handler,
+                    handler.getClass());
+            // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
+            // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
+            pageComponent.accept(new VisitorForInjecting(null));
+            pageComponent.accept(new VisitorForPopulating(null));
+        }
 
         return action;
     }
 
     @Override
     public Response responseCreatedByExceptionHandler(Request request,
-            Response response, Object handler) {
-        // 各コンテキストに属性をoutjectする。
-        // Page内ハンドラであってもここでoutjectしないと正規のフローではもはや
-        // outjectされないため、ここでoutjectする。
-
-        PageComponent pageComponent = new PageComponentImpl(handler, handler
-                .getClass());
-        pageComponent.accept(new VisitorForOutjecting(null));
+            Response response, Object handler, boolean global) {
+        // グローバルハンドラの場合は各コンテキストに属性をoutjectする。
+        if (global) {
+            PageComponent pageComponent = new PageComponentImpl(handler,
+                    handler.getClass());
+            pageComponent.accept(new VisitorForOutjecting(null));
+        }
 
         return response;
     }

@@ -101,8 +101,9 @@ public class ExceptionProcessorImplTest extends TestCase {
                 "nullPointerExceptionHandler");
         ExceptionProcessorImpl target = newExceptionProcessorImpl(container);
 
-        Response actual = target.process(new MockRequest(),
-                new NullPointerException());
+        MockRequest request = new MockRequest();
+        request.enterDispatch(new MockDispatch());
+        Response actual = target.process(request, new NullPointerException());
 
         assertNotNull(actual);
         assertTrue(actual instanceof RedirectResponse);
@@ -116,8 +117,9 @@ public class ExceptionProcessorImplTest extends TestCase {
                 "nullPointerExceptionHandler");
         ExceptionProcessorImpl target = newExceptionProcessorImpl(container);
 
-        Response actual = target.process(new MockRequest(),
-                new NullPointerException());
+        MockRequest request = new MockRequest();
+        request.enterDispatch(new MockDispatch());
+        Response actual = target.process(request, new NullPointerException());
 
         assertNotNull(actual);
         assertTrue(actual instanceof RedirectResponse);
@@ -131,8 +133,9 @@ public class ExceptionProcessorImplTest extends TestCase {
                 "nullPointerExceptionHandler");
         ExceptionProcessorImpl target = newExceptionProcessorImpl(container);
 
-        Response actual = target.process(new MockRequest(),
-                new NullPointerException());
+        MockRequest request = new MockRequest();
+        request.enterDispatch(new MockDispatch());
+        Response actual = target.process(request, new NullPointerException());
 
         assertNotNull(actual);
         assertTrue(actual instanceof ForwardResponse);

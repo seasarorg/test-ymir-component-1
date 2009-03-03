@@ -24,6 +24,7 @@ import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
+import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.FrameworkDispatch;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.MatchedPathMapping;
@@ -59,6 +60,8 @@ public class RequestProcessorImpl implements RequestProcessor {
 
     private ComponentMetaDataFactory componentMetaDataFactory_;
 
+    private ExceptionProcessor exceptionProcessor_;
+
     private Updater[] updaters_ = new Updater[0];
 
     private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
@@ -92,6 +95,11 @@ public class RequestProcessorImpl implements RequestProcessor {
             ComponentMetaDataFactory componentMetaDataFactory) {
         componentMetaDataFactory_ = componentMetaDataFactory;
         initPageComponentVisitor();
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setExceptionProcessor(ExceptionProcessor exceptionProcessor) {
+        exceptionProcessor_ = exceptionProcessor;
     }
 
     public void setUpdaters(Updater[] updaters) {
@@ -210,59 +218,65 @@ public class RequestProcessorImpl implements RequestProcessor {
             // またはDeniedPathMappingImplに関して処理をしている場合にnullになる。
             if (pageComponent != null) {
                 do {
-                    dispatch.setPageComponent(pageComponent);
+                    try {
+                        dispatch.setPageComponent(pageComponent);
 
-                    Response r = pageComponent
-                            .accept(visitorForInvokingInPhasePageComponentCreated_);
-                    if (r.getType() != ResponseType.PASSTHROUGH) {
-                        response = r;
-                        break;
-                    }
+                        Response r = pageComponent
+                                .accept(visitorForInvokingInPhasePageComponentCreated_);
+                        if (r.getType() != ResponseType.PASSTHROUGH) {
+                            response = r;
+                            break;
+                        }
 
-                    for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                        pageComponent = ymirProcessInterceptors_[i]
-                                .pageComponentCreated(request, pageComponent);
-                    }
+                        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                            pageComponent = ymirProcessInterceptors_[i]
+                                    .pageComponentCreated(request,
+                                            pageComponent);
+                        }
 
-                    // リクエストに対応するアクションを決定する。
+                        // リクエストに対応するアクションを決定する。
 
-                    final Action originalAction = dispatch
-                            .getMatchedPathMapping().getAction(pageComponent,
-                                    request);
-                    dispatch.setAction(originalAction);
+                        final Action originalAction = dispatch
+                                .getMatchedPathMapping().getAction(
+                                        pageComponent, request);
+                        dispatch.setAction(originalAction);
 
-                    Action action = originalAction;
-                    for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                        action = ymirProcessInterceptors_[i].actionInvoking(
-                                request, originalAction, action);
-                        dispatch.setAction(action);
-                    }
-                    page = (action != null ? action.getTarget() : null);
+                        Action action = originalAction;
+                        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                            action = ymirProcessInterceptors_[i]
+                                    .actionInvoking(request, originalAction,
+                                            action);
+                            dispatch.setAction(action);
+                        }
+                        page = (action != null ? action.getTarget() : null);
 
-                    if (action == null
-                            && dispatch.getDispatcher() == Dispatcher.REQUEST) {
-                        // リクエストに対応するアクションが存在しない場合はリクエストを受け付けない。
-                        // ただしforwardの時はアクションがなくても良いことにしている。
-                        // これは、forward先のパスに対応するPageクラスでは_prerender()だけ
-                        // 呼びたい場合にアクションメソッドを省略できるようにするため。
-                        throw new ActionNotFoundRuntimeException(dispatch
-                                .getPath(), request.getMethod());
-                    }
+                        if (action == null
+                                && dispatch.getDispatcher() == Dispatcher.REQUEST) {
+                            // リクエストに対応するアクションが存在しない場合はリクエストを受け付けない。
+                            // ただしforwardの時はアクションがなくても良いことにしている。
+                            // これは、forward先のパスに対応するPageクラスでは_prerender()だけ
+                            // 呼びたい場合にアクションメソッドを省略できるようにするため。
+                            throw new ActionNotFoundRuntimeException(dispatch
+                                    .getPath(), request.getMethod());
+                        }
 
-                    r = pageComponent
-                            .accept(visitorForInvokingInPhaseActionInvoking_);
-                    if (r.getType() != ResponseType.PASSTHROUGH) {
-                        response = r;
-                        break;
-                    }
+                        r = pageComponent
+                                .accept(visitorForInvokingInPhaseActionInvoking_);
+                        if (r.getType() != ResponseType.PASSTHROUGH) {
+                            response = r;
+                            break;
+                        }
 
-                    response = actionManager_.invokeAction(action);
+                        response = actionManager_.invokeAction(action);
 
-                    r = pageComponent
-                            .accept(visitorForInvokingInPhaseActionInvoked_);
-                    if (r.getType() != ResponseType.PASSTHROUGH) {
-                        response = r;
-                        break;
+                        r = pageComponent
+                                .accept(visitorForInvokingInPhaseActionInvoked_);
+                        if (r.getType() != ResponseType.PASSTHROUGH) {
+                            response = r;
+                            break;
+                        }
+                    } catch (Throwable t) {
+                        response = exceptionProcessor_.process(request, t);
                     }
                 } while (false);
 
@@ -276,8 +290,7 @@ public class RequestProcessorImpl implements RequestProcessor {
                 // 準備を行なうようにする方が良い。そのため_prerenderは呼ばないように
                 // 変更した。
                 if (response.getType() == ResponseType.PASSTHROUGH) {
-                    pageComponent.accept(new VisitorForPrerendering(request,
-                            actionManager_));
+                    pageComponent.accept(new VisitorForPrerendering(request));
                 }
 
                 // Pageコンポーネントをattributeとしてバインドしておく。
@@ -415,6 +428,23 @@ public class RequestProcessorImpl implements RequestProcessor {
             // このメソッドでは指定されたpathに対応するリソースが存在してかつそれがファイル（＝ディレクトリではない）
             // である場合にtrueを返したいので、getResource(String)ではまずい。
             return pathSet.contains(path);
+        }
+    }
+
+    protected class VisitorForPrerendering extends PageComponentVisitor<Object> {
+        private Request request_;
+
+        private MatchedPathMapping matched_;
+
+        public VisitorForPrerendering(Request request) {
+            request_ = request;
+            matched_ = request_.getCurrentDispatch().getMatchedPathMapping();
+        }
+
+        public Object process(PageComponent pageComponent) {
+            actionManager_.invokeAction(matched_.getPrerenderAction(
+                    pageComponent, request_));
+            return null;
         }
     }
 }

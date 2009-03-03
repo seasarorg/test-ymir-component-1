@@ -3,6 +3,7 @@ package org.seasar.ymir.mock;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -58,56 +59,6 @@ public class MockYmir implements Ymir {
         return Configuration.PROJECTSTATUS_DEVELOP.equals(getProjectStatus());
     }
 
-    public Request prepareForProcessing(String contextPath, HttpMethod method,
-            String characterEncoding, Map<String, String[]> parameterMap,
-            Map<String, FormFile[]> fileParameterMap,
-            AttributeContainer attributeContainer) {
-        return null;
-    }
-
-    public void enterDispatch(Request request, String path, String queryString,
-            Dispatcher dispatcher) {
-        request.enterDispatch(new MockDispatch().setPath(path).setQueryString(
-                queryString).setDispatcher(dispatcher));
-    }
-
-    public void enterDispatch(Request request, String path, String queryString,
-            Dispatcher dispatcher, MatchedPathMapping matched) {
-        request.enterDispatch(new MockDispatch().setPath(path).setQueryString(
-                queryString).setDispatcher(dispatcher));
-    }
-
-    public void leaveDispatch(Request request) {
-        request.leaveDispatch();
-    }
-
-    public Response processException(Request request, Throwable t) {
-        return null;
-    }
-
-    public Response processRequest(Request request) {
-        return null;
-    }
-
-    public HttpServletResponseFilter processResponse(ServletContext context_,
-            HttpServletRequest httpRequest, HttpServletResponse httpResponse,
-            Request request, Response response) throws IOException,
-            ServletException {
-        return null;
-    }
-
-    public void restoreForInclusion(AttributeContainer attributeContainer,
-            Object backupped) {
-    }
-
-    public YmirProcessInterceptor[] getYmirProcessInterceptors() {
-        return new YmirProcessInterceptor[0];
-    }
-
-    public void updateRequest(Request request, HttpServletRequest httpRequest,
-            Dispatcher dispatcher) {
-    }
-
     public MatchedPathMapping findMatchedPathMapping(String path,
             HttpMethod method) {
         return null;
@@ -128,5 +79,15 @@ public class MockYmir implements Ymir {
 
     public Class<?> getPageClassOfPath(String path) {
         return null;
+    }
+
+    public YmirProcessInterceptor[] getYmirProcessInterceptors() {
+        return new YmirProcessInterceptor[0];
+    }
+
+    public void process(ServletContext servletContext,
+            HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+            Dispatcher dispatcher, String path, HttpMethod method,
+            FilterChain chain) throws IOException, ServletException {
     }
 }

@@ -46,12 +46,9 @@ public class YmirFilter implements Filter {
 
     private Ymir ymir_;
 
-    private YmirProcessInterceptor[] ymirProcessInterceptors_;
-
     public void init(FilterConfig config) throws ServletException {
         context_ = config.getServletContext();
         ymir_ = (Ymir) context_.getAttribute(YmirListener.ATTR_YMIR);
-        ymirProcessInterceptors_ = ymir_.getYmirProcessInterceptors();
 
         String dispatcher = config.getInitParameter("dispatcher");
         if (dispatcher != null) {
@@ -62,18 +59,13 @@ public class YmirFilter implements Filter {
     public void destroy() {
         context_ = null;
         ymir_ = null;
-        ymirProcessInterceptors_ = null;
         dispatcher_ = null;
     }
 
-    @SuppressWarnings("unchecked")
     public void doFilter(ServletRequest req, ServletResponse res,
             FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) req;
         HttpServletResponse httpResponse = (HttpServletResponse) res;
-
-        Dispatcher dispatcher = getDispatcher(httpRequest);
-        String path = ServletUtils.getNativePath(httpRequest);
         HttpMethod method;
         try {
             method = HttpMethod.enumOf(httpRequest.getMethod());
@@ -82,134 +74,16 @@ public class YmirFilter implements Filter {
                     + httpRequest.getMethod());
         }
 
-        // 開発モードではResponseを加工できるように、マッチするかに関わらずYmirで処理するようにする。
-        // また、開発モードではHTTPメソッドが差し替えられることがあるため、MatchedPathMappingは
-        // HTTPメソッド差し替え後に作成する必要がある。そのためここではMatchedPathMappingを
-        // 作らない。
-        MatchedPathMapping matched = null;
-        if (!ymir_.isUnderDevelopment()) {
-            matched = ymir_.findMatchedPathMapping(path, method);
-            if (matched == null) {
-                // マッチしないのでYmirでは処理しない。
-                chain.doFilter(req, res);
-                return;
-            }
-        }
-
-        ThreadContext context = getThreadContext();
-        try {
-            Response response = null;
-            if (dispatcher == Dispatcher.REQUEST) {
-                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                    response = ymirProcessInterceptors_[i].enteringRequest(
-                            context_, httpRequest, httpResponse, path);
-                    if (response != null) {
-                        break;
-                    }
-                }
-            }
-
-            AttributeContainer attributeContainer = new HttpServletRequestAttributeContainer(
-                    httpRequest);
-
-            Object backupped = null;
-            Response backuppedResponse = null;
-            if (dispatcher == Dispatcher.INCLUDE) {
-                backupped = ymir_.backupForInclusion(attributeContainer);
-                backuppedResponse = (Response) context
-                        .getComponent(Response.class);
-            }
-
-            Request request;
-            if (dispatcher == Dispatcher.REQUEST) {
-                Map<String, FormFile[]> fileParameterMap = (Map<String, FormFile[]>) httpRequest
-                        .getAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
-                if (fileParameterMap != null) {
-                    httpRequest
-                            .removeAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
-                } else {
-                    fileParameterMap = new HashMap<String, FormFile[]>();
-                }
-
-                request = ymir_.prepareForProcessing(ServletUtils
-                        .getContextPath(httpRequest), method, httpRequest
-                        .getCharacterEncoding(), httpRequest.getParameterMap(),
-                        fileParameterMap, attributeContainer);
-                context.setComponent(Request.class, request);
-            } else {
-                request = (Request) context.getComponent(Request.class);
-                ymir_.updateRequest(request, httpRequest, dispatcher);
-            }
-
-            ymir_.enterDispatch(request, path, ServletUtils
-                    .getQueryString(httpRequest), dispatcher, matched);
-            try {
-                if (response == null) {
-                    try {
-                        response = ymir_.processRequest(request);
-                    } catch (Throwable t) {
-                        if (dispatcher == Dispatcher.REQUEST) {
-                            response = ymir_.processException(request, t);
-                        } else {
-                            rethrow(t);
-                        }
-                    }
-                }
-
-                HttpServletResponseFilter responseFilter = ymir_
-                        .processResponse(context_, httpRequest, httpResponse,
-                                request, response);
-                if (responseFilter != null) {
-                    chain.doFilter(httpRequest, responseFilter);
-                    responseFilter.commit();
-                }
-            } finally {
-                if (dispatcher == Dispatcher.REQUEST) {
-                    for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                        ymirProcessInterceptors_[i].leavingRequest(request);
-                    }
-                } else if (dispatcher == Dispatcher.INCLUDE) {
-                    context.setComponent(Response.class, backuppedResponse);
-                    ymir_.restoreForInclusion(attributeContainer, backupped);
-                }
-
-                ymir_.leaveDispatch(request);
-
-                context.setComponent(Response.class, null);
-            }
-        } finally {
-            if (dispatcher == Dispatcher.REQUEST) {
-                context.setComponent(Request.class, null);
-
-                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                    ymirProcessInterceptors_[i].leftRequest();
-                }
-            }
-        }
+        ymir_.process(context_, httpRequest, httpResponse,
+                getDispatcher(httpRequest), ServletUtils
+                        .getNativePath(httpRequest), method, chain);
     }
 
-    protected Dispatcher getDispatcher(HttpServletRequest request) {
+    protected Dispatcher getDispatcher(ServletRequest request) {
         if (dispatcher_ != null) {
             return dispatcher_;
         } else {
             return ServletUtils.getDispatcher(request);
         }
-    }
-
-    void rethrow(Throwable t) throws IOException, ServletException {
-        if (t instanceof ServletException) {
-            throw (ServletException) t;
-        } else if (t instanceof IOException) {
-            throw (IOException) t;
-        } else if (t instanceof RuntimeException) {
-            throw (RuntimeException) t;
-        } else {
-            throw new WrappingRuntimeException(t);
-        }
-    }
-
-    protected ThreadContext getThreadContext() {
-        return (ThreadContext) ymir_.getApplication().getS2Container()
-                .getRoot().getComponent(ThreadContext.class);
     }
 }

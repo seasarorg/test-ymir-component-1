@@ -9,6 +9,16 @@ import org.seasar.ymir.response.ForwardResponse;
  * @author YOKOTA Takehiko
  */
 public class ResponseUtils {
+    /**
+     * 例外発生時のレスポンスとなる標準の画面テンプレートが格納されているディレクトリへのパスです。
+     */
+    public static final String PATH_EXCEPTION_TEMPLATE = "/WEB-INF/template/exception/";
+
+    /**
+     * 例外発生時のレスポンスとなる標準の画面テンプレートの拡張子です。
+     */
+    public static final String SUFFIX_EXCEPTION_TEMPLATE = ".html";
+
     private ResponseUtils() {
     }
 
@@ -78,9 +88,9 @@ public class ResponseUtils {
      * @since 1.0.2
      */
     public static String getExceptionTemplatePath(Class<?> exceptionClass) {
-        return ExceptionProcessor.PATH_EXCEPTION_TEMPLATE
+        return PATH_EXCEPTION_TEMPLATE
                 + ClassUtils.getShortName(exceptionClass)
-                + ExceptionProcessor.SUFFIX_EXCEPTION_TEMPLATE;
+                + SUFFIX_EXCEPTION_TEMPLATE;
     }
 
     /**

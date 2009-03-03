@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -265,7 +266,7 @@ public class ServletUtils {
      * @param request リクエスト。
      * @return ディスパッチャ。
      */
-    public static Dispatcher getDispatcher(HttpServletRequest request) {
+    public static Dispatcher getDispatcher(ServletRequest request) {
         if (request.getAttribute(ATTR_ERROR_EXCEPTION) != null) {
             return Dispatcher.ERROR;
         } else if (request.getAttribute(ATTR_INCLUDE_CONTEXT_PATH) != null) {

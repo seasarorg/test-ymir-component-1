@@ -12,16 +12,6 @@ package org.seasar.ymir;
  */
 public interface ExceptionProcessor {
     /**
-     * 例外発生時のレスポンスとなる標準の画面テンプレートが格納されているディレクトリへのパスです。
-     */
-    String PATH_EXCEPTION_TEMPLATE = "/WEB-INF/template/exception/";
-
-    /**
-     * 例外発生時のレスポンスとなる標準の画面テンプレートの拡張子です。
-     */
-    String SUFFIX_EXCEPTION_TEMPLATE = ".html";
-
-    /**
      * 例外をハンドリングするデフォルトのExceptionHandlerコンポーネント名の接頭辞です。
      */
     String NAMEPREFIX_DEFAULT = "default_";
@@ -38,8 +28,18 @@ public interface ExceptionProcessor {
     String ATTR_HANDLER = "handler";
 
     /**
+     * 例外をハンドリングしたExceptionHandlerコンポーネントがページコンポーネントかグローバルハンドラコンポーネントか
+     * を画面テンプレート等から取得できるように
+     * {@link Request}オブジェクトに属性として設定する際の属性名です。
+     * <p>属性値はBoolean型です。</p>
+     * @since 1.0.2
+     */
+    String ATTR_HANDLER_GLOBAL = "handler.global";
+
+    /**
      * スローされた例外を画面テンプレート等から取得できるように
      * {@link Request}オブジェクトに属性として設定する際の属性名です。
+     * <p>属性値はThrowable型です。</p>
      */
     String ATTR_EXCEPTION = "exception";
 
