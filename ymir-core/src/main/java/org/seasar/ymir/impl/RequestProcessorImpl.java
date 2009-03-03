@@ -276,7 +276,8 @@ public class RequestProcessorImpl implements RequestProcessor {
                 // 準備を行なうようにする方が良い。そのため_prerenderは呼ばないように
                 // 変更した。
                 if (response.getType() == ResponseType.PASSTHROUGH) {
-                    pageComponent.accept(new VisitorForPrerendering(request));
+                    pageComponent.accept(new VisitorForPrerendering(request,
+                            actionManager_));
                 }
 
                 // Pageコンポーネントをattributeとしてバインドしておく。
@@ -285,7 +286,7 @@ public class RequestProcessorImpl implements RequestProcessor {
             }
 
             if (log_.isDebugEnabled()) {
-                log_.debug("Raw response (1): " + response);
+                log_.debug("Raw response: " + response);
             }
 
             // pageComponentがnullの場合でも、自動生成機能でクラスやテンプレートの自動生成が
@@ -295,7 +296,7 @@ public class RequestProcessorImpl implements RequestProcessor {
             response = adjustResponse(dispatch, response, page);
 
             if (log_.isDebugEnabled()) {
-                log_.debug("Raw response (2): " + response);
+                log_.debug("Adjusted response: " + response);
             }
         }
 
@@ -414,23 +415,6 @@ public class RequestProcessorImpl implements RequestProcessor {
             // このメソッドでは指定されたpathに対応するリソースが存在してかつそれがファイル（＝ディレクトリではない）
             // である場合にtrueを返したいので、getResource(String)ではまずい。
             return pathSet.contains(path);
-        }
-    }
-
-    protected class VisitorForPrerendering extends PageComponentVisitor<Object> {
-        private Request request_;
-
-        private MatchedPathMapping matched_;
-
-        public VisitorForPrerendering(Request request) {
-            request_ = request;
-            matched_ = request_.getCurrentDispatch().getMatchedPathMapping();
-        }
-
-        public Object process(PageComponent pageComponent) {
-            actionManager_.invokeAction(matched_.getPrerenderAction(
-                    pageComponent, request_));
-            return null;
         }
     }
 }

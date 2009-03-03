@@ -13,7 +13,7 @@ public class ExceptionHandlerCreator extends ComponentCreatorImpl {
     public ExceptionHandlerCreator(NamingConvention namingConvention) {
         super(namingConvention);
         setNameSuffix(YmirNamingConvention.SUFFIX_EXCEPTIONHANDLER);
-        setInstanceDef(InstanceDefFactory.REQUEST);
+        setInstanceDef(InstanceDefFactory.PROTOTYPE);
         setAutoBindingDef(AutoBindingExplicitDef.INSTANCE);
     }
 

@@ -303,6 +303,10 @@ public class YmirImpl implements Ymir {
             context.setComponent(Response.class, response);
         }
 
+        if (log_.isDebugEnabled()) {
+            log_.debug("Response after exception handling: " + response);
+        }
+
         request.setAttribute(ATTR_RESPONSE, response);
 
         return response;

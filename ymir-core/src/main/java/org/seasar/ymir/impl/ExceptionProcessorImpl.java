@@ -91,9 +91,9 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
 
     @SuppressWarnings( { "unchecked", "deprecation" })
     public Response process(Request request, Throwable target) {
-        log_.debug("Exception has occured", target);
-
-        boolean exceptionHandlerInterfaceEnabled = isExceptionHandlerInterfaceEnabled();
+        if (log_.isDebugEnabled()) {
+            log_.debug("Exception has occured", target);
+        }
 
         target = ThrowableUtils.unwrap(target);
 
@@ -123,14 +123,59 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
             }
         }
 
-        Object handler = null;
+        Result result = doProcess(request, target);
+        PageComponent pageComponent = result.getPageComopnent();
+        Class<?> exceptionClass = result.getExceptionClass();
+        Object handler = result.getHandler();
+        Response response = result.getResponse();
+
+        if (pageComponent != null
+                && response.getType() == ResponseType.PASSTHROUGH) {
+            try {
+                pageComponent.accept(new VisitorForPrerendering(request,
+                        actionManager_));
+            } catch (Throwable t) {
+                if (log_.isDebugEnabled()) {
+                    log_.debug("Exception has occured in _prerender()", t);
+                }
+                result = doProcess(request, ThrowableUtils.unwrap(t));
+            }
+        }
+
+        if (log_.isDebugEnabled()) {
+            log_.debug("Raw response (1): " + response);
+        }
+
+        if (isExceptionHandlerInterfaceEnabled()) {
+            // 互換性のため。
+            if (handler instanceof org.seasar.ymir.handler.ExceptionHandler
+                    && response.getType() == ResponseType.PASSTHROUGH) {
+                response = new ForwardResponse(ResponseUtils
+                        .getExceptionTemplatePath(exceptionClass));
+            }
+        }
+
+        if (log_.isDebugEnabled()) {
+            log_.debug("Raw response (2): " + response);
+        }
+
+        // ExceptionHandlerコンポーネントと例外オブジェクトをattributeとしてバインドしておく。
+        request.setAttribute(ATTR_HANDLER, handler);
+        request.setAttribute(ATTR_EXCEPTION, target);
+
+        return response;
+    }
+
+    Result doProcess(Request request, Throwable target) {
+        PageComponent pageComponent = null;
         Class<?> exceptionClass = null;
+        Object handler = null;
         Response response = null;
 
         if (request != null) {
             Dispatch dispatch = request.getCurrentDispatch();
             if (dispatch != null) {
-                PageComponent pageComponent = dispatch.getPageComponent();
+                pageComponent = dispatch.getPageComponent();
                 if (pageComponent != null) {
                     handler = pageComponent.getPage();
                     Class<?> handlerClass = pageComponent.getPageClass();
@@ -144,17 +189,22 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                             && (exceptionClass = exceptionClass.getSuperclass()) != Object.class);
 
                     if (actionMethod != null) {
-                        log_.debug("Exception handler in Page ("
-                                + handlerClass.getName() + ")is handling it");
+                        if (log_.isDebugEnabled()) {
+                            log_.debug("Exception handler "
+                                    + ClassUtils.getShorterName(handlerClass)
+                                    + "#" + actionMethod.getName()
+                                    + "() is handling the exception");
+                        }
                         try {
                             response = process(request, handler, handlerClass,
                                     actionMethod, exceptionClass, target);
                         } catch (Throwable t) {
                             target = ThrowableUtils.unwrap(t);
-                            log_
-                                    .debug(
-                                            "In-page exception handler re-throwed exception",
-                                            target);
+                            if (log_.isDebugEnabled()) {
+                                log_.debug("In-page exception"
+                                        + " handler re-throwed exception",
+                                        target);
+                            }
                         }
                     }
                 }
@@ -198,7 +248,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                 StringBuilder sb = new StringBuilder();
                 sb.append("Exception handler class must have"
                         + " a method annotated by @ExceptionHandler");
-                if (exceptionHandlerInterfaceEnabled) {
+                if (isExceptionHandlerInterfaceEnabled()) {
                     sb.append(", or must implements ExceptionHandler interface"
                             + " with valid concrete parameter type");
                 }
@@ -209,28 +259,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                     exceptionClass, target);
         }
 
-        if (log_.isDebugEnabled()) {
-            log_.debug("Raw response (1): " + response);
-        }
-
-        if (exceptionHandlerInterfaceEnabled) {
-            // 互換性のため。
-            if (handler instanceof org.seasar.ymir.handler.ExceptionHandler
-                    && response.getType() == ResponseType.PASSTHROUGH) {
-                response = new ForwardResponse(ResponseUtils
-                        .getExceptionTemplatePath(exceptionClass));
-            }
-        }
-
-        if (log_.isDebugEnabled()) {
-            log_.debug("Raw response (2): " + response);
-        }
-
-        // ExceptionHandlerコンポーネントと例外オブジェクトをattributeとしてバインドしておく。
-        request.setAttribute(ATTR_HANDLER, handler);
-        request.setAttribute(ATTR_EXCEPTION, target);
-
-        return response;
+        return new Result(pageComponent, exceptionClass, handler, response);
     }
 
     Response process(Request request, Object handler, Class<?> handlerClass,
@@ -312,5 +341,39 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     ThreadContext getThreadContext() {
         return (ThreadContext) ymir_.getApplication().getS2Container()
                 .getRoot().getComponent(ThreadContext.class);
+    }
+
+    protected static class Result {
+        private PageComponent pageComponent_;
+
+        private Class<?> exceptionClass_;
+
+        private Object handler_;
+
+        private Response response_;
+
+        public Result(PageComponent pageComponent, Class<?> exceptionClass,
+                Object handler, Response response) {
+            pageComponent_ = pageComponent;
+            exceptionClass_ = exceptionClass;
+            handler_ = handler;
+            response_ = response;
+        }
+
+        public PageComponent getPageComopnent() {
+            return pageComponent_;
+        }
+
+        public Class<?> getExceptionClass() {
+            return exceptionClass_;
+        }
+
+        public Object getHandler() {
+            return handler_;
+        }
+
+        public Response getResponse() {
+            return response_;
+        }
     }
 }

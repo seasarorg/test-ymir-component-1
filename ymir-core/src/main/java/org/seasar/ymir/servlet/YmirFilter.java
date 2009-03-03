@@ -48,8 +48,6 @@ public class YmirFilter implements Filter {
 
     private YmirProcessInterceptor[] ymirProcessInterceptors_;
 
-    private static final Log log_ = LogFactory.getLog(YmirFilter.class);
-
     public void init(FilterConfig config) throws ServletException {
         context_ = config.getServletContext();
         ymir_ = (Ymir) context_.getAttribute(YmirListener.ATTR_YMIR);
@@ -156,10 +154,6 @@ public class YmirFilter implements Filter {
                             rethrow(t);
                         }
                     }
-                }
-
-                if (log_.isDebugEnabled()) {
-                    log_.debug("FINAL RESPONSE: " + response);
                 }
 
                 HttpServletResponseFilter responseFilter = ymir_

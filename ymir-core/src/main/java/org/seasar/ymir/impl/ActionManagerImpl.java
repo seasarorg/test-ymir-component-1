@@ -15,6 +15,7 @@ import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.response.constructor.ResponseConstructor;
 import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
 import org.seasar.ymir.scope.ScopeManager;
+import org.seasar.ymir.util.ClassUtils;
 
 public class ActionManagerImpl implements ActionManager {
     private ResponseConstructorSelector responseConstructorSelector_;
@@ -67,14 +68,12 @@ public class ActionManagerImpl implements ActionManager {
 
         if (action != null && action.shouldInvoke()) {
             if (log_.isDebugEnabled()) {
-                log_.debug("INVOKE: " + action.getTarget().getClass() + "#"
+                log_.debug("INVOKE: "
+                        + ClassUtils.getShorterName(action.getTarget()) + "#"
                         + action.getMethodInvoker());
             }
             response = constructResponse(action.getTarget(), action
                     .getReturnType(), action.invoke());
-            if (log_.isDebugEnabled()) {
-                log_.debug("RESPONSE: " + response);
-            }
         }
 
         return response;

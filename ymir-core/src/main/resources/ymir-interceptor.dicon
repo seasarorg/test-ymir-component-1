@@ -13,7 +13,7 @@
   </component>
   <component name="constraintInterceptor"
     class="org.seasar.ymir.constraint.impl.ConstraintInterceptor">
-    <property name="priority">50.0</property>
+    <property name="priority">60.0</property>
   </component>
   <component name="pluginInterceptor"
     class="org.seasar.ymir.plugin.impl.PluginInterceptor">
