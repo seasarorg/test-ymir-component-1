@@ -467,6 +467,14 @@ abstract public class YmirTestCase extends TestCase {
                 new HashMap<String, FormFile[]>());
     }
 
+    // XXX
+    private Request prepareForProcessing(String path, HttpMethod method,
+            Map<String, String[]> parseQueryString,
+            HashMap<String, FormFile[]> hashMap) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     /**
      * クエリ文字列からMapを構築して返します。
      *
@@ -547,48 +555,46 @@ abstract public class YmirTestCase extends TestCase {
      *
      * @param path リクエストパス（コンテキストパス相対）。
      * @param method HTTPメソッド。
-     * @param dispatcher ディスパッチャ。通常はDispatcher.REQUESTを指定して下さい。
      * @param parameterMap リクエストパラメータが格納されているMap。
      * @param fileParameterMap fileタイプのリクエストパラメータが格納されているMap。
      * @return 構築されたRequestオブジェクト。
      */
     @SuppressWarnings("unchecked")
-    protected Request prepareForProcessing(String path, HttpMethod method,
-            Map<String, String[]> parameterMap,
-            Map<String, FormFile[]> fileParameterMap) {
-        if (parameterMap == null) {
-            parameterMap = new HashMap<String, String[]>();
-        }
-        if (fileParameterMap == null) {
-            fileParameterMap = new HashMap<String, FormFile[]>();
-        }
-
-        MockHttpSession session = null;
-        if (httpRequest_ != null) {
-            session = (MockHttpSession) httpRequest_.getSession(false);
-        }
-        httpRequest_ = newHttpServletRequest(application_, path, session);
-        httpRequest_.getParameterMap().putAll(parameterMap);
-        httpRequest_.setLocale(getLocale());
-        httpResponse_ = newHttpServletResponse(httpRequest_);
-
-        ContainerUtils.setRequest(container_, httpRequest_);
-        ContainerUtils.setResponse(container_, httpResponse_);
-
-        status_ = STATUS_PREPARED;
-
-        request_ = ymir_.prepareForProcessing(getContextPath(), method,
-                "UTF-8", parameterMap, fileParameterMap,
-                new HttpServletRequestAttributeContainer(httpRequest_));
-
-        String queryString = null;
-        if (method == HttpMethod.GET && !parameterMap.isEmpty()) {
-            queryString = new Path(path, parameterMap).getQueryString();
-        }
-        ymir_.enterDispatch(request_, path, queryString, Dispatcher.REQUEST);
-        return request_;
-    }
-
+    //    protected Request prepareForProcessing(String path, HttpMethod method,
+    //            Map<String, String[]> parameterMap,
+    //            Map<String, FormFile[]> fileParameterMap) {
+    //        if (parameterMap == null) {
+    //            parameterMap = new HashMap<String, String[]>();
+    //        }
+    //        if (fileParameterMap == null) {
+    //            fileParameterMap = new HashMap<String, FormFile[]>();
+    //        }
+    //
+    //        MockHttpSession session = null;
+    //        if (httpRequest_ != null) {
+    //            session = (MockHttpSession) httpRequest_.getSession(false);
+    //        }
+    //        httpRequest_ = newHttpServletRequest(application_, path, session);
+    //        httpRequest_.getParameterMap().putAll(parameterMap);
+    //        httpRequest_.setLocale(getLocale());
+    //        httpResponse_ = newHttpServletResponse(httpRequest_);
+    //
+    //        ContainerUtils.setRequest(container_, httpRequest_);
+    //        ContainerUtils.setResponse(container_, httpResponse_);
+    //
+    //        status_ = STATUS_PREPARED;
+    //
+    //        request_ = ymir_.prepareForProcessing(getContextPath(), method,
+    //                "UTF-8", parameterMap, fileParameterMap,
+    //                new HttpServletRequestAttributeContainer(httpRequest_));
+    //
+    //        String queryString = null;
+    //        if (method == HttpMethod.GET && !parameterMap.isEmpty()) {
+    //            queryString = new Path(path, parameterMap).getQueryString();
+    //        }
+    //        ymir_.enterDispatch(request_, path, queryString, Dispatcher.REQUEST);
+    //        return request_;
+    //    }
     final protected Class<?> getPageClass(String path) {
         Class<?> pageClass = ymir_.getPageClassOfPath(path);
         if (pageClass == null) {
@@ -618,19 +624,19 @@ abstract public class YmirTestCase extends TestCase {
         return new MockHttpServletRequestImpl(application, path, session);
     }
 
-    protected void prepareForProcessing(String path, Dispatcher dispatcher) {
-        checkStatus(STATUS_PROCESSED);
-
-        ymir_.updateRequest(request_, httpRequest_, dispatcher);
-
-        ContainerUtils.setRequest(container_, httpRequest_);
-        ContainerUtils.setResponse(container_, httpResponse_);
-
-        status_ = STATUS_PREPARED;
-
-        ymir_.enterDispatch(request_, path, null, dispatcher);
-    }
-
+    //    protected void prepareForProcessing(String path, Dispatcher dispatcher) {
+    //        checkStatus(STATUS_PROCESSED);
+    //
+    //        ymir_.updateRequest(request_, httpRequest_, dispatcher);
+    //
+    //        ContainerUtils.setRequest(container_, httpRequest_);
+    //        ContainerUtils.setResponse(container_, httpResponse_);
+    //
+    //        status_ = STATUS_PREPARED;
+    //
+    //        ymir_.enterDispatch(request_, path, null, dispatcher);
+    //    }
+    //
     protected void checkStatus(int status) {
         if (status_ < status) {
             throw new IllegalStateException("status " + status
@@ -646,12 +652,14 @@ abstract public class YmirTestCase extends TestCase {
      *
      * @param request Requestオブジェクト。
      * @return 処理結果を表すResponseオブジェクト。
-     * @throws PermissionDeniedException 権限エラーが発生した場合。
-     * @throws PageNotFoundRuntimeException 指定されたリクエストパスに直接アクセスすることが禁止されている場合。
      */
-    protected Response processRequest(Request request)
-            throws PermissionDeniedException, PageNotFoundRuntimeException {
+    protected Response processRequest(Request request) {
         return processRequest(request, null);
+    }
+
+    protected Response processRequest(Request request, Test test) {
+        // XXX
+        return null;
     }
 
     /**
@@ -663,44 +671,40 @@ abstract public class YmirTestCase extends TestCase {
      * @param request Requestオブジェクト。
      * @param test リクエストの処理中に実行するテスト。nullを指定することもできます。
      * @return 処理結果を表すResponseオブジェクト。
-     * @throws PermissionDeniedException 権限エラーが発生した場合。
-     * @throws PageNotFoundRuntimeException 指定されたリクエストパスに直接アクセスすることが禁止されている場合。
      */
-    protected Response processRequest(Request request, Test test)
-            throws PermissionDeniedException, PageNotFoundRuntimeException {
-        checkStatus(STATUS_PREPARED);
-
-        status_ = STATUS_PROCESSED;
-
-        ThreadContext threadContext = (ThreadContext) container_
-                .getComponent(ThreadContext.class);
-        Response response = null;
-        try {
-            threadContext.setComponent(Request.class, request);
-
-            response = ymir_.processRequest(request);
-
-            if (test != null) {
-                test.doTest();
-            }
-
-            return response;
-        } finally {
-            if (request.getCurrentDispatch().getDispatcher() == Dispatcher.REQUEST) {
-                YmirProcessInterceptor[] interceptors = ymir_
-                        .getYmirProcessInterceptors();
-                for (int i = 0; i < interceptors.length; i++) {
-                    interceptors[i].leavingRequest(request);
-                }
-            }
-            threadContext.setComponent(Request.class, null);
-
-            ymir_.leaveDispatch(request);
-
-            threadContext.setComponent(Response.class, null);
-        }
-    }
-
+    //    protected Response processRequest(Request request, Test test) {
+    //        checkStatus(STATUS_PREPARED);
+    //
+    //        status_ = STATUS_PROCESSED;
+    //
+    //        ThreadContext threadContext = (ThreadContext) container_
+    //                .getComponent(ThreadContext.class);
+    //        Response response = null;
+    //        try {
+    //            threadContext.setComponent(Request.class, request);
+    //
+    //            response = ymir_.processRequest(request);
+    //
+    //            if (test != null) {
+    //                test.doTest();
+    //            }
+    //
+    //            return response;
+    //        } finally {
+    //            if (request.getCurrentDispatch().getDispatcher() == Dispatcher.REQUEST) {
+    //                YmirProcessInterceptor[] interceptors = ymir_
+    //                        .getYmirProcessInterceptors();
+    //                for (int i = 0; i < interceptors.length; i++) {
+    //                    interceptors[i].leavingRequest(request);
+    //                }
+    //            }
+    //            threadContext.setComponent(Request.class, null);
+    //
+    //            ymir_.leaveDispatch(request);
+    //
+    //            threadContext.setComponent(Response.class, null);
+    //        }
+    //    }
     /**
      * 実際にリクエストを処理します。
      * <p>このメソッドは{@link #process(Request, org.seasar.ymir.test.YmirTestCase.Test)}
@@ -720,6 +724,13 @@ abstract public class YmirTestCase extends TestCase {
         return process(request, null);
     }
 
+    protected HttpServletResponseFilter process(Request request, Test test)
+            throws PermissionDeniedException, PageNotFoundRuntimeException,
+            IOException, ServletException {
+        // XXX
+        return null;
+    }
+
     /**
      * 実際にリクエストを処理します。
      * <p>リクエストを処理してレスポンスを生成し、生成したレスポンスを処理してHttpServletResponseFilterを生成して返します。
@@ -736,53 +747,52 @@ abstract public class YmirTestCase extends TestCase {
      * @throws ServletException レスポンスの処理中にスローされることがあります。
      * @throws IOException レスポンスの処理中にスローされることがあります。
      */
-    protected HttpServletResponseFilter process(Request request, Test test)
-            throws PermissionDeniedException, PageNotFoundRuntimeException,
-            IOException, ServletException {
-        checkStatus(STATUS_PREPARED);
-
-        status_ = STATUS_PROCESSED;
-
-        ThreadContext threadContext = (ThreadContext) container_
-                .getComponent(ThreadContext.class);
-        Response response = null;
-        try {
-            threadContext.setComponent(Request.class, request);
-
-            try {
-                response = ymir_.processRequest(request);
-            } catch (Throwable t) {
-                if (request.getCurrentDispatch().getDispatcher() == Dispatcher.REQUEST) {
-                    response = ymir_.processException(request, t);
-                } else {
-                    rethrow(t);
-                }
-            }
-
-            HttpServletResponseFilter responseFilter = ymir_.processResponse(
-                    application_, httpRequest_, httpResponse_, request,
-                    response);
-
-            if (test != null) {
-                test.doTest();
-            }
-
-            return responseFilter;
-        } finally {
-            if (request.getCurrentDispatch().getDispatcher() == Dispatcher.REQUEST) {
-                for (int i = 0; i < ymir_.getYmirProcessInterceptors().length; i++) {
-                    ymir_.getYmirProcessInterceptors()[i]
-                            .leavingRequest(request);
-                }
-                threadContext.setComponent(Request.class, null);
-            }
-
-            ymir_.leaveDispatch(request);
-
-            threadContext.setComponent(Response.class, null);
-        }
-    }
-
+    //    protected HttpServletResponseFilter process(Request request, Test test)
+    //            throws PermissionDeniedException, PageNotFoundRuntimeException,
+    //            IOException, ServletException {
+    //        checkStatus(STATUS_PREPARED);
+    //
+    //        status_ = STATUS_PROCESSED;
+    //
+    //        ThreadContext threadContext = (ThreadContext) container_
+    //                .getComponent(ThreadContext.class);
+    //        Response response = null;
+    //        try {
+    //            threadContext.setComponent(Request.class, request);
+    //
+    //            try {
+    //                response = ymir_.processRequest(request);
+    //            } catch (Throwable t) {
+    //                if (request.getCurrentDispatch().getDispatcher() == Dispatcher.REQUEST) {
+    //                    response = ymir_.processException(request, t);
+    //                } else {
+    //                    rethrow(t);
+    //                }
+    //            }
+    //
+    //            HttpServletResponseFilter responseFilter = ymir_.processResponse(
+    //                    application_, httpRequest_, httpResponse_, request,
+    //                    response);
+    //
+    //            if (test != null) {
+    //                test.doTest();
+    //            }
+    //
+    //            return responseFilter;
+    //        } finally {
+    //            if (request.getCurrentDispatch().getDispatcher() == Dispatcher.REQUEST) {
+    //                for (int i = 0; i < ymir_.getYmirProcessInterceptors().length; i++) {
+    //                    ymir_.getYmirProcessInterceptors()[i]
+    //                            .leavingRequest(request);
+    //                }
+    //                threadContext.setComponent(Request.class, null);
+    //            }
+    //
+    //            ymir_.leaveDispatch(request);
+    //
+    //            threadContext.setComponent(Response.class, null);
+    //        }
+    //    }
     void rethrow(Throwable t) throws IOException, ServletException {
         if (t instanceof ServletException) {
             throw (ServletException) t;
@@ -892,6 +902,14 @@ abstract public class YmirTestCase extends TestCase {
         }
         return prepareForProcessing(getPathOfPageClass(pageClass), method,
                 parameterMap, fileParameterMap);
+    }
+
+    // XXX
+    private Request prepareForProcessing(String pathOfPageClass,
+            HttpMethod method, Map<String, String[]> parameterMap,
+            Map<String, FormFile[]> fileParameterMap) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     private void addParameter(Object name, Object value,
