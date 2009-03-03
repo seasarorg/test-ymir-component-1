@@ -38,10 +38,11 @@ import org.seasar.ymir.Path;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
-import org.seasar.ymir.ResponseType;
+import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
+import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.servlet.MockHttpServletRequest;
 import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
@@ -685,15 +686,18 @@ abstract public class YmirTestCase extends TestCase {
 
             return response;
         } finally {
-            ymir_.leaveDispatch(request);
-
-            if (response != null && response.getType() != ResponseType.FORWARD) {
-                for (int i = 0; i < ymir_.getYmirProcessInterceptors().length; i++) {
-                    ymir_.getYmirProcessInterceptors()[i]
-                            .leavingRequest(request);
+            if (request.getCurrentDispatch().getDispatcher() == Dispatcher.REQUEST) {
+                YmirProcessInterceptor[] interceptors = ymir_
+                        .getYmirProcessInterceptors();
+                for (int i = 0; i < interceptors.length; i++) {
+                    interceptors[i].leavingRequest(request);
                 }
             }
             threadContext.setComponent(Request.class, null);
+
+            ymir_.leaveDispatch(request);
+
+            threadContext.setComponent(Response.class, null);
         }
     }
 
@@ -745,7 +749,16 @@ abstract public class YmirTestCase extends TestCase {
         try {
             threadContext.setComponent(Request.class, request);
 
-            response = ymir_.processRequest(request);
+            try {
+                response = ymir_.processRequest(request);
+            } catch (Throwable t) {
+                if (request.getCurrentDispatch().getDispatcher() == Dispatcher.REQUEST) {
+                    response = ymir_.processException(request, t);
+                } else {
+                    rethrow(t);
+                }
+            }
+
             HttpServletResponseFilter responseFilter = ymir_.processResponse(
                     application_, httpRequest_, httpResponse_, request,
                     response);
@@ -755,20 +768,30 @@ abstract public class YmirTestCase extends TestCase {
             }
 
             return responseFilter;
-        } catch (Throwable t) {
-            ymir_.processResponse(application_, httpRequest_, httpResponse_,
-                    request, ymir_.processException(request, t));
-            return null;
         } finally {
-            ymir_.leaveDispatch(request);
-
-            if (response != null && response.getType() != ResponseType.FORWARD) {
+            if (request.getCurrentDispatch().getDispatcher() == Dispatcher.REQUEST) {
                 for (int i = 0; i < ymir_.getYmirProcessInterceptors().length; i++) {
                     ymir_.getYmirProcessInterceptors()[i]
                             .leavingRequest(request);
                 }
+                threadContext.setComponent(Request.class, null);
             }
-            threadContext.setComponent(Request.class, null);
+
+            ymir_.leaveDispatch(request);
+
+            threadContext.setComponent(Response.class, null);
+        }
+    }
+
+    void rethrow(Throwable t) throws IOException, ServletException {
+        if (t instanceof ServletException) {
+            throw (ServletException) t;
+        } else if (t instanceof IOException) {
+            throw (IOException) t;
+        } else if (t instanceof RuntimeException) {
+            throw (RuntimeException) t;
+        } else {
+            throw new WrappingRuntimeException(t);
         }
     }
 
