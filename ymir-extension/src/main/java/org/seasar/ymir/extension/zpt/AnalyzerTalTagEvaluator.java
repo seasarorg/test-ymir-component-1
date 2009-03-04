@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +31,7 @@ import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 import org.seasar.ymir.scope.annotation.RequestParameter;
 import org.seasar.ymir.util.BeanUtils;
+import org.seasar.ymir.util.ServletUtils;
 
 import net.skirnir.freyja.Attribute;
 import net.skirnir.freyja.Element;
@@ -45,10 +45,6 @@ import net.skirnir.freyja.zpt.TalTagEvaluator;
 import net.skirnir.freyja.zpt.ZptTemplateContext;
 
 public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
-    private static final String SEGMENT_PARENT = "..";
-
-    private static final String SEGMENT_CURRENT = ".";
-
     private static final String PREFIX_STRING_EXPRESSION = "string:";
 
     private static final String KW_LOCAL = "local";
@@ -491,88 +487,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         if (pathWithParameters == null) {
             return null;
         } else {
-            return new Path(toAbsolutePath(basePath, pathWithParameters));
+            return new Path(ServletUtils.toAbsolutePath(basePath,
+                    pathWithParameters));
         }
-    }
-
-    String toAbsolutePath(String basePath, String path) {
-        if (path == null) {
-            return null;
-        } else if (path.length() == 0 || path.startsWith(";")
-                || path.startsWith("?") || path.startsWith("#")) {
-            return basePath + path;
-        }
-        String absolutePath;
-        if (path.startsWith("/")) {
-            absolutePath = path;
-        } else {
-            int slash = basePath.lastIndexOf('/');
-            if (slash >= 0) {
-                absolutePath = basePath.substring(0, slash + 1) + path;
-            } else {
-                absolutePath = basePath + "/" + path;
-            }
-        }
-
-        String parameter;
-        int semicolon = absolutePath.indexOf(';');
-        int question = absolutePath.indexOf('?');
-        if (semicolon < 0) {
-            if (question < 0) {
-                parameter = "";
-            } else {
-                parameter = absolutePath.substring(question);
-                absolutePath = absolutePath.substring(0, question);
-            }
-        } else {
-            if (question < 0 || semicolon < question) {
-                parameter = absolutePath.substring(semicolon);
-                absolutePath = absolutePath.substring(0, semicolon);
-            } else {
-                parameter = absolutePath.substring(question);
-                absolutePath = absolutePath.substring(0, question);
-            }
-        }
-
-        int pre = 0;
-        int idx;
-        LinkedList<String> segmentList = new LinkedList<String>();
-        while ((idx = absolutePath.indexOf('/', pre)) >= 0) {
-            String segment = absolutePath.substring(pre, idx);
-            if (segment.equals(SEGMENT_PARENT)) {
-                if (!segmentList.isEmpty()) {
-                    segmentList.removeLast();
-                }
-            } else if (segment.equals(SEGMENT_CURRENT)) {
-                ;
-            } else {
-                segmentList.addLast(segment);
-            }
-            pre = idx + 1;
-        }
-        String segment = absolutePath.substring(pre);
-        if (segment.equals(SEGMENT_PARENT)) {
-            if (!segmentList.isEmpty()) {
-                segmentList.removeLast();
-            }
-        } else if (segment.equals(SEGMENT_CURRENT)) {
-            ;
-        } else {
-            segmentList.addLast(segment);
-        }
-        StringBuilder sb = new StringBuilder();
-        String delim = "";
-        for (Iterator<String> itr = segmentList.iterator(); itr.hasNext();) {
-            sb.append(delim).append(itr.next());
-            delim = "/";
-        }
-        if (absolutePath.endsWith("/") || absolutePath.endsWith("/.")
-                || absolutePath.endsWith("/..")) {
-            sb.append("/");
-        }
-        sb.append(parameter);
-
-        return sb.toString();
     }
 
     AnnotationResult findAnnotation(TemplateContext context, String name,

@@ -53,35 +53,6 @@ public class AnalyzerTalTagEvaluatorTest extends TestCase {
         }
     }
 
-    public void testToAbsolutePath() throws Exception {
-
-        AnalyzerTalTagEvaluator evaluator = new AnalyzerTalTagEvaluator();
-
-        assertEquals("/path/to/page.html", evaluator.toAbsolutePath(
-                "/path/to/page.html", ""));
-
-        assertEquals("/path/to/page2.html", evaluator.toAbsolutePath(
-                "/path/to/page.html", "page2.html"));
-
-        assertEquals("/path/page2.html", evaluator.toAbsolutePath(
-                "/path/to/page.html", "../page2.html"));
-
-        assertEquals("/path/to/page2.html", evaluator.toAbsolutePath(
-                "/path/to/page.html", "./page2.html"));
-
-        assertEquals("/path/to/page.html#", evaluator.toAbsolutePath(
-                "/path/to/page.html", "#"));
-
-        assertEquals("/path/to/page2.html#", evaluator.toAbsolutePath(
-                "/path/to/page.html", "page2.html#"));
-
-        assertEquals("/path/to/", evaluator.toAbsolutePath(
-                "/path/to/page.html", "."));
-
-        assertEquals("/path/to/?edit=", evaluator.toAbsolutePath(
-                "/path/to/page.html", ".?edit="));
-    }
-
     public void testFindEndEdge() throws Exception {
         AnalyzerTalTagEvaluator target = new AnalyzerTalTagEvaluator();
 
