@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import junit.framework.TestCase;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
 import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
@@ -25,7 +26,8 @@ public class JSONInterceptorTest extends TestCase {
             @Override
             HttpServletRequest getHttpServletRequest() {
                 return new MockHttpServletRequestImpl(
-                        new MockServletContextImpl("/json"), "/index.html") {
+                        new MockServletContextImpl("/json"), HttpMethod.GET,
+                        "/index.html") {
                     @Override
                     public BufferedReader getReader() throws IOException {
                         return new BufferedReader(new StringReader(jsonObject
@@ -55,6 +57,7 @@ public class JSONInterceptorTest extends TestCase {
         JSONInterceptor target = new JSONInterceptor();
 
         assertFalse(target.isJSONRequest(new MockHttpServletRequestImpl(
-                new MockServletContextImpl("/context"), "/index.html")));
+                new MockServletContextImpl("/context"), HttpMethod.GET,
+                "/index.html")));
     }
 }
