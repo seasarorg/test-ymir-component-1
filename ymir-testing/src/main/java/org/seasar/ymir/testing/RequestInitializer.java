@@ -1,5 +1,5 @@
 package org.seasar.ymir.testing;
 
-public interface Initializer {
+public interface RequestInitializer {
     void initialize();
 }

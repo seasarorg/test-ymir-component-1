@@ -1,5 +1,6 @@
 package org.seasar.ymir.testing;
 
+import static org.seasar.ymir.Ymir.ATTR_REQUEST;
 import static org.seasar.ymir.Ymir.ATTR_RESPONSE;
 
 import java.io.File;
@@ -251,6 +252,8 @@ abstract public class YmirTestCase extends TestCase {
      */
     public void setUp() {
         servletContext_ = new MockServletContextImpl(getContextPath());
+        servletContext_
+                .setRequestDispatcherFactory(new InternalRequestDispatcherFactory());
         URL resource = getClass().getClassLoader()
                 .getResource("app.properties");
         if (resource == null) {
@@ -454,21 +457,21 @@ abstract public class YmirTestCase extends TestCase {
 
     public FilterChain process(String path, HttpMethod method, Object... params)
             throws IOException, ServletException {
-        Initializer initializer = null;
-        MockFilterChain chain = new MockFilterChainImpl();
+        RequestInitializer initializer = null;
+        MockFilterChain chain = null;
         if (params != null) {
             boolean paramStarted = false;
             List<Object> paramList = new ArrayList<Object>();
             for (Object param : params) {
-                if (param instanceof Initializer) {
+                if (param instanceof RequestInitializer) {
                     if (initializer != null) {
                         throw new IllegalClientCodeRuntimeException(
-                                "Multiple Initializer specified");
+                                "Multiple RequestInitializer specified");
                     } else if (paramStarted) {
                         throw new IllegalClientCodeRuntimeException(
-                                "Initializer must be specified before parameters");
+                                "RequestInitializer must be specified before parameters");
                     }
-                    initializer = (Initializer) param;
+                    initializer = (RequestInitializer) param;
                 } else if (param instanceof MockFilterChain) {
                     if (chain != null) {
                         throw new IllegalClientCodeRuntimeException(
@@ -539,74 +542,66 @@ abstract public class YmirTestCase extends TestCase {
     }
 
     public void acceptRequest(String path, HttpMethod method,
-            Initializer initializer) {
+            RequestInitializer requestInitializer) {
         MockHttpSession session = null;
         if (httpRequest_ != null) {
             session = (MockHttpSession) httpRequest_.getSession(false);
         }
-        httpRequest_ = newHttpServletRequest(servletContext_, path, session);
+        httpRequest_ = newHttpServletRequest(servletContext_, method, path,
+                session);
         try {
             httpRequest_.setCharacterEncoding(getCharacterEncoding());
         } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
-        httpRequest_.setMethod(method.name());
         httpRequest_.setLocale(getLocale());
         httpRequest_
-                .setRequestDispatcherFactory(new RequestDispatcherFactory() {
-                    public RequestDispatcher newInstance(String path) {
-                        return new MockRequestDispatcherImpl(path) {
-                            @Override
-                            public void forward(ServletRequest request,
-                                    ServletResponse response)
-                                    throws ServletException, IOException {
-                                super.forward(request, response);
-
-                                process(servletContext_, httpRequest_,
-                                        httpResponse_, Dispatcher.FORWARD,
-                                        getPath(), HttpMethod
-                                                .enumOf(httpRequest_
-                                                        .getMethod()), null,
-                                        new FilterChain() {
-                                            public void doFilter(
-                                                    ServletRequest request,
-                                                    ServletResponse response)
-                                                    throws IOException,
-                                                    ServletException {
-                                            }
-                                        });
-                            }
-
-                            @Override
-                            public void include(ServletRequest request,
-                                    ServletResponse response)
-                                    throws ServletException, IOException {
-                                super.include(request, response);
-
-                                process(servletContext_, httpRequest_,
-                                        httpResponse_, Dispatcher.INCLUDE,
-                                        getPath(), HttpMethod
-                                                .enumOf(httpRequest_
-                                                        .getMethod()), null,
-                                        new FilterChain() {
-                                            public void doFilter(
-                                                    ServletRequest request,
-                                                    ServletResponse response)
-                                                    throws IOException,
-                                                    ServletException {
-                                            }
-                                        });
-                            }
-                        };
-                    }
-                });
+                .setRequestDispatcherFactory(new InternalRequestDispatcherFactory());
         httpResponse_ = newHttpServletResponse(httpRequest_);
 
         ContainerUtils.setRequest(container_, httpRequest_);
         ContainerUtils.setResponse(container_, httpResponse_);
 
-        if (initializer != null) {
-            initializer.initialize();
+        if (requestInitializer != null) {
+            requestInitializer.initialize();
+        }
+    }
+
+    protected class InternalRequestDispatcherFactory implements
+            RequestDispatcherFactory {
+        public RequestDispatcher newInstance(String path,
+                HttpServletRequest request) {
+            return new InternalRequestDispatcher(path, request);
+        }
+    }
+
+    protected class InternalRequestDispatcher extends MockRequestDispatcherImpl {
+        public InternalRequestDispatcher(String path, HttpServletRequest request) {
+            super(path, request);
+        }
+
+        @Override
+        public void forward(ServletRequest request, ServletResponse response)
+                throws ServletException, IOException {
+            super.forward(request, response);
+
+            process(servletContext_, httpRequest_, httpResponse_,
+                    Dispatcher.FORWARD, ServletUtils
+                            .getNativePath(getHttpServletRequest()), HttpMethod
+                            .enumOf(httpRequest_.getMethod()), null,
+                    new MockFilterChainImpl());
+        }
+
+        @Override
+        public void include(ServletRequest request, ServletResponse response)
+                throws ServletException, IOException {
+            super.include(request, response);
+
+            process(servletContext_, httpRequest_, httpResponse_,
+                    Dispatcher.INCLUDE, ServletUtils
+                            .getNativePath(getHttpServletRequest()), HttpMethod
+                            .enumOf(httpRequest_.getMethod()), null,
+                    new MockFilterChainImpl());
         }
     }
 
@@ -635,9 +630,10 @@ abstract public class YmirTestCase extends TestCase {
     }
 
     protected MockHttpServletRequest newHttpServletRequest(
-            MockServletContext servletContext, String path,
+            MockServletContext servletContext, HttpMethod method, String path,
             MockHttpSession session) {
-        return new MockHttpServletRequestImpl(servletContext, path, session);
+        return new MockHttpServletRequestImpl(servletContext, method.name(),
+                path, session);
     }
 
     /**
@@ -651,6 +647,10 @@ abstract public class YmirTestCase extends TestCase {
      */
     public Notes getNotes() {
         return (Notes) httpRequest_.getAttribute(RequestProcessor.ATTR_NOTES);
+    }
+
+    public Request getRequest() {
+        return (Request) httpRequest_.getAttribute(ATTR_REQUEST);
     }
 
     public Response getResponse() {
