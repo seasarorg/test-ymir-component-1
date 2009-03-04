@@ -62,6 +62,7 @@ public class YmirFilter implements Filter {
         dispatcher_ = null;
     }
 
+    @SuppressWarnings("unchecked")
     public void doFilter(ServletRequest req, ServletResponse res,
             FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) req;
@@ -74,9 +75,21 @@ public class YmirFilter implements Filter {
                     + httpRequest.getMethod());
         }
 
-        ymir_.process(context_, httpRequest, httpResponse,
-                getDispatcher(httpRequest), ServletUtils
-                        .getNativePath(httpRequest), method, chain);
+        Dispatcher dispatcher = getDispatcher(httpRequest);
+
+        Map<String, FormFile[]> fileParameterMap = null;
+        if (dispatcher == Dispatcher.REQUEST) {
+            fileParameterMap = (Map<String, FormFile[]>) httpRequest
+                    .getAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
+            if (fileParameterMap != null) {
+                httpRequest
+                        .removeAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
+            }
+        }
+
+        ymir_.process(context_, httpRequest, httpResponse, dispatcher,
+                ServletUtils.getNativePath(httpRequest), method,
+                fileParameterMap, chain);
     }
 
     protected Dispatcher getDispatcher(ServletRequest request) {

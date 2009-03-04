@@ -58,7 +58,14 @@ public class MethodInvokerImpl implements MethodInvoker {
         } catch (IllegalAccessException ex) {
             throw new RuntimeException(ex);
         } catch (InvocationTargetException ex) {
-            throw new WrappingRuntimeException(ex.getTargetException());
+            Throwable targetEx = ex.getTargetException();
+            if (targetEx instanceof Error) {
+                throw (Error) targetEx;
+            } else if (targetEx instanceof RuntimeException) {
+                throw (RuntimeException) targetEx;
+            } else {
+                throw new WrappingRuntimeException(targetEx);
+            }
         }
     }
 

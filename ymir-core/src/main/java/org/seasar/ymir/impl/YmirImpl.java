@@ -129,7 +129,8 @@ public class YmirImpl implements Ymir {
     public void process(ServletContext servletContext,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             Dispatcher dispatcher, String path, HttpMethod method,
-            FilterChain chain) throws IOException, ServletException {
+            Map<String, FormFile[]> fileParameterMap, FilterChain chain)
+            throws IOException, ServletException {
         // 開発モードではResponseを加工できるように、マッチするかに関わらずYmirで処理するようにする。
         // また、開発モードではHTTPメソッドが差し替えられることがあるため、MatchedPathMappingは
         // HTTPメソッド差し替え後に作成する必要がある。そのためここではMatchedPathMappingを
@@ -169,15 +170,6 @@ public class YmirImpl implements Ymir {
 
             Request request;
             if (dispatcher == Dispatcher.REQUEST) {
-                Map<String, FormFile[]> fileParameterMap = (Map<String, FormFile[]>) attributeContainer
-                        .getAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
-                if (fileParameterMap != null) {
-                    httpRequest
-                            .removeAttribute(MultipartServletRequest.ATTR_FORMFILEMAP);
-                } else {
-                    fileParameterMap = new HashMap<String, FormFile[]>();
-                }
-
                 request = prepareForProcessing(ServletUtils
                         .getContextPath(httpRequest), method, httpRequest
                         .getCharacterEncoding(), httpRequest.getParameterMap(),
@@ -278,7 +270,9 @@ public class YmirImpl implements Ymir {
      * @param method HTTPメソッド。
      * @param characterEncoding リクエストの文字エンコーディング。
      * @param parameterMap 文字列型のリクエストパラメータが格納されているMap。
+     * nullを指定することもできます。
      * @param fileParameterMap FormFile型のリクエストパラメータが格納されているMap。
+     * nullを指定することもできます。
      * @param attributeContainer リクエストスコープの属性を保持するための属性コンテナ。
      * @return 構築したRequestオブジェクト。
      */

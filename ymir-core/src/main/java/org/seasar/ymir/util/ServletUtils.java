@@ -1,10 +1,15 @@
 package org.seasar.ymir.util;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -14,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.Dispatcher;
+import org.seasar.ymir.FormFile;
 
 /**
  * サーブレット関連のユーティリティメソッドを提供するクラスです。
@@ -515,5 +521,65 @@ public class ServletUtils {
         } else {
             return path.substring(0, question);
         }
+    }
+
+    /**
+     * @param name
+     * @param value
+     * @param parameterMap
+     * @param fileParameterMap
+     * @since 1.0.2
+     */
+    public static void addParameter(Object name, Object value,
+            Map<String, String[]> parameterMap,
+            Map<String, FormFile[]> fileParameterMap) {
+        if (!(name instanceof String)) {
+            throw new IllegalArgumentException(
+                    "Parameter name must be a string: " + name);
+        }
+        String stringName = (String) name;
+        if (value == null) {
+            ;
+        } else if (value.getClass().isArray()) {
+            int length = Array.getLength(value);
+            for (int i = 0; i < length; i++) {
+                addParameter(name, Array.get(value, i), parameterMap,
+                        fileParameterMap);
+            }
+        } else if (value instanceof Collection<?>) {
+            for (Object v : (Collection<?>) value) {
+                addParameter(name, v, parameterMap, fileParameterMap);
+            }
+        } else if (fileParameterMap != null && value instanceof FormFile) {
+            addToMap(fileParameterMap, stringName,
+                    new FormFile[] { ((FormFile) value) });
+        } else {
+            addToMap(parameterMap, stringName,
+                    new String[] { value.toString() });
+        }
+    }
+
+    /**
+     * @param <V>
+     * @param map
+     * @param name
+     * @param values
+     * @since 1.0.2
+     */
+    public static <V> void addToMap(Map<String, V[]> map, String name,
+            V[] values) {
+        V[] vs = map.get(name);
+        if (vs == null) {
+            vs = values;
+        } else {
+            List<V> list = new ArrayList<V>();
+            list.addAll(Arrays.asList(vs));
+            list.addAll(Arrays.asList(values));
+            @SuppressWarnings("unchecked")
+            V[] newVs = list.toArray((V[]) Array.newInstance(vs.getClass()
+                    .getComponentType(), 0));
+            vs = newVs;
+        }
+        map.put(name, vs);
     }
 }

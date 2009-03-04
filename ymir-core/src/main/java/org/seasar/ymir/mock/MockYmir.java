@@ -88,6 +88,7 @@ public class MockYmir implements Ymir {
     public void process(ServletContext servletContext,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             Dispatcher dispatcher, String path, HttpMethod method,
-            FilterChain chain) throws IOException, ServletException {
+            Map<String, FormFile[]> fileParameterMap, FilterChain chain)
+            throws IOException, ServletException {
     }
 }

@@ -38,7 +38,8 @@ public interface Ymir {
 
     void process(ServletContext servletContext, HttpServletRequest httpRequest,
             HttpServletResponse httpResponse, Dispatcher dispatcher,
-            String path, HttpMethod method, FilterChain chain)
+            String path, HttpMethod method,
+            Map<String, FormFile[]> fileParameterMap, FilterChain chain)
             throws IOException, ServletException;
 
     /**

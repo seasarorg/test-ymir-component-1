@@ -1,15 +1,26 @@
 package org.seasar.ymir.mock.servlet;
 
+import java.util.Enumeration;
+import java.util.Map;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
+
+import org.seasar.ymir.Path;
 
 public class MockHttpServletRequestImpl extends
         org.seasar.framework.mock.servlet.MockHttpServletRequestImpl implements
         MockHttpServletRequest {
     private ServletContext servletContext_;
 
+    private String requestPath_;
+
     private MockHttpSession session_;
+
+    private boolean queryStringApplied_;
+
+    private RequestDispatcherFactory requestDispatcherFactory_ = new MockRequetDispatcherFactory();
 
     public MockHttpServletRequestImpl(ServletContext servletContext,
             String servletPath) {
@@ -17,9 +28,10 @@ public class MockHttpServletRequestImpl extends
     }
 
     public MockHttpServletRequestImpl(ServletContext servletContext,
-            String servletPath, MockHttpSession session) {
-        super(servletContext, servletPath);
+            String requestPath, MockHttpSession session) {
+        super(servletContext, new Path(requestPath).getTrunk());
         servletContext_ = servletContext;
+        requestPath_ = requestPath;
         session_ = session;
     }
 
@@ -68,6 +80,89 @@ public class MockHttpServletRequestImpl extends
 
     @Override
     public RequestDispatcher getRequestDispatcher(String path) {
-        return new MockRequestDispatcherImpl(path);
+        return requestDispatcherFactory_.newInstance(path);
+    }
+
+    public void setRequestDispatcherFactory(
+            RequestDispatcherFactory requestDispatcherFactory) {
+        requestDispatcherFactory_ = requestDispatcherFactory;
+    }
+
+    @Override
+    public String getParameter(String name) {
+        if (!queryStringApplied_) {
+            applyQueryString();
+        }
+        return super.getParameter(name);
+    }
+
+    void applyQueryString() {
+        queryStringApplied_ = true;
+
+        Path path = new Path(requestPath_, getCharacterEncoding());
+        for (Map.Entry<String, String[]> entry : path.getParameterMap()
+                .entrySet()) {
+            for (String value : entry.getValue()) {
+                addParameter(entry.getKey(), value);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Map getParameterMap() {
+        if (!queryStringApplied_) {
+            applyQueryString();
+        }
+        return super.getParameterMap();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Enumeration getParameterNames() {
+        if (!queryStringApplied_) {
+            applyQueryString();
+        }
+        return super.getParameterNames();
+    }
+
+    @Override
+    public String[] getParameterValues(String name) {
+        if (!queryStringApplied_) {
+            applyQueryString();
+        }
+        return super.getParameterValues(name);
+    }
+
+    @Override
+    public void addParameter(String name, String value) {
+        if (!queryStringApplied_) {
+            applyQueryString();
+        }
+        super.addParameter(name, value);
+    }
+
+    @Override
+    public void addParameter(String name, String[] values) {
+        if (!queryStringApplied_) {
+            applyQueryString();
+        }
+        super.addParameter(name, values);
+    }
+
+    @Override
+    public void setParameter(String name, String value) {
+        if (!queryStringApplied_) {
+            applyQueryString();
+        }
+        super.setParameter(name, value);
+    }
+
+    @Override
+    public void setParameter(String name, String[] values) {
+        if (!queryStringApplied_) {
+            applyQueryString();
+        }
+        super.setParameter(name, values);
     }
 }

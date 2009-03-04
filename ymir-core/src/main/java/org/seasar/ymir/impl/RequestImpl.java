@@ -46,9 +46,13 @@ public class RequestImpl implements FrameworkRequest {
         contextPath_ = contextPath;
         method_ = method;
         characterEncoding_ = characterEncoding;
-        setQueryParameterMap(queryParameterMap);
-        fileParameterMap_ = fileParameterMap;
+        setQueryParameterMap(safeMap(queryParameterMap));
+        fileParameterMap_ = safeMap(fileParameterMap);
         attributeContainer_ = attributeContainer;
+    }
+
+    <K, V> Map<K, V> safeMap(Map<K, V> map) {
+        return map != null ? map : new HashMap<K, V>();
     }
 
     public HttpMethod getMethod() {
