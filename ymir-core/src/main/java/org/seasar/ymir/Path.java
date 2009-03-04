@@ -24,6 +24,8 @@ public class Path {
 
     private String parameterEncoding_;
 
+    private String pathParameter_;
+
     private String fragment_ = "";
 
     private boolean asNoCache_;
@@ -91,20 +93,27 @@ public class Path {
         }
 
         int question = path.indexOf('?');
-        if (question < 0) {
-            trunk_ = path;
-            return;
+        if (question >= 0) {
+            int pre = question + 1;
+            int idx;
+            while ((idx = path.indexOf('&', pre)) >= 0) {
+                addEncodedParameter(path.substring(pre, idx));
+                pre = idx + 1;
+            }
+            if (pre < path.length()) {
+                addEncodedParameter(path.substring(pre));
+            }
+
+            path = path.substring(0, question);
         }
-        trunk_ = path.substring(0, question);
-        int pre = question + 1;
-        int idx;
-        while ((idx = path.indexOf('&', pre)) >= 0) {
-            addEncodedParameter(path.substring(pre, idx));
-            pre = idx + 1;
+
+        int semi = path.indexOf(';');
+        if (semi >= 0) {
+            pathParameter_ = path.substring(semi + 1);
+            path = path.substring(0, semi);
         }
-        if (pre < path.length()) {
-            addEncodedParameter(path.substring(pre));
-        }
+
+        trunk_ = path;
     }
 
     void addEncodedParameter(String encodedParam) {
@@ -146,6 +155,9 @@ public class Path {
     public String asString() {
         StringBuilder sb = new StringBuilder();
         sb.append(trunk_);
+        if (pathParameter_ != null) {
+            sb.append(";").append(pathParameter_);
+        }
         String queryString = getQueryString();
         if (queryString != null) {
             sb.append("?").append(queryString);
@@ -157,7 +169,7 @@ public class Path {
 
     /**
      * パラメータからクエリ文字列を構築して返します。
-     * <p>先頭に「&」は付与しません。
+     * <p>先頭に「?」は付与しません。
      * またパラメータは適切な文字エンコーディングでURLエンコーディングされます。
      * </p>
      * <p>asNoCacheプロパティがtrueである場合はパラメータとしてユニークキーが付与されます。
@@ -374,6 +386,21 @@ public class Path {
     public Path setAsNoCache(boolean asNoCache) {
         asNoCache_ = asNoCache;
         return this;
+    }
+
+    /**
+     * パスパラメータを返します。
+     * <p>パスパラメータとは、パスのうち「;」が指定されている部分から後ろの文字列です。
+     * 例えば<code>/path;f</code>というパス文字列からこのオブジェクトを構築した場合は、
+     * このメソッドは<code>f</code>を返します。
+     * パスパラメータを持たないパス文字列からこのオブジェクトを構築した場合は、
+     * このメソッドはnullを返します。
+     * </p>
+     * 
+     * @return パスパラメータ。
+     */
+    public String getPathParameter() {
+        return pathParameter_;
     }
 
     /**

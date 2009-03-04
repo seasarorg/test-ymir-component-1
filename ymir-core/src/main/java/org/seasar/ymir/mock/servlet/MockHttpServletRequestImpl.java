@@ -7,6 +7,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Path;
 
 public class MockHttpServletRequestImpl extends
@@ -20,19 +21,38 @@ public class MockHttpServletRequestImpl extends
 
     private boolean queryStringApplied_;
 
-    private RequestDispatcherFactory requestDispatcherFactory_ = new MockRequetDispatcherFactory();
+    private RequestDispatcherFactory requestDispatcherFactory_ = new MockRequestDispatcherFactory();
 
+    private String servletPath_;
+
+    @Deprecated
     public MockHttpServletRequestImpl(ServletContext servletContext,
-            String servletPath) {
-        this(servletContext, servletPath, null);
+            String requestPath) {
+        this(servletContext, "GET", requestPath);
     }
 
     public MockHttpServletRequestImpl(ServletContext servletContext,
-            String requestPath, MockHttpSession session) {
+            HttpMethod method, String requestPath) {
+        this(servletContext, method.name(), requestPath);
+    }
+
+    public MockHttpServletRequestImpl(ServletContext servletContext,
+            String method, String requestPath) {
+        this(servletContext, method, requestPath, null);
+    }
+
+    public MockHttpServletRequestImpl(ServletContext servletContext,
+            String method, String requestPath, MockHttpSession session) {
         super(servletContext, new Path(requestPath).getTrunk());
+        setMethod(method.toUpperCase());
         servletContext_ = servletContext;
         requestPath_ = requestPath;
         session_ = session;
+        Path path = new Path(requestPath);
+        setServletPath(path.getTrunk());
+        if (!method.equalsIgnoreCase("POST")) {
+            setQueryString(path.getQueryString());
+        }
     }
 
     @Override
@@ -80,7 +100,7 @@ public class MockHttpServletRequestImpl extends
 
     @Override
     public RequestDispatcher getRequestDispatcher(String path) {
-        return requestDispatcherFactory_.newInstance(path);
+        return requestDispatcherFactory_.newInstance(path, this);
     }
 
     public void setRequestDispatcherFactory(
@@ -164,5 +184,14 @@ public class MockHttpServletRequestImpl extends
             applyQueryString();
         }
         super.setParameter(name, values);
+    }
+
+    @Override
+    public String getServletPath() {
+        return servletPath_;
+    }
+
+    public void setServletPath(String servletPath) {
+        servletPath_ = servletPath;
     }
 }

@@ -23,6 +23,13 @@ import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 public interface Ymir {
     /**
      * {@link Request}に属性としてResponseオブジェクトをバインドする際のキー文字列です。
+     * 
+     * @since 1.0.2
+     */
+    String ATTR_REQUEST = Globals.IDPREFIX + ".request";
+
+    /**
+     * {@link Request}に属性としてResponseオブジェクトをバインドする際のキー文字列です。
      */
     String ATTR_RESPONSE = Globals.IDPREFIX + ".response";
 

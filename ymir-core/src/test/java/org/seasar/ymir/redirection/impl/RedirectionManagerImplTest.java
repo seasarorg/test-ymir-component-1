@@ -4,6 +4,7 @@ import javax.servlet.http.HttpSession;
 
 import junit.framework.TestCase;
 
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.ymir.mock.servlet.MockServletContextImpl;
 import org.seasar.ymir.session.impl.SessionManagerImpl;
@@ -30,8 +31,8 @@ public class RedirectionManagerImplTest extends TestCase {
                     sessionCreated[0] = true;
                 }
                 return new MockHttpServletRequestImpl(
-                        new MockServletContextImpl("/context"), "/request")
-                        .getSession(create);
+                        new MockServletContextImpl("/context"), HttpMethod.GET,
+                        "/request").getSession(create);
             }
         });
         target_.setWindowManager(windowManager);

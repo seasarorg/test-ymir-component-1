@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.container.S2Container;
+import org.seasar.framework.env.Env;
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
@@ -40,6 +41,10 @@ public class RequestProcessorImplTest extends S2TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
+
+        Env.setFilePath(ENV_PATH);
+        // S2.4.11からモードがutにされてしまうようになったので…。
+        Env.setValueIfAbsent(Env.PRODUCT);
 
         include(getClass().getName().replace('.', '/') + ".dicon");
 

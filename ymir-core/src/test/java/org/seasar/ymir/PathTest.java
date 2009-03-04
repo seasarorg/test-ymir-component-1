@@ -8,12 +8,14 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 public class PathTest extends TestCase {
-
     public void testPath() throws Exception {
         Path target = new Path("http://hoehoe.com/fuga?param=a#fragment");
 
         assertEquals("http://hoehoe.com/fuga", target.getTrunk());
         assertEquals("#fragment", target.getFragment());
+        assertEquals("http://hoehoe.com/fuga?param=a#fragment", target
+                .asString());
+        assertNull(target.getPathParameter());
         assertEquals("http://hoehoe.com/fuga?param=a#fragment", target
                 .asString());
     }
@@ -65,5 +67,24 @@ public class PathTest extends TestCase {
         for (int idx = 0; idx < expected.length; ++idx) {
             assertEquals(expected[idx], actual[idx]);
         }
+    }
+
+    public void testPath2() throws Exception {
+        Path target = new Path("http://hoehoe.com/fuga;?param=a#fragment");
+
+        assertEquals("http://hoehoe.com/fuga", target.getTrunk());
+        assertEquals("", target.getPathParameter());
+        assertEquals("http://hoehoe.com/fuga;?param=a#fragment", target
+                .asString());
+    }
+
+    public void testPath3() throws Exception {
+        Path target = new Path(
+                "http://hoehoe.com/fuga;jsessionid=1?param=a#fragment");
+
+        assertEquals("http://hoehoe.com/fuga", target.getTrunk());
+        assertEquals("jsessionid=1", target.getPathParameter());
+        assertEquals("http://hoehoe.com/fuga;jsessionid=1?param=a#fragment",
+                target.asString());
     }
 }

@@ -11,10 +11,12 @@ import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.seasar.cms.pluggable.ThreadContext;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.ActionNotFoundRuntimeException;
@@ -204,6 +206,7 @@ public class RequestProcessorImpl implements RequestProcessor {
     protected Response processRequestAndForward(final Request request) {
         FrameworkDispatch dispatch = YmirUtils.toFrameworkDispatch(request
                 .getCurrentDispatch());
+        ThreadContext context = getThreadContext();
 
         Response response = new PassthroughResponse();
         Object page = null;
@@ -277,6 +280,21 @@ public class RequestProcessorImpl implements RequestProcessor {
                         }
                     } catch (Throwable t) {
                         response = exceptionProcessor_.process(request, t);
+                        context.setComponent(Response.class, response);
+
+                        Object handler = request
+                                .getAttribute(ExceptionProcessor.ATTR_HANDLER);
+                        boolean global = PropertyUtils
+                                .valueOf(
+                                        request
+                                                .getAttribute(ExceptionProcessor.ATTR_HANDLER_GLOBAL),
+                                        true);
+                        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                            response = ymirProcessInterceptors_[i]
+                                    .responseCreatedByExceptionHandler(request,
+                                            response, handler, global);
+                            context.setComponent(Response.class, response);
+                        }
                     }
                 } while (false);
 
@@ -408,6 +426,11 @@ public class RequestProcessorImpl implements RequestProcessor {
         }
 
         return response;
+    }
+
+    ThreadContext getThreadContext() {
+        return (ThreadContext) ymir_.getApplication().getS2Container()
+                .getRoot().getComponent(ThreadContext.class);
     }
 
     @SuppressWarnings("unchecked")

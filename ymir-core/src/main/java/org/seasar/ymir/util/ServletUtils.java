@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -54,6 +55,10 @@ public class ServletUtils {
     public static final int PORT_HTTPS = 443;
 
     private static final String PROTOCOL_DOMAIN_DELIMITER = "://";
+
+    public static final String SEGMENT_PARENT = "..";
+
+    public static final String SEGMENT_CURRENT = ".";
 
     private ServletUtils() {
     }
@@ -581,5 +586,93 @@ public class ServletUtils {
             vs = newVs;
         }
         map.put(name, vs);
+    }
+
+    /**
+     * 指定されたパスを絶対パス表記に変換します。
+     * 
+     * @param basePath 基準となるパス。絶対パス表記である必要があります。
+     * @param path 変換元のパス。
+     * @return 絶対パス表記。
+     * @since 1.0.2
+     */
+    public static String toAbsolutePath(String basePath, String path) {
+        if (path == null) {
+            return null;
+        } else if (path.length() == 0 || path.startsWith(";")
+                || path.startsWith("?") || path.startsWith("#")) {
+            return basePath + path;
+        }
+        String absolutePath;
+        if (path.startsWith("/")) {
+            absolutePath = path;
+        } else {
+            int slash = basePath.lastIndexOf('/');
+            if (slash >= 0) {
+                absolutePath = basePath.substring(0, slash + 1) + path;
+            } else {
+                absolutePath = basePath + "/" + path;
+            }
+        }
+
+        String parameter;
+        int semicolon = absolutePath.indexOf(';');
+        int question = absolutePath.indexOf('?');
+        if (semicolon < 0) {
+            if (question < 0) {
+                parameter = "";
+            } else {
+                parameter = absolutePath.substring(question);
+                absolutePath = absolutePath.substring(0, question);
+            }
+        } else {
+            if (question < 0 || semicolon < question) {
+                parameter = absolutePath.substring(semicolon);
+                absolutePath = absolutePath.substring(0, semicolon);
+            } else {
+                parameter = absolutePath.substring(question);
+                absolutePath = absolutePath.substring(0, question);
+            }
+        }
+
+        int pre = 0;
+        int idx;
+        LinkedList<String> segmentList = new LinkedList<String>();
+        while ((idx = absolutePath.indexOf('/', pre)) >= 0) {
+            String segment = absolutePath.substring(pre, idx);
+            if (segment.equals(SEGMENT_PARENT)) {
+                if (!segmentList.isEmpty()) {
+                    segmentList.removeLast();
+                }
+            } else if (segment.equals(SEGMENT_CURRENT)) {
+                ;
+            } else {
+                segmentList.addLast(segment);
+            }
+            pre = idx + 1;
+        }
+        String segment = absolutePath.substring(pre);
+        if (segment.equals(SEGMENT_PARENT)) {
+            if (!segmentList.isEmpty()) {
+                segmentList.removeLast();
+            }
+        } else if (segment.equals(SEGMENT_CURRENT)) {
+            ;
+        } else {
+            segmentList.addLast(segment);
+        }
+        StringBuilder sb = new StringBuilder();
+        String delim = "";
+        for (Iterator<String> itr = segmentList.iterator(); itr.hasNext();) {
+            sb.append(delim).append(itr.next());
+            delim = "/";
+        }
+        if (absolutePath.endsWith("/") || absolutePath.endsWith("/.")
+                || absolutePath.endsWith("/..")) {
+            sb.append("/");
+        }
+        sb.append(parameter);
+
+        return sb.toString();
     }
 }

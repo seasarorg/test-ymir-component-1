@@ -18,6 +18,8 @@ public class MockServletContextImpl extends
 
     private Resource root_;
 
+    private RequestDispatcherFactory requestDispatcherFactory_ = new MockRequestDispatcherFactory();
+
     public MockServletContextImpl(String path) {
         super(path);
     }
@@ -28,7 +30,12 @@ public class MockServletContextImpl extends
 
     @Override
     public RequestDispatcher getRequestDispatcher(String path) {
-        return new MockRequestDispatcherImpl(path);
+        return requestDispatcherFactory_.newInstance(path, null);
+    }
+
+    public void setRequestDispatcherFactory(
+            RequestDispatcherFactory requestDispatcherFactory) {
+        requestDispatcherFactory_ = requestDispatcherFactory;
     }
 
     @Override

@@ -4,4 +4,6 @@ public interface MockHttpServletRequest extends
         org.seasar.framework.mock.servlet.MockHttpServletRequest {
     void setRequestDispatcherFactory(
             RequestDispatcherFactory requestDispatcherFactory);
+
+    void setServletPath(String servletPath);
 }

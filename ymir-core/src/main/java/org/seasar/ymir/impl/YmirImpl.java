@@ -132,13 +132,12 @@ public class YmirImpl implements Ymir {
             Map<String, FormFile[]> fileParameterMap, FilterChain chain)
             throws IOException, ServletException {
         // 開発モードではResponseを加工できるように、マッチするかに関わらずYmirで処理するようにする。
-        // また、開発モードではHTTPメソッドが差し替えられることがあるため、MatchedPathMappingは
-        // HTTPメソッド差し替え後に作成する必要がある。そのためここではMatchedPathMappingを
-        // 作らない。
-        MatchedPathMapping matched = null;
+        // また、この時点ではmethodは仮のものである（開発モードではHTTPメソッドが差し替えられることが
+        // ある。proceedの場合はモードに依らずHTTPメソッドが差し替えられる）ため、ここで作成した
+        // MatchedPathMappingはこの場で破棄して、HTTPメソッド差し替え後にMatchedPathMapping
+        // を作成する必要がある。
         if (!isUnderDevelopment()) {
-            matched = findMatchedPathMapping(path, method);
-            if (matched == null) {
+            if (findMatchedPathMapping(path, method) == null) {
                 // マッチしないのでYmirでは処理しない。
                 chain.doFilter(httpRequest, httpResponse);
                 return;
@@ -175,13 +174,14 @@ public class YmirImpl implements Ymir {
                         .getCharacterEncoding(), httpRequest.getParameterMap(),
                         fileParameterMap, attributeContainer);
                 context.setComponent(Request.class, request);
+                request.setAttribute(ATTR_REQUEST, request);
             } else {
                 request = (Request) context.getComponent(Request.class);
                 updateRequest(request, httpRequest, dispatcher);
             }
 
             enterDispatch(request, path, ServletUtils
-                    .getQueryString(httpRequest), dispatcher, matched);
+                    .getQueryString(httpRequest), dispatcher);
             try {
                 try {
                     if (response == null) {
@@ -313,10 +313,6 @@ public class YmirImpl implements Ymir {
      */
     /**
      * ディスパッチの処理を開始します。
-     * <p>このメソッドはMatchedPathMappingを生成して
-     * {@link #enterDispatch(Request, String, String, Dispatcher, MatchedPathMapping)}
-     * を呼び出します。
-     * </p>
      * 
      * @param request 現在のRequest。
      * @param path ディスパッチのパス。
@@ -327,28 +323,8 @@ public class YmirImpl implements Ymir {
      */
     protected void enterDispatch(Request request, String path,
             String queryString, Dispatcher dispatcher) {
-        enterDispatch(request, path, queryString, dispatcher,
-                findMatchedPathMapping(path, request.getMethod()));
-    }
-
-    /**
-     * ディスパッチの処理を開始します。
-     * 
-     * @param request 現在のRequest。
-     * @param path ディスパッチのパス。
-     * @param queryString ディスパッチのクエリ文字列。nullを指定することもできます。
-     * @param dispatcher ディスパッチを表すDispatcher。
-     * @param matched ディスパッチのパスとパスマッピングのマッチング情報を持つMatchedPathMappingオブジェクト。
-     * nullが指定された場合は内部でMatchedPathMappingオブジェクトが作成されて使用されます。
-     * @see Dispatch
-     * @see Dispatcher
-     */
-    protected void enterDispatch(Request request, String path,
-            String queryString, Dispatcher dispatcher,
-            MatchedPathMapping matched) {
-        if (matched == null) {
-            matched = findMatchedPathMapping(path, request.getMethod());
-        }
+        MatchedPathMapping matched = findMatchedPathMapping(path, request
+                .getMethod());
         if (dispatcher == Dispatcher.FORWARD) {
             Response response = (Response) request.getAttribute(ATTR_RESPONSE);
             if (!response.isSubordinate()) {
@@ -500,11 +476,11 @@ public class YmirImpl implements Ymir {
         ThreadContext context = getThreadContext();
 
         Response response = exceptionProcessor_.process(request, t);
+        context.setComponent(Response.class, response);
+
         Object handler = request.getAttribute(ExceptionProcessor.ATTR_HANDLER);
         boolean global = PropertyUtils.valueOf(request
                 .getAttribute(ExceptionProcessor.ATTR_HANDLER_GLOBAL), true);
-        context.setComponent(Response.class, response);
-
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             response = ymirProcessInterceptors_[i]
                     .responseCreatedByExceptionHandler(request, response,

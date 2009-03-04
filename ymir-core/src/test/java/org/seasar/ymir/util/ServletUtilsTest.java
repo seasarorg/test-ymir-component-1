@@ -72,4 +72,39 @@ public class ServletUtilsTest extends TestCase {
 
         assertEquals("/a/b/c", ServletUtils.normalizePath("/a/b/c/"));
     }
+
+    public void testToAbsolutePath() throws Exception {
+        assertEquals("/path/to/page.html", ServletUtils.toAbsolutePath(
+                "/path/to/page.html", ""));
+
+        assertEquals("/path/to/page2.html", ServletUtils.toAbsolutePath(
+                "/path/to/page.html", "page2.html"));
+
+        assertEquals("/path/page2.html", ServletUtils.toAbsolutePath(
+                "/path/to/page.html", "../page2.html"));
+
+        assertEquals("/path/to/page2.html", ServletUtils.toAbsolutePath(
+                "/path/to/page.html", "./page2.html"));
+
+        assertEquals("/path/to/page.html#", ServletUtils.toAbsolutePath(
+                "/path/to/page.html", "#"));
+
+        assertEquals("/path/to/page2.html#", ServletUtils.toAbsolutePath(
+                "/path/to/page.html", "page2.html#"));
+
+        assertEquals("/path/to/", ServletUtils.toAbsolutePath(
+                "/path/to/page.html", "."));
+
+        assertEquals("/path/to/?edit=", ServletUtils.toAbsolutePath(
+                "/path/to/page.html", ".?edit="));
+
+        assertEquals("/path/to/", ServletUtils.toAbsolutePath("/path/to/", "."));
+
+        assertEquals("/path/", ServletUtils.toAbsolutePath("/path/to/", ".."));
+
+        assertEquals("/path", ServletUtils.toAbsolutePath("", "path"));
+
+        assertEquals("空文字列はカレントパスを表すこと", "/path", ServletUtils.toAbsolutePath(
+                "/path", ""));
+    }
 }
