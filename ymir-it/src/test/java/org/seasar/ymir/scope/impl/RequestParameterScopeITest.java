@@ -1,26 +1,17 @@
 package org.seasar.ymir.scope.impl;
 
-import org.seasar.ymir.HttpMethod;
-import org.seasar.ymir.Request;
 import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.RequestParameterScopeITestPage;
 
 public class RequestParameterScopeITest extends
         PageTestCase<RequestParameterScopeITestPage> {
-    @Override
-    protected Class<RequestParameterScopeITestPage> getPageClass() {
-        return RequestParameterScopeITestPage.class;
-    }
-
     public void test() throws Exception {
-        Request request = prepareForProcessing(
-                "/requestParameterScopeITest.html",
-                HttpMethod.GET,
-                "injectedValue1=1&injectedValue2=2&injectedValue2=2"
-                        + "&injectedValue3=3&injectedValue4=4&injectedValue4=4&injectedValue5=5&injectedValue6=6&injectedValue6=6"
-                        + "&i7=7");
-        processRequest(request);
+        process(RequestParameterScopeITestPage.class, "injectedValue1", "1",
+                "injectedValue2", "2", "injectedValue2", "2", "injectedValue3",
+                "3", "injectedValue4", "4", "injectedValue4", "4",
+                "injectedValue5", "5", "injectedValue6", "6", "injectedValue6",
+                "6", "i7", "7");
 
         RequestParameterScopeITestPage page = getPage();
         assertEquals("1", page.getInjectedValue1());

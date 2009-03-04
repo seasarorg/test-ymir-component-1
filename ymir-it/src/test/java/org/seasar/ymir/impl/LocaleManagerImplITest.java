@@ -2,25 +2,19 @@ package org.seasar.ymir.impl;
 
 import java.util.Locale;
 
-import org.seasar.ymir.HttpMethod;
-import org.seasar.ymir.Request;
 import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.LocaleManagerImplPage;
 
 public class LocaleManagerImplITest extends PageTestCase<LocaleManagerImplPage> {
     @Override
-    protected Class<LocaleManagerImplPage> getPageClass() {
-        return LocaleManagerImplPage.class;
+    public void setUpEnvironment() {
+        setLocale(new Locale("ja", "JP"));
     }
 
     public void test() throws Exception {
-        Locale locale = new Locale("ja", "JP");
-        setLocale(locale);
-        Request request = prepareForProcessing("/localeManagerImpl.html",
-                HttpMethod.GET);
-        processRequest(request);
+        process(LocaleManagerImplPage.class);
 
-        assertSame(locale, getPage().getLocale());
+        assertSame(getLocale(), getPage().getLocale());
     }
 }

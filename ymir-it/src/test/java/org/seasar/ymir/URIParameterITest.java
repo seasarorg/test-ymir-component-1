@@ -1,6 +1,5 @@
 package org.seasar.ymir;
 
-import org.seasar.ymir.mock.servlet.MockHttpServletRequest;
 import org.seasar.ymir.testing.YmirTestCase;
 
 import com.example.web.URIParameterITest1Page;
@@ -11,7 +10,7 @@ public class URIParameterITest extends YmirTestCase {
         process("/URIParameterITest1/science&technology/15.html");
         URIParameterITest1Page page = getComponent(URIParameterITest1Page.class);
 
-        MockHttpServletRequest request = getHttpServletRequest();
+        Request request = getRequest();
         assertNull(request.getParameter("category"));
         assertNull(request.getParameter("sequence"));
         assertEquals("science&technology", page.getCategory());

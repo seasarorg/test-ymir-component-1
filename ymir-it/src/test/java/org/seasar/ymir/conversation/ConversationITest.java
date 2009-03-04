@@ -182,7 +182,7 @@ public class ConversationITest extends YmirTestCase {
     public void test_YMIR_320_subConversationで再Beginするケースでは親Conversationの情報をクリアしてしまわないこと()
             throws Exception {
         process(Conversation6Phase1Page.class);
-        process(Conversation6Phase1Page.class, "beginsub");
+        process(Conversation6Phase1Page.class, "beginSub");
         process(Conversation7Phase1Page.class);
         process(Conversation7Phase2Page.class);
         process(Conversation7Phase1Page.class);

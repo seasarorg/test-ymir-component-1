@@ -27,7 +27,7 @@ public class ForwardResponseITest extends YmirTestCase {
                 "value1");
         ForwardResponseITest2Page page = getComponent(ForwardResponseITest2Page.class);
 
-        MockHttpServletRequest request = getHttpServletRequest();
+        Request request = getRequest();
         assertNull(request.getParameter("param1"));
         assertEquals("value2", request.getParameter("param2"));
         assertNull(page.getParam1());

@@ -2,9 +2,8 @@ package org.seasar.ymir.impl;
 
 import javax.servlet.http.HttpSession;
 
-import org.seasar.ymir.HttpMethod;
-import org.seasar.ymir.Request;
 import org.seasar.ymir.session.SessionManager;
+import org.seasar.ymir.testing.RequestInitializer;
 import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.SessionManagerImplPage;
@@ -17,53 +16,48 @@ public class SessionManagerImplITest extends
     }
 
     public void testGetSession() throws Exception {
-        SessionManager sessionManager = (SessionManager) getContainer()
-                .getComponent(SessionManager.class);
+        SessionManager sessionManager = getComponent(SessionManager.class);
         sessionManager.addStraddlingAttributeNamePattern("hoehoe");
 
-        Request request = prepareForProcessing("/sessionManagerImpl.html",
-                HttpMethod.GET, "getSession=");
-        assertNull(getHttpSession());
-        processRequest(request);
+        process(SessionManagerImplPage.class, "getSession");
 
         assertNull("getSession(false)ではセッションが作成されないこと", getHttpSession());
 
-        request = prepareForProcessing("/sessionManagerImpl.html",
-                HttpMethod.GET, "getSession2=");
-        processRequest(request);
+        process(SessionManagerImplPage.class, "getSession2");
 
         assertNotNull("getSession(true)ではセッションが作成されること", getHttpSession());
     }
 
     public void testInvalidate() throws Exception {
-        SessionManager sessionManager = (SessionManager) getContainer()
-                .getComponent(SessionManager.class);
+        SessionManager sessionManager = getComponent(SessionManager.class);
         sessionManager.addStraddlingAttributeNamePattern("hoehoe");
 
-        Request request = prepareForProcessing("/sessionManagerImpl.html",
-                HttpMethod.GET, "invalidate=");
-        getHttpServletRequest().getSession(true);
-        processRequest(request);
+        process(SessionManagerImplPage.class, new RequestInitializer() {
+            public void initialize() {
+                getHttpServletRequest().getSession(true);
+            }
+        }, "invalidate");
 
         HttpSession session = getHttpServletRequest().getSession(false);
         assertNull("セッションが無効化されること", session);
     }
 
     public void testInvalidateAndCreateSession() throws Exception {
-        SessionManager sessionManager = (SessionManager) getContainer()
-                .getComponent(SessionManager.class);
+        SessionManager sessionManager = getComponent(SessionManager.class);
         sessionManager.addStraddlingAttributeNamePattern("hoehoe");
 
-        Request request = prepareForProcessing("/sessionManagerImpl.html",
-                HttpMethod.GET, "invalidateAndCreate=");
-        HttpSession session = getHttpServletRequest().getSession();
-        session.setAttribute("hoehoe", "HOEHOE");
-        processRequest(request);
+        final HttpSession[] oldSession = new HttpSession[1];
+        process(SessionManagerImplPage.class, new RequestInitializer() {
+            public void initialize() {
+                oldSession[0] = getHttpServletRequest().getSession();
+                oldSession[0].setAttribute("hoehoe", "HOEHOE");
+            }
+        }, "invalidateAndCreate");
 
-        HttpSession session2 = getHttpServletRequest().getSession();
-        assertFalse("新たにセッションが作成されること", session2.getId()
-                .equals(session.getId()));
-        assertEquals("セッションを跨ぐべき値が引き継がれていること", "HOEHOE", session2
+        HttpSession session = getHttpServletRequest().getSession();
+        assertFalse("新たにセッションが作成されること", session.getId().equals(
+                oldSession[0].getId()));
+        assertEquals("セッションを跨ぐべき値が引き継がれていること", "HOEHOE", session
                 .getAttribute("hoehoe"));
     }
 }

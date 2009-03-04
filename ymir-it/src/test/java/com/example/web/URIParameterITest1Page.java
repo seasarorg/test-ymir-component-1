@@ -26,6 +26,6 @@ public class URIParameterITest1Page {
     }
 
     public String _get() {
-        return "forward:.";
+        return "/URIParameterITest2/10.html";
     }
 }

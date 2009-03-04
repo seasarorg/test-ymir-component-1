@@ -11,7 +11,7 @@ import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.ymir.mock.servlet.MockHttpSession;
 import org.seasar.ymir.mock.servlet.MockHttpSessionImpl;
 import org.seasar.ymir.mock.servlet.MockServletContext;
-import org.seasar.ymir.testing.Initializer;
+import org.seasar.ymir.testing.RequestInitializer;
 import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.Scope2Page;
@@ -36,7 +36,7 @@ public class ScopeAttributeITest extends PageTestCase<ScopePage> {
     }
 
     public void test_Outアノテーションが指定されたアクションでだけ有効であること() throws Exception {
-        process(new Initializer() {
+        process(new RequestInitializer() {
             public void initialize() {
                 ScopePage page = getPage();
                 page.setParam1("value1");
@@ -47,7 +47,7 @@ public class ScopeAttributeITest extends PageTestCase<ScopePage> {
         assertNull(getServletContext().getAttribute("param1"));
         assertEquals("value2", getServletContext().getAttribute("param2"));
 
-        process(HttpMethod.POST, new Initializer() {
+        process(HttpMethod.POST, new RequestInitializer() {
             public void initialize() {
                 ScopePage page = getPage();
                 page.setParam1("value1");
@@ -69,7 +69,7 @@ public class ScopeAttributeITest extends PageTestCase<ScopePage> {
     }
 
     public void test_Outsアノテーションが正しく解釈されること() throws Exception {
-        process(new Initializer() {
+        process(new RequestInitializer() {
             public void initialize() {
                 ScopePage page = getPage();
                 page.setParam3("value3");
@@ -81,7 +81,7 @@ public class ScopeAttributeITest extends PageTestCase<ScopePage> {
 
     public void test_セッションからInされたものはOutしなくてもHttpSession_setAttributeされること()
             throws Exception {
-        process(Scope2Page.class, new Initializer() {
+        process(Scope2Page.class, new RequestInitializer() {
             public void initialize() {
                 getHttpSession(true).setAttribute("string", "STRING");
                 getHttpSession().setAttribute("date", new Date());
@@ -96,14 +96,15 @@ public class ScopeAttributeITest extends PageTestCase<ScopePage> {
 
     @Override
     protected MockHttpServletRequest newHttpServletRequest(
-            final MockServletContext application, String path,
-            MockHttpSession session) {
-        return new MockHttpServletRequestImpl(application, path, session) {
+            final MockServletContext servletContext, final HttpMethod method,
+            String path, MockHttpSession session) {
+        return new MockHttpServletRequestImpl(servletContext, method.name(),
+                path, session) {
             @Override
             public HttpSession getSession(boolean create) {
                 if (create) {
                     MockHttpSession session = new MockHttpSessionImpl(
-                            application, this) {
+                            servletContext, this) {
                         private static final long serialVersionUID = 1L;
 
                         @Override

@@ -1,7 +1,5 @@
 package org.seasar.ymir.conversation.impl;
 
-import org.seasar.ymir.HttpMethod;
-import org.seasar.ymir.Request;
 import org.seasar.ymir.conversation.Conversation;
 import org.seasar.ymir.testing.PageTestCase;
 
@@ -9,15 +7,9 @@ import com.example.web.ConversationManagerImplPage;
 
 public class ConversationManagerImplITest extends
         PageTestCase<ConversationManagerImplPage> {
-    @Override
-    protected Class<ConversationManagerImplPage> getPageClass() {
-        return ConversationManagerImplPage.class;
-    }
-
     public void test() throws Exception {
-        Request request = prepareForProcessing("/conversationManagerImpl.html",
-                HttpMethod.GET);
-        processRequest(request);
+        process(ConversationManagerImplPage.class);
+
         ConversationManagerImplPage page = getPage();
 
         assertNotNull(page.getConversationManager());

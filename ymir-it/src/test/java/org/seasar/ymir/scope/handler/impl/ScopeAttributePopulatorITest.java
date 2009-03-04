@@ -1,6 +1,6 @@
 package org.seasar.ymir.scope.handler.impl;
 
-import org.seasar.ymir.testing.Initializer;
+import org.seasar.ymir.testing.RequestInitializer;
 import org.seasar.ymir.testing.YmirTestCase;
 
 import com.example.web.ScopeAttributePopulatorTest2Page;
@@ -8,7 +8,7 @@ import com.example.web.ScopeAttributePopulatorTestPage;
 
 public class ScopeAttributePopulatorITest extends YmirTestCase {
     public void testPopulateTo_ネストしたBeanに属性値をインジェクションできること() throws Exception {
-        process(ScopeAttributePopulatorTestPage.class, new Initializer() {
+        process(ScopeAttributePopulatorTestPage.class, new RequestInitializer() {
             public void initialize() {
                 getComponent(ScopeAttributePopulatorTestPage.class)
                         .setTestCase(ScopeAttributePopulatorITest.this);
