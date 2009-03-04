@@ -1,31 +1,35 @@
 package org.seasar.ymir.testing;
 
-/**
- * YmirのPageクラスをテストするためのTestCaseのベースとなるクラスです。
- * <p>Pageクラスをテストする場合はこのクラスのサブクラスとしてTestCaseを作成すると便利かもしれません。
- * </p>
- * <p>基本的にはテストメソッドの中から以下のメソッドを順番に呼び出し、
- * {@link #processRequest(Request)}の返り値や{@link #getNotes(Request)}の返り値を
- * アサーションするようにします。
- * </p>
- * <ol>
- *   <li><code>prepareForProcessing()</code></li>
- *   <li>{@link #processRequest(Request)}</li>
- * </ol>
- */
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+
+import org.seasar.ymir.HttpMethod;
+
 abstract public class PageTestCase<P> extends YmirTestCase {
-    /**
-     * テスト対象であるPageクラスのクラスオブジェクトを返します。
-     * <p>テスト作成者はこのメソッドをオーバライドして適切な値を返すようにして下さい。
-     * </p>
-     *
-     * @return テスト対象であるPageクラスのクラスオブジェクト。
-     */
-    abstract protected Class<P> getPageClass();
+    private Class<P> pageClass_;
 
     @SuppressWarnings("unchecked")
+    public PageTestCase(P... ps) {
+        pageClass_ = (Class<P>) ps.getClass().getComponentType();
+    }
+
+    protected Class<P> getPageClass() {
+        return pageClass_;
+    }
+
     protected P getPage() {
-        checkStatus(STATUS_PREPARED);
         return getComponent(getPageClass());
+    }
+
+    protected FilterChain process(Object... params) throws IOException,
+            ServletException {
+        return process(HttpMethod.GET, params);
+    }
+
+    protected FilterChain process(HttpMethod method, Object... params)
+            throws IOException, ServletException {
+        return process(getPageClass(), method, params);
     }
 }

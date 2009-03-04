@@ -1,56 +1,57 @@
 package org.seasar.ymir.testing;
 
+import static org.seasar.ymir.Ymir.ATTR_RESPONSE;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.FilterChain;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
 
 import org.seasar.cms.pluggable.Configuration;
-import org.seasar.cms.pluggable.ThreadContext;
 import org.seasar.cms.pluggable.impl.ConfigurationImpl;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
-import org.seasar.framework.util.ArrayUtil;
 import org.seasar.kvasir.util.ClassUtils;
-import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.kvasir.util.io.impl.FileResource;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpMethod;
-import org.seasar.ymir.HttpServletResponseFilter;
-import org.seasar.ymir.PageNotFoundRuntimeException;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Path;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
-import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
-import org.seasar.ymir.constraint.PermissionDeniedException;
-import org.seasar.ymir.impl.HttpServletRequestAttributeContainer;
-import org.seasar.ymir.interceptor.YmirProcessInterceptor;
+import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.message.Notes;
+import org.seasar.ymir.mock.servlet.MockFilterChain;
+import org.seasar.ymir.mock.servlet.MockFilterChainImpl;
 import org.seasar.ymir.mock.servlet.MockHttpServletRequest;
 import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.ymir.mock.servlet.MockHttpServletResponse;
 import org.seasar.ymir.mock.servlet.MockHttpServletResponseImpl;
 import org.seasar.ymir.mock.servlet.MockHttpSession;
+import org.seasar.ymir.mock.servlet.MockRequestDispatcherImpl;
 import org.seasar.ymir.mock.servlet.MockServletContext;
 import org.seasar.ymir.mock.servlet.MockServletContextImpl;
+import org.seasar.ymir.mock.servlet.RequestDispatcherFactory;
 import org.seasar.ymir.servlet.YmirListener;
 import org.seasar.ymir.util.ContainerUtils;
 import org.seasar.ymir.util.ServletUtils;
@@ -69,67 +70,241 @@ import org.seasar.ymir.util.ServletUtils;
  * </ol>
  */
 abstract public class YmirTestCase extends TestCase {
-    /** リクエストの処理が開始された直後であることを表す定数です。 */
-    protected static final int STATUS_STARTED = 0;
-
-    /** リクエストに関してメインの処理をするための準備が完了していることを表す定数です。 */
-    protected static final int STATUS_PREPARED = 1;
-
-    /** リクエストの処理が完了していることを表す定数です。 */
-    protected static final int STATUS_PROCESSED = 2;
-
     private static final String DEFAULT_WEBAPPROOT = "src/main/webapp";
 
-    private YmirListener ymirListener_;
+    private String characterEncoding_ = "UTF-8";
 
-    private S2Container container_;
-
-    private Ymir ymir_;
-
-    private MockServletContext application_;
-
-    private int status_;
+    private String contextPath_ = "/context";
 
     private Locale locale_ = new Locale("");
 
-    private String characterEncoding_ = "UTF-8";
+    private String webappRoot_ = DEFAULT_WEBAPPROOT;
+
+    private String[] additionalConfigPaths_;
+
+    private S2Container container_;
+
+    private YmirListener ymirListener_;
+
+    private MockServletContext servletContext_;
+
+    private Ymir ymir_;
 
     private MockHttpServletRequest httpRequest_;
 
     private MockHttpServletResponse httpResponse_;
 
-    private Request request_;
-
-    private String webappRoot_ = DEFAULT_WEBAPPROOT;
-
     /**
-     * テストに使用されるYmirオブジェクトを返します。
-     *
-     * @return Ymirオブジェクト。
-     * @since 1.0.2
+     * テストの実行環境を設定します。
+     * <p>テストの実行環境を変更したい場合は、このメソッドをオーバライドして変更のための処理を記述して下さい。
+     * </p>
      */
-    protected Ymir getYmir() {
-        return ymir_;
+    public void setUpEnvironment() {
     }
 
     /**
-     * テストに使用されるServletContextオブジェクトを返します。
-     *
-     * @return ServletContextオブジェクト。
-     */
-    protected ServletContext getServletContext() {
-        return application_;
-    }
-
-    /**
-     * テストに使用されるS2Containerを返します。
-     * <p>返されるコンテナは、コンテナグラフのルートコンテナです。
+     * リクエストの文字エンコーディングを返します。
+     * <p>デフォルトでは、返される文字エンコーディングはUTF-8です。
      * </p>
      *
-     * @return S2Containerオブジェクト。
+     * @return 文字エンコーディング。
      */
-    protected S2Container getContainer() {
-        return container_;
+    public String getCharacterEncoding() {
+        return characterEncoding_;
+    }
+
+    /**
+     * リクエストの文字エンコーディングを設定します。
+     * <p>このメソッドは{@link #setUpEnvironment()}の中で呼び出して下さい。
+     * </p>
+     *
+     * @param characterEncoding 文字エンコーディング。
+     */
+    public void setCharacterEncoding(String characterEncoding) {
+        characterEncoding_ = characterEncoding;
+    }
+
+    /**
+     * テスト時のコンテキストパスを返します。
+     *
+     * @return コンテキストパス。
+     */
+    public String getContextPath() {
+        return contextPath_;
+    }
+
+    /**
+     * テスト時のコンテキストパスを設定します。
+     * <p>このメソッドは{@link #setUpEnvironment()}の中で呼び出して下さい。
+     * </p>
+     *
+     * @param contextPath コンテキストパス。
+     */
+    public void setContextPath(String contextPath) {
+        contextPath_ = contextPath;
+    }
+
+    /**
+     * リクエストを処理するためのロケールを返します。
+     * <p>デフォルトでは、返されるロケールは空のロケールです。
+     * </p>
+     *
+     * @return ロケール。
+     */
+    public Locale getLocale() {
+        return locale_;
+    }
+
+    /**
+     * リクエストを処理するためのロケールを設定します。
+     * <p>このメソッドは{@link #setUpEnvironment()}の中で呼び出して下さい。
+     * </p>
+     *
+     * @param locale ロケール。
+     */
+    public void setLocale(Locale locale) {
+        locale_ = locale;
+    }
+
+    /**
+     * プロジェクトを開発時にWebアプリケーションサーバにデプロイする際のルートディレクトリを設定します。
+     * <p>デフォルトは「src/main/webapp」です。
+     * </p>
+     * <p>このメソッドは{@link #setUpEnvironment()}の中で呼び出して下さい。
+     * </p>
+     * 
+     * @param webappRoot Webアプリケーションとして動作させるためのルートディレクトリ。
+     */
+    public void setWebappRoot(String webappRoot) {
+        webappRoot_ = webappRoot;
+    }
+
+    /**
+     * テスト時に追加で読み込ませたい設定ファイルのパスを返します。
+     *
+     * @return 設定ファイルのパスの配列。
+     */
+    public String[] getAdditionalConfigPaths() {
+        return additionalConfigPaths_;
+    }
+
+    /**
+     * テスト時に追加で読み込ませたい設定ファイルのパスを設定します。
+     * <p>このメソッドは{@link #setUpEnvironment()}の中で呼び出して下さい。
+     * </p>
+     *
+     * @param additionalConfigPaths 設定ファイルのパスの配列。
+     */
+    public void setAdditionalConfigPaths(String... additionalConfigPaths) {
+        additionalConfigPaths_ = additionalConfigPaths;
+    }
+
+    /**
+     * テストのための設定を追加します。
+     * <p>テストのための設定を追加したい場合はこのメソッドをオーバライドして下さい。
+     * </p>
+     * 
+     * @param configuration Configurationオブジェクト。
+     */
+    public void setUpConfiguration(Configuration configuration) {
+    }
+
+    /**
+     * 主に単一画面のテスト用に、一時的に@Beginアノテーションのチェックを無効にします。
+     * <p>conversationに参加している画面をテストする場合、その画面に@Beginがないと
+     * テスト時に不正遷移エラーとみなされてしまいます。
+     * これを避けるためにこのメソッドを呼び出して一時的に@Beginアノテーションのチェックを無効にして下さい。
+     * このメソッドが呼び出されてから呼び出したテストメソッドが終了するまで@Beginアノテーションは無効になります。
+     * </p>
+     * <p>このメソッドは{@link #setUpConfiguration(Configuration)}の中で呼び出して下さい。
+     * </p>
+     */
+    public void disableBeginCheck(Configuration configuration) {
+        configuration
+                .setProperty(
+                        org.seasar.ymir.conversation.Globals.APPKEY_CORE_CONVERSATION_DISABLEBEGINCHECK,
+                        String.valueOf(true));
+    }
+
+    /**
+     * 主に単一画面のテスト用に、ConversationScopeの代わりにSessionScopeを使用するようにします。
+     * <p>conversationに参加している画面をテストする場合、その画面がconversationの途中だと
+     * テスト時にconversation scopeが存在せずオブジェクトの保存や取り出しがうまくいかないことがあります。
+     * これを避けるためにこのメソッドを呼び出して一時的にconversation scopeの代わりにsession scopeを使うようにして下さい。
+     * このメソッドが呼び出されてから呼び出したテストメソッドが終了するまでは、
+     * conversation scopeへのアクセスは全てsession scopeにスルーされるようになります。
+     * </p>
+     * <p>このメソッドは{@link #setUpConfiguration(Configuration)}の中で呼び出して下さい。
+     * </p>
+     */
+    public void useSessionScopeAsConversationScope(Configuration configuration) {
+        configuration
+                .setProperty(
+                        org.seasar.ymir.conversation.Globals.APPKEY_CORE_CONVERSATION_USESESSIONSCOPEASCONVERSATIONSCOPE,
+                        String.valueOf(true));
+    }
+
+    /**
+     * テストメソッドを呼び出す前の処理を行ないます。
+     * <p>このメソッドをオーバライドする場合は必ずsuperメソッドを呼び出して下さい。
+     * </p>
+     */
+    public void setUp() {
+        servletContext_ = new MockServletContextImpl(getContextPath());
+        URL resource = getClass().getClassLoader()
+                .getResource("app.properties");
+        if (resource == null) {
+            throw new RuntimeException("'app.properties' not found.");
+        }
+        servletContext_.setRoot(new FileResource(findWebappRoot(ClassUtils
+                .getFileOfResource(resource).getParentFile())));
+        servletContext_.setInitParameter(YmirListener.CONFIG_PATH_KEY,
+                "ymir.dicon");
+
+        ymirListener_ = new YmirListener() {
+            @Override
+            public void preInit(ServletContextEvent sce) {
+                ConfigurationImpl configuration = (ConfigurationImpl) SingletonS2ContainerFactory
+                        .getContainer().getComponent(ConfigurationImpl.class);
+                if (additionalConfigPaths_ != null) {
+                    for (String configPath : additionalConfigPaths_) {
+                        configuration.load(configPath);
+                    }
+                }
+                setUpConfiguration(configuration);
+
+                super.preInit(sce);
+            }
+        };
+        ymirListener_.contextInitialized(new ServletContextEvent(
+                servletContext_));
+
+        container_ = SingletonS2ContainerFactory.getContainer();
+        ymir_ = YmirContext.getYmir();
+    }
+
+    File findWebappRoot(File dir) {
+        return new File(findProjectRoot(dir), webappRoot_);
+    }
+
+    File findProjectRoot(final File file) {
+        File f = file;
+        do {
+            if (new File(f, "pom.xml").exists()) {
+                return f;
+            }
+        } while ((f = f.getParentFile()) != null);
+        return file;
+    }
+
+    /**
+     * テストメソッドを呼び出した後の処理を行ないます。
+     * <p>このメソッドをオーバライドする場合は必ずsuperメソッドを呼び出して下さい。
+     * </p>
+     */
+    public void tearDown() {
+        ymirListener_
+                .contextDestroyed(new ServletContextEvent(servletContext_));
     }
 
     /**
@@ -142,7 +317,7 @@ abstract public class YmirTestCase extends TestCase {
      * @return S2Containerオブジェクト。
      * @throws IllegalArgumentException S2Containerが見つからなかった場合。
      */
-    protected S2Container getContainer(String path)
+    public S2Container getContainer(String path)
             throws IllegalArgumentException {
         S2Container container = findContainer(path, getContainer());
         if (container == null) {
@@ -171,7 +346,7 @@ abstract public class YmirTestCase extends TestCase {
      *
      * @return コンポーネント。
      */
-    protected Object getComponent(Object componentKey) {
+    public Object getComponent(Object componentKey) {
         return getContainer().getComponent(componentKey);
     }
 
@@ -181,125 +356,38 @@ abstract public class YmirTestCase extends TestCase {
      * @return コンポーネント。
      */
     @SuppressWarnings("unchecked")
-    protected <T> T getComponent(Class<T> componentClass) {
+    public <T> T getComponent(Class<T> componentClass) {
         return (T) getContainer().getComponent(componentClass);
     }
 
     /**
-     * リクエストを処理するためのロケールを返します。
-     * <p>デフォルトでは、返されるロケールは空のロケールです。
+     * テストに使用されるS2Containerを返します。
+     * <p>返されるコンテナは、コンテナグラフのルートコンテナです。
      * </p>
      *
-     * @return ロケール。
+     * @return S2Containerオブジェクト。
      */
-    protected Locale getLocale() {
-        return locale_;
+    public S2Container getContainer() {
+        return container_;
     }
 
     /**
-     * リクエストを処理するためのロケールを設定します。
-     * <p>リクエストを処理するためのロケールを変更したい場合は、<code>prepareForProcessing</code>
-     * メソッドを呼び出す前にこのメソッドを呼び出してロケールを設定して下さい。
-     * </p>
+     * テストに使用されるYmirオブジェクトを返します。
      *
-     * @param locale ロケール。
+     * @return Ymirオブジェクト。
+     * @since 1.0.2
      */
-    protected void setLocale(Locale locale) {
-        locale_ = locale;
+    public Ymir getYmir() {
+        return ymir_;
     }
 
     /**
-     * リクエストの文字エンコーディングを返します。
-     * <p>デフォルトでは、返される文字エンコーディングはUTF-8です。
-     * </p>
+     * テストに使用されるServletContextオブジェクトを返します。
      *
-     * @return 文字エンコーディング。
+     * @return ServletContextオブジェクト。
      */
-    protected String getCharacterEncoding() {
-        return characterEncoding_;
-    }
-
-    /**
-     * リクエストの文字エンコーディングを設定します。
-     * <p>リクエストの文字エンコーディングを変更したい場合は、<code>prepareForProcessing</code>
-     * メソッドを呼び出す前にこのメソッドを呼び出して文字エンコーディングを設定して下さい。
-     * </p>
-     *
-     * @param characterEncoding 文字エンコーディング。
-     */
-    protected void setCharacterEncoding(String characterEncoding) {
-        characterEncoding_ = characterEncoding;
-    }
-
-    protected void setWebappRoot(String webappRoot) {
-        webappRoot_ = webappRoot;
-    }
-
-    /**
-     * 主に単一画面のテスト用に、一時的に@Beginアノテーションのチェックを無効にします。
-     * <p>conversationに参加している画面をテストする場合、その画面に@Beginがないと
-     * テスト時に不正遷移エラーとみなされてしまいます。
-     * これを避けるためにこのメソッドを呼び出して一時的に@Beginアノテーションのチェックを無効にして下さい。
-     * このメソッドが呼び出されてから呼び出したテストメソッドが終了するまで@Beginアノテーションは無効になります。
-     * </p>
-     */
-    protected void disableBeginCheck() {
-        ((Configuration) getContainer().getComponent(Configuration.class))
-                .setProperty(
-                        org.seasar.ymir.conversation.Globals.APPKEY_CORE_CONVERSATION_DISABLEBEGINCHECK,
-                        String.valueOf(true));
-    }
-
-    /**
-     * 主に単一画面のテスト用に、ConversationScopeの代わりにSessionScopeを使用するようにします。
-     * <p>conversationに参加している画面をテストする場合、その画面がconversationの途中だと
-     * テスト時にconversation scopeが存在せずオブジェクトの保存や取り出しがうまくいかないことがあります。
-     * これを避けるためにこのメソッドを呼び出して一時的にconversation scopeの代わりにsession scopeを使うようにして下さい。
-     * このメソッドが呼び出されてから呼び出したテストメソッドが終了するまでは、
-     * conversation scopeへのアクセスは全てsession scopeにスルーされるようになります。
-     * </p>
-     */
-    protected void useSessionScopeAsConversationScope() {
-        ((Configuration) getContainer().getComponent(Configuration.class))
-                .setProperty(
-                        org.seasar.ymir.conversation.Globals.APPKEY_CORE_CONVERSATION_USESESSIONSCOPEASCONVERSATIONSCOPE,
-                        String.valueOf(true));
-    }
-
-    /**
-     * テスト時のコンテキストパスを返します。
-     * <p>テスト時のコンテキストパスを変更したい場合はこのメソッドをオーバライドして下さい。
-     * </p>
-     *
-     * @return コンテキストパス。
-     */
-    protected String getContextPath() {
-        return "/context";
-    }
-
-    /**
-     * テスト時に追加で読み込ませたい設定ファイルのパスを返します。
-     * <p>テスト時に設定ファイルを追加で読み込ませたい場合はこのメソッドをオーバライドして下さい。
-     * </p>
-     *
-     * @return 設定ファイルのパスの配列。nullを返してはいけません。
-     */
-    protected String[] getAdditionalConfigPaths() {
-        return new String[0];
-    }
-
-    /**
-     * テストのための設定を追加します。
-     * <p>テストのための設定を追加したい場合はこのメソッドをオーバライドして下さい。
-     * </p>
-     * <p>このメソッドの呼び出しは{@link #getAdditionalConfigPaths()}が返す
-     * 追加の設定ファイルの読み込みよりも後です。
-     * </p>
-     * 
-     * @param configuration Configurationオブジェクト。
-     * @see #getAdditionalConfigPaths()
-     */
-    protected void setUpConfiguration(Configuration configuration) {
+    public ServletContext getServletContext() {
+        return servletContext_;
     }
 
     /**
@@ -309,7 +397,7 @@ abstract public class YmirTestCase extends TestCase {
      * 
      * @return 現在のHttpServletRequestオブジェクト。
      */
-    protected MockHttpServletRequest getHttpServletRequest() {
+    public MockHttpServletRequest getHttpServletRequest() {
         return httpRequest_;
     }
 
@@ -321,7 +409,7 @@ abstract public class YmirTestCase extends TestCase {
      * @return 現在のHttpSessionオブジェクト。
      * @see #getHttpSession(boolean)
      */
-    protected MockHttpSession getHttpSession() {
+    public MockHttpSession getHttpSession() {
         return getHttpSession(false);
     }
 
@@ -335,7 +423,7 @@ abstract public class YmirTestCase extends TestCase {
      * @param create セッションを作成するかどうか。
      * @return 現在のHttpSessionオブジェクト。
      */
-    protected MockHttpSession getHttpSession(boolean create) {
+    public MockHttpSession getHttpSession(boolean create) {
         return (MockHttpSession) getHttpServletRequest().getSession(create);
     }
 
@@ -346,256 +434,183 @@ abstract public class YmirTestCase extends TestCase {
      * 
      * @return 現在のHttpServletResponseオブジェクト。
      */
-    protected MockHttpServletResponse getHttpServletResponse() {
+    public MockHttpServletResponse getHttpServletResponse() {
         return httpResponse_;
     }
 
-    /**
-     * テストメソッドを呼び出す前の処理を行ないます。
-     * <p>このメソッドをオーバライドする場合は必ずsuperメソッドを呼び出して下さい。
-     * </p>
-     */
-    public void setUp() {
-        application_ = new MockServletContextImpl(getContextPath());
-        URL resource = getClass().getClassLoader()
-                .getResource("app.properties");
-        if (resource == null) {
-            throw new RuntimeException("'app.properties' not found.");
+    public void process(ServletContext servletContext,
+            HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+            Dispatcher dispatcher, String path, HttpMethod method,
+            Map<String, FormFile[]> fileParameterMap, FilterChain chain)
+            throws IOException, ServletException {
+        ymir_.process(servletContext, httpRequest, httpResponse, dispatcher,
+                path, method, fileParameterMap, chain);
+    }
+
+    public FilterChain process(String path, Object... params)
+            throws IOException, ServletException {
+        return process(path, HttpMethod.GET, params);
+    }
+
+    public FilterChain process(String path, HttpMethod method, Object... params)
+            throws IOException, ServletException {
+        Initializer initializer = null;
+        MockFilterChain chain = new MockFilterChainImpl();
+        if (params != null) {
+            boolean paramStarted = false;
+            List<Object> paramList = new ArrayList<Object>();
+            for (Object param : params) {
+                if (param instanceof Initializer) {
+                    if (initializer != null) {
+                        throw new IllegalClientCodeRuntimeException(
+                                "Multiple Initializer specified");
+                    } else if (paramStarted) {
+                        throw new IllegalClientCodeRuntimeException(
+                                "Initializer must be specified before parameters");
+                    }
+                    initializer = (Initializer) param;
+                } else if (param instanceof MockFilterChain) {
+                    if (chain != null) {
+                        throw new IllegalClientCodeRuntimeException(
+                                "Multiple MockFilterChain specified");
+                    } else if (paramStarted) {
+                        throw new IllegalClientCodeRuntimeException(
+                                "MockFilterChain must be specified before parameters");
+                    }
+                    chain = (MockFilterChain) param;
+                } else if (param instanceof FilterChain) {
+                    throw new IllegalClientCodeRuntimeException(
+                            "Can't specify FilterChain. Specify MockFilterChain instead");
+                } else {
+                    paramStarted = true;
+                    paramList.add(param);
+                }
+            }
+            params = paramList.toArray();
         }
-        application_.setRoot(new FileResource(findWebappRoot(ClassUtils
-                .getFileOfResource(resource).getParentFile())));
-        application_.setInitParameter(YmirListener.CONFIG_PATH_KEY,
-                "ymir.dicon");
+        if (chain == null) {
+            chain = new MockFilterChainImpl();
+        }
 
-        ymirListener_ = new YmirListener() {
-            @Override
-            protected void preInit(ServletContextEvent sce) {
-                ConfigurationImpl configuration = (ConfigurationImpl) SingletonS2ContainerFactory
-                        .getContainer().getComponent(ConfigurationImpl.class);
-                for (String configPath : getAdditionalConfigPaths()) {
-                    configuration.load(configPath);
+        Map<String, String[]> parameterMap = new LinkedHashMap<String, String[]>();
+        Map<String, FormFile[]> fileParameterMap = new LinkedHashMap<String, FormFile[]>();
+        if (params != null) {
+            for (int i = 0; i < params.length; i += 2) {
+                Object value;
+                if (i + 1 < params.length) {
+                    value = params[i + 1];
+                } else {
+                    value = "";
                 }
-                setUpConfiguration(configuration);
-
-                super.preInit(sce);
-            }
-        };
-        ymirListener_.contextInitialized(new ServletContextEvent(application_));
-
-        container_ = SingletonS2ContainerFactory.getContainer();
-        ymir_ = (Ymir) container_.getComponent(Ymir.class);
-    }
-
-    File findWebappRoot(File dir) {
-        return new File(findProjectRoot(dir), webappRoot_);
-    }
-
-    File findProjectRoot(final File file) {
-        File f = file;
-        do {
-            if (new File(f, "pom.xml").exists()) {
-                return f;
-            }
-        } while ((f = f.getParentFile()) != null);
-        return file;
-    }
-
-    /**
-     * テストメソッドを呼び出した後の処理を行ないます。
-     * <p>このメソッドをオーバライドする場合は必ずsuperメソッドを呼び出して下さい。
-     * </p>
-     */
-    public void tearDown() {
-        ymirListener_.contextDestroyed(new ServletContextEvent(application_));
-    }
-
-    /**
-     * Pageクラスのアクション呼び出しのための準備を行ないます。
-     * <p><code>prepareForProcessing(path, HttpMethod.GET)</code>
-     * と同じです。
-     * </p>
-     *
-     * @param path リクエストパス（コンテキストパス相対）。
-     * @return 構築されたRequestオブジェクト。
-     */
-    protected Request prepareForProcessing(String path) {
-        return prepareForProcessing(path, HttpMethod.GET);
-    }
-
-    /**
-     * Pageクラスのアクション呼び出しのための準備を行ないます。
-     * <p>パスに「?a=b」のようにクエリ文字列を付与することでリクエストパラメータを指定することもできます。
-     * </p>
-     *
-     * @param path リクエストパス（コンテキストパス相対）。
-     * @param method HTTPメソッド。
-     * @return 構築されたRequestオブジェクト。
-     */
-    protected Request prepareForProcessing(String path, HttpMethod method) {
-        return prepareForProcessing(ServletUtils.getTrunk(path), method,
-                ServletUtils.getQueryString(path));
-    }
-
-    /**
-     * Pageクラスのアクション呼び出しのための準備を行ないます。
-     * <p><code>prepareForProcessing(path, HttpMethod.GET, queryString)</code>
-     * と同じです。
-     * </p>
-     *
-     * @param path リクエストパス（コンテキストパス相対）。
-     * @param queryString クエリ文字列。「<code>a=b&c=d</code>」のように記述して下さい。
-     * @return 構築されたRequestオブジェクト。
-     */
-    protected Request prepareForProcessing(String path, String queryString) {
-        return prepareForProcessing(path, HttpMethod.GET, queryString);
-    }
-
-    /**
-     * Pageクラスのアクション呼び出しのための準備を行ないます。
-     * <p>fileタイプのリクエストパラメータの指定がないとみなされます。
-     * </p>
-     *
-     * @param path リクエストパス（コンテキストパス相対）。
-     * @param method HTTPメソッド。
-     * @param queryString クエリ文字列。「<code>a=b&c=d</code>」のように記述して下さい。
-     * @return 構築されたRequestオブジェクト。
-     */
-    protected Request prepareForProcessing(String path, HttpMethod method,
-            String queryString) {
-        return prepareForProcessing(path, method,
-                parseQueryString(queryString),
-                new HashMap<String, FormFile[]>());
-    }
-
-    // XXX
-    private Request prepareForProcessing(String path, HttpMethod method,
-            Map<String, String[]> parseQueryString,
-            HashMap<String, FormFile[]> hashMap) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /**
-     * クエリ文字列からMapを構築して返します。
-     *
-     * @param queryString クエリ文字列。nullの場合は空のMapを返します。
-     * @return 構築したMap。
-     */
-    protected Map<String, String[]> parseQueryString(String queryString) {
-        Map<String, String[]> parameterMap = new HashMap<String, String[]>();
-        if (queryString != null) {
-            int pre = 0;
-            if (queryString.startsWith("?")) {
-                pre = 1/*= "?".length() */;
-            }
-            int idx;
-            while ((idx = queryString.indexOf('&', pre)) >= 0) {
-                String segment = queryString.substring(pre, idx);
-                int equal = segment.indexOf('=');
-                if (equal >= 0) {
-                    String name;
-                    String value;
-                    try {
-                        name = URLDecoder.decode(segment.substring(0, equal),
-                                getCharacterEncoding());
-                        value = URLDecoder.decode(segment.substring(equal + 1),
-                                getCharacterEncoding());
-                    } catch (UnsupportedEncodingException ex) {
-                        throw new IORuntimeException(ex);
-                    }
-                    String[] values = parameterMap.get(name);
-                    if (values == null) {
-                        values = new String[] { value };
-                    } else {
-                        values = (String[]) ArrayUtil.add(values, value);
-                    }
-                    parameterMap.put(name, values);
-                }
-                pre = idx + 1;
-            }
-            if (pre < queryString.length()) {
-                String segment = queryString.substring(pre);
-                int equal = segment.indexOf('=');
-                if (equal >= 0) {
-                    String name = segment.substring(0, equal);
-                    String value = segment.substring(equal + 1);
-                    String[] values = parameterMap.get(name);
-                    if (values == null) {
-                        values = new String[] { value };
-                    } else {
-                        values = (String[]) ArrayUtil.add(values, value);
-                    }
-                    parameterMap.put(name, values);
-                }
+                ServletUtils.addParameter(params[i], value, parameterMap,
+                        fileParameterMap);
             }
         }
-        return parameterMap;
+
+        Path p = new Path(path, getCharacterEncoding());
+        for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+            for (String value : entry.getValue()) {
+                p.addParameter(entry.getKey(), value);
+            }
+        }
+        String actualPath = p.asString();
+
+        acceptRequest(actualPath, method, initializer);
+
+        process(getServletContext(), getHttpServletRequest(),
+                getHttpServletResponse(), Dispatcher.REQUEST, ServletUtils
+                        .getNativePath(getHttpServletRequest()), method,
+                fileParameterMap, chain);
+        if (chain.isCalled()) {
+            return chain;
+        } else {
+            return null;
+        }
     }
 
-    /**
-     * Pageクラスのアクション呼び出しのための準備を行ないます。
-     * <p>fileタイプのリクエストパラメータの指定がないとみなされます。
-     * </p>
-     *
-     * @param path リクエストパス（コンテキストパス相対）。
-     * @param parameterMap リクエストパラメータが格納されているMap。
-     * @param method HTTPメソッド。
-     * @return 構築されたRequestオブジェクト。
-     */
-    protected Request prepareForProcessing(String path, HttpMethod method,
-            Map<String, String[]> parameterMap) {
-        return prepareForProcessing(path, method,
-                parameterMap != null ? parameterMap
-                        : new HashMap<String, String[]>(),
-                new HashMap<String, FormFile[]>());
+    public FilterChain process(Class<?> pageClass, Object... params)
+            throws IOException, ServletException {
+        return process(pageClass, HttpMethod.GET, params);
     }
 
-    /**
-     * Pageクラスのアクション呼び出しのための準備を行ないます。
-     *
-     * @param path リクエストパス（コンテキストパス相対）。
-     * @param method HTTPメソッド。
-     * @param parameterMap リクエストパラメータが格納されているMap。
-     * @param fileParameterMap fileタイプのリクエストパラメータが格納されているMap。
-     * @return 構築されたRequestオブジェクト。
-     */
-    @SuppressWarnings("unchecked")
-    //    protected Request prepareForProcessing(String path, HttpMethod method,
-    //            Map<String, String[]> parameterMap,
-    //            Map<String, FormFile[]> fileParameterMap) {
-    //        if (parameterMap == null) {
-    //            parameterMap = new HashMap<String, String[]>();
-    //        }
-    //        if (fileParameterMap == null) {
-    //            fileParameterMap = new HashMap<String, FormFile[]>();
-    //        }
-    //
-    //        MockHttpSession session = null;
-    //        if (httpRequest_ != null) {
-    //            session = (MockHttpSession) httpRequest_.getSession(false);
-    //        }
-    //        httpRequest_ = newHttpServletRequest(application_, path, session);
-    //        httpRequest_.getParameterMap().putAll(parameterMap);
-    //        httpRequest_.setLocale(getLocale());
-    //        httpResponse_ = newHttpServletResponse(httpRequest_);
-    //
-    //        ContainerUtils.setRequest(container_, httpRequest_);
-    //        ContainerUtils.setResponse(container_, httpResponse_);
-    //
-    //        status_ = STATUS_PREPARED;
-    //
-    //        request_ = ymir_.prepareForProcessing(getContextPath(), method,
-    //                "UTF-8", parameterMap, fileParameterMap,
-    //                new HttpServletRequestAttributeContainer(httpRequest_));
-    //
-    //        String queryString = null;
-    //        if (method == HttpMethod.GET && !parameterMap.isEmpty()) {
-    //            queryString = new Path(path, parameterMap).getQueryString();
-    //        }
-    //        ymir_.enterDispatch(request_, path, queryString, Dispatcher.REQUEST);
-    //        return request_;
-    //    }
-    final protected Class<?> getPageClass(String path) {
+    public FilterChain process(Class<?> pageClass, HttpMethod method,
+            Object... params) throws IOException, ServletException {
+        return process(getPathOfPageClass(pageClass), method, params);
+    }
+
+    public void acceptRequest(String path, HttpMethod method,
+            Initializer initializer) {
+        MockHttpSession session = null;
+        if (httpRequest_ != null) {
+            session = (MockHttpSession) httpRequest_.getSession(false);
+        }
+        httpRequest_ = newHttpServletRequest(servletContext_, path, session);
+        try {
+            httpRequest_.setCharacterEncoding(getCharacterEncoding());
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
+        httpRequest_.setMethod(method.name());
+        httpRequest_.setLocale(getLocale());
+        httpRequest_
+                .setRequestDispatcherFactory(new RequestDispatcherFactory() {
+                    public RequestDispatcher newInstance(String path) {
+                        return new MockRequestDispatcherImpl(path) {
+                            @Override
+                            public void forward(ServletRequest request,
+                                    ServletResponse response)
+                                    throws ServletException, IOException {
+                                super.forward(request, response);
+
+                                process(servletContext_, httpRequest_,
+                                        httpResponse_, Dispatcher.FORWARD,
+                                        getPath(), HttpMethod
+                                                .enumOf(httpRequest_
+                                                        .getMethod()), null,
+                                        new FilterChain() {
+                                            public void doFilter(
+                                                    ServletRequest request,
+                                                    ServletResponse response)
+                                                    throws IOException,
+                                                    ServletException {
+                                            }
+                                        });
+                            }
+
+                            @Override
+                            public void include(ServletRequest request,
+                                    ServletResponse response)
+                                    throws ServletException, IOException {
+                                super.include(request, response);
+
+                                process(servletContext_, httpRequest_,
+                                        httpResponse_, Dispatcher.INCLUDE,
+                                        getPath(), HttpMethod
+                                                .enumOf(httpRequest_
+                                                        .getMethod()), null,
+                                        new FilterChain() {
+                                            public void doFilter(
+                                                    ServletRequest request,
+                                                    ServletResponse response)
+                                                    throws IOException,
+                                                    ServletException {
+                                            }
+                                        });
+                            }
+                        };
+                    }
+                });
+        httpResponse_ = newHttpServletResponse(httpRequest_);
+
+        ContainerUtils.setRequest(container_, httpRequest_);
+        ContainerUtils.setResponse(container_, httpResponse_);
+
+        if (initializer != null) {
+            initializer.initialize();
+        }
+    }
+
+    final public Class<?> getPageClass(String path) {
         Class<?> pageClass = ymir_.getPageClassOfPath(path);
         if (pageClass == null) {
             throw new IllegalArgumentException(
@@ -604,7 +619,7 @@ abstract public class YmirTestCase extends TestCase {
         return pageClass;
     }
 
-    final protected String getPathOfPageClass(Class<?> pageClass) {
+    final public String getPathOfPageClass(Class<?> pageClass) {
         String path = ymir_.getPathOfPageClass(pageClass);
         if (path == null) {
             throw new IllegalArgumentException(
@@ -620,189 +635,9 @@ abstract public class YmirTestCase extends TestCase {
     }
 
     protected MockHttpServletRequest newHttpServletRequest(
-            MockServletContext application, String path, MockHttpSession session) {
-        return new MockHttpServletRequestImpl(application, path, session);
-    }
-
-    //    protected void prepareForProcessing(String path, Dispatcher dispatcher) {
-    //        checkStatus(STATUS_PROCESSED);
-    //
-    //        ymir_.updateRequest(request_, httpRequest_, dispatcher);
-    //
-    //        ContainerUtils.setRequest(container_, httpRequest_);
-    //        ContainerUtils.setResponse(container_, httpResponse_);
-    //
-    //        status_ = STATUS_PREPARED;
-    //
-    //        ymir_.enterDispatch(request_, path, null, dispatcher);
-    //    }
-    //
-    protected void checkStatus(int status) {
-        if (status_ < status) {
-            throw new IllegalStateException("status " + status
-                    + " is expected but the current status is " + status_);
-        }
-    }
-
-    /**
-     * 実際にリクエストを処理します。
-     * <p>このメソッドは{@link #processRequest(Request, org.seasar.ymir.test.YmirTestCase.Test)}
-     * でTestにnullを指定した場合と同じです。
-     * </p>
-     *
-     * @param request Requestオブジェクト。
-     * @return 処理結果を表すResponseオブジェクト。
-     */
-    protected Response processRequest(Request request) {
-        return processRequest(request, null);
-    }
-
-    protected Response processRequest(Request request, Test test) {
-        // XXX
-        return null;
-    }
-
-    /**
-     * 実際にリクエストを処理します。
-     * <p>このメソッドを呼び出す前に必ず<code>prepareForProcessing</code>
-     * メソッドを呼び出しておいて下さい。
-     * </p>
-     *
-     * @param request Requestオブジェクト。
-     * @param test リクエストの処理中に実行するテスト。nullを指定することもできます。
-     * @return 処理結果を表すResponseオブジェクト。
-     */
-    //    protected Response processRequest(Request request, Test test) {
-    //        checkStatus(STATUS_PREPARED);
-    //
-    //        status_ = STATUS_PROCESSED;
-    //
-    //        ThreadContext threadContext = (ThreadContext) container_
-    //                .getComponent(ThreadContext.class);
-    //        Response response = null;
-    //        try {
-    //            threadContext.setComponent(Request.class, request);
-    //
-    //            response = ymir_.processRequest(request);
-    //
-    //            if (test != null) {
-    //                test.doTest();
-    //            }
-    //
-    //            return response;
-    //        } finally {
-    //            if (request.getCurrentDispatch().getDispatcher() == Dispatcher.REQUEST) {
-    //                YmirProcessInterceptor[] interceptors = ymir_
-    //                        .getYmirProcessInterceptors();
-    //                for (int i = 0; i < interceptors.length; i++) {
-    //                    interceptors[i].leavingRequest(request);
-    //                }
-    //            }
-    //            threadContext.setComponent(Request.class, null);
-    //
-    //            ymir_.leaveDispatch(request);
-    //
-    //            threadContext.setComponent(Response.class, null);
-    //        }
-    //    }
-    /**
-     * 実際にリクエストを処理します。
-     * <p>このメソッドは{@link #process(Request, org.seasar.ymir.test.YmirTestCase.Test)}
-     * でTestにnullを指定した場合と同じです。
-     * </p>
-     *
-     * @param request Requestオブジェクト。
-     * @return 処理結果を表すHttpServletResponseFilterオブジェクト。
-     * @throws PermissionDeniedException 権限エラーが発生した場合。
-     * @throws PageNotFoundRuntimeException 指定されたリクエストパスに直接アクセスすることが禁止されている場合。
-     * @throws ServletException レスポンスの処理中にスローされることがあります。
-     * @throws IOException レスポンスの処理中にスローされることがあります。
-     */
-    protected HttpServletResponseFilter process(Request request)
-            throws PermissionDeniedException, PageNotFoundRuntimeException,
-            IOException, ServletException {
-        return process(request, null);
-    }
-
-    protected HttpServletResponseFilter process(Request request, Test test)
-            throws PermissionDeniedException, PageNotFoundRuntimeException,
-            IOException, ServletException {
-        // XXX
-        return null;
-    }
-
-    /**
-     * 実際にリクエストを処理します。
-     * <p>リクエストを処理してレスポンスを生成し、生成したレスポンスを処理してHttpServletResponseFilterを生成して返します。
-     * </p>
-     * <p>このメソッドを呼び出す前に必ず<code>prepareForProcessing</code>
-     * メソッドを呼び出しておいて下さい。
-     * </p>
-     *
-     * @param request Requestオブジェクト。
-     * @param test リクエストの処理中に実行するテスト。nullを指定することもできます。
-     * @return 処理結果を表すHttpServletResponseFilterオブジェクト。
-     * @throws PermissionDeniedException 権限エラーが発生した場合。
-     * @throws PageNotFoundRuntimeException 指定されたリクエストパスに直接アクセスすることが禁止されている場合。
-     * @throws ServletException レスポンスの処理中にスローされることがあります。
-     * @throws IOException レスポンスの処理中にスローされることがあります。
-     */
-    //    protected HttpServletResponseFilter process(Request request, Test test)
-    //            throws PermissionDeniedException, PageNotFoundRuntimeException,
-    //            IOException, ServletException {
-    //        checkStatus(STATUS_PREPARED);
-    //
-    //        status_ = STATUS_PROCESSED;
-    //
-    //        ThreadContext threadContext = (ThreadContext) container_
-    //                .getComponent(ThreadContext.class);
-    //        Response response = null;
-    //        try {
-    //            threadContext.setComponent(Request.class, request);
-    //
-    //            try {
-    //                response = ymir_.processRequest(request);
-    //            } catch (Throwable t) {
-    //                if (request.getCurrentDispatch().getDispatcher() == Dispatcher.REQUEST) {
-    //                    response = ymir_.processException(request, t);
-    //                } else {
-    //                    rethrow(t);
-    //                }
-    //            }
-    //
-    //            HttpServletResponseFilter responseFilter = ymir_.processResponse(
-    //                    application_, httpRequest_, httpResponse_, request,
-    //                    response);
-    //
-    //            if (test != null) {
-    //                test.doTest();
-    //            }
-    //
-    //            return responseFilter;
-    //        } finally {
-    //            if (request.getCurrentDispatch().getDispatcher() == Dispatcher.REQUEST) {
-    //                for (int i = 0; i < ymir_.getYmirProcessInterceptors().length; i++) {
-    //                    ymir_.getYmirProcessInterceptors()[i]
-    //                            .leavingRequest(request);
-    //                }
-    //                threadContext.setComponent(Request.class, null);
-    //            }
-    //
-    //            ymir_.leaveDispatch(request);
-    //
-    //            threadContext.setComponent(Response.class, null);
-    //        }
-    //    }
-    void rethrow(Throwable t) throws IOException, ServletException {
-        if (t instanceof ServletException) {
-            throw (ServletException) t;
-        } else if (t instanceof IOException) {
-            throw (IOException) t;
-        } else if (t instanceof RuntimeException) {
-            throw (RuntimeException) t;
-        } else {
-            throw new WrappingRuntimeException(t);
-        }
+            MockServletContext servletContext, String path,
+            MockHttpSession session) {
+        return new MockHttpServletRequestImpl(servletContext, path, session);
     }
 
     /**
@@ -814,144 +649,11 @@ abstract public class YmirTestCase extends TestCase {
      * @param request Requestオブジェクト。
      * @return Notesオブジェクト。バリデーションエラーが発生しなかった場合はnullを返します。
      */
-    protected Notes getNotes(Request request) {
-        checkStatus(STATUS_PROCESSED);
-        return (Notes) request.getAttribute(RequestProcessor.ATTR_NOTES);
+    public Notes getNotes() {
+        return (Notes) httpRequest_.getAttribute(RequestProcessor.ATTR_NOTES);
     }
 
-    /**
-     * テストを表す抽象クラスです。
-     * <p>フレームワークがリクエストを処理している最中にテストを実施したい場合はこのクラスのサブクラスを作成して
-     * 
-     * @author YOKOTA Takehiko
-     */
-    abstract public class Test {
-        protected final void doTest() {
-            try {
-                test();
-            } catch (Error e) {
-                throw e;
-            } catch (RuntimeException ex) {
-                throw ex;
-            } catch (Throwable t) {
-                throw new RuntimeException(t);
-            }
-        }
-
-        abstract protected void test() throws Throwable;
-    }
-
-    /**
-     * Pageクラスのアクション呼び出しのための準備を行ないます。
-     *
-     * @param pageClass アクションを呼び出すPageクラス。
-     * @param method HTTPメソッド。
-     * @return 構築されたRequestオブジェクト。
-     * @since 1.0.2
-     */
-    protected Request prepareForProcessing(Class<?> pageClass, HttpMethod method) {
-        return prepareForProcessing(getPathOfPageClass(pageClass), method,
-                (String) null);
-    }
-
-    /**
-     * Pageクラスのアクション呼び出しのための準備を行ないます。
-     *
-     * @param pageClass アクションを呼び出すPageクラス。
-     * @param method HTTPメソッド。
-     * @param queryString クエリ文字列。「<code>a=b&c=d</code>」のように記述して下さい。
-     * @return 構築されたRequestオブジェクト。
-     * @since 1.0.2
-     */
-    protected Request prepareForProcessing(Class<?> pageClass,
-            HttpMethod method, String queryString) {
-        return prepareForProcessing(getPathOfPageClass(pageClass), method,
-                queryString);
-    }
-
-    /**
-     * Pageクラスのアクション呼び出しのための準備を行ないます。
-     *
-     * @param pageClass アクションを呼び出すPageクラス。
-     * @param method HTTPメソッド。
-     * @param param1Name 最初のリクエストパラメータの名前。
-     * @param param1Value1 最初のリクエストパラメータの値。
-     * StringかString[]かFormFileかFormFile[]の非null値を指定して下さい。
-     * @param theOtherParams 残りのリクエストパラメータ。
-     * 値は必ず偶数個（パラメータ名, パラメータ値のペア, ...）指定して下さい。
-     * パラメータ名としてはStringの非null値を指定して下さい。
-     * パラメータ値としてはStringかString[]かFormFileかFormFile[]の非null値を指定して下さい。
-     * @return 構築されたRequestオブジェクト。
-     * @since 1.0.2
-     */
-    protected Request prepareForProcessing(Class<?> pageClass,
-            HttpMethod method, String param1Name, Object param1Value1,
-            Object... theOtherParams) {
-        Map<String, String[]> parameterMap = new LinkedHashMap<String, String[]>();
-        Map<String, FormFile[]> fileParameterMap = new LinkedHashMap<String, FormFile[]>();
-        addParameter(param1Name, param1Value1, parameterMap, fileParameterMap);
-        if (theOtherParams != null) {
-            if (theOtherParams.length % 2 == 1) {
-                throw new IllegalArgumentException(
-                        "The number of theOtherParams must be even");
-            }
-            for (int i = 0; i < theOtherParams.length; i += 2) {
-                addParameter(theOtherParams[i], theOtherParams[i + 1],
-                        parameterMap, fileParameterMap);
-            }
-        }
-        return prepareForProcessing(getPathOfPageClass(pageClass), method,
-                parameterMap, fileParameterMap);
-    }
-
-    // XXX
-    private Request prepareForProcessing(String pathOfPageClass,
-            HttpMethod method, Map<String, String[]> parameterMap,
-            Map<String, FormFile[]> fileParameterMap) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    private void addParameter(Object name, Object value,
-            Map<String, String[]> parameterMap,
-            Map<String, FormFile[]> fileParameterMap) {
-        if (!(name instanceof String)) {
-            throw new IllegalArgumentException(
-                    "Parameter name must be a string: " + name);
-        }
-        String stringName = (String) name;
-        if (value instanceof String) {
-            String v = (String) value;
-            addToMap(parameterMap, stringName, new String[] { v });
-        } else if (value instanceof String[]) {
-            String[] vs = (String[]) value;
-            addToMap(parameterMap, stringName, vs);
-        } else if (value instanceof FormFile) {
-            FormFile v = (FormFile) value;
-            addToMap(fileParameterMap, stringName, new FormFile[] { v });
-        } else if (value instanceof FormFile[]) {
-            FormFile[] vs = (FormFile[]) value;
-            addToMap(fileParameterMap, stringName, vs);
-        } else {
-            throw new IllegalArgumentException(
-                    "Parameter value must be a String, String[], FormFile or FormFile[]: "
-                            + value);
-        }
-    }
-
-    private <V> void addToMap(Map<String, V[]> map, String name, V[] values) {
-        V[] vs = map.get(name);
-        if (vs == null) {
-            vs = values;
-        } else {
-            List<V> list = new ArrayList<V>();
-            list.addAll(Arrays.asList(vs));
-            list.addAll(Arrays.asList(values));
-            @SuppressWarnings("unchecked")
-            V[] newVs = list.toArray((V[]) Array.newInstance(vs.getClass()
-                    .getComponentType(), 0));
-            vs = newVs;
-        }
-        map.put(name, vs);
+    public Response getResponse() {
+        return (Response) httpRequest_.getAttribute(ATTR_RESPONSE);
     }
 }
