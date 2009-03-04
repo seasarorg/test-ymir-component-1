@@ -1,20 +1,15 @@
 package org.seasar.ymir;
 
-import org.seasar.ymir.testing.PageTestCase;
+import org.seasar.ymir.testing.YmirTestCase;
 
 import com.example.web.HoePage;
 
-public class AppDiconITest extends PageTestCase<HoePage> {
-    @Override
-    protected Class<HoePage> getPageClass() {
-        return HoePage.class;
-    }
-
+public class AppDiconITest extends YmirTestCase {
     public void test_appDiconで定義したコンポーネントにYmirのRequestがDIされること()
             throws Exception {
-        Request request = prepareForProcessing("/hoe.html", HttpMethod.GET);
-        processRequest(request);
-        HoePage page = getPage();
+        process(HoePage.class);
+
+        HoePage page = getComponent(HoePage.class);
         AppDiconComponent component = page.getAppDiconComponent();
         assertNotNull(component.getYmirRequest());
         assertNotNull("app.diconからインクルードしたYmirコンポーネントもDIされること", component

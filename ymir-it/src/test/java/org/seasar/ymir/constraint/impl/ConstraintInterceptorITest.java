@@ -1,9 +1,8 @@
 package org.seasar.ymir.constraint.impl;
 
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
-import org.seasar.ymir.HttpMethod;
-import org.seasar.ymir.Request;
 import org.seasar.ymir.message.Notes;
+import org.seasar.ymir.mock.servlet.MockHttpServletRequest;
 import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.ConstraintInterceptorTestPage;
@@ -28,10 +27,9 @@ public class ConstraintInterceptorITest extends
     }
 
     public void test_アクション制約とクラス制約と共通制約を返すこと・getterの制約も含むこと() throws Exception {
-        Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", HttpMethod.GET, "button1=");
-        processRequest(request);
-        Notes actual = getNotes(request);
+        process(ConstraintInterceptorTestPage.class, "button1");
+
+        Notes actual = getNotes();
 
         assertNotNull(actual);
         assertEquals(8, actual.getNotes().length);
@@ -47,10 +45,9 @@ public class ConstraintInterceptorITest extends
 
     public void test_SuppressConstraintアノテーションが付与されている場合はクラス制約を含まないこと_old()
             throws Exception {
-        Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", HttpMethod.GET, "button2=");
-        processRequest(request);
-        Notes actual = getNotes(request);
+        process(ConstraintInterceptorTestPage.class, "button2");
+
+        Notes actual = getNotes();
 
         assertNotNull(actual);
         assertEquals(2, actual.getNotes().length);
@@ -60,10 +57,9 @@ public class ConstraintInterceptorITest extends
 
     public void test_SuppressConstraintアノテーションが付与されている場合はクラス制約を含まないこと()
             throws Exception {
-        Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", HttpMethod.GET, "button22=");
-        processRequest(request);
-        Notes actual = getNotes(request);
+        process(ConstraintInterceptorTestPage.class, "button22");
+
+        Notes actual = getNotes();
 
         assertNotNull(actual);
         assertEquals(2, actual.getNotes().length);
@@ -73,10 +69,9 @@ public class ConstraintInterceptorITest extends
 
     public void test_SuppressConstraintアノテーションがConstraintTypeつきで付与されている場合は指定されたクラス制約を含まないこと_old()
             throws Exception {
-        Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", HttpMethod.GET, "button3=");
-        processRequest(request);
-        Notes actual = getNotes(request);
+        process(ConstraintInterceptorTestPage.class, "button3");
+
+        Notes actual = getNotes();
 
         assertNotNull(actual);
         assertEquals(3, actual.getNotes().length);
@@ -87,10 +82,9 @@ public class ConstraintInterceptorITest extends
 
     public void test_SuppressConstraintアノテーションがConstraintTypeつきで付与されている場合は指定されたクラス制約を含まないこと()
             throws Exception {
-        Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", HttpMethod.GET, "button32=");
-        processRequest(request);
-        Notes actual = getNotes(request);
+        process(ConstraintInterceptorTestPage.class, "button32");
+
+        Notes actual = getNotes();
 
         assertNotNull(actual);
         assertEquals(3, actual.getNotes().length);
@@ -101,10 +95,9 @@ public class ConstraintInterceptorITest extends
 
     public void test_複数Constraintの一括指定系Constraintアノテーションが正しく解釈されること()
             throws Exception {
-        Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", HttpMethod.GET, "button4=");
-        processRequest(request);
-        Notes actual = getNotes(request);
+        process(ConstraintInterceptorTestPage.class, "button4");
+
+        Notes actual = getNotes();
 
         assertNotNull(actual);
         assertEquals(3, actual.getNotes().length);
@@ -114,10 +107,9 @@ public class ConstraintInterceptorITest extends
     }
 
     public void test_Validatorアノテーションがついているメソッドが呼び出されること() throws Exception {
-        Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", HttpMethod.GET, "button5=");
-        processRequest(request);
+        process(ConstraintInterceptorTestPage.class, "button5");
 
+        MockHttpServletRequest request = getHttpServletRequest();
         assertEquals("validator3", request.getAttribute("validator3"));
         assertEquals("validator4", request.getAttribute("validator4"));
         assertEquals("validator32", request.getAttribute("validator32"));
@@ -126,11 +118,9 @@ public class ConstraintInterceptorITest extends
 
     public void test_パラメータつきでアクションが呼ばれる時はValidatorアノテーションがついているアクションが引数を取るものであればパラメータが渡されること()
             throws Exception {
-        Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", HttpMethod.GET,
-                "button6[1][hoe]=");
-        processRequest(request);
+        process(ConstraintInterceptorTestPage.class, "button6[1][hoe]");
 
+        MockHttpServletRequest request = getHttpServletRequest();
         assertEquals(Integer.valueOf(1), request.getAttribute("param1"));
         assertEquals("hoe", request.getAttribute("param2"));
         assertEquals(Integer.valueOf(1), request.getAttribute("param12"));
@@ -139,11 +129,9 @@ public class ConstraintInterceptorITest extends
 
     public void test_YMIR267_Validatorの引数が解決できること() throws Exception {
         getServletContext().setAttribute("app", "app");
-        Request request = prepareForProcessing(
-                "/constraintInterceptorTest.html", HttpMethod.GET,
-                "button7[1][hoe]=");
-        processRequest(request);
+        process(ConstraintInterceptorTestPage.class, "button7[1][hoe]");
 
+        MockHttpServletRequest request = getHttpServletRequest();
         assertEquals("app", request.getAttribute("app"));
         assertSame(getHttpServletRequest(), request.getAttribute("request"));
         assertEquals(Integer.valueOf(1), request.getAttribute("param12"));

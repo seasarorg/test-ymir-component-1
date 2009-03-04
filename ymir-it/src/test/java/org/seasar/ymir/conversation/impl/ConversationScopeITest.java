@@ -1,51 +1,34 @@
 package org.seasar.ymir.conversation.impl;
 
-import org.seasar.ymir.HttpMethod;
-import org.seasar.ymir.Request;
 import org.seasar.ymir.conversation.ConversationUtils;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.testing.YmirTestCase;
 
+import com.example.web.ConversationScopeITest1Page;
+import com.example.web.ConversationScopeITest2Page;
 import com.example.web.ConversationScopeITest3Page;
+import com.example.web.ConversationScopeITest4Page;
+import com.example.web.ConversationScopeITest5Page;
 
 public class ConversationScopeITest extends YmirTestCase {
     public void test_別のconversationから移動してきた場合はInで何もインジェクションされないこと()
             throws Exception {
-        Request request = prepareForProcessing("/conversationScopeITest1.html",
-                HttpMethod.GET);
-        process(request);
+        process(ConversationScopeITest1Page.class);
+        process(ConversationScopeITest2Page.class);
+        process(ConversationScopeITest3Page.class);
 
-        request = prepareForProcessing("/conversationScopeITest2.html",
-                HttpMethod.GET);
-        process(request);
-
-        request = prepareForProcessing("/conversationScopeITest3.html",
-                HttpMethod.GET);
         ConversationScopeITest3Page actual = getComponent(ConversationScopeITest3Page.class);
-        process(request);
 
         assertNull(actual.getValue());
     }
 
     public void test_別のconversationに移動する場合はOutで何もアウトジェクションされないこと()
             throws Exception {
-        Request request = prepareForProcessing("/conversationScopeITest4.html",
-                HttpMethod.GET, "begin=");
-        process(request);
+        process(ConversationScopeITest4Page.class, "begin");
+        process(ConversationScopeITest4Page.class, "next");
+        process(ConversationScopeITest5Page.class);
 
-        request = prepareForProcessing("/conversationScopeITest4.html",
-                HttpMethod.GET, "next=");
-        process(request);
-
-        request = prepareForProcessing("/conversationScopeITest5.html",
-                HttpMethod.GET);
-        process(request, new Test() {
-            @Override
-            protected void test() throws Throwable {
-                Conversations conversations = ConversationUtils
-                        .getConversations();
-                assertNull(conversations.getAttribute("value"));
-            }
-        });
+        Conversations conversations = ConversationUtils.getConversations();
+        assertNull(conversations.getAttribute("value"));
     }
 }

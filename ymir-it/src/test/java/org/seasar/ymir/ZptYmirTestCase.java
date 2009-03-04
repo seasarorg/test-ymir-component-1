@@ -40,10 +40,11 @@ abstract public class ZptYmirTestCase extends YmirTestCase {
                 .setInitParameter("tagRenderer", YmirTagRenderer.class
                         .getName());
         config_.setInitParameter("templateRoot", "");
-        config_.setInitParameter("pageEncoding", "UTF-8");
-        config_.setInitParameter("requestEncoding", "UTF-8");
-        config_.setInitParameter("responseEncoding", "UTF-8");
-        config_.setInitParameter("contentType", "text/html; charset=UTF-8");
+        config_.setInitParameter("pageEncoding", getCharacterEncoding());
+        config_.setInitParameter("requestEncoding", getCharacterEncoding());
+        config_.setInitParameter("responseEncoding", getCharacterEncoding());
+        config_.setInitParameter("contentType", "text/html; charset="
+                + getCharacterEncoding());
 
         try {
             servlet_.init(config_);

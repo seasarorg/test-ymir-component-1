@@ -11,51 +11,50 @@ import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.ymir.mock.servlet.MockHttpSession;
 import org.seasar.ymir.mock.servlet.MockHttpSessionImpl;
 import org.seasar.ymir.mock.servlet.MockServletContext;
+import org.seasar.ymir.testing.Initializer;
 import org.seasar.ymir.testing.PageTestCase;
 
+import com.example.web.Scope2Page;
 import com.example.web.ScopePage;
 
 public class ScopeAttributeITest extends PageTestCase<ScopePage> {
     private List<String> setNameSet_ = new ArrayList<String>();
 
-    @Override
-    protected Class<ScopePage> getPageClass() {
-        return ScopePage.class;
-    }
-
     public void test_Inアノテーションが指定されたアクションでだけ有効であること() throws Exception {
         getServletContext().setAttribute("param1", "value1");
         getServletContext().setAttribute("param2", "value2");
 
-        Request request = prepareForProcessing("/scope.html",
-                HttpMethod.GET);
-        processRequest(request);
+        process(ScopePage.class);
         ScopePage page = getPage();
         assertNull(page.getParam1());
         assertEquals("value2", page.getParam2());
 
-        request = prepareForProcessing("/scope.html", HttpMethod.POST);
-        processRequest(request);
+        process(ScopePage.class, HttpMethod.POST);
         page = getPage();
         assertEquals("value1", page.getParam1());
         assertEquals("value2", page.getParam2());
     }
 
     public void test_Outアノテーションが指定されたアクションでだけ有効であること() throws Exception {
-        Request request = prepareForProcessing("/scope.html",
-                HttpMethod.GET);
-        ScopePage page = getPage();
-        page.setParam1("value1");
-        page.setParam2("value2");
-        processRequest(request);
+        process(new Initializer() {
+            public void initialize() {
+                ScopePage page = getPage();
+                page.setParam1("value1");
+                page.setParam2("value2");
+            }
+        });
+
         assertNull(getServletContext().getAttribute("param1"));
         assertEquals("value2", getServletContext().getAttribute("param2"));
 
-        request = prepareForProcessing("/scope.html", HttpMethod.POST);
-        page = getPage();
-        page.setParam1("value1");
-        page.setParam2("value2");
-        processRequest(request);
+        process(HttpMethod.POST, new Initializer() {
+            public void initialize() {
+                ScopePage page = getPage();
+                page.setParam1("value1");
+                page.setParam2("value2");
+            }
+        });
+
         assertEquals("value1", getServletContext().getAttribute("param1"));
         assertEquals("value2", getServletContext().getAttribute("param2"));
     }
@@ -63,30 +62,32 @@ public class ScopeAttributeITest extends PageTestCase<ScopePage> {
     public void test_Insアノテーションが正しく解釈されること() throws Exception {
         getServletContext().setAttribute("param3", "value3");
 
-        Request request = prepareForProcessing("/scope.html",
-                HttpMethod.GET);
-        processRequest(request);
+        process();
+
         ScopePage page = getPage();
         assertEquals("value3", page.getParam3());
     }
 
     public void test_Outsアノテーションが正しく解釈されること() throws Exception {
-        Request request = prepareForProcessing("/scope.html",
-                HttpMethod.GET);
-        ScopePage page = getPage();
-        page.setParam3("value3");
-        processRequest(request);
+        process(new Initializer() {
+            public void initialize() {
+                ScopePage page = getPage();
+                page.setParam3("value3");
+            }
+        });
+
         assertEquals("value3", getServletContext().getAttribute("param3"));
     }
 
     public void test_セッションからInされたものはOutしなくてもHttpSession_setAttributeされること()
             throws Exception {
-        Request request = prepareForProcessing("/scope2.html",
-                HttpMethod.GET);
-        getHttpSession(true).setAttribute("string", "STRING");
-        getHttpSession().setAttribute("date", new Date());
-        setNameSet_.clear();
-        processRequest(request);
+        process(Scope2Page.class, new Initializer() {
+            public void initialize() {
+                getHttpSession(true).setAttribute("string", "STRING");
+                getHttpSession().setAttribute("date", new Date());
+                setNameSet_.clear();
+            }
+        });
 
         assertEquals(1, setNameSet_.size());
         assertEquals("MutableオブジェクトだけがsetAttributeされること", "date", setNameSet_
