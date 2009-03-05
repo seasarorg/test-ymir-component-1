@@ -1,11 +1,14 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AbstractClassDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
@@ -148,28 +151,174 @@ public class ClassDescImpl extends AbstractClassDesc {
             setSuperclassName(classDesc.getSuperclassName());
         }
 
-        PropertyDesc[] propertyDescs = classDesc.getPropertyDescs();
-        for (int i = 0; i < propertyDescs.length; i++) {
-            PropertyDesc pd = getPropertyDesc(propertyDescs[i].getName());
+        for (PropertyDesc propertyDesc : classDesc.getPropertyDescs()) {
+            PropertyDesc pd = getPropertyDesc(propertyDesc.getName());
             if (pd == null) {
-                setPropertyDesc((PropertyDesc) propertyDescs[i].clone());
+                setPropertyDesc((PropertyDesc) propertyDesc.clone());
             } else {
-                DescUtils.merge(pd, propertyDescs[i], force);
+                DescUtils.merge(pd, propertyDesc, force);
             }
         }
 
-        MethodDesc[] methodDescs = classDesc.getMethodDescs();
-        for (int i = 0; i < methodDescs.length; i++) {
-            MethodDesc md = getMethodDesc(methodDescs[i]);
+        for (MethodDesc methodDesc : classDesc.getMethodDescs()) {
+            MethodDesc md = getMethodDesc(methodDesc);
             if (md == null) {
-                setMethodDesc((MethodDesc) methodDescs[i].clone());
+                setMethodDesc((MethodDesc) methodDesc.clone());
             } else {
-                DescUtils.merge(md, methodDescs[i], force);
+                DescUtils.merge(md, methodDesc, force);
             }
         }
 
         setAnnotationDescs(DescUtils.merge(getAnnotationDescs(), classDesc
                 .getAnnotationDescs(), force));
+    }
+
+    public void applyBornOfToAllMembers() {
+        String bornOf = getBornOf();
+        if (bornOf == null) {
+            return;
+        }
+
+        for (PropertyDesc propertyDesc : getPropertyDescs()) {
+            applyBornOfTo(propertyDesc, bornOf);
+        }
+
+        for (MethodDesc methodDesc : getMethodDescs()) {
+            applyBornOfTo(methodDesc, bornOf);
+        }
+    }
+
+    void applyBornOfTo(MethodDesc methodDesc, String bornOf) {
+        methodDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { bornOf }));
+    }
+
+    void applyBornOfTo(PropertyDesc propertyDesc, String bornOf) {
+        // Getter。
+        propertyDesc.setAnnotationDescOnGetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { bornOf }));
+
+        // Setter。
+        propertyDesc.setAnnotationDescOnSetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { bornOf }));
+
+        // フィールド。
+        propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { bornOf }));
+    }
+
+    public void removeBornOfFromAllMembers(String bornOf) {
+        if (bornOf == null) {
+            return;
+        }
+
+        for (PropertyDesc propertyDesc : getPropertyDescs()) {
+            removeBornOfFrom(propertyDesc, bornOf);
+        }
+
+        for (MethodDesc methodDesc : getMethodDescs()) {
+            removeBornOfFrom(methodDesc, bornOf);
+        }
+    }
+
+    void removeBornOfFrom(MethodDesc methodDesc, String bornOf) {
+        String[] values = methodDesc.getMetaValue(Globals.META_NAME_BORNOF);
+        if (values != null) {
+            methodDesc.removeMetaAnnotationDesc(Globals.META_NAME_BORNOF);
+
+            List<String> valueList = new ArrayList<String>();
+            for (String value : values) {
+                if (!value.equals(bornOf)) {
+                    valueList.add(value);
+                }
+            }
+            values = valueList.toArray(new String[0]);
+            if (values.length == 0) {
+                removeMethodDesc(methodDesc);
+            } else {
+                methodDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
+                        Globals.META_NAME_BORNOF, values));
+            }
+        }
+    }
+
+    void removeBornOfFrom(PropertyDesc propertyDesc, String bornOf) {
+        int mode = propertyDesc.getMode();
+        boolean mayFieldBeRemoved = false;
+
+        // Getter。
+
+        String[] values = propertyDesc
+                .getMetaValueOnGetter(Globals.META_NAME_BORNOF);
+        if (values != null) {
+            propertyDesc
+                    .removeMetaAnnotationDescOnGetter(Globals.META_NAME_BORNOF);
+
+            List<String> valueList = new ArrayList<String>();
+            for (String value : values) {
+                if (!value.equals(bornOf)) {
+                    valueList.add(value);
+                }
+            }
+            values = valueList.toArray(new String[0]);
+            if (values.length == 0) {
+                mode &= ~PropertyDesc.READ;
+                propertyDesc.setMode(mode);
+            } else {
+                propertyDesc
+                        .setAnnotationDescOnGetter(new MetaAnnotationDescImpl(
+                                Globals.META_NAME_BORNOF, values));
+            }
+        }
+
+        // Setter。
+
+        values = propertyDesc.getMetaValueOnSetter(Globals.META_NAME_BORNOF);
+        if (values != null) {
+            propertyDesc
+                    .removeMetaAnnotationDescOnSetter(Globals.META_NAME_BORNOF);
+
+            List<String> valueList = new ArrayList<String>();
+            for (String value : values) {
+                if (!value.equals(bornOf)) {
+                    valueList.add(value);
+                }
+            }
+            values = valueList.toArray(new String[0]);
+            if (values.length == 0) {
+                mode &= ~PropertyDesc.WRITE;
+                propertyDesc.setMode(mode);
+            } else {
+                propertyDesc
+                        .setAnnotationDescOnSetter(new MetaAnnotationDescImpl(
+                                Globals.META_NAME_BORNOF, values));
+            }
+        }
+
+        // フィールド。
+
+        values = propertyDesc.getMetaValue(Globals.META_NAME_BORNOF);
+        if (values != null) {
+            propertyDesc.removeMetaAnnotationDesc(Globals.META_NAME_BORNOF);
+
+            List<String> valueList = new ArrayList<String>();
+            for (String value : values) {
+                if (!value.equals(bornOf)) {
+                    valueList.add(value);
+                }
+            }
+            values = valueList.toArray(new String[0]);
+            if (values.length == 0) {
+                mayFieldBeRemoved = true;
+            } else {
+                propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
+                        Globals.META_NAME_BORNOF, values));
+            }
+        }
+
+        if (mode == PropertyDesc.NONE && mayFieldBeRemoved) {
+            removePropertyDesc(propertyDesc.getName());
+        }
     }
 
     public boolean isEmpty() {

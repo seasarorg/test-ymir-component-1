@@ -37,31 +37,47 @@ public interface PropertyDesc extends AnnotatedDesc, Cloneable {
 
     boolean isTypeAlreadySet();
 
-    AnnotationDesc getAnnotationDescForGetter(String name);
+    AnnotationDesc getAnnotationDescOnGetter(String name);
 
-    void setAnnotationDescForGetter(AnnotationDesc annotationDesc);
+    void setAnnotationDescOnGetter(AnnotationDesc annotationDesc);
 
-    AnnotationDesc[] getAnnotationDescsForGetter();
+    void removeMetaAnnotationDescOnGetter(String metaName);
 
-    void setAnnotationDescsForGetter(AnnotationDesc[] annotationDescs);
+    AnnotationDesc[] getAnnotationDescsOnGetter();
 
-    AnnotationDesc getAnnotationDescForSetter(String name);
+    void setAnnotationDescsOnGetter(AnnotationDesc[] annotationDescs);
 
-    void setAnnotationDescForSetter(AnnotationDesc annotationDesc);
+    void removeMetaAnnotationDescOnSetter(String metaName);
 
-    AnnotationDesc[] getAnnotationDescsForSetter();
+    AnnotationDesc getAnnotationDescOnSetter(String name);
 
-    void setAnnotationDescsForSetter(AnnotationDesc[] annotationDescs);
+    void setAnnotationDescOnSetter(AnnotationDesc annotationDesc);
+
+    AnnotationDesc[] getAnnotationDescsOnSetter();
+
+    void setAnnotationDescsOnSetter(AnnotationDesc[] annotationDescs);
 
     void setAnnotationDescs(AnnotationDesc[] annotationDescs);
 
-    boolean hasMetaOnGetter(String name);
+    String getMetaFirstValueOnSetter(String name);
 
     String getMetaFirstValueOnGetter(String name);
 
+    boolean hasMetaOnGetter(String name);
+
     boolean hasMetaOnSetter(String name);
 
-    String getMetaFirstValueOnSetter(String name);
+    String[] getMetaValueOnGetter(String name);
+
+    String[] getMetaValueOnSetter(String name);
+
+    Class<?>[] getMetaClassValueOnGetter(String name);
+
+    Class<?>[] getMetaClassValueOnSetter(String name);
+
+    MetaAnnotationDesc[] getMetaAnnotationDescsOnGetter();
+
+    MetaAnnotationDesc[] getMetaAnnotationDescsOnSetter();
 
     String getInitialValue();
 }

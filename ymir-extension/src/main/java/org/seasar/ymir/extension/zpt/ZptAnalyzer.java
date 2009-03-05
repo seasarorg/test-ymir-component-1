@@ -41,8 +41,6 @@ public class ZptAnalyzer implements TemplateAnalyzer {
 
     public static final String ATTR_UNDECIDEDPARAMETERNAMES = "undecidedParameterNames";
 
-    public static final String ATTR_BORNOF = "bornOf";
-
     private TemplateEvaluator evaluator_;
 
     private SourceCreator sourceCreator_;

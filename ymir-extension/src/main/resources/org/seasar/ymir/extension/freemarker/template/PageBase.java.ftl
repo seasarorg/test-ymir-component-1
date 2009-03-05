@@ -9,14 +9,14 @@ ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#
 <#list classDesc.propertyDescs as propertyDesc>
 <#if propertyDesc.readable>
 
-<#list propertyDesc.annotationDescsForGetter as annotationDesc>    ${annotationDesc.string}
+<#list propertyDesc.annotationDescsOnGetter as annotationDesc>    ${annotationDesc.string}
 </#list>    public ${propertyDesc.typeDesc.name} <#if propertyDesc.typeDesc.name == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}() {
         return <#if propertyDesc.hasMetaOnGetter("formProperty")>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.getMetaFirstValueOnGetter("formProperty")}${fieldSuffix}.<#if propertyDesc.typeDesc.name == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}();<#else>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix};</#if>
     }
 </#if>
 <#if propertyDesc.writable>
 
-<#list propertyDesc.annotationDescsForSetter as annotationDesc>    ${annotationDesc.string}
+<#list propertyDesc.annotationDescsOnSetter as annotationDesc>    ${annotationDesc.string}
 </#list>    public void set${propertyDesc.name?cap_first}(${propertyDesc.typeDesc.name} ${propertyDesc.name}) {
         <#if propertyDesc.hasMetaOnSetter("formProperty")>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.getMetaFirstValueOnSetter("formProperty")}${fieldSuffix}.set${propertyDesc.name?cap_first}(${propertyDesc.name});<#else>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix} = ${propertyDesc.name};</#if>
     }

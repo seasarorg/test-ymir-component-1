@@ -81,4 +81,16 @@ public interface ClassDesc extends AnnotatedDesc, Cloneable {
     void setPropertyDescs(PropertyDesc[] propertyDescs);
 
     void setMethodDescs(MethodDesc[] methodDescs);
+
+    String getBornOf();
+
+    void setBornOf(String path);
+
+    Map<String, Object> getAttributeMap();
+
+    void setAttributeMap(Map<String, Object> attributeMap);
+
+    void removeBornOfFromAllMembers(String bornOf);
+
+    void applyBornOfToAllMembers();
 }

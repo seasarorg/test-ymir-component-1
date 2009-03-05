@@ -67,7 +67,8 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
 
         ClassDesc classDesc = getSourceCreator().newClassDesc(
                 pathMetaData.getClassName(), null);
-        String path = request.getCurrentDispatch().getPath();
+        String path = pathMetaData.getPath();
+        classDesc.setBornOf(path);
         MethodDesc actionMethodDesc = getSourceCreator().newActionMethodDesc(
                 path, method, new ActionSelectorSeedImpl());
         actionMethodDesc.setReturnTypeDesc(String.class.getName(), true);

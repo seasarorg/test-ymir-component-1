@@ -60,6 +60,7 @@ public class CreateActionAction extends AbstractAction implements
 
         ClassDesc classDesc = getSourceCreator().newClassDesc(
                 pathMetaData.getClassName(), null);
+        classDesc.setBornOf(pathMetaData.getPath());
         MethodDesc actionMethodDesc = getSourceCreator().newActionMethodDesc(
                 anfe.getPath(), anfe.getMethod(), new ActionSelectorSeedImpl());
         classDesc.setMethodDesc(actionMethodDesc);

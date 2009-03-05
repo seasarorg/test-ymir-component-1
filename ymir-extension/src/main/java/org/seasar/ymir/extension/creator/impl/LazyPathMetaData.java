@@ -6,6 +6,7 @@ import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
+import org.seasar.ymir.util.ServletUtils;
 
 public class LazyPathMetaData implements PathMetaData {
     private SourceCreator sourceCreator_;
@@ -43,7 +44,7 @@ public class LazyPathMetaData implements PathMetaData {
     public LazyPathMetaData(SourceCreator sourceCreator, String path,
             HttpMethod method, String forwardPath) {
         sourceCreator_ = sourceCreator;
-        path_ = path;
+        path_ = ServletUtils.normalizePath(path);
         method_ = method;
         forwardPath_ = strip(forwardPath);
     }

@@ -110,7 +110,8 @@ public class CreateTemplateAction extends AbstractAction implements
         } else if (transition != null) {
             ClassDesc classDesc = getSourceCreator().newClassDesc(
                     pathMetaData.getClassName(), null);
-            String path = request.getCurrentDispatch().getPath();
+            String path = pathMetaData.getPath();
+            classDesc.setBornOf(path);
             MethodDesc actionMethodDesc = getSourceCreator()
                     .newActionMethodDesc(path, method,
                             new ActionSelectorSeedImpl());

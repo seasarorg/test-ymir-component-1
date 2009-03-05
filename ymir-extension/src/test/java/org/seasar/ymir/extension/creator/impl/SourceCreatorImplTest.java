@@ -281,11 +281,11 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         ClassDesc cd = target_.getClassDesc(Class2Base.class);
 
         AnnotationDesc[] ads = cd.getPropertyDesc("value")
-                .getAnnotationDescsForGetter();
+                .getAnnotationDescsOnGetter();
         assertEquals(1, ads.length);
         assertEquals(Out.class.getName(), ads[0].getName());
 
-        ads = cd.getPropertyDesc("value").getAnnotationDescsForSetter();
+        ads = cd.getPropertyDesc("value").getAnnotationDescsOnSetter();
         assertEquals(1, ads.length);
         assertEquals(In.class.getName(), ads[0].getName());
     }
@@ -579,51 +579,72 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 .getInitialValue());
     }
 
-    //    public void testAdjustByExistentClass2_由来が同じプロパティのうち生成されたClassDescに含まれていないものが削除されること()
-    //            throws Exception {
-    //        ClassDesc classDesc = new ClassDescImpl(Adjust2Page.class.getName());
-    //        classDesc.setAttribute(ZptAnalyzer.ATTR_BORNOF, Adjust2PageBase.class
-    //                .getName());
-    //        classDesc.addProperty("param4", PropertyDesc.READ | PropertyDesc.WRITE);
-    //
-    //        target_.adjustByExistentClass(classDesc);
-    //
-    //        PropertyDesc pd = classDesc.getPropertyDesc("param1");
-    //        assertNotNull(pd);
-    //        assertFalse(pd.isReadable());
-    //        assertTrue(pd.isWritable());
-    //
-    //        assertNull(classDesc.getPropertyDesc("param2"));
-    //
-    //        pd = classDesc.getPropertyDesc("param3");
-    //        assertNotNull(pd);
-    //        assertTrue(pd.isReadable());
-    //        assertTrue(pd.isWritable());
-    //
-    //        pd = classDesc.getPropertyDesc("param4");
-    //        assertNotNull(pd);
-    //        assertTrue(pd.isReadable());
-    //        assertTrue(pd.isWritable());
-    //    }
-    //
-    //    public void testAdjustByExistentClass3_由来が同じメソッドのうち生成されたClassDescに含まれていないものが削除されること()
-    //            throws Exception {
-    //        ClassDesc classDesc = new ClassDescImpl(Adjust3Page.class.getName());
-    //        classDesc.setAttribute(ZptAnalyzer.ATTR_BORNOF, Adjust3PageBase.class
-    //                .getName());
-    //        classDesc.setMethodDesc(new MethodDescImpl("_get_write"));
-    //
-    //        target_.adjustByExistentClass(classDesc);
-    //
-    //        MethodDesc md = classDesc.getMethodDesc(new MethodDescImpl("_get"));
-    //        assertNotNull(md);
-    //
-    //        assertNull(classDesc.getMethodDesc(new MethodDescImpl("_get_output")));
-    //
-    //        md = classDesc.getMethodDesc(new MethodDescImpl("_get_list"));
-    //        assertNotNull(md);
-    //
-    //        md = classDesc.getMethodDesc(new MethodDescImpl("_get_write"));
-    //        assertNotNull(md);
-    //    }
+    public void testAdjustByExistentClass2_由来が同じプロパティのうち生成されたClassDescに含まれていないものが削除されること()
+            throws Exception {
+        ClassDesc classDesc = new ClassDescImpl(Adjust2Page.class.getName());
+        classDesc.setBornOf("/adjust2.html");
+        classDesc.addProperty("param4", PropertyDesc.READ | PropertyDesc.WRITE);
+
+        target_.adjustByExistentClass(classDesc);
+
+        PropertyDesc pd = classDesc.getPropertyDesc("param1");
+        assertNotNull(pd);
+        assertFalse(pd.isReadable());
+        assertTrue(pd.isWritable());
+
+        pd = classDesc.getPropertyDesc("param2");
+        assertNotNull(pd);
+        assertFalse(pd.isReadable());
+        assertFalse(pd.isWritable());
+
+        pd = classDesc.getPropertyDesc("param3");
+        assertNotNull(pd);
+        assertTrue(pd.isReadable());
+        assertTrue(pd.isWritable());
+
+        pd = classDesc.getPropertyDesc("param4");
+        assertNotNull(pd);
+        assertTrue(pd.isReadable());
+        assertTrue(pd.isWritable());
+
+        assertNull(classDesc.getPropertyDesc("param5"));
+    }
+
+    public void testAdjustByExistentClass3_由来が同じメソッドのうち生成されたClassDescに含まれていないものが削除されること()
+            throws Exception {
+        ClassDesc classDesc = new ClassDescImpl(Adjust3Page.class.getName());
+        classDesc.setBornOf("/adjust3.html");
+        classDesc.setMethodDesc(new MethodDescImpl("_get_write"));
+
+        target_.adjustByExistentClass(classDesc);
+
+        MethodDesc md = classDesc.getMethodDesc(new MethodDescImpl("_get"));
+        assertNotNull(md);
+
+        assertNull(classDesc.getMethodDesc(new MethodDescImpl("_get_output")));
+
+        md = classDesc.getMethodDesc(new MethodDescImpl("_get_list"));
+        assertNotNull(md);
+
+        md = classDesc.getMethodDesc(new MethodDescImpl("_get_write"));
+        assertNotNull(md);
+    }
+
+    public void testAdjustByExistentClass4_由来が同じプロパティのうち生成されたClassDescにも含まれているものが正しく残ること()
+            throws Exception {
+        ClassDesc classDesc = new ClassDescImpl(Adjust2Page.class.getName());
+        classDesc.setBornOf("/adjust2.html");
+        classDesc.addProperty("param6", PropertyDesc.READ);
+
+        target_.adjustByExistentClass(classDesc);
+
+        PropertyDesc pd = classDesc.getPropertyDesc("param6");
+        assertNotNull(pd);
+        assertTrue(pd.isReadable());
+        assertFalse(pd.isWritable());
+
+        String[] value = pd.getMetaValueOnGetter(Globals.META_NAME_BORNOF);
+        assertNotNull(value);
+        assertEquals(2, value.length);
+    }
 }

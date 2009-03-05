@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import org.seasar.ymir.extension.creator.AbstractAnnotatedDesc;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
@@ -157,45 +158,55 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         typeAlreadySet_ = true;
     }
 
-    public AnnotationDesc getAnnotationDescForGetter(String name) {
+    public AnnotationDesc getAnnotationDescOnGetter(String name) {
         return annotationDescForGetterMap_.get(name);
     }
 
-    public void setAnnotationDescForGetter(AnnotationDesc annotationDesc) {
+    public void setAnnotationDescOnGetter(AnnotationDesc annotationDesc) {
         DescUtils
                 .setAnnotationDesc(annotationDescForGetterMap_, annotationDesc);
     }
 
-    public AnnotationDesc[] getAnnotationDescsForGetter() {
+    public void removeMetaAnnotationDescOnGetter(String metaName) {
+        DescUtils.removeMetaAnnotationDesc(annotationDescForGetterMap_,
+                metaName);
+    }
+
+    public void removeMetaAnnotationDescOnSetter(String metaName) {
+        DescUtils.removeMetaAnnotationDesc(annotationDescForSetterMap_,
+                metaName);
+    }
+
+    public AnnotationDesc[] getAnnotationDescsOnGetter() {
         return annotationDescForGetterMap_.values().toArray(
                 new AnnotationDesc[0]);
     }
 
-    public void setAnnotationDescsForGetter(AnnotationDesc[] annotationDescs) {
+    public void setAnnotationDescsOnGetter(AnnotationDesc[] annotationDescs) {
         annotationDescForGetterMap_.clear();
         for (AnnotationDesc annotationDesc : annotationDescs) {
-            setAnnotationDescForGetter(annotationDesc);
+            setAnnotationDescOnGetter(annotationDesc);
         }
     }
 
-    public AnnotationDesc getAnnotationDescForSetter(String name) {
+    public AnnotationDesc getAnnotationDescOnSetter(String name) {
         return annotationDescForSetterMap_.get(name);
     }
 
-    public void setAnnotationDescForSetter(AnnotationDesc annotationDesc) {
+    public void setAnnotationDescOnSetter(AnnotationDesc annotationDesc) {
         DescUtils
                 .setAnnotationDesc(annotationDescForSetterMap_, annotationDesc);
     }
 
-    public AnnotationDesc[] getAnnotationDescsForSetter() {
+    public AnnotationDesc[] getAnnotationDescsOnSetter() {
         return annotationDescForSetterMap_.values().toArray(
                 new AnnotationDesc[0]);
     }
 
-    public void setAnnotationDescsForSetter(AnnotationDesc[] annotationDescs) {
+    public void setAnnotationDescsOnSetter(AnnotationDesc[] annotationDescs) {
         annotationDescForSetterMap_.clear();
         for (AnnotationDesc annotationDesc : annotationDescs) {
-            setAnnotationDescForSetter(annotationDesc);
+            setAnnotationDescOnSetter(annotationDesc);
         }
     }
 
@@ -214,12 +225,36 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         return DescUtils.getMetaFirstValue(annotationDescForSetterMap_, name);
     }
 
+    public String[] getMetaValueOnGetter(String name) {
+        return DescUtils.getMetaValue(annotationDescForGetterMap_, name);
+    }
+
+    public String[] getMetaValueOnSetter(String name) {
+        return DescUtils.getMetaValue(annotationDescForSetterMap_, name);
+    }
+
+    public Class<?>[] getMetaClassValueOnGetter(String name) {
+        return DescUtils.getMetaClassValue(annotationDescForGetterMap_, name);
+    }
+
+    public Class<?>[] getMetaClassValueOnSetter(String name) {
+        return DescUtils.getMetaClassValue(annotationDescForSetterMap_, name);
+    }
+
     public boolean hasMetaOnGetter(String name) {
         return DescUtils.hasMeta(annotationDescForGetterMap_, name);
     }
 
     public boolean hasMetaOnSetter(String name) {
         return DescUtils.hasMeta(annotationDescForSetterMap_, name);
+    }
+
+    public MetaAnnotationDesc[] getMetaAnnotationDescsOnGetter() {
+        return DescUtils.getMetaAnnotationDescs(annotationDescForGetterMap_);
+    }
+
+    public MetaAnnotationDesc[] getMetaAnnotationDescsOnSetter() {
+        return DescUtils.getMetaAnnotationDescs(annotationDescForSetterMap_);
     }
 
     public String getInitialValue() {

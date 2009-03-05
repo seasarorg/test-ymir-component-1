@@ -808,7 +808,7 @@ public class ZptAnalyzerTest extends TestCase {
 
         PropertyDesc pd = getClassDesc(CLASSNAME).getPropertyDesc("value");
         assertNotNull(pd);
-        AnnotationDesc[] ads = pd.getAnnotationDescsForSetter();
+        AnnotationDesc[] ads = pd.getAnnotationDescsOnSetter();
         assertEquals("[#YMIR-187]", 1, ads.length);
         assertEquals("[#YMIR-187]", RequestParameter.class.getName(), ads[0]
                 .getName());
@@ -896,11 +896,11 @@ public class ZptAnalyzerTest extends TestCase {
         ClassDesc cd = getClassDesc(CLASSNAME);
         PropertyDesc pd = cd.getPropertyDesc("value");
         assertNotNull(pd);
-        assertNotNull(pd.getAnnotationDescForSetter(RequestParameter.class
+        assertNotNull(pd.getAnnotationDescOnSetter(RequestParameter.class
                 .getName()));
         pd = cd.getPropertyDesc("aaa");
         assertNotNull(pd);
-        assertNotNull(pd.getAnnotationDescForGetter(RequestParameter.class
+        assertNotNull(pd.getAnnotationDescOnGetter(RequestParameter.class
                 .getName()));
     }
 

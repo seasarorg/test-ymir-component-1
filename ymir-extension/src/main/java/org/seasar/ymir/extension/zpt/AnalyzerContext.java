@@ -295,6 +295,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         ClassDesc classDesc = temporaryClassDescMap_.get(className);
         if (classDesc == null) {
             classDesc = sourceCreator_.newClassDesc(className, hintBag_);
+            classDesc.setBornOf(path_);
             temporaryClassDescMap_.put(className, classDesc);
         }
         return classDesc;

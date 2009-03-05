@@ -47,22 +47,16 @@ public class AbstractAnnotatedDesc implements AnnotatedDesc {
         }
     }
 
+    public void removeMetaAnnotationDesc(String metaName) {
+        DescUtils.removeMetaAnnotationDesc(annotationDescMap_, metaName);
+    }
+
     public void clear() {
         annotationDescMap_.clear();
     }
 
     public MetaAnnotationDesc[] getMetaAnnotationDescs() {
-        MetasAnnotationDesc metas = (MetasAnnotationDesc) annotationDescMap_
-                .get(ANNOTATION_NAME_METAS);
-        if (metas != null) {
-            return metas.getMetaAnnotationDescs();
-        }
-        MetaAnnotationDesc meta = (MetaAnnotationDesc) annotationDescMap_
-                .get(ANNOTATION_NAME_META);
-        if (meta != null) {
-            return new MetaAnnotationDesc[] { meta };
-        }
-        return new MetaAnnotationDesc[0];
+        return DescUtils.getMetaAnnotationDescs(annotationDescMap_);
     }
 
     public Class<?>[] getMetaClassValue(String name) {

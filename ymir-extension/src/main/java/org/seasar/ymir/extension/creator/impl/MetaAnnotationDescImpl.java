@@ -15,6 +15,14 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
         this(meta.name(), meta.value(), meta.classValue());
     }
 
+    public MetaAnnotationDescImpl(String metaName, String[] metaValue) {
+        this(metaName, metaValue, new Class<?>[0]);
+    }
+
+    public MetaAnnotationDescImpl(String metaName, Class<?>[] metaClassValue) {
+        this(metaName, new String[0], metaClassValue);
+    }
+
     public MetaAnnotationDescImpl(String metaName, String[] metaValue,
             Class<?>[] metaClassValue) {
         metaName_ = metaName;

@@ -170,12 +170,12 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         formDesc.getDtoClassDesc().setPropertyDesc(
                                 (PropertyDesc) firstPropertyDesc.clone());
                         firstPropertyDesc
-                                .setAnnotationDescForGetter(new MetaAnnotationDescImpl(
+                                .setAnnotationDescOnGetter(new MetaAnnotationDescImpl(
                                         org.seasar.ymir.extension.Globals.META_NAME_FORMPROPERTY,
                                         new String[] { formDesc.getName() },
                                         new Class[0]));
                         firstPropertyDesc
-                                .setAnnotationDescForSetter(new MetaAnnotationDescImpl(
+                                .setAnnotationDescOnSetter(new MetaAnnotationDescImpl(
                                         org.seasar.ymir.extension.Globals.META_NAME_FORMPROPERTY,
                                         new String[] { formDesc.getName() },
                                         new Class[0]));
@@ -183,11 +183,11 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
 
                     if (BeanUtils.isSingleSegment(parameterName)) {
                         propertyDesc
-                                .setAnnotationDescForSetter(new AnnotationDescImpl(
+                                .setAnnotationDescOnSetter(new AnnotationDescImpl(
                                         RequestParameter.class.getName()));
                     } else {
                         firstPropertyDesc
-                                .setAnnotationDescForGetter(new AnnotationDescImpl(
+                                .setAnnotationDescOnGetter(new AnnotationDescImpl(
                                         RequestParameter.class.getName()));
                     }
                 } while (false);
@@ -365,7 +365,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     PropertyDesc propertyDesc = classDesc.addProperty(name,
                             PropertyDesc.WRITE | PropertyDesc.READ);
                     propertyDesc
-                            .setAnnotationDescForSetter(new AnnotationDescImpl(
+                            .setAnnotationDescOnSetter(new AnnotationDescImpl(
                                     RequestParameter.class.getName()));
                     analyzerContext.adjustPropertyType(classDesc.getName(),
                             propertyDesc);
@@ -401,7 +401,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             } else {
                 PropertyDesc propertyDesc = classDesc.addProperty(BeanUtils
                         .getFirstSimpleSegment(name), PropertyDesc.READ);
-                propertyDesc.setAnnotationDescForGetter(new AnnotationDescImpl(
+                propertyDesc.setAnnotationDescOnGetter(new AnnotationDescImpl(
                         RequestParameter.class.getName()));
                 analyzerContext.adjustPropertyType(classDesc.getName(),
                         propertyDesc);

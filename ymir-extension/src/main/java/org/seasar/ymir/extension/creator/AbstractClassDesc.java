@@ -13,13 +13,18 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
 
     private ClassType type_;
 
+    private String bornOf_;
+
     abstract public String getName();
 
     public Object clone() {
         AbstractClassDesc cloned = (AbstractClassDesc) super.clone();
 
         if (parameter_ != null) {
-            cloned.parameter_ = new HashMap<String, Object>(cloned.parameter_);
+            cloned.parameter_ = new HashMap<String, Object>(parameter_);
+        }
+        if (attributeMap_ != null) {
+            cloned.attributeMap_ = new HashMap<String, Object>(attributeMap_);
         }
         return cloned;
     }
@@ -118,6 +123,7 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
     public void clear() {
         super.clear();
         parameter_ = null;
+        attributeMap_ = new HashMap<String, Object>();
     }
 
     public Object getAttribute(String name) {
@@ -126,5 +132,21 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
 
     public void setAttribute(String name, Object value) {
         attributeMap_.put(name, value);
+    }
+
+    public String getBornOf() {
+        return bornOf_;
+    }
+
+    public void setBornOf(String bornOf) {
+        bornOf_ = bornOf;
+    }
+
+    public Map<String, Object> getAttributeMap() {
+        return attributeMap_;
+    }
+
+    public void setAttributeMap(Map<String, Object> attributeMap) {
+        attributeMap_ = attributeMap;
     }
 }

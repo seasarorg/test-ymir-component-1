@@ -91,7 +91,8 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
 
         ClassDesc classDesc = getSourceCreator().newClassDesc(
                 pathMetaData.getClassName(), null);
-        String path = request.getCurrentDispatch().getPath();
+        String path = pathMetaData.getPath();
+        classDesc.setBornOf(path);
         MethodDesc methodDesc = getSourceCreator().newActionMethodDesc(path,
                 method, new ActionSelectorSeedImpl());
         methodDesc.setReturnTypeDesc(String.class.getName(), true);

@@ -12,6 +12,8 @@ public interface AnnotatedDesc {
 
     void setAnnotationDesc(AnnotationDesc annotationDesc);
 
+    void removeMetaAnnotationDesc(String metaName);
+
     AnnotationDesc[] getAnnotationDescs();
 
     String getMetaFirstValue(String name);

@@ -6,15 +6,20 @@ import static org.seasar.ymir.extension.creator.AnnotatedDesc.ANNOTATION_NAME_ME
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Metas;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -163,11 +168,14 @@ public class DescUtils {
                     .get(Metas.class.getName());
             if (metas != null) {
                 // Metasがあればそこに追加する。
+                String metaName = metaAd.getMetaName();
                 MetaAnnotationDesc[] mads = metas.getMetaAnnotationDescs();
                 List<MetaAnnotationDesc> madList = new ArrayList<MetaAnnotationDesc>(
                         mads.length + 1);
                 for (MetaAnnotationDesc mad : mads) {
-                    if (!mad.getMetaName().equals(metaAd.getMetaName())) {
+                    if (mad.getMetaName().equals(metaName)) {
+                        metaAd = merge(mad, metaAd);
+                    } else {
                         madList.add(mad);
                     }
                 }
@@ -177,20 +185,21 @@ public class DescUtils {
                 annotationDescMap.put(Metas.class.getName(), metas);
                 return;
             } else {
-                MetaAnnotationDesc meta = (MetaAnnotationDesc) annotationDescMap
+                MetaAnnotationDesc mad = (MetaAnnotationDesc) annotationDescMap
                         .get(Meta.class.getName());
 
-                if (meta != null) {
-                    if (!meta.getMetaName().equals(metaAd.getMetaName())) {
+                if (mad != null) {
+                    if (mad.getMetaName().equals(metaAd.getMetaName())) {
+                        annotationDescMap.put(Meta.class.getName(), merge(mad,
+                                metaAd));
+                    } else {
                         // MetasがなくてMetaがあればMetasに統合する。
                         annotationDescMap
                                 .put(Metas.class.getName(),
                                         new MetasAnnotationDescImpl(
-                                                new MetaAnnotationDesc[] {
-                                                    meta, metaAd }));
+                                                new MetaAnnotationDesc[] { mad,
+                                                    metaAd }));
                         annotationDescMap.remove(Meta.class.getName());
-                    } else {
-                        annotationDescMap.put(Meta.class.getName(), metaAd);
                     }
                     return;
                 }
@@ -215,7 +224,8 @@ public class DescUtils {
                 madMap.put(meta.getMetaName(), meta);
             }
             for (MetaAnnotationDesc mad : metasAd.getMetaAnnotationDescs()) {
-                madMap.put(mad.getMetaName(), mad);
+                String metaName = mad.getMetaName();
+                madMap.put(metaName, merge(madMap.get(metaName), mad));
             }
 
             metas = new MetasAnnotationDescImpl(madMap.values().toArray(
@@ -225,6 +235,24 @@ public class DescUtils {
         }
 
         annotationDescMap.put(annotationDesc.getName(), annotationDesc);
+    }
+
+    static MetaAnnotationDesc merge(MetaAnnotationDesc meta1,
+            MetaAnnotationDesc meta2) {
+        if (meta1 == null) {
+            return meta2;
+        } else if (meta2 == null) {
+            return meta1;
+        }
+
+        String name = meta2.getMetaName();
+        if (isMergeableMeta(name)) {
+            return new MetaAnnotationDescImpl(name, mergeValue(meta1
+                    .getValues(name), meta2.getValues(name)), mergeValue(meta1
+                    .getClassValues(name), meta2.getClassValues(name)));
+        } else {
+            return meta2;
+        }
     }
 
     public static String getMetaFirstValue(
@@ -302,6 +330,21 @@ public class DescUtils {
         return null;
     }
 
+    public static MetaAnnotationDesc[] getMetaAnnotationDescs(
+            Map<String, AnnotationDesc> annotationDescMap) {
+        MetasAnnotationDesc metas = (MetasAnnotationDesc) annotationDescMap
+                .get(ANNOTATION_NAME_METAS);
+        if (metas != null) {
+            return metas.getMetaAnnotationDescs();
+        }
+        MetaAnnotationDesc meta = (MetaAnnotationDesc) annotationDescMap
+                .get(ANNOTATION_NAME_META);
+        if (meta != null) {
+            return new MetaAnnotationDesc[] { meta };
+        }
+        return new MetaAnnotationDesc[0];
+    }
+
     public static boolean isPrimitive(String name) {
         return ("byte".equals(name) || "short".equals(name)
                 || "int".equals(name) || "long".equals(name)
@@ -320,12 +363,12 @@ public class DescUtils {
         pd1.addMode(pd2.getMode());
         pd1.setAnnotationDescs(DescUtils.merge(pd1.getAnnotationDescs(), pd2
                 .getAnnotationDescs(), force));
-        pd1.setAnnotationDescsForGetter(DescUtils.merge(pd1
-                .getAnnotationDescsForGetter(), pd2
-                .getAnnotationDescsForGetter(), force));
-        pd1.setAnnotationDescsForSetter(DescUtils.merge(pd1
-                .getAnnotationDescsForSetter(), pd2
-                .getAnnotationDescsForSetter(), force));
+        pd1.setAnnotationDescsOnGetter(DescUtils.merge(pd1
+                .getAnnotationDescsOnGetter(),
+                pd2.getAnnotationDescsOnGetter(), force));
+        pd1.setAnnotationDescsOnSetter(DescUtils.merge(pd1
+                .getAnnotationDescsOnSetter(),
+                pd2.getAnnotationDescsOnSetter(), force));
     }
 
     public static void merge(MethodDesc md1, MethodDesc md2, boolean force) {
@@ -452,5 +495,57 @@ public class DescUtils {
         }
 
         return null;
+    }
+
+    public static void removeMetaAnnotationDesc(
+            Map<String, AnnotationDesc> annotationDescMap, String metaName) {
+        MetasAnnotationDesc metas = (MetasAnnotationDesc) annotationDescMap
+                .get(Metas.class.getName());
+        if (metas != null) {
+            // Metasがあればそこから削除する。
+            MetaAnnotationDesc[] mads = metas.getMetaAnnotationDescs();
+            List<MetaAnnotationDesc> madList = new ArrayList<MetaAnnotationDesc>(
+                    mads.length);
+            for (MetaAnnotationDesc mad : mads) {
+                if (!mad.getMetaName().equals(metaName)) {
+                    madList.add(mad);
+                }
+            }
+            if (madList.size() > 0) {
+                metas = new MetasAnnotationDescImpl(madList
+                        .toArray(new MetaAnnotationDesc[0]));
+                annotationDescMap.put(Metas.class.getName(), metas);
+            } else {
+                annotationDescMap.remove(Metas.class.getName());
+            }
+        } else {
+            MetaAnnotationDesc meta = (MetaAnnotationDesc) annotationDescMap
+                    .get(Meta.class.getName());
+
+            if (meta != null && meta.getMetaName().equals(metaName)) {
+                annotationDescMap.remove(Meta.class.getName());
+            }
+        }
+    }
+
+    static boolean isMergeableMeta(String metaName) {
+        return metaName.equals(Globals.META_NAME_BORNOF);
+    }
+
+    @SuppressWarnings("unchecked")
+    static <T> T[] mergeValue(T[] values1, T[] values2) {
+        if (values1 == null && values2 == null) {
+            return null;
+        }
+
+        Set<T> valueSet = new LinkedHashSet<T>();
+        if (values1 != null) {
+            valueSet.addAll(Arrays.asList(values1));
+        }
+        if (values2 != null) {
+            valueSet.addAll(Arrays.asList(values2));
+        }
+        return valueSet.toArray((T[]) Array.newInstance(values1.getClass()
+                .getComponentType(), valueSet.size()));
     }
 }

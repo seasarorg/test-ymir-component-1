@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -299,13 +300,13 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         pd.setAnnotationDesc(new MetaAnnotationDescImpl("a", new String[0],
                 new Class[0]));
         pd.setAnnotationDesc(new AnnotationDescImpl("name1"));
-        pd.setAnnotationDescForGetter(new MetaAnnotationDescImpl("a_getter",
+        pd.setAnnotationDescOnGetter(new MetaAnnotationDescImpl("a_getter",
                 new String[0], new Class[0]));
-        pd.setAnnotationDescForGetter(new AnnotationDescImpl("name1_getter",
+        pd.setAnnotationDescOnGetter(new AnnotationDescImpl("name1_getter",
                 "body1"));
-        pd.setAnnotationDescForSetter(new MetaAnnotationDescImpl("a_setter",
+        pd.setAnnotationDescOnSetter(new MetaAnnotationDescImpl("a_setter",
                 new String[0], new Class[0]));
-        pd.setAnnotationDescForSetter(new AnnotationDescImpl("name1_setter"));
+        pd.setAnnotationDescOnSetter(new AnnotationDescImpl("name1_setter"));
         actual.setPropertyDesc(pd);
 
         ClassDesc cd2 = new ClassDescImpl("com.example.page.TestPage");
@@ -317,14 +318,14 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         pd.setAnnotationDesc(new MetaAnnotationDescImpl("b", new String[0],
                 new Class[0]));
         pd.setAnnotationDesc(new AnnotationDescImpl("name2"));
-        pd.setAnnotationDescForGetter(new MetaAnnotationDescImpl("b_getter",
+        pd.setAnnotationDescOnGetter(new MetaAnnotationDescImpl("b_getter",
                 new String[0], new Class[0]));
-        pd.setAnnotationDescForGetter(new AnnotationDescImpl("name1_getter",
+        pd.setAnnotationDescOnGetter(new AnnotationDescImpl("name1_getter",
                 "body2"));
-        pd.setAnnotationDescForGetter(new AnnotationDescImpl("name2_getter"));
-        pd.setAnnotationDescForSetter(new MetaAnnotationDescImpl("b_setter",
+        pd.setAnnotationDescOnGetter(new AnnotationDescImpl("name2_getter"));
+        pd.setAnnotationDescOnSetter(new MetaAnnotationDescImpl("b_setter",
                 new String[0], new Class[0]));
-        pd.setAnnotationDescForSetter(new AnnotationDescImpl("name2_setter"));
+        pd.setAnnotationDescOnSetter(new AnnotationDescImpl("name2_setter"));
         cd2.setPropertyDesc(pd);
 
         actual.merge(cd2, false);
@@ -343,21 +344,21 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
                 .hasMetaOnGetter("b_getter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
-                "param1").getAnnotationDescForGetter("name1_getter"));
+                "param1").getAnnotationDescOnGetter("name1_getter"));
         assertEquals("Meta系でないアノテーションは同じアノテーションの場合forceに従って片方が優先されること",
                 "body1", actual.getPropertyDesc("param1")
-                        .getAnnotationDescForGetter("name1_getter").getBody());
+                        .getAnnotationDescOnGetter("name1_getter").getBody());
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
-                "param1").getAnnotationDescForGetter("name2_getter"));
+                "param1").getAnnotationDescOnGetter("name2_getter"));
 
         assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
                 .hasMetaOnSetter("a_setter"));
         assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
                 .hasMetaOnSetter("b_setter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
-                "param1").getAnnotationDescForSetter("name1_setter"));
+                "param1").getAnnotationDescOnSetter("name1_setter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
-                "param1").getAnnotationDescForSetter("name2_setter"));
+                "param1").getAnnotationDescOnSetter("name2_setter"));
     }
 
     public void testMerge4_YMIR_221_プロパティのアノテーションがマージされること() throws Exception {
@@ -367,12 +368,12 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         pd.setAnnotationDesc(new MetaAnnotationDescImpl("a", new String[0],
                 new Class[0]));
         pd.setAnnotationDesc(new AnnotationDescImpl("name1"));
-        pd.setAnnotationDescForGetter(new MetaAnnotationDescImpl("a_getter",
+        pd.setAnnotationDescOnGetter(new MetaAnnotationDescImpl("a_getter",
                 new String[0], new Class[0]));
-        pd.setAnnotationDescForGetter(new AnnotationDescImpl("name1_getter"));
-        pd.setAnnotationDescForSetter(new MetaAnnotationDescImpl("a_setter",
+        pd.setAnnotationDescOnGetter(new AnnotationDescImpl("name1_getter"));
+        pd.setAnnotationDescOnSetter(new MetaAnnotationDescImpl("a_setter",
                 new String[0], new Class[0]));
-        pd.setAnnotationDescForSetter(new AnnotationDescImpl("name1_setter"));
+        pd.setAnnotationDescOnSetter(new AnnotationDescImpl("name1_setter"));
         actual.setPropertyDesc(pd);
 
         ClassDesc cd2 = new ClassDescImpl("com.example.page.TestPage");
@@ -384,12 +385,12 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         pd.setAnnotationDesc(new MetaAnnotationDescImpl("b", new String[0],
                 new Class[0]));
         pd.setAnnotationDesc(new AnnotationDescImpl("name2"));
-        pd.setAnnotationDescForGetter(new MetaAnnotationDescImpl("b_getter",
+        pd.setAnnotationDescOnGetter(new MetaAnnotationDescImpl("b_getter",
                 new String[0], new Class[0]));
-        pd.setAnnotationDescForGetter(new AnnotationDescImpl("name2_getter"));
-        pd.setAnnotationDescForSetter(new MetaAnnotationDescImpl("b_setter",
+        pd.setAnnotationDescOnGetter(new AnnotationDescImpl("name2_getter"));
+        pd.setAnnotationDescOnSetter(new MetaAnnotationDescImpl("b_setter",
                 new String[0], new Class[0]));
-        pd.setAnnotationDescForSetter(new AnnotationDescImpl("name2_setter"));
+        pd.setAnnotationDescOnSetter(new AnnotationDescImpl("name2_setter"));
         cd2.setPropertyDesc(pd);
 
         actual.merge(cd2, true);
@@ -408,17 +409,160 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
                 .hasMetaOnGetter("b_getter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
-                "param1").getAnnotationDescForGetter("name1_getter"));
+                "param1").getAnnotationDescOnGetter("name1_getter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
-                "param1").getAnnotationDescForGetter("name2_getter"));
+                "param1").getAnnotationDescOnGetter("name2_getter"));
 
         assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
                 .hasMetaOnSetter("a_setter"));
         assertTrue("Meta系アノテーションもマージされること", actual.getPropertyDesc("param1")
                 .hasMetaOnSetter("b_setter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
-                "param1").getAnnotationDescForSetter("name1_setter"));
+                "param1").getAnnotationDescOnSetter("name1_setter"));
         assertNotNull("Meta系でないアノテーションはマージされること", actual.getPropertyDesc(
-                "param1").getAnnotationDescForSetter("name2_setter"));
+                "param1").getAnnotationDescOnSetter("name2_setter"));
+    }
+
+    public void testRemoveBornOfFrom_PropertyDesc1() throws Exception {
+        ClassDescImpl target = new ClassDescImpl("com.example.page.TestPage");
+        PropertyDesc propertyDesc = target.addProperty("property",
+                PropertyDesc.READ | PropertyDesc.WRITE);
+        propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a", "b" }));
+        propertyDesc.setAnnotationDescOnGetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a", "b" }));
+        propertyDesc.setAnnotationDescOnSetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+
+        target.removeBornOfFrom(propertyDesc, "a");
+
+        PropertyDesc actual = target.getPropertyDesc("property");
+        assertNotNull(actual);
+        assertEquals(PropertyDesc.READ, actual.getMode());
+
+        String[] values = actual.getMetaValue(Globals.META_NAME_BORNOF);
+        assertNotNull(values);
+        assertEquals(1, values.length);
+        assertEquals("b", values[0]);
+
+        values = actual.getMetaValueOnGetter(Globals.META_NAME_BORNOF);
+        assertNotNull(values);
+        assertEquals(1, values.length);
+        assertEquals("b", values[0]);
+
+        values = actual.getMetaValueOnSetter(Globals.META_NAME_BORNOF);
+        assertNull(values);
+    }
+
+    public void testRemoveBornOfFrom_PropertyDesc2() throws Exception {
+        ClassDescImpl target = new ClassDescImpl("com.example.page.TestPage");
+        PropertyDesc propertyDesc = target.addProperty("property",
+                PropertyDesc.READ | PropertyDesc.WRITE);
+        propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a", "b" }));
+        propertyDesc.setAnnotationDescOnGetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+        propertyDesc.setAnnotationDescOnSetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+
+        target.removeBornOfFrom(propertyDesc, "a");
+
+        PropertyDesc actual = target.getPropertyDesc("property");
+        assertNotNull(actual);
+        assertEquals(PropertyDesc.NONE, actual.getMode());
+
+        String[] values = actual.getMetaValue(Globals.META_NAME_BORNOF);
+        assertNotNull(values);
+        assertEquals(1, values.length);
+        assertEquals("b", values[0]);
+
+        values = actual.getMetaValueOnGetter(Globals.META_NAME_BORNOF);
+        assertNull(values);
+
+        values = actual.getMetaValueOnSetter(Globals.META_NAME_BORNOF);
+        assertNull(values);
+    }
+
+    public void testRemoveBornOfFrom_PropertyDesc3() throws Exception {
+        ClassDescImpl target = new ClassDescImpl("com.example.page.TestPage");
+        PropertyDesc propertyDesc = target.addProperty("property",
+                PropertyDesc.READ | PropertyDesc.WRITE);
+        propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+        propertyDesc.setAnnotationDescOnGetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+        propertyDesc.setAnnotationDescOnSetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+
+        target.removeBornOfFrom(propertyDesc, "a");
+
+        assertNull(target.getPropertyDesc("property"));
+    }
+
+    public void testRemoveBornOfFrom_PropertyDesc4() throws Exception {
+        ClassDescImpl target = new ClassDescImpl("com.example.page.TestPage");
+        PropertyDesc propertyDesc = target.addProperty("property",
+                PropertyDesc.NONE);
+        propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a", "b" }));
+
+        target.removeBornOfFrom(propertyDesc, "a");
+
+        PropertyDesc actual = target.getPropertyDesc("property");
+        assertNotNull(actual);
+        assertEquals(PropertyDesc.NONE, actual.getMode());
+
+        String[] values = actual.getMetaValue(Globals.META_NAME_BORNOF);
+        assertNotNull(values);
+        assertEquals(1, values.length);
+        assertEquals("b", values[0]);
+
+        values = actual.getMetaValueOnGetter(Globals.META_NAME_BORNOF);
+        assertNull(values);
+
+        values = actual.getMetaValueOnSetter(Globals.META_NAME_BORNOF);
+        assertNull(values);
+    }
+
+    public void testRemoveBornOfFrom_PropertyDesc5() throws Exception {
+        ClassDescImpl target = new ClassDescImpl("com.example.page.TestPage");
+        PropertyDesc propertyDesc = target.addProperty("property",
+                PropertyDesc.NONE);
+        propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+
+        target.removeBornOfFrom(propertyDesc, "a");
+
+        assertNull(target.getPropertyDesc("property"));
+    }
+
+    public void testRemoveBornOfFrom_MethodDesc1() throws Exception {
+        ClassDescImpl target = new ClassDescImpl("com.example.page.TestPage");
+        MethodDesc methodDesc = new MethodDescImpl("_get");
+        target.setMethodDesc(methodDesc);
+        methodDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a", "b" }));
+
+        target.removeBornOfFrom(methodDesc, "a");
+
+        MethodDesc actual = target.getMethodDesc(methodDesc);
+        assertNotNull(actual);
+
+        String[] values = actual.getMetaValue(Globals.META_NAME_BORNOF);
+        assertNotNull(values);
+        assertEquals(1, values.length);
+        assertEquals("b", values[0]);
+    }
+
+    public void testRemoveBornOfFrom_MethodDesc2() throws Exception {
+        ClassDescImpl target = new ClassDescImpl("com.example.page.TestPage");
+        MethodDesc methodDesc = new MethodDescImpl("_get");
+        target.setMethodDesc(methodDesc);
+        methodDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+
+        target.removeBornOfFrom(methodDesc, "a");
+
+        assertNull(target.getMethodDesc(methodDesc));
     }
 }

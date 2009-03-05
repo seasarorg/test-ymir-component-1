@@ -105,4 +105,12 @@ public class SimpleClassDesc extends AbstractClassDesc {
     public void setMethodDescs(MethodDesc[] methodDescs) {
         throw new UnsupportedOperationException();
     }
+
+    public void removeBornOfFromAllMembers(String bornOf) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void applyBornOfToAllMembers() {
+        throw new UnsupportedOperationException();
+    }
 }

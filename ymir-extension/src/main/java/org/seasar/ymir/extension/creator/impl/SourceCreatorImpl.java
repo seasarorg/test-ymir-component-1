@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -56,6 +57,7 @@ import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.StringUtils;
 import org.seasar.kvasir.util.collection.MapProperties;
 import org.seasar.kvasir.util.io.IOUtils;
+import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionNotFoundRuntimeException;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
@@ -67,7 +69,6 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.Ymir;
-import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.conversation.annotation.Begin;
@@ -289,7 +290,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
         LazyPathMetaData pathMetaData = createLazyPathMetaData(request,
                 response);
-        String path = ServletUtils.normalizePath(pathMetaData.getPath());
+        String path = pathMetaData.getPath();
         String forwardPath = pathMetaData.getForwardPath();
         HttpMethod method = pathMetaData.getMethod();
 
@@ -490,7 +491,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 EntityMetaData metaData = new EntityMetaData(this, null, td
                         .getComponentClassDesc().getName());
                 addPropertyToPageIfValid(pageClassDescs[i], new TypeDescImpl(
-                        metaData.getConverterClassDesc()), PropertyDesc.WRITE,
+                        metaData.newConverterClassDesc()), PropertyDesc.WRITE,
                         classDescSet);
             }
 
@@ -523,7 +524,8 @@ public class SourceCreatorImpl implements SourceCreator {
         EntityMetaData metaData = new EntityMetaData(this, hintBag, clonedDtoCd
                 .getName());
 
-        ClassDesc converterCd = metaData.getConverterClassDesc();
+        ClassDesc converterCd = metaData.newConverterClassDesc();
+        converterCd.setBornOf(dtoCd.getBornOf());
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("targetClassDesc", clonedDtoCd);
         List<TypeDesc> pairTdList = new ArrayList<TypeDesc>();
@@ -561,60 +563,57 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         ClassDesc pageClassDesc = classDescMap.get(pageClassName);
-        if (pageClassDesc == null && method == HttpMethod.POST) {
-            // テンプレートを解析した結果対応するPageクラスを作る必要があると
-            // 見なされなかった場合でも、methodがPOSTならPageクラスを作る。
-            pageClassDesc = newClassDesc(pageClassName, hintBag);
-            classDescMap.put(pageClassName, pageClassDesc);
+
+        // アクションメソッドがなければ追加する。
+        MethodDesc actionMethodDesc = newActionMethodDesc(pageClassName, path,
+                method);
+        if (pageClassDesc.getMethodDesc(actionMethodDesc) == null) {
+            pageClassDesc.setMethodDesc(actionMethodDesc);
         }
-        if (pageClassDesc != null) {
-            // アクションメソッドを追加する。
-            MethodDesc actionMethodDesc = newActionMethodDescUnlessExists(
-                    pageClassName, path, method);
-            if (actionMethodDesc != null) {
-                pageClassDesc.setMethodDesc(actionMethodDesc);
-            }
 
-            // _prerender()を追加する。
-            MethodDesc prerenderMethodDesc = getExtraPathMapping(path, method)
-                    .newPrerenderActionMethodDesc(new ActionSelectorSeedImpl());
-            pageClassDesc.setMethodDesc(prerenderMethodDesc);
+        // _prerender()を追加する。
+        MethodDesc prerenderMethodDesc = getExtraPathMapping(path, method)
+                .newPrerenderActionMethodDesc(new ActionSelectorSeedImpl());
+        pageClassDesc.setMethodDesc(prerenderMethodDesc);
 
-            if (isValidationFailedMethodEnabled()) {
-                // _validationFailed(Notes)を追加する。
-                MethodDesc methodDesc = new MethodDescImpl(
-                        ConstraintInterceptor.ACTION_VALIDATIONFAILED);
-                methodDesc
-                        .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
-                                Notes.class, "notes") });
-                pageClassDesc.setMethodDesc(methodDesc);
-            }
+        if (isValidationFailedMethodEnabled()) {
+            // _validationFailed(Notes)を追加する。
+            MethodDesc methodDesc = new MethodDescImpl(
+                    ConstraintInterceptor.ACTION_VALIDATIONFAILED);
+            methodDesc
+                    .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                            Notes.class, "notes") });
+            pageClassDesc.setMethodDesc(methodDesc);
+        }
 
-            if (isPermissionDeniedMethodEnabled()) {
-                // _permissionDenied(PemissionDeniedException)を追加する。
-                MethodDesc methodDesc = new MethodDescImpl(
-                        ConstraintInterceptor.ACTION_PERMISSIONDENIED);
-                methodDesc
-                        .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
-                                PermissionDeniedException.class, "ex") });
-                methodDesc.setThrowsDesc(new ThrowsDescImpl(
-                        PermissionDeniedException.class));
-                methodDesc.setBodyDesc(new BodyDescImpl(
-                        BodyDesc.KEY_PERMISSIONDENIED,
-                        new HashMap<String, Object>()));
-                pageClassDesc.setMethodDesc(methodDesc);
-            }
+        if (isPermissionDeniedMethodEnabled()) {
+            // _permissionDenied(PemissionDeniedException)を追加する。
+            MethodDesc methodDesc = new MethodDescImpl(
+                    ConstraintInterceptor.ACTION_PERMISSIONDENIED);
+            methodDesc
+                    .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                            PermissionDeniedException.class, "ex") });
+            methodDesc.setThrowsDesc(new ThrowsDescImpl(
+                    PermissionDeniedException.class));
+            methodDesc.setBodyDesc(new BodyDescImpl(
+                    BodyDesc.KEY_PERMISSIONDENIED,
+                    new HashMap<String, Object>()));
+            pageClassDesc.setMethodDesc(methodDesc);
         }
     }
 
-    MethodDesc newActionMethodDescUnlessExists(String pageClassName,
-            String path, HttpMethod method) {
+    MethodDesc newActionMethodDesc(String pageClassName, String path,
+            HttpMethod method) {
         Class<?> pageClass = getClass(pageClassName);
         if (pageClass != null) {
-            if (ymir_.findMatchedPathMapping(path, method)
+            Action action = ymir_.findMatchedPathMapping(path, method)
                     .getAction(newPageComponent(pageClass),
-                            newRequest(path, method, null)) != null) {
-                return null;
+                            newRequest(path, method, null));
+            if (action != null) {
+                MethodDesc methodDesc = new MethodDescImpl(action
+                        .getMethodInvoker().getMethod());
+                setActionMethodDescBodyTo(methodDesc);
+                return methodDesc;
             }
         }
         return newActionMethodDesc(path, method, new ActionSelectorSeedImpl());
@@ -805,11 +804,11 @@ public class SourceCreatorImpl implements SourceCreator {
 
             ads = DescUtils.newAnnotationDescs(readMethod);
             for (int j = 0; j < ads.length; j++) {
-                propertyDesc.setAnnotationDescForGetter(ads[j]);
+                propertyDesc.setAnnotationDescOnGetter(ads[j]);
             }
             ads = DescUtils.newAnnotationDescs(writeMethod);
             for (int j = 0; j < ads.length; j++) {
-                propertyDesc.setAnnotationDescForSetter(ads[j]);
+                propertyDesc.setAnnotationDescOnSetter(ads[j]);
             }
             ads = DescUtils.newAnnotationDescs(propertyField);
             for (int j = 0; j < ads.length; j++) {
@@ -885,16 +884,19 @@ public class SourceCreatorImpl implements SourceCreator {
             }
         });
         for (int i = 0; i < fields.length; i++) {
-            Meta meta = fields[i].getAnnotation(Meta.class);
-            if (meta != null && Globals.META_NAME_PROPERTY.equals(meta.name())) {
-                String name = meta.value()[0];
-                PropertyDesc pd = classDesc.getPropertyDesc(name);
+            String propertyName = MetaUtils.getFirstValue(fields[i],
+                    Globals.META_NAME_PROPERTY);
+            if (propertyName != null) {
+                PropertyDesc pd = classDesc.getPropertyDesc(propertyName);
                 if (pd == null) {
-                    classDesc.addProperty(name, PropertyDesc.NONE);
-                    pd = classDesc.getPropertyDesc(name);
+                    classDesc.addProperty(propertyName, PropertyDesc.NONE);
+                    pd = classDesc.getPropertyDesc(propertyName);
                 }
-                pd.setAnnotationDesc(DescUtils.newAnnotationDesc(meta));
                 pd.setTypeDesc(DescUtils.toString(fields[i].getGenericType()));
+                for (Annotation annotation : fields[i].getAnnotations()) {
+                    pd.setAnnotationDesc(DescUtils
+                            .newAnnotationDesc(annotation));
+                }
             }
         }
 
@@ -995,30 +997,35 @@ public class SourceCreatorImpl implements SourceCreator {
 
                 if (setting_.isDaoCreationFeatureEnabled()) {
                     // Dao用のClassDescを生成しておく。
-                    classDescList.add(metaData.getDaoClassDesc());
+                    ClassDesc daoClassDesc = metaData.newDaoClassDesc();
+                    daoClassDesc.setBornOf(classDescs[i].getBornOf());
+                    classDescList.add(daoClassDesc);
 
                     // Bean用のClassDescを生成しておく。
-                    ClassDesc classDesc = metaData.getBeanClassDesc();
+                    ClassDesc beanClassDesc = metaData.newBeanClassDesc();
+                    beanClassDesc.setBornOf(classDescs[i].getBornOf());
                     PropertyDesc[] pds = classDescs[i].getPropertyDescs();
                     for (int j = 0; j < pds.length; j++) {
-                        classDesc
-                                .setPropertyDesc((PropertyDesc) pds[j].clone());
+                        beanClassDesc.setPropertyDesc((PropertyDesc) pds[j]
+                                .clone());
                     }
                     // プライマリキーがないとS2Daoがエラーになるので生成しておく。
-                    PropertyDesc idPd = classDesc.getPropertyDesc(PROPERTY_ID);
+                    PropertyDesc idPd = beanClassDesc
+                            .getPropertyDesc(PROPERTY_ID);
                     if (idPd == null) {
-                        idPd = classDesc.addProperty(PROPERTY_ID,
+                        idPd = beanClassDesc.addProperty(PROPERTY_ID,
                                 PropertyDesc.READ | PropertyDesc.WRITE);
                         idPd.setTypeDesc(ID_TYPE);
                     }
-                    idPd.setAnnotationDescForGetter(new AnnotationDescImpl(
+                    idPd.setAnnotationDescOnGetter(new AnnotationDescImpl(
                             ID_ANNOTATIONNAME, ID_BODY));
-                    classDescList.add(classDesc);
+                    classDescList.add(beanClassDesc);
                 }
 
                 if (setting_.isDxoCreationFeatureEnabled()) {
                     // Dxo用のClassDescを生成しておく。
-                    ClassDesc classDesc = metaData.getDxoClassDesc();
+                    ClassDesc dxoClassDesc = metaData.newDxoClassDesc();
+                    dxoClassDesc.setBornOf(classDescs[i].getBornOf());
                     List<ClassDesc> list = pageByDtoMap.get(classDescs[i]
                             .getName());
                     if (list != null) {
@@ -1028,12 +1035,12 @@ public class SourceCreatorImpl implements SourceCreator {
                             ParameterDesc[] pmds = new ParameterDesc[] { new ParameterDescImpl(
                                     new TypeDescImpl(itr.next())) };
                             md.setParameterDescs(pmds);
-                            md.setReturnTypeDesc(metaData.getBeanClassDesc()
+                            md.setReturnTypeDesc(metaData.newBeanClassDesc()
                                     .getName());
-                            classDesc.setMethodDesc(md);
+                            dxoClassDesc.setMethodDesc(md);
                         }
                     }
-                    classDescList.add(classDesc);
+                    classDescList.add(dxoClassDesc);
                 }
             }
         }
@@ -1060,7 +1067,7 @@ public class SourceCreatorImpl implements SourceCreator {
             AnnotationDesc ad = propertyDesc.getAnnotationDesc(Inject.class
                     .getName());
             if (ad == null) {
-                propertyDesc.setAnnotationDescForSetter(new AnnotationDescImpl(
+                propertyDesc.setAnnotationDescOnSetter(new AnnotationDescImpl(
                         Inject.class.getName()));
             }
             return true;
@@ -1121,8 +1128,8 @@ public class SourceCreatorImpl implements SourceCreator {
         }
         if (baseClass != null) {
             if (desc.getSuperclassName() != null) {
-                // 親クラス情報は適切にdescに設定されているのでbaseクラスの情報は見ない。
-                // そのため、先でのマージのことを考えて、baseクラスの方にdescの情報をセットしておく。
+                // 親クラス情報は適切にdescに設定されている。
+                // 先でのマージのことを考えて、baseクラスの方にもdescの親クラス情報をセットしておく。
                 baseDesc.setSuperclassName(desc.getSuperclassName());
             }
 
@@ -1131,11 +1138,15 @@ public class SourceCreatorImpl implements SourceCreator {
                     .getModifiers()));
         }
 
+        // baseから同じパス由来の情報を除去しておく。
+        baseDesc.removeBornOfFromAllMembers(desc.getBornOf());
+
         // baseにあるものは必ず残す。baseになくてsuperやgapにあるものは除去する。
         ClassDesc generated = (ClassDesc) desc.clone();
         desc.clear();
         desc.setOptionalSourceGeneratorParameter(generated
                 .getOptionalSourceGeneratorParameter());
+        desc.setAttributeMap(generated.getAttributeMap());
         desc.merge(baseDesc, true);
 
         ClassDesc superDesc = getClassDesc(desc.getSuperclassName(), false);
@@ -1183,24 +1194,24 @@ public class SourceCreatorImpl implements SourceCreator {
 
                 list = new ArrayList<AnnotationDesc>();
                 for (AnnotationDesc ad : generatedPd
-                        .getAnnotationDescsForGetter()) {
+                        .getAnnotationDescsOnGetter()) {
                     if (DescUtils.isMetaAnnotation(ad)
-                            || basePd.getAnnotationDescForGetter(ad.getName()) == null) {
+                            || basePd.getAnnotationDescOnGetter(ad.getName()) == null) {
                         list.add(ad);
                     }
                 }
-                generatedPd.setAnnotationDescsForGetter(list
+                generatedPd.setAnnotationDescsOnGetter(list
                         .toArray(new AnnotationDesc[0]));
 
                 list = new ArrayList<AnnotationDesc>();
                 for (AnnotationDesc ad : generatedPd
-                        .getAnnotationDescsForSetter()) {
+                        .getAnnotationDescsOnSetter()) {
                     if (DescUtils.isMetaAnnotation(ad)
-                            || basePd.getAnnotationDescForSetter(ad.getName()) == null) {
+                            || basePd.getAnnotationDescOnSetter(ad.getName()) == null) {
                         list.add(ad);
                     }
                 }
-                generatedPd.setAnnotationDescsForSetter(list
+                generatedPd.setAnnotationDescsOnSetter(list
                         .toArray(new AnnotationDesc[0]));
             }
         }
@@ -1276,6 +1287,9 @@ public class SourceCreatorImpl implements SourceCreator {
             newDescMdMap.put(new MethodDescKey(descMd), descMd);
         }
         desc.setMethodDescs(newDescMdMap.values().toArray(new MethodDesc[0]));
+
+        // 生成された全てのメンバにbornOfを付与しておく。
+        generated.applyBornOfToAllMembers();
 
         desc.merge(generated, true);
     }
@@ -1894,6 +1908,12 @@ public class SourceCreatorImpl implements SourceCreator {
                 .newActionMethodDesc(seed);
         String returnType = setting_.getActionReturnType(method);
         methodDesc.setReturnTypeDesc(returnType);
+        setActionMethodDescBodyTo(methodDesc);
+        return methodDesc;
+    }
+
+    void setActionMethodDescBodyTo(MethodDesc methodDesc) {
+        String returnType = methodDesc.getReturnTypeDesc().getCompleteName();
         if (returnType.equals(String.class.getName())) {
             methodDesc
                     .setBodyDesc(new BodyDescImpl("return \"passthrough:\";"));
@@ -1902,7 +1922,6 @@ public class SourceCreatorImpl implements SourceCreator {
                     .setBodyDesc(new BodyDescImpl(
                             "return new org.seasar.ymir.response.PassthroughResponse();"));
         }
-        return methodDesc;
     }
 
     boolean isValidationFailedMethodEnabled() {
