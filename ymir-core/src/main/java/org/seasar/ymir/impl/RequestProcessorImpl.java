@@ -1,7 +1,5 @@
 package org.seasar.ymir.impl;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -12,23 +10,18 @@ import javax.servlet.ServletContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.cms.pluggable.ThreadContext;
-import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.ActionNotFoundRuntimeException;
-import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.AttributeContainer;
-import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.FrameworkDispatch;
-import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
@@ -39,15 +32,12 @@ import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.Updater;
-import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.Include;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.response.PassthroughResponse;
-import org.seasar.ymir.response.constructor.ResponseConstructor;
-import org.seasar.ymir.response.constructor.ResponseConstructorSelector;
 import org.seasar.ymir.util.YmirUtils;
 
 public class RequestProcessorImpl implements RequestProcessor {
@@ -206,7 +196,6 @@ public class RequestProcessorImpl implements RequestProcessor {
     protected Response processRequestAndForward(final Request request) {
         FrameworkDispatch dispatch = YmirUtils.toFrameworkDispatch(request
                 .getCurrentDispatch());
-        ThreadContext context = getThreadContext();
 
         Response response = new PassthroughResponse();
         Object page = null;
@@ -280,21 +269,6 @@ public class RequestProcessorImpl implements RequestProcessor {
                         }
                     } catch (Throwable t) {
                         response = exceptionProcessor_.process(request, t);
-                        context.setComponent(Response.class, response);
-
-                        Object handler = request
-                                .getAttribute(ExceptionProcessor.ATTR_HANDLER);
-                        boolean global = PropertyUtils
-                                .valueOf(
-                                        request
-                                                .getAttribute(ExceptionProcessor.ATTR_HANDLER_GLOBAL),
-                                        true);
-                        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                            response = ymirProcessInterceptors_[i]
-                                    .responseCreatedByExceptionHandler(request,
-                                            response, handler, global);
-                            context.setComponent(Response.class, response);
-                        }
                     }
                 } while (false);
 

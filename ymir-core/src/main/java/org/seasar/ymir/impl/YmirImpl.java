@@ -473,24 +473,7 @@ public class YmirImpl implements Ymir {
      * @return 処理結果のResponseオブジェクト。
      */
     protected Response processException(final Request request, final Throwable t) {
-        ThreadContext context = getThreadContext();
-
         Response response = exceptionProcessor_.process(request, t);
-        context.setComponent(Response.class, response);
-
-        Object handler = request.getAttribute(ExceptionProcessor.ATTR_HANDLER);
-        boolean global = PropertyUtils.valueOf(request
-                .getAttribute(ExceptionProcessor.ATTR_HANDLER_GLOBAL), true);
-        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-            response = ymirProcessInterceptors_[i]
-                    .responseCreatedByExceptionHandler(request, response,
-                            handler, global);
-            context.setComponent(Response.class, response);
-        }
-
-        if (log_.isDebugEnabled()) {
-            log_.debug("Response after exception handling: " + response);
-        }
 
         request.setAttribute(ATTR_RESPONSE, response);
 

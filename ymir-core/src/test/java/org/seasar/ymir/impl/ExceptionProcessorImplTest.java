@@ -2,6 +2,9 @@ package org.seasar.ymir.impl;
 
 import junit.framework.TestCase;
 
+import org.seasar.cms.pluggable.ThreadContext;
+import org.seasar.cms.pluggable.ThreadLocalComponentDef;
+import org.seasar.cms.pluggable.impl.ThreadContextImpl;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.impl.S2ContainerImpl;
 import org.seasar.ymir.Response;
@@ -30,6 +33,11 @@ public class ExceptionProcessorImplTest extends TestCase {
 
     private ExceptionProcessorImpl newExceptionProcessorImpl(
             final S2Container container) {
+        container.register(ThreadContextImpl.class);
+        ThreadContextImpl threadContextImpl = (ThreadContextImpl) container
+                .getComponent(ThreadContextImpl.class);
+        threadContextImpl.register(new ThreadLocalComponentDef(Response.class));
+
         ActionManagerImpl actionManager = new ActionManagerImpl();
         AnnotationHandlerImpl annotationHandler = new AnnotationHandlerImpl();
         HotdeployManagerImpl hotdeployManager = new HotdeployManagerImpl();
@@ -80,7 +88,9 @@ public class ExceptionProcessorImplTest extends TestCase {
         exceptionProcessor.setAnnotationHandler(annotationHandler);
         exceptionProcessor.setApplicationManager(applicationManager);
         exceptionProcessor.setCacheManager(cacheManager);
-        exceptionProcessor.setYmir(new MockYmir());
+        exceptionProcessor
+                .setYmir(new MockYmir().setApplication(new MockApplication()
+                        .setS2Container(container)));
         return exceptionProcessor;
     }
 

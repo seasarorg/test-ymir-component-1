@@ -176,7 +176,6 @@ public interface YmirProcessInterceptor {
      * </p>
      * 
      * @param request 現在のRequestオブジェクト。
-     * Requestオブジェクトが生成される前に例外が発生した場合など、nullが渡されることもあります。
      * @param originalAction フレームワークが構築した元もとのActionオブジェクト。
      * @param action 現在のActionオブジェクト。他のYmirProcessInterceptorによって、
      * 元もとのActionではないものに差し替えられていることがあります。
@@ -197,7 +196,6 @@ public interface YmirProcessInterceptor {
      * </p>
      * 
      * @param request 現在のRequestオブジェクト。
-     * Requestオブジェクトが生成される前に例外が発生した場合など、nullが渡されることもあります。
      * @param response フレームワークによって構築されたResponseオブジェクト。
      * @param handler {@link ExceptionHandler}オブジェクト。
      * @param global アクションを持つ例外ハンドラがグローバルハンドラかどうか。

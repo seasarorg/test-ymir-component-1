@@ -1,5 +1,8 @@
 package org.seasar.ymir.impl;
 
+import static org.seasar.ymir.ExceptionProcessor.ATTR_HANDLER;
+import static org.seasar.ymir.ExceptionProcessor.ATTR_HANDLER_GLOBAL;
+
 import java.beans.Introspector;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -97,6 +100,10 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
             log_.debug("Exception has occured", target);
         }
 
+        request.removeAttribute(ATTR_HANDLER);
+        request.removeAttribute(ATTR_HANDLER_GLOBAL);
+        request.removeAttribute(ATTR_EXCEPTION);
+
         target = ThrowableUtils.unwrap(target);
 
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
@@ -127,7 +134,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
 
         Class<?> exceptionClass = null;
         Object handler = null;
-        Boolean global = Boolean.FALSE;
+        boolean global = false;
         Response response = null;
 
         PageComponent pageComponent = request.getCurrentDispatch()
@@ -155,7 +162,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         }
 
         if (response == null) {
-            global = Boolean.TRUE;
+            global = true;
 
             S2Container container = getS2Container();
             ComponentDef handlerCd = null;
@@ -225,6 +232,16 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         request.setAttribute(ATTR_HANDLER, handler);
         request.setAttribute(ATTR_HANDLER_GLOBAL, global);
         request.setAttribute(ATTR_EXCEPTION, target);
+
+        ThreadContext context = getThreadContext();
+        context.setComponent(Response.class, response);
+
+        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+            response = ymirProcessInterceptors_[i]
+                    .responseCreatedByExceptionHandler(request, response,
+                            handler, global);
+            context.setComponent(Response.class, response);
+        }
 
         return response;
     }
