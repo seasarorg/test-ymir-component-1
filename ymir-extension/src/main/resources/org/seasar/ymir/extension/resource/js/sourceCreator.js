@@ -77,7 +77,7 @@ Object.extend(SourceCreator.ControlPanel.prototype, {
             'display': 'none',
             'position': 'absolute',
             'top': 0,
-            'left': (clientWidth - Element.getWidth(this.element)) + 'px',
+            'left': (clientWidth - Element.getWidth(this.element)) + 'px'
         });
         this.hide();
 
@@ -99,7 +99,7 @@ Object.extend(SourceCreator.ControlPanel.prototype, {
             this.inEffect = true;
             var clientWidth = document.body.clientWidth;
             Element.setStyle(this.element, {
-                'left': (clientWidth - Element.getWidth(this.element)) + 'px',
+                'left': (clientWidth - Element.getWidth(this.element)) + 'px'
             });
             Element.show(this.element);
             new Effect.Opacity(this.element, {
