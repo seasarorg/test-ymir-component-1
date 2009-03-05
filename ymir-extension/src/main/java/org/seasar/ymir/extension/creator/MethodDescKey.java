@@ -1,16 +1,13 @@
 package org.seasar.ymir.extension.creator;
 
 public class MethodDescKey implements Comparable<MethodDescKey> {
-
     private MethodDesc methodDesc_;
 
     public MethodDescKey(MethodDesc methodDesc) {
-
         methodDesc_ = methodDesc;
     }
 
     public boolean equals(Object obj) {
-
         if (obj == null || obj.getClass() != getClass()) {
             return false;
         }
@@ -33,17 +30,14 @@ public class MethodDescKey implements Comparable<MethodDescKey> {
     }
 
     public int hashCode() {
-
         return methodDesc_.getName().hashCode();
     }
 
     public MethodDesc getMethorDesc() {
-
         return methodDesc_;
     }
 
     public int compareTo(MethodDescKey o) {
-
         int cmp = methodDesc_.getName().compareTo(o.methodDesc_.getName());
         if (cmp != 0) {
             return cmp;

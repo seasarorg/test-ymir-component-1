@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.zpt;
 
+import static org.seasar.ymir.extension.Globals.ATTR_UNDECIDEDPARAMETERNAMES;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -1304,7 +1306,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(cd);
 
         String[] names = (String[]) cd
-                .getAttribute(ZptAnalyzer.ATTR_UNDECIDEDPARAMETERNAMES);
+                .getAttribute(ATTR_UNDECIDEDPARAMETERNAMES);
         assertNotNull(names);
         assertEquals("パラメータかボタン名かあいまいなものが検出されること", "edit", names[0]);
 
@@ -1317,8 +1319,7 @@ public class ZptAnalyzerTest extends TestCase {
         cd = getClassDesc(CLASSNAME);
         assertNotNull(cd);
 
-        names = (String[]) cd
-                .getAttribute(ZptAnalyzer.ATTR_UNDECIDEDPARAMETERNAMES);
+        names = (String[]) cd.getAttribute(ATTR_UNDECIDEDPARAMETERNAMES);
         assertNull(names);
         assertNull("プロパティが生成されないこと", cd.getPropertyDesc("edit"));
         assertNotNull("ボタンに対応するメソッドが生成されること", cd

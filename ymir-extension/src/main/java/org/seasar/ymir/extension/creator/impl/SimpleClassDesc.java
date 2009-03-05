@@ -113,4 +113,8 @@ public class SimpleClassDesc extends AbstractClassDesc {
     public void applyBornOfToAllMembers() {
         throw new UnsupportedOperationException();
     }
+
+    public String getPathOfClass() {
+        return null;
+    }
 }

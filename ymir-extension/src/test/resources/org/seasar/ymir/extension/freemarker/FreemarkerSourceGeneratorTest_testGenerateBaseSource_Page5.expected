@@ -1,6 +1,9 @@
 package org.seasar.ymir.extension.freemarker;
 
 public class Hoe5PageBase {
+    public static final String PACKAGE = "org.seasar.ymir.extension.freemarker";
+
+    public static final String NAME = "hoe5";
 
     @org.seasar.ymir.annotation.Meta(name = "source", value = {"throw ex;", "ex"})
     public void _permissionDenied(org.seasar.ymir.constraint.PermissionDeniedException ex)

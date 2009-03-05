@@ -1,6 +1,20 @@
 package com.example.page;
 
 public class TestPageBase extends com.example.page.TestPageBaseBase {
+    public static final String PACKAGE = "com.example.page";
+
+    public static final String NAME = "test";
+
+    public static final String A_get = "_get";
+
+    public static final String P_param1 = "param1";
+
+    public static final String P_param2 = "param2";
+
+    public static final String P_param4 = "param4";
+
+    public static final String P_param3 = "param3";
+
     protected boolean param1_;
 
     protected String param2_;
@@ -8,7 +22,6 @@ public class TestPageBase extends com.example.page.TestPageBaseBase {
     protected Integer[] param4_ = new Integer[0];
 
     protected String param3_;
-
 
     public boolean isParam1() {
         return param1_;

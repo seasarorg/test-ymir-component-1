@@ -3,9 +3,11 @@ package org.seasar.ymir.extension.freemarker;
 import java.util.HashMap;
 
 import org.seasar.ymir.Application;
+import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.convention.YmirNamingConvention;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
@@ -20,6 +22,7 @@ import org.seasar.ymir.extension.creator.impl.PropertyDescImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.extension.creator.impl.ThrowsDescImpl;
 import org.seasar.ymir.mock.MockApplication;
+import org.seasar.ymir.mock.MockYmir;
 import org.seasar.ymir.testing.TestCaseBase;
 
 import com.example.dao.Hoe;
@@ -120,6 +123,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         };
         target_ = new FreemarkerSourceGenerator();
         target_.setSourceCreator(sourceCreator_);
+
+        YmirContext.setYmir(new MockYmir());
     }
 
     private ClassDesc prepareClassDesc() {
@@ -159,6 +164,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     public void testGenerateBaseSource_Page() throws Exception {
         ClassDesc classDesc = prepareClassDesc();
         MethodDesc methodDesc = new MethodDescImpl("_get");
+        classDesc.setAttribute(Globals.ATTR_ACTION,
+                new MethodDesc[] { methodDesc });
         methodDesc.setReturnTypeDesc(String.class.getName());
         methodDesc.setBodyDesc(new BodyDescImpl(
                 "return \"redirect:/path/to/redirect.html\";"));
@@ -179,6 +186,9 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
             }
         }.getClassDesc(HoePageBase.class);
         classDesc.setName("org.seasar.ymir.extension.freemarker.HoePage");
+        classDesc.setAttribute(Globals.ATTR_ACTION,
+                new MethodDesc[] { classDesc.getMethodDesc(new MethodDescImpl(
+                        "_get")) });
 
         String actual = target_.generateBaseSource(classDesc);
 
@@ -335,6 +345,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
             throws Exception {
         ClassDesc classDesc = new ClassDescImpl("com.example.page.TestPage");
         MethodDesc methodDesc = new MethodDescImpl("_get");
+        classDesc.setAttribute(Globals.ATTR_ACTION,
+                new MethodDesc[] { methodDesc });
         methodDesc.setReturnTypeDesc("void");
         methodDesc
                 .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
@@ -351,6 +363,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
             throws Exception {
         ClassDesc classDesc = new ClassDescImpl("com.example.page.TestPage");
         MethodDesc methodDesc = new MethodDescImpl("_get");
+        classDesc.setAttribute(Globals.ATTR_ACTION,
+                new MethodDesc[] { methodDesc });
         methodDesc.setReturnTypeDesc("void");
         methodDesc.setParameterDescs(new ParameterDesc[] {
             new ParameterDescImpl(String.class),

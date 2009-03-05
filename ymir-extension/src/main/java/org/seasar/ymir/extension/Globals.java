@@ -10,4 +10,10 @@ public interface Globals extends org.seasar.ymir.Globals {
     String META_NAME_BORNOF = "bornOf";
 
     String PATH_PREFERENCES_DIRECTORY = ".settings";
+
+    String ATTR_FORMDTO = "formDto";
+
+    String ATTR_UNDECIDEDPARAMETERNAMES = "undecidedParameterNames";
+
+    String ATTR_ACTION = "action";
 }

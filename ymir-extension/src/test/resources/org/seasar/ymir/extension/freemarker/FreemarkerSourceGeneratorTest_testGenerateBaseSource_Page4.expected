@@ -1,6 +1,9 @@
 package com.example.web;
 
 public class TestPageBase {
+    public static final String PACKAGE = "com.example.web";
+
+    public static final String NAME = "test";
 
     @org.seasar.ymir.annotation.Meta(name = "source", value = {"throw ex;", "ex"})
     public void _permissionDenied(org.seasar.ymir.constraint.PermissionDeniedException ex)

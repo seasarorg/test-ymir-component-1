@@ -27,7 +27,6 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
     private String evaluatedBody_;
 
     public MethodDescImpl(String name) {
-
         name_ = name;
     }
 
@@ -79,7 +78,6 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
     }
 
     public String toString() {
-
         StringBuffer sb = new StringBuffer();
         sb.append(returnTypeDesc_).append(" ").append(name_).append("(");
         String delim = "";
@@ -100,67 +98,54 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
     }
 
     public String getName() {
-
         return name_;
     }
 
     public TypeDesc getReturnTypeDesc() {
-
         return returnTypeDesc_;
     }
 
     public void setReturnTypeDesc(TypeDesc returnTypeDesc) {
-
         returnTypeDesc_ = returnTypeDesc;
     }
 
     public void setReturnTypeDesc(String typeName) {
-
         setReturnTypeDesc(typeName, false);
     }
 
     public void setReturnTypeDesc(String typeName, boolean explicit) {
-
         setReturnTypeDesc(new TypeDescImpl(typeName, explicit));
     }
 
     public ParameterDesc[] getParameterDescs() {
-
         return parameterDescs_;
     }
 
     public void setParameterDescs(ParameterDesc[] parameterDescs) {
-
         parameterDescs_ = parameterDescs;
     }
 
     public BodyDesc getBodyDesc() {
-
         return bodyDesc_;
     }
 
     public void setBodyDesc(BodyDesc bodyDesc) {
-
         bodyDesc_ = bodyDesc;
     }
 
     public String getEvaluatedBody() {
-
         return evaluatedBody_;
     }
 
     public void setEvaluatedBody(String evaluatedBody) {
-
         evaluatedBody_ = evaluatedBody;
     }
 
     public ThrowsDesc getThrowsDesc() {
-
         return throwsDesc_;
     }
 
     public void setThrowsDesc(ThrowsDesc throwsDesc) {
-
         throwsDesc_ = throwsDesc;
     }
 }

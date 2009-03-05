@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.creator;
 
+import java.util.Map;
+
 import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Metas;
 
@@ -25,4 +27,14 @@ public interface AnnotatedDesc {
     boolean hasMeta(String name);
 
     MetaAnnotationDesc[] getMetaAnnotationDescs();
+
+    Object getAttribute(String name);
+
+    void setAttribute(String name, Object value);
+
+    void removeAttribute(String name);
+
+    Map<String, Object> getAttributeMap();
+
+    void setAttributeMap(Map<String, Object> attributeMap);
 }

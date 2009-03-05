@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AbstractClassDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -343,5 +344,9 @@ public class ClassDescImpl extends AbstractClassDesc {
         for (MethodDesc methodDesc : methodDescs) {
             setMethodDesc(methodDesc);
         }
+    }
+
+    public String getPathOfClass() {
+        return YmirContext.getYmir().getPathOfPageClass(getName());
     }
 }

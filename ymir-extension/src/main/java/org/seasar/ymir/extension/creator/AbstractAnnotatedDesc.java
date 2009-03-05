@@ -1,14 +1,16 @@
 package org.seasar.ymir.extension.creator;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.seasar.ymir.extension.creator.util.DescUtils;
 
-public class AbstractAnnotatedDesc implements AnnotatedDesc {
-
+abstract public class AbstractAnnotatedDesc implements AnnotatedDesc {
     private Map<String, AnnotationDesc> annotationDescMap_ = new TreeMap<String, AnnotationDesc>();
+
+    private Map<String, Object> attributeMap_ = new HashMap<String, Object>();
 
     public Object clone() {
         AbstractAnnotatedDesc cloned;
@@ -25,6 +27,9 @@ public class AbstractAnnotatedDesc implements AnnotatedDesc {
             cloned.annotationDescMap_.put(entry.getKey(),
                     (AnnotationDesc) entry.getValue().clone());
         }
+
+        cloned.attributeMap_ = new HashMap<String, Object>(attributeMap_);
+
         return cloned;
     }
 
@@ -53,6 +58,7 @@ public class AbstractAnnotatedDesc implements AnnotatedDesc {
 
     public void clear() {
         annotationDescMap_.clear();
+        attributeMap_ = new HashMap<String, Object>();
     }
 
     public MetaAnnotationDesc[] getMetaAnnotationDescs() {
@@ -73,5 +79,29 @@ public class AbstractAnnotatedDesc implements AnnotatedDesc {
 
     public boolean hasMeta(String name) {
         return DescUtils.hasMeta(annotationDescMap_, name);
+    }
+
+    public Object getAttribute(String name) {
+        return attributeMap_.get(name);
+    }
+
+    public void setAttribute(String name, Object value) {
+        if (value != null) {
+            attributeMap_.put(name, value);
+        } else {
+            removeAttribute(name);
+        }
+    }
+
+    public void removeAttribute(String name) {
+        attributeMap_.remove(name);
+    }
+
+    public Map<String, Object> getAttributeMap() {
+        return attributeMap_;
+    }
+
+    public void setAttributeMap(Map<String, Object> attributeMap) {
+        attributeMap_ = attributeMap;
     }
 }

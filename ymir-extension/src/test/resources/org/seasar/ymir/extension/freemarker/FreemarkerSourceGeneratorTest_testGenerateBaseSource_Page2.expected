@@ -2,8 +2,15 @@ package org.seasar.ymir.extension.freemarker;
 
 @org.seasar.ymir.constraint.annotation.Required("test")
 public class HoePageBase {
-    protected String hoe_;
+    public static final String PACKAGE = "org.seasar.ymir.extension.freemarker";
 
+    public static final String NAME = "hoe";
+
+    public static final String A_get = "_get";
+
+    public static final String P_hoe = "hoe";
+
+    protected String hoe_;
 
     @org.seasar.ymir.constraint.annotation.Required("get")
     @org.seasar.ymir.constraint.annotation.SuppressConstraints

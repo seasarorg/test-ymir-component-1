@@ -25,7 +25,6 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.PathMapping;
-import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.creator.PageCreator;
@@ -187,7 +186,9 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         target_
                 .setPathMappingExtraDatas(new PathMappingExtraData<?>[] { new YmirPathMappingExtraData() });
 
-        YmirContext.setYmir((Ymir) container_.getComponent(Ymir.class));
+        YmirImpl ymir = (YmirImpl) container_.getComponent(YmirImpl.class);
+        ymir.setYmirNamingConvention(namingConvention);
+        YmirContext.setYmir(ymir);
         SingletonPluggableContainerFactory.init();
     }
 

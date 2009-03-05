@@ -12,7 +12,7 @@ import java.util.Set;
 
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.FormFile;
-import org.seasar.ymir.Globals;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Path;
@@ -384,14 +384,14 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
 
                 case UNDECIDED:
                     String[] parameters = (String[]) classDesc
-                            .getAttribute(ZptAnalyzer.ATTR_UNDECIDEDPARAMETERNAMES);
+                            .getAttribute(Globals.ATTR_UNDECIDEDPARAMETERNAMES);
                     if (parameters == null) {
                         parameters = new String[] { name };
                     } else {
                         parameters = (String[]) ArrayUtil.add(parameters, name);
                     }
                     classDesc.setAttribute(
-                            ZptAnalyzer.ATTR_UNDECIDEDPARAMETERNAMES,
+                            Globals.ATTR_UNDECIDEDPARAMETERNAMES,
                             parameters);
                     break;
 
@@ -422,7 +422,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                             .getTemporaryClassDesc(analyzerContext
                                     .fromPropertyNameToClassName(classDesc,
                                             name));
-                    dtoClassDesc.setAttribute(ZptAnalyzer.ATTR_FORMDTO,
+                    dtoClassDesc.setAttribute(Globals.ATTR_FORMDTO,
                             Boolean.TRUE);
                     PropertyDesc propertyDesc = classDesc.addProperty(name,
                             PropertyDesc.NONE);

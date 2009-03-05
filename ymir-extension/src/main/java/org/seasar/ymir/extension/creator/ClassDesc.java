@@ -74,10 +74,6 @@ public interface ClassDesc extends AnnotatedDesc, Cloneable {
 
     void setOptionalSourceGeneratorParameter(Map<String, Object> parameter);
 
-    Object getAttribute(String name);
-
-    void setAttribute(String name, Object value);
-
     void setPropertyDescs(PropertyDesc[] propertyDescs);
 
     void setMethodDescs(MethodDesc[] methodDescs);
@@ -86,11 +82,9 @@ public interface ClassDesc extends AnnotatedDesc, Cloneable {
 
     void setBornOf(String path);
 
-    Map<String, Object> getAttributeMap();
-
-    void setAttributeMap(Map<String, Object> attributeMap);
-
     void removeBornOfFromAllMembers(String bornOf);
 
     void applyBornOfToAllMembers();
+
+    String getPathOfClass();
 }

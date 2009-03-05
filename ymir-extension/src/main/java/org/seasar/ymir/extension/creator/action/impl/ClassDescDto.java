@@ -1,10 +1,10 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
 import org.seasar.kvasir.util.PropertyUtils;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.PropertyDesc;
-import org.seasar.ymir.extension.zpt.ZptAnalyzer;
 
 public class ClassDescDto {
 
@@ -44,9 +44,9 @@ public class ClassDescDto {
         }
         superclassName_ = superclassName;
         formDto_ = PropertyUtils.valueOf((Boolean) classDesc
-                .getAttribute(ZptAnalyzer.ATTR_FORMDTO), false);
+                .getAttribute(Globals.ATTR_FORMDTO), false);
         undecidedParameterNames_ = (String[]) classDesc
-                .getAttribute(ZptAnalyzer.ATTR_UNDECIDEDPARAMETERNAMES);
+                .getAttribute(Globals.ATTR_UNDECIDEDPARAMETERNAMES);
     }
 
     public boolean isChecked() {

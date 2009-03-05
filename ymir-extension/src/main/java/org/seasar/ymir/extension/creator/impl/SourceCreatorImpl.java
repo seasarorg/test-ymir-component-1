@@ -156,6 +156,8 @@ public class SourceCreatorImpl implements SourceCreator {
 
     private static final String RESOURCE_PREAMBLE_JAVA = "org/seasar/ymir/extension/Preamble.java.txt";
 
+    private static final String PREFIX_ACTION = "A";
+
     private YmirImpl ymir_;
 
     private NamingConvention namingConvention_;
@@ -613,6 +615,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 MethodDesc methodDesc = new MethodDescImpl(action
                         .getMethodInvoker().getMethod());
                 setActionMethodDescBodyTo(methodDesc);
+                methodDesc.setAttribute(Globals.ATTR_ACTION, Boolean.TRUE);
                 return methodDesc;
             }
         }
@@ -898,6 +901,24 @@ public class SourceCreatorImpl implements SourceCreator {
                             .newAnnotationDesc(annotation));
                 }
             }
+
+            int modifiers = fields[i].getModifiers();
+            if (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers)
+                    && Modifier.isFinal(modifiers)) {
+                String name = fields[i].getName();
+                if (name.startsWith(PREFIX_ACTION)) {
+                    for (Method actionMethod : ClassUtils.getMethods(fields[i]
+                            .getDeclaringClass(), name.substring(PREFIX_ACTION
+                            .length()))) {
+                        MethodDesc actionMd = classDesc
+                                .getMethodDesc(new MethodDescImpl(actionMethod));
+                        if (actionMd != null) {
+                            actionMd.setAttribute(Globals.ATTR_ACTION,
+                                    Boolean.TRUE);
+                        }
+                    }
+                }
+            }
         }
 
         return classDesc;
@@ -1102,6 +1123,18 @@ public class SourceCreatorImpl implements SourceCreator {
             throws InvalidClassDescException {
         // 既存のクラスの情報を使って調整する。
         adjustByExistentClass(classDesc);
+
+        if (classDesc.isTypeOf(ClassType.PAGE)) {
+            List<MethodDesc> list = new ArrayList<MethodDesc>();
+            for (MethodDesc methodDesc : classDesc.getMethodDescs()) {
+                if (methodDesc.getAttribute(Globals.ATTR_ACTION) != null) {
+                    list.add(methodDesc);
+                }
+            }
+            classDesc.setAttribute(Globals.ATTR_ACTION, list
+                    .toArray(new MethodDesc[0]));
+        }
+
         writeSourceFile(classDesc, classDescSet);
     }
 
@@ -1919,6 +1952,7 @@ public class SourceCreatorImpl implements SourceCreator {
             ActionSelectorSeed seed) {
         MethodDesc methodDesc = getExtraPathMapping(path, method)
                 .newActionMethodDesc(seed);
+        methodDesc.setAttribute(Globals.ATTR_ACTION, Boolean.TRUE);
         String returnType = setting_.getActionReturnType(method);
         methodDesc.setReturnTypeDesc(returnType);
         setActionMethodDescBodyTo(methodDesc);

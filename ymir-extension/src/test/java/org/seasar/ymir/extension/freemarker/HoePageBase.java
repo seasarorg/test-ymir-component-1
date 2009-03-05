@@ -5,7 +5,6 @@ import org.seasar.ymir.constraint.annotation.SuppressConstraints;
 
 @Required("test")
 public class HoePageBase {
-
     @Required("get")
     @SuppressConstraints
     public String getHoe() {

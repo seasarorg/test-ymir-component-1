@@ -1,6 +1,11 @@
 package com.example.page;
 
 public class TestPageBase {
+    public static final String PACKAGE = "com.example.page";
+
+    public static final String NAME = "test";
+
+    public static final String A_get = "_get";
 
     public void _get(int arg0) {
 

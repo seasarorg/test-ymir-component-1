@@ -2,9 +2,25 @@ ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#
 
 <#list classDesc.annotationDescs as annotationDesc>${annotationDesc.string}
 </#list>public <#if classDesc.baseClassAbstract>abstract </#if>class ${classDesc.shortName}Base<#if classDesc.superclassName?exists && classDesc.superclassName != "java.lang.Object"> extends ${classDesc.superclassName}</#if> {
-<#list classDesc.propertyDescs as propertyDesc><#if !propertyDesc.hasMetaOnSetter("formProperty")><#list propertyDesc.annotationDescs as annotationDesc>    ${annotationDesc.string}
-</#list>    protected ${propertyDesc.typeDesc.name} ${fieldPrefix}${propertyDesc.name}${fieldSuffix}<#if propertyDesc.initialValue??> = ${propertyDesc.initialValue}</#if>;
+    public static final String PACKAGE = "${classDesc.packageName}";
 
+    public static final String NAME = "${classDesc.nameBase?uncap_first}";
+<#if classDesc.pathOfClass??>
+
+    public static final String PATH = "${classDesc.pathOfClass}";
+</#if>
+<#if classDesc.getAttribute("action")??><#list classDesc.getAttribute("action") as methodDesc>
+
+    public static final String A${methodDesc.name} = "${methodDesc.name}";
+</#list></#if>
+<#list classDesc.propertyDescs as propertyDesc>
+
+    public static final String P_${propertyDesc.name} = "${propertyDesc.name}";
+</#list>
+<#list classDesc.propertyDescs as propertyDesc><#if !propertyDesc.hasMetaOnSetter("formProperty")>
+
+<#list propertyDesc.annotationDescs as annotationDesc>    ${annotationDesc.string}
+</#list>    protected ${propertyDesc.typeDesc.name} ${fieldPrefix}${propertyDesc.name}${fieldSuffix}<#if propertyDesc.initialValue??> = ${propertyDesc.initialValue}</#if>;
 </#if></#list>
 <#list classDesc.propertyDescs as propertyDesc>
 <#if propertyDesc.readable>

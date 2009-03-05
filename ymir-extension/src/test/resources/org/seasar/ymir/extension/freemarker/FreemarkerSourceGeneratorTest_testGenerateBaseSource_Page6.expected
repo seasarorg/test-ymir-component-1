@@ -1,9 +1,16 @@
 package org.seasar.ymir.extension.freemarker;
 
 public class Hoe6PageBase {
+    public static final String PACKAGE = "org.seasar.ymir.extension.freemarker";
+
+    public static final String NAME = "hoe6";
+
+    public static final String P_name = "name";
+
+    public static final String P_form = "form";
+
     @org.seasar.ymir.annotation.Meta(name = "property", value = "form")
     protected com.example.dto.FormDto form_ = new com.example.dto.FormDto();
-
 
     @org.seasar.ymir.annotation.Meta(name = "formProperty", value = "form")
     public String getName() {

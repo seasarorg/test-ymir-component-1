@@ -9,8 +9,6 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
         ClassDesc {
     private Map<String, Object> parameter_;
 
-    private Map<String, Object> attributeMap_ = new HashMap<String, Object>();
-
     private ClassType type_;
 
     private String bornOf_;
@@ -22,9 +20,6 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
 
         if (parameter_ != null) {
             cloned.parameter_ = new HashMap<String, Object>(parameter_);
-        }
-        if (attributeMap_ != null) {
-            cloned.attributeMap_ = new HashMap<String, Object>(attributeMap_);
         }
         return cloned;
     }
@@ -68,13 +63,8 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
 
     String getNameBase(String name) {
         name = ClassUtils.getShortName(name);
-        for (ClassType type : ClassType.values()) {
-            if (name.endsWith(type.getSuffix())) {
-                return name.substring(0, name.length()
-                        - type.getSuffix().length());
-            }
-        }
-        return name;
+        return name
+                .substring(0, name.length() - getType().getSuffix().length());
     }
 
     public String getPackageName() {
@@ -123,15 +113,6 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
     public void clear() {
         super.clear();
         parameter_ = null;
-        attributeMap_ = new HashMap<String, Object>();
-    }
-
-    public Object getAttribute(String name) {
-        return attributeMap_.get(name);
-    }
-
-    public void setAttribute(String name, Object value) {
-        attributeMap_.put(name, value);
     }
 
     public String getBornOf() {
@@ -140,13 +121,5 @@ abstract public class AbstractClassDesc extends AbstractAnnotatedDesc implements
 
     public void setBornOf(String bornOf) {
         bornOf_ = bornOf;
-    }
-
-    public Map<String, Object> getAttributeMap() {
-        return attributeMap_;
-    }
-
-    public void setAttributeMap(Map<String, Object> attributeMap) {
-        attributeMap_ = attributeMap;
     }
 }
