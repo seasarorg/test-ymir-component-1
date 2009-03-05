@@ -647,4 +647,21 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertNotNull(value);
         assertEquals(2, value.length);
     }
+
+    public void testAdjustByExistentClass5_オーバライドされたメソッドが消えないこと()
+            throws Exception {
+        ClassDesc classDesc = new ClassDescImpl(Adjust6Page.class.getName());
+        classDesc.setBornOf("/adjust6.html");
+        MethodDesc methodDesc = new MethodDescImpl("_get");
+        classDesc.setMethodDesc(methodDesc);
+
+        target_.adjustByExistentClass(classDesc);
+
+        MethodDesc actual = classDesc.getMethodDesc(methodDesc);
+        assertNotNull(actual);
+
+        String[] value = actual.getMetaValue(Globals.META_NAME_BORNOF);
+        assertNotNull(value);
+        assertEquals(1, value.length);
+    }
 }

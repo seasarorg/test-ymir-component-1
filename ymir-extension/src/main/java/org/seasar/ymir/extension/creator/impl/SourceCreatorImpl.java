@@ -1138,16 +1138,17 @@ public class SourceCreatorImpl implements SourceCreator {
                     .getModifiers()));
         }
 
-        // baseから同じパス由来の情報を除去しておく。
-        baseDesc.removeBornOfFromAllMembers(desc.getBornOf());
-
         // baseにあるものは必ず残す。baseになくてsuperやgapにあるものは除去する。
         ClassDesc generated = (ClassDesc) desc.clone();
         desc.clear();
         desc.setOptionalSourceGeneratorParameter(generated
                 .getOptionalSourceGeneratorParameter());
         desc.setAttributeMap(generated.getAttributeMap());
-        desc.merge(baseDesc, true);
+
+        // baseのうち同じパス由来でないメンバを残す。
+        ClassDesc baseDescOtherBoneOf = (ClassDesc) baseDesc.clone();
+        baseDescOtherBoneOf.removeBornOfFromAllMembers(desc.getBornOf());
+        desc.merge(baseDescOtherBoneOf, true);
 
         ClassDesc superDesc = getClassDesc(desc.getSuperclassName(), false);
         if (superDesc == null) {
@@ -1180,13 +1181,16 @@ public class SourceCreatorImpl implements SourceCreator {
                 }
             }
             // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
-            // GeneratedにあるアノテーションのうちBaseにもあるものを除去しておく。
+            // GeneratedにあるアノテーションのうちBaseにもあるものについてはBaseのものをGeneratedに上書きする。
             if (basePd != null && generatedPd != null) {
                 List<AnnotationDesc> list = new ArrayList<AnnotationDesc>();
                 for (AnnotationDesc ad : generatedPd.getAnnotationDescs()) {
-                    if (DescUtils.isMetaAnnotation(ad)
-                            || basePd.getAnnotationDesc(ad.getName()) == null) {
+                    AnnotationDesc baseAd = basePd.getAnnotationDesc(ad
+                            .getName());
+                    if (DescUtils.isMetaAnnotation(ad) || baseAd == null) {
                         list.add(ad);
+                    } else {
+                        list.add(baseAd);
                     }
                 }
                 generatedPd.setAnnotationDescs(list
@@ -1195,9 +1199,12 @@ public class SourceCreatorImpl implements SourceCreator {
                 list = new ArrayList<AnnotationDesc>();
                 for (AnnotationDesc ad : generatedPd
                         .getAnnotationDescsOnGetter()) {
-                    if (DescUtils.isMetaAnnotation(ad)
-                            || basePd.getAnnotationDescOnGetter(ad.getName()) == null) {
+                    AnnotationDesc baseAd = basePd.getAnnotationDescOnGetter(ad
+                            .getName());
+                    if (DescUtils.isMetaAnnotation(ad) || baseAd == null) {
                         list.add(ad);
+                    } else {
+                        list.add(baseAd);
                     }
                 }
                 generatedPd.setAnnotationDescsOnGetter(list
@@ -1206,9 +1213,12 @@ public class SourceCreatorImpl implements SourceCreator {
                 list = new ArrayList<AnnotationDesc>();
                 for (AnnotationDesc ad : generatedPd
                         .getAnnotationDescsOnSetter()) {
-                    if (DescUtils.isMetaAnnotation(ad)
-                            || basePd.getAnnotationDescOnSetter(ad.getName()) == null) {
+                    AnnotationDesc baseAd = basePd.getAnnotationDescOnSetter(ad
+                            .getName());
+                    if (DescUtils.isMetaAnnotation(ad) || baseAd == null) {
                         list.add(ad);
+                    } else {
+                        list.add(baseAd);
                     }
                 }
                 generatedPd.setAnnotationDescsOnSetter(list
@@ -1235,13 +1245,16 @@ public class SourceCreatorImpl implements SourceCreator {
                         .getReturnTypeDesc().clone());
             }
             // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
-            // GeneratedにあるアノテーションのうちBaseにもあるものを除去しておく。
+            // GeneratedにあるアノテーションのうちBaseにもあるものについてはBaseのものをGeneratedに上書きする。
             if (baseMd != null && generated.getMethodDesc(generatedMd) != null) {
                 List<AnnotationDesc> list = new ArrayList<AnnotationDesc>();
                 for (AnnotationDesc ad : generatedMd.getAnnotationDescs()) {
-                    if (DescUtils.isMetaAnnotation(ad)
-                            || baseMd.getAnnotationDesc(ad.getName()) == null) {
+                    AnnotationDesc baseAd = baseMd.getAnnotationDesc(ad
+                            .getName());
+                    if (DescUtils.isMetaAnnotation(ad) || baseAd == null) {
                         list.add(ad);
+                    } else {
+                        list.add(baseAd);
                     }
                 }
                 generatedMd.setAnnotationDescs(list
