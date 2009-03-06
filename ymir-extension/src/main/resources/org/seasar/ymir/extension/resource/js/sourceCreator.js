@@ -60,13 +60,18 @@ Object.extend(SourceCreator.InPlaceEditor.prototype, {
 });
 
 function prepareForControlPanel() {
-    new SourceCreator.ControlPanel();
+    var controlPanel = $('__ymir__controlPanel');
+    if (!controlPanel) {
+        return;
+    }
+
+    new SourceCreator.ControlPanel(controlPanel);
 }
 
 SourceCreator.ControlPanel = Class.create();
 Object.extend(SourceCreator.ControlPanel.prototype, {
-    initialize: function() {
-        this.element = $('__ymir__controlPanel');
+    initialize: function(element) {
+        this.element = element;
         this.visible = true;
         this.inEffect = false;
 
