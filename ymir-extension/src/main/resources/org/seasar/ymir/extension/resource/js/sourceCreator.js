@@ -6,15 +6,13 @@ function prepareForSourceCreator() {
 }
 
 function prepareForInPlaceEditing() {
-    var bodyTags = $A(document.getElementsByTagName('body'));
-    if (bodyTags.length == 0) {
+    var inPlaceEditorTag = $('__ymir__inPlaceEditor');
+    if (!inPlaceEditorTag) {
         return;
     }
 
-    var bodyTag = bodyTags.first();
-
     new SourceCreator.InPlaceEditor(
-        bodyTag,
+        inPlaceEditorTag,
         '@CONTEXT_PATH@/__ymir__/updateTemplate.do',
         {
             cols: 80,

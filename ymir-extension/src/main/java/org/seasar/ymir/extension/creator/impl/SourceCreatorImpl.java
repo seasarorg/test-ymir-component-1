@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -1820,6 +1822,14 @@ public class SourceCreatorImpl implements SourceCreator {
                     + "prototype/prototype.js" + jsSuffix + jsPrefix
                     + "scriptaculous/scriptaculous.js" + jsSuffix + jsPrefix
                     + "sourceCreator.js" + jsSuffix + "</head>");
+            response = Pattern
+                    .compile("(<body(\\s+[^>]*)?>)")
+                    .matcher(response)
+                    .replaceFirst(
+                            "$1"
+                                    + Matcher
+                                            .quoteReplacement("<div id=\"__ymir__inPlaceEditor\">"));
+            response = response.replace("</body>", "</div></body>");
         }
         if (setting_.isControlPanelEnabled()) {
             response = response.replace("</body>",

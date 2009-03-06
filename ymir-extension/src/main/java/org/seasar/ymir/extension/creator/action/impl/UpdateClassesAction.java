@@ -363,6 +363,12 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             return false;
         }
 
+        // タスクが明示的に指定されている場合は「UPDATE CLASSES」ボタンからの遷移なので
+        // 常にUpdate処理を行なうことにする。
+        if (request.getParameter(PARAM_TASK) != null) {
+            return true;
+        }
+
         if (getSourceCreatorSetting()
                 .isTryingToUpdateClassesWhenTemplateModified()) {
             boolean shouldUpdate = (template.lastModified() > getSourceCreator()
@@ -372,9 +378,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             }
             return shouldUpdate;
         } else {
-            // タスクが明示的に指定されている場合は「UPDATE CLASSES」ボタンからの遷移なので
-            // Update処理を行なうことにする。そうでない場合はUpdate処理は行なわない。
-            return request.getParameter(PARAM_TASK) != null;
+            return false;
         }
     }
 
