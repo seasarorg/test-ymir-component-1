@@ -175,7 +175,8 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         configuration.setProperty(AbstractApplication.KEY_SOURCEDIRECTORY,
                 getSourceDir().getCanonicalPath());
         configuration.setProperty(AbstractApplication.KEY_RESOURCESDIRECTORY,
-                ResourceUtil.getBuildDir(getClass()).getCanonicalPath());
+                getResourcesDir()
+                        .getCanonicalPath());
 
         target_ = (SourceCreatorImpl) container_
                 .getComponent(SourceCreator.class);
@@ -192,20 +193,23 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         SingletonPluggableContainerFactory.init();
     }
 
+    protected File getResourcesDir() {
+        return new File(getProjectRootDir(), "src/main/resources");
+    }
+
+    protected File getSourceDir() {
+        return new File(getProjectRootDir(), "src/main/java");
+    }
+
     protected Configuration getConfiguration() {
         return (Configuration) container_.getComponent(Configuration.class);
     }
 
     protected File getProjectRootDir() {
-        return ResourceUtil.getBuildDir(getClass());
-    }
-
-    protected File getSourceDir() {
-        return ResourceUtil.getBuildDir(getClass());
+        return new File(ResourceUtil.getBuildDir(getClass()), "temp");
     }
 
     protected void tearDown() throws Exception {
-
         SingletonPluggableContainerFactory.destroy();
     }
 }

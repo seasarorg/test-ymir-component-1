@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.seasar.framework.util.ResourceUtil;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -21,17 +20,6 @@ public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
 
         super.setUp();
         target_ = new UpdateClassesAction(getSourceCreator());
-    }
-
-    @Override
-    protected File getSourceDir() {
-        return new File(getProjectRootDir(), "src");
-    }
-
-    @Override
-    protected File getProjectRootDir() {
-        return new File(ResourceUtil.getBuildDir(getClass()).getParentFile(),
-                "root");
     }
 
     public void testShouldUpdate() throws Exception {

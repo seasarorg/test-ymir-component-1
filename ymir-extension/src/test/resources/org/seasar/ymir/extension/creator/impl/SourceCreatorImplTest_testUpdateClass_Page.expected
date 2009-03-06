@@ -1,0 +1,21 @@
+package com.example.web;
+
+public class SourceCreatorImplTest2PageBase {
+    public static final String PACKAGE = "com.example.web";
+
+    public static final String NAME = "sourceCreatorImplTest2";
+
+    public static final String A_post = "_post";
+
+    public static final String A_get = "_get";
+
+    @org.seasar.ymir.annotation.Meta(name = "bornOf", value = "/index.html")
+    public void _post() {
+
+    }
+
+    @org.seasar.ymir.annotation.Meta(name = "bornOf", value = "/sourceCreatorImplTest2.html")
+    public void _get() {
+
+    }
+}

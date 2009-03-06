@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.seasar.cms.pluggable.Configuration;
-import org.seasar.framework.util.ResourceUtil;
 import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.annotation.Meta;
@@ -37,6 +36,7 @@ import org.seasar.ymir.scope.annotation.Out;
 
 import com.example.page.SourceCreatorImplTestPageBaseBase;
 import com.example.page.TestPageBase;
+import com.example.web.SourceCreatorImplTest2Page;
 
 public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
     public void testGetComponentName() throws Exception {
@@ -67,10 +67,12 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testWriteSourceFile1() throws Exception {
         ClassDesc classDesc = constructClassDesc();
-        File testPage = new File(ResourceUtil.getBuildDir(getClass()),
-                classDesc.getName().replace('.', '/') + ".java");
-        File testPageBase = new File(ResourceUtil.getBuildDir(getClass()),
-                classDesc.getName().replace('.', '/') + "Base.java");
+        File testPage = new File(getSourceDir(), classDesc.getName().replace(
+                '.', '/')
+                + ".java");
+        File testPageBase = new File(getSourceDir(), classDesc.getName()
+                .replace('.', '/')
+                + "Base.java");
 
         testPage.delete();
 
@@ -80,12 +82,15 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertTrue(testPageBase.exists());
     }
 
-    public void testWriteSourceFile2() throws Exception {
+    public void testWriteSourceFile2_Baseは上書きされるがGapは上書きされないこと()
+            throws Exception {
         ClassDesc classDesc = constructClassDesc();
-        File testPage = new File(ResourceUtil.getBuildDir(getClass()),
-                classDesc.getName().replace('.', '/') + ".java");
-        File testPageBase = new File(ResourceUtil.getBuildDir(getClass()),
-                classDesc.getName().replace('.', '/') + "Base.java");
+        File testPage = new File(getSourceDir(), classDesc.getName().replace(
+                '.', '/')
+                + ".java");
+        File testPageBase = new File(getSourceDir(), classDesc.getName()
+                .replace('.', '/')
+                + "Base.java");
 
         testPage.getParentFile().mkdirs();
         testPageBase.getParentFile().mkdirs();
@@ -663,5 +668,27 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         String[] value = actual.getMetaValue(Globals.META_NAME_BORNOF);
         assertNotNull(value);
         assertEquals(1, value.length);
+    }
+
+    public void testUpdateClass_Page() throws Exception {
+        ClassDesc classDesc = new ClassDescImpl(
+                SourceCreatorImplTest2Page.class.getName());
+        MethodDesc methodDesc = target_.newActionMethodDesc(
+                SourceCreatorImplTest2Page.class.getName(),
+                "/sourceCreatorImplTest2.html", HttpMethod.GET);
+        classDesc.setBornOf("/sourceCreatorImplTest2.html");
+        classDesc.setMethodDesc(methodDesc);
+
+        File testPageBase = new File(getSourceDir(), classDesc.getName()
+                .replace('.', '/')
+                + "Base.java");
+
+        target_.updateClass(classDesc);
+
+        String actual = IOUtils.readString(new FileInputStream(testPageBase),
+                "UTF-8", false);
+
+        assertEquals(readResource(getClass(), "testUpdateClass_Page.expected"),
+                actual);
     }
 }
