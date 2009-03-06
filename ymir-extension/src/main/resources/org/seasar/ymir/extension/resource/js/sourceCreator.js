@@ -79,7 +79,11 @@ Object.extend(SourceCreator.ControlPanel.prototype, {
         });
         this.hide();
 
-        Event.observe(window, 'mousemove',
+        var bodyTags = $A(document.getElementsByTagName('body'));
+        if (bodyTags.length == 0) {
+            return;
+        }
+        Event.observe(bodyTags.first(), 'mousemove',
             this.update.bindAsEventListener(this), false);
     },
     update: function(event) {
