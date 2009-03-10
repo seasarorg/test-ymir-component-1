@@ -13,8 +13,6 @@ public class YmirTalesExpressionEvaluator extends
         ServletTalesExpressionEvaluator {
     public static final String TYPE_I18NPAGE = "i18npage";
 
-    public static final String TYPE_TERNARY = "ternary";
-
     public YmirTalesExpressionEvaluator() {
         NoteLocalizer noteLocalizer = newNoteLocalilzer();
         addPathResolver(new YmirPathResolver().setNoteLocalizer(noteLocalizer))
@@ -22,7 +20,6 @@ public class YmirTalesExpressionEvaluator extends
                         new LocalizationPathResolver()
                                 .setNoteLocalizer(noteLocalizer));
         addTypePrefix(TYPE_I18NPAGE, new I18NPageTypePrefixHandler());
-        addTypePrefix(TYPE_TERNARY, new TernaryTypePrefixHandler());
     }
 
     @Override
