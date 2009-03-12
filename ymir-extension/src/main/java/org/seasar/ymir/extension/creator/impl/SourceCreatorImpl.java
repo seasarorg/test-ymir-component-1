@@ -484,20 +484,7 @@ public class SourceCreatorImpl implements SourceCreator {
         for (int i = 0; i < pageClassDescs.length; i++) {
             // Dtoに触るようなプロパティを持っているなら
             // Converterのsetterを自動生成する。
-            PropertyDesc[] pds = pageClassDescs[i].getPropertyDescs();
-            for (int j = 0; j < pds.length; j++) {
-                TypeDesc td = pds[j].getTypeDesc();
-                if (!DescValidator.validate(td, classDescSet).isValid()
-                        || td.getComponentClassDesc().getType() != ClassType.DTO) {
-                    continue;
-                }
-
-                EntityMetaData metaData = new EntityMetaData(this, null, td
-                        .getComponentClassDesc().getName());
-                addPropertyToPageIfValid(pageClassDescs[i], new TypeDescImpl(
-                        metaData.newConverterClassDesc()), PropertyDesc.WRITE,
-                        classDescSet);
-            }
+            addConverterSetterToPageClassDesc(pageClassDescs[i], classDescSet);
 
             // Pageの親クラスが存在しない場合は生成しておく。
             String superclassName = pageClassDescs[i].getSuperclassName();
@@ -514,6 +501,32 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         writeSourceFiles(classDescBag);
+    }
+
+    void addConverterSetterToPageClassDesc(ClassDesc pageClassDesc,
+            ClassDescSet classDescSet) {
+        addConverterSetterToPageClassDesc(pageClassDesc, pageClassDesc,
+                classDescSet);
+    }
+
+    void addConverterSetterToPageClassDesc(ClassDesc pageClassDesc,
+            ClassDesc dtoClassDesc, ClassDescSet classDescSet) {
+        for (PropertyDesc pd : dtoClassDesc.getPropertyDescs()) {
+            TypeDesc td = pd.getTypeDesc();
+            ClassDesc dtoCd = td.getComponentClassDesc();
+            if (!DescValidator.validate(td, classDescSet).isValid()
+                    || dtoCd.getType() != ClassType.DTO) {
+                continue;
+            }
+
+            EntityMetaData metaData = new EntityMetaData(this, null, dtoCd
+                    .getName());
+            addComponentSetterToPageIfValid(pageClassDesc, new TypeDescImpl(
+                    metaData.newConverterClassDesc()), classDescSet);
+
+            addConverterSetterToPageClassDesc(pageClassDesc, dtoCd,
+                    classDescSet);
+        }
     }
 
     boolean isOuter(ClassDesc classDesc) {
@@ -1080,11 +1093,11 @@ public class SourceCreatorImpl implements SourceCreator {
         return pairTypeNames;
     }
 
-    boolean addPropertyToPageIfValid(ClassDesc pageClassDesc,
-            TypeDesc typeDesc, int mode, ClassDescSet classDescSet) {
+    boolean addComponentSetterToPageIfValid(ClassDesc pageClassDesc,
+            TypeDesc typeDesc, ClassDescSet classDescSet) {
         if (DescValidator.validate(typeDesc, classDescSet).isValid()) {
             PropertyDesc propertyDesc = pageClassDesc.addProperty(typeDesc
-                    .getInstanceName(), mode);
+                    .getInstanceName(), PropertyDesc.WRITE);
             propertyDesc.setTypeDesc(typeDesc);
             propertyDesc.notifyUpdatingType();
             AnnotationDesc ad = propertyDesc.getAnnotationDesc(Inject.class

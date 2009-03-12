@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.ClassDescSet;
 import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
@@ -691,5 +693,43 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
         assertEquals(readResource(getClass(), "testUpdateClass_Page.expected"),
                 actual);
+    }
+
+    public void testAddConverterSetterToPageClassDesc_YMIR_325()
+            throws Exception {
+        ClassDesc pageCd = new ClassDescImpl("com.example.web.IndexPage");
+        ClassDesc hoeDtoCd = new ClassDescImpl("com.example.dto.HoeDto");
+        ClassDesc fugaDtoCd = new ClassDescImpl("com.example.dto.FugaDto");
+        ClassDesc hoeConverterCd = new ClassDescImpl(
+                "com.example.converter.HoeConverter");
+        ClassDesc fugaConverterCd = new ClassDescImpl(
+                "com.example.converter.FugaConverter");
+
+        Map<String, ClassDesc> map = new HashMap<String, ClassDesc>();
+        map.put("com.example.web.IndexPage", pageCd);
+        map.put("com.example.dto.HoeDto", hoeDtoCd);
+        map.put("com.example.dto.FugaDto", fugaDtoCd);
+        map.put("com.example.converter.HoeConverter", hoeConverterCd);
+        map.put("com.example.converter.FugaConverter", fugaConverterCd);
+
+        ClassDescSet set = new ClassDescSet();
+        for (ClassDesc cd : map.values()) {
+            set.add(cd);
+        }
+
+        PropertyDesc pd = new PropertyDescImpl("hoes");
+        pageCd.setPropertyDesc(pd);
+        pd.setTypeDesc(new TypeDescImpl(
+                "java.util.List<com.example.dto.HoeDto>", map));
+
+        pd = new PropertyDescImpl("fugas");
+        hoeDtoCd.setPropertyDesc(pd);
+        pd.setTypeDesc(new TypeDescImpl(
+                "java.util.List<com.example.dto.FugaDto>", map));
+
+        target_.addConverterSetterToPageClassDesc(pageCd, set);
+
+        assertNotNull(pageCd.getPropertyDesc("hoeConverter"));
+        assertNotNull(pageCd.getPropertyDesc("fugaConverter"));
     }
 }

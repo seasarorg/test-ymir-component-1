@@ -68,11 +68,20 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public TypeDescImpl(String typeName) {
-        this(typeName, false);
+        this(typeName, null, false);
+    }
+
+    public TypeDescImpl(String typeName, Map<String, ClassDesc> classDescMap) {
+        this(typeName, classDescMap, false);
     }
 
     public TypeDescImpl(String typeName, boolean explicit) {
-        setName(typeName);
+        this(typeName, null, explicit);
+    }
+
+    public TypeDescImpl(String typeName, Map<String, ClassDesc> classDescMap,
+            boolean explicit) {
+        setName(typeName, classDescMap);
         explicit_ = explicit;
     }
 
