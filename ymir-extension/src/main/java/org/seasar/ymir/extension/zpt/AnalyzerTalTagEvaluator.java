@@ -391,8 +391,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         parameters = (String[]) ArrayUtil.add(parameters, name);
                     }
                     classDesc.setAttribute(
-                            Globals.ATTR_UNDECIDEDPARAMETERNAMES,
-                            parameters);
+                            Globals.ATTR_UNDECIDEDPARAMETERNAMES, parameters);
                     break;
 
                 default:
@@ -422,8 +421,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                             .getTemporaryClassDesc(analyzerContext
                                     .fromPropertyNameToClassName(classDesc,
                                             name));
-                    dtoClassDesc.setAttribute(Globals.ATTR_FORMDTO,
-                            Boolean.TRUE);
+                    dtoClassDesc
+                            .setAttribute(Globals.ATTR_OWNERPAGE, classDesc);
                     PropertyDesc propertyDesc = classDesc.addProperty(name,
                             PropertyDesc.NONE);
                     propertyDesc

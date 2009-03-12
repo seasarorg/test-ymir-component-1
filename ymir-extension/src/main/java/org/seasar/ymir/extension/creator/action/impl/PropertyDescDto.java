@@ -9,9 +9,12 @@ public class PropertyDescDto {
 
     private String typeName_;
 
-    public PropertyDescDto(PropertyDesc pd) {
+    private boolean subordinate_;
+
+    public PropertyDescDto(PropertyDesc pd, boolean subordinate) {
         name_ = pd.getName();
         typeName_ = pd.getTypeDesc().getName();
+        subordinate_ = subordinate;
     }
 
     public String getName() {
@@ -28,5 +31,9 @@ public class PropertyDescDto {
 
     public String getNormalizedName() {
         return BeanUtils.normalizePropertyName(name_);
+    }
+
+    public boolean isSubordinate() {
+        return subordinate_;
     }
 }

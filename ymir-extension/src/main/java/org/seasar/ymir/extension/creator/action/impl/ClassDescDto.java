@@ -22,17 +22,10 @@ public class ClassDescDto {
 
     private String superclassName_;
 
-    private boolean formDto_;
-
     private String[] undecidedParameterNames_;
 
     public ClassDescDto(ClassDesc classDesc, boolean checked) {
         name_ = classDesc.getName();
-        PropertyDesc[] pds = classDesc.getPropertyDescs();
-        propertyDescs_ = new PropertyDescDto[pds.length];
-        for (int i = 0; i < pds.length; i++) {
-            propertyDescs_[i] = new PropertyDescDto(pds[i]);
-        }
         checked_ = checked;
         dto_ = classDesc.isTypeOf(ClassType.DTO);
         page_ = classDesc.isTypeOf(ClassType.PAGE);
@@ -43,10 +36,19 @@ public class ClassDescDto {
             superclassName = null;
         }
         superclassName_ = superclassName;
-        formDto_ = PropertyUtils.valueOf((Boolean) classDesc
-                .getAttribute(Globals.ATTR_FORMDTO), false);
         undecidedParameterNames_ = (String[]) classDesc
                 .getAttribute(Globals.ATTR_UNDECIDEDPARAMETERNAMES);
+
+        ClassDesc ownerPageClassDesc = (ClassDesc) classDesc
+                .getAttribute(Globals.ATTR_OWNERPAGE);
+        PropertyDesc[] pds = classDesc.getPropertyDescs();
+        propertyDescs_ = new PropertyDescDto[pds.length];
+        for (int i = 0; i < pds.length; i++) {
+            propertyDescs_[i] = new PropertyDescDto(pds[i],
+                    ownerPageClassDesc != null
+                            && ownerPageClassDesc.getPropertyDesc(pds[i]
+                                    .getName()) != null);
+        }
     }
 
     public boolean isChecked() {
@@ -75,10 +77,6 @@ public class ClassDescDto {
 
     public String getSuperclassName() {
         return superclassName_;
-    }
-
-    public boolean isFormDto() {
-        return formDto_;
     }
 
     public String[] getUndecidedParameterNames() {
