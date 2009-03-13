@@ -107,6 +107,8 @@ public class CreateTemplateAction extends AbstractAction implements
             }
 
             successfullySynchronized = synchronizeResources(new String[] { getPath(template) });
+            pause(1000L);
+            openResourceInEclipseEditor(getPath(template));
         } else if (transition != null) {
             ClassDesc classDesc = getSourceCreator().newClassDesc(
                     pathMetaData.getClassName(), null);
@@ -130,6 +132,8 @@ public class CreateTemplateAction extends AbstractAction implements
             }
 
             successfullySynchronized = synchronizeResources(new String[] { getRootPackagePath() });
+            pause(1000L);
+            openJavaCodeInEclipseEditor(pathMetaData.getClassName());
         } else {
             return null;
         }

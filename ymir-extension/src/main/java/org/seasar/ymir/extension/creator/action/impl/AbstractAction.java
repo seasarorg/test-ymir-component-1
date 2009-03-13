@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
+import static org.seasar.ymir.extension.creator.SourceCreatorSetting.APPKEY_SOURCECREATOR_ECLIPSE_PROJECTNAME;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 
 import java.io.IOException;
@@ -283,6 +284,55 @@ abstract public class AbstractAction {
         } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException("Can't happen!", ex);
         }
+
+        connectToEclipse(url);
+    }
+
+    protected void openResourceInEclipseEditor(String path) {
+        if (!getSourceCreatorSetting().isResourceSynchronized()) {
+            return;
+        }
+        if (path == null) {
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        String projectName = getSourceCreatorSetting().getEclipseProjectName();
+        if (projectName == null) {
+            log_.warn("Do nothing because property '"
+                    + APPKEY_SOURCECREATOR_ECLIPSE_PROJECTNAME
+                    + "' is not specified in app.properties");
+            return;
+        }
+
+        sb.append(projectName);
+        if (projectName.endsWith("/")) {
+            if (path.startsWith("/")) {
+                sb.append(path.substring(1 /*= "/".length() */));
+            } else {
+                sb.append(path);
+            }
+        } else {
+            if (!path.startsWith("/")) {
+                sb.append("/");
+            }
+            sb.append(path);
+        }
+
+        URL url;
+        try {
+            url = getSourceCreatorSetting().constructResourceSynchronizerURL(
+                    "resource?path="
+                            + URLEncoder.encode(sb.toString(),
+                                    RESOURCESYNCHRONIZER_ENCODING));
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException("Can't happen!", ex);
+        }
+
+        connectToEclipse(url);
+    }
+
+    protected void connectToEclipse(URL url) {
         if (url == null) {
             return;
         }
