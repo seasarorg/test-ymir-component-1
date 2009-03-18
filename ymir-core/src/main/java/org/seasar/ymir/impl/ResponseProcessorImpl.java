@@ -104,11 +104,7 @@ public class ResponseProcessorImpl implements ResponseProcessor {
             } else {
                 // proceed。
                 resolved = resolveRedirectionPath(response.getPath(),
-                        httpResponse, request);
-                String contextPath = request.getContextPath();
-                if (resolved.startsWith(contextPath)) {
-                    resolved = resolved.substring(contextPath.length());
-                }
+                        httpRequest, httpResponse, request, response, true);
                 // proceedのパスはクエリストリングの補正に使われるので、
                 // ここで最終的なパスを戻しておく。
                 response.setPath(resolved);
@@ -121,7 +117,8 @@ public class ResponseProcessorImpl implements ResponseProcessor {
             populateHeaders(response, httpResponse);
 
             httpResponse.sendRedirect(resolveRedirectionPath(
-                    response.getPath(), httpResponse, request));
+                    response.getPath(), httpRequest, httpResponse, request,
+                    response, false));
             return null;
 
         case SELF_CONTAINED:
@@ -173,8 +170,16 @@ public class ResponseProcessorImpl implements ResponseProcessor {
     }
 
     protected String resolveRedirectionPath(String path,
-            HttpServletResponse httpResponse, Request request) {
-        String resolved = redirectionPathResolver_.resolve(path, request);
+            HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+            Request request, Response response, boolean proceed) {
+        String resolved;
+        if (proceed) {
+            resolved = redirectionPathResolver_.resolveToProceed(path,
+                    httpRequest, httpResponse, request, response);
+        } else {
+            resolved = redirectionPathResolver_.resolve(path, httpRequest,
+                    httpResponse, request, response);
+        }
         if (resolved == null) {
             throw new NullPointerException(
                     "Redirection path is null: may logic is wrong");
