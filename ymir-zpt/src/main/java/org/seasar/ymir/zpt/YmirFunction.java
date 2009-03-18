@@ -7,7 +7,7 @@ import net.skirnir.freyja.zpt.Default;
 import net.skirnir.freyja.zpt.tales.Function;
 import net.skirnir.freyja.zpt.tales.JavaTypePrefixHandler.InternalFunction;
 
-public class YmirFunction {
+public class YmirFunction implements Functions {
     private static final String PREFIX_PARAM_SELF = YmirVariableResolver.NAME_PARAM_SELF
             + "/";
 
@@ -45,18 +45,16 @@ public class YmirFunction {
         return nvl(classWhenNoted, Default.instance);
     }
 
-    public static Object nvl(Object classWhenNoted,
-            Object classWhenNotNoted) {
+    public static Object nvl(Object classWhenNoted, Object classWhenNotNoted) {
         return existsNotes() ? classWhenNoted : classWhenNotNoted;
     }
 
-    public static Object pnvl(String paramName,
-            Object classWhenNoted) {
+    public static Object pnvl(String paramName, Object classWhenNoted) {
         return pnvl(paramName, classWhenNoted, Default.instance);
     }
 
-    public static Object pnvl(String paramName,
-            Object classWhenNoted, Object classWhenNotNoted) {
+    public static Object pnvl(String paramName, Object classWhenNoted,
+            Object classWhenNotNoted) {
         return existsNotes(paramName) ? classWhenNoted : classWhenNotNoted;
     }
 }
