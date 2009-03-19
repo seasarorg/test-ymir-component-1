@@ -1,6 +1,7 @@
 package org.seasar.ymir.annotation.handler.impl;
 
 import static org.seasar.ymir.annotation.handler.AnnotationElements.getPropertyValue;
+import static org.seasar.ymir.annotation.handler.impl.AliasAnnotationElement.PROP_ALIAS;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
@@ -16,8 +17,6 @@ import org.seasar.ymir.annotation.handler.AnnotationProcessor;
 public class AliasAnnotationElement extends AbstractAnnotationElement {
     public static final String PROP_ALIAS = "z_alias";
 
-    private static final String PROP_ANNOTATIONTYPE = "annotationType";
-
     private AnnotationElement expandedElement_;
 
     public AliasAnnotationElement(Annotation annotation) {
@@ -31,43 +30,28 @@ public class AliasAnnotationElement extends AbstractAnnotationElement {
         super(null);
     }
 
-    void expand(final Annotation aliasAnnotation) {
-        final Annotation originalAnnotation;
+    void expand(Annotation aliasAnnotation) {
+        Annotation originalAnnotation;
         try {
             originalAnnotation = getPropertyValue(aliasAnnotation, PROP_ALIAS);
         } catch (ClassCastException ex) {
-            throw new IllegalArgumentException("Type of '" + PROP_ALIAS
-                    + "' property must be a subclass of Annotation: "
-                    + aliasAnnotation, ex);
+            throw new IllegalClientCodeRuntimeException("Type of '"
+                    + PROP_ALIAS + "' element must be an Annotation: "
+                    + aliasAnnotation.annotationType().getName(), ex);
         }
         if (originalAnnotation == null) {
             throw new IllegalClientCodeRuntimeException(
-                    "Alias annotation must have '" + PROP_ALIAS
-                            + "' property: " + aliasAnnotation);
+                    "@Alias annotation must have '" + PROP_ALIAS
+                            + "' element: "
+                            + aliasAnnotation.annotationType().getName());
         }
 
         expandedElement_ = AnnotationElements.newInstance((Annotation) Proxy
                 .newProxyInstance(originalAnnotation.annotationType()
                         .getClassLoader(), new Class[] { originalAnnotation
-                        .annotationType() }, new InvocationHandler() {
-                    public Object invoke(Object proxy, Method method,
-                            Object[] args) throws Throwable {
-                        if (method.getDeclaringClass() == Object.class) {
-                            return method.invoke(originalAnnotation, args);
-                        }
-                        String name = method.getName();
-                        if (name.equals(PROP_ANNOTATIONTYPE)) {
-                            return originalAnnotation.annotationType();
-                        } else if (name.equals(PROP_ALIAS)) {
-                            return getPropertyValue(originalAnnotation, name);
-                        }
-                        Object value = getPropertyValue(aliasAnnotation, name);
-                        if (value == null) {
-                            value = getPropertyValue(originalAnnotation, name);
-                        }
-                        return value;
-                    }
-                }));
+                        .annotationType() },
+                        new AliasAnnotationInvocationHandler(aliasAnnotation,
+                                originalAnnotation)));
     }
 
     @SuppressWarnings("unchecked")
