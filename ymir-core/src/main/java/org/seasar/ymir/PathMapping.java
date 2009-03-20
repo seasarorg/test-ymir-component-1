@@ -15,6 +15,14 @@ import org.seasar.kvasir.util.el.VariableResolver;
  */
 public interface PathMapping {
     /**
+     * アクションマネージャを設定します。
+     * 
+     * @param actionManager アクションマネージャ。
+     * @since 1.0.3
+     */
+    void setActionManager(ActionManager actionManager);
+
+    /**
      * 指定されたパス及びHTTPメソッドとのマッチングを行ないます。
      * <p>パスがこのオブジェクトが持つパターンとマッチした場合は、
      * マッチング結果の情報を持つ{@link VariableResolver}オブジェクトを返します。
