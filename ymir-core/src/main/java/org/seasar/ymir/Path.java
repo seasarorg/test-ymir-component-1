@@ -1,5 +1,6 @@
 package org.seasar.ymir;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -17,7 +18,9 @@ import org.seasar.ymir.util.StringUtils;
  * 
  * @author YOKOTA Takehiko
  */
-public class Path {
+public class Path implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String trunk_;
 
     private Map<String, String[]> parameterMap_;
