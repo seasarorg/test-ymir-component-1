@@ -1,5 +1,6 @@
 package org.seasar.ymir.conversation;
 
+import java.io.Serializable;
 import java.util.Iterator;
 
 /**
@@ -11,7 +12,7 @@ import java.util.Iterator;
  * @see Conversations
  * @author YOKOTA Takehiko
  */
-public interface Conversation {
+public interface Conversation extends Serializable {
     /**
      * Conversationの名前を返します。
      * 

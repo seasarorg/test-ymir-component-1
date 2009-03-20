@@ -19,7 +19,7 @@ import org.seasar.ymir.util.LogUtils;
 /**
  * このクラスはスレッドセーフです。
  */
-public class ConversationImpl implements Conversation, Serializable {
+public class ConversationImpl implements Conversation {
     private static final long serialVersionUID = -994133844419542105L;
 
     private transient HotdeployManager hotdeployManager_;

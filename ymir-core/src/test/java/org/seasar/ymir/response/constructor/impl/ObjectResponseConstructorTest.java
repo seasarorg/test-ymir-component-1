@@ -66,6 +66,7 @@ public class ObjectResponseConstructorTest extends TestCase {
 
         assertEquals("スーパークラスのResponseConstructorがあればそれを返すこと", Path.class,
                 target_.findResponseConstructor(new Path() {
+                    private static final long serialVersionUID = 1L;
                 }.getClass()).getTargetClass());
 
         assertEquals("実装しているインタフェースのResponseConstructorがあればそれを返すこと",

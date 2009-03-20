@@ -1,5 +1,6 @@
 package org.seasar.ymir.conversation;
 
+import java.io.Serializable;
 import java.util.Iterator;
 
 /**
@@ -11,7 +12,7 @@ import java.util.Iterator;
  * @see Conversation
  * @author YOKOTA Takehiko
  */
-public interface Conversations {
+public interface Conversations extends Serializable {
     /**
      * 現在のconversationを表すConversationオブジェクトを返します。
      * <p>conversationに参加していない場合はnullを返します。
