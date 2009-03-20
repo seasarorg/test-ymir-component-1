@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
@@ -45,8 +46,8 @@ public class RedirectionManagerImpl implements RedirectionManager,
     }
 
     public void init() {
-        windowManager_.addStraddlingAttributeNamePattern(ATTRPREFIX_SCOPEMAP
-                .replace(".", "\\.").concat(".*"));
+        windowManager_.addStraddlingAttributeNamePattern(Pattern.quote(
+                ATTRPREFIX_SCOPEMAP).concat(".*"));
     }
 
     public void destroy() {
@@ -57,14 +58,13 @@ public class RedirectionManagerImpl implements RedirectionManager,
     }
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> getScopeMap(String windowId, String scopeId,
-            boolean create) {
+    Map<String, Object> getScopeMap(String scopeId, boolean create) {
         String key = getScopeMapAttributeKey(scopeId);
         Map<String, Object> scopeMap = (Map<String, Object>) windowManager_
-                .getScopeAttribute(windowId, key);
+                .getScopeAttribute(key);
         if (scopeMap == null && create) {
             scopeMap = new HashMap<String, Object>();
-            windowManager_.setScopeAttribute(windowId, key, scopeMap);
+            windowManager_.setScopeAttribute(key, scopeMap);
         }
 
         return scopeMap;
@@ -76,12 +76,12 @@ public class RedirectionManagerImpl implements RedirectionManager,
                 getScopeMapAttributeKey(scopeId), scopeMap);
     }
 
-    void removeScopeMap(String windowId, String scopeId) {
+    void removeScopeMap(String scopeId) {
         if (scopeId == null) {
             return;
         }
-        windowManager_.setScopeAttribute(windowId,
-                getScopeMapAttributeKey(scopeId), null);
+        windowManager_
+                .setScopeAttribute(getScopeMapAttributeKey(scopeId), null);
     }
 
     @SuppressWarnings("unchecked")
@@ -91,8 +91,7 @@ public class RedirectionManagerImpl implements RedirectionManager,
             return null;
         }
 
-        Map<String, Object> scopeMap = getScopeMap(windowManager_
-                .findWindowId(), scopeId, false);
+        Map<String, Object> scopeMap = getScopeMap(scopeId, false);
         if (scopeMap == null) {
             return null;
         }
@@ -106,8 +105,7 @@ public class RedirectionManagerImpl implements RedirectionManager,
             return new ArrayList<String>().iterator();
         }
 
-        Map<String, Object> scopeMap = getScopeMap(windowManager_
-                .findWindowId(), scopeId, false);
+        Map<String, Object> scopeMap = getScopeMap(scopeId, false);
         if (scopeMap == null) {
             return new ArrayList<String>().iterator();
         }
@@ -120,19 +118,18 @@ public class RedirectionManagerImpl implements RedirectionManager,
     }
 
     public void setScopeAttributeForNextRequest(String name, Object value) {
-        String windowId = windowManager_.findWindowId();
         String scopeId = getTemporaryScopeId();
 
         if (value != null) {
-            getScopeMap(windowId, scopeId, true).put(name, value);
+            getScopeMap(scopeId, true).put(name, value);
         } else {
-            Map<String, Object> scopeMap = getScopeMap(windowId, scopeId, false);
+            Map<String, Object> scopeMap = getScopeMap(scopeId, false);
             if (scopeMap == null) {
                 return;
             }
             scopeMap.remove(name);
             if (scopeMap.isEmpty()) {
-                removeScopeMap(windowId, scopeId);
+                removeScopeMap(scopeId);
             }
         }
     }
@@ -150,18 +147,16 @@ public class RedirectionManagerImpl implements RedirectionManager,
     }
 
     public void clearScopeAttributes() {
-        removeScopeMap(windowManager_.findWindowId(), getScopeId());
+        removeScopeMap(getScopeId());
     }
 
     public void populateScopeId() {
-        String windowId = windowManager_.findWindowId();
         String temporaryScopeId = getTemporaryScopeId();
 
-        Map<String, Object> scopeMap = getScopeMap(windowId, temporaryScopeId,
-                false);
+        Map<String, Object> scopeMap = getScopeMap(temporaryScopeId, false);
         String scopeId = scopeIdManager_.populateScopeId(scopeMap != null);
         if (scopeMap != null) {
-            removeScopeMap(windowId, temporaryScopeId);
+            removeScopeMap(temporaryScopeId);
             if (scopeId != null) {
                 setScopeMap(windowManager_.findWindowIdForNextRequest(),
                         scopeId, scopeMap);

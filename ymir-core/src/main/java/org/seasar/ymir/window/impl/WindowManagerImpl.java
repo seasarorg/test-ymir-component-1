@@ -82,6 +82,13 @@ public class WindowManagerImpl implements WindowManager {
     }
 
     @SuppressWarnings("unchecked")
+    public <T> T getScopeAttribute(String name) {
+        // Sun JDKでエラーになるのを回避するため。
+        Object value = getScopeAttribute(findWindowId(), name);
+        return (T) value;
+    }
+
+    @SuppressWarnings("unchecked")
     public <T> T getScopeAttribute(String windowId, String name) {
         synchronized (windowId.intern()) {
             Map<String, Object> scopeMap = getScopeMap(windowId, false);
@@ -93,6 +100,10 @@ public class WindowManagerImpl implements WindowManager {
         }
     }
 
+    public Iterator<String> getScopeAttributeNames() {
+        return getScopeAttributeNames(findWindowId());
+    }
+
     public Iterator<String> getScopeAttributeNames(String windowId) {
         synchronized (windowId.intern()) {
             Map<String, Object> scopeMap = getScopeMap(windowId, false);
@@ -102,6 +113,14 @@ public class WindowManagerImpl implements WindowManager {
 
             return scopeMap.keySet().iterator();
         }
+    }
+
+    public boolean existsWindowScope() {
+        return existsWindowScope(findWindowId());
+    }
+
+    public boolean existsWindowScope(String windowId) {
+        return sessionManager_.getSession(false) != null;
     }
 
     public String findWindowId() {
@@ -124,6 +143,10 @@ public class WindowManagerImpl implements WindowManager {
 
     S2Container getS2Container() {
         return applicationManager_.findContextApplication().getS2Container();
+    }
+
+    public void setScopeAttribute(String name, Object value) {
+        setScopeAttribute(findWindowId(), name, value);
     }
 
     public void setScopeAttribute(String windowId, String name, Object value) {

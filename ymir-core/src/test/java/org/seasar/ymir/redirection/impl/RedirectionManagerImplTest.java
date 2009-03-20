@@ -39,7 +39,7 @@ public class RedirectionManagerImplTest extends TestCase {
     }
 
     public void testGetScopeMapしただけではSessionが生成されないこと() throws Exception {
-        target_.getScopeMap("_self", "aaa", false);
+        target_.getScopeMap("aaa", false);
 
         assertFalse(sessionCreated[0]);
     }

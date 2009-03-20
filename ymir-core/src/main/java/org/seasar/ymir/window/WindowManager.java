@@ -29,11 +29,27 @@ import org.seasar.ymir.window.impl.WindowScope;
 public interface WindowManager {
     String getWindowIdKey();
 
+    <T> T getScopeAttribute(String name);
+
+    void setScopeAttribute(String name, Object value);
+
+    Iterator<String> getScopeAttributeNames();
+
     <T> T getScopeAttribute(String windowId, String name);
 
     void setScopeAttribute(String windowId, String name, Object value);
 
     Iterator<String> getScopeAttributeNames(String windowId);
+
+    /**
+     * @since 1.0.3
+     */
+    boolean existsWindowScope();
+
+    /**
+     * @since 1.0.3
+     */
+    boolean existsWindowScope(String windowId);
 
     String findWindowId();
 

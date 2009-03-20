@@ -73,6 +73,8 @@
     class="org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl" />
   <component name="strategySelector"
     class="org.seasar.ymir.response.scheme.impl.StrategySelectorImpl" />
+  <component name="historyManager"
+    class="org.seasar.ymir.history.impl.HistoryManagerImpl" />
   <!-- HotdeployFitter -->
   <component name="listFitter"
     class="org.seasar.ymir.hotdeploy.fitter.impl.ListFitter" />

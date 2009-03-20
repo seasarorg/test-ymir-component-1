@@ -27,6 +27,14 @@
     class="org.seasar.ymir.redirection.impl.RedirectionInterceptor">
     <property name="priority">100.0</property>
   </component>
+  <component name="historyInterceptor"
+    class="org.seasar.ymir.history.impl.HistoryInterceptor">
+    <!--
+      actionInvoking()の中でActionを差し替える可能性のあるインターセプタの
+      priorityはこのpriorityよりも小さくなくてはいけません！ 
+    -->
+    <property name="priority">5000.0</property>
+  </component>
   <component name="sessionInterceptor"
     class="org.seasar.ymir.session.impl.SessionInterceptor">
     <!--

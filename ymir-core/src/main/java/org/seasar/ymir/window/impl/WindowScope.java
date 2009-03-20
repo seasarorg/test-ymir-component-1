@@ -32,8 +32,7 @@ public class WindowScope implements Scope {
             return null;
         }
 
-        return windowManager_.getScopeAttribute(windowManager_.findWindowId(),
-                name);
+        return windowManager_.getScopeAttribute(name);
     }
 
     public void setAttribute(String name, Object value) {
@@ -41,12 +40,10 @@ public class WindowScope implements Scope {
             return;
         }
 
-        windowManager_.setScopeAttribute(windowManager_.findWindowId(), name,
-                value);
+        windowManager_.setScopeAttribute(name, value);
     }
 
     public Iterator<String> getAttributeNames() {
-        return windowManager_.getScopeAttributeNames(windowManager_
-                .findWindowId());
+        return windowManager_.getScopeAttributeNames();
     }
 }

@@ -1,5 +1,7 @@
 package org.seasar.ymir.conversation.impl;
 
+import java.util.regex.Pattern;
+
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
@@ -57,8 +59,8 @@ public class ConversationManagerImpl implements ConversationManager,
     }
 
     public void init() {
-        windowManager_.addStraddlingAttributeNamePattern(ATTR_CONVERSATIONS
-                .replace(".", "\\."));
+        windowManager_.addStraddlingAttributeNamePattern(Pattern
+                .quote(ATTR_CONVERSATIONS));
     }
 
     public void destroy() {
@@ -69,13 +71,11 @@ public class ConversationManagerImpl implements ConversationManager,
     }
 
     public Conversations getConversations(boolean create) {
-        String windowId = windowManager_.findWindowId();
-        Conversations conversations = windowManager_.getScopeAttribute(
-                windowId, ATTR_CONVERSATIONS);
+        Conversations conversations = windowManager_
+                .getScopeAttribute(ATTR_CONVERSATIONS);
         if (conversations == null && create) {
             conversations = newConversations();
-            windowManager_.setScopeAttribute(windowId, ATTR_CONVERSATIONS,
-                    conversations);
+            windowManager_.setScopeAttribute(ATTR_CONVERSATIONS, conversations);
         }
         return conversations;
     }
