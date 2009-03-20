@@ -82,6 +82,7 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>ymir-beantable</artifactId>
       <version>${project.version}</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
