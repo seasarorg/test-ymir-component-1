@@ -215,15 +215,15 @@ public class YmirPathMapping implements PathMapping {
         }
     }
 
-    public void setReverseMapping(String pageComponentNamePatternString,
-            String template) {
+    public void setReverseMapping(
+            String pageComponentNamePatternString, String template) {
         pageComponentNamePattern_ = pageComponentNamePatternString != null ? Pattern
                 .compile(pageComponentNamePatternString)
                 : null;
         template_ = template;
     }
 
-    @Binding(bindingType = BindingType.NONE)
+    @Binding(bindingType = BindingType.MUST)
     public void setActionManager(ActionManager actionManager) {
         actionManager_ = actionManager;
     }

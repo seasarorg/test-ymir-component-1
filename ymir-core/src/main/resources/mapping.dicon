@@ -3,6 +3,42 @@
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
   <include path="ymir-component.dicon" />
-  <include path="ymir-mapping.dicon" />
-  <component name="pathMappingProvider" class="org.seasar.ymir.impl.PathMappingProviderImpl" />
+  <component class="org.seasar.ymir.impl.PathMappingProviderImpl">
+    <property name="pathMappings">
+      @org.seasar.cms.pluggable.util.ContainerUtils@findLocalComponents(container,
+      @org.seasar.ymir.PathMapping@class)
+    </property>
+  </component>
+  <component class="org.seasar.ymir.impl.YmirPathMapping">
+    <arg>""</arg>
+    <arg>"_RootPage"</arg>
+    <initMethod name="setReverseMapping">
+      <arg>"_RootPage"</arg>
+      <arg>""</arg>
+    </initMethod>
+  </component>
+  <component class="org.seasar.ymir.impl.YmirPathMapping">
+    <arg>"/([a-zA-Z][a-zA-Z0-9]*)\\.html"</arg>
+    <arg>"${1}Page"</arg>
+    <initMethod name="setReverseMapping">
+      <arg>"([a-zA-Z][a-zA-Z0-9]*)Page"</arg>
+      <arg>"/${1}.html"</arg>
+    </initMethod>
+  </component>
+  <component class="org.seasar.ymir.impl.YmirPathMapping">
+    <arg>"/([a-zA-Z][a-zA-Z0-9]*)"</arg>
+    <arg>"${1}__RootPage"</arg>
+    <initMethod name="setReverseMapping">
+      <arg>"([a-zA-Z][a-zA-Z0-9]*)__RootPage"</arg>
+      <arg>"/${1}"</arg>
+    </initMethod>
+  </component>
+  <component class="org.seasar.ymir.impl.YmirPathMapping">
+    <arg>"/([a-zA-Z][a-zA-Z0-9]*)/([a-zA-Z][a-zA-Z0-9]*)\\.html"</arg>
+    <arg>"${1}_${2}Page"</arg>
+    <initMethod name="setReverseMapping">
+      <arg>"([a-zA-Z][a-zA-Z0-9]*)_([a-zA-Z][a-zA-Z0-9]*)Page"</arg>
+      <arg>"/${1}/${2}.html"</arg>
+    </initMethod>
+  </component>
 </components>
