@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -34,7 +35,6 @@ import org.seasar.kvasir.util.io.impl.FileResource;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpMethod;
-import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Path;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
@@ -60,18 +60,11 @@ import org.seasar.ymir.util.ServletUtils;
 /**
  * YmirのPageクラスをテストするためのTestCaseのベースとなるクラスです。
  * <p>Pageクラスをテストする場合はこのクラスのサブクラスとしてTestCaseを作成すると便利かもしれません。
- * </p>
- * <p>基本的にはテストメソッドの中から以下のメソッドを順番に呼び出し、
- * {@link #processRequest(Request)}の返り値や{@link #getNotes(Request)}の返り値を
- * アサーションするようにします。
- * </p>
- * <ol>
- *   <li><code>prepareForProcessing()</code></li>
- *   <li>{@link #processRequest(Request)}</li>
- * </ol>
  */
 abstract public class YmirTestCase extends TestCase {
     private static final String DEFAULT_WEBAPPROOT = "src/main/webapp";
+
+    private static final Object[] EMPTY_PARAMS = new Object[0];
 
     private String characterEncoding_ = "UTF-8";
 
@@ -395,7 +388,9 @@ abstract public class YmirTestCase extends TestCase {
 
     /**
      * 現在のHttpServletRequestオブジェクトを返します。
-     * <p>このメソッドは<code>prepareForProcessing</code>メソッドの呼び出し後に呼び出して下さい。
+     * <p>このメソッドは<code>process</code>メソッドの引数に渡す
+     * {@link RequestInitializer}の<code>initialize</code>
+     * メソッドの中、または<code>process</code>メソッドの呼び出し後に呼び出して下さい。
      * </p>
      * 
      * @return 現在のHttpServletRequestオブジェクト。
@@ -420,7 +415,9 @@ abstract public class YmirTestCase extends TestCase {
      * 現在のHttpSessionオブジェクトを返します。
      * <p><code>create</code>がtrueの場合、セッションが作成されていなければ作成します。
      * </p>
-     * <p>このメソッドは<code>prepareForProcessing</code>メソッドの呼び出し後に呼び出して下さい。
+     * <p>このメソッドは<code>process</code>メソッドの引数に渡す
+     * {@link RequestInitializer}の<code>initialize</code>
+     * メソッドの中、または<code>process</code>メソッドの呼び出し後に呼び出して下さい。
      * </p>
      * 
      * @param create セッションを作成するかどうか。
@@ -432,7 +429,9 @@ abstract public class YmirTestCase extends TestCase {
 
     /**
      * 現在のHttpServletResponseオブジェクトを返します。
-     * <p>このメソッドは<code>prepareForProcessing</code>メソッドの呼び出し後に呼び出して下さい。
+     * <p>このメソッドは<code>process</code>メソッドの引数に渡す
+     * {@link RequestInitializer}の<code>initialize</code>
+     * メソッドの中、または<code>process</code>メソッドの呼び出し後に呼び出して下さい。
      * </p>
      * 
      * @return 現在のHttpServletResponseオブジェクト。
@@ -450,64 +449,89 @@ abstract public class YmirTestCase extends TestCase {
                 path, method, fileParameterMap, chain);
     }
 
-    public FilterChain process(String path, Object... params)
-            throws IOException, ServletException {
-        return process(path, HttpMethod.GET, params);
+    public FilterChain process(String path) throws IOException,
+            ServletException {
+        return process(path, HttpMethod.GET, (RequestInitializer) null, null,
+                null, EMPTY_PARAMS);
     }
 
-    public FilterChain process(String path, HttpMethod method, Object... params)
+    public FilterChain process(String path, String param, Object... params)
             throws IOException, ServletException {
-        RequestInitializer initializer = null;
-        MockFilterChain chain = null;
-        if (params != null) {
-            boolean paramStarted = false;
-            List<Object> paramList = new ArrayList<Object>();
-            for (Object param : params) {
-                if (param instanceof RequestInitializer) {
-                    if (initializer != null) {
-                        throw new IllegalClientCodeRuntimeException(
-                                "Multiple RequestInitializer specified");
-                    } else if (paramStarted) {
-                        throw new IllegalClientCodeRuntimeException(
-                                "RequestInitializer must be specified before parameters");
-                    }
-                    initializer = (RequestInitializer) param;
-                } else if (param instanceof MockFilterChain) {
-                    if (chain != null) {
-                        throw new IllegalClientCodeRuntimeException(
-                                "Multiple MockFilterChain specified");
-                    } else if (paramStarted) {
-                        throw new IllegalClientCodeRuntimeException(
-                                "MockFilterChain must be specified before parameters");
-                    }
-                    chain = (MockFilterChain) param;
-                } else if (param instanceof FilterChain) {
-                    throw new IllegalClientCodeRuntimeException(
-                            "Can't specify FilterChain. Specify MockFilterChain instead");
-                } else {
-                    paramStarted = true;
-                    paramList.add(param);
-                }
-            }
-            params = paramList.toArray();
-        }
+        return process(path, HttpMethod.GET, (RequestInitializer) null, null,
+                param, params);
+    }
+
+    public FilterChain process(String path, HttpMethod method)
+            throws IOException, ServletException {
+        return process(path, method, (RequestInitializer) null, null, null,
+                EMPTY_PARAMS);
+    }
+
+    public FilterChain process(String path, HttpMethod method, String param,
+            Object... params) throws IOException, ServletException {
+        return process(path, method, (RequestInitializer) null, null, param,
+                params);
+    }
+
+    public FilterChain process(String path, RequestInitializer initializer)
+            throws IOException, ServletException {
+        return process(path, HttpMethod.GET, initializer, null, null,
+                EMPTY_PARAMS);
+    }
+
+    public FilterChain process(String path, RequestInitializer initializer,
+            String param, Object... params) throws IOException,
+            ServletException {
+        return process(path, HttpMethod.GET, initializer, null, param, params);
+    }
+
+    public FilterChain process(String path, MockFilterChain chain)
+            throws IOException, ServletException {
+        return process(path, HttpMethod.GET, (RequestInitializer) null, chain,
+                null, EMPTY_PARAMS);
+    }
+
+    public FilterChain process(String path, MockFilterChain chain,
+            String param, Object... params) throws IOException,
+            ServletException {
+        return process(path, HttpMethod.GET, (RequestInitializer) null, chain,
+                param, params);
+    }
+
+    public FilterChain process(String path, HttpMethod method,
+            RequestInitializer initializer, MockFilterChain chain)
+            throws IOException, ServletException {
+        return process(path, method, initializer, chain, null, EMPTY_PARAMS);
+    }
+
+    public FilterChain process(String path, HttpMethod method,
+            RequestInitializer initializer, MockFilterChain chain,
+            String param, Object... params) throws IOException,
+            ServletException {
         if (chain == null) {
             chain = new MockFilterChainImpl();
         }
 
+        List<Object> paramList = new ArrayList<Object>();
+        if (param != null) {
+            paramList.add(param);
+        }
+        if (params != null) {
+            paramList.addAll(Arrays.asList(params));
+        }
+        params = paramList.toArray();
+
         Map<String, String[]> parameterMap = new LinkedHashMap<String, String[]>();
         Map<String, FormFile[]> fileParameterMap = new LinkedHashMap<String, FormFile[]>();
-        if (params != null) {
-            for (int i = 0; i < params.length; i += 2) {
-                Object value;
-                if (i + 1 < params.length) {
-                    value = params[i + 1];
-                } else {
-                    value = "";
-                }
-                ServletUtils.addParameter(params[i], value, parameterMap,
-                        fileParameterMap);
+        for (int i = 0; i < params.length; i += 2) {
+            Object value;
+            if (i + 1 < params.length) {
+                value = params[i + 1];
+            } else {
+                value = "";
             }
+            ServletUtils.addParameter(params[i], value, parameterMap,
+                    fileParameterMap);
         }
 
         Path p = new Path(path, getCharacterEncoding());
@@ -531,14 +555,64 @@ abstract public class YmirTestCase extends TestCase {
         }
     }
 
-    public FilterChain process(Class<?> pageClass, Object... params)
+    public FilterChain process(Class<?> pageClass) throws IOException,
+            ServletException {
+        return process(getPathOfPageClass(pageClass));
+    }
+
+    public FilterChain process(Class<?> pageClass, String param,
+            Object... params) throws IOException, ServletException {
+        return process(getPathOfPageClass(pageClass), param, params);
+    }
+
+    public FilterChain process(Class<?> pageClass, HttpMethod method)
             throws IOException, ServletException {
-        return process(pageClass, HttpMethod.GET, params);
+        return process(getPathOfPageClass(pageClass), method);
     }
 
     public FilterChain process(Class<?> pageClass, HttpMethod method,
-            Object... params) throws IOException, ServletException {
-        return process(getPathOfPageClass(pageClass), method, params);
+            String param, Object... params) throws IOException,
+            ServletException {
+        return process(getPathOfPageClass(pageClass), method, param, params);
+    }
+
+    public FilterChain process(Class<?> pageClass,
+            RequestInitializer initializer) throws IOException,
+            ServletException {
+        return process(getPathOfPageClass(pageClass), initializer);
+    }
+
+    public FilterChain process(Class<?> pageClass,
+            RequestInitializer initializer, String param, Object... params)
+            throws IOException, ServletException {
+        return process(getPathOfPageClass(pageClass), initializer, param,
+                params);
+    }
+
+    public FilterChain process(Class<?> pageClass, MockFilterChain chain)
+            throws IOException, ServletException {
+        return process(getPathOfPageClass(pageClass), chain);
+    }
+
+    public FilterChain process(Class<?> pageClass, MockFilterChain chain,
+            String param, Object... params) throws IOException,
+            ServletException {
+        return process(getPathOfPageClass(pageClass), chain, param, params);
+    }
+
+    public FilterChain process(Class<?> pageClass, HttpMethod method,
+            RequestInitializer initializer, MockFilterChain chain)
+            throws IOException, ServletException {
+        return process(getPathOfPageClass(pageClass), method, initializer,
+                chain);
+    }
+
+    public FilterChain process(Class<?> pageClass, HttpMethod method,
+            RequestInitializer initializer, MockFilterChain chain,
+            String param, Object... params) throws IOException,
+            ServletException {
+        return process(getPathOfPageClass(pageClass), method, initializer,
+                chain, param, params);
     }
 
     public void acceptRequest(String path, HttpMethod method,
