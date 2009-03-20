@@ -431,13 +431,16 @@ abstract public class AbstractAction {
         return sourceCreator_.getSourceCreatorSetting();
     }
 
-    protected void updateMapping(PathMetaData pathMetaData) {
+    protected void updateMapping(PathMetaData... pathMetaDatas) {
         PersistentProperties props = sourceCreator_.getMappingProperties();
-        // 「/」はEclipseのPreferencesStoreでキーとしてうまく扱えないようなので、
-        // %に置換しておく。
-        props.setProperty(pathMetaData.getPath().replace('/', '%'),
-                pathMetaData.getClassName());
-        props.setProperty(pathMetaData.getClassName(), pathMetaData.getPath());
+        for (PathMetaData pathMetaData : pathMetaDatas) {
+            // 「/」はEclipseのPreferencesStoreでキーとしてうまく扱えないようなので、
+            // %に置換しておく。
+            props.setProperty(pathMetaData.getPath().replace('/', '%'),
+                    pathMetaData.getClassName());
+            props.setProperty(pathMetaData.getClassName(), pathMetaData
+                    .getPath());
+        }
         props.save();
     }
 }

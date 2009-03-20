@@ -138,10 +138,6 @@ import org.seasar.ymir.util.ServletUtils;
 import net.skirnir.freyja.EvaluationRuntimeException;
 
 public class SourceCreatorImpl implements SourceCreator {
-    private static final String SOURCECREATOR_PREFS = "org.seasar.ymir.extension.sourceCreator.prefs";
-
-    private static final String MAPPING_PREFS = "org.seasar.ymir.extension.mapping.prefs";
-
     private static final String PROPERTY_ID = "id";
 
     private static final String ID_ANNOTATIONNAME = "org.seasar.dao.annotation.tiger.Id";

@@ -1,0 +1,17 @@
+<html>
+  <head>
+    <meta tal:attributes="content string:text/html;; charset=${templateEncoding}" http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>SYSTEM CONSOLE</title>
+  </head>
+  <body onload="document.getElementById('okButton').focus()">
+<h1>SYSTEM CONSOLE</h1>
+<p>Pageクラスとパスのマッピングの対応データを一括生成しました。</p>
+<p tal:condition="successfullySynchronized"><span tal:condition="not:resourceAutoSynchronized">EclipseでプロジェクトルートをRefreshしてから、</span>以下の「OK」ボタンを押して下さい。</p>
+<strong tal:condition="not:successfullySynchronized">Eclipseの同期サーバとの通信に失敗したためリソースの同期が取れませんでした（詳細はログを参照して下さい）。EclipseでプロジェクトルートをRefreshしてから、以下の「OK」ボタンを押して下さい。</strong>
+<form tal:attributes="method method; action request/absolutePath">
+  <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
+  <input type="hidden" name="__ymir__task" value="systemConsole" />
+  <input id="okButton" type="submit" value=" OK " />
+</form>
+  </body>
+</html>

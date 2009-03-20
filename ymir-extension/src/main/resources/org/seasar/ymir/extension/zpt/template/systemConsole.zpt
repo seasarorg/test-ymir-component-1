@@ -67,13 +67,23 @@ SubversionからプロジェクトのHTMLテンプレートを更新した後な
 <h2>クラスの一括更新</h2>
 <p>全てのHTMLテンプレートを解析してクラスを一括更新することができます。</p>
 <p><strong>[注意]</strong> 一括更新時はクラスのプロパティ型の指定などができません。
-極力一括更新は行なわず、「HTMLテンプレートの作成→ブラウザからアクセス→クラスの更新」という通常のステップを踏むことをお勧めします。</p>
+極力一括更新は行なわず、「HTMLテンプレートの作成→クラスの更新」という通常のステップを踏むことをお勧めします。</p>
 <form tal:attributes="action request/absolutePath" method="post">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
   <input type="hidden" name="__ymir__task" value="systemConsole" />
   <input type="hidden" name="__ymir__subTask" value="confirmUpdateAllClasses" />
   <input type="hidden" name="__ymir__method" tal:attributes="value method" />
   <p><input type="submit" value="クラスを一括更新する" /></p>
+</form>
+
+<h2>Pageクラスとパスのマッピングの対応データの一括生成</h2>
+<p>ViliのためのPageクラスとパスのマッピングの対応データを一括生成します。</p>
+<form tal:attributes="action request/absolutePath" method="post">
+  <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
+  <input type="hidden" name="__ymir__task" value="systemConsole" />
+  <input type="hidden" name="__ymir__subTask" value="createPathMappings" />
+  <input type="hidden" name="__ymir__method" tal:attributes="value method" />
+  <p><input type="submit" value="生成する" /></p>
 </form>
 
 <h2>アプリケーション画面への復帰</h2>

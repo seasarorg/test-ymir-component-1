@@ -16,6 +16,7 @@ import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.convention.YmirNamingConvention;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
 import org.seasar.ymir.extension.creator.PathMetaData;
@@ -49,6 +50,8 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
         } else if ("setSourceCreatorEnabledWithThisTemplate".equals(subTask)) {
             return actSetSourceCreatorEnabledWithThisTemplate(request,
                     pathMetaData);
+        } else if ("createPathMappings".equals(subTask)) {
+            return actCreatePathMappings(request, pathMetaData);
         } else {
             return actDefault(request, pathMetaData);
         }
@@ -202,5 +205,25 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
         return getSourceCreator().getResponseCreator().createResponse(
                 "systemConsole_setSourceCreatorEnabledWithThisTemplate",
                 variableMap);
+    }
+
+    Response actCreatePathMappings(Request request, PathMetaData pathMetaData) {
+        String method = request.getParameter(PARAM_METHOD);
+        if (method == null) {
+            return null;
+        }
+
+        updateMapping(gatherPathMetaDatas());
+
+        boolean successfullySynchronized = synchronizeResources(new String[] { Globals.PATH_PREFERENCES_DIRECTORY
+                + "/" + SourceCreator.MAPPING_PREFS });
+
+        Map<String, Object> variableMap = newVariableMap();
+        variableMap.put("request", request);
+        variableMap.put("method", method);
+        variableMap.put("parameters", getParameters(request));
+        variableMap.put("successfullySynchronized", successfullySynchronized);
+        return getSourceCreator().getResponseCreator().createResponse(
+                "systemConsole_createPathMappings", variableMap);
     }
 }

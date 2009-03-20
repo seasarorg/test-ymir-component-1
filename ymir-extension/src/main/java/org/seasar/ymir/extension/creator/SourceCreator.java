@@ -26,6 +26,10 @@ public interface SourceCreator extends Updater {
 
     String PREFIX_CHECKEDTIME = "updateClassesAction.checkedTime.";
 
+    String SOURCECREATOR_PREFS = "org.seasar.ymir.extension.sourceCreator.prefs";
+
+    String MAPPING_PREFS = "org.seasar.ymir.extension.mapping.prefs";
+
     String getRootPackageName();
 
     String getPagePackageName();
