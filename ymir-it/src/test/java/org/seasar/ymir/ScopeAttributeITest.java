@@ -11,8 +11,8 @@ import org.seasar.ymir.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.ymir.mock.servlet.MockHttpSession;
 import org.seasar.ymir.mock.servlet.MockHttpSessionImpl;
 import org.seasar.ymir.mock.servlet.MockServletContext;
-import org.seasar.ymir.testing.RequestInitializer;
 import org.seasar.ymir.testing.PageTestCase;
+import org.seasar.ymir.testing.RequestInitializer;
 
 import com.example.web.Scope2Page;
 import com.example.web.ScopePage;
@@ -53,7 +53,7 @@ public class ScopeAttributeITest extends PageTestCase<ScopePage> {
                 page.setParam1("value1");
                 page.setParam2("value2");
             }
-        });
+        }, null);
 
         assertEquals("value1", getServletContext().getAttribute("param1"));
         assertEquals("value2", getServletContext().getAttribute("param2"));
