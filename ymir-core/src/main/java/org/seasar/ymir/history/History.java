@@ -7,6 +7,8 @@ import java.io.Serializable;
  * @since 1.0.3
  */
 public interface History extends Serializable {
+    void setRecordCount(int recordCount);
+
     boolean isEmpty();
 
     void pushElement(HistoryElement element);
@@ -15,13 +17,15 @@ public interface History extends Serializable {
 
     HistoryElement peekElement();
 
-    HistoryElement getLatestElement(String path);
+    HistoryElement peekElement(String path);
+
+    HistoryElement peekElementInCurrentConversation();
 
     HistoryElement[] getElements();
 
     void setElements(HistoryElement[] elements);
 
-    boolean equalsLatestPathTo(String path);
+    boolean equalsPathTo(String path, HistoryElement element);
 
-    boolean equalsLatestPageTo(Class<?> pageClass);
+    boolean equalsPageTo(Class<?> pageClass, HistoryElement element);
 }

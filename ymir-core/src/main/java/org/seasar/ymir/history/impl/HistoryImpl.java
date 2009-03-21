@@ -3,6 +3,10 @@ package org.seasar.ymir.history.impl;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.conversation.ConversationManager;
+import org.seasar.ymir.conversation.Conversations;
+import org.seasar.ymir.history.Conversation;
 import org.seasar.ymir.history.History;
 import org.seasar.ymir.history.HistoryElement;
 
@@ -20,7 +24,7 @@ public class HistoryImpl implements History {
     }
 
     public HistoryImpl(int recordCount) {
-        recordCount_ = recordCount;
+        setRecordCount(recordCount);
     }
 
     public synchronized boolean isEmpty() {
@@ -31,7 +35,7 @@ public class HistoryImpl implements History {
         return elementList_.toArray(new HistoryElement[0]);
     }
 
-    public synchronized HistoryElement getLatestElement(String path) {
+    public synchronized HistoryElement peekElement(String path) {
         for (HistoryElement element : elementList_) {
             if (path.equals(element.getPath().getTrunk())) {
                 return element;
@@ -61,8 +65,7 @@ public class HistoryImpl implements History {
         elementList_.addAll(Arrays.asList(elements));
     }
 
-    public boolean equalsLatestPageTo(Class<?> pageClass) {
-        HistoryElement element = peekElement();
+    public boolean equalsPageTo(Class<?> pageClass, HistoryElement element) {
         if (element == null) {
             return false;
         } else {
@@ -70,12 +73,45 @@ public class HistoryImpl implements History {
         }
     }
 
-    public boolean equalsLatestPathTo(String path) {
-        HistoryElement element = peekElement();
+    public boolean equalsPathTo(String path, HistoryElement element) {
         if (element == null) {
             return false;
         } else {
             return path.equals(element.getPath().getTrunk());
         }
+    }
+
+    public synchronized HistoryElement peekElementInCurrentConversation() {
+        ConversationManager conversationManager = getConversationManager();
+        Conversations conversations = conversationManager
+                .getConversations(false);
+        if (conversations == null) {
+            return null;
+        }
+
+        String conversationName = conversations.getCurrentConversationName();
+        if (conversationName == null) {
+            return null;
+        }
+
+        for (HistoryElement element : elementList_) {
+            Conversation conversation = element.getConversation();
+            if (conversation == null) {
+                continue;
+            }
+            if (conversationName.equals(conversation.getName())) {
+                return element;
+            }
+        }
+        return null;
+    }
+
+    ConversationManager getConversationManager() {
+        return (ConversationManager) YmirContext.getYmir().getApplication()
+                .getS2Container().getComponent(ConversationManager.class);
+    }
+
+    public void setRecordCount(int recordCount) {
+        recordCount_ = recordCount;
     }
 }

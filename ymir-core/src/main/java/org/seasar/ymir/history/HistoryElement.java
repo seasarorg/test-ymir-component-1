@@ -12,4 +12,6 @@ public interface HistoryElement extends Serializable {
     Path getPath();
 
     Class<?> getPageClass();
+
+    Conversation getConversation();
 }
