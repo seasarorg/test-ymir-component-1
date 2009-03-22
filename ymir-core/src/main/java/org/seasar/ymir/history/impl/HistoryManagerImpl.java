@@ -94,7 +94,7 @@ public class HistoryManagerImpl implements HistoryManager, LifecycleListener {
 
     boolean isAutoRecording() {
         return PropertyUtils.valueOf(applicationManager_
-                .getContextApplication().getProperty(
+                .findContextApplication().getProperty(
                         Globals.APPKEY_CORE_HISTORY_AUTORECORDING),
                 Globals.DEFAULT_CORE_HISTORY_AUTORECORDING);
     }

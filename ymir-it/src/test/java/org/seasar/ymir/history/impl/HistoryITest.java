@@ -1,6 +1,7 @@
 package org.seasar.ymir.history.impl;
 
 import org.seasar.ymir.HttpMethod;
+import org.seasar.ymir.history.History;
 import org.seasar.ymir.history.HistoryManager;
 import org.seasar.ymir.testing.RequestInitializer;
 import org.seasar.ymir.testing.YmirTestCase;
@@ -78,7 +79,7 @@ public class HistoryITest extends YmirTestCase {
         assertNull(historyManager.getHistory().popElement());
     }
 
-    public void test_equalsLatestXXXTo() throws Exception {
+    public void test_equalsXXXTo() throws Exception {
         final HistoryManager historyManager = getComponent(HistoryManager.class);
 
         process(HistoryITest1Page.class, new RequestInitializer() {
@@ -88,9 +89,10 @@ public class HistoryITest extends YmirTestCase {
         });
         process(HistoryITest2Page.class);
 
-        assertTrue(historyManager.getHistory().equalsLatestPageTo(
-                HistoryITest2Page.class));
-        assertTrue(historyManager.getHistory().equalsLatestPathTo(
-                "/historyITest2.html"));
+        History history = historyManager.getHistory();
+        assertTrue(history.equalsPageTo(HistoryITest2Page.class, history
+                .peekElement()));
+        assertTrue(history.equalsPathTo("/historyITest2.html", history
+                .peekElement()));
     }
 }
