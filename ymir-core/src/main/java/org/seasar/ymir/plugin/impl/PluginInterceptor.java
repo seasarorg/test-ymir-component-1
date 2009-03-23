@@ -112,12 +112,11 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public Action actionInvoking(Request request, Action originalAction,
-            Action action) {
+    public Action actionInvoking(Request request, Action action) {
         Pair<?>[] pairs = getPairs(request, action);
         pairs_.set(pairs);
         for (int i = 0; i < pairs.length; i++) {
-            action = pairs[i].actionInvoking(request, originalAction, action);
+            action = pairs[i].actionInvoking(request, action);
         }
         return action;
     }
@@ -156,6 +155,15 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
         sortPairs(pairs);
 
         return pairs;
+    }
+
+    @Override
+    public Response actionInvoked(Request request, Response response) {
+        Pair<?>[] pairs = getPairs();
+        for (int i = 0; i < pairs.length; i++) {
+            response = pairs[i].actionInvoked(request, response);
+        }
+        return response;
     }
 
     @Override
@@ -234,10 +242,12 @@ public class PluginInterceptor extends AbstractYmirProcessInterceptor {
                     annotation_);
         }
 
-        public Action actionInvoking(Request request, Action originalAction,
-                Action action) {
-            return plugin_.actionInvoking(request, originalAction, action,
-                    annotation_);
+        public Action actionInvoking(Request request, Action action) {
+            return plugin_.actionInvoking(request, action, annotation_);
+        }
+
+        public Response actionInvoked(Request request, Response response) {
+            return plugin_.actionInvoked(request, response, annotation_);
         }
 
         public Response responseCreated(Request request, Response response) {

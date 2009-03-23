@@ -17,6 +17,10 @@ public class DispatchWrapper implements Dispatch {
         return dispatch_.getAbsolutePath();
     }
 
+    public Action getOriginalAction() {
+        return dispatch_.getOriginalAction();
+    }
+
     public Action getAction() {
         return dispatch_.getAction();
     }

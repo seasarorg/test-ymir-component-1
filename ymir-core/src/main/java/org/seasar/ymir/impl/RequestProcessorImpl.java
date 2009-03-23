@@ -231,13 +231,13 @@ public class RequestProcessorImpl implements RequestProcessor {
                         final Action originalAction = dispatch
                                 .getMatchedPathMapping().getAction(
                                         pageComponent, request);
+                        dispatch.setOriginalAction(originalAction);
                         dispatch.setAction(originalAction);
 
                         Action action = originalAction;
                         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
                             action = ymirProcessInterceptors_[i]
-                                    .actionInvoking(request, originalAction,
-                                            action);
+                                    .actionInvoking(request, action);
                             dispatch.setAction(action);
                         }
                         page = (action != null ? action.getTarget() : null);
@@ -260,6 +260,11 @@ public class RequestProcessorImpl implements RequestProcessor {
                         }
 
                         response = actionManager_.invokeAction(action);
+
+                        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                            response = ymirProcessInterceptors_[i]
+                                    .actionInvoked(request, response);
+                        }
 
                         r = pageComponent
                                 .accept(visitorForInvokingInPhaseActionInvoked_);

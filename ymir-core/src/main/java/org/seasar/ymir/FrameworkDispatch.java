@@ -21,12 +21,25 @@ public interface FrameworkDispatch extends Dispatch {
     void setPageComponent(PageComponent pageComponent);
 
     /**
+     * リクエストされたパスに対応するアクションを設定します。
+     * <p>このメソッドは実際にアクションが作成された時点でアクションを
+     * Dispatchオブジェクトにセットするために用いられます。
+     * </p>
+     * 
+     * @param originalAction リクエストされたパスに対応するアクション。
+     * @see Dispatch#getOriginalAction()
+     * @since 1.0.3
+     */
+    void setOriginalAction(Action originalAction);
+
+    /**
      * アクションを設定します。
      * <p>このメソッドは実際に呼び出されるアクションが決定した段階でアクションを
-     * Requestオブジェクトにセットするために用いられます。
+     * Dispatchオブジェクトにセットするために用いられます。
      * </p>
      * 
      * @param action アクション。
+     * @see Dispatch#getAction()
      */
     void setAction(Action action);
 }

@@ -8,6 +8,7 @@ import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Path;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
 import org.seasar.ymir.conversation.ConversationManager;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.history.Conversation;
@@ -33,15 +34,15 @@ public class HistoryInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public Action actionInvoking(Request request, Action originalAction,
-            Action action) {
-        // TODO 記録するのはActionが終わった時点にしたいのと、
-        // Actionの判定で、単に処理を追加したくてラップしたものも対象にしないといけない。
-        if (action == originalAction && shouldRecordHistory(request)) {
-            // アクションがオリジナルのままである＝正常に処理が実行される場合だけ記録するようにする。
-            recordHistory(request, action);
-        }
-        return action;
+    public Response actionInvoked(Request request, Response response) {
+        //        // TODO 記録するのはActionが終わった時点にしたいのと、
+        //        // Actionの判定で、単に処理を追加したくてラップしたものも対象にしないといけない。
+        //        if (action == originalAction && shouldRecordHistory(request)) {
+        //            // アクションがオリジナルのままである＝正常に処理が実行される場合だけ記録するようにする。
+        //            recordHistory(request, action);
+        //        }
+        //        return action;
+        return response;
     }
 
     protected boolean shouldRecordHistory(Request request) {

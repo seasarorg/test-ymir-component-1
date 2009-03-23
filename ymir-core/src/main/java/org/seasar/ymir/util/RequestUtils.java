@@ -1,5 +1,7 @@
 package org.seasar.ymir.util;
 
+import org.seasar.ymir.Action;
+import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;

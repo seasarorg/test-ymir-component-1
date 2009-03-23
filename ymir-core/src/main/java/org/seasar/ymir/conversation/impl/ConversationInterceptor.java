@@ -50,8 +50,7 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public Action actionInvoking(Request request, Action originalAction,
-            Action action) {
+    public Action actionInvoking(Request request, Action action) {
         Conversation annotation = annotationHandler_.getAnnotation(request
                 .getCurrentDispatch().getPageComponent().getPageClass(),
                 Conversation.class);

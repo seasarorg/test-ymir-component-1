@@ -52,14 +52,27 @@ public interface Plugin<A extends Annotation> {
      * </p>
      * 
      * @param request 現在のRequestオブジェクト。
-     * @param originalAction フレームワークが構築した元もとのActionオブジェクト。
      * @param action 現在のActionオブジェクト。他のYmirProcessInterceptorによって、
      * 元もとのActionではないものに差し替えられていることがあります。
+     * nullであることもあります。
      * @param annotation プラグイン実行のトリガとなったアノテーション。
-     * @return Actionオブジェクト。
+     * @return Actionオブジェクト。nullを返すこともできます。
      */
-    Action actionInvoking(Request request, Action originalAction,
-            Action action, A annotation);
+    Action actionInvoking(Request request, Action action, A annotation);
+
+    /**
+     * 現在のリクエストに対応するアクションが実行された直後に、
+     * Responseオブジェクトを加工できるように呼び出されるメソッドです。
+     * <p>Responseオブジェクトを加工しない場合は引数で渡されたResponseオブジェクトをそのまま返すようにして下さい。
+     * </p>
+     * 
+     * @param request 現在のRequestオブジェクト。
+     * @param response フレームワークによって構築されたResponseオブジェクト。
+     * @param annotation プラグイン実行のトリガとなったアノテーション。
+     * @return Responseオブジェクト。nullを返してはいけません。
+     * @since 1.0.3
+     */
+    Response actionInvoked(Request request, Response response, A annotation);
 
     /**
      * フレームワークがResponseオブジェクトを構築した際に、

@@ -254,13 +254,10 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                     + handler);
         }
 
-        final Action originalAction = newAction(handler, handlerClass,
-                actionMethod, target);
-        Action action = originalAction;
+        Action action = newAction(handler, handlerClass, actionMethod, target);
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             action = ymirProcessInterceptors_[i]
-                    .exceptionHandlerActionInvoking(request, originalAction,
-                            action, global);
+                    .exceptionHandlerActionInvoking(request, action, global);
         }
 
         return actionManager_.invokeAction(action);

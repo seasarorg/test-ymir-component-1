@@ -24,6 +24,10 @@ class FrameworkDispatchImpl implements FrameworkDispatch {
         return dispatch_.getAbsolutePath();
     }
 
+    public Action getOriginalAction() {
+        return dispatch_.getOriginalAction();
+    }
+
     public Action getAction() {
         return dispatch_.getAction();
     }
@@ -70,6 +74,10 @@ class FrameworkDispatchImpl implements FrameworkDispatch {
 
     public boolean isMatched() {
         return dispatch_.isMatched();
+    }
+
+    public void setOriginalAction(Action originalAction) {
+        original_.setOriginalAction(originalAction);
     }
 
     public void setAction(Action action) {

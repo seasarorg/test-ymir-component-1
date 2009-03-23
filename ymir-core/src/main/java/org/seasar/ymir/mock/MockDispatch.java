@@ -27,6 +27,8 @@ public class MockDispatch implements Dispatch {
 
     private PageComponent pageComponent_;
 
+    private Action originalAction_;
+
     private Action action_;
 
     public MockDispatch() {
@@ -119,6 +121,10 @@ public class MockDispatch implements Dispatch {
         return (matched_ != null && matched_.isDenied());
     }
 
+    public Action getOriginalAction() {
+        return originalAction_;
+    }
+
     public Action getAction() {
         return action_;
     }
@@ -129,6 +135,10 @@ public class MockDispatch implements Dispatch {
         } else {
             return null;
         }
+    }
+
+    public void setOriginalAction(Action originalAction) {
+        originalAction_ = originalAction;
     }
 
     public void setAction(Action action) {

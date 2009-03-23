@@ -22,6 +22,8 @@ public class DispatchImpl implements FrameworkDispatch {
 
     private PageComponent pageComponent_;
 
+    private Action originalAction_;
+
     private Action action_;
 
     public DispatchImpl() {
@@ -44,6 +46,10 @@ public class DispatchImpl implements FrameworkDispatch {
         dispatcher_ = dispatcher;
     }
 
+    public Action getOriginalAction() {
+        return originalAction_;
+    }
+
     public Action getAction() {
         return action_;
     }
@@ -54,6 +60,10 @@ public class DispatchImpl implements FrameworkDispatch {
         } else {
             return null;
         }
+    }
+
+    public void setOriginalAction(Action originalAction) {
+        originalAction_ = originalAction;
     }
 
     public void setAction(Action action) {

@@ -2,6 +2,8 @@ package org.seasar.ymir;
 
 import java.util.Map;
 
+import org.seasar.ymir.interceptor.YmirProcessInterceptor;
+
 /**
  * サーブレットの処理フェーズを表すインタフェースです。
  * <p>Dispatchは1回のHTTPリクエスト中で1回以上行なわれるサーブレットの処理フェーズです。
@@ -62,10 +64,30 @@ public interface Dispatch {
     PageComponent getPageComponent();
 
     /**
-     * リクエストを処理するアクションを返します。
+     * リクエストを処理する元々のアクションを返します。
+     * <p>このメソッドが返すアクションは、
+     * リクエストされたパスに対応するアクションです。
+     * 実際に実行されるアクションは{@link YmirProcessInterceptor}等によって
+     * 変更されることがあるため、このメソッドが返すアクションが
+     * 実際に実行されるアクションと一致するとは限りません。
+     * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
+     * 
+     * @return リクエストを処理する元々のアクション。
+     * @see #getAction()
+     * @since 1.0.3
+     */
+    Action getOriginalAction();
+
+    /**
+     * リクエストを処理する最終的なアクションを返します。
+     * <p>このメソッドが返すアクションは、
+     * {@link YmirProcessInterceptor}等によって
+     * 変更された後の最終的なアクションです。
+     * </p>
      * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
      *
-     * @return アクション。
+     * @return リクエストを処理する最終的なアクション。
+     * @see #getOriginalAction()
      */
     Action getAction();
 

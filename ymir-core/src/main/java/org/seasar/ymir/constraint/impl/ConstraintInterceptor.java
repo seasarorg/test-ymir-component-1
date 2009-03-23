@@ -107,8 +107,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public Action actionInvoking(Request request, Action originalAction,
-            Action action) {
+    public Action actionInvoking(Request request, Action action) {
         PageComponent pageComponent = request.getCurrentDispatch()
                 .getPageComponent();
 

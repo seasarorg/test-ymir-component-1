@@ -39,9 +39,12 @@ abstract public class AbstractYmirProcessInterceptor implements
         return pageComponent;
     }
 
-    public Action actionInvoking(Request request, Action originalAction,
-            Action action) {
+    public Action actionInvoking(Request request, Action action) {
         return action;
+    }
+
+    public Response actionInvoked(Request request, Response response) {
+        return response;
     }
 
     public Response responseCreated(Request request, Response response) {
@@ -67,7 +70,7 @@ abstract public class AbstractYmirProcessInterceptor implements
     }
 
     public Action exceptionHandlerActionInvoking(Request request,
-            Action originalAction, Action action, boolean global) {
+            Action action, boolean global) {
         return action;
     }
 

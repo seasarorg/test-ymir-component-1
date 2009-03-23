@@ -127,7 +127,7 @@ public class AmfInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public Action actionInvoking(Request request, Action originalAction, Action action) {
+    public Action actionInvoking(Request request, Action action) {
         if (!isEnabled()) {
             return action;
         }

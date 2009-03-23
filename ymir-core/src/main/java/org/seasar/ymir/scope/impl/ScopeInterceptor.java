@@ -60,8 +60,7 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     @Override
-    public Action actionInvoking(Request request, Action originalAction,
-            Action action) {
+    public Action actionInvoking(Request request, Action action) {
         Dispatch dispatch = request.getCurrentDispatch();
         PageComponent pageComponent = dispatch.getPageComponent();
         String actionName = dispatch.getActionName();
@@ -90,7 +89,7 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
 
     @Override
     public Action exceptionHandlerActionInvoking(Request request,
-            Action originalAction, Action action, boolean global) {
+            Action action, boolean global) {
         // グローバルハンドラの場合は各コンテキストが持つ属性をinjectする。
         if (global) {
             Object handler = action.getTarget();
