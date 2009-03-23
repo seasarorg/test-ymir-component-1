@@ -8,6 +8,10 @@ public class HistoryITest1Page {
         return "forward:/historyITest2.html";
     }
 
+    public String _get_redirect() {
+        return "redirect:/historyITest2.html";
+    }
+
     public String _get_proceed() {
         return "proceed:/historyITest2.html";
     }

@@ -1,6 +1,5 @@
 package org.seasar.ymir.history.impl;
 
-import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.history.History;
 import org.seasar.ymir.history.HistoryManager;
 import org.seasar.ymir.testing.RequestInitializer;
@@ -30,35 +29,22 @@ public class HistoryITest extends YmirTestCase {
                 .popElement().getPath().getTrunk());
     }
 
-    public void test_GETだけが記録されること() throws Exception {
+    public void test_PRGの場合にPなリクエストは記録されないこと1() throws Exception {
         final HistoryManager historyManager = getComponent(HistoryManager.class);
 
         process(HistoryITest1Page.class, new RequestInitializer() {
             public void initialize() {
                 historyManager.startRecording();
             }
-        });
-        assertEquals("/historyITest1.html", historyManager.getHistory()
-                .peekElement().getPath().getTrunk());
+        }, "redirect");
+        process(HistoryITest2Page.class);
 
-        process(HistoryITest2Page.class, HttpMethod.POST);
-        assertEquals("/historyITest1.html", historyManager.getHistory()
+        assertEquals("/historyITest2.html", historyManager.getHistory()
                 .popElement().getPath().getTrunk());
+        assertTrue(historyManager.getHistory().isEmpty());
     }
 
-    public void test_forwardは記録されないこと() throws Exception {
-        final HistoryManager historyManager = getComponent(HistoryManager.class);
-
-        process(HistoryITest1Page.class, new RequestInitializer() {
-            public void initialize() {
-                historyManager.startRecording();
-            }
-        }, "forward");
-        assertEquals("/historyITest1.html", historyManager.getHistory()
-                .popElement().getPath().getTrunk());
-    }
-
-    public void test_proceedは記録されること() throws Exception {
+    public void test_PRGの場合にPなリクエストは記録されないこと2() throws Exception {
         final HistoryManager historyManager = getComponent(HistoryManager.class);
 
         process(HistoryITest1Page.class, new RequestInitializer() {
@@ -66,10 +52,25 @@ public class HistoryITest extends YmirTestCase {
                 historyManager.startRecording();
             }
         }, "proceed");
+
+        assertEquals("/historyITest2.html", historyManager.getHistory()
+                .popElement().getPath().getTrunk());
+        assertTrue(historyManager.getHistory().isEmpty());
+    }
+
+    public void test_forwardなリクエストは記録されること() throws Exception {
+        final HistoryManager historyManager = getComponent(HistoryManager.class);
+
+        process(HistoryITest1Page.class, new RequestInitializer() {
+            public void initialize() {
+                historyManager.startRecording();
+            }
+        }, "forward");
+
         assertEquals("/historyITest2.html", historyManager.getHistory()
                 .popElement().getPath().getTrunk());
         assertEquals("/historyITest1.html", historyManager.getHistory()
-                .popElement().getPath().getTrunk());
+                .peekElement().getPath().getTrunk());
     }
 
     public void test_startRecordingしていない場合はhistoryは記録されないこと() throws Exception {
