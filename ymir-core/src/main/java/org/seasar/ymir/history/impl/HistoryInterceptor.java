@@ -9,6 +9,7 @@ import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Path;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.conversation.ConversationManager;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.history.Conversation;
@@ -16,6 +17,7 @@ import org.seasar.ymir.history.HistoryElement;
 import org.seasar.ymir.history.HistoryManager;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.util.RequestUtils;
+import org.seasar.ymir.util.ResponseUtils;
 import org.seasar.ymir.window.WindowManager;
 
 public class HistoryInterceptor extends AbstractYmirProcessInterceptor {
@@ -35,40 +37,36 @@ public class HistoryInterceptor extends AbstractYmirProcessInterceptor {
 
     @Override
     public Response actionInvoked(Request request, Response response) {
-        //        // TODO 記録するのはActionが終わった時点にしたいのと、
-        //        // Actionの判定で、単に処理を追加したくてラップしたものも対象にしないといけない。
-        //        if (action == originalAction && shouldRecordHistory(request)) {
-        //            // アクションがオリジナルのままである＝正常に処理が実行される場合だけ記録するようにする。
-        //            recordHistory(request, action);
-        //        }
-        //        return action;
+        if (shouldRecordHistory(request, response)) {
+            // アクションがオリジナルのままである＝正常に処理が実行される場合だけ記録するようにする。
+            recordHistory(request);
+        }
         return response;
     }
 
-    protected boolean shouldRecordHistory(Request request) {
-        if (request.getCurrentDispatch().getDispatcher() != Dispatcher.REQUEST
-                && !RequestUtils.isProceeded(request)) {
-            // 直接アクセスの場合かproceedされた場合だけを記録するようにする。
-            return false;
-        }
-
+    protected boolean shouldRecordHistory(Request request, Response response) {
         if (!historyManager_.isRecording()) {
             return false;
         }
 
-        return shouldRecordHistoryWhenHttpMethodIs(request.getMethod());
+        if (!RequestUtils.isOriginalActionInvoked(request)) {
+            return false;
+        }
+
+        if (ResponseUtils.isRedirect(response)) {
+            // レスポンスがリダイレクト系の場合はこの画面へのアクセスは単なる入り口でしかないと考えた方が都合が良いので
+            // ヒストリを記録しない。
+            return false;
+        }
+
+        return true;
     }
 
-    protected boolean shouldRecordHistoryWhenHttpMethodIs(HttpMethod method) {
-        return method == HttpMethod.GET;
+    protected void recordHistory(Request request) {
+        historyManager_.getHistory().pushElement(newHistoryElement(request));
     }
 
-    protected void recordHistory(Request request, Action action) {
-        historyManager_.getHistory().pushElement(
-                newHistoryElement(request, action));
-    }
-
-    protected HistoryElement newHistoryElement(Request request, Action action) {
+    protected HistoryElement newHistoryElement(Request request) {
         HistoryElementImpl element = new HistoryElementImpl();
         Dispatch dispatch = request.getCurrentDispatch();
         element
