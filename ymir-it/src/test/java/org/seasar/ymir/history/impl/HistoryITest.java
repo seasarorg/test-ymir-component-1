@@ -1,5 +1,7 @@
 package org.seasar.ymir.history.impl;
 
+import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.history.Globals;
 import org.seasar.ymir.history.History;
 import org.seasar.ymir.history.HistoryManager;
 import org.seasar.ymir.testing.RequestInitializer;
@@ -78,6 +80,27 @@ public class HistoryITest extends YmirTestCase {
 
         process(HistoryITest1Page.class);
         assertNull(historyManager.getHistory().popElement());
+    }
+
+    public void test_自動記録モードではstartRecordingしていなくてもセッションが張られればhistoryが記録されること()
+            throws Exception {
+        HistoryManager historyManager = getComponent(HistoryManager.class);
+
+        getComponent(ApplicationManager.class).findContextApplication()
+                .setProperty(Globals.APPKEY_CORE_HISTORY_AUTORECORDING, "true");
+
+        process(HistoryITest1Page.class);
+
+        assertTrue(historyManager.getHistory().isEmpty());
+
+        process(HistoryITest1Page.class, new RequestInitializer() {
+            public void initialize() {
+                getHttpSession(true);
+            }
+        });
+
+        assertEquals("/historyITest1.html", historyManager.getHistory()
+                .peekElement().getPath().getTrunk());
     }
 
     public void test_equalsXXXTo() throws Exception {
