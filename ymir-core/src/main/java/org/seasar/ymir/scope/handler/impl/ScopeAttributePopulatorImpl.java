@@ -70,7 +70,7 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
                 continue;
             }
 
-            entry.injectTo(component, name);
+            entry.populateTo(component, name);
         }
     }
 
@@ -122,7 +122,7 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
             passive_ = passive;
         }
 
-        public void injectTo(Object component, String name) {
+        public void populateTo(Object component, String name) {
             PropertyHandler handler = null;
             if (passive_) {
                 handler = typeConversionManager_.getPropertyHandler(component,
