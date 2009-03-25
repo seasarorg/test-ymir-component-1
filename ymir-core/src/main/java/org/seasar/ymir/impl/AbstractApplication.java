@@ -1,6 +1,7 @@
 package org.seasar.ymir.impl;
 
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
+import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.PathMappingProvider;
 import org.seasar.ymir.util.FileUtils;
@@ -46,12 +47,27 @@ abstract public class AbstractApplication implements Application {
         setProperty(KEY_PROJECTROOT, projectRoot);
     }
 
+    @Deprecated
     public String getRootPackageName() {
         return getProperty(KEY_ROOTPACKAGENAME);
     }
 
+    @Deprecated
     public void setRootPackageName(String rootPackageName) {
         setProperty(KEY_ROOTPACKAGENAME, rootPackageName);
+    }
+
+    public String[] getRootPackageNames() {
+        return PropertyUtils.toLines(getProperty(KEY_ROOTPACKAGENAME));
+    }
+
+    public String getFirstRootPackageName() {
+        String[] rootPackageNames = getRootPackageNames();
+        if (rootPackageNames.length > 0) {
+            return rootPackageNames[0];
+        } else {
+            return null;
+        }
     }
 
     public String getResourcesDirectory() {

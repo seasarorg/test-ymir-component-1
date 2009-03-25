@@ -141,8 +141,8 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
 
             if (value != null || invokeWhereNull_) {
                 if (log_.isDebugEnabled()) {
-                    log_.debug(ClassUtils.getShorterName(scope_) + " -> "
-                            + ClassUtils.getShorterName(component)
+                    log_.debug(ClassUtils.getPrettyName(scope_) + " -> "
+                            + ClassUtils.getPrettyName(component)
                             + ": property=" + name + ", value=" + value);
                 }
                 boolean removeValue = false;

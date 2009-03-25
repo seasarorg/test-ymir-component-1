@@ -355,7 +355,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
             if (actionMethod != null) {
                 if (log_.isDebugEnabled()) {
                     log_.debug("Exception handler "
-                            + ClassUtils.getShorterName(actionMethod
+                            + ClassUtils.getPrettyName(actionMethod
                                     .getDeclaringClass()) + "#"
                             + actionMethod.getName()
                             + "() is handling the exception");

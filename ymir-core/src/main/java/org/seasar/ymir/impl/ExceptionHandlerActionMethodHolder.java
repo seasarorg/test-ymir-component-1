@@ -65,7 +65,7 @@ class ExceptionHandlerActionMethodHolder implements
                                         + exceptionClass
                                         + " found in a handler class '"
                                         + ClassUtils
-                                                .getShorterName(handlerClass)
+                                                .getPrettyName(handlerClass)
                                         + "'");
                     }
 

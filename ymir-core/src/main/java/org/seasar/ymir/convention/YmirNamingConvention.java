@@ -57,7 +57,9 @@ public class YmirNamingConvention extends PluggableNamingConventionImpl {
 
     @Override
     public void addRootPackageName(String rootPackageName) {
-        super.addRootPackageName(rootPackageName);
+        for (String name : PropertyUtils.toLines(rootPackageName)) {
+            super.addRootPackageName(name);
+        }
         adjustTargetPackageNames();
     }
 
@@ -150,12 +152,12 @@ public class YmirNamingConvention extends PluggableNamingConventionImpl {
                     "Must be set rootPackageName before adding ignorePackageName");
         }
 
-        for (int i = 0; i < ignorePackageNames.length; i++) {
+        for (String name : ignorePackageNames) {
             String absoluteName;
-            if (ignorePackageNames[i].startsWith(".")) {
-                absoluteName = rootPackageNames[0] + ignorePackageNames[i];
+            if (name.startsWith(".")) {
+                absoluteName = rootPackageNames[0] + name;
             } else {
-                absoluteName = ignorePackageNames[i];
+                absoluteName = name;
             }
             super.addIgnorePackageName(absoluteName);
         }

@@ -58,7 +58,20 @@ public class MockApplication implements Application {
         return null;
     }
 
+    @Deprecated
     public String getRootPackageName() {
+        return null;
+    }
+
+    @Deprecated
+    public void setRootPackageName(String rootPackageName) {
+    }
+
+    public String[] getRootPackageNames() {
+        return new String[0];
+    }
+
+    public String getFirstRootPackageName() {
         return null;
     }
 
@@ -111,9 +124,7 @@ public class MockApplication implements Application {
     public void setResourcesDirectory(String resourcesDirectory) {
     }
 
-    public void setRootPackageName(String rootPackageName) {
-    }
-
+    @Deprecated
     public void setSourceDirectory(String sourceDirectory) {
     }
 

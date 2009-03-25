@@ -73,6 +73,8 @@ public interface Application {
      * アプリケーションのルートパッケージ名を返します。
      * 
      * @return アプリケーションのルートパッケージ名。
+     * @deprecated 代わりに{@link #getProperty(String)}または{@link #getRootPackageNames()}ま
+     * たは{@link #getFirstRootPackageName()}を使って下さい。
      */
     String getRootPackageName();
 
@@ -80,8 +82,23 @@ public interface Application {
      * アプリケーションのルートパッケージ名を設定します。
      * 
      * @param rootPackageName アプリケーションのルートパッケージ名。
+     * @deprecated 代わりに{@link #setProperty(String, String)}を使って下さい。
      */
     void setRootPackageName(String rootPackageName);
+
+    /**
+     * アプリケーションのルートパッケージ名を返します。
+     * 
+     * @return アプリケーションのルートパッケージ名。nullを返すことはありません。
+     */
+    String[] getRootPackageNames();
+
+    /**
+     * アプリケーションの主となるルートパッケージ名を返します。
+     * 
+     * @return アプリケーションの主となるルートパッケージ名。
+     */
+    String getFirstRootPackageName();
 
     /**
      * アプリケーション開発プロジェクトのソース格納ディレクトリのパス文字列を返します。

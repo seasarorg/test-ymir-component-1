@@ -52,8 +52,8 @@ public class ScopeAttributeInjectorImpl extends AbstractScopeAttributeHandler
 
         if (value != null || invokeWhereNull_) {
             if (log_.isDebugEnabled()) {
-                log_.debug(ClassUtils.getShorterName(scope_) + " -> "
-                        + ClassUtils.getShorterName(component) + ": property="
+                log_.debug(ClassUtils.getPrettyName(scope_) + " -> "
+                        + ClassUtils.getPrettyName(component) + ": property="
                         + name_ + ", value=" + value);
             }
             boolean removeValue = false;

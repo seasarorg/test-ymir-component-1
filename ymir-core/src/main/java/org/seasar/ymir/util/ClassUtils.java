@@ -223,28 +223,18 @@ public class ClassUtils {
             return null;
         }
 
-        String shorterName = null;
-        for (String rootPackageName : getRootPackageNames()) {
-            if (className.startsWith(rootPackageName + ".")) {
-                shorterName = DASH
-                        + className
-                                .substring(rootPackageName.length() + 1/*= ".".length() */);
-                break;
-            }
-        }
-        if (shorterName == null) {
-            int dot = className.lastIndexOf('.');
-            if (dot >= 0) {
-                shorterName = className.substring(dot + 1);
-            } else {
-                shorterName = className;
-            }
+        String shorterName;
+        int dot = className.lastIndexOf('.');
+        if (dot >= 0) {
+            shorterName = className.substring(dot + 1);
+        } else {
+            shorterName = className;
         }
 
         for (int i = 0; i < shorterName.length(); i++) {
             char ch = shorterName.charAt(i);
             if (!(ch >= '0' && ch <= '9' || ch >= 'a' && ch <= 'z' || ch >= 'A'
-                    && ch <= 'Z' || ch == '_' || ch == '.')) {
+                    && ch <= 'Z' || ch == '_')) {
                 return shorterName.substring(0, i);
             }
         }
@@ -266,5 +256,62 @@ public class ClassUtils {
             return EMPTY_STRINGS;
         }
         return namingConvention.getRootPackageNames();
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static String getPrettyName(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        return getPrettyName(obj.getClass());
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static String getPrettyName(Class<?> clazz) {
+        if (clazz == null) {
+            return null;
+        }
+        return getPrettyName(clazz.getName());
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static String getPrettyName(String className) {
+        if (className == null) {
+            return null;
+        }
+
+        String prettyName = null;
+        for (String rootPackageName : getRootPackageNames()) {
+            if (className.startsWith(rootPackageName + ".")) {
+                prettyName = DASH
+                        + className
+                                .substring(rootPackageName.length() + 1/*= ".".length() */);
+                break;
+            }
+        }
+        if (prettyName == null) {
+            int dot = className.lastIndexOf('.');
+            if (dot >= 0) {
+                prettyName = className.substring(dot + 1);
+            } else {
+                prettyName = className;
+            }
+        }
+
+        for (int i = 0; i < prettyName.length(); i++) {
+            char ch = prettyName.charAt(i);
+            if (!(ch >= '0' && ch <= '9' || ch >= 'a' && ch <= 'z' || ch >= 'A'
+                    && ch <= 'Z' || ch == '_' || ch == '.')) {
+                return prettyName.substring(0, i);
+            }
+        }
+
+        return prettyName;
     }
 }

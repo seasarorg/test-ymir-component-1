@@ -37,8 +37,8 @@ public class ScopeAttributeOutjectorImpl extends AbstractScopeAttributeHandler
         }
         if (value != null || invokeWhereNull_) {
             if (log_.isDebugEnabled()) {
-                log_.debug(ClassUtils.getShorterName(component) + " -> "
-                        + ClassUtils.getShorterName(scope_) + ": property="
+                log_.debug(ClassUtils.getPrettyName(component) + " -> "
+                        + ClassUtils.getPrettyName(scope_) + ": property="
                         + name_ + ", value=" + value);
             }
             scope_.setAttribute(name_, value);

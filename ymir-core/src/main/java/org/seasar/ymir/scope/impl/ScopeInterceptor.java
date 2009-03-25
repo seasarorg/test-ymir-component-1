@@ -128,14 +128,16 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
             // 各コンテキストが持つ属性をinjectする。
             if (log_.isDebugEnabled()) {
                 log_.debug("Injection to "
-                        + ClassUtils.getShorterName(pageComponent
-                                .getPageClass()) + " start");
+                        + ClassUtils
+                                .getPrettyName(pageComponent.getPageClass())
+                        + " start");
             }
             scopeManager_.injectScopeAttributes(pageComponent, actionName_);
             if (log_.isDebugEnabled()) {
                 log_.debug("Injection to "
-                        + ClassUtils.getShorterName(pageComponent
-                                .getPageClass()) + " end");
+                        + ClassUtils
+                                .getPrettyName(pageComponent.getPageClass())
+                        + " end");
             }
 
             return null;
@@ -153,14 +155,16 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
             // 各コンテキストが持つ属性をpopulateする。
             if (log_.isDebugEnabled()) {
                 log_.debug("Population to "
-                        + ClassUtils.getShorterName(pageComponent
-                                .getPageClass()) + " start");
+                        + ClassUtils
+                                .getPrettyName(pageComponent.getPageClass())
+                        + " start");
             }
             scopeManager_.populateScopeAttributes(pageComponent, actionName_);
             if (log_.isDebugEnabled()) {
                 log_.debug("Population to "
-                        + ClassUtils.getShorterName(pageComponent
-                                .getPageClass()) + " end");
+                        + ClassUtils
+                                .getPrettyName(pageComponent.getPageClass())
+                        + " end");
             }
 
             return null;
@@ -178,14 +182,16 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
             // 各コンテキストに属性をoutjectする。
             if (log_.isDebugEnabled()) {
                 log_.debug("Outjection from "
-                        + ClassUtils.getShorterName(pageComponent
-                                .getPageClass()) + " start");
+                        + ClassUtils
+                                .getPrettyName(pageComponent.getPageClass())
+                        + " start");
             }
             scopeManager_.outjectScopeAttributes(pageComponent, actionName_);
             if (log_.isDebugEnabled()) {
                 log_.debug("Outjection from "
-                        + ClassUtils.getShorterName(pageComponent
-                                .getPageClass()) + " end");
+                        + ClassUtils
+                                .getPrettyName(pageComponent.getPageClass())
+                        + " end");
             }
 
             return null;

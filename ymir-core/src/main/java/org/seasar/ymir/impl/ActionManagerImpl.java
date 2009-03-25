@@ -69,7 +69,7 @@ public class ActionManagerImpl implements ActionManager {
         if (action != null && action.shouldInvoke()) {
             if (log_.isDebugEnabled()) {
                 log_.debug("INVOKE: "
-                        + ClassUtils.getShorterName(action.getTarget()) + "#"
+                        + ClassUtils.getPrettyName(action.getTarget()) + "#"
                         + action.getMethodInvoker());
             }
             response = constructResponse(action.getTarget(), action
