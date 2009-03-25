@@ -730,4 +730,8 @@ abstract public class YmirTestCase extends TestCase {
     public Response getResponse() {
         return (Response) httpRequest_.getAttribute(ATTR_RESPONSE);
     }
+
+    protected <P> P getPage(Class<? extends P> pageClass) {
+        return getComponent(pageClass);
+    }
 }
