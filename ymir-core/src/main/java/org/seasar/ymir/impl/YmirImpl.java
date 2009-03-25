@@ -473,7 +473,7 @@ public class YmirImpl implements Ymir {
      * @return 処理結果のResponseオブジェクト。
      */
     protected Response processException(final Request request, final Throwable t) {
-        Response response = exceptionProcessor_.process(request, t);
+        Response response = exceptionProcessor_.process(request, t, false);
 
         request.setAttribute(ATTR_RESPONSE, response);
 

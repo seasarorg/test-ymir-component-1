@@ -113,7 +113,8 @@ public class ExceptionProcessorImplTest extends TestCase {
 
         MockRequest request = new MockRequest();
         request.enterDispatch(new MockDispatch());
-        Response actual = target.process(request, new NullPointerException());
+        Response actual = target.process(request, new NullPointerException(),
+                false);
 
         assertNotNull(actual);
         assertTrue(actual instanceof RedirectResponse);
@@ -129,7 +130,8 @@ public class ExceptionProcessorImplTest extends TestCase {
 
         MockRequest request = new MockRequest();
         request.enterDispatch(new MockDispatch());
-        Response actual = target.process(request, new NullPointerException());
+        Response actual = target.process(request, new NullPointerException(),
+                false);
 
         assertNotNull(actual);
         assertTrue(actual instanceof RedirectResponse);
@@ -145,7 +147,8 @@ public class ExceptionProcessorImplTest extends TestCase {
 
         MockRequest request = new MockRequest();
         request.enterDispatch(new MockDispatch());
-        Response actual = target.process(request, new NullPointerException());
+        Response actual = target.process(request, new NullPointerException(),
+                false);
 
         assertNotNull(actual);
         assertTrue(actual instanceof ForwardResponse);
@@ -164,7 +167,8 @@ public class ExceptionProcessorImplTest extends TestCase {
                 Page1.class));
         request.enterDispatch(dispatch);
 
-        Response actual = target.process(request, new NullPointerException());
+        Response actual = target.process(request, new NullPointerException(),
+                true);
 
         assertNotNull(actual);
         assertTrue(actual instanceof RedirectResponse);
@@ -183,18 +187,27 @@ public class ExceptionProcessorImplTest extends TestCase {
                 Page2.class));
         request.enterDispatch(dispatch);
 
-        Response actual = target.process(request, new NullPointerException());
+        Response actual = target.process(request, new NullPointerException(),
+                true);
 
         assertNotNull(actual);
         assertTrue(actual instanceof RedirectResponse);
         assertEquals("より合致するハンドラが呼び出されること", "page2NPE",
                 ((RedirectResponse) actual).getPath());
 
-        actual = target.process(request, new IllegalArgumentException());
+        actual = target.process(request, new IllegalArgumentException(), true);
 
         assertNotNull(actual);
         assertTrue("スーパークラスのハンドラが呼び出されること",
                 actual instanceof PassthroughResponse);
+
+        dispatch.setAction(new ActionImpl(null, new MethodInvokerImpl(
+                Page2.class.getMethod("_get"))));
+        actual = target.process(request, new NullPointerException(), true);
+
+        assertNotNull(actual);
+        assertEquals("actionが指定されているハンドラが呼び出されること", "page2NPE_get",
+                ((RedirectResponse) actual).getPath());
     }
 
     public void testProcess_Page内ハンドラ_passthroughは変換されないこと() throws Exception {
@@ -208,7 +221,7 @@ public class ExceptionProcessorImplTest extends TestCase {
         request.enterDispatch(dispatch);
 
         Response actual = target.process(request,
-                new IllegalArgumentException());
+                new IllegalArgumentException(), true);
 
         assertNotNull(actual);
         assertTrue(actual instanceof PassthroughResponse);
@@ -228,7 +241,7 @@ public class ExceptionProcessorImplTest extends TestCase {
         request.enterDispatch(dispatch);
 
         Response actual = target.process(request,
-                new IllegalArgumentException());
+                new IllegalArgumentException(), true);
 
         assertNotNull(actual);
         assertTrue(actual instanceof RedirectResponse);

@@ -273,7 +273,8 @@ public class RequestProcessorImpl implements RequestProcessor {
                             break;
                         }
                     } catch (Throwable t) {
-                        response = exceptionProcessor_.process(request, t);
+                        response = exceptionProcessor_
+                                .process(request, t, true);
                     }
                 } while (false);
 

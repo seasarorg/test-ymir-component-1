@@ -15,6 +15,7 @@ import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.Response;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.handler.annotation.ExceptionHandler;
@@ -37,7 +38,7 @@ public class ActionNotFoundRuntimeExceptionHandler {
     }
 
     @ExceptionHandler
-    public String handle(ActionNotFoundRuntimeException t) {
+    public Response handle(ActionNotFoundRuntimeException t) {
         httpResponse_.setHeader(HEADER_ALLOW, PropertyUtils
                 .join(getAllowedMethods()));
         try {

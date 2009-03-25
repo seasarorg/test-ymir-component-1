@@ -15,7 +15,6 @@ import org.seasar.ymir.response.PassthroughResponse;
 
 public class ValidationFailedExceptionHandler {
     @ExceptionHandler
-    public Response handle(ValidationFailedException t) {
-        return new PassthroughResponse();
+    public void handle(ValidationFailedException t) {
     }
 }

@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.io.IORuntimeException;
+import org.seasar.ymir.Response;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.handler.annotation.ExceptionHandler;
 
@@ -19,7 +20,7 @@ public class PermissionDeniedExceptionHandler {
     }
 
     @ExceptionHandler
-    public String handle(PermissionDeniedException t) {
+    public Response handle(PermissionDeniedException t) {
         try {
             httpResponse_.sendError(HttpServletResponse.SC_FORBIDDEN);
             return null;

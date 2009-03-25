@@ -1,8 +1,5 @@
 package org.seasar.ymir.impl;
 
-import static org.seasar.ymir.ExceptionProcessor.ATTR_HANDLER;
-import static org.seasar.ymir.ExceptionProcessor.ATTR_HANDLER_GLOBAL;
-
 import java.beans.Introspector;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -18,11 +15,9 @@ import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.ApplicationManager;
-import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
-import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.Request;
@@ -95,7 +90,8 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     }
 
     @SuppressWarnings( { "unchecked", "deprecation" })
-    public Response process(Request request, Throwable target) {
+    public Response process(Request request, Throwable target,
+            boolean useHandlerInPage) {
         if (log_.isDebugEnabled()) {
             log_.debug("Exception has occured", target);
         }
@@ -137,26 +133,28 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         boolean global = false;
         Response response = null;
 
-        PageComponent pageComponent = request.getCurrentDispatch()
-                .getPageComponent();
-        if (pageComponent != null) {
-            VisitorForProcessingExceptionHandler visitor = new VisitorForProcessingExceptionHandler(
-                    request, target);
-            try {
-                exceptionClass = target.getClass();
-                do {
-                    visitor.setExceptionClass(exceptionClass);
-                    response = pageComponent.accept(visitor);
-                    if (response != null) {
-                        handler = visitor.getHandler();
-                        break;
+        if (useHandlerInPage) {
+            PageComponent pageComponent = request.getCurrentDispatch()
+                    .getPageComponent();
+            if (pageComponent != null) {
+                VisitorForProcessingExceptionHandler visitor = new VisitorForProcessingExceptionHandler(
+                        request, target, request.getActionName());
+                try {
+                    exceptionClass = target.getClass();
+                    do {
+                        visitor.setExceptionClass(exceptionClass);
+                        response = pageComponent.accept(visitor);
+                        if (response != null) {
+                            handler = visitor.getHandler();
+                            break;
+                        }
+                    } while ((exceptionClass = exceptionClass.getSuperclass()) != Object.class);
+                } catch (Throwable t) {
+                    target = ThrowableUtils.unwrap(t);
+                    if (log_.isDebugEnabled()) {
+                        log_.debug("In-page exception"
+                                + " handler re-throwed exception", target);
                     }
-                } while ((exceptionClass = exceptionClass.getSuperclass()) != Object.class);
-            } catch (Throwable t) {
-                target = ThrowableUtils.unwrap(t);
-                if (log_.isDebugEnabled()) {
-                    log_.debug("In-page exception"
-                            + " handler re-throwed exception", target);
                 }
             }
         }
@@ -194,8 +192,8 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
 
             handler = handlerCd.getComponent();
             Class<?> handlerClass = handlerCd.getComponentClass();
-            Method actionMethod = findActionMethod(handlerClass,
-                    exceptionClass, true);
+            Method actionMethod = findActionMethod(handlerClass, true,
+                    exceptionClass, null, true);
             if (actionMethod == null) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("Exception handler class must have"
@@ -264,10 +262,11 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     }
 
     @SuppressWarnings("deprecation")
-    Method findActionMethod(Class<?> handlerClass, Class<?> exceptionClass,
-            boolean checkInterface) {
-        Method method = getActionMethodHolder(handlerClass).getMethod(
-                exceptionClass);
+    Method findActionMethod(Class<?> handlerClass, boolean global,
+            Class<?> exceptionClass, String actionName, boolean checkInterface) {
+        Method method = getActionMethodHolder(handlerClass, global).getMethod(
+                new ExceptionHandlerActionMethodCondition(exceptionClass,
+                        actionName));
         if (method == null && checkInterface
                 && isExceptionHandlerInterfaceEnabled()) {
             if (org.seasar.ymir.handler.ExceptionHandler.class
@@ -283,12 +282,12 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
     }
 
     ExceptionHandlerActionMethodHolder getActionMethodHolder(
-            Class<?> handlerClass) {
+            Class<?> handlerClass, boolean global) {
         ExceptionHandlerActionMethodHolder methodHolder = actionMethodHolderMap_
                 .get(handlerClass);
         if (methodHolder == null) {
             methodHolder = new ExceptionHandlerActionMethodHolder(handlerClass,
-                    annotationHandler_);
+                    global, annotationHandler_);
             actionMethodHolderMap_.put(handlerClass, methodHolder);
         }
         return methodHolder;
@@ -332,14 +331,17 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
 
         private Throwable target_;
 
+        private String actionName_;
+
         private Object handler_;
 
         private Class<?> handlerClass_;
 
         protected VisitorForProcessingExceptionHandler(Request request,
-                Throwable target) {
+                Throwable target, String actionName) {
             request_ = request;
             target_ = target;
+            actionName_ = actionName;
         }
 
         public void setExceptionClass(Class<?> exceptionClass) {
@@ -348,8 +350,8 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
 
         public Response process(PageComponent pageComponent) {
             handlerClass_ = pageComponent.getPageClass();
-            Method actionMethod = findActionMethod(handlerClass_,
-                    exceptionClass_, false);
+            Method actionMethod = findActionMethod(handlerClass_, false,
+                    exceptionClass_, actionName_, false);
             if (actionMethod != null) {
                 if (log_.isDebugEnabled()) {
                     log_.debug("Exception handler "

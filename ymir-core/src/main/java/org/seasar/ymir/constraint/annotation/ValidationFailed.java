@@ -23,4 +23,9 @@ import org.seasar.ymir.scope.impl.RequestParameterScope;
 @Alias
 public @interface ValidationFailed {
     ExceptionHandler z_alias() default @ExceptionHandler(ValidationFailedException.class);
+
+    /**
+     * @since 1.0.3
+     */
+    String[] actionName() default {};
 }

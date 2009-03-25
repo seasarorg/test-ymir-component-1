@@ -8,6 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.seasar.framework.container.ComponentNotFoundRuntimeException;
+import org.seasar.framework.container.S2Container;
+import org.seasar.ymir.Application;
+import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.convention.YmirNamingConvention;
+
 import javassist.CannotCompileException;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
@@ -15,6 +21,10 @@ import javassist.CtClass;
 import javassist.NotFoundException;
 
 public class ClassUtils {
+    private static final String[] EMPTY_STRINGS = new String[0];
+
+    private static final String DASH = "...";
+
     private static ClassPool cp_;
 
     private static Map<Class<?>, Class<?>> primitiveMap_;
@@ -212,20 +222,49 @@ public class ClassUtils {
         if (className == null) {
             return null;
         }
-        String shorterName;
-        int dot = className.lastIndexOf('.');
-        if (dot >= 0) {
-            shorterName = className.substring(dot + 1);
-        } else {
-            shorterName = className;
+
+        String shorterName = null;
+        for (String rootPackageName : getRootPackageNames()) {
+            if (className.startsWith(rootPackageName + ".")) {
+                shorterName = DASH
+                        + className
+                                .substring(rootPackageName.length() + 1/*= ".".length() */);
+                break;
+            }
         }
+        if (shorterName == null) {
+            int dot = className.lastIndexOf('.');
+            if (dot >= 0) {
+                shorterName = className.substring(dot + 1);
+            } else {
+                shorterName = className;
+            }
+        }
+
         for (int i = 0; i < shorterName.length(); i++) {
             char ch = shorterName.charAt(i);
             if (!(ch >= '0' && ch <= '9' || ch >= 'a' && ch <= 'z' || ch >= 'A'
-                    && ch <= 'Z' || ch == '_')) {
+                    && ch <= 'Z' || ch == '_' || ch == '.')) {
                 return shorterName.substring(0, i);
             }
         }
+
         return shorterName;
+    }
+
+    static String[] getRootPackageNames() {
+        Application application = YmirContext.getYmir().getApplication();
+        if (application == null) {
+            return EMPTY_STRINGS;
+        }
+
+        YmirNamingConvention namingConvention;
+        try {
+            namingConvention = (YmirNamingConvention) application
+                    .getS2Container().getComponent(YmirNamingConvention.class);
+        } catch (ComponentNotFoundRuntimeException ex) {
+            return EMPTY_STRINGS;
+        }
+        return namingConvention.getRootPackageNames();
     }
 }

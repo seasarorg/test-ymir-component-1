@@ -20,4 +20,9 @@ import org.seasar.ymir.handler.annotation.ExceptionHandler;
 @Alias
 public @interface PermissionDenied {
     ExceptionHandler z_alias() default @ExceptionHandler(PermissionDeniedException.class);
+
+    /**
+     * @since 1.0.3
+     */
+    String[] actionName() default {};
 }

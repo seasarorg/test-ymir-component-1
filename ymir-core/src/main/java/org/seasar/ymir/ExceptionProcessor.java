@@ -48,7 +48,8 @@ public interface ExceptionProcessor {
      * 
      * @param request Requestオブジェクト。
      * @param t 発生した例外。
+     * @param useHandlerInPage Page内ハンドラを使用するかどうか。
      * @return 例外を処理した結果のResponseオブジェクト。
      */
-    Response process(Request request, Throwable t);
+    Response process(Request request, Throwable t, boolean useHandlerInPage);
 }

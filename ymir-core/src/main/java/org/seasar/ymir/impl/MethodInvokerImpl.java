@@ -14,7 +14,7 @@ public class MethodInvokerImpl implements MethodInvoker {
     public MethodInvokerImpl() {
     }
 
-    public MethodInvokerImpl(Method method, Object[] parameters) {
+    public MethodInvokerImpl(Method method, Object... parameters) {
         setMethod(method);
         setParameters(parameters);
     }
