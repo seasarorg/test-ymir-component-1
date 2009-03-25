@@ -41,7 +41,6 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
             return super
                     .createConverterClassDesc(dtoCd, pairTypeNames, hintBag);
         }
-
     }
 
     protected void setUp() throws Exception {
@@ -57,7 +56,12 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
             }
 
             @Override
-            public String getRootPackageName() {
+            public String[] getRootPackageNames() {
+                return new String[] { getFirstRootPackageName() };
+            }
+
+            @Override
+            public String getFirstRootPackageName() {
                 return "com.example";
             }
 

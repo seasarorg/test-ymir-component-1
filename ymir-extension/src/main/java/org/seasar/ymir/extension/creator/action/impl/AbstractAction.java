@@ -363,7 +363,7 @@ abstract public class AbstractAction {
             return null;
         }
         String rootPackageName = getSourceCreator().getApplication()
-                .getRootPackageName();
+                .getFirstRootPackageName();
         if (rootPackageName == null) {
             return sourcePath;
         } else {

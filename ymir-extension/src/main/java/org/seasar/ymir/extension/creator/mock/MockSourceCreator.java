@@ -169,8 +169,12 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public String getRootPackageName() {
+    public String getFirstRootPackageName() {
         return null;
+    }
+
+    public String[] getRootPackageNames() {
+        return new String[0];
     }
 
     public ClassDesc newClassDesc(String className, ClassCreationHintBag bag) {

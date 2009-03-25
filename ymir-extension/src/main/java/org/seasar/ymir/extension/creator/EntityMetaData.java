@@ -42,7 +42,7 @@ public class EntityMetaData {
     }
 
     String getSubPackageName(String className) {
-        String name = className.substring(creator_.getRootPackageName()
+        String name = className.substring(creator_.getFirstRootPackageName()
                 .length() + 1);
         int start = name.indexOf('.') + 1;
         int end = name.lastIndexOf('.') + 1;

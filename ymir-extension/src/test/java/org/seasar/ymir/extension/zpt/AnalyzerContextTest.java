@@ -15,13 +15,18 @@ public class AnalyzerContextTest extends TestCase {
         target_ = new AnalyzerContext();
         target_.setSourceCreator(new SourceCreatorImpl() {
             @Override
-            public String getRootPackageName() {
+            public String getFirstRootPackageName() {
                 return "com.example";
             }
 
             @Override
+            public String[] getRootPackageNames() {
+                return new String[] { getFirstRootPackageName() };
+            }
+
+            @Override
             public String getDtoPackageName() {
-                return getRootPackageName() + ".dto";
+                return getFirstRootPackageName() + ".dto";
             }
 
             @Override

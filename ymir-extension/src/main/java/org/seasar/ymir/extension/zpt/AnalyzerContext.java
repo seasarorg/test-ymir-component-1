@@ -469,12 +469,12 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     boolean isOuter(ClassDesc classDesc) {
         return !classDesc.getPackageName().startsWith(
-                sourceCreator_.getRootPackageName() + ".");
+                sourceCreator_.getFirstRootPackageName() + ".");
     }
 
     boolean isOuter(String typeName) {
         return DescUtils.getNonGenericClassName(typeName).startsWith(
-                sourceCreator_.getRootPackageName() + ".");
+                sourceCreator_.getFirstRootPackageName() + ".");
     }
 
     boolean isPage(ClassDesc classDesc) {
@@ -495,7 +495,7 @@ public class AnalyzerContext extends ZptTemplateContext {
 
         if (classDesc != null) {
             String packageName = classDesc.getPackageName();
-            String rootPackageName = sourceCreator_.getRootPackageName();
+            String rootPackageName = sourceCreator_.getFirstRootPackageName();
             if (packageName.equals(rootPackageName)) {
                 ;
             } else if (packageName.startsWith(rootPackageName + ".")) {

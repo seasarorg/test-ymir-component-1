@@ -437,7 +437,7 @@ public class SourceCreatorImpl implements SourceCreator {
         return (projectRoot != null
                 && (originalProjectRoot == null || originalProjectRoot
                         .equals(projectRoot)) && application
-                .getRootPackageName() != null);
+                .getFirstRootPackageName() != null);
     }
 
     public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas) {
@@ -527,7 +527,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
     boolean isOuter(ClassDesc classDesc) {
         return !classDesc.getPackageName().startsWith(
-                getRootPackageName() + ".");
+                getFirstRootPackageName() + ".");
     }
 
     protected ClassDesc createConverterClassDesc(ClassDesc dtoCd,
@@ -1516,8 +1516,10 @@ public class SourceCreatorImpl implements SourceCreator {
                             } catch (ClassNotFoundException ex5) {
                                 return null;
                             }
-                            traverser.addClassPattern(getRootPackageName(),
-                                    className);
+                            for (String rootPackageName : getRootPackageNames()) {
+                                traverser.addClassPattern(rootPackageName,
+                                        className);
+                            }
 
                             final String[] found = new String[1];
                             traverser
@@ -1684,32 +1686,36 @@ public class SourceCreatorImpl implements SourceCreator {
         return sourceEncoding_;
     }
 
-    public String getRootPackageName() {
-        return getApplication().getRootPackageName();
+    public String getFirstRootPackageName() {
+        return getApplication().getFirstRootPackageName();
+    }
+
+    public String[] getRootPackageNames() {
+        return getApplication().getRootPackageNames();
     }
 
     public String getPagePackageName() {
-        return getRootPackageName() + "."
+        return getFirstRootPackageName() + "."
                 + namingConvention_.getSubApplicationRootPackageName();
     }
 
     public String getDtoPackageName() {
-        return getRootPackageName() + "."
+        return getFirstRootPackageName() + "."
                 + namingConvention_.getDtoPackageName();
     }
 
     public String getDaoPackageName() {
-        return getRootPackageName() + "."
+        return getFirstRootPackageName() + "."
                 + namingConvention_.getDaoPackageName();
     }
 
     public String getDxoPackageName() {
-        return getRootPackageName() + "."
+        return getFirstRootPackageName() + "."
                 + namingConvention_.getDxoPackageName();
     }
 
     public String getConverterPackageName() {
-        return getRootPackageName() + "."
+        return getFirstRootPackageName() + "."
                 + namingConvention_.getConverterPackageName();
     }
 

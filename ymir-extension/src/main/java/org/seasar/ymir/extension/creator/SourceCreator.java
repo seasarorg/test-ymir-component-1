@@ -30,7 +30,9 @@ public interface SourceCreator extends Updater {
 
     String MAPPING_PREFS = "org.seasar.ymir.extension.mapping.prefs";
 
-    String getRootPackageName();
+    String getFirstRootPackageName();
+
+    String[] getRootPackageNames();
 
     String getPagePackageName();
 

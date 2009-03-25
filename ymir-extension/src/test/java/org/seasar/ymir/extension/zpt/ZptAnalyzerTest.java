@@ -159,8 +159,13 @@ public class ZptAnalyzerTest extends TestCase {
             }
 
             @Override
-            public String getRootPackageName() {
+            public String getFirstRootPackageName() {
                 return "com.example";
+            }
+
+            @Override
+            public String[] getRootPackageNames() {
+                return new String[] { getFirstRootPackageName() };
             }
 
             @Override

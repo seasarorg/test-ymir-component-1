@@ -9,8 +9,13 @@ public class EntityMetaDataTest extends TestCase {
     private EntityMetaData target_ = new EntityMetaData(
             new MockSourceCreator() {
                 @Override
-                public String getRootPackageName() {
+                public String getFirstRootPackageName() {
                     return "com.example";
+                }
+
+                @Override
+                public String[] getRootPackageNames() {
+                    return new String[] { getFirstRootPackageName() };
                 }
 
                 @Override

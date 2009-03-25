@@ -11,7 +11,7 @@
   <dt>プロジェクトルート</dt>
   <dd><span tal:content="systemInformation/application/projectRoot">PROJECT ROOT</span><span tal:condition="systemInformation/projectRootDetectedAutomatically">（自動検出）</span></dd>
   <dt>ルートパッケージ</dt>
-  <dd tal:content="systemInformation/application/rootPackageName">ROOT PACKAGE</dd>
+  <dd tal:content="systemInformation/application/property(rootPackageName)">ROOT PACKAGE</dd>
 </dl>
 <h3>Hot Deploy</h3>
 <div tal:condition="systemInformation/hotdeployEnabledPackageNames" tal:omit-tag="">

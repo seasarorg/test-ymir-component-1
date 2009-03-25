@@ -70,7 +70,7 @@ public class CreateConfigurationAction extends AbstractAction implements
     }
 
     boolean isReconfigured() {
-        return getSourceCreator().getApplication().getRootPackageName() != null;
+        return getSourceCreator().getApplication().getFirstRootPackageName() != null;
     }
 
     Response actCreate(Request request, PathMetaData pathMetaDataf) {
@@ -104,8 +104,6 @@ public class CreateConfigurationAction extends AbstractAction implements
                             .findProjectRootDirectory(application);
                 }
                 application.setProjectRoot(value);
-            } else if (SingleApplication.KEY_ROOTPACKAGENAME.equals(key)) {
-                application.setRootPackageName(value);
             } else if (SourceCreatorSetting.APPKEY_SOURCECREATOR_SUPERCLASS
                     .equals(key)) {
                 if (!StringUtils.isEmpty(value)) {
