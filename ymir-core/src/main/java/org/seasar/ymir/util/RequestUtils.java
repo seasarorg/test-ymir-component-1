@@ -67,24 +67,12 @@ public class RequestUtils {
             return false;
         }
 
-        return methodEquals(action1.getMethodInvoker(), action2
-                .getMethodInvoker());
-    }
-
-    static boolean methodEquals(MethodInvoker methodInvoker1,
-            MethodInvoker methodInvoker2) {
-        if (methodInvoker1 == null) {
-            return methodInvoker2 == null;
+        String name1 = action1.getName();
+        String name2 = action2.getName();
+        if (name1 == null) {
+            return name2 == null;
         } else {
-            if (methodInvoker2 == null) {
-                return false;
-            }
+            return name1.equals(name2);
         }
-
-        if (methodInvoker1.getMethod() != methodInvoker2.getMethod()) {
-            return false;
-        }
-
-        return true;
     }
 }
