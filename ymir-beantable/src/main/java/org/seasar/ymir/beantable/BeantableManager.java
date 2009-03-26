@@ -99,7 +99,8 @@ public class BeantableManager implements LifecycleListener, HotdeployListener {
     ClassTraverserBag newClassTraverserBag(Application application) {
         ClassTraverser traverser = new ClassTraverser();
         traverser.setClassHandler(beantableClassHandler_);
-        String targetPackageName = application.getRootPackageName() + ".dao";
+        String targetPackageName = application.getFirstRootPackageName()
+                + ".dao";
         traverser.addClassPattern(targetPackageName, ".*");
         traverser.addIgnoreClassPattern(targetPackageName,
                 "(Abstract)?.*(Base|Dao)");
