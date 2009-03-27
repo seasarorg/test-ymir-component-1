@@ -55,21 +55,18 @@ public class AnalyzerContextTest extends TestCase {
                 .findRenderClassName("note"));
         assertEquals("org.seasar.ymir.message.Notes", target_
                 .findRenderClassName("notes"));
-        assertEquals("互換性のため", "net.skirnir.freyja.render.html.InputTag",
-                target_.findRenderClassName("input"));
-        assertEquals("net.skirnir.freyja.render.html.InputTag", target_
-                .findRenderClassName("inputTag"));
-        assertNull(target_.findRenderClassName("theInput"));
-        assertEquals("net.skirnir.freyja.render.html.InputTag", target_
-                .findRenderClassName("theInputTag"));
-        assertEquals("net.skirnir.freyja.render.html.InputTag", target_
-                .findRenderClassName("theInputTags"));
-        assertNull(target_.findRenderClassName("radioInput"));
-        assertEquals("net.skirnir.freyja.render.html.RadioInputTags", target_
-                .findRenderClassName("radioInputTags"));
-        assertNull(target_.findRenderClassName("theRadioInput"));
-        assertEquals("net.skirnir.freyja.render.html.RadioInputTags", target_
-                .findRenderClassName("theRadioInputTags"));
+        assertEquals("net.skirnir.freyja.render.html.Input", target_
+                .findRenderClassName("input"));
+        assertEquals("net.skirnir.freyja.render.html.Input", target_
+                .findRenderClassName("theInput"));
+        assertEquals("net.skirnir.freyja.render.html.Input", target_
+                .findRenderClassName("theInputs"));
+        assertEquals("net.skirnir.freyja.render.html.Radio", target_
+                .findRenderClassName("radio"));
+        assertEquals("net.skirnir.freyja.render.html.Radio", target_
+                .findRenderClassName("theRadio"));
+        assertEquals("net.skirnir.freyja.render.html.Radio", target_
+                .findRenderClassName("theRadios"));
     }
 
     public void testReplaceSimpleDtoTypeToDefaultType1() throws Exception {

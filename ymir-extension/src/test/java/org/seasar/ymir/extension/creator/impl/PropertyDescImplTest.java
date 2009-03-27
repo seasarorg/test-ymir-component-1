@@ -2,6 +2,8 @@ package org.seasar.ymir.extension.creator.impl;
 
 import junit.framework.TestCase;
 
+import net.skirnir.freyja.render.html.Option;
+
 public class PropertyDescImplTest extends TestCase {
     public void testGetGetterName() throws Exception {
         PropertyDescImpl target = new PropertyDescImpl("value");
@@ -50,10 +52,9 @@ public class PropertyDescImplTest extends TestCase {
         actual = pd.getInitialValue();
         assertNull("デフォルトコンストラクタがないばあいはnullになること", actual);
 
-        pd.setTypeDesc(new TypeDescImpl(
-                "net.skirnir.freyja.render.html.OptionTag"));
+        pd.setTypeDesc(new TypeDescImpl(Option.class.getName()));
         actual = pd.getInitialValue();
-        assertEquals("new net.skirnir.freyja.render.html.OptionTag()", actual);
+        assertEquals("new " + Option.class.getName() + "()", actual);
 
         pd.setTypeDesc(new TypeDescImpl("com.example.converter.HoeConverter"));
         actual = pd.getInitialValue();

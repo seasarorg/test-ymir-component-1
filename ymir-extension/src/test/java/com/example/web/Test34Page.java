@@ -1,11 +1,11 @@
 package com.example.web;
 
-import net.skirnir.freyja.render.html.OptionTag;
+import net.skirnir.freyja.render.html.Option;
 
 public class Test34Page extends Test34PageBase {
-    private OptionTag[] options_;
+    private Option[] options_;
 
-    public OptionTag[] getOptions() {
+    public Option[] getOptions() {
         return options_;
     }
 }

@@ -63,6 +63,8 @@ import com.example.dto.SaruDto;
 import com.example.web.Test47Page;
 
 import net.skirnir.freyja.TemplateContext;
+import net.skirnir.freyja.render.html.Checkbox;
+import net.skirnir.freyja.render.html.Option;
 
 public class ZptAnalyzerTest extends TestCase {
     private static final String CLASSNAME = "com.example.web.IndexPage";
@@ -699,7 +701,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals("com.example.dto.sub.EntryDto", pd.getTypeDesc().getName());
     }
 
-    public void testAnalyze33_optionタグがrepeat指定されている場合でFreyjaのRenderClassを利用する設定の場合は対象プロパティの型がOptionTagの配列になること()
+    public void testAnalyze33_optionタグがrepeat指定されている場合でFreyjaのRenderClassを利用する設定の場合は対象プロパティの型がOptionの配列になること()
             throws Exception {
 
         prepareForTarget(true);
@@ -707,8 +709,7 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc cd = getClassDesc("com.example.web.sub.TestPage");
         PropertyDesc pd = cd.getPropertyDesc("entries");
-        assertEquals("net.skirnir.freyja.render.html.OptionTag[]", pd
-                .getTypeDesc().getName());
+        assertEquals(Option.class.getName() + "[]", pd.getTypeDesc().getName());
     }
 
     public void testAnalyze34_DTOのためのgetterが定義済みで返り値の型が決まっている場合は新たにDTOを生成しようとしないこと()
@@ -718,8 +719,7 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc cd = getClassDesc("com.example.web.Test34Page");
         PropertyDesc pd = cd.getPropertyDesc("options");
-        assertEquals("net.skirnir.freyja.render.html.OptionTag[]", pd
-                .getTypeDesc().getName());
+        assertEquals(Option.class.getName() + "[]", pd.getTypeDesc().getName());
         assertNull(getClassDesc("com.example.dto.OptionDto"));
     }
 
@@ -1146,7 +1146,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull("Dto型がプロパティを持つこと", cd.getPropertyDesc("content"));
     }
 
-    public void testAnalyze63_YMIR_279_リピートされるプロパティをListとして自動生成する機能が正しく機能すること_OptionTag()
+    public void testAnalyze63_YMIR_279_リピートされるプロパティをListとして自動生成する機能が正しく機能すること_Option()
             throws Exception {
 
         context_ = new AnalyzerContext() {
@@ -1165,9 +1165,8 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(pd);
         assertTrue(pd.isReadable());
         assertFalse(pd.getTypeDesc().isExplicit());
-        assertEquals("デフォルトではリピート対象変数がOptionTagの配列になること",
-                "net.skirnir.freyja.render.html.OptionTag[]", pd.getTypeDesc()
-                        .getName());
+        assertEquals("デフォルトではリピート対象変数がOptionの配列になること", Option.class.getName()
+                + "[]", pd.getTypeDesc().getName());
 
         context_ = new AnalyzerContext() {
             @Override
@@ -1191,9 +1190,8 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(pd);
         assertTrue(pd.isReadable());
         assertFalse(pd.getTypeDesc().isExplicit());
-        assertEquals("リピート対象変数がOptionTagのListになること",
-                "java.util.List<net.skirnir.freyja.render.html.OptionTag>", pd
-                        .getTypeDesc().getName());
+        assertEquals("リピート対象変数がOptionのListになること", "java.util.List<"
+                + Option.class.getName() + ">", pd.getTypeDesc().getName());
     }
 
     public void testAnalyze64_YMIR_288_postアクションの戻り値の型を変更可能であること()
@@ -1365,5 +1363,49 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals(String.class.getName(), td.getComponentClassDesc()
                 .getName());
         assertFalse(td.isCollection());
+    }
+
+    public void testAnalyze74_YMIR_328_プロパティ名と子プロパティ名によってプロパティの型推論が行なわれること()
+            throws Exception {
+
+        prepareForTarget(true);
+
+        act("testAnalyze74");
+
+        PropertyDesc onePd = getClassDesc("com.example.dto.FormDto")
+                .getPropertyDesc("oneCheckbox");
+        assertNotNull(onePd);
+        assertEquals(
+                "[inputタグのname属性] 名前からCheckboxクラスと推論。またvalueプロパティを持つのでそのまま確定。",
+                Checkbox.class.getName(), onePd.getTypeDesc().getName());
+
+        PropertyDesc twoPd = getClassDesc("com.example.dto.FormDto")
+                .getPropertyDesc("twoCheckbox");
+        assertNotNull(twoPd);
+        assertEquals("[Path式] 名前からCheckboxクラスと推論。またvalueプロパティを持つのでそのまま確定。",
+                Checkbox.class.getName(), twoPd.getTypeDesc().getName());
+
+        PropertyDesc threePd = getClassDesc("com.example.dto.FormDto")
+                .getPropertyDesc("threeCheckbox");
+        assertNotNull(threePd);
+        assertEquals(
+                "[inputタグのname属性] 名前からCheckboxクラスと推論するが、hogeプロパティを持たないのでDtoと推論",
+                "com.example.dto.ThreeCheckboxDto", threePd.getTypeDesc()
+                        .getName());
+
+        PropertyDesc fourPd = getClassDesc("com.example.dto.FormDto")
+                .getPropertyDesc("fourCheckbox");
+        assertNotNull(fourPd);
+        assertEquals("[Path式] 名前からCheckboxクラスと推論するが、hogeプロパティを持たないのでDtoと推論",
+                "com.example.dto.FourCheckboxDto", fourPd.getTypeDesc()
+                        .getName());
+
+        PropertyDesc fivePd = getClassDesc("com.example.dto.FormDto")
+                .getPropertyDesc("fiveCheckbox");
+        assertNotNull(fivePd);
+        assertEquals("名前からCheckboxクラスと推論。またvalueプロパティを持つが、Dtoが既に存在するのでDtoと推論。",
+                "com.example.dto.FiveCheckboxDto", fivePd.getTypeDesc()
+                        .getName());
+
     }
 }

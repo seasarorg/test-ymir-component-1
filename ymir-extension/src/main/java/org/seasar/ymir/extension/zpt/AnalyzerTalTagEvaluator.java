@@ -12,10 +12,10 @@ import java.util.Set;
 
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.FormFile;
-import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Path;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.FormDesc;
@@ -41,6 +41,7 @@ import net.skirnir.freyja.StringUtils;
 import net.skirnir.freyja.TagEvaluatorUtils;
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;
+import net.skirnir.freyja.render.html.Option;
 import net.skirnir.freyja.zpt.TalTagEvaluator;
 import net.skirnir.freyja.zpt.ZptTemplateContext;
 
@@ -167,8 +168,12 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                                     getFirstSimpleSegment(parameterName));
 
                     if (formDesc.getDtoClassDesc() != null) {
-                        formDesc.getDtoClassDesc().setPropertyDesc(
-                                (PropertyDesc) firstPropertyDesc.clone());
+                        PropertyDesc cloned = (PropertyDesc) firstPropertyDesc
+                                .clone();
+                        // Pageのフォーム要素プロパティとフォームDtoのプロパティは型情報を同期させる必要があるため、
+                        // 同じTypeDescを指すようにしておく。
+                        cloned.setTypeDesc(firstPropertyDesc.getTypeDesc());
+                        formDesc.getDtoClassDesc().setPropertyDesc(cloned);
                         firstPropertyDesc
                                 .setAnnotationDescOnGetter(new MetaAnnotationDescImpl(
                                         org.seasar.ymir.extension.Globals.META_NAME_FORMPROPERTY,
@@ -209,11 +214,10 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         if (pd != null && !pd.getTypeDesc().isExplicit()) {
                             if (analyzerContext
                                     .isRepeatedPropertyGeneratedAsList()) {
-                                pd
-                                        .setTypeDesc("java.util.List<net.skirnir.freyja.render.html.OptionTag>");
+                                pd.setTypeDesc("java.util.List<"
+                                        + Option.class.getName() + ">");
                             } else {
-                                pd
-                                        .setTypeDesc("net.skirnir.freyja.render.html.OptionTag[]");
+                                pd.setTypeDesc(Option.class.getName() + "[]");
                             }
                         }
                     }

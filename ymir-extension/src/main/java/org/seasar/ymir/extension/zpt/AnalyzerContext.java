@@ -45,7 +45,7 @@ import org.seasar.ymir.zpt.YmirVariableResolver;
 
 import net.skirnir.freyja.EvaluationRuntimeException;
 import net.skirnir.freyja.VariableResolver;
-import net.skirnir.freyja.render.html.InputTag;
+import net.skirnir.freyja.render.html.Input;
 import net.skirnir.freyja.zpt.ZptTemplateContext;
 
 public class AnalyzerContext extends ZptTemplateContext {
@@ -102,7 +102,7 @@ public class AnalyzerContext extends ZptTemplateContext {
     static {
         final List<ClassNamePattern> list = new ArrayList<ClassNamePattern>();
         ClassTraverser traverser = new ClassTraverser();
-        traverser.addReferenceClass(InputTag.class);
+        traverser.addReferenceClass(Input.class);
         traverser.addClassPattern("net.skirnir.freyja.render", ".+");
         traverser.setClassHandler(new ClassTraversal.ClassHandler() {
             public void processClass(String packageName, String shortClassName) {
@@ -272,15 +272,6 @@ public class AnalyzerContext extends ZptTemplateContext {
     String findRenderClassName(String propertyName) {
         String name = capFirst(propertyName);
 
-        // 互換性のため。
-        String fullName = name + "Tag";
-        for (ClassNamePattern pair : freyjaRenderClassNamePairs_) {
-            String className = pair.getClassNameEquals(fullName);
-            if (className != null) {
-                return className;
-            }
-        }
-
         for (ClassNamePattern pair : freyjaRenderClassNamePairs_) {
             String className = pair.getClassNameIfMatched(name);
             if (className != null) {
@@ -335,11 +326,6 @@ public class AnalyzerContext extends ZptTemplateContext {
             // param-selfに指定されたプロパティ名をPageのプロパティ名とみなさせる方が
             // 都合が良いのでこうしている。
             return getPageClassName();
-        } else if (usingFreyjaRenderClasses_) {
-            String className = findRenderClassName(propertyName);
-            if (className != null) {
-                return className;
-            }
         } else if (!AnalyzerUtils.isValidVariableName(propertyName)) {
             return Object.class.getName();
         }
@@ -383,9 +369,44 @@ public class AnalyzerContext extends ZptTemplateContext {
         for (Iterator<ClassDesc> itr = temporaryClassDescMap_.values()
                 .iterator(); itr.hasNext();) {
             ClassDesc classDesc = itr.next();
+
+            // 自動生成対象外のクラスと中身のないDTOは除外しておく。
+
             if (isOuter(classDesc) || isEmptyDto(classDesc)) {
-                // 自動生成対象外のクラスと中身のないDTOは除外しておく。
                 itr.remove();
+                continue;
+            }
+
+            if (usingFreyjaRenderClasses_) {
+                // DTOのうちレンダリングクラスと推論できるものがあれば差し替える。
+
+                if (!classDesc.isTypeOf(ClassType.DTO)) {
+                    continue;
+                }
+
+                if (sourceCreator_.getClass(classDesc.getName()) != null) {
+                    // DTOクラスが存在するならレンダリングクラスとは考えない。
+                    continue;
+                }
+
+                String renderClassName = findRenderClassName(classDesc
+                        .getNameBase());
+                if (renderClassName == null) {
+                    continue;
+                }
+
+                boolean undefinedPropertyFound = false;
+                for (PropertyDesc propertyDesc : classDesc.getPropertyDescs()) {
+                    if (sourceCreator_.getPropertyDescriptor(renderClassName,
+                            propertyDesc.getName()) == null) {
+                        undefinedPropertyFound = true;
+                        break;
+                    }
+                }
+                if (!undefinedPropertyFound) {
+                    classDesc.setName(renderClassName);
+                    itr.remove();
+                }
             }
         }
 

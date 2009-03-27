@@ -1763,7 +1763,7 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public ClassDesc newClassDesc(String className, ClassCreationHintBag hintBag) {
-        // booleanとかのクラスについてはSimpleClassDescを返した方が都合が良いのでこうしている。
+        // プリミティブ型についてはSimpleClassDescを返した方が都合が良いのでこうしている。
         if (className.indexOf('.') < 0) {
             return new SimpleClassDesc(className);
         }
