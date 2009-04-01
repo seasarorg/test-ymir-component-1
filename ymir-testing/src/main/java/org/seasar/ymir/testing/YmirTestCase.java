@@ -555,6 +555,27 @@ abstract public class YmirTestCase extends TestCase {
         }
     }
 
+    public FilterChain toTheEndOf(FilterChain chain) throws IOException,
+            ServletException {
+        if (chain != null) {
+            return chain;
+        }
+        MockHttpServletResponse httpResponse = getHttpServletResponse();
+        if (httpResponse == null) {
+            // まだprocessが呼ばれていない。
+            return chain;
+        }
+        String redirectPath = httpResponse.getRedirectPath();
+        if (redirectPath == null) {
+            return chain;
+        }
+        if (!redirectPath.startsWith(getContextPath() + "/")) {
+            return chain;
+        }
+        return toTheEndOf(process(redirectPath.substring(getContextPath()
+                .length())));
+    }
+
     public FilterChain process(Class<?> pageClass) throws IOException,
             ServletException {
         return process(getPathOfPageClass(pageClass));
