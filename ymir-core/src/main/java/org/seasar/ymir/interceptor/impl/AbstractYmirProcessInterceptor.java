@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.ymir.Action;
+import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -28,6 +29,10 @@ abstract public class AbstractYmirProcessInterceptor implements
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             String path) {
         return null;
+    }
+
+    public void enteringDispatch(Request request, String path,
+            Dispatcher dispatcher) {
     }
 
     public Request requestCreated(Request request) {
@@ -56,10 +61,13 @@ abstract public class AbstractYmirProcessInterceptor implements
             Request request, Response response) {
     }
 
+    public void leavingDispatch(Request request) {
+    }
+
     public void leavingRequest(Request request) {
     }
 
-    public void leavingDispatch(Request request) {
+    public void leftDispatch(Request request) {
     }
 
     public void leftRequest() {

@@ -180,41 +180,45 @@ public class YmirImpl implements Ymir {
                 updateRequest(request, httpRequest, dispatcher);
             }
 
-            enterDispatch(request, path, ServletUtils
-                    .getQueryString(httpRequest), dispatcher);
             try {
-                try {
-                    if (response == null) {
-                        response = processRequest(request);
-                    } else {
-                        context.setComponent(Response.class, response);
-                    }
-                } catch (Throwable t) {
-                    response = processException(request, t);
+                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                    ymirProcessInterceptors_[i].enteringDispatch(request, path,
+                            dispatcher);
                 }
-
+                enterDispatch(request, path, ServletUtils
+                        .getQueryString(httpRequest), dispatcher);
                 try {
-                    processResponse(servletContext, httpRequest, httpResponse,
-                            request, response, chain);
-                } catch (Throwable t) {
-                    if (dispatcher == Dispatcher.REQUEST) {
-                        processResponse(servletContext, httpRequest,
-                                httpResponse, request, processException(
-                                        request, t), chain);
-                    } else {
-                        rethrow(t);
+                    try {
+                        if (response == null) {
+                            response = processRequest(request);
+                        } else {
+                            context.setComponent(Response.class, response);
+                        }
+                    } catch (Throwable t) {
+                        response = processException(request, t);
                     }
+
+                    try {
+                        processResponse(servletContext, httpRequest,
+                                httpResponse, request, response, chain);
+                    } catch (Throwable t) {
+                        if (dispatcher == Dispatcher.REQUEST) {
+                            processResponse(servletContext, httpRequest,
+                                    httpResponse, request, processException(
+                                            request, t), chain);
+                        } else {
+                            rethrow(t);
+                        }
+                    }
+                } finally {
+                    leaveDispatch(request, dispatcher);
+
+                    context.setComponent(Response.class, null);
                 }
             } finally {
-                if (dispatcher == Dispatcher.REQUEST) {
-                    for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                        ymirProcessInterceptors_[i].leavingRequest(request);
-                    }
+                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                    ymirProcessInterceptors_[i].leftDispatch(request);
                 }
-
-                leaveDispatch(request);
-
-                context.setComponent(Response.class, null);
             }
         } finally {
             if (dispatcher == Dispatcher.REQUEST) {
@@ -385,12 +389,19 @@ public class YmirImpl implements Ymir {
      * ディスパッチの処理を終了します。
      * 
      * @param request 現在のRequest。
+     * @param dispatcher 現在のDispatcher。
      * @see Dispatch
      * @see Dispatcher
      */
-    protected void leaveDispatch(final Request request) {
+    protected void leaveDispatch(final Request request,
+            final Dispatcher dispatcher) {
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             ymirProcessInterceptors_[i].leavingDispatch(request);
+        }
+        if (dispatcher == Dispatcher.REQUEST) {
+            for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+                ymirProcessInterceptors_[i].leavingRequest(request);
+            }
         }
 
         request.leaveDispatch();

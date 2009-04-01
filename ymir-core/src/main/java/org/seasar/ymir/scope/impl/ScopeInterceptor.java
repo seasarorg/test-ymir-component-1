@@ -8,6 +8,7 @@ import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.Dispatch;
+import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.Phase;
@@ -28,6 +29,8 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
     private ScopeManager scopeManager_;
 
     private PageComponentVisitor<?> visitorForInvokingInPhaseObjectInjected_;
+
+    private ThreadLocal<Boolean> injected_ = new ThreadLocal<Boolean>();
 
     private static final Log log_ = LogFactory.getLog(ScopeInterceptor.class);
 
@@ -59,6 +62,26 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
                 componentMetaDataFactory_);
     }
 
+    boolean isInjected() {
+        Boolean injected = injected_.get();
+        return injected != null && injected.booleanValue();
+    }
+
+    void setInjected(boolean injected) {
+        if (injected) {
+            injected_.set(Boolean.TRUE);
+        } else {
+            injected_.set(null);
+        }
+    }
+
+    @Override
+    public void enteringDispatch(Request request, String path,
+            Dispatcher dispatcher) {
+        // 念のため。
+        setInjected(false);
+    }
+
     @Override
     public Action actionInvoking(Request request, Action action) {
         Dispatch dispatch = request.getCurrentDispatch();
@@ -70,6 +93,8 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
         pageComponent.accept(visitorForInvokingInPhaseObjectInjected_);
 
         pageComponent.accept(new VisitorForPopulating(actionName));
+
+        setInjected(true);
 
         return action;
     }
@@ -90,8 +115,8 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
     @Override
     public Action exceptionHandlerActionInvoking(Request request,
             Action action, boolean global) {
-        // グローバルハンドラの場合は各コンテキストが持つ属性をinjectする。
-        if (global) {
+        // グローバルハンドラ、またはローカルハンドラでインジェクト済みでない場合は各コンテキストが持つ属性をinjectする。
+        if (global || !isInjected()) {
             Object handler = action.getTarget();
             PageComponent pageComponent = new PageComponentImpl(handler,
                     handler.getClass());
@@ -108,6 +133,7 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
     public Response responseCreatedByExceptionHandler(Request request,
             Response response, Object handler, boolean global) {
         // グローバルハンドラの場合は各コンテキストに属性をoutjectする。
+        // ローカルハンドラの場合はresponseCreated()でoutjectするので問題ない。
         if (global) {
             PageComponent pageComponent = new PageComponentImpl(handler,
                     handler.getClass());
@@ -115,6 +141,11 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
         }
 
         return response;
+    }
+
+    @Override
+    public void leftDispatch(Request request) {
+        setInjected(false);
     }
 
     class VisitorForInjecting extends PageComponentVisitor<Object> {

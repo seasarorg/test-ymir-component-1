@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.ymir.Action;
+import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
@@ -49,6 +50,16 @@ public interface YmirProcessInterceptor {
     Response enteringRequest(ServletContext context,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             String path);
+
+    /**
+     * ディスパッチの処理を開始した際に呼び出されるメソッドです。
+     * 
+     * @param request フレームワークによって構築されたRequestオブジェクト。
+     * @param path コンテキスト相対のリクエストパス。末尾に「/」がついている場合はそのまま渡されます。
+     * @param dispatcher 現在のディスパッチャ。
+     * @since 1.0.3
+     */
+    void enteringDispatch(Request request, String path, Dispatcher dispatcher);
 
     /**
      * 現在のリクエストに関する情報を持つRequestオブジェクトをフレームワークが構築した後に、
@@ -137,6 +148,15 @@ public interface YmirProcessInterceptor {
             Request request, Response response);
 
     /**
+     * フレームワークがディスパッチの処理を完了する直前に呼び出されるメソッドです。
+     * <p>このメソッドの呼び出し時にはコンテナからRequestオブジェクト及びResponseオブジェクトが取得可能です。
+     * </p>
+     * 
+     * @param request Requestオブジェクト。
+     */
+    void leavingDispatch(Request request);
+
+    /**
      * フレームワークがHTTPリクエストの処理を完了する直前に呼び出されるメソッドです。
      * <p>このメソッドの呼び出し時にはコンテナからRequestオブジェクト及びResponseオブジェクトが取得可能です。
      * </p>
@@ -146,13 +166,17 @@ public interface YmirProcessInterceptor {
     void leavingRequest(Request request);
 
     /**
-     * フレームワークがディスパッチの処理を完了する直前に呼び出されるメソッドです。
-     * <p>このメソッドの呼び出し時にはコンテナからRequestオブジェクト及びResponseオブジェクトが取得可能です。
+     * フレームワークがディスパッチの処理を完了した後に呼び出されるメソッドです。
+     * <p>このメソッドは{@link #enteringDispatch(Request, String, Dispatcher)}
+     * が呼び出されたならば必ず呼び出されることが保証されています。
+     * </p>
+     * <p>このメソッドの呼び出し時にはコンテナからRequestオブジェクト及びResponseオブジェクトは取得できません。
      * </p>
      * 
      * @param request Requestオブジェクト。
+     * @since 1.0.3
      */
-    void leavingDispatch(Request request);
+    void leftDispatch(Request request);
 
     /**
      * フレームワークがHTTPリクエストの処理を完了した後に呼び出されるメソッドです。
