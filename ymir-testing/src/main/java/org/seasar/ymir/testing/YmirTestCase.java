@@ -401,14 +401,14 @@ abstract public class YmirTestCase extends TestCase {
 
     /**
      * 現在のHttpSessionオブジェクトを返します。
-     * <p>このメソッドは<code>getHttpSession(false)</code>と同じです。
+     * <p>このメソッドは<code>getHttpSession(true)</code>と同じです。
      * </p>
      * 
      * @return 現在のHttpSessionオブジェクト。
      * @see #getHttpSession(boolean)
      */
     public MockHttpSession getHttpSession() {
-        return getHttpSession(false);
+        return getHttpSession(true);
     }
 
     /**
