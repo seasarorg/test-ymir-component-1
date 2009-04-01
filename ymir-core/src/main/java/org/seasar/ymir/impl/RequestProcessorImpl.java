@@ -38,6 +38,7 @@ import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.response.PassthroughResponse;
+import org.seasar.ymir.util.RequestUtils;
 import org.seasar.ymir.util.YmirUtils;
 
 public class RequestProcessorImpl implements RequestProcessor {
@@ -152,18 +153,24 @@ public class RequestProcessorImpl implements RequestProcessor {
     }
 
     public Response process(final Request request) {
-        switch (request.getCurrentDispatch().getDispatcher()) {
-        case REQUEST:
+        if (RequestUtils.isProceeded(request)) {
+            // proceedはredirectと同じように扱う。
+            // そのためdispatcherがrequestである場合と同じ処理を行なう。
             return processRequest(request);
+        } else {
+            switch (request.getCurrentDispatch().getDispatcher()) {
+            case REQUEST:
+                return processRequest(request);
 
-        case FORWARD:
-            return processForward(request);
+            case FORWARD:
+                return processForward(request);
 
-        case INCLUDE:
-            return processInclude(request);
+            case INCLUDE:
+                return processInclude(request);
 
-        default:
-            return new PassthroughResponse();
+            default:
+                return new PassthroughResponse();
+            }
         }
     }
 

@@ -95,13 +95,15 @@ public class ResponseUtils {
 
     /**
      * 指定されたレスポンスがproceedレスポンスかどうかを返します。
+     * <p>responseにnullが指定された場合はfalseを返します。
+     * </p>
      * 
-     * @param response レスポンス。nullを指定してはいけません。
+     * @param response レスポンス。
      * @return レスポンスがproceedレスポンスかどうか。
      * @since 1.0.2
      */
     public static boolean isProceed(Response response) {
-        return response.getType() == ResponseType.FORWARD
+        return response != null && response.getType() == ResponseType.FORWARD
                 && !response.isSubordinate();
     }
 
@@ -109,14 +111,16 @@ public class ResponseUtils {
      * 指定されたレスポンスがリダイレクト系レスポンスかどうかを返します。
      * <p>ResponseTypeがREDIRECTであるかproceedレスポンスである場合にtrueを返します。
      * </p>
+     * <p>responseにnullが指定された場合はfalseを返します。
+     * </p>
      * 
-     * @param response レスポンス。nullを指定してはいけません。
+     * @param response レスポンス。
      * @return レスポンスがリダイレクト系レスポンスかどうか。
      * @since 1.0.3
      */
     public static boolean isRedirect(Response response) {
-        return response.getType() == ResponseType.REDIRECT
-                || isProceed(response);
+        return response != null
+                && (response.getType() == ResponseType.REDIRECT || isProceed(response));
     }
 
     /**

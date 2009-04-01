@@ -26,11 +26,8 @@ public class RequestUtils {
         if (request.getCurrentDispatch().getDispatcher() != Dispatcher.FORWARD) {
             return false;
         }
-        Response response = (Response) request.getAttribute(Ymir.ATTR_RESPONSE);
-        if (response == null) {
-            return false;
-        }
-        return ResponseUtils.isProceed(response);
+        return ResponseUtils.isProceed((Response) request
+                .getAttribute(Ymir.ATTR_RESPONSE));
     }
 
     /**

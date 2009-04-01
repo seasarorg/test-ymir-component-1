@@ -19,7 +19,6 @@ import org.seasar.cms.pluggable.ThreadContext;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
@@ -41,7 +40,6 @@ import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
-import org.seasar.ymir.servlet.MultipartServletRequest;
 import org.seasar.ymir.util.ServletUtils;
 import org.seasar.ymir.util.YmirUtils;
 
