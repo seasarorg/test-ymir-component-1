@@ -116,7 +116,7 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
     public Action exceptionHandlerActionInvoking(Request request,
             Action action, boolean global) {
         // グローバルハンドラ、またはローカルハンドラでインジェクト済みでない場合は各コンテキストが持つ属性をinjectする。
-        if (global || !isInjected()) {
+        if (global) {
             Object handler = action.getTarget();
             PageComponent pageComponent = new PageComponentImpl(handler,
                     handler.getClass());
@@ -124,6 +124,20 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
             // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
             pageComponent.accept(new VisitorForInjecting(null));
             pageComponent.accept(new VisitorForPopulating(null));
+        } else if (!isInjected()) {
+            PageComponent pageComponent = request.getCurrentDispatch()
+                    .getPageComponent();
+            if (pageComponent == null) {
+                Object handler = action.getTarget();
+                pageComponent = new PageComponentImpl(handler, handler
+                        .getClass());
+            }
+
+            // ローカルハンドラの場合は、アクションが確定していればアクションに紐づくハンドラが呼ばれた方が
+            // うれしいと思われるため、アクション名を見るようにしている。
+            String actionName = request.getCurrentDispatch().getActionName();
+            pageComponent.accept(new VisitorForInjecting(actionName));
+            pageComponent.accept(new VisitorForPopulating(actionName));
         }
 
         return action;

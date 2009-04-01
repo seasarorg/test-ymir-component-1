@@ -5,6 +5,10 @@
   <include path="ymir-component.dicon" />
   <component name="conversationInterceptor"
     class="org.seasar.ymir.conversation.impl.ConversationInterceptor">
+    <!--
+      Conversationの最新の状況に従って正しくConversationScopeからのInjectionを行なうために、
+      conversationInterceptorのpriorityをScopeInterceptorよりも高くしています。
+    -->
     <property name="priority">25.0</property>
   </component>
   <component name="scopeInterceptor"
