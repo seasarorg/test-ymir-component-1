@@ -11,28 +11,28 @@ public class RedirectionPathResolverImplTest extends TestCase {
     public void testResolve1() throws Exception {
         assertEquals("/", target_.resolve("", null, null, new MockRequest()
                 .setContextPath(""), null));
-        assertEquals("/", target_.resolveToProceed("", null, null,
+        assertEquals("/", target_.resolveForProceed("", null, null,
                 new MockRequest().setContextPath(""), null));
     }
 
     public void testResolve2() throws Exception {
         assertEquals("/hoe.do", target_.resolve("/hoe.do", null, null,
                 new MockRequest().setContextPath(""), null));
-        assertEquals("/hoe.do", target_.resolveToProceed("/hoe.do", null, null,
+        assertEquals("/hoe.do", target_.resolveForProceed("/hoe.do", null, null,
                 new MockRequest().setContextPath(""), null));
     }
 
     public void testResolve3() throws Exception {
         assertEquals("/?hoe=fuga", target_.resolve("?hoe=fuga", null, null,
                 new MockRequest().setContextPath(""), null));
-        assertEquals("/?hoe=fuga", target_.resolveToProceed("?hoe=fuga", null,
+        assertEquals("/?hoe=fuga", target_.resolveForProceed("?hoe=fuga", null,
                 null, new MockRequest().setContextPath(""), null));
     }
 
     public void testResolve4() throws Exception {
         assertEquals("/;jsessionid=XXXX", target_.resolve(";jsessionid=XXXX",
                 null, null, new MockRequest().setContextPath(""), null));
-        assertEquals("/;jsessionid=XXXX", target_.resolveToProceed(
+        assertEquals("/;jsessionid=XXXX", target_.resolveForProceed(
                 ";jsessionid=XXXX", null, null, new MockRequest()
                         .setContextPath(""), null));
     }
@@ -40,21 +40,21 @@ public class RedirectionPathResolverImplTest extends TestCase {
     public void testResolve5() throws Exception {
         assertEquals("/context/", target_.resolve("", null, null,
                 new MockRequest().setContextPath("/context"), null));
-        assertEquals("/", target_.resolveToProceed("", null, null,
+        assertEquals("/", target_.resolveForProceed("", null, null,
                 new MockRequest().setContextPath("/context"), null));
     }
 
     public void testResolve6() throws Exception {
         assertEquals("/context/hoe.do", target_.resolve("/hoe.do", null, null,
                 new MockRequest().setContextPath("/context"), null));
-        assertEquals("/hoe.do", target_.resolveToProceed("/hoe.do", null, null,
+        assertEquals("/hoe.do", target_.resolveForProceed("/hoe.do", null, null,
                 new MockRequest().setContextPath("/context"), null));
     }
 
     public void testResolve7() throws Exception {
         assertEquals("/context/?hoe=fuga", target_.resolve("?hoe=fuga", null,
                 null, new MockRequest().setContextPath("/context"), null));
-        assertEquals("/?hoe=fuga", target_.resolveToProceed("?hoe=fuga", null,
+        assertEquals("/?hoe=fuga", target_.resolveForProceed("?hoe=fuga", null,
                 null, new MockRequest().setContextPath("/context"), null));
     }
 
@@ -62,7 +62,7 @@ public class RedirectionPathResolverImplTest extends TestCase {
         assertEquals("/context/;jsessionid=XXXX", target_.resolve(
                 ";jsessionid=XXXX", null, null, new MockRequest()
                         .setContextPath("/context"), null));
-        assertEquals("/;jsessionid=XXXX", target_.resolveToProceed(
+        assertEquals("/;jsessionid=XXXX", target_.resolveForProceed(
                 ";jsessionid=XXXX", null, null, new MockRequest()
                         .setContextPath("/context"), null));
     }
@@ -70,7 +70,7 @@ public class RedirectionPathResolverImplTest extends TestCase {
     public void testResolve9() throws Exception {
         assertEquals("index.html", target_.resolve("index.html", null, null,
                 new MockRequest().setContextPath("/context"), null));
-        assertEquals("index.html", target_.resolveToProceed("index.html", null,
+        assertEquals("index.html", target_.resolveForProceed("index.html", null,
                 null, new MockRequest().setContextPath("/context"), null));
     }
 }

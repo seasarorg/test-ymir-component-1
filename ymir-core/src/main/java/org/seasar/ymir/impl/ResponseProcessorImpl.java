@@ -174,7 +174,7 @@ public class ResponseProcessorImpl implements ResponseProcessor {
             Request request, Response response, boolean proceed) {
         String resolved;
         if (proceed) {
-            resolved = redirectionPathResolver_.resolveToProceed(path,
+            resolved = redirectionPathResolver_.resolveForProceed(path,
                     httpRequest, httpResponse, request, response);
         } else {
             resolved = redirectionPathResolver_.resolve(path, httpRequest,

@@ -46,6 +46,6 @@ public interface RedirectionPathResolver {
      * @return 最終的なパス。
      * @since 1.0.3
      */
-    String resolveToProceed(String path, HttpServletRequest httpRequest,
+    String resolveForProceed(String path, HttpServletRequest httpRequest,
             HttpServletResponse httpResponse, Request request, Response response);
 }
