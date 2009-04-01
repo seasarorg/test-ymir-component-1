@@ -4,6 +4,8 @@ import org.seasar.ymir.testing.RequestInitializer;
 import org.seasar.ymir.testing.YmirTestCase;
 
 import com.example.web.ExceptionHandlerITest2Page;
+import com.example.web.ExceptionHandlerITest3IncludedPage;
+import com.example.web.ExceptionHandlerITest3Page;
 import com.example.web.ExceptionHandlerITestPage;
 
 public class ExceptionHandlerITest extends YmirTestCase {
@@ -22,5 +24,18 @@ public class ExceptionHandlerITest extends YmirTestCase {
         });
         assertEquals("MESSAGE", getPage(ExceptionHandlerITest2Page.class)
                 .getMessage());
+    }
+
+    public void test_inject前にスローされたExceptionをローカルハンドラで処理した際にincludeされたPageにもインジェクトが行なわれること()
+            throws Exception {
+        process(ExceptionHandlerITest3Page.class, new RequestInitializer() {
+            public void initialize() {
+                getHttpSession().setAttribute("message", "MESSAGE");
+            }
+        });
+        assertEquals("MESSAGE", getPage(ExceptionHandlerITest3Page.class)
+                .getMessage());
+        assertEquals("MESSAGE", getPage(
+                ExceptionHandlerITest3IncludedPage.class).getMessage());
     }
 }
