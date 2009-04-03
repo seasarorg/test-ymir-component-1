@@ -22,22 +22,38 @@ public class SingleApplication extends AbstractApplication {
 
     private Configuration config_;
 
-    private Class<?> referenceClass_;
+    private Class<?>[] referenceClasses_;
 
     private S2Container container_;
 
     private Map<Class<?>, Object> relatedObjectMap_ = new ConcurrentHashMap<Class<?>, Object>();
 
+    /*
+     * @deprecated
+     */
     public SingleApplication(ServletContext context, Configuration config,
             Class<?> referenceClass, S2Container container,
+            LocalHotdeployS2Container ondemandContainer,
+            PathMappingProvider pathMappingProvider) {
+        this(context, config,
+                referenceClass != null ? new Class<?>[] { referenceClass }
+                        : new Class[0], container, ondemandContainer,
+                pathMappingProvider);
+    }
+
+    public SingleApplication(ServletContext context, Configuration config,
+            Class<?>[] referenceClasses, S2Container container,
             LocalHotdeployS2Container ondemandContainer,
             PathMappingProvider pathMappingProvider) {
         super(ID_DEFAULT, ondemandContainer, pathMappingProvider);
         context_ = context;
         config_ = config;
-        referenceClass_ = referenceClass;
+        if (referenceClasses == null) {
+            referenceClasses = new Class[0];
+        }
+        referenceClasses_ = referenceClasses;
         container_ = container;
-        if (referenceClass != null) {
+        for (Class<?> referenceClass : referenceClasses_) {
             ondemandContainer.addReferenceClassName(referenceClass.getName());
         }
     }
@@ -46,8 +62,8 @@ public class SingleApplication extends AbstractApplication {
         return container_;
     }
 
-    public Class<?> getReferenceClass() {
-        return referenceClass_;
+    public Class<?>[] getReferenceClasses() {
+        return referenceClasses_;
     }
 
     public String getProperty(String key) {

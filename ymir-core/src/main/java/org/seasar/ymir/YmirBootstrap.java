@@ -1,5 +1,8 @@
 package org.seasar.ymir;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.ServletContext;
 
 import org.seasar.cms.pluggable.Configuration;
@@ -7,6 +10,7 @@ import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
+import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.impl.SingleApplication;
 import org.seasar.ymir.servlet.YmirListener;
 
@@ -52,21 +56,11 @@ public class YmirBootstrap {
     }
 
     void initializeApplication(ServletContext servletContext) {
-        Class<?> landmark = null;
-        try {
-            landmark = Class.forName(Globals.LANDMARK_CLASSNAME);
-        } catch (ClassNotFoundException ex) {
-            throw new IllegalClientCodeRuntimeException("Landmark class ("
-                    + Globals.LANDMARK_CLASSNAME
-                    + ") not found. Can't boot Ymir." + SP
-                    + "You MUST put the landmark class"
-                    + " in the jar which contains Page classes"
-                    + " or in WEB-INF/classes where Page classes exist.");
-        }
+        Configuration configuration = getConfiguration();
         ComponentDef cd = getContainer().getComponentDef(
                 LocalHotdeployS2Container.class);
         Application application = new SingleApplication(servletContext,
-                getConfiguration(), landmark, getContainer(),
+                configuration, getLandmarks(configuration), getContainer(),
                 (LocalHotdeployS2Container) cd.getComponent(),
                 (PathMappingProvider) getContainer().getComponent(
                         PathMappingProvider.class));
@@ -74,6 +68,23 @@ public class YmirBootstrap {
         ApplicationManager applicationManager = (ApplicationManager) getContainer()
                 .getComponent(ApplicationManager.class);
         applicationManager.setBaseApplication(application);
+    }
+
+    Class<?>[] getLandmarks(Configuration configuration) {
+        List<Class<?>> landmarkList = new ArrayList<Class<?>>();
+        for (String landmarkClassName : PropertyUtils.toLines(configuration
+                .getProperty(Globals.APPKEY_LANDMARK,
+                        Globals.LANDMARK_CLASSNAME))) {
+            try {
+                landmarkList.add(Class.forName(landmarkClassName));
+            } catch (ClassNotFoundException ex) {
+                throw new IllegalClientCodeRuntimeException("Landmark class ("
+                        + landmarkClassName + ") not found. Can't boot Ymir."
+                        + SP + "You MUST put the landmark class"
+                        + " in the jar" + " or in WEB-INF/classes.");
+            }
+        }
+        return landmarkList.toArray(new Class<?>[0]);
     }
 
     Configuration getConfiguration() {

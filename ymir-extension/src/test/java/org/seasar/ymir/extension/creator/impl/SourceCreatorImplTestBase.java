@@ -165,8 +165,8 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
                 .setPathMappings(new PathMapping[] { new YmirPathMapping(
                         "/([^/]+)\\.(.+)", "${1}Page") });
         applicationManager.setBaseApplication(new SingleApplication(context,
-                configuration, null, container_, localHotdeployS2Container,
-                pathMappingProvider));
+                configuration, (Class<?>[]) null, container_,
+                localHotdeployS2Container, pathMappingProvider));
         configuration.setProperty(AbstractApplication.KEY_PROJECTROOT,
                 getProjectRootDir().getCanonicalPath());
         configuration.setProperty(AbstractApplication.KEY_WEBAPPSOURCEROOT,
@@ -175,8 +175,7 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         configuration.setProperty(AbstractApplication.KEY_SOURCEDIRECTORY,
                 getSourceDir().getCanonicalPath());
         configuration.setProperty(AbstractApplication.KEY_RESOURCESDIRECTORY,
-                getResourcesDir()
-                        .getCanonicalPath());
+                getResourcesDir().getCanonicalPath());
 
         target_ = (SourceCreatorImpl) container_
                 .getComponent(SourceCreator.class);

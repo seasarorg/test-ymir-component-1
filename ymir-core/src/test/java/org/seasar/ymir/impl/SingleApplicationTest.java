@@ -13,7 +13,7 @@ import org.seasar.framework.mock.servlet.MockServletContextImpl;
 public class SingleApplicationTest extends TestCase {
     private SingleApplication target_ = new SingleApplication(
             new MockServletContextImpl("/context"), new ConfigurationImpl(),
-            null, null, null, null);
+            (Class<?>[]) null, null, null, null);
 
     public void testSave_projectStatusは保存されないこと() throws Exception {
         target_.setProperty(Configuration.KEY_PROJECTSTATUS,

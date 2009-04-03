@@ -104,13 +104,15 @@ public class BeantableManager implements LifecycleListener, HotdeployListener {
         traverser.addClassPattern(targetPackageName, ".*");
         traverser.addIgnoreClassPattern(targetPackageName,
                 "(Abstract)?.*(Base|Dao)");
-        traverser.addReferenceClass(application.getReferenceClass());
+        for (Class<?> referenceClass : application.getReferenceClasses()) {
+            traverser.addReferenceClass(referenceClass);
+        }
         return new ClassTraverserBag(traverser, application);
     }
 
     boolean isEnabled(Application application) {
         return ("true".equals(application.getProperty(APPKEY_BEANTABLE_ENABLE)) && application
-                .getReferenceClass() != null);
+                .getReferenceClasses().length > 0);
     }
 
     public void enableBeantable(Class<?> clazz, boolean correctTableSchema) {

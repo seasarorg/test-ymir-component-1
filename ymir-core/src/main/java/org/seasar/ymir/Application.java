@@ -51,9 +51,10 @@ public interface Application {
      * <p>このメソッドが返すClassが属するファイルシステムやJAR等に存在するClassが
      * S2にコンポーネントを自動登録する際のトラバース対象となります。
      * 
-     * @return 基準となるClassオブジェクト。
+     * @return 基準となるClassオブジェクトの配列。nullが返されることはありません。
+     * @since 1.0.3
      */
-    Class<?> getReferenceClass();
+    Class<?>[] getReferenceClasses();
 
     /**
      * アプリケーション開発プロジェクトのルートディレクトリのパス文字列を返します。

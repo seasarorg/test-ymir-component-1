@@ -47,4 +47,6 @@ public interface Globals {
      */
     String APPKEY_CORE_HANDLER_EXCEPTIONHANDLERINTERFACE_ENABLE = APPKEYPREFIX_CORE
             + "handler.exceptionHandlerInterface.enable";
+
+    String APPKEY_LANDMARK = "landmark";
 }

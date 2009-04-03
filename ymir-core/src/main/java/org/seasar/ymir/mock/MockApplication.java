@@ -50,8 +50,8 @@ public class MockApplication implements Application {
         return prop_.getProperty(key, defaultValue);
     }
 
-    public Class<?> getReferenceClass() {
-        return null;
+    public Class<?>[] getReferenceClasses() {
+        return new Class[0];
     }
 
     public String getResourcesDirectory() {
