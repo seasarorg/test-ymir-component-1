@@ -21,11 +21,11 @@ public class SessionManagerImplITest extends
 
         process(SessionManagerImplPage.class, "getSession");
 
-        assertNull("getSession(false)ではセッションが作成されないこと", getHttpSession());
+        assertNull("getSession(false)ではセッションが作成されないこと", getHttpSession(false));
 
         process(SessionManagerImplPage.class, "getSession2");
 
-        assertNotNull("getSession(true)ではセッションが作成されること", getHttpSession());
+        assertNotNull("getSession(true)ではセッションが作成されること", getHttpSession(false));
     }
 
     public void testInvalidate() throws Exception {
