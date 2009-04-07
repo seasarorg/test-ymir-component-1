@@ -7,4 +7,6 @@
     class="org.seasar.ymir.aop.interceptor.impl.HTTPInterceptor" />
   <component name="HTTPSInterceptor"
     class="org.seasar.ymir.aop.interceptor.impl.HTTPSInterceptor" />
+  <component name="invalidateSessionInterceptor"
+    class="org.seasar.ymir.session.impl.InvalidateSessionInterceptor" />
 </components>
