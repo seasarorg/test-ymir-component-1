@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
+import org.seasar.ymir.token.InvalidTokenRuntimeException;
 import org.seasar.ymir.token.constraint.impl.TokenRequiredConstraint;
 
 /**
@@ -26,4 +27,27 @@ public @interface TokenRequired {
      * @return トークンキーの名前。
      */
     String value() default "";
+
+    /**
+     * トークンのチェックをした後にセッションに保存されているトークンを削除するかどうか。
+     * <p>デフォルトはtrueです。
+     * </p>
+     * 
+     * @return トークンのチェックをした後にセッションに保存されているトークンを削除するかどうか。
+     * @since 1.0.3
+     */
+    boolean reset() default true;
+
+    /**
+     * トークンが不正だった場合に例外をスローするかどうか。
+     * <p>この要素の値がtrueだと、トークンが不正だった場合に{@link InvalidTokenRuntimeException}がスローされます。
+     * falseの場合は例外はスローされず、通常のバリデーションエラーと同じようにエラー内容がNotesに追加されます。
+     * </p>
+     * <p>デフォルトはfalseです。
+     * </p>
+     * 
+     * @return トークンが不正だった場合に例外をスローするかどうか。
+     * @since 1.0.3
+     */
+    boolean throwException() default false;
 }
