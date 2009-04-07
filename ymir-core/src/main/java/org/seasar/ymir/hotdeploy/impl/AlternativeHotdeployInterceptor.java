@@ -1,4 +1,4 @@
-package org.seasar.ymir.interceptor.impl;
+package org.seasar.ymir.hotdeploy.impl;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +11,7 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.hotdeploy.HotdeployEventListener;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
+import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 
 /**
  * JavaRebelのような、S2以外のHOT Deploy機構を利用する際にHOT Deployイベントに関する処理を行なうインターセプタです。
@@ -23,9 +24,8 @@ import org.seasar.ymir.hotdeploy.HotdeployManager;
  * HotdeployEventListenerのメソッドが2回呼ばれてしまいます。
  * </p>
  * 
- * @since 0.9.6
+ * @since 1.0.3
  * @author YOKOTA Takehiko
- * @deprecated 代わりに{@link org.seasar.ymir.hotdeploy.impl.AlternativeHotdeployInterceptor}を使用して下さい。
  */
 public class AlternativeHotdeployInterceptor extends
         AbstractYmirProcessInterceptor {
