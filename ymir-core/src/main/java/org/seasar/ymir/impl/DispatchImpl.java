@@ -50,6 +50,14 @@ public class DispatchImpl implements FrameworkDispatch {
         return originalAction_;
     }
 
+    public String getOriginalActionName() {
+        if (originalAction_ != null) {
+            return originalAction_.getName();
+        } else {
+            return null;
+        }
+    }
+
     public Action getAction() {
         return action_;
     }

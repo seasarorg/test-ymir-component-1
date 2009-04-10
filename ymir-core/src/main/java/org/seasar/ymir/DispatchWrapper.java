@@ -21,6 +21,10 @@ public class DispatchWrapper implements Dispatch {
         return dispatch_.getOriginalAction();
     }
 
+    public String getOriginalActionName() {
+        return dispatch_.getOriginalActionName();
+    }
+
     public Action getAction() {
         return dispatch_.getAction();
     }

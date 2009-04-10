@@ -220,6 +220,16 @@ public class RequestProcessorImpl implements RequestProcessor {
                     try {
                         dispatch.setPageComponent(pageComponent);
 
+                        // PageComponent作成直後に、
+                        // 先にリクエストに対応するアクションを決定しておく。
+                        // Invoke処理をactionName毎に切り替えられるようにした場合
+                        // の布石。
+                        final Action originalAction = dispatch
+                                .getMatchedPathMapping().getAction(
+                                        pageComponent, request);
+                        dispatch.setOriginalAction(originalAction);
+                        dispatch.setAction(originalAction);
+
                         Response r = pageComponent
                                 .accept(visitorForInvokingInPhasePageComponentCreated_);
                         if (r.getType() != ResponseType.PASSTHROUGH) {
@@ -233,14 +243,7 @@ public class RequestProcessorImpl implements RequestProcessor {
                                             pageComponent);
                         }
 
-                        // リクエストに対応するアクションを決定する。
-
-                        final Action originalAction = dispatch
-                                .getMatchedPathMapping().getAction(
-                                        pageComponent, request);
-                        dispatch.setOriginalAction(originalAction);
-                        dispatch.setAction(originalAction);
-
+                        // 実際のアクションを決定する。
                         Action action = originalAction;
                         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
                             action = ymirProcessInterceptors_[i]

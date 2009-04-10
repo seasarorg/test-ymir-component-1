@@ -74,9 +74,28 @@ public interface Dispatch {
      * 
      * @return リクエストを処理する元々のアクション。
      * @see #getAction()
+     * @see #getActionName()
+     * @see #getOriginalActionName()
      * @since 1.0.3
      */
     Action getOriginalAction();
+    
+    /**
+     * リクエストを処理する元々のアクションの名前を返します。
+     * <p>このメソッドが返すアクションの名前は、
+     * リクエストされたパスに対応するアクションの名前です。
+     * 実際に実行されるアクションは{@link YmirProcessInterceptor}等によって
+     * 変更されることがあるため、このメソッドが返すアクションの名前が
+     * 実際に実行されるアクションの名前と一致するとは限りません。
+     * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
+     * 
+     * @return リクエストを処理する元々のアクションの名前。
+     * @see #getAction()
+     * @see #getActionName()
+     * @see #getOriginalAction()
+     * @since 1.0.3
+     */
+    String getOriginalActionName();
 
     /**
      * リクエストを処理する最終的なアクションを返します。
@@ -87,15 +106,24 @@ public interface Dispatch {
      * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
      *
      * @return リクエストを処理する最終的なアクション。
+     * @see #getActionName()
      * @see #getOriginalAction()
+     * @see #getOriginalActionName()
      */
     Action getAction();
 
     /**
-     * パスとHTTPメソッドに対応するアクションの名前を返します。
+     * リクエストを処理する最終的なアクションの名前返します。
+     * <p>このメソッドが返すアクションの名前は、
+     * {@link YmirProcessInterceptor}等によって
+     * 変更された後の最終的なアクションの名前です。
+     * </p>
      * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
      *
-     * @return アクション名。
+     * @return リクエストを処理する最終的なアクションの名前。
+     * @see #getAction()
+     * @see #getOriginalAction()
+     * @see #getOriginalActionName()
      */
     String getActionName();
 
