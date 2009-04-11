@@ -7,8 +7,8 @@
     instance="prototype" />
   <component name="listFitter"
     class="org.seasar.ymir.hotdeploy.fitter.impl.ListFitter" />
-  <component
-    class="org.seasar.ymir.constraint.impl.FugaConstraintBundle" />
+  <component class="org.seasar.ymir.constraint.impl.FugaConstraintBundle" />
   <component class="org.seasar.ymir.constraint.impl.FugaConstraint" />
   <component class="org.seasar.ymir.constraint.impl.FufuConstraint" />
+  <component class="org.seasar.ymir.zpt.checkbox.CheckboxInterceptor" />
 </components>
