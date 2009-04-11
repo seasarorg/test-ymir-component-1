@@ -169,8 +169,10 @@ public class YmirImpl implements Ymir {
             if (dispatcher == Dispatcher.REQUEST) {
                 request = prepareForProcessing(ServletUtils
                         .getContextPath(httpRequest), method, httpRequest
-                        .getCharacterEncoding(), httpRequest.getParameterMap(),
-                        fileParameterMap, attributeContainer);
+                        .getCharacterEncoding(), filterParameterMap(
+                        httpRequest, path, dispatcher, httpRequest
+                                .getParameterMap()), fileParameterMap,
+                        attributeContainer);
                 context.setComponent(Request.class, request);
                 request.setAttribute(ATTR_REQUEST, request);
             } else {
@@ -227,6 +229,22 @@ public class YmirImpl implements Ymir {
                 }
             }
         }
+    }
+
+    Map<String, String[]> filterParameterMap(HttpServletRequest httpRequest,
+            String path, Dispatcher dispatcher,
+            final Map<String, String[]> parameterMap) {
+        if (ymirProcessInterceptors_.length == 0) {
+            // 余計な処理を行なわないようにするため。
+            return parameterMap;
+        }
+
+        Map<String, String[]> map = new HashMap<String, String[]>(parameterMap);
+        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+            ymirProcessInterceptors_[i].filterParameterMap(httpRequest, path,
+                    dispatcher, map);
+        }
+        return Collections.unmodifiableMap(map);
     }
 
     protected void processResponse(ServletContext servletContext,
@@ -543,7 +561,8 @@ public class YmirImpl implements Ymir {
             } else {
                 parameterMap = new HashMap<String, String[]>();
             }
-            parameterMap = Collections.unmodifiableMap(parameterMap);
+            parameterMap = filterParameterMap(httpRequest, path, dispatcher,
+                    Collections.unmodifiableMap(parameterMap));
 
             unwrappedRequest.setMethod(HttpMethod.GET);
         }

@@ -1,5 +1,7 @@
 package org.seasar.ymir.interceptor;
 
+import java.util.Map;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,6 +52,24 @@ public interface YmirProcessInterceptor {
     Response enteringRequest(ServletContext context,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             String path);
+
+    /**
+     * リクエストパラメータを保持するMapを加工できるように呼び出されるメソッドです。
+     * <p>このメソッドは、フレームワークがHTTPリクエストを受け付けた場合と、
+     * proceedによるリクエストを受け付けた場合に呼び出されます。
+     * </p>
+     * <p>渡されるMapは一時的なMapです。
+     * 内容を自由に書き換えて構いません。ただし値としてnullを設定してはいけません。
+     * </p>
+     * 
+     * @param httpRequest HttpServletRequestオブジェクト。
+     * @param path TODO
+     * @param dispatcher 現在のディスパッチャ。
+     * @param parameterMap リクエストパラメータを保持するMap。
+     * @since 1.0.3
+     */
+    void filterParameterMap(HttpServletRequest httpRequest, String path,
+            Dispatcher dispatcher, Map<String, String[]> parameterMap);
 
     /**
      * ディスパッチの処理を開始した際に呼び出されるメソッドです。

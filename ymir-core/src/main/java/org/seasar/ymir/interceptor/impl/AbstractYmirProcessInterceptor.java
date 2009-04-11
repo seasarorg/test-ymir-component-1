@@ -1,5 +1,7 @@
 package org.seasar.ymir.interceptor.impl;
 
+import java.util.Map;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,6 +31,10 @@ abstract public class AbstractYmirProcessInterceptor implements
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             String path) {
         return null;
+    }
+
+    public void filterParameterMap(HttpServletRequest httpRequest,
+            String path, Dispatcher dispatcher, Map<String, String[]> parameterMap) {
     }
 
     public void enteringDispatch(Request request, String path,
