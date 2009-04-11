@@ -13,13 +13,11 @@ import org.seasar.ymir.token.TokenManager;
 import org.seasar.ymir.util.StringUtils;
 
 public class TokenManagerImpl implements TokenManager {
-    public static final String KEY_TOKEN = Globals.IDPREFIX + "token";
-
     private ApplicationManager applicationManager_;
 
     private SessionManager sessionManager_;
 
-    private String tokenKey_ = KEY_TOKEN;
+    private String tokenKey_;
 
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
@@ -32,9 +30,18 @@ public class TokenManagerImpl implements TokenManager {
     }
 
     public String getTokenKey() {
-        return tokenKey_;
+        if (tokenKey_ != null) {
+            return tokenKey_;
+        } else {
+            return applicationManager_.findContextApplication().getProperty(
+                    APPKEY_CORE_TOKEN_KEY, DEFAULT_CORE_TOKEN_KEY);
+        }
     }
 
+    /**
+     * @deprecated 代わりにapp.propertiesを使って指定して下さい。
+     */
+    @Binding(bindingType = BindingType.MAY)
     public void setTokenKey(String tokenKey) {
         tokenKey_ = tokenKey;
     }

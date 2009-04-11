@@ -24,15 +24,13 @@ public class WindowManagerImpl implements WindowManager {
     public static final String ATTRPREFIX_WINDOW_WINDOWID = ATTRPREFIX_WINDOW
             + "windowId.";
 
-    public static final String KEY_WINDOWID = Globals.IDPREFIX + "window.id";
-
     private static final String DEFAULT_WINDOWID = "_self";
 
     private ApplicationManager applicationManager_;
 
     private SessionManager sessionManager_;
 
-    private String windowIdKey_ = KEY_WINDOWID;
+    private String windowIdKey_;
 
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
@@ -48,13 +46,21 @@ public class WindowManagerImpl implements WindowManager {
         sessionManager_.addStraddlingAttributeNamePattern(namePattern);
     }
 
+    /**
+     * @deprecated app.propertiesを使って設定して下さい。
+     */
     @Binding(bindingType = BindingType.MAY)
     public void setWindowIdKey(String windowIdKey) {
         windowIdKey_ = windowIdKey;
     }
 
     public String getWindowIdKey() {
-        return windowIdKey_;
+        if (windowIdKey_ != null) {
+            return windowIdKey_;
+        } else {
+            return applicationManager_.findContextApplication().getProperty(
+                    APPKEY_CORE_WINDOW_KEY, DEFAULT_CORE_WINDOW_KEY);
+        }
     }
 
     Map<String, Object> getScopeMap(String windowId, boolean create) {

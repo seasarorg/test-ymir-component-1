@@ -1,5 +1,6 @@
 package org.seasar.ymir.token;
 
+import org.seasar.ymir.Globals;
 
 /**
  * トランザクショントークンを管理するためのインタフェースです。
@@ -10,6 +11,21 @@ package org.seasar.ymir.token;
  * @author YOKOTA Takehiko
  */
 public interface TokenManager {
+    /**
+     * トークンに関するアプリケーションプロパティのキーの接頭辞です。
+     */
+    String APPKEYPREFIX_CORE_TOKEN = Globals.APPKEYPREFIX_CORE + "token.";
+
+    /**
+     * トークンのキーを指定するためのプロパティのキーです。
+     */
+    String APPKEY_CORE_TOKEN_KEY = APPKEYPREFIX_CORE_TOKEN + "key";
+
+    /**
+     * トークンのキーのデフォルト値です。
+     */
+    String DEFAULT_CORE_TOKEN_KEY = Globals.IDPREFIX + "token";
+
     /**
      * 新しいTokenオブジェクトを生成します。
      * <p>生成した時点ではトークンはセッションに保持されません。

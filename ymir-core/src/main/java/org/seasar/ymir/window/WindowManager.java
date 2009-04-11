@@ -2,6 +2,7 @@ package org.seasar.ymir.window;
 
 import java.util.Iterator;
 
+import org.seasar.ymir.Globals;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.window.impl.WindowScope;
 
@@ -27,6 +28,21 @@ import org.seasar.ymir.window.impl.WindowScope;
  * @author YOKOTA Takehiko
  */
 public interface WindowManager {
+    /**
+     * Windowに関するアプリケーションプロパティのキーの接頭辞です。
+     */
+    String APPKEYPREFIX_CORE_WINDOW = Globals.APPKEYPREFIX_CORE + "window.";
+
+    /**
+     * Window IDをリクエストパラメータとして受け取るためのキーを指定するためのプロパティのキーです。
+     */
+    String APPKEY_CORE_WINDOW_KEY = APPKEYPREFIX_CORE_WINDOW + "key";
+
+    /**
+     * Window IDのキーのデフォルト値です。
+     */
+    String DEFAULT_CORE_WINDOW_KEY = Globals.IDPREFIX + "window";
+
     String getWindowIdKey();
 
     <T> T getScopeAttribute(String name);
