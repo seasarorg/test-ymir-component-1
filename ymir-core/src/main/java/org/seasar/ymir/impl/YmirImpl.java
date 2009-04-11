@@ -179,12 +179,7 @@ public class YmirImpl implements Ymir {
             }
 
             try {
-                for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
-                    ymirProcessInterceptors_[i].enteringDispatch(request, path,
-                            dispatcher);
-                }
-                enterDispatch(request, path, ServletUtils
-                        .getQueryString(httpRequest), dispatcher);
+                enterDispatch(request, path, httpRequest, dispatcher);
                 try {
                     try {
                         if (response == null) {
@@ -318,22 +313,19 @@ public class YmirImpl implements Ymir {
      * 
      * @param request 現在のRequest。
      * @param path ディスパッチのパス。
-     * @param queryString ディスパッチのクエリ文字列。nullを指定することもできます。
+     * @param httpRequest HTTPリクエスト。
      * @param dispatcher ディスパッチを表すDispatcher。
      * @see Dispatch
      * @see Dispatcher
      */
     protected void enterDispatch(Request request, String path,
-            String queryString, Dispatcher dispatcher) {
+            HttpServletRequest httpRequest, Dispatcher dispatcher) {
         MatchedPathMapping matched = findMatchedPathMapping(path, request
                 .getMethod());
         if (dispatcher == Dispatcher.FORWARD) {
             Response response = (Response) request.getAttribute(ATTR_RESPONSE);
             if (!response.isSubordinate()) {
                 // proceedされてきた場合。
-
-                // queryStringとして適切な値が渡ってこないので、ここで差し替える。
-                queryString = ServletUtils.getQueryString(response.getPath());
 
                 // 前のページの情報を削除しておく。
                 // XXX ATTR_NOTESは残した方が便利な気がするので消していない。
@@ -350,8 +342,14 @@ public class YmirImpl implements Ymir {
                 }
             }
         }
+
+        for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
+            ymirProcessInterceptors_[i].enteringDispatch(request, path,
+                    dispatcher);
+        }
         request.enterDispatch(new DispatchImpl(request.getContextPath(), path,
-                queryString, dispatcher, matched));
+                request.getParameterMap(), request.getCharacterEncoding(),
+                dispatcher, matched));
     }
 
     /**
@@ -521,8 +519,9 @@ public class YmirImpl implements Ymir {
     protected void updateRequest(Request request,
             HttpServletRequest httpRequest, Dispatcher dispatcher) {
         if (dispatcher != Dispatcher.FORWARD) {
-            // 例えばINCLUDEに関してはインクルード元Pageの処理の時に被インクルードPageのアクション呼び出し等が完了しているため、
-            // ここでパラメータを調整しても仕方がない。そのため何もしないようになっている。
+            // REQUESTの時はRequestを更新する必要はない。
+            // また、INCLUDEに関してはインクルード元Pageの処理の時に被インクルードPageのアクション呼び出し等が完了しているため、
+            // ここでパラメータを調整しても仕方がないので何もしない。
             return;
         }
 

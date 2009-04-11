@@ -29,6 +29,7 @@ public interface Dispatch {
      * クエリ文字列を返します。
      * 
      * @return クエリ文字列。クエリ文字列が付与されていない場合はnullを返します。
+     * @deprecated 代わりに{@link #getQueryParameterMap()}を使って下さい。
      */
     String getQueryString();
 
@@ -79,7 +80,7 @@ public interface Dispatch {
      * @since 1.0.3
      */
     Action getOriginalAction();
-    
+
     /**
      * リクエストを処理する元々のアクションの名前を返します。
      * <p>このメソッドが返すアクションの名前は、
@@ -136,12 +137,31 @@ public interface Dispatch {
     String getPathInfo();
 
     /**
-     * パスから取り出したパラメータ情報を返します。
+     * パスから取り出したパラメータを格納しているMapを返します。
      * 
-     * @return パラメータ情報。
+     * @return パラメータを格納しているMap。
      * パスにマッチしたPathMappingルールが持つパラメータテンプレートがnullの場合はnullが返されます。
+     * @deprecated 代わりに{@link #getPathParameterMap()}を使用して下さい。
      */
     Map<String, String[]> getParameterMap();
+
+    /**
+     * パスから取り出したパラメータを格納しているMapを返します。
+     * 
+     * @return パラメータを格納しているMap。
+     * パスにマッチしたPathMappingルールが持つパラメータテンプレートがnullの場合はnullが返されます。
+     * @since 1.0.3
+     */
+    Map<String, String[]> getPathParameterMap();
+
+    /**
+     * パスに付与されているクエリパラメータを格納しているMapを返します。
+     * <p>ファイルパラメータは対象外です。</p>
+     *
+     * @return クエリパラメータを格納しているMap。
+     * @since 1.0.3
+     */
+    Map<String, String[]> getQueryParameterMap();
 
     /**
      * パスがパスマッピングにマッチしたかどうかを返します。

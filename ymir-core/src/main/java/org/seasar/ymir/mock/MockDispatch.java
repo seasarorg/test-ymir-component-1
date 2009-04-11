@@ -13,6 +13,8 @@ public class MockDispatch implements Dispatch {
 
     private String queryString_;
 
+    private Map<String, String[]> queryParameterMap_;
+
     private Dispatcher dispatcher_;
 
     private MatchedPathMapping matched_;
@@ -97,6 +99,10 @@ public class MockDispatch implements Dispatch {
     }
 
     public Map<String, String[]> getParameterMap() {
+        return getPathParameterMap();
+    }
+
+    public Map<String, String[]> getPathParameterMap() {
         if (parameterMap_ != null) {
             return parameterMap_;
         } else {
@@ -107,6 +113,14 @@ public class MockDispatch implements Dispatch {
     public MockDispatch setParameterMap(Map<String, String[]> parameterMap) {
         parameterMap_ = parameterMap;
         return this;
+    }
+
+    public Map<String, String[]> getQueryParameterMap() {
+        return queryParameterMap_;
+    }
+
+    public void setQueryParameterMap(Map<String, String[]> queryParameterMap) {
+        queryParameterMap_ = queryParameterMap;
     }
 
     public MatchedPathMapping getMatchedPathMapping() {

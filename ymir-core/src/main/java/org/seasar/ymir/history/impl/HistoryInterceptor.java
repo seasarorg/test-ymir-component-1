@@ -69,9 +69,8 @@ public class HistoryInterceptor extends AbstractYmirProcessInterceptor {
     protected HistoryElement newHistoryElement(Request request) {
         HistoryElementImpl element = new HistoryElementImpl();
         Dispatch dispatch = request.getCurrentDispatch();
-        element
-                .setPath(new Path(dispatch.getPath(), dispatch
-                        .getParameterMap()));
+        element.setPath(new Path(dispatch.getPath(), dispatch
+                .getQueryParameterMap()));
 
         Conversations conversations = conversationManager_
                 .getConversations(false);

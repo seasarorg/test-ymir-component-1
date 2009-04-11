@@ -56,8 +56,17 @@ class FrameworkDispatchImpl implements FrameworkDispatch {
         return dispatch_.getPageComponentName();
     }
 
+    @Deprecated
     public Map<String, String[]> getParameterMap() {
         return dispatch_.getParameterMap();
+    }
+
+    public Map<String, String[]> getPathParameterMap() {
+        return dispatch_.getPathParameterMap();
+    }
+
+    public Map<String, String[]> getQueryParameterMap() {
+        return dispatch_.getQueryParameterMap();
     }
 
     public String getPath() {
@@ -68,6 +77,7 @@ class FrameworkDispatchImpl implements FrameworkDispatch {
         return dispatch_.getPathInfo();
     }
 
+    @Deprecated
     public String getQueryString() {
         return dispatch_.getQueryString();
     }

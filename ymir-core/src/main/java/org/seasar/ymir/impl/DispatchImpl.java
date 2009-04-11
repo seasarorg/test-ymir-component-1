@@ -1,5 +1,6 @@
 package org.seasar.ymir.impl;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -8,11 +9,14 @@ import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FrameworkDispatch;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
+import org.seasar.ymir.util.ServletUtils;
 
 public class DispatchImpl implements FrameworkDispatch {
     private String contextPath_;
 
     private String path_;
+
+    private Map<String, String[]> queryParameterMap_;
 
     private String queryString_;
 
@@ -29,21 +33,26 @@ public class DispatchImpl implements FrameworkDispatch {
     public DispatchImpl() {
     }
 
-    public DispatchImpl(String contextPath, String path, String queryString,
-            Dispatcher dispatcher, MatchedPathMapping matched) {
+    public DispatchImpl(String contextPath, String path,
+            Map<String, String[]> queryParameterMap,
+            String queryParameterEncoding, Dispatcher dispatcher,
+            MatchedPathMapping matched) {
         contextPath_ = contextPath;
         path_ = path;
-        queryString_ = queryString;
+        queryParameterMap_ = queryParameterMap;
+        try {
+            String queryString = ServletUtils.constructURI("",
+                    queryParameterMap, queryParameterEncoding);
+            queryString_ = "".equals(queryString) ? null : queryString;
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException("Can't happen!", ex);
+        }
         dispatcher_ = dispatcher;
         matched_ = matched;
     }
 
     public Dispatcher getDispatcher() {
         return dispatcher_;
-    }
-
-    public void setDispatcher(Dispatcher dispatcher) {
-        dispatcher_ = dispatcher;
     }
 
     public Action getOriginalAction() {
@@ -82,16 +91,8 @@ public class DispatchImpl implements FrameworkDispatch {
         return path_;
     }
 
-    public void setPath(String path) {
-        path_ = path;
-    }
-
     public String getQueryString() {
         return queryString_;
-    }
-
-    public void setQueryString(String queryString) {
-        queryString_ = queryString;
     }
 
     public String getAbsolutePath() {
@@ -127,6 +128,10 @@ public class DispatchImpl implements FrameworkDispatch {
     }
 
     public Map<String, String[]> getParameterMap() {
+        return getPathParameterMap();
+    }
+
+    public Map<String, String[]> getPathParameterMap() {
         if (matched_ != null) {
             Map<String, String[]> parameterMap = matched_.getParameterMap();
             if (parameterMap != null) {
@@ -134,6 +139,10 @@ public class DispatchImpl implements FrameworkDispatch {
             }
         }
         return Collections.emptyMap();
+    }
+
+    public Map<String, String[]> getQueryParameterMap() {
+        return queryParameterMap_;
     }
 
     public MatchedPathMapping getMatchedPathMapping() {

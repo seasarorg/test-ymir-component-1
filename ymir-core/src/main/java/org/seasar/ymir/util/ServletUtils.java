@@ -12,7 +12,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.Map.Entry;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -304,7 +306,7 @@ public class ServletUtils {
      * @throws UnsupportedEncodingException 指定された文字エンコーディングが存在しない場合。
      */
     public static String constructURI(String path,
-            Map<String, Object> paramMap, String encoding)
+            Map<String, ? extends Object> paramMap, String encoding)
             throws UnsupportedEncodingException {
         if (paramMap == null) {
             return path;
@@ -315,10 +317,10 @@ public class ServletUtils {
         }
         StringBuilder sb = new StringBuilder(path);
         String delim = "?";
-        Iterator<Map.Entry<String, Object>> itr = paramMap.entrySet()
-                .iterator();
-        while (itr.hasNext()) {
-            Map.Entry<String, Object> entry = itr.next();
+        for (Iterator<?> itr = paramMap.entrySet().iterator(); itr.hasNext();) {
+            @SuppressWarnings("unchecked")
+            Map.Entry<String, ? extends Object> entry = (Entry<String, ? extends Object>) itr
+                    .next();
             String key = entry.getKey();
             Object value = entry.getValue();
             if (key == null || value == null) {

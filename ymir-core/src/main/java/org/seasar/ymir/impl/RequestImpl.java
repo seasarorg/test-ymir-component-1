@@ -218,7 +218,7 @@ public class RequestImpl implements FrameworkRequest {
         dispatch_ = dispatch;
 
         parameterMap_ = mergeParameterMap(queryParameterMap_, dispatch
-                .getParameterMap());
+                .getPathParameterMap());
     }
 
     Map<String, String[]> mergeParameterMap(

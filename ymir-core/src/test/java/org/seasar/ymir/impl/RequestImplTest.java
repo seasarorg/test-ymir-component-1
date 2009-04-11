@@ -15,6 +15,7 @@ import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.PathMapping;
+import org.seasar.ymir.util.ServletUtils;
 
 public class RequestImplTest extends TestCase {
     private RequestImpl target_;
@@ -39,8 +40,9 @@ public class RequestImplTest extends TestCase {
                 "param=value_u1;param=value_u2;param2=value2_u");
 
         target_.enterDispatch(new DispatchImpl(target_.getContextPath(), path,
-                queryString, Dispatcher.REQUEST, new MatchedPathMappingImpl(
-                        pathMapping, pathMapping.match(path, method))));
+                ServletUtils.parseParameters(queryString, "UTF-8"), "UTF-8",
+                Dispatcher.REQUEST, new MatchedPathMappingImpl(pathMapping,
+                        pathMapping.match(path, method))));
     }
 
     public void testGetParameter() throws Exception {
