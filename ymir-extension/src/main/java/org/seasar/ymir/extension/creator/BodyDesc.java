@@ -2,7 +2,7 @@ package org.seasar.ymir.extension.creator;
 
 import java.util.Map;
 
-import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
+import org.seasar.ymir.constraint.ConstraintInterceptor;
 
 public interface BodyDesc extends Cloneable {
     String KEY_ASIS = "asIs";

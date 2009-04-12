@@ -4,8 +4,8 @@ import java.util.HashMap;
 
 import org.seasar.ymir.Application;
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.constraint.ConstraintInterceptor;
 import org.seasar.ymir.constraint.PermissionDeniedException;
-import org.seasar.ymir.constraint.impl.ConstraintInterceptor;
 import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
