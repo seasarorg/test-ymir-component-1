@@ -1,6 +1,7 @@
-package org.seasar.ymir.constraint.impl;
+package org.seasar.ymir.constraint;
 
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
+import org.seasar.ymir.constraint.ConstraintInterceptor;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.servlet.MockHttpServletRequest;
 import org.seasar.ymir.testing.PageTestCase;
