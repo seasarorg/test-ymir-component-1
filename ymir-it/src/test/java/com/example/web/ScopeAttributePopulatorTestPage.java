@@ -1,5 +1,6 @@
 package com.example.web;
 
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.scope.ScopeManager;
@@ -27,6 +28,7 @@ public class ScopeAttributePopulatorTestPage {
     public void _get() {
         ScopeAttributePopulatorImpl target = new ScopeAttributePopulatorImpl(
                 testCase_.getComponent(RequestParameterScope.class), testCase_
+                        .getComponent(ActionManager.class), testCase_
                         .getComponent(AnnotationHandler.class), testCase_
                         .getComponent(ScopeManager.class), testCase_
                         .getComponent(TypeConversionManager.class));
