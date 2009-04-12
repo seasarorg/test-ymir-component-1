@@ -78,6 +78,8 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private Set<String> ignoreVariableSet_ = new HashSet<String>();
 
+    private Set<String> usedAsImplementationSet_ = new HashSet<String>();
+
     private String path_;
 
     private ClassCreationHintBag hintBag_;
@@ -305,7 +307,7 @@ public class AnalyzerContext extends ZptTemplateContext {
                 }
             }
             if (!undefinedPropertyFound) {
-                classDesc.setName(renderClassName);
+                replaceClassName(classDesc, renderClassName);
                 itr.remove();
             }
         }
@@ -333,13 +335,40 @@ public class AnalyzerContext extends ZptTemplateContext {
                 .iterator(); itr.hasNext();) {
             ClassDesc classDesc = itr.next();
 
-            // PageクラスとPageクラスから利用されているDTOと、外部で定義されている変数の型クラス
+            // PageクラスとPageクラスから利用されているDTOと、外部で定義されている変数の型クラスと、
+            // renderクラスのプロパティのうちインタフェース型であるものの実装クラスとみなされているクラス
             // 以外は無視する。
             if (isPage(classDesc)) {
                 registerAvailablePagesAndDtos(classDesc);
             } else if (isUsedAsVariable(classDesc.getName())
-                    && !isUsedAsLocalVariable(classDesc.getName())) {
+                    && !isUsedAsLocalVariable(classDesc.getName())
+                    || usedAsImplementationSet_.contains(classDesc.getName())) {
                 register(classDesc);
+            }
+        }
+    }
+
+    void replaceClassName(ClassDesc classDesc, String className) {
+        classDesc.setName(className);
+
+        for (PropertyDesc propertyDesc : classDesc.getPropertyDescs()) {
+            PropertyDescriptor pd = sourceCreator_.getPropertyDescriptor(
+                    className, propertyDesc.getName());
+            if (pd == null) {
+                continue;
+            }
+
+            Class<?> type = sourceCreator_.getClass(DescUtils
+                    .getComponentPropertyTypeName(pd));
+            if (type == null) {
+                continue;
+            }
+            ClassDesc componentClassDesc = propertyDesc.getTypeDesc()
+                    .getComponentClassDesc();
+            if (type.isInterface() && isDto(componentClassDesc)) {
+                usedAsImplementationSet_.add(componentClassDesc.getName());
+                // TODO componentClassDescに"implements [type]"を追加できると
+                // よいかもしれない…。
             }
         }
     }

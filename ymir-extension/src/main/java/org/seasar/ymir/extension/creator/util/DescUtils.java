@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -62,6 +63,15 @@ public class DescUtils {
             return DescUtils.toString(method.getGenericParameterTypes()[0]);
         }
         return pd.getPropertyType().getName();
+    }
+
+    public static String getComponentPropertyTypeName(PropertyDescriptor pd) {
+        if (Collection.class.isAssignableFrom(pd.getPropertyType())) {
+            return new TypeToken(getGenericPropertyTypeName(pd)).getTypes()[0]
+                    .getBaseName();
+        } else {
+            return getComponentName(getNonGenericClassName(getGenericPropertyTypeName(pd)));
+        }
     }
 
     public static String getComponentName(String className) {

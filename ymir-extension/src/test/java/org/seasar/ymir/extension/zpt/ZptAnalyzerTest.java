@@ -1401,4 +1401,17 @@ public class ZptAnalyzerTest extends TestCase {
                 .getPropertyDesc("checked");
         assertEquals("boolean", pd.getTypeDesc().getName());
     }
+
+    public void testAnalyze76_renderクラスのインタフェース型のプロパティに対応するDto型は残されること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+
+        act("testAnalyze76");
+
+        ClassDesc actual = getClassDesc("com.example.dto.CandidateDto");
+        assertNotNull(actual);
+    }
 }

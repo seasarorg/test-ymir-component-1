@@ -4,7 +4,9 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -75,5 +77,22 @@ public class DescUtilsTest extends TestCase {
         Method method = Hoe.class.getMethod("getList", new Class[0]);
         assertEquals("java.util.List<java.lang.String>[]", DescUtils
                 .toString(method.getGenericReturnType()));
+    }
+
+    public void test_getComponentPropertyTypeName() throws Exception {
+        BeanInfo beanInfo = Introspector.getBeanInfo(DescUtilsBean.class);
+        Map<String, PropertyDescriptor> map = new HashMap<String, PropertyDescriptor>();
+        for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+            map.put(pd.getName(), pd);
+        }
+
+        assertEquals("java.lang.String", DescUtils
+                .getComponentPropertyTypeName(map.get("value1")));
+
+        assertEquals("java.lang.String", DescUtils
+                .getComponentPropertyTypeName(map.get("value2")));
+
+        assertEquals("java.lang.String", DescUtils
+                .getComponentPropertyTypeName(map.get("value3")));
     }
 }

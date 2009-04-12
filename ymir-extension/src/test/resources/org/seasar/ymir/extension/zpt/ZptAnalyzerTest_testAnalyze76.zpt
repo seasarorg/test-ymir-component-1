@@ -1,0 +1,16 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body tal:define="form self/form">
+  <form name="form" action="./index.html" method="post">
+    <table>
+      <tr tal:repeat="candidate self/selector/candidates">
+        <td><input type="checkbox" name="selector.selectedValues" tal:attributes="value candidate/value; checked candidate/selected" /></td>
+        <td><input type="text" tal:define="name string:selector.candidates[${repeat/candidate/index}].label" tal:attributes="name name; value param-self/?name" /></td>
+        <td tal:content="candidate/body"></td>
+      </tr>
+    </table>
+  </form>
+  </body>
+</html>
