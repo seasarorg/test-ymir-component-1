@@ -1,4 +1,4 @@
-package org.seasar.ymir.window.impl;
+package org.seasar.ymir.window;
 
 import static org.seasar.ymir.window.impl.WindowManagerImpl.ATTRPREFIX_WINDOW_WINDOWID;
 
@@ -9,7 +9,6 @@ import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.session.SessionManager;
-import org.seasar.ymir.window.WindowManager;
 
 public class WindowInterceptor extends AbstractYmirProcessInterceptor {
     private SessionManager sessionManager_;

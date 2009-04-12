@@ -1,4 +1,4 @@
-package org.seasar.ymir.hotdeploy.impl;
+package org.seasar.ymir.hotdeploy;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -9,8 +9,6 @@ import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.YmirContext;
-import org.seasar.ymir.hotdeploy.HotdeployEventListener;
-import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 
 /**

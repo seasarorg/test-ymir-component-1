@@ -25,7 +25,7 @@ import org.seasar.ymir.hotdeploy.HotdeployManager;
  * 
  * @since 0.9.6
  * @author YOKOTA Takehiko
- * @deprecated 代わりに{@link org.seasar.ymir.hotdeploy.impl.AlternativeHotdeployInterceptor}を使用して下さい。
+ * @deprecated 代わりに{@link org.seasar.ymir.hotdeploy.AlternativeHotdeployInterceptor}を使用して下さい。
  */
 public class AlternativeHotdeployInterceptor extends
         AbstractYmirProcessInterceptor {

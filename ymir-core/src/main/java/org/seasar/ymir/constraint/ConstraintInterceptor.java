@@ -1,4 +1,4 @@
-package org.seasar.ymir.constraint.impl;
+package org.seasar.ymir.constraint;
 
 import static org.seasar.ymir.RequestProcessor.ATTR_NOTES;
 import static org.seasar.ymir.constraint.Globals.APPKEY_CORE_CONSTRAINT_PERMISSIONDENIEDMETHOD_ENABLE;
@@ -35,17 +35,10 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.cache.CacheManager;
-import org.seasar.ymir.constraint.ConfirmationDecider;
-import org.seasar.ymir.constraint.Constraint;
-import org.seasar.ymir.constraint.ConstraintBundle;
-import org.seasar.ymir.constraint.ConstraintType;
-import org.seasar.ymir.constraint.ConstraintViolatedException;
-import org.seasar.ymir.constraint.Globals;
-import org.seasar.ymir.constraint.PermissionDeniedException;
-import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
 import org.seasar.ymir.constraint.annotation.SuppressConstraints;
 import org.seasar.ymir.constraint.annotation.Validator;
+import org.seasar.ymir.constraint.impl.ConstraintBag;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.util.ClassUtils;

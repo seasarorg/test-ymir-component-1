@@ -1,4 +1,4 @@
-package org.seasar.ymir.scope.impl;
+package org.seasar.ymir.scope;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,7 +17,6 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.impl.PageComponentImpl;
 import org.seasar.ymir.impl.VisitorForInvoking;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
-import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.util.ClassUtils;
 
 public class ScopeInterceptor extends AbstractYmirProcessInterceptor {

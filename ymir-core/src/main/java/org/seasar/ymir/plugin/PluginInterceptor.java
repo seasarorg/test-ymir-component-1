@@ -1,4 +1,4 @@
-package org.seasar.ymir.plugin.impl;
+package org.seasar.ymir.plugin;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -23,7 +23,6 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.cache.CacheManager;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
-import org.seasar.ymir.plugin.Plugin;
 import org.seasar.ymir.plugin.annotation.PluginAnnotation;
 
 /**

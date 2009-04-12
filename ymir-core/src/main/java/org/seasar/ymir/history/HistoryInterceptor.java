@@ -1,4 +1,4 @@
-package org.seasar.ymir.history.impl;
+package org.seasar.ymir.history;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
@@ -12,9 +12,7 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.conversation.ConversationManager;
 import org.seasar.ymir.conversation.Conversations;
-import org.seasar.ymir.history.Conversation;
-import org.seasar.ymir.history.HistoryElement;
-import org.seasar.ymir.history.HistoryManager;
+import org.seasar.ymir.history.impl.HistoryElementImpl;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.util.RequestUtils;
 import org.seasar.ymir.util.ResponseUtils;

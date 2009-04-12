@@ -1,4 +1,4 @@
-package org.seasar.ymir.redirection.impl;
+package org.seasar.ymir.redirection;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -10,7 +10,6 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
-import org.seasar.ymir.redirection.RedirectionManager;
 
 public class RedirectionInterceptor extends AbstractYmirProcessInterceptor {
     private RedirectionManager redirectionManager_;

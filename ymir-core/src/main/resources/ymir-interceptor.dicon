@@ -4,7 +4,7 @@
 <components>
   <include path="ymir-component.dicon" />
   <component name="conversationInterceptor"
-    class="org.seasar.ymir.conversation.impl.ConversationInterceptor">
+    class="org.seasar.ymir.conversation.ConversationInterceptor">
     <!--
       Conversationの最新の状況に従って正しくConversationScopeからのInjectionを行なうために、
       conversationInterceptorのpriorityをScopeInterceptorよりも高くしています。
@@ -12,27 +12,27 @@
     <property name="priority">25.0</property>
   </component>
   <component name="scopeInterceptor"
-    class="org.seasar.ymir.scope.impl.ScopeInterceptor">
+    class="org.seasar.ymir.scope.ScopeInterceptor">
     <property name="priority">50.0</property>
   </component>
   <component name="constraintInterceptor"
-    class="org.seasar.ymir.constraint.impl.ConstraintInterceptor">
+    class="org.seasar.ymir.constraint.ConstraintInterceptor">
     <property name="priority">60.0</property>
   </component>
   <component name="pluginInterceptor"
-    class="org.seasar.ymir.plugin.impl.PluginInterceptor">
+    class="org.seasar.ymir.plugin.PluginInterceptor">
     <property name="priority">100.0</property>
   </component>
   <component name="windowInterceptor"
-    class="org.seasar.ymir.window.impl.WindowInterceptor">
+    class="org.seasar.ymir.window.WindowInterceptor">
     <property name="priority">100.0</property>
   </component>
   <component name="redirectionInterceptor"
-    class="org.seasar.ymir.redirection.impl.RedirectionInterceptor">
+    class="org.seasar.ymir.redirection.RedirectionInterceptor">
     <property name="priority">100.0</property>
   </component>
   <component name="historyInterceptor"
-    class="org.seasar.ymir.history.impl.HistoryInterceptor">
+    class="org.seasar.ymir.history.HistoryInterceptor">
     <!--
       actionInvoking()の中でActionを差し替える可能性のあるインターセプタの
       priorityはこのpriorityよりも小さくなくてはいけません！ 
@@ -40,7 +40,7 @@
     <property name="priority">5000.0</property>
   </component>
   <component name="sessionInterceptor"
-    class="org.seasar.ymir.session.impl.SessionInterceptor">
+    class="org.seasar.ymir.session.SessionInterceptor">
     <!--
       leavingRequest()内でセッションの属性値をdirtyにする可能性のあるインターセプタの
       priorityはこのpriorityよりも小さくなくてはいけません！ 

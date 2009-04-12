@@ -1,4 +1,4 @@
-package org.seasar.ymir.session.impl;
+package org.seasar.ymir.session;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -9,7 +9,8 @@ import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
-import org.seasar.ymir.session.SessionManager;
+import org.seasar.ymir.session.impl.AttributeListener;
+import org.seasar.ymir.session.impl.SessionManagerImpl;
 
 /**
  * リクエスト内で変更された可能性のあるセッション属性値を更新するためのインターセプタです。

@@ -1,4 +1,4 @@
-package org.seasar.ymir.conversation.impl;
+package org.seasar.ymir.conversation;
 
 import java.lang.reflect.Method;
 
@@ -14,14 +14,12 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.annotation.Bool;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
-import org.seasar.ymir.conversation.BeginCondition;
-import org.seasar.ymir.conversation.ConversationUtils;
-import org.seasar.ymir.conversation.Conversations;
-import org.seasar.ymir.conversation.Globals;
 import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.conversation.annotation.BeginSubConversation;
 import org.seasar.ymir.conversation.annotation.Conversation;
 import org.seasar.ymir.conversation.annotation.End;
+import org.seasar.ymir.conversation.impl.BeginSubConversationMethodInvoker;
+import org.seasar.ymir.conversation.impl.EndConversationMethodInvoker;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 
 /**

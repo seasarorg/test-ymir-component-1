@@ -2,7 +2,6 @@ package org.seasar.ymir.redirection;
 
 import java.util.Iterator;
 
-import org.seasar.ymir.redirection.impl.RedirectionInterceptor;
 
 /**
  * RedirectionScopeに関する操作を提供するためのインタフェースです。
