@@ -86,4 +86,12 @@ public class StringUtils {
         return new LinkedHashSet<String>(Arrays.asList(strings))
                 .toArray(new String[0]);
     }
+
+    public static String asString(Object obj) {
+        if (obj == null) {
+            return null;
+        } else {
+            return obj.toString();
+        }
+    }
 }
