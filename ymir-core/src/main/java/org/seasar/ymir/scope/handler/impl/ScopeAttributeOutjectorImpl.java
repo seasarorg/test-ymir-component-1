@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.kvasir.util.io.IORuntimeException;
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.handler.ScopeAttributeOutjector;
 import org.seasar.ymir.util.ClassUtils;
@@ -16,9 +17,9 @@ public class ScopeAttributeOutjectorImpl extends AbstractScopeAttributeHandler
 
     public ScopeAttributeOutjectorImpl(String name, Scope scope,
             Method outjectionMethod, boolean outjectWhereNull,
-            String[] enabledActionNames) {
+            String[] enabledActionNames, ActionManager actionManager) {
         super(name, scope, outjectionMethod, outjectWhereNull,
-                enabledActionNames);
+                enabledActionNames, actionManager);
     }
 
     public void outjectFrom(Object component, String actionName) {

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.seasar.framework.util.ArrayUtil;
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.MethodHolder;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
@@ -14,12 +15,16 @@ import org.seasar.ymir.util.ClassUtils;
 
 class ExceptionHandlerActionMethodHolder implements
         MethodHolder<ExceptionHandlerActionMethodCondition> {
+    private ActionManager actionManager_;
+
     private AnnotationHandler annotationHandler_;
 
     private Map<Class<?>, Entry[]> entriesMap_ = new HashMap<Class<?>, Entry[]>();
 
     public ExceptionHandlerActionMethodHolder(Class<?> handlerClass,
-            boolean global, AnnotationHandler annotationHandler) {
+            boolean global, ActionManager actionManager,
+            AnnotationHandler annotationHandler) {
+        actionManager_ = actionManager;
         annotationHandler_ = annotationHandler;
 
         for (Method method : ClassUtils.getMethods(handlerClass)) {
@@ -88,15 +93,9 @@ class ExceptionHandlerActionMethodHolder implements
                 && (clazz = clazz.getSuperclass()) != Object.class);
         if (entries != null) {
             for (Entry entry : entries) {
-                String[] actionNames = entry.getAnnotation().actionName();
-                if (actionNames.length == 0) {
+                if (actionManager_.isMatched(actionName, entry.getAnnotation()
+                        .actionName())) {
                     return entry.getMethod();
-                } else if (actionName != null) {
-                    for (String name : actionNames) {
-                        if (name.equals(actionName)) {
-                            return entry.getMethod();
-                        }
-                    }
                 }
             }
         }

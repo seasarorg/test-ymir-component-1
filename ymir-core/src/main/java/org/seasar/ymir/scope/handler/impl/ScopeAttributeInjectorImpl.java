@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.kvasir.util.io.IORuntimeException;
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.scope.AttributeNotFoundRuntimeException;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.ScopeManager;
@@ -28,8 +29,10 @@ public class ScopeAttributeInjectorImpl extends AbstractScopeAttributeHandler
     public ScopeAttributeInjectorImpl(String name, Class<?> type,
             Annotation[] hint, Scope scope, Method injectionMethod,
             boolean injectWhereNull, boolean required,
-            String[] enabledActionNames, ScopeManager scopeManager) {
-        super(name, scope, injectionMethod, injectWhereNull, enabledActionNames);
+            String[] enabledActionNames, ActionManager actionManager,
+            ScopeManager scopeManager) {
+        super(name, scope, injectionMethod, injectWhereNull,
+                enabledActionNames, actionManager);
         type_ = type;
         hint_ = hint;
         required_ = required;

@@ -71,8 +71,9 @@ public class ExceptionProcessorImplTest extends TestCase {
         cacheManager.setHotdeployManager(hotdeployManager);
         scopeManager.setAnnotationHandler(annotationHandler);
         scopeManager.setApplicationManager(applicationManager);
-        scopeManager.setCacheManager(cacheManager);
         scopeManager.setHotdeployManager(hotdeployManager);
+        actionManager.setCacheManager(cacheManager);
+        scopeManager.setCacheManager(cacheManager);
         TypeConversionManagerImpl typeConversionManager = new TypeConversionManagerImpl();
         scopeManager.setTypeConversionManager(typeConversionManager);
         typeConversionManager.setHotdeployManager(hotdeployManager);

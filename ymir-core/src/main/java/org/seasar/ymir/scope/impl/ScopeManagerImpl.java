@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.YmirContext;
@@ -25,6 +26,8 @@ import org.seasar.ymir.scope.handler.ScopeAttributeResolver;
 import org.seasar.ymir.util.ClassUtils;
 
 public class ScopeManagerImpl implements ScopeManager {
+    private ActionManager actionManager_;
+
     private ApplicationManager applicationManager_;
 
     private AnnotationHandler annotationHandler_;
@@ -34,6 +37,11 @@ public class ScopeManagerImpl implements ScopeManager {
     private TypeConversionManager typeConversionManager_;
 
     private Map<Class<?>, ScopeMetaData> metaDataMap_;
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setActionManager(ActionManager actionManager) {
+        actionManager_ = actionManager;
+    }
 
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
@@ -115,8 +123,8 @@ public class ScopeManagerImpl implements ScopeManager {
 
     protected ScopeMetaData newInstance(Class<?> clazz) {
         return new ScopeMetaDataImpl(clazz, applicationManager_
-                .findContextApplication().getS2Container(), annotationHandler_,
-                this, typeConversionManager_);
+                .findContextApplication().getS2Container(), actionManager_,
+                annotationHandler_, this, typeConversionManager_);
     }
 
     public void populateScopeAttributes(PageComponent pageComponent,

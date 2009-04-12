@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.scope.Scope;
 
 /**
@@ -23,9 +24,11 @@ abstract public class AbstractScopeAttributeHandler {
 
     protected Method method_;
 
-    protected Set<String> enabledActionNameSet_;
-
     protected boolean invokeWhereNull_;
+
+    private String[] enabledActionNames_;
+
+    private ActionManager actionManager_;
 
     /**
      * このクラスのオブジェクトを構築します。
@@ -37,24 +40,20 @@ abstract public class AbstractScopeAttributeHandler {
      * @param invokeWhereNull 属性値がnullであった場合でもPageオブジェクトに対してインジェクト／アウトジェクト操作を行なうかどうか。
      * @param enabledActionNames 属性が有効であるようなアクションの名前。
      * どのアクション呼び出しの時にこの属性に関する操作を行なうかを表します。
+     * @param actionManager ActionManagerオブジェクト。
      */
     protected AbstractScopeAttributeHandler(String name, Scope scope,
-            Method method, boolean invokeWhereNull, String[] enabledActionNames) {
+            Method method, boolean invokeWhereNull,
+            String[] enabledActionNames, ActionManager actionManager) {
         name_ = name;
         scope_ = scope;
         method_ = method;
         invokeWhereNull_ = invokeWhereNull;
-        if (enabledActionNames.length > 0) {
-            enabledActionNameSet_ = new HashSet<String>(Arrays
-                    .asList(enabledActionNames));
-        }
+        enabledActionNames_ = enabledActionNames;
+        actionManager_ = actionManager;
     }
 
     protected boolean isEnabled(String actionName) {
-        if (enabledActionNameSet_ == null) {
-            return true;
-        } else {
-            return enabledActionNameSet_.contains(actionName);
-        }
+        return actionManager_.isMatched(actionName, enabledActionNames_);
     }
 }

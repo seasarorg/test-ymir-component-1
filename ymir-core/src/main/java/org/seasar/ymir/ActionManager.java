@@ -29,4 +29,14 @@ public interface ActionManager {
      */
     Response constructResponse(Object page, Class<?> returnType,
             Object returnValue);
+
+    /**
+     * 指定されたアクション名が指定されたアクション名のパターンにマッチするかどうかを返します。
+     * 
+     * @param actionName アクション名。nullを指定しても構いません。
+     * @param actionNamePatterns アクション名のパターンの配列。nullを指定しても構いません。
+     * @return マッチするかどうか。
+     * @since 1.0.3
+     */
+    boolean isMatched(String actionName, String[] actionNamePatterns);
 }

@@ -1,5 +1,6 @@
 package org.seasar.ymir.scope.impl;
 
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.ComponentClientTestCase;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
@@ -17,6 +18,7 @@ public class ScopeMetaDataImplTest extends ComponentClientTestCase {
         register(SessionScope.class);
 
         target_ = new ScopeMetaDataImpl(Hoe2Page.class, getContainer(),
+                getComponent(ActionManager.class),
                 getComponent(AnnotationHandler.class),
                 getComponent(ScopeManager.class),
                 getComponent(TypeConversionManager.class)) {

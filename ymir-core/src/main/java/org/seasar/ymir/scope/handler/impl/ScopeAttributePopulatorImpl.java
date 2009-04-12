@@ -11,6 +11,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.kvasir.util.io.IORuntimeException;
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.converter.PropertyHandler;
 import org.seasar.ymir.converter.TypeConversionManager;
@@ -24,6 +25,8 @@ import org.seasar.ymir.util.ClassUtils;
 
 public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
     private Scope scope_;
+
+    private ActionManager actionManager_;
 
     private AnnotationHandler annotationHandler_;
 
@@ -39,9 +42,11 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
             .getLog(ScopeAttributePopulatorImpl.class);
 
     public ScopeAttributePopulatorImpl(Scope scope,
-            AnnotationHandler annotationHandler, ScopeManager scopeManager,
+            ActionManager actionManager, AnnotationHandler annotationHandler,
+            ScopeManager scopeManager,
             TypeConversionManager typeConversionManager) {
         scope_ = scope;
+        actionManager_ = actionManager;
         annotationHandler_ = annotationHandler;
         scopeManager_ = scopeManager;
         typeConversionManager_ = typeConversionManager;
@@ -50,13 +55,13 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
     public void addEntry(Method method, boolean populateWhereNull,
             String[] enabledActionNames) {
         entryByMethodMap_.put(method, new Entry(method, populateWhereNull,
-                enabledActionNames, true));
+                enabledActionNames, actionManager_, true));
     }
 
     public void addEntry(String name, Method method, boolean populateWhereNull,
             String[] enabledActionNames) {
         entryByNameMap_.put(name, new Entry(method, populateWhereNull,
-                enabledActionNames, false));
+                enabledActionNames, actionManager_, false));
     }
 
     public void populateTo(Object component, String actionName) {
@@ -107,18 +112,19 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
 
         private boolean invokeWhereNull_;
 
-        private Set<String> enabledActionNameSet_;
+        private String[] enabledActionNames_;
+
+        private ActionManager actionManager_;
 
         private boolean passive_;
 
         public Entry(Method method, boolean invokeWhereNull,
-                String[] enabledActionNames, boolean passive) {
+                String[] enabledActionNames, ActionManager actionManager,
+                boolean passive) {
             method_ = method;
             invokeWhereNull_ = invokeWhereNull;
-            if (enabledActionNames.length > 0) {
-                enabledActionNameSet_ = new HashSet<String>(Arrays
-                        .asList(enabledActionNames));
-            }
+            enabledActionNames_ = enabledActionNames;
+            actionManager_ = actionManager;
             passive_ = passive;
         }
 
@@ -167,11 +173,7 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
         }
 
         public boolean isEnabled(String actionName) {
-            if (enabledActionNameSet_ == null) {
-                return true;
-            } else {
-                return enabledActionNameSet_.contains(actionName);
-            }
+            return actionManager_.isMatched(actionName, enabledActionNames_);
         }
     }
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.seasar.framework.container.S2Container;
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.MethodNotFoundRuntimeException;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
@@ -38,6 +39,8 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
 
     private S2Container container_;
 
+    private ActionManager actionManager_;
+
     private AnnotationHandler annotationHandler_;
 
     private ScopeManager scopeManager_;
@@ -53,10 +56,12 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
     private Map<Method, ScopeAttributeResolver[]> scopeAttributeResolversMap_ = new HashMap<Method, ScopeAttributeResolver[]>();
 
     public ScopeMetaDataImpl(Class<?> clazz, S2Container container,
-            AnnotationHandler annotationHandler, ScopeManager scopeManager,
+            ActionManager actionManager, AnnotationHandler annotationHandler,
+            ScopeManager scopeManager,
             TypeConversionManager typeConversionManager) {
         class_ = clazz;
         container_ = container;
+        actionManager_ = actionManager;
         annotationHandler_ = annotationHandler;
         scopeManager_ = scopeManager;
         typeConversionManager_ = typeConversionManager;
@@ -134,7 +139,7 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
         ScopeAttributePopulatorImpl populator = scopeAttributePopulatorMap_
                 .get(scope);
         if (populator == null) {
-            populator = new ScopeAttributePopulatorImpl(scope,
+            populator = new ScopeAttributePopulatorImpl(scope, actionManager_,
                     annotationHandler_, scopeManager_, typeConversionManager_);
             scopeAttributePopulatorMap_.put(scope, populator);
         }
@@ -170,7 +175,7 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
                 annotationHandler_.getMarkedAnnotations(method,
                         TypeConversionHint.class), getScope(in), method, in
                         .injectWhereNull(), in.required(), in.actionName(),
-                scopeManager_));
+                actionManager_, scopeManager_));
     }
 
     Scope getScope(In in) {
@@ -257,7 +262,8 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
 
         scopeAttributeOutjectorList_.add(new ScopeAttributeOutjectorImpl(
                 toAttributeName(method.getName(), out.name()), getScope(out),
-                method, out.outjectWhereNull(), out.actionName()));
+                method, out.outjectWhereNull(), out.actionName(),
+                actionManager_));
     }
 
     String toAttributeName(String methodName, String explicitName) {

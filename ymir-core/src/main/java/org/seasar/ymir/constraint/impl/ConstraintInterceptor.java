@@ -382,25 +382,10 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         Method[] validatorMethods = validatorMethodsMap_.get(key);
         if (validatorMethods == null) {
             List<Method> list = new ArrayList<Method>();
-            Method[] methods = ClassUtils.getMethods(pageClass);
-            for (int i = 0; i < methods.length; i++) {
-                String[] actionNames = getValidatorValue(methods[i]);
-                if (actionNames != null) {
-                    if (actionNames.length > 0) {
-                        // 対象アクションが限定されているので、アクションが対象アクションでない
-                        // 場合は無視するようにする。
-                        boolean matched = false;
-                        for (int j = 0; j < actionNames.length; j++) {
-                            if (actionNames[j].equals(actionName)) {
-                                matched = true;
-                                break;
-                            }
-                        }
-                        if (!matched) {
-                            continue;
-                        }
-                    }
-                    list.add(methods[i]);
+            for (Method method : ClassUtils.getMethods(pageClass)) {
+                if (actionManager_.isMatched(actionName,
+                        getValidatorValue(method))) {
+                    list.add(method);
                 }
             }
             validatorMethods = list.toArray(new Method[0]);

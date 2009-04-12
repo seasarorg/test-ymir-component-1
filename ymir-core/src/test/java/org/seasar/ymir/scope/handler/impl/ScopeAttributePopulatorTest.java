@@ -1,5 +1,6 @@
 package org.seasar.ymir.scope.handler.impl;
 
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.ComponentClientTestCase;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.converter.TypeConversionManager;
@@ -16,6 +17,7 @@ public class ScopeAttributePopulatorTest extends ComponentClientTestCase {
 
         MapScope scope = new MapScope();
         target_ = new ScopeAttributePopulatorImpl(scope,
+                getComponent(ActionManager.class),
                 getComponent(AnnotationHandler.class),
                 getComponent(ScopeManager.class),
                 getComponent(TypeConversionManager.class));

@@ -287,7 +287,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                 .get(handlerClass);
         if (methodHolder == null) {
             methodHolder = new ExceptionHandlerActionMethodHolder(handlerClass,
-                    global, annotationHandler_);
+                    global, actionManager_, annotationHandler_);
             actionMethodHolderMap_.put(handlerClass, methodHolder);
         }
         return methodHolder;
