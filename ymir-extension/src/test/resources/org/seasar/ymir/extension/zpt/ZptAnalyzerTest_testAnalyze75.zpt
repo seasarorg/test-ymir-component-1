@@ -1,0 +1,10 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body tal:define="form self/form">
+  <form name="form" action="./index.html" method="post">
+    <p><input type="checkbox" tal:attributes="checked form/checked" /></p>
+  </form>
+  </body>
+</html>

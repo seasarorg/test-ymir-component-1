@@ -84,13 +84,9 @@ public class ZptAnalyzerTest extends TestCase {
 
     private String path_ = "/hoe.html";
 
-    protected void setUp() throws Exception {
-        prepareForTarget(false);
-    }
-
     private AnalyzerContext context_;
 
-    void prepareForTarget(final boolean usingFreyjaRenderClasses) {
+    protected void setUp() throws Exception {
         target_ = new ZptAnalyzer() {
             @Override
             AnalyzerTalTagEvaluator newAnalyzerTalTagEvaluator() {
@@ -180,16 +176,6 @@ public class ZptAnalyzerTest extends TestCase {
                 } catch (ClassNotFoundException ex) {
                     return null;
                 }
-            }
-
-            @Override
-            public SourceCreatorSetting getSourceCreatorSetting() {
-                return new SourceCreatorSetting(this) {
-                    @Override
-                    public boolean isUsingFreyjaRenderClasses() {
-                        return usingFreyjaRenderClasses;
-                    }
-                };
             }
         };
         sourceCreator_.setNamingConvention(new NamingConventionImpl());
@@ -704,7 +690,10 @@ public class ZptAnalyzerTest extends TestCase {
     public void testAnalyze33_optionタグがrepeat指定されている場合でFreyjaのRenderClassを利用する設定の場合は対象プロパティの型がOptionの配列になること()
             throws Exception {
 
-        prepareForTarget(true);
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "net.skirnir.freyja.render.*");
+
         act("testAnalyze33", "com.example.web.sub.TestPage");
 
         ClassDesc cd = getClassDesc("com.example.web.sub.TestPage");
@@ -1149,13 +1138,9 @@ public class ZptAnalyzerTest extends TestCase {
     public void testAnalyze63_YMIR_279_リピートされるプロパティをListとして自動生成する機能が正しく機能すること_Option()
             throws Exception {
 
-        context_ = new AnalyzerContext() {
-            @Override
-            public void setUsingFreyjaRenderClasses(
-                    boolean usingFreyjaRenderClasses) {
-                super.setUsingFreyjaRenderClasses(true);
-            }
-        };
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "net.skirnir.freyja.render.*");
 
         act("testAnalyze63");
 
@@ -1174,13 +1159,10 @@ public class ZptAnalyzerTest extends TestCase {
                     boolean repeatedPropertyGeneratedAsList) {
                 super.setRepeatedPropertyGeneratedAsList(true);
             }
-
-            @Override
-            public void setUsingFreyjaRenderClasses(
-                    boolean usingFreyjaRenderClasses) {
-                super.setUsingFreyjaRenderClasses(true);
-            }
         };
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "net.skirnir.freyja.render.*");
 
         act("testAnalyze63");
 
@@ -1368,7 +1350,9 @@ public class ZptAnalyzerTest extends TestCase {
     public void testAnalyze74_YMIR_328_プロパティ名と子プロパティ名によってプロパティの型推論が行なわれること()
             throws Exception {
 
-        prepareForTarget(true);
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "net.skirnir.freyja.render.*");
 
         act("testAnalyze74");
 
@@ -1406,6 +1390,15 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals("名前からCheckboxクラスと推論。またvalueプロパティを持つが、Dtoが既に存在するのでDtoと推論。",
                 "com.example.dto.FiveCheckboxDto", fivePd.getTypeDesc()
                         .getName());
+    }
 
+    public void testAnalyze75_boolean型の属性に対応するプロパティの型がbooleanになること()
+            throws Exception {
+
+        act("testAnalyze75");
+
+        PropertyDesc pd = getClassDesc("com.example.dto.FormDto")
+                .getPropertyDesc("checked");
+        assertEquals("boolean", pd.getTypeDesc().getName());
     }
 }

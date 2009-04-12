@@ -1095,7 +1095,7 @@ public class SourceCreatorImpl implements SourceCreator {
             PropertyDesc propertyDesc = pageClassDesc.addProperty(typeDesc
                     .getInstanceName(), PropertyDesc.WRITE);
             propertyDesc.setTypeDesc(typeDesc);
-            propertyDesc.notifyUpdatingType();
+            propertyDesc.notifyTypeUpdated();
             AnnotationDesc ad = propertyDesc.getAnnotationDesc(Inject.class
                     .getName());
             if (ad == null) {

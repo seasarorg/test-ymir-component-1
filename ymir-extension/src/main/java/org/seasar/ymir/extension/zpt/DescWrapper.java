@@ -66,7 +66,7 @@ public class DescWrapper {
             td
                     .setComponentClassDesc(new SimpleClassDesc(String.class
                             .getName()));
-            pd.notifyUpdatingType();
+            pd.notifyTypeUpdated();
         }
 
         // [#YMIR-198] 仮にnameで指定されたプロパティの値がこの先使われなくても、オブジェクトはこのプロパティを持つ

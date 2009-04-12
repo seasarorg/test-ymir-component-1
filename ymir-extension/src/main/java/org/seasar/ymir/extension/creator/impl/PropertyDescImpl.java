@@ -154,7 +154,7 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         return typeAlreadySet_;
     }
 
-    public void notifyUpdatingType() {
+    public void notifyTypeUpdated() {
         typeAlreadySet_ = true;
     }
 

@@ -2,9 +2,7 @@ package org.seasar.ymir.extension.zpt;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,11 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.regex.Pattern;
 
-import org.seasar.cms.pluggable.ClassTraverser;
 import org.seasar.framework.container.S2Container;
-import org.seasar.framework.util.ClassTraversal;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
@@ -37,7 +32,6 @@ import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
 import org.seasar.ymir.message.Messages;
-import org.seasar.ymir.message.Note;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.token.Token;
 import org.seasar.ymir.util.FlexibleList;
@@ -45,7 +39,6 @@ import org.seasar.ymir.zpt.YmirVariableResolver;
 
 import net.skirnir.freyja.EvaluationRuntimeException;
 import net.skirnir.freyja.VariableResolver;
-import net.skirnir.freyja.render.html.Input;
 import net.skirnir.freyja.zpt.ZptTemplateContext;
 
 public class AnalyzerContext extends ZptTemplateContext {
@@ -63,8 +56,6 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private static final String PROP_LENGTH = "length";
 
-    private static ClassNamePattern[] freyjaRenderClassNamePairs_;
-
     private SourceCreator sourceCreator_;
 
     private HttpMethod method_;
@@ -76,8 +67,6 @@ public class AnalyzerContext extends ZptTemplateContext {
     private String pageClassName_;
 
     private FormDesc formDesc_;
-
-    private boolean usingFreyjaRenderClasses_;
 
     private boolean repeatedPropertyGeneratedAsList_;
 
@@ -99,76 +88,6 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private int repeatDepth_;
 
-    static {
-        final List<ClassNamePattern> list = new ArrayList<ClassNamePattern>();
-        ClassTraverser traverser = new ClassTraverser();
-        traverser.addReferenceClass(Input.class);
-        traverser.addClassPattern("net.skirnir.freyja.render", ".+");
-        traverser.setClassHandler(new ClassTraversal.ClassHandler() {
-            public void processClass(String packageName, String shortClassName) {
-                String className = packageName + "." + shortClassName;
-                if (className.equals(net.skirnir.freyja.render.Notes.class
-                        .getName())) {
-                    className = Notes.class.getName();
-                } else if (className
-                        .equals(net.skirnir.freyja.render.Note.class.getName())) {
-                    className = Note.class.getName();
-                }
-                list.add(new ClassNamePattern(shortClassName, className));
-            }
-        });
-        traverser.traverse();
-        Collections.sort(list);
-        freyjaRenderClassNamePairs_ = list.toArray(new ClassNamePattern[0]);
-    }
-
-    protected static class ClassNamePattern implements
-            Comparable<ClassNamePattern> {
-        private Pattern pattern_;
-
-        private String shortName_;
-
-        private String className_;
-
-        public ClassNamePattern(String shortName, String className) {
-            pattern_ = Pattern.compile(".*" + shortName + "s?");
-            shortName_ = shortName;
-            className_ = className;
-        }
-
-        public String getClassNameIfMatched(String name) {
-            if (name == null) {
-                return null;
-            }
-            if (pattern_.matcher(name).matches()) {
-                return className_;
-            } else {
-                return null;
-            }
-        }
-
-        public String getClassNameEquals(String name) {
-            if (shortName_.equals(name)) {
-                return className_;
-            } else {
-                return null;
-            }
-        }
-
-        public int compareTo(ClassNamePattern o) {
-            int cmp = o.shortName_.length() - shortName_.length();
-            if (cmp == 0) {
-                cmp = shortName_.compareTo(o.shortName_);
-            }
-            return cmp;
-        }
-
-        @Override
-        public String toString() {
-            return shortName_;
-        }
-    }
-
     @Override
     public VariableResolver getVariableResolver() {
         if (variableResolver_ == null) {
@@ -182,10 +101,6 @@ public class AnalyzerContext extends ZptTemplateContext {
     public void setVariableResolver(VariableResolver varResolver) {
         super.setVariableResolver(varResolver);
         variableResolver_ = null;
-    }
-
-    public void setUsingFreyjaRenderClasses(boolean usingFreyjaRenderClasses) {
-        usingFreyjaRenderClasses_ = usingFreyjaRenderClasses;
     }
 
     public void setIgnoreVariables(String[] ignoreVariables) {
@@ -267,19 +182,6 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     public void setClassDescMap(Map<String, ClassDesc> classDescMap) {
         classDescMap_ = classDescMap;
-    }
-
-    String findRenderClassName(String propertyName) {
-        String name = capFirst(propertyName);
-
-        for (ClassNamePattern pair : freyjaRenderClassNamePairs_) {
-            String className = pair.getClassNameIfMatched(name);
-            if (className != null) {
-                return className;
-            }
-        }
-
-        return null;
     }
 
     public ClassDesc getTemporaryClassDesc(String className) {
@@ -377,36 +279,34 @@ public class AnalyzerContext extends ZptTemplateContext {
                 continue;
             }
 
-            if (usingFreyjaRenderClasses_) {
-                // DTOのうちレンダリングクラスと推論できるものがあれば差し替える。
+            // DTOのうちレンダリングクラスと推論できるものがあれば差し替える。
 
-                if (!classDesc.isTypeOf(ClassType.DTO)) {
-                    continue;
-                }
+            if (!classDesc.isTypeOf(ClassType.DTO)) {
+                continue;
+            }
 
-                if (sourceCreator_.getClass(classDesc.getName()) != null) {
-                    // DTOクラスが存在するならレンダリングクラスとは考えない。
-                    continue;
-                }
+            if (sourceCreator_.getClass(classDesc.getName()) != null) {
+                // DTOクラスが存在するならレンダリングクラスとは考えない。
+                continue;
+            }
 
-                String renderClassName = findRenderClassName(classDesc
-                        .getNameBase());
-                if (renderClassName == null) {
-                    continue;
-                }
+            String renderClassName = sourceCreator_.getSourceCreatorSetting()
+                    .findDtoClassName(classDesc.getNameBase());
+            if (renderClassName == null) {
+                continue;
+            }
 
-                boolean undefinedPropertyFound = false;
-                for (PropertyDesc propertyDesc : classDesc.getPropertyDescs()) {
-                    if (sourceCreator_.getPropertyDescriptor(renderClassName,
-                            propertyDesc.getName()) == null) {
-                        undefinedPropertyFound = true;
-                        break;
-                    }
+            boolean undefinedPropertyFound = false;
+            for (PropertyDesc propertyDesc : classDesc.getPropertyDescs()) {
+                if (sourceCreator_.getPropertyDescriptor(renderClassName,
+                        propertyDesc.getName()) == null) {
+                    undefinedPropertyFound = true;
+                    break;
                 }
-                if (!undefinedPropertyFound) {
-                    classDesc.setName(renderClassName);
-                    itr.remove();
-                }
+            }
+            if (!undefinedPropertyFound) {
+                classDesc.setName(renderClassName);
+                itr.remove();
             }
         }
 
@@ -442,6 +342,11 @@ public class AnalyzerContext extends ZptTemplateContext {
                 register(classDesc);
             }
         }
+    }
+
+    public boolean isOnDtoSearchPath(String className) {
+        return sourceCreator_.getSourceCreatorSetting().isOnDtoSearchPath(
+                className);
     }
 
     void replaceSimpleDtoTypeToDefaultType(TypeDesc typeDesc) {
@@ -675,7 +580,7 @@ public class AnalyzerContext extends ZptTemplateContext {
             returned = getTemporaryClassDesc(fromPropertyNameToClassName(
                     classDesc, name));
             propertyDesc.getTypeDesc().setComponentClassDesc(returned);
-            propertyDesc.notifyUpdatingType();
+            propertyDesc.notifyTypeUpdated();
         }
         return returned;
     }
@@ -773,13 +678,9 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
 
         pd.setTypeDesc(td);
-        pd.notifyUpdatingType();
+        pd.notifyTypeUpdated();
 
         return pd;
-    }
-
-    public boolean isUsingFreyjaRenderClasses() {
-        return usingFreyjaRenderClasses_;
     }
 
     public void pushVariableScope() {

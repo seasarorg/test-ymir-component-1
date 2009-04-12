@@ -33,7 +33,7 @@ public interface PropertyDesc extends AnnotatedDesc, Cloneable {
 
     boolean isWritable();
 
-    void notifyUpdatingType();
+    void notifyTypeUpdated();
 
     boolean isTypeAlreadySet();
 

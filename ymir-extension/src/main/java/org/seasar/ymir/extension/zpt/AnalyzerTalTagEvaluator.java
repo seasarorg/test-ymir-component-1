@@ -4,8 +4,11 @@ import static org.seasar.ymir.util.BeanUtils.getFirstSimpleSegment;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +32,7 @@ import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
+import org.seasar.ymir.render.html.Option;
 import org.seasar.ymir.scope.annotation.RequestParameter;
 import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ServletUtils;
@@ -37,11 +41,12 @@ import net.skirnir.freyja.Attribute;
 import net.skirnir.freyja.Element;
 import net.skirnir.freyja.EvaluationRuntimeException;
 import net.skirnir.freyja.ExpressionEvaluator;
+import net.skirnir.freyja.FreyjaRuntimeException;
 import net.skirnir.freyja.StringUtils;
 import net.skirnir.freyja.TagEvaluatorUtils;
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;
-import net.skirnir.freyja.render.html.Option;
+import net.skirnir.freyja.zpt.Default;
 import net.skirnir.freyja.zpt.TalTagEvaluator;
 import net.skirnir.freyja.zpt.ZptTemplateContext;
 
@@ -51,6 +56,12 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
     private static final String KW_LOCAL = "local";
 
     private static final String KW_GLOBAL = "global ";
+
+    private static final Set<String> BOOLEAN_ATTRIBUTE_SET = Collections
+            .unmodifiableSet(new HashSet<String>(Arrays.asList("compact",
+                    "noshade", "multiple", "readonly", "disabled", "nohref",
+                    "ismap", "noresize", "checked", "selected", "declare",
+                    "defer", "nowrap")));
 
     @Override
     public String[] getSpecialTagPatternStrings() {
@@ -196,33 +207,43 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                                         RequestParameter.class.getName()));
                     }
                 } while (false);
-            } else if ("option".equals(name)
-                    && analyzerContext.isUsingFreyjaRenderClasses()) {
-                String returned = super.evaluate(context, name, attrs, body);
-                String statement = getAttributeValue(attrMap, "tal:repeat",
-                        null);
-                if (statement != null) {
-                    Object evaluated = context.getExpressionEvaluator()
-                            .evaluate(
-                                    context,
-                                    context.getVariableResolver(),
-                                    statement.substring(statement.indexOf(' '))
-                                            .trim());
-                    if (evaluated instanceof DescWrapper[]) {
-                        PropertyDesc pd = ((DescWrapper[]) evaluated)[0]
-                                .getPropertyDesc();
-                        if (pd != null && !pd.getTypeDesc().isExplicit()) {
-                            if (analyzerContext
-                                    .isRepeatedPropertyGeneratedAsList()) {
-                                pd.setTypeDesc("java.util.List<"
-                                        + Option.class.getName() + ">");
-                            } else {
-                                pd.setTypeDesc(Option.class.getName() + "[]");
+            } else if ("option".equals(name)) {
+                String optionClassName = Option.class.getName();
+                if (!analyzerContext.isOnDtoSearchPath(optionClassName)) {
+                    optionClassName = net.skirnir.freyja.render.html.Option.class
+                            .getName();
+                    if (!analyzerContext.isOnDtoSearchPath(optionClassName)) {
+                        optionClassName = null;
+                    }
+                }
+                if (optionClassName != null) {
+                    String returned = super
+                            .evaluate(context, name, attrs, body);
+                    String statement = getAttributeValue(attrMap, "tal:repeat",
+                            null);
+                    if (statement != null) {
+                        Object evaluated = context.getExpressionEvaluator()
+                                .evaluate(
+                                        context,
+                                        context.getVariableResolver(),
+                                        statement.substring(
+                                                statement.indexOf(' ')).trim());
+                        if (evaluated instanceof DescWrapper[]) {
+                            PropertyDesc pd = ((DescWrapper[]) evaluated)[0]
+                                    .getPropertyDesc();
+                            if (pd != null && !pd.getTypeDesc().isExplicit()) {
+                                if (analyzerContext
+                                        .isRepeatedPropertyGeneratedAsList()) {
+                                    pd.setTypeDesc("java.util.List<"
+                                            + optionClassName + ">");
+                                } else {
+                                    pd.setTypeDesc(optionClassName + "[]");
+                                }
                             }
                         }
                     }
+                    return returned;
                 }
-                return returned;
             } else {
                 registerTransitionClassDesc(analyzerContext, attrMap,
                         runtimeAttributeNameSet, "href", "GET", false);
@@ -373,7 +394,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                                     RequestParameter.class.getName()));
                     analyzerContext.adjustPropertyType(classDesc.getName(),
                             propertyDesc);
-                    propertyDesc.notifyUpdatingType();
+                    propertyDesc.notifyTypeUpdated();
                     break;
 
                 case BUTTON:
@@ -408,7 +429,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         RequestParameter.class.getName()));
                 analyzerContext.adjustPropertyType(classDesc.getName(),
                         propertyDesc);
-                propertyDesc.notifyUpdatingType();
+                propertyDesc.notifyTypeUpdated();
             }
         }
 
@@ -541,7 +562,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 td.setCollectionImplementationClassName(oldTd
                         .getCollectionImplementationClassName());
                 pd.setTypeDesc(td);
-                pd.notifyUpdatingType();
+                pd.notifyTypeUpdated();
             }
 
             return pd;
@@ -707,6 +728,121 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             String varname = statement.substring(0, sp).trim();
             String value = StringUtils.trimLeft(statement.substring(sp + 1));
             analyzerContext.defineVariableExpression(scope, varname, value);
+        }
+    }
+
+    protected Attribute[] processAttributes(ZptTemplateContext talContext,
+            ExpressionEvaluator expEvaluator, VariableResolver varResolver,
+            Attribute attr, Attribute[] htmlAttrs, boolean isHTML) {
+        Map<String, Object> attrMap = new LinkedHashMap<String, Object>();
+        String[] statements = parseStatements(TagEvaluatorUtils.defilter(attr
+                .getValue()));
+        for (int i = 0; i < statements.length; i++) {
+            String statement = statements[i];
+            int sp = statement.indexOf(' ');
+            if (sp < 0) {
+                throw new EvaluationRuntimeException("Syntax error: "
+                        + statement).setLineNumber(attr.getLineNumber())
+                        .setColumnNumber(attr.getColumnNumber());
+            }
+            String varname = statement.substring(0, sp).trim();
+            String value = StringUtils.trimLeft(statement.substring(sp + 1));
+            Object evaluated;
+            try {
+                evaluated = expEvaluator.evaluate(talContext, varResolver,
+                        value);
+            } catch (FreyjaRuntimeException ex) {
+                throw ex.setLineNumber(attr.getLineNumber()).setColumnNumber(
+                        attr.getColumnNumber());
+            } catch (RuntimeException ex) {
+                throw new EvaluationRuntimeException(
+                        "Can't evaluate tal:attributes expression", ex)
+                        .setLineNumber(attr.getLineNumber()).setColumnNumber(
+                                attr.getColumnNumber());
+            }
+            if (evaluated != Default.instance) {
+                if (isHTML && BOOLEAN_ATTRIBUTE_SET.contains(varname)) {
+                    if (evaluated instanceof DescWrapper) {
+                        changeTypeToBoolean((DescWrapper) evaluated);
+                    }
+                    // boolean属性についてはTALES式の評価値を
+                    // true/false/defaultのいずれかに変換しておく。
+                    evaluated = Boolean.valueOf(expEvaluator.isTrue(evaluated));
+                } else if (evaluated != null) {
+                    evaluated = renderEvaluatedValue(talContext, evaluated);
+                }
+            }
+            attrMap.put(varname, evaluated);
+        }
+
+        List<Attribute> list = new ArrayList<Attribute>(htmlAttrs.length
+                + attrMap.size());
+        for (int i = 0; i < htmlAttrs.length; i++) {
+            String key = htmlAttrs[i].getName();
+            if (attrMap.containsKey(key)) {
+                Object evaluated = attrMap.get(key);
+                if (isHTML && BOOLEAN_ATTRIBUTE_SET.contains(key)) {
+                    // boolean属性の場合の処理を行なう。
+                    if (evaluated == Default.instance
+                            || ((Boolean) evaluated).booleanValue()) {
+                        String quote = htmlAttrs[i].getQuote();
+                        if (quote.length() == 0) {
+                            quote = "\"";
+                        }
+                        list.add(new Attribute(key, key, quote));
+                    }
+                } else {
+                    // boolean属性以外の属性の処理を行なう。
+                    if (evaluated != null) {
+                        String evaluatedString;
+                        if (Default.instance.equals(evaluated)) {
+                            evaluatedString = htmlAttrs[i].getValue();
+                        } else {
+                            evaluatedString = TagEvaluatorUtils
+                                    .filter(evaluated.toString());
+                        }
+                        list.add(new Attribute(key, evaluatedString,
+                                htmlAttrs[i].getQuote()));
+                    }
+                }
+                attrMap.remove(key);
+            } else {
+                list.add(htmlAttrs[i]);
+            }
+        }
+        for (Iterator<Map.Entry<String, Object>> itr = attrMap.entrySet()
+                .iterator(); itr.hasNext();) {
+            Map.Entry<String, Object> entry = itr.next();
+            String key = entry.getKey();
+            Object evaluated = entry.getValue();
+            if (isHTML && BOOLEAN_ATTRIBUTE_SET.contains(key)) {
+                // boolean属性の場合の処理を行なう。
+                if (evaluated != Default.instance
+                        && ((Boolean) evaluated).booleanValue()) {
+                    list.add(new Attribute(key, key, "\""));
+                }
+            } else {
+                // boolean属性以外の属性の処理を行なう。
+                if (evaluated != null && evaluated != Default.instance) {
+                    String evaluatedString = TagEvaluatorUtils.filter(evaluated
+                            .toString());
+                    list.add(new Attribute(key, evaluatedString, "\""));
+                }
+            }
+        }
+
+        return list.toArray(new Attribute[0]);
+    }
+
+    void changeTypeToBoolean(DescWrapper wrapper) {
+        PropertyDesc propertyDesc = wrapper.getPropertyDesc();
+        if (propertyDesc == null) {
+            return;
+        }
+        TypeDesc typeDesc = propertyDesc.getTypeDesc();
+        if (!propertyDesc.isTypeAlreadySet() || !typeDesc.isExplicit()) {
+            propertyDesc.setTypeDesc(new TypeDescImpl("boolean", true));
+            propertyDesc.notifyTypeUpdated();
         }
     }
 }

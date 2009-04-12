@@ -50,25 +50,6 @@ public class AnalyzerContextTest extends TestCase {
                         "name2"));
     }
 
-    public void testFindRenderClassName() throws Exception {
-        assertEquals("org.seasar.ymir.message.Note", target_
-                .findRenderClassName("note"));
-        assertEquals("org.seasar.ymir.message.Notes", target_
-                .findRenderClassName("notes"));
-        assertEquals("net.skirnir.freyja.render.html.Input", target_
-                .findRenderClassName("input"));
-        assertEquals("net.skirnir.freyja.render.html.Input", target_
-                .findRenderClassName("theInput"));
-        assertEquals("net.skirnir.freyja.render.html.Input", target_
-                .findRenderClassName("theInputs"));
-        assertEquals("net.skirnir.freyja.render.html.Radio", target_
-                .findRenderClassName("radio"));
-        assertEquals("net.skirnir.freyja.render.html.Radio", target_
-                .findRenderClassName("theRadio"));
-        assertEquals("net.skirnir.freyja.render.html.Radio", target_
-                .findRenderClassName("theRadios"));
-    }
-
     public void testReplaceSimpleDtoTypeToDefaultType1() throws Exception {
         TypeDesc typeDesc = new TypeDescImpl("com.example.dto.HoeDto");
 
