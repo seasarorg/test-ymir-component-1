@@ -1,8 +1,10 @@
 package org.seasar.ymir.extension.zpt;
 
+import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -12,10 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.HttpMethod;
-import org.seasar.ymir.Request;
-import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassHint;
@@ -25,17 +24,13 @@ import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.TypeDesc;
-import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
-import org.seasar.ymir.message.Messages;
-import org.seasar.ymir.message.Notes;
-import org.seasar.ymir.token.Token;
+import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.FlexibleList;
-import org.seasar.ymir.zpt.YmirVariableResolver;
 
 import net.skirnir.freyja.EvaluationRuntimeException;
 import net.skirnir.freyja.VariableResolver;
@@ -72,13 +67,9 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private VariableResolver variableResolver_;
 
-    private Set<String> usedAsVariableSet_ = new HashSet<String>();
-
-    private Set<String> usedAsLocalVariableSet_ = new HashSet<String>();
+    private Set<String> usedClassNameSet_ = new HashSet<String>();
 
     private Set<String> ignoreVariableSet_ = new HashSet<String>();
-
-    private Set<String> usedAsImplementationSet_ = new HashSet<String>();
 
     private String path_;
 
@@ -117,47 +108,229 @@ public class AnalyzerContext extends ZptTemplateContext {
         return ignoreVariableSet_.contains(name);
     }
 
+    @Override
     public void defineVariable(int scope, String name, Object value) {
-        setUsedAsLocalVariable(name);
+        if (value instanceof DescWrapper) {
+            ((DescWrapper) value).setVariableName(name);
+        }
         super.defineVariable(scope, name, value);
     }
 
+    @Override
     public RepeatInfo pushRepeatInfo(String name, Object[] objs) {
         repeatDepth_++;
-        setUsedAsLocalVariable(name);
         if (objs != null && objs.length == 1 && objs[0] instanceof DescWrapper) {
             DescWrapper wrapper = (DescWrapper) objs[0];
+            wrapper.setVariableName(name);
             ClassDesc valueClassDesc;
             PropertyDesc pd = wrapper.getPropertyDesc();
             if (pd != null) {
                 TypeDesc td = pd.getTypeDesc();
+                valueClassDesc = td.getComponentClassDesc();
+
                 if (!td.isExplicit()) {
-                    String className = fromPropertyNameToClassName(wrapper
-                            .getParent() != null ? wrapper.getParent()
-                            .getValueClassDesc() : null, name);
-                    valueClassDesc = getTemporaryClassDesc(className);
                     if (repeatedPropertyGeneratedAsList_) {
                         // List型に補正する。
-                        td.setName("java.util.List<" + className + ">");
+                        td.setName("java.util.List<" + valueClassDesc.getName()
+                                + ">");
                     } else {
                         // 配列型に補正する。
                         if (!td.isCollection()) {
                             td.getComponentClassDesc().removePropertyDesc(
                                     PROP_LENGTH);
                         }
-                        td.setName(className + "[]");
+                        td.setName(valueClassDesc.getName() + "[]");
                     }
-                    td.setComponentClassDesc(valueClassDesc);
-                } else {
-                    valueClassDesc = td.getComponentClassDesc();
                 }
             } else {
                 valueClassDesc = wrapper.getValueClassDesc();
             }
             objs[0] = new DescWrapper(this, valueClassDesc);
+            setUsedClassName(valueClassDesc.getName());
         }
 
         return super.pushRepeatInfo(name, objs);
+    }
+
+    /**
+     * 指定されたクラスの指定されたプロパティ名に対応するPropertyDescオブジェクトを返します。
+     * <p>プロパティの型情報なども適切に設定されたPropertyDescオブジェクトが返されます。
+     * </p>
+     * 
+     * @param classDesc プロパティが属するクラスの情報を表すClassDescオブジェクト。nullを指定してはいけません。
+     * @param propertyName プロパティ名。
+     * @param propertyAlias プロパティ名の別名。
+     * プロパティの型クラス名を生成する際にこちらが優先されます。
+     * 別名がない場合はプロパティ名と同じ名前を指定して下さい。
+     * @param mode プロパティのモード。
+     * @param force 強制的にプロパティ型を再推論するかどうか。
+     * trueの場合、明示的に型が設定されていない限り強制的にプロパティ型を再推論します。
+     * @return PropertyDescオブジェクト。nullが返されることはありません。
+     */
+    public PropertyDesc addProperty(ClassDesc classDesc, String propertyName,
+            String propertyAlias, int mode, boolean force) {
+        PropertyDesc propertyDesc = classDesc.addProperty(propertyName, mode);
+        if (propertyDesc.getTypeDesc().isExplicit()) {
+            return propertyDesc;
+        }
+        if (!force && propertyDesc.isTypeAlreadySet()) {
+            return propertyDesc;
+        }
+
+        TypeDesc typeDesc;
+
+        // プロパティ型のヒント情報を見る。
+        // ヒントがなければ、実際の親クラスからプロパティ型を取得する。
+        String className = classDesc.getName();
+        PropertyTypeHint hint = getPropertyTypeHint(className, propertyName);
+        if (hint != null) {
+            typeDesc = new TypeDescImpl(hint.getTypeName(), true);
+        } else {
+            PropertyDescriptor descriptor = sourceCreator_
+                    .getPropertyDescriptor(className, propertyName);
+            if (descriptor != null) {
+                Method readMethod = descriptor.getReadMethod();
+                if (readMethod != null) {
+                    propertyDesc.setGetterName(readMethod.getName());
+                }
+
+                String componentClassName;
+                Class<?> componentClass = sourceCreator_.getClass(DescUtils
+                        .getComponentPropertyTypeName(descriptor));
+                if (componentClass.isInterface()) {
+                    // インタフェースの場合は実装クラス型を推論する。
+                    componentClassName = inferPropertyClassName(Introspector
+                            .decapitalize(ClassUtils
+                                    .getShorterName(componentClass)), className);
+                    setUsedClassName(componentClassName);
+                } else {
+                    // そうでない場合は実際の型をそのまま使う。
+                    componentClassName = componentClass.getName();
+                }
+
+                String typeName = DescUtils
+                        .getGenericPropertyTypeName(descriptor);
+                if (Collection.class.isAssignableFrom(descriptor
+                        .getPropertyType())) {
+                    TypeToken typeToken = new TypeToken(typeName);
+                    typeToken.getTypes()[0].setBaseName(componentClassName);
+                    typeDesc = new TypeDescImpl(typeToken.getAsString(), true);
+                } else if (descriptor.getPropertyType().isArray()) {
+                    typeDesc = new TypeDescImpl(componentClassName + "[]", true);
+                } else {
+                    typeDesc = new TypeDescImpl(componentClassName, true);
+                }
+            } else {
+                // 推論できなかった場合は名前から推論を行なう。
+                typeDesc = new TypeDescImpl(inferPropertyClassName(
+                        propertyAlias, null));
+            }
+        }
+
+        String cname = typeDesc.getComponentClassDesc().getName();
+        Map<String, ClassDesc> map = new HashMap<String, ClassDesc>();
+        map.put(cname, getTemporaryClassDesc(cname));
+        typeDesc.setName(typeDesc.getName(), map);
+
+        if (typeDesc.isCollection()
+                && List.class.getName().equals(
+                        typeDesc.getCollectionClassName())) {
+            typeDesc.setCollectionImplementationClassName(propertyDesc
+                    .getTypeDesc().getCollectionImplementationClassName());
+        }
+
+        propertyDesc.setTypeDesc(typeDesc);
+        propertyDesc.notifyTypeUpdated();
+
+        return propertyDesc;
+    }
+
+    public PropertyDesc addProperty(ClassDesc classDesc, String propertyName,
+            int mode) {
+        return addProperty(classDesc, propertyName, propertyName, mode, false);
+    }
+
+    /**
+     * 指定された名前のプロパティの型を推論して返します。
+     * <p>型推論はまずDTOサーチパス上のクラスから名前に基づいて行なわれます。
+     * 見つからなかった場合、型推論は基準となるクラス名を使って行なわれます。
+     * クラスがサブパッケージ階層に配置されている場合、
+     * 同一のサブパッケージ階層に配置されるようなDTO型名が返されますが、
+     * 上位階層に同一名のDTO型が存在する場合はそれが返されます。
+     * </p>
+     * 
+     * @param propertyName プロパティ名。nullを指定してはいけません。
+     * @param baseClassName 基準となるクラス名。
+     * パッケージがアプリケーションのルートパッケージ配下であるようなクラス名を指定する場合は、
+     * クラス名は「ルートパッケージ＋"."+種別パッケージ」配下である必要があります
+     * （種別パッケージ：web、dtoなど）。
+     * パッケージがアプリケーションのルートパッケージと異なるようなクラス名が指定された場合は
+     * 現在のページクラス名が使用されます。
+     * また、nullが指定された場合も現在のページクラス名が使用されます。
+     * @return 推論結果の型。nullが返されることはありません。
+     * またGenerics型が返されることはありません。
+     */
+    public String inferPropertyClassName(String propertyName,
+            String baseClassName) {
+        // DTOサーチパス上のクラスから推論する。
+
+        String className = sourceCreator_.getSourceCreatorSetting()
+                .findDtoClassName(propertyName);
+        if (className != null) {
+            return className;
+        }
+
+        // なければ普通にDTOクラス名を作成する。
+
+        if (baseClassName == null) {
+            baseClassName = pageClassName_;
+        }
+        String rootPackageName = sourceCreator_.getFirstRootPackageName();
+        if (baseClassName.startsWith(rootPackageName + ".")) {
+            String subPackageName = baseClassName.substring(rootPackageName
+                    .length(), baseClassName.lastIndexOf('.'));
+            int dot = subPackageName.indexOf('.', 1);
+            if (dot >= 0) {
+                subPackageName = subPackageName.substring(dot);
+            } else {
+                subPackageName = "";
+            }
+            return findClassName(sourceCreator_.getDtoPackageName(),
+                    subPackageName, getDtoShortClassName(propertyName));
+        } else {
+            return sourceCreator_.getDtoPackageName() + "."
+                    + getDtoShortClassName(propertyName);
+        }
+    }
+
+    private String findClassName(String packageName, String subPackageName,
+            String shortClassName) {
+        String fullClassName = packageName + subPackageName + "."
+                + shortClassName;
+        if (sourceCreator_.getClass(fullClassName) != null) {
+            return fullClassName;
+        }
+
+        String className;
+        int pre = subPackageName.length();
+        int idx;
+        while ((idx = subPackageName.lastIndexOf('.', pre)) >= 0) {
+            className = packageName + subPackageName.substring(0, idx) + "."
+                    + shortClassName;
+            if (sourceCreator_.getClass(className) != null) {
+                return className;
+            }
+            pre = idx - 1;
+        }
+
+        return fullClassName;
+    }
+
+    String getDtoShortClassName(String propertyName) {
+        if (propertyName == null) {
+            return null;
+        }
+        return capFirst(propertyName) + ClassType.DTO.getSuffix();
     }
 
     @Override
@@ -198,43 +371,6 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     boolean isAvailable(String className) {
         return (sourceCreator_.getClass(className) != null);
-    }
-
-    /**
-     * 指定されたClassDescが持つ指定された名前のプロパティの型を表すクラス名を推測して返します。
-     * 
-     * @param classDesc ClassDesc。
-     * @param propertyName プロパティ名。
-     * @return プロパティの型を表すクラス名。
-     */
-    public String fromPropertyNameToClassName(ClassDesc classDesc,
-            String propertyName) {
-        if (RequestProcessor.ATTR_SELF.equals(propertyName)) {
-            return getPageClassName();
-            // Kvasir/SoraのpopプラグインのexternalTemplate機能を使って自動生成
-            // をしている場合、classNameはnullになり得ることに注意。
-        } else if (RequestProcessor.ATTR_NOTES.equals(propertyName)) {
-            // NotesはFreyjaにもYmirにもあるが、Ymirのものを優先させたいためこうしている。
-            return Notes.class.getName();
-        } else if (YmirVariableResolver.NAME_YMIRREQUEST.equals(propertyName)) {
-            return Request.class.getName();
-        } else if (YmirVariableResolver.NAME_CONTAINER.equals(propertyName)) {
-            return S2Container.class.getName();
-        } else if (YmirVariableResolver.NAME_MESSAGES.equals(propertyName)) {
-            return Messages.class.getName();
-        } else if (YmirVariableResolver.NAME_TOKEN.equals(propertyName)) {
-            return Token.class.getName();
-        } else if (YmirVariableResolver.NAME_VARIABLES.equals(propertyName)) {
-            return VariableResolver.class.getName();
-        } else if (YmirVariableResolver.NAME_PARAM_SELF.equals(propertyName)) {
-            // param-selfに指定されたプロパティ名をPageのプロパティ名とみなさせる方が
-            // 都合が良いのでこうしている。
-            return getPageClassName();
-        } else if (!AnalyzerUtils.isValidVariableName(propertyName)) {
-            return Object.class.getName();
-        }
-
-        return getDtoClassName(classDesc, propertyName);
     }
 
     public String getPageClassName() {
@@ -280,41 +416,10 @@ public class AnalyzerContext extends ZptTemplateContext {
                 itr.remove();
                 continue;
             }
-
-            // DTOのうちレンダリングクラスと推論できるものがあれば差し替える。
-
-            if (!classDesc.isTypeOf(ClassType.DTO)) {
-                continue;
-            }
-
-            if (sourceCreator_.getClass(classDesc.getName()) != null) {
-                // DTOクラスが存在するならレンダリングクラスとは考えない。
-                continue;
-            }
-
-            String renderClassName = sourceCreator_.getSourceCreatorSetting()
-                    .findDtoClassName(classDesc.getNameBase());
-            if (renderClassName == null) {
-                continue;
-            }
-
-            boolean undefinedPropertyFound = false;
-            for (PropertyDesc propertyDesc : classDesc.getPropertyDescs()) {
-                if (sourceCreator_.getPropertyDescriptor(renderClassName,
-                        propertyDesc.getName()) == null) {
-                    undefinedPropertyFound = true;
-                    break;
-                }
-            }
-            if (!undefinedPropertyFound) {
-                replaceClassName(classDesc, renderClassName);
-                itr.remove();
-            }
         }
 
-        for (Iterator<Map.Entry<String, ClassDesc>> itr = temporaryClassDescMap_
-                .entrySet().iterator(); itr.hasNext();) {
-            Map.Entry<String, ClassDesc> entry = itr.next();
+        for (Map.Entry<String, ClassDesc> entry : temporaryClassDescMap_
+                .entrySet()) {
             String name = entry.getKey();
             ClassDesc classDesc = entry.getValue();
 
@@ -331,44 +436,12 @@ public class AnalyzerContext extends ZptTemplateContext {
             classDesc.merge(classDescMap_.get(name), false);
         }
 
-        for (Iterator<ClassDesc> itr = temporaryClassDescMap_.values()
-                .iterator(); itr.hasNext();) {
-            ClassDesc classDesc = itr.next();
-
+        for (ClassDesc classDesc : temporaryClassDescMap_.values()) {
             // PageクラスとPageクラスから利用されているDTOと、外部で定義されている変数の型クラスと、
             // renderクラスのプロパティのうちインタフェース型であるものの実装クラスとみなされているクラス
             // 以外は無視する。
-            if (isPage(classDesc)) {
-                registerAvailablePagesAndDtos(classDesc);
-            } else if (isUsedAsVariable(classDesc.getName())
-                    && !isUsedAsLocalVariable(classDesc.getName())
-                    || usedAsImplementationSet_.contains(classDesc.getName())) {
-                register(classDesc);
-            }
-        }
-    }
-
-    void replaceClassName(ClassDesc classDesc, String className) {
-        classDesc.setName(className);
-
-        for (PropertyDesc propertyDesc : classDesc.getPropertyDescs()) {
-            PropertyDescriptor pd = sourceCreator_.getPropertyDescriptor(
-                    className, propertyDesc.getName());
-            if (pd == null) {
-                continue;
-            }
-
-            Class<?> type = sourceCreator_.getClass(DescUtils
-                    .getComponentPropertyTypeName(pd));
-            if (type == null) {
-                continue;
-            }
-            ClassDesc componentClassDesc = propertyDesc.getTypeDesc()
-                    .getComponentClassDesc();
-            if (type.isInterface() && isDto(componentClassDesc)) {
-                usedAsImplementationSet_.add(componentClassDesc.getName());
-                // TODO componentClassDescに"implements [type]"を追加できると
-                // よいかもしれない…。
+            if (isPage(classDesc) || isUsedClassName(classDesc.getName())) {
+                registerDependingClassDescs(classDesc);
             }
         }
     }
@@ -398,7 +471,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         typeDesc.setName(typeToken.getAsString(), temporaryClassDescMap_);
     }
 
-    void registerAvailablePagesAndDtos(ClassDesc classDesc) {
+    void registerDependingClassDescs(ClassDesc classDesc) {
         if (!register(classDesc)) {
             return;
         }
@@ -409,7 +482,7 @@ public class AnalyzerContext extends ZptTemplateContext {
                     cd = new SimpleClassDesc(className);
                 }
                 if (isDto(cd)) {
-                    registerAvailablePagesAndDtos(cd);
+                    registerDependingClassDescs(cd);
                 }
             }
         }
@@ -444,75 +517,6 @@ public class AnalyzerContext extends ZptTemplateContext {
         return (isDto(classDesc) && classDesc.isEmpty());
     }
 
-    String getDtoClassName(ClassDesc classDesc, String propertyName) {
-        StringBuilder dtoClassName = new StringBuilder();
-        dtoClassName.append(sourceCreator_.getDtoPackageName());
-
-        if (classDesc != null) {
-            String packageName = classDesc.getPackageName();
-            String rootPackageName = sourceCreator_.getFirstRootPackageName();
-            if (packageName.equals(rootPackageName)) {
-                ;
-            } else if (packageName.startsWith(rootPackageName + ".")) {
-                String subPackageName = packageName.substring(rootPackageName
-                        .length() + 1/*= ".".length() */);
-                int dot = subPackageName.indexOf('.');
-                if (dot >= 0) {
-                    // com.example.web.sub ... subPackageName
-                    // com.example         ... rootPackageName
-                    //                ^    ... この「.」があればサブアプリケーション。
-
-                    return findClassName(sourceCreator_.getDtoPackageName(),
-                            subPackageName.substring(dot + 1),
-                            getDtoShortClassName(propertyName));
-                }
-            } else {
-                // パッケージがルートパッケージ外の場合はルートパッケージ外としてDTOクラス名を
-                // 生成しておく。（最終的にはルートパッケージ外なので無視されるはず）
-                return packageName + ".dto."
-                        + getDtoShortClassName(propertyName);
-            }
-        }
-        return sourceCreator_.getDtoPackageName() + "."
-                + getDtoShortClassName(propertyName);
-    }
-
-    String findClassName(String packageName, String relatedSubPackageName,
-            String shortClassName) {
-        String fullClassName = packageName + "." + relatedSubPackageName + "."
-                + shortClassName;
-        if (sourceCreator_.getClass(fullClassName) != null) {
-            return fullClassName;
-        }
-
-        String className;
-        int pre = relatedSubPackageName.length();
-        int idx;
-        while ((idx = relatedSubPackageName.lastIndexOf('.', pre)) >= 0) {
-            className = packageName + "."
-                    + relatedSubPackageName.substring(0, idx) + "."
-                    + shortClassName;
-            if (sourceCreator_.getClass(className) != null) {
-                return className;
-            }
-            pre = idx - 1;
-        }
-
-        className = packageName + "." + shortClassName;
-        if (sourceCreator_.getClass(className) != null) {
-            return className;
-        }
-
-        return fullClassName;
-    }
-
-    String getDtoShortClassName(String propertyName) {
-        if (propertyName == null) {
-            return null;
-        }
-        return capFirst(propertyName) + ClassType.DTO.getSuffix();
-    }
-
     String capFirst(String string) {
         if (string == null || string.length() == 0) {
             return string;
@@ -522,56 +526,56 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
     }
 
-    public PropertyDesc getPropertyDesc(ClassDesc classDesc, String name,
-            int mode) {
-        return getPropertyDesc(classDesc, name, mode, false);
+    public PropertyDesc getPropertyDesc(ClassDesc classDesc,
+            String requestParameterName, int mode) {
+        return getPropertyDesc(classDesc, requestParameterName, mode, false);
     }
 
-    PropertyDesc getPropertyDesc(ClassDesc classDesc, String name, int mode,
+    private PropertyDesc getPropertyDesc(ClassDesc classDesc,
+            String requestParameterName, int mode,
             boolean descendantOfIndexedProperty) {
-        int dot = name.indexOf('.');
+        int dot = requestParameterName.indexOf('.');
         if (dot < 0) {
-            return getSinglePropertyDesc(classDesc, name, mode,
+            return getSinglePropertyDesc(classDesc, requestParameterName, mode,
                     !descendantOfIndexedProperty);
         } else {
-            String baseName = name.substring(0, dot);
-            PropertyDesc propertyDesc = getSinglePropertyDesc(classDesc,
-                    baseName, PropertyDesc.READ, false);
-            ClassDesc typeClassDesc = preparePropertyTypeClassDesc(classDesc,
-                    propertyDesc);
-            if (typeClassDesc != null) {
-                // 添え字つきプロパティか添え字つきプロパティの子孫の場合はプロパティをコレクションにしないようにしている。
-                return getPropertyDesc(typeClassDesc, name.substring(dot + 1),
-                        mode, descendantOfIndexedProperty ? true : baseName
-                                .indexOf(CHAR_ARRAY_LPAREN) >= 0);
-            } else {
-                return propertyDesc;
-            }
+            String baseName = requestParameterName.substring(0, dot);
+            return getPropertyDesc(getSinglePropertyDesc(classDesc, baseName,
+                    PropertyDesc.READ, false).getTypeDesc()
+                    .getComponentClassDesc(), requestParameterName
+                    .substring(dot + 1), mode,
+            // 添え字つきプロパティか添え字つきプロパティの子孫の場合はプロパティをコレクションにしないようにしている。
+                    descendantOfIndexedProperty ? true : baseName
+                            .indexOf(CHAR_ARRAY_LPAREN) >= 0);
         }
     }
 
-    PropertyDesc getSinglePropertyDesc(ClassDesc classDesc, String name,
-            int mode, boolean setAsCollectionIfSetterExists) {
+    private PropertyDesc getSinglePropertyDesc(ClassDesc classDesc,
+            String requestParameterName, int mode,
+            boolean setAsCollectionIfSetterExists) {
         boolean collection = false;
         String collectionClassName = null;
         String collectionImplementationClassName = null;
-        int lparen = name.indexOf(CHAR_ARRAY_LPAREN);
-        int rparen = name.indexOf(CHAR_ARRAY_RPAREN);
+        int lparen = requestParameterName.indexOf(CHAR_ARRAY_LPAREN);
+        int rparen = requestParameterName.indexOf(CHAR_ARRAY_RPAREN);
         if (lparen >= 0 && rparen > lparen) {
             // 添え字つきパラメータを受けるプロパティはList。
             collection = true;
             collectionClassName = List.class.getName();
             collectionImplementationClassName = FlexibleList.class.getName();
-            name = name.substring(0, lparen);
+            requestParameterName = requestParameterName.substring(0, lparen);
         } else {
             // 今のところ、添え字つきパラメータの型が配列というのはサポートできていない。
             if (setAsCollectionIfSetterExists) {
                 // 添え字なしパラメータを複数受けるプロパティは配列。
-                collection = (classDesc.getPropertyDesc(name) != null && classDesc
-                        .getPropertyDesc(name).isWritable());
+                collection = classDesc.getPropertyDesc(requestParameterName) != null
+                        && classDesc.getPropertyDesc(requestParameterName)
+                                .isWritable();
             }
         }
-        PropertyDesc propertyDesc = classDesc.addProperty(name, mode);
+        PropertyDesc propertyDesc = addProperty(classDesc,
+                requestParameterName, toSingular(requestParameterName), mode,
+                false);
         if (collection) {
             // なるべく元の状態を壊さないようにこうしている。
             // （添字があるならば配列である、は真であるが、裏は真ではない。）
@@ -586,33 +590,37 @@ public class AnalyzerContext extends ZptTemplateContext {
             typeDesc
                     .setCollectionImplementationClassName(collectionImplementationClassName);
         }
-        return adjustPropertyType(classDesc.getName(), propertyDesc);
+
+        return propertyDesc;
     }
 
-    public ClassDesc preparePropertyTypeClassDesc(ClassDesc classDesc,
-            PropertyDesc propertyDesc) {
-        return preparePropertyTypeClassDesc(classDesc, propertyDesc, false);
-    }
+    //    public ClassDesc preparePropertyTypeClassDesc(ClassDesc classDesc,
+    //            PropertyDesc propertyDesc) {
+    //        return preparePropertyTypeClassDesc(classDesc, propertyDesc, false);
+    //    }
 
-    public ClassDesc preparePropertyTypeClassDesc(ClassDesc classDesc,
-            PropertyDesc propertyDesc, boolean force) {
-        ClassDesc cd = propertyDesc.getTypeDesc().getComponentClassDesc();
-        ClassDesc returned = null;
-        if (cd instanceof ClassDescImpl) {
-            returned = cd;
-        } else if (cd == TypeDesc.DEFAULT_CLASSDESC || force) {
-            String name = propertyDesc.getName();
-            if (propertyDesc.getTypeDesc().isCollection()) {
-                // 名前を単数形にする。
-                name = toSingular(name);
-            }
-            returned = getTemporaryClassDesc(fromPropertyNameToClassName(
-                    classDesc, name));
-            propertyDesc.getTypeDesc().setComponentClassDesc(returned);
-            propertyDesc.notifyTypeUpdated();
-        }
-        return returned;
-    }
+    //    public ClassDesc preparePropertyTypeClassDesc(ClassDesc classDesc,
+    //            PropertyDesc propertyDesc, boolean force) {
+    //        ClassDesc propertyComponentTypeClassDesc = propertyDesc.getTypeDesc()
+    //                .getComponentClassDesc();
+    //        if (propertyComponentTypeClassDesc instanceof ClassDescImpl) {
+    //            return propertyComponentTypeClassDesc;
+    //        } else if (propertyComponentTypeClassDesc == TypeDesc.DEFAULT_CLASSDESC
+    //                || force) {
+    //            String name = propertyDesc.getName();
+    //            if (propertyDesc.getTypeDesc().isCollection()) {
+    //                // 名前を単数形にする。
+    //                name = toSingular(name);
+    //            }
+    //            ClassDesc propertyTypeClassDesc = getTemporaryClassDesc(DescUtils
+    //                    .getNonGenericClassName(inferPropertyTypeName(name,
+    //                            classDesc)));
+    //            propertyDesc.getTypeDesc().setComponentClassDesc(
+    //                    propertyTypeClassDesc);
+    //            propertyDesc.notifyTypeUpdated();
+    //            return propertyTypeClassDesc;
+    //        }
+    //    }
 
     String toSingular(String name) {
         if (name == null) {
@@ -628,20 +636,12 @@ public class AnalyzerContext extends ZptTemplateContext {
         return name;
     }
 
-    public boolean isUsedAsVariable(String name) {
-        return usedAsVariableSet_.contains(name);
+    public boolean isUsedClassName(String className) {
+        return usedClassNameSet_.contains(className);
     }
 
-    public void setUsedAsVariable(String name) {
-        usedAsVariableSet_.add(name);
-    }
-
-    public boolean isUsedAsLocalVariable(String name) {
-        return usedAsLocalVariableSet_.contains(name);
-    }
-
-    public void setUsedAsLocalVariable(String name) {
-        usedAsLocalVariableSet_.add(name);
+    public void setUsedClassName(String className) {
+        usedClassNameSet_.add(className);
     }
 
     public String getPath() {
@@ -671,45 +671,6 @@ public class AnalyzerContext extends ZptTemplateContext {
         } else {
             return null;
         }
-    }
-
-    public PropertyDesc adjustPropertyType(String className, PropertyDesc pd) {
-        PropertyTypeHint hint = getPropertyTypeHint(className, pd.getName());
-        String typeName;
-        if (hint != null) {
-            typeName = hint.getTypeName();
-        } else {
-            PropertyDescriptor descriptor = getSourceCreator()
-                    .getPropertyDescriptor(className, pd.getName());
-            if (descriptor == null) {
-                // ヒントも既存クラスからの情報もなければ何もしない。
-                return pd;
-            }
-
-            Method readMethod = descriptor.getReadMethod();
-            if (readMethod != null) {
-                pd.setGetterName(readMethod.getName());
-            }
-
-            typeName = DescUtils.getGenericPropertyTypeName(descriptor);
-        }
-
-        TypeDescImpl td = new TypeDescImpl(typeName, true);
-        String cname = td.getComponentClassDesc().getName();
-        Map<String, ClassDesc> map = new HashMap<String, ClassDesc>();
-        map.put(cname, getTemporaryClassDesc(cname));
-        td.setName(typeName, map);
-
-        if (td.isCollection()
-                && List.class.getName().equals(td.getCollectionClassName())) {
-            td.setCollectionImplementationClassName(pd.getTypeDesc()
-                    .getCollectionImplementationClassName());
-        }
-
-        pd.setTypeDesc(td);
-        pd.notifyTypeUpdated();
-
-        return pd;
     }
 
     public void pushVariableScope() {

@@ -1,11 +1,18 @@
 package org.seasar.ymir.extension.zpt;
 
+import org.seasar.framework.container.S2Container;
+import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.util.DescUtils;
+import org.seasar.ymir.message.Messages;
+import org.seasar.ymir.message.Notes;
+import org.seasar.ymir.token.Token;
 import org.seasar.ymir.zpt.YmirVariableResolver;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;
+import net.skirnir.freyja.impl.VariableResolverImpl.EntryImpl;
 
 public class AnalyzerVariableResolver implements VariableResolver {
 
@@ -20,29 +27,88 @@ public class AnalyzerVariableResolver implements VariableResolver {
     }
 
     public Object getVariable(TemplateContext context, String name) {
-        AnalyzerContext analyzerContext = (AnalyzerContext) context;
-
-        if (analyzerContext != null
-                && !analyzerContext.shouldIgnoreVariable(name)
-                && isPageSystemVariable(name)) {
-            ClassDesc classDesc = analyzerContext
-                    .getTemporaryClassDesc(analyzerContext
-                            .fromPropertyNameToClassName(analyzerContext
-                                    .getPageClassDesc(), name));
-            analyzerContext.setUsedAsVariable(classDesc.getName());
-            return new DescWrapper(analyzerContext, classDesc);
+        Entry entry = getVariableEntry(context, name);
+        if (entry == null) {
+            return null;
         } else {
-            return delegated_.getVariable(context, name);
+            return entry.getValue();
         }
     }
 
-    boolean isPageSystemVariable(String name) {
-        return YmirVariableResolver.NAME_PARAM_SELF.equals(name)
-                || RequestProcessor.ATTR_SELF.equals(name);
+    /**
+     * 指定された名前の変数の型を表すクラス名を返します。
+     * 
+     * @param analyzerContext コンテキスト。
+     * @param name 変数名。
+     * @return 変数の型を表すクラス名。推論できなかった場合はnullを返します。
+     */
+    private String inferTypeOfVariable(AnalyzerContext analyzerContext,
+            String name) {
+        if (RequestProcessor.ATTR_SELF.equals(name)) {
+            return analyzerContext.getPageClassName();
+            // Kvasir/SoraのpopプラグインのexternalTemplate機能を使って自動生成
+            // をしている場合、classNameはnullになり得ることに注意。
+        } else if (RequestProcessor.ATTR_NOTES.equals(name)) {
+            // NotesはFreyjaにもYmirにもあるが、Ymirのものを優先させたいためこうしている。
+            return Notes.class.getName();
+        } else if (YmirVariableResolver.NAME_YMIRREQUEST.equals(name)) {
+            return Request.class.getName();
+        } else if (YmirVariableResolver.NAME_CONTAINER.equals(name)) {
+            return S2Container.class.getName();
+        } else if (YmirVariableResolver.NAME_MESSAGES.equals(name)) {
+            return Messages.class.getName();
+        } else if (YmirVariableResolver.NAME_TOKEN.equals(name)) {
+            return Token.class.getName();
+        } else if (YmirVariableResolver.NAME_VARIABLES.equals(name)) {
+            return VariableResolver.class.getName();
+        } else if (YmirVariableResolver.NAME_PARAM_SELF.equals(name)) {
+            // param-selfに指定されたプロパティ名をPageのプロパティ名とみなさせる方が
+            // 都合が良いのでこうしている。
+            return analyzerContext.getPageClassName();
+        } else if (!AnalyzerUtils.isValidVariableName(name)) {
+            return Object.class.getName();
+        }
+
+        return null;
     }
 
     public Entry getVariableEntry(TemplateContext context, String name) {
-        return delegated_.getVariableEntry(context, name);
+        AnalyzerContext analyzerContext = (AnalyzerContext) context;
+        if (analyzerContext != null
+                && !analyzerContext.shouldIgnoreVariable(name)
+                && !(delegated_.getVariable(context, name) instanceof DescWrapper)) {
+            // 値がDescWrapperとして存在しない場合は名前から型を推測する。
+            String className = DescUtils
+                    .getNonGenericClassName(inferTypeOfVariable(
+                            analyzerContext, name));
+            if (className == null) {
+                Entry entry = delegated_.getVariableEntry(context, name);
+                if (entry != null) {
+                    // 実際に値が存在するならその型を使う。
+                    className = entry.getClass().getName();
+                } else {
+                    className = analyzerContext.inferPropertyClassName(name,
+                            null);
+                }
+            }
+
+            ClassDesc classDesc = analyzerContext
+                    .getTemporaryClassDesc(className);
+
+            analyzerContext.setUsedClassName(className);
+
+            Class<?> type = analyzerContext.getSourceCreator().getClass(
+                    className);
+            if (type == null) {
+                type = Object.class;
+            }
+
+            return new EntryImpl(name, type, new DescWrapper(analyzerContext,
+                    classDesc));
+        } else {
+            return delegated_.getVariableEntry(context, name);
+        }
+
     }
 
     public String[] getVariableNames() {

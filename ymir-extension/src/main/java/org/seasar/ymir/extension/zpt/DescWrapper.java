@@ -22,12 +22,14 @@ public class DescWrapper {
 
     private PropertyDesc propertyDesc_;
 
+    private String variableName_;
+
     public DescWrapper(AnalyzerContext analyzerContext, ClassDesc valueClassDesc) {
         analyzerContext_ = analyzerContext;
         valueClassDesc_ = valueClassDesc;
     }
 
-    public DescWrapper(DescWrapper parent, PropertyDesc propertyDesc) {
+    private DescWrapper(DescWrapper parent, PropertyDesc propertyDesc) {
         analyzerContext_ = parent.getAnalizerContext();
         parent_ = parent;
         propertyDesc_ = propertyDesc;
@@ -55,8 +57,7 @@ public class DescWrapper {
         int mode = (cd.isTypeOf(ClassType.DTO) ? (PropertyDesc.READ | PropertyDesc.WRITE)
                 : PropertyDesc.READ);
         if (pd == null) {
-            pd = analyzerContext_.adjustPropertyType(cd.getName(), cd
-                    .addProperty(name, mode));
+            pd = analyzerContext_.addProperty(cd, name, mode);
         } else {
             pd.addMode(mode);
         }
@@ -135,15 +136,30 @@ public class DescWrapper {
         if (valueClassDesc_ != null) {
             return valueClassDesc_;
         } else {
-            // 実際にプロパティを参照したこの時点でクラス定義を遅延決定するようにしている。
-            analyzerContext_.preparePropertyTypeClassDesc(parent_
-                    .getValueClassDesc(), propertyDesc_, true);
+            // このコードが実行されるケースには、今の値がなんらかのプロパティを
+            // 持っていてそれを追加したいケースがあるが、
+            // 今の値がbooleanやStringと間違って推論されていることもあるため、再度型推論を行なう。
+            // cf. ZptAnalyzerTest#testAnalyze36()
+            if (!propertyDesc_.getTypeDesc().isExplicit()) {
+                propertyDesc_ = analyzerContext_.addProperty(parent_
+                        .getValueClassDesc(), propertyDesc_.getName(),
+                        propertyDesc_.getName(), propertyDesc_.getMode(), true);
 
+            }
             return propertyDesc_.getTypeDesc().getComponentClassDesc();
         }
     }
 
     public DescWrapper getParent() {
         return parent_;
+    }
+
+    public void setVariableName(String variableName) {
+        variableName_ = variableName;
+        if (propertyDesc_ != null && !propertyDesc_.getTypeDesc().isExplicit()) {
+            propertyDesc_ = analyzerContext_.addProperty(parent_
+                    .getValueClassDesc(), propertyDesc_.getName(),
+                    variableName_, propertyDesc_.getMode(), true);
+        }
     }
 }

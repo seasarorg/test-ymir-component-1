@@ -71,7 +71,6 @@ public class ClassDescImpl extends AbstractClassDesc {
     }
 
     public PropertyDesc getPropertyDesc(String name) {
-
         return propertyDescMap_.get(name);
     }
 

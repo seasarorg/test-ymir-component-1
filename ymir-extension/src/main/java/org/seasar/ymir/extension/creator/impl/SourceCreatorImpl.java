@@ -1490,6 +1490,25 @@ public class SourceCreatorImpl implements SourceCreator {
         if (className == null) {
             return null;
         }
+
+        if ("byte".equals(className)) {
+            return Byte.TYPE;
+        } else if ("short".equals(className)) {
+            return Short.TYPE;
+        } else if ("int".equals(className)) {
+            return Integer.TYPE;
+        } else if ("long".equals(className)) {
+            return Long.TYPE;
+        } else if ("float".equals(className)) {
+            return Float.TYPE;
+        } else if ("double".equals(className)) {
+            return Double.TYPE;
+        } else if ("char".equals(className)) {
+            return Character.TYPE;
+        } else if ("boolean".equals(className)) {
+            return Boolean.TYPE;
+        }
+
         ClassLoader cl = getClassLoader();
         try {
             return Class.forName(className, true, cl);

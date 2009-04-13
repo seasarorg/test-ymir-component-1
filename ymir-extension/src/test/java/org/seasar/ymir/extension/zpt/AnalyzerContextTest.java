@@ -2,8 +2,8 @@ package org.seasar.ymir.extension.zpt;
 
 import junit.framework.TestCase;
 
+import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.TypeDesc;
-import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 
@@ -33,21 +33,29 @@ public class AnalyzerContextTest extends TestCase {
             protected ClassLoader getClassLoader() {
                 return getClass().getClassLoader();
             }
+
+            @Override
+            public SourceCreatorSetting getSourceCreatorSetting() {
+                return new SourceCreatorSetting(this) {
+                    @Override
+                    public String findDtoClassName(String propertyName) {
+                        return null;
+                    }
+                };
+            }
         });
     }
 
-    public void testGetDtoClassName() throws Exception {
-        assertEquals("com.example.dto.sub.NameDto", target_.getDtoClassName(
-                new SimpleClassDesc("com.example.web.sub.SubPage"), "name"));
+    public void test_inferPropertyClassName() throws Exception {
+        assertEquals("com.example.dto.sub.NameDto", target_
+                .inferPropertyClassName("name", "com.example.web.sub.SubPage"));
 
-        assertEquals("net.kankeinai.package.dto.NameDto", target_
-                .getDtoClassName(new SimpleClassDesc(
-                        "net.kankeinai.package.SubPage"), "name"));
+        assertEquals("com.example.dto.NameDto", target_.inferPropertyClassName(
+                "name", "net.kankeinai.package.SubPage"));
 
         assertEquals("[#YMIR-202]既存クラスが上位にあればそれを返すこと",
-                "com.example.dto.sub.Name2Dto", target_.getDtoClassName(
-                        new SimpleClassDesc("com.example.web.sub.sub.SubPage"),
-                        "name2"));
+                "com.example.dto.sub.Name2Dto", target_.inferPropertyClassName(
+                        "name2", "com.example.web.sub.sub.SubPage"));
     }
 
     public void testReplaceSimpleDtoTypeToDefaultType1() throws Exception {

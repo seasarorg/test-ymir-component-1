@@ -387,14 +387,12 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         className, name);
                 switch (role) {
                 case PARAMETER:
-                    PropertyDesc propertyDesc = classDesc.addProperty(name,
-                            PropertyDesc.WRITE | PropertyDesc.READ);
+                    PropertyDesc propertyDesc = analyzerContext.addProperty(
+                            classDesc, name, PropertyDesc.WRITE
+                                    | PropertyDesc.READ);
                     propertyDesc
                             .setAnnotationDescOnSetter(new AnnotationDescImpl(
                                     RequestParameter.class.getName()));
-                    analyzerContext.adjustPropertyType(classDesc.getName(),
-                            propertyDesc);
-                    propertyDesc.notifyTypeUpdated();
                     break;
 
                 case BUTTON:
@@ -423,13 +421,11 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     throw new RuntimeException("Logic error");
                 }
             } else {
-                PropertyDesc propertyDesc = classDesc.addProperty(BeanUtils
-                        .getFirstSimpleSegment(name), PropertyDesc.READ);
+                PropertyDesc propertyDesc = analyzerContext.addProperty(
+                        classDesc, BeanUtils.getFirstSimpleSegment(name),
+                        PropertyDesc.READ);
                 propertyDesc.setAnnotationDescOnGetter(new AnnotationDescImpl(
                         RequestParameter.class.getName()));
-                analyzerContext.adjustPropertyType(classDesc.getName(),
-                        propertyDesc);
-                propertyDesc.notifyTypeUpdated();
             }
         }
 
@@ -442,20 +438,16 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 String name = getAttributeValue(attrMap, "name", null);
                 if (AnalyzerUtils.isValidVariableName(name)) {
                     formName = name;
-                    dtoClassDesc = analyzerContext
-                            .getTemporaryClassDesc(analyzerContext
-                                    .fromPropertyNameToClassName(classDesc,
-                                            name));
-                    dtoClassDesc
-                            .setAttribute(Globals.ATTR_OWNERPAGE, classDesc);
-                    PropertyDesc propertyDesc = classDesc.addProperty(name,
-                            PropertyDesc.NONE);
+                    PropertyDesc propertyDesc = analyzerContext.addProperty(
+                            classDesc, name, PropertyDesc.NONE);
                     propertyDesc
                             .setAnnotationDesc(new MetaAnnotationDescImpl(
                                     org.seasar.ymir.extension.Globals.META_NAME_PROPERTY,
                                     new String[] { name }, new Class[0]));
-                    propertyDesc.setTypeDesc(new TypeDescImpl(dtoClassDesc));
-                    classDesc.setPropertyDesc(propertyDesc);
+                    dtoClassDesc = propertyDesc.getTypeDesc()
+                            .getComponentClassDesc();
+                    dtoClassDesc
+                            .setAttribute(Globals.ATTR_OWNERPAGE, classDesc);
                 }
             }
 
@@ -693,7 +685,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         if (evaluated instanceof DescWrapper) {
             DescWrapper wrapper = (DescWrapper) evaluated;
             PropertyDesc pd = wrapper.getPropertyDesc();
-            if (pd != null && !pd.isTypeAlreadySet()) {
+            if (pd != null && !pd.getTypeDesc().isExplicit()) {
                 pd.setTypeDesc("boolean");
             }
         }

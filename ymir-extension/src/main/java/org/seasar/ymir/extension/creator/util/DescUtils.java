@@ -36,6 +36,7 @@ import org.seasar.ymir.extension.creator.impl.MetasAnnotationDescImpl;
 import org.seasar.ymir.extension.creator.util.type.Token;
 import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
+import org.seasar.ymir.extension.zpt.DescWrapper;
 
 public class DescUtils {
     private static final String SUFFIX_ARRAY = "[]";
@@ -54,6 +55,10 @@ public class DescUtils {
     }
 
     public static String getGenericPropertyTypeName(PropertyDescriptor pd) {
+        if (pd == null) {
+            return null;
+        }
+
         Method method = pd.getReadMethod();
         if (method != null) {
             return DescUtils.toString(method.getGenericReturnType());
@@ -557,5 +562,21 @@ public class DescUtils {
         }
         return valueSet.toArray((T[]) Array.newInstance(values1.getClass()
                 .getComponentType(), valueSet.size()));
+    }
+
+    public static String getPackageName(DescWrapper wrapper) {
+        if (wrapper == null) {
+            return null;
+        } else {
+            return wrapper.getValueClassDesc().getPackageName();
+        }
+    }
+
+    public static String getPackageName(ClassDesc classDesc) {
+        if (classDesc == null) {
+            return null;
+        } else {
+            return classDesc.getPackageName();
+        }
     }
 }
