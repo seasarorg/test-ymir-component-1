@@ -16,9 +16,23 @@ import java.util.Map.Entry;
  */
 public class FlexibleList<E> extends AbstractList<E> implements List<E>,
         RandomAccess {
+    private static final int DEFAULT_MAXINDEX = 999;
+
+    private static final int MAXINDEX_UNLIMITED = -1;
+
     private SortedMap<Integer, E> map = new TreeMap<Integer, E>();
 
+    private int maxIndex = DEFAULT_MAXINDEX;
+
+    public void setMaxIndex(int maxIndex) {
+        this.maxIndex = maxIndex;
+    }
+
     public void add(int index, E element) {
+        if (!validateIndex(index)) {
+            return;
+        }
+
         if (map.isEmpty()) {
             map.put(index, element);
         } else {
@@ -38,6 +52,14 @@ public class FlexibleList<E> extends AbstractList<E> implements List<E>,
         }
     }
 
+    private boolean validateIndex(int index) {
+        if (maxIndex == MAXINDEX_UNLIMITED) {
+            return index >= 0;
+        } else {
+            return index >= 0 && index <= maxIndex;
+        }
+    }
+
     public E get(int index) {
         return map.get(index);
     }
@@ -47,6 +69,10 @@ public class FlexibleList<E> extends AbstractList<E> implements List<E>,
     }
 
     public E set(int index, E element) {
+        if (!validateIndex(index)) {
+            return null;
+        }
+
         return map.put(index, element);
     }
 
