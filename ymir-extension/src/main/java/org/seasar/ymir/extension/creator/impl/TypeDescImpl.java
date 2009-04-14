@@ -86,10 +86,8 @@ public class TypeDescImpl implements TypeDesc {
         } catch (CloneNotSupportedException ex) {
             throw new RuntimeException(ex);
         }
-        if (componentClassDesc_ != null) {
-            cloned.componentClassDesc_ = (ClassDesc) componentClassDesc_
-                    .clone();
-        }
+        // componentClassDescはループすることがあるためコピーしない。
+
         return cloned;
     }
 

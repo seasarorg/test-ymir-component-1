@@ -1453,4 +1453,20 @@ public class ZptAnalyzerTest extends TestCase {
         ClassDesc actual = getClassDesc("com.example.dto.CandidateDto");
         assertNotNull(actual);
     }
+
+    public void testAnalyze78_Dtoの循環参照でStackOverflowにならないことと() throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+
+        try {
+            act("testAnalyze78");
+        } catch (StackOverflowError er) {
+            fail();
+        }
+    }
+    // TODO entry selector/candidates とした時にはDto名はCandidateDtoになるように。
+    // TODO インタフェースの実装型を生成する際にはインタフェースを実装するように。
+    // TODO selector.candidates[0] とした時にSelectorDtoが生成されないように。
 }

@@ -1,0 +1,19 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body tal:define="form self/form">
+  <form name="form" action="./index.html" method="post">
+    <table border="1">
+      <tbody>
+        <tr tal:repeat="entry form/entrySelector/candidates">
+          <td>
+            <p><span tal:repeat="subEntry entry/subEntrySelector/candidates">
+              <input type="radio" tal:define="name string:entrySelector.candidates[${repeat/entry/index}].subEntrySelector.selectedValues" tal:attributes="name name; value subEntry/value; checked subEntry/selected" /> <span tal:replace="subEntry/label">LABEL</span>&nbsp;&nbsp;</span></p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+</body>
+</html>

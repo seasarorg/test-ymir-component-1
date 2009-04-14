@@ -29,6 +29,7 @@ import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
+import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.FlexibleList;
 
@@ -583,15 +584,9 @@ public class AnalyzerContext extends ZptTemplateContext {
                     baseName, PropertyDesc.READ, false);
 
             // 後に続くプロパティ名によって型の補正を行なう。
-            String nextName;
-            int nextDot = requestParameterName.indexOf('.', dot + 1);
-            if (nextDot < 0) {
-                nextName = requestParameterName.substring(dot + 1);
-            } else {
-                nextName = requestParameterName.substring(dot + 1, nextDot);
-            }
             replaceTypeToGeneratedClassIfNeedToAddProperty(propertyDesc,
-                    nextName, classDesc);
+                    BeanUtils.getFirstSimpleSegment(requestParameterName
+                            .substring(dot + 1)), classDesc);
 
             return getPropertyDesc(propertyDesc.getTypeDesc()
                     .getComponentClassDesc(), requestParameterName
@@ -603,24 +598,24 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     public void replaceTypeToGeneratedClassIfNeedToAddProperty(
-            PropertyDesc propertyDesc_, String propertyName, ClassDesc classDesc) {
+            PropertyDesc propertyDesc, String propertyName, ClassDesc classDesc) {
         // プロパティの型が決定されていない状態でかつ自動生成対象外の型である場合は、
         // なんらかのプロパティを追加できるように再度型推論を行なう。
         // cf. ZptAnalyzerTest#testAnalyze36()
         // ただし指定されたプロパティを持つ場合は追加の必要がないため型推論は行なわない。
-        if (!propertyDesc_.getTypeDesc().isExplicit()
-                && !isGenerated(propertyDesc_.getTypeDesc()
+        if (!propertyDesc.getTypeDesc().isExplicit()
+                && !isGenerated(propertyDesc.getTypeDesc()
                         .getComponentClassDesc())
-                && !hasProperty(propertyDesc_.getTypeDesc()
+                && !hasProperty(propertyDesc.getTypeDesc()
                         .getComponentClassDesc().getName(), propertyName)) {
             TypeDesc typeDesc = new TypeDescImpl(findPropertyClassName(
-                    propertyDesc_.getName(), classDesc.getName()), false);
+                    propertyDesc.getName(), classDesc.getName()), false);
             String cname = typeDesc.getComponentClassDesc().getName();
             Map<String, ClassDesc> map = new HashMap<String, ClassDesc>();
             map.put(cname, getTemporaryClassDesc(cname));
             typeDesc.setName(typeDesc.getName(), map);
-            propertyDesc_.setTypeDesc(typeDesc);
-            propertyDesc_.notifyTypeUpdated();
+            propertyDesc.setTypeDesc(typeDesc);
+            propertyDesc.notifyTypeUpdated();
         }
     }
 
