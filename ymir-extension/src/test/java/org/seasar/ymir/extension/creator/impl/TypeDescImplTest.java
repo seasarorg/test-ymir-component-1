@@ -24,7 +24,7 @@ public class TypeDescImplTest extends TestCase {
         assertEquals("0", actual);
 
         actual = new TypeDescImpl("double").getDefaultValue();
-        assertEquals("0", actual);
+        assertEquals("0.0", actual);
 
         actual = new TypeDescImpl("char").getDefaultValue();
         assertEquals("0", actual);

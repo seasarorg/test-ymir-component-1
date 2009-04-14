@@ -1,0 +1,8 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <span tal:content="self/selector/selectedCandidate/label">CONTENT</span>
+  </body>
+</html>

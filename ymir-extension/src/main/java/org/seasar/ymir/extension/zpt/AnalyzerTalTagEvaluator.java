@@ -685,8 +685,11 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         if (evaluated instanceof DescWrapper) {
             DescWrapper wrapper = (DescWrapper) evaluated;
             PropertyDesc pd = wrapper.getPropertyDesc();
-            if (pd != null && !pd.getTypeDesc().isExplicit()) {
+            if (pd != null && !pd.getTypeDesc().isExplicit()
+                    && !pd.isTypeAlreadySet()) {
                 pd.setTypeDesc("boolean");
+                // 「tal:conditionに現れた場合にはbooleanとみなす」というルールは優先順位が低いため、
+                // notifyTypeUpdated()を呼ばない。
             }
         }
 

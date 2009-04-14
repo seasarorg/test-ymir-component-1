@@ -4,8 +4,6 @@ import static org.seasar.ymir.extension.creator.SourceCreator.PARAM_TASK;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,6 +38,7 @@ import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
 import org.seasar.ymir.extension.zpt.ParameterRole;
 import org.seasar.ymir.util.BeanUtils;
+import org.seasar.ymir.util.ClassUtils;
 
 public class UpdateClassesAction extends AbstractAction implements UpdateAction {
     protected static final String PARAM_BUTTON_ALWAYS_SKIP = SourceCreator.PARAM_PREFIX
@@ -64,15 +63,6 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             + "parameterRole_";
 
     protected static final String PREFIX_CLASSCHECKED = "updateClassesAction.class.checked.";
-
-    private static final Set<String> primitiveSet_;
-
-    static {
-        Set<String> primitiveSet = new HashSet<String>();
-        primitiveSet.addAll(Arrays.asList(new String[] { "boolean", "byte",
-            "char", "short", "int", "long", "float", "double" }));
-        primitiveSet_ = Collections.unmodifiableSet(primitiveSet);
-    }
 
     public UpdateClassesAction(SourceCreator sourceCreator) {
         super(sourceCreator);
@@ -335,7 +325,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             public Object visit(Token acceptor) {
                 String name = DescUtils
                         .getComponentName(acceptor.getBaseName());
-                if (name.indexOf('.') < 0 && !primitiveSet_.contains(name)) {
+                if (name.indexOf('.') < 0 && !ClassUtils.isPrimitive(name)) {
                     String className;
                     Class<?> clazz = getSourceCreator().findClass(name,
                             baseClassName);

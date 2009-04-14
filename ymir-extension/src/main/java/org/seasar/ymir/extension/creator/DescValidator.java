@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.seasar.ymir.extension.creator.util.DescUtils;
+import org.seasar.ymir.util.ClassUtils;
 
 public class DescValidator {
 
@@ -72,7 +73,7 @@ public class DescValidator {
 
         if (TypeDesc.TYPE_VOID.equals(className)) {
             return true;
-        } else if (DescUtils.isPrimitive(className)) {
+        } else if (ClassUtils.isPrimitive(className)) {
             return true;
         } else if (classDescSet != null && classDescSet.contains(className)) {
             return true;

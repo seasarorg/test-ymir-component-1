@@ -565,22 +565,23 @@ public class ZptAnalyzerTest extends TestCase {
                 getClassDesc("com.example.dto.CommentsDto"));
     }
 
-    public void testAnalyze20() throws Exception {
+    public void testAnalyze20_talConditionの式については生成するプロパティの型がbooleanになること()
+            throws Exception {
 
         act("testAnalyze20");
 
         PropertyDesc actual = getClassDesc(CLASSNAME)
                 .getPropertyDesc("enabled");
-        assertNotNull("tal:conditionの式については生成するプロパティの型がbooleanになること", actual);
+        assertNotNull(actual);
         assertEquals("boolean", actual.getTypeDesc().getName());
     }
 
-    public void testAnalyze21() throws Exception {
+    public void testAnalyze21_無視するように指定した変数が正しく無視されること() throws Exception {
 
         act("testAnalyze21", new String[] { "self" });
 
         ClassDesc cd = getClassDesc(CLASSNAME);
-        assertNull("無視するように指定した変数が正しく無視されること", cd.getPropertyDesc("self"));
+        assertNull(cd.getPropertyDesc("self"));
     }
 
     public void testAnalyze22_同一のnameを持つパラメータが複数存在する場合は配列になること()
@@ -1103,6 +1104,14 @@ public class ZptAnalyzerTest extends TestCase {
     public void testAnalyze61_典型的なname動的生成のテンプレートでnameが自動生成に使われること()
             throws Exception {
 
+        context_ = new AnalyzerContext() {
+            @Override
+            public void setRepeatedPropertyGeneratedAsList(
+                    boolean repeatedPropertyGeneratedAsList) {
+                super.setRepeatedPropertyGeneratedAsList(true);
+            }
+        };
+
         act("testAnalyze61");
 
         ClassDesc cd = getClassDesc(CLASSNAME);
@@ -1427,6 +1436,19 @@ public class ZptAnalyzerTest extends TestCase {
                 "org.seasar.ymir.render.*");
 
         act("testAnalyze76");
+
+        ClassDesc actual = getClassDesc("com.example.dto.CandidateDto");
+        assertNotNull(actual);
+    }
+
+    public void testAnalyze77_renderクラスでインタフェース型を返すプロパティに対応するDto型の名前はインタフェース名から推論されること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+
+        act("testAnalyze77");
 
         ClassDesc actual = getClassDesc("com.example.dto.CandidateDto");
         assertNotNull(actual);

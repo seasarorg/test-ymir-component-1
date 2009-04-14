@@ -199,7 +199,7 @@ public class AnalyzerContext extends ZptTemplateContext {
                         .getComponentPropertyTypeName(descriptor));
                 if (componentClass.isInterface()) {
                     // インタフェースの場合は実装クラス型を推論する。
-                    componentClassName = inferPropertyClassName(Introspector
+                    componentClassName = findPropertyClassName(Introspector
                             .decapitalize(ClassUtils
                                     .getShorterName(componentClass)), className);
                     setUsedClassName(componentClassName);
@@ -210,20 +210,26 @@ public class AnalyzerContext extends ZptTemplateContext {
 
                 String typeName = DescUtils
                         .getGenericPropertyTypeName(descriptor);
+                // typeのexplicitは、プロパティの所属クラスが自動生成対象かによって変わる。
+                // 自動生成対象でないクラスについては、プロパティの型は不変なのでtrueにすべき。
+                // 自動生成クラスについては、プロパティ型はHTMLテンプレートの内容によって変わり得るのでfalseにすべき。
                 if (Collection.class.isAssignableFrom(descriptor
                         .getPropertyType())) {
                     TypeToken typeToken = new TypeToken(typeName);
                     typeToken.getTypes()[0].setBaseName(componentClassName);
-                    typeDesc = new TypeDescImpl(typeToken.getAsString(), true);
+                    typeDesc = new TypeDescImpl(typeToken.getAsString(),
+                            !isGenerated(classDesc));
                 } else if (descriptor.getPropertyType().isArray()) {
-                    typeDesc = new TypeDescImpl(componentClassName + "[]", true);
+                    typeDesc = new TypeDescImpl(componentClassName + "[]",
+                            !isGenerated(classDesc));
                 } else {
-                    typeDesc = new TypeDescImpl(componentClassName, true);
+                    typeDesc = new TypeDescImpl(componentClassName,
+                            !isGenerated(classDesc));
                 }
             } else {
                 // 推論できなかった場合は名前から推論を行なう。
                 typeDesc = new TypeDescImpl(inferPropertyClassName(
-                        propertyAlias, null));
+                        propertyAlias, className));
             }
         }
 
@@ -240,7 +246,11 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
 
         propertyDesc.setTypeDesc(typeDesc);
-        propertyDesc.notifyTypeUpdated();
+        if (!isGenerated(typeDesc.getComponentClassDesc())) {
+            // 自動生成対象のクラスの場合はtal:conditionやtal:attributesなどでbooleanだとみなされる余地があるので
+            // ここではnotifyTypeUpdated()を呼ばないようにしている。
+            propertyDesc.notifyTypeUpdated();
+        }
 
         return propertyDesc;
     }
@@ -252,8 +262,47 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     /**
      * 指定された名前のプロパティの型を推論して返します。
-     * <p>型推論はまずDTOサーチパス上のクラスから名前に基づいて行なわれます。
-     * 見つからなかった場合、型推論は基準となるクラス名を使って行なわれます。
+     * <p>型推論はまず基準となるクラス名を使ってDTO型名を生成し、
+     * そのクラスが存在するかを確認します。
+     * 存在する場合はそれが推論結果となります。
+     * 存在しない場合はDTOサーチパス上のクラスから名前に基づいて推論します。
+     * DTOサーチパス上のクラスから対応するクラスが見つかった場合はそれが推論結果となります。
+     * 見つからなかった場合は最初に生成したDTO型名が推論結果となります。
+     * </p>
+     * 
+     * @param propertyName プロパティ名。nullを指定してはいけません。
+     * @param baseClassName 基準となるクラス名。
+     * パッケージがアプリケーションのルートパッケージ配下であるようなクラス名を指定する場合は、
+     * クラス名は「ルートパッケージ＋"."+種別パッケージ」配下である必要があります
+     * （種別パッケージ：web、dtoなど）。
+     * パッケージがアプリケーションのルートパッケージと異なるようなクラス名が指定された場合は
+     * 現在のページクラス名が使用されます。
+     * また、nullが指定された場合も現在のページクラス名が使用されます。
+     * @return 推論結果の型。nullが返されることはありません。
+     * またGenerics型が返されることはありません。
+     */
+    public String inferPropertyClassName(String propertyName,
+            String baseClassName) {
+
+        String className = findPropertyClassName(propertyName, baseClassName);
+        if (sourceCreator_.getClass(className) != null) {
+            return className;
+        }
+
+        // DTO型名に対応するクラスが存在しない場合はDTOサーチパス上のクラスから推論する。
+
+        String classNameFromSearchPath = sourceCreator_
+                .getSourceCreatorSetting().findDtoClassName(propertyName);
+        if (classNameFromSearchPath != null) {
+            className = classNameFromSearchPath;
+        }
+
+        return className;
+    }
+
+    /**
+     * 指定された名前のプロパティの型を推論して返します。
+     * <p>型推論は基準となるクラス名を使って行なわれます。
      * クラスがサブパッケージ階層に配置されている場合、
      * 同一のサブパッケージ階層に配置されるようなDTO型名が返されますが、
      * 上位階層に同一名のDTO型が存在する場合はそれが返されます。
@@ -270,18 +319,8 @@ public class AnalyzerContext extends ZptTemplateContext {
      * @return 推論結果の型。nullが返されることはありません。
      * またGenerics型が返されることはありません。
      */
-    public String inferPropertyClassName(String propertyName,
+    public String findPropertyClassName(String propertyName,
             String baseClassName) {
-        // DTOサーチパス上のクラスから推論する。
-
-        String className = sourceCreator_.getSourceCreatorSetting()
-                .findDtoClassName(propertyName);
-        if (className != null) {
-            return className;
-        }
-
-        // なければ普通にDTOクラス名を作成する。
-
         if (baseClassName == null) {
             baseClassName = pageClassName_;
         }
@@ -540,14 +579,53 @@ public class AnalyzerContext extends ZptTemplateContext {
                     !descendantOfIndexedProperty);
         } else {
             String baseName = requestParameterName.substring(0, dot);
-            return getPropertyDesc(getSinglePropertyDesc(classDesc, baseName,
-                    PropertyDesc.READ, false).getTypeDesc()
+            PropertyDesc propertyDesc = getSinglePropertyDesc(classDesc,
+                    baseName, PropertyDesc.READ, false);
+
+            // 後に続くプロパティ名によって型の補正を行なう。
+            String nextName;
+            int nextDot = requestParameterName.indexOf('.', dot + 1);
+            if (nextDot < 0) {
+                nextName = requestParameterName.substring(dot + 1);
+            } else {
+                nextName = requestParameterName.substring(dot + 1, nextDot);
+            }
+            replaceTypeToGeneratedClassIfNeedToAddProperty(propertyDesc,
+                    nextName, classDesc);
+
+            return getPropertyDesc(propertyDesc.getTypeDesc()
                     .getComponentClassDesc(), requestParameterName
                     .substring(dot + 1), mode,
             // 添え字つきプロパティか添え字つきプロパティの子孫の場合はプロパティをコレクションにしないようにしている。
                     descendantOfIndexedProperty ? true : baseName
                             .indexOf(CHAR_ARRAY_LPAREN) >= 0);
         }
+    }
+
+    public void replaceTypeToGeneratedClassIfNeedToAddProperty(
+            PropertyDesc propertyDesc_, String propertyName, ClassDesc classDesc) {
+        // プロパティの型が決定されていない状態でかつ自動生成対象外の型である場合は、
+        // なんらかのプロパティを追加できるように再度型推論を行なう。
+        // cf. ZptAnalyzerTest#testAnalyze36()
+        // ただし指定されたプロパティを持つ場合は追加の必要がないため型推論は行なわない。
+        if (!propertyDesc_.getTypeDesc().isExplicit()
+                && !isGenerated(propertyDesc_.getTypeDesc()
+                        .getComponentClassDesc())
+                && !hasProperty(propertyDesc_.getTypeDesc()
+                        .getComponentClassDesc().getName(), propertyName)) {
+            TypeDesc typeDesc = new TypeDescImpl(findPropertyClassName(
+                    propertyDesc_.getName(), classDesc.getName()), false);
+            String cname = typeDesc.getComponentClassDesc().getName();
+            Map<String, ClassDesc> map = new HashMap<String, ClassDesc>();
+            map.put(cname, getTemporaryClassDesc(cname));
+            typeDesc.setName(typeDesc.getName(), map);
+            propertyDesc_.setTypeDesc(typeDesc);
+            propertyDesc_.notifyTypeUpdated();
+        }
+    }
+
+    public boolean hasProperty(String className, String propertyName) {
+        return sourceCreator_.getPropertyDescriptor(className, propertyName) != null;
     }
 
     private PropertyDesc getSinglePropertyDesc(ClassDesc classDesc,
@@ -594,35 +672,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         return propertyDesc;
     }
 
-    //    public ClassDesc preparePropertyTypeClassDesc(ClassDesc classDesc,
-    //            PropertyDesc propertyDesc) {
-    //        return preparePropertyTypeClassDesc(classDesc, propertyDesc, false);
-    //    }
-
-    //    public ClassDesc preparePropertyTypeClassDesc(ClassDesc classDesc,
-    //            PropertyDesc propertyDesc, boolean force) {
-    //        ClassDesc propertyComponentTypeClassDesc = propertyDesc.getTypeDesc()
-    //                .getComponentClassDesc();
-    //        if (propertyComponentTypeClassDesc instanceof ClassDescImpl) {
-    //            return propertyComponentTypeClassDesc;
-    //        } else if (propertyComponentTypeClassDesc == TypeDesc.DEFAULT_CLASSDESC
-    //                || force) {
-    //            String name = propertyDesc.getName();
-    //            if (propertyDesc.getTypeDesc().isCollection()) {
-    //                // 名前を単数形にする。
-    //                name = toSingular(name);
-    //            }
-    //            ClassDesc propertyTypeClassDesc = getTemporaryClassDesc(DescUtils
-    //                    .getNonGenericClassName(inferPropertyTypeName(name,
-    //                            classDesc)));
-    //            propertyDesc.getTypeDesc().setComponentClassDesc(
-    //                    propertyTypeClassDesc);
-    //            propertyDesc.notifyTypeUpdated();
-    //            return propertyTypeClassDesc;
-    //        }
-    //    }
-
-    String toSingular(String name) {
+    private String toSingular(String name) {
         if (name == null) {
             return null;
         }
@@ -714,5 +764,14 @@ public class AnalyzerContext extends ZptTemplateContext {
     public void setRepeatedPropertyGeneratedAsList(
             boolean repeatedPropertyGeneratedAsList) {
         repeatedPropertyGeneratedAsList_ = repeatedPropertyGeneratedAsList;
+    }
+
+    public boolean isGenerated(ClassDesc classDesc) {
+        if (classDesc == null) {
+            return false;
+        } else {
+            return classDesc.getName().startsWith(
+                    sourceCreator_.getFirstRootPackageName() + ".");
+        }
     }
 }

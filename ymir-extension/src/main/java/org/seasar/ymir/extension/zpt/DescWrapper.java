@@ -22,8 +22,6 @@ public class DescWrapper {
 
     private PropertyDesc propertyDesc_;
 
-    private String variableName_;
-
     public DescWrapper(AnalyzerContext analyzerContext, ClassDesc valueClassDesc) {
         analyzerContext_ = analyzerContext;
         valueClassDesc_ = valueClassDesc;
@@ -44,7 +42,7 @@ public class DescWrapper {
             return null;
         }
 
-        ClassDesc cd = getValueClassDesc();
+        ClassDesc cd = getValueClassDescToModifyProeprty(name);
         PropertyDesc pd = cd.getPropertyDesc(name);
         if (pd == null) {
             if (hasPresentSuperclassReadableProperty(cd, name)) {
@@ -57,22 +55,25 @@ public class DescWrapper {
         int mode = (cd.isTypeOf(ClassType.DTO) ? (PropertyDesc.READ | PropertyDesc.WRITE)
                 : PropertyDesc.READ);
         if (pd == null) {
+            if (!analyzerContext_.isGenerated(cd)
+                    && !analyzerContext_.hasProperty(cd.getName(), name)) {
+                // 自動生成対象クラスではないのでプロパティを増やせない。プロパティがないためnullを返す。
+                return null;
+            }
             pd = analyzerContext_.addProperty(cd, name, mode);
         } else {
             pd.addMode(mode);
         }
 
+        // cf. ZptAnalyzerTest#test41
         TypeDesc td = pd.getTypeDesc();
-        if (!td.isExplicit() && td.getName().equals("boolean")) {
+        if (!td.isExplicit() && !pd.isTypeAlreadySet()
+                && td.getName().equals("boolean")) {
             td
                     .setComponentClassDesc(new SimpleClassDesc(String.class
                             .getName()));
             pd.notifyTypeUpdated();
         }
-
-        // [#YMIR-198] 仮にnameで指定されたプロパティの値がこの先使われなくても、オブジェクトはこのプロパティを持つ
-        // はずなので、型情報などをセットしておく必要がある。
-        cd.setPropertyDesc(pd);
 
         DescWrapper returned = new DescWrapper(this, pd);
         if (pd.getTypeDesc().isCollection()) {
@@ -132,20 +133,20 @@ public class DescWrapper {
         return propertyDesc_;
     }
 
+    public ClassDesc getValueClassDescToModifyProeprty(String propertyName) {
+        if (valueClassDesc_ != null) {
+            return valueClassDesc_;
+        } else {
+            analyzerContext_.replaceTypeToGeneratedClassIfNeedToAddProperty(
+                    propertyDesc_, propertyName, parent_.getValueClassDesc());
+            return propertyDesc_.getTypeDesc().getComponentClassDesc();
+        }
+    }
+
     public ClassDesc getValueClassDesc() {
         if (valueClassDesc_ != null) {
             return valueClassDesc_;
         } else {
-            // このコードが実行されるケースには、今の値がなんらかのプロパティを
-            // 持っていてそれを追加したいケースがあるが、
-            // 今の値がbooleanやStringと間違って推論されていることもあるため、再度型推論を行なう。
-            // cf. ZptAnalyzerTest#testAnalyze36()
-            if (!propertyDesc_.getTypeDesc().isExplicit()) {
-                propertyDesc_ = analyzerContext_.addProperty(parent_
-                        .getValueClassDesc(), propertyDesc_.getName(),
-                        propertyDesc_.getName(), propertyDesc_.getMode(), true);
-
-            }
             return propertyDesc_.getTypeDesc().getComponentClassDesc();
         }
     }
@@ -155,11 +156,11 @@ public class DescWrapper {
     }
 
     public void setVariableName(String variableName) {
-        variableName_ = variableName;
         if (propertyDesc_ != null && !propertyDesc_.getTypeDesc().isExplicit()) {
-            propertyDesc_ = analyzerContext_.addProperty(parent_
-                    .getValueClassDesc(), propertyDesc_.getName(),
-                    variableName_, propertyDesc_.getMode(), true);
+            propertyDesc_ = analyzerContext_.addProperty(
+                    parent_.getValueClassDescToModifyProeprty(propertyDesc_
+                            .getName()), propertyDesc_.getName(), variableName,
+                    propertyDesc_.getMode(), true);
         }
     }
 }

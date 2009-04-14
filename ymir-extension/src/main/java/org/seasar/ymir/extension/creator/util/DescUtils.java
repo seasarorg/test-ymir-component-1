@@ -360,13 +360,6 @@ public class DescUtils {
         return new MetaAnnotationDesc[0];
     }
 
-    public static boolean isPrimitive(String name) {
-        return ("byte".equals(name) || "short".equals(name)
-                || "int".equals(name) || "long".equals(name)
-                || "float".equals(name) || "double".equals(name)
-                || "char".equals(name) || "boolean".equals(name));
-    }
-
     public static boolean isMetaAnnotation(AnnotationDesc ad) {
         return ad != null
                 && (Meta.class.getName().equals(ad.getName()) || Metas.class

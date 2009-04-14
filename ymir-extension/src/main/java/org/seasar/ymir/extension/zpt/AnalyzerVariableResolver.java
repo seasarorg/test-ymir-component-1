@@ -3,7 +3,6 @@ package org.seasar.ymir.extension.zpt;
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
-import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.message.Messages;
 import org.seasar.ymir.message.Notes;
@@ -75,36 +74,39 @@ public class AnalyzerVariableResolver implements VariableResolver {
     public Entry getVariableEntry(TemplateContext context, String name) {
         AnalyzerContext analyzerContext = (AnalyzerContext) context;
         if (analyzerContext != null
-                && !analyzerContext.shouldIgnoreVariable(name)
-                && !(delegated_.getVariable(context, name) instanceof DescWrapper)) {
-            // 値がDescWrapperとして存在しない場合は名前から型を推測する。
-            String className = DescUtils
-                    .getNonGenericClassName(inferTypeOfVariable(
-                            analyzerContext, name));
-            if (className == null) {
-                Entry entry = delegated_.getVariableEntry(context, name);
-                if (entry != null) {
-                    // 実際に値が存在するならその型を使う。
-                    className = entry.getClass().getName();
+                && !analyzerContext.shouldIgnoreVariable(name)) {
+            String className;
+            Object value = delegated_.getVariable(context, name);
+            if (value instanceof DescWrapper) {
+                className = ((DescWrapper) value).getValueClassDesc().getName();
+            } else {
+                className = DescUtils
+                        .getNonGenericClassName(inferTypeOfVariable(
+                                analyzerContext, name));
+                if (className != null) {
+                    value = null;
                 } else {
-                    className = analyzerContext.inferPropertyClassName(name,
-                            null);
+                    if (value != null) {
+                        className = value.getClass().getName();
+                    } else {
+                        className = analyzerContext.inferPropertyClassName(
+                                name, null);
+                    }
                 }
+                if (value == null) {
+                    value = new DescWrapper(analyzerContext, analyzerContext
+                            .getTemporaryClassDesc(className));
+                }
+                analyzerContext.setUsedClassName(className);
             }
 
-            ClassDesc classDesc = analyzerContext
-                    .getTemporaryClassDesc(className);
-
-            analyzerContext.setUsedClassName(className);
-
-            Class<?> type = analyzerContext.getSourceCreator().getClass(
+            Class<?> clazz = analyzerContext.getSourceCreator().getClass(
                     className);
-            if (type == null) {
-                type = Object.class;
+            if (clazz == null) {
+                clazz = Object.class;
             }
 
-            return new EntryImpl(name, type, new DescWrapper(analyzerContext,
-                    classDesc));
+            return new EntryImpl(name, clazz, value);
         } else {
             return delegated_.getVariableEntry(context, name);
         }

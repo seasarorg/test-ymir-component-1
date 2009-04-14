@@ -3,6 +3,6 @@
     <title>TEST</title>
   </head>
   <body>
-    <a tal:condition="self/value" href="./index.html?value=${self/value}">LINK</a>
+    <a tal:condition="self/value" tal:attributes="href page:./index.html?value=${self/value}">LINK</a>
   </body>
 </html>

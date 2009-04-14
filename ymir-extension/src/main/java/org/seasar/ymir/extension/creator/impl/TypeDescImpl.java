@@ -6,7 +6,6 @@ import static org.seasar.ymir.extension.creator.util.DescUtils.normalizePackage;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,8 +22,6 @@ import org.seasar.ymir.util.ClassUtils;
 public class TypeDescImpl implements TypeDesc {
     private static final String ARRAY_SUFFIX = "[]";
 
-    private static final String NULL_VALUE = "null";
-
     private String name_;
 
     private ClassDesc componentClassDesc_;
@@ -36,32 +33,6 @@ public class TypeDescImpl implements TypeDesc {
     private String collectionImplementationClassName_;
 
     private boolean explicit_;
-
-    private static final Map<String, String> DEFAULT_VALUE_MAP;
-
-    private static final Map<String, String> WRAPPER_MAP;
-
-    static {
-        DEFAULT_VALUE_MAP = new HashMap<String, String>();
-        DEFAULT_VALUE_MAP.put("byte", "0");
-        DEFAULT_VALUE_MAP.put("short", "0");
-        DEFAULT_VALUE_MAP.put("int", "0");
-        DEFAULT_VALUE_MAP.put("long", "0");
-        DEFAULT_VALUE_MAP.put("float", "0");
-        DEFAULT_VALUE_MAP.put("double", "0");
-        DEFAULT_VALUE_MAP.put("char", "0");
-        DEFAULT_VALUE_MAP.put("boolean", "false");
-
-        WRAPPER_MAP = new HashMap<String, String>();
-        WRAPPER_MAP.put("byte", "Byte");
-        WRAPPER_MAP.put("short", "Short");
-        WRAPPER_MAP.put("int", "Integer");
-        WRAPPER_MAP.put("long", "Long");
-        WRAPPER_MAP.put("float", "Float");
-        WRAPPER_MAP.put("double", "Double");
-        WRAPPER_MAP.put("char", "Character");
-        WRAPPER_MAP.put("boolean", "Boolean");
-    }
 
     public TypeDescImpl() {
         this(DEFAULT_CLASSDESC);
@@ -401,15 +372,16 @@ public class TypeDescImpl implements TypeDesc {
 
     public String getDefaultValue() {
         if (collection_) {
-            return NULL_VALUE;
+            return String.valueOf((Object) null);
         } else {
-            String name = componentClassDesc_.getName();
-            String value = DEFAULT_VALUE_MAP.get(name);
-            if (value != null) {
-                return value;
-            } else {
-                return NULL_VALUE;
+            Object value = ClassUtils.getDefaultValue(componentClassDesc_
+                    .getName());
+            if (value instanceof Character) {
+                value = Integer.valueOf(((Character) value).charValue());
+            } else if (value instanceof Float) {
+                value = Integer.valueOf(((Float) value).intValue());
             }
+            return String.valueOf(value);
         }
     }
 
@@ -418,18 +390,6 @@ public class TypeDescImpl implements TypeDesc {
             return componentClassDesc_.getInstanceName() + "s";
         } else {
             return componentClassDesc_.getInstanceName();
-        }
-    }
-
-    String toWrapperName(String name) {
-        if (name == null) {
-            return null;
-        }
-        String wrapperName = WRAPPER_MAP.get(name);
-        if (wrapperName != null) {
-            return wrapperName;
-        } else {
-            return name;
         }
     }
 }
