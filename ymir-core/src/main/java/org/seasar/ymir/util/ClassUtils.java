@@ -8,17 +8,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.seasar.framework.container.ComponentNotFoundRuntimeException;
-import org.seasar.framework.container.S2Container;
-import org.seasar.ymir.Application;
-import org.seasar.ymir.YmirContext;
-import org.seasar.ymir.convention.YmirNamingConvention;
-
 import javassist.CannotCompileException;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
+
+import org.apache.poi.hssf.record.formula.functions.Ispmt;
+import org.seasar.framework.container.ComponentNotFoundRuntimeException;
+import org.seasar.ymir.Application;
+import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.convention.YmirNamingConvention;
 
 public class ClassUtils {
     private static final String[] EMPTY_STRINGS = new String[0];
@@ -27,22 +27,78 @@ public class ClassUtils {
 
     private static ClassPool cp_;
 
-    private static Map<Class<?>, Class<?>> primitiveMap_;
+    private static Map<String, Class<?>> primitiveClassByNameMap_;
+
+    private static final Map<Class<?>, Class<?>> primitiveByWrapperMap_;
+
+    private static Map<String, Class<?>> wrapperClassByNameMap_;
+
+    private static final Map<Class<?>, Class<?>> wrapperByPrimitiveMap_;
+
+    private static final Map<String, Object> defaultValueMap_;
 
     static {
         cp_ = new ClassPool(null);
         cp_.appendSystemPath();
 
-        Map<Class<?>, Class<?>> map = new HashMap<Class<?>, Class<?>>();
-        map.put(Boolean.class, Boolean.TYPE);
-        map.put(Byte.class, Byte.TYPE);
-        map.put(Character.class, Character.TYPE);
-        map.put(Double.class, Double.TYPE);
-        map.put(Float.class, Float.TYPE);
-        map.put(Integer.class, Integer.TYPE);
-        map.put(Long.class, Long.TYPE);
-        map.put(Short.class, Short.TYPE);
-        primitiveMap_ = Collections.unmodifiableMap(map);
+        HashMap<String, Class<?>> primitiveClassByNameMap = new HashMap<String, Class<?>>();
+        primitiveClassByNameMap.put("boolean", Boolean.TYPE);
+        primitiveClassByNameMap.put("byte", Byte.TYPE);
+        primitiveClassByNameMap.put("char", Character.TYPE);
+        primitiveClassByNameMap.put("double", Double.TYPE);
+        primitiveClassByNameMap.put("float", Float.TYPE);
+        primitiveClassByNameMap.put("int", Integer.TYPE);
+        primitiveClassByNameMap.put("long", Long.TYPE);
+        primitiveClassByNameMap.put("short", Short.TYPE);
+        primitiveClassByNameMap_ = Collections
+                .unmodifiableMap(primitiveClassByNameMap);
+
+        Map<Class<?>, Class<?>> primitiveByWrapperMap = new HashMap<Class<?>, Class<?>>();
+        primitiveByWrapperMap.put(Boolean.class, Boolean.TYPE);
+        primitiveByWrapperMap.put(Byte.class, Byte.TYPE);
+        primitiveByWrapperMap.put(Character.class, Character.TYPE);
+        primitiveByWrapperMap.put(Double.class, Double.TYPE);
+        primitiveByWrapperMap.put(Float.class, Float.TYPE);
+        primitiveByWrapperMap.put(Integer.class, Integer.TYPE);
+        primitiveByWrapperMap.put(Long.class, Long.TYPE);
+        primitiveByWrapperMap.put(Short.class, Short.TYPE);
+        primitiveByWrapperMap_ = Collections
+                .unmodifiableMap(primitiveByWrapperMap);
+
+        HashMap<String, Class<?>> wrapperClassByNameMap = new HashMap<String, Class<?>>();
+        wrapperClassByNameMap.put("boolean", Boolean.class);
+        wrapperClassByNameMap.put("byte", Byte.class);
+        wrapperClassByNameMap.put("char", Character.class);
+        wrapperClassByNameMap.put("double", Double.class);
+        wrapperClassByNameMap.put("float", Float.class);
+        wrapperClassByNameMap.put("int", Integer.class);
+        wrapperClassByNameMap.put("long", Long.class);
+        wrapperClassByNameMap.put("short", Short.class);
+        wrapperClassByNameMap_ = Collections
+                .unmodifiableMap(wrapperClassByNameMap);
+
+        Map<Class<?>, Class<?>> wrapperBPrimitiveMap = new HashMap<Class<?>, Class<?>>();
+        wrapperBPrimitiveMap.put(Boolean.TYPE, Boolean.class);
+        wrapperBPrimitiveMap.put(Byte.TYPE, Byte.class);
+        wrapperBPrimitiveMap.put(Character.TYPE, Character.class);
+        wrapperBPrimitiveMap.put(Double.TYPE, Double.class);
+        wrapperBPrimitiveMap.put(Float.TYPE, Float.class);
+        wrapperBPrimitiveMap.put(Integer.TYPE, Integer.class);
+        wrapperBPrimitiveMap.put(Long.TYPE, Long.class);
+        wrapperBPrimitiveMap.put(Short.TYPE, Short.class);
+        wrapperByPrimitiveMap_ = Collections
+                .unmodifiableMap(wrapperBPrimitiveMap);
+
+        HashMap<String, Object> defaultValueMap = new HashMap<String, Object>();
+        defaultValueMap.put("boolean", Boolean.valueOf(false));
+        defaultValueMap.put("byte", Byte.valueOf((byte) 0));
+        defaultValueMap.put("char", Character.valueOf('\0'));
+        defaultValueMap.put("double", Double.valueOf(0));
+        defaultValueMap.put("float", Float.valueOf(0));
+        defaultValueMap.put("int", Integer.valueOf(0));
+        defaultValueMap.put("long", Long.valueOf(0));
+        defaultValueMap.put("short", Short.valueOf((short) 0));
+        defaultValueMap_ = Collections.unmodifiableMap(defaultValueMap);
     }
 
     private ClassUtils() {
@@ -153,14 +209,6 @@ public class ClassUtils {
         } else {
             return clazz;
         }
-    }
-
-    public static boolean isWrapper(Class<?> clazz) {
-        return primitiveMap_.containsKey(clazz);
-    }
-
-    public static Class<?> getPrimitive(Class<?> clazz) {
-        return primitiveMap_.get(clazz);
     }
 
     /**
@@ -313,5 +361,62 @@ public class ClassUtils {
         }
 
         return prettyName;
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static boolean isPrimitive(Class<?> clazz) {
+        return wrapperByPrimitiveMap_.containsKey(clazz);
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static boolean isPrimitive(String className) {
+        return wrapperByPrimitiveMap_.containsKey(getPrimitiveClass(className));
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static Class<?> getPrimitiveClass(String className) {
+        return primitiveClassByNameMap_.get(className);
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static Class<?> toWrapper(Class<?> primitiveClass) {
+        return wrapperByPrimitiveMap_.get(primitiveClass);
+    }
+
+    public static boolean isWrapper(Class<?> clazz) {
+        return primitiveByWrapperMap_.containsKey(clazz);
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static boolean isWrapper(String className) {
+        return primitiveByWrapperMap_.containsKey(getWrapperClass(className));
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static Class<?> getWrapperClass(String wrapperClassName) {
+        return wrapperClassByNameMap_.get(wrapperClassName);
+    }
+
+    public static Class<?> toPrimitive(Class<?> wrapperClass) {
+        return primitiveByWrapperMap_.get(wrapperClass);
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static Object getDefaultValue(String className) {
+        return defaultValueMap_.get(className);
     }
 }
