@@ -1,6 +1,7 @@
 package org.seasar.ymir.locale.impl;
 
 import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -8,7 +9,6 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ApplicationManager;
-import org.seasar.ymir.Globals;
 import org.seasar.ymir.locale.LocaleManager;
 import org.seasar.ymir.session.SessionManager;
 import org.seasar.ymir.util.ContainerUtils;
@@ -33,11 +33,11 @@ public class LocaleManagerImpl implements LocaleManager {
     }
 
     /**
-     * 指定されたrequestを元にロケールを決定します。
+     * 指定されたrequestを元にロケールを決定して返します。
      * <p>ロケールの決定方法は次の通りです：</p>
      * <ol>
      * <li>session中に
-     * {@link Globals#LOCALE_KEY}というキーでにバインドされているLocale</li>
+     * {@link LocaleManager#ATTR_LOCALE}というキーでにバインドされているLocale</li>
      * <li><code>request.getLocale()の返り値</code></li>
      * </ol>
      * <p><code>request</code>としてnullを指定した場合、
@@ -45,12 +45,11 @@ public class LocaleManagerImpl implements LocaleManager {
      * </p>
      *
      * @param request リクエストオブジェクト。nullを指定することもできます。
-     * @return Localeオブジェクト。
+     * @return Localeオブジェクト。nullが返されることはありません。
      */
     protected Locale findLocale(HttpServletRequest request) {
         if (request != null) {
-            Locale locale = (Locale) sessionManager_
-                    .getAttribute(Globals.ATTR_LOCALE);
+            Locale locale = (Locale) sessionManager_.getAttribute(ATTR_LOCALE);
             if (locale == null) {
                 locale = request.getLocale();
             }
@@ -65,7 +64,7 @@ public class LocaleManagerImpl implements LocaleManager {
     }
 
     public void setLocale(Locale locale) {
-        sessionManager_.setAttribute(Globals.ATTR_LOCALE, locale);
+        sessionManager_.setAttribute(ATTR_LOCALE, locale);
     }
 
     S2Container getS2Container() {
@@ -73,6 +72,36 @@ public class LocaleManagerImpl implements LocaleManager {
     }
 
     public void removeLocale() {
-        sessionManager_.removeAttribute(Globals.ATTR_LOCALE);
+        sessionManager_.removeAttribute(ATTR_LOCALE);
+    }
+
+    /**
+     * タイムゾーンを決定して返します。
+     * <p>タイムゾーンの決定方法は次の通りです：</p>
+     * <ol>
+     * <li>session中に
+     * {@link LocaleManager#ATTR_LOCALE}というキーでにバインドされているTimeZone</li>
+     * <li>システムのデフォルトタイムゾーン</li>
+     * </ol>
+     * </p>
+     *
+     * @return TimeZoneオブジェクト。nullが返されることはありません。
+     * @since 1.0.3
+     */
+    public TimeZone getTimeZone() {
+        TimeZone timeZone = (TimeZone) sessionManager_
+                .getAttribute(ATTR_TIMEZONE);
+        if (timeZone == null) {
+            timeZone = TimeZone.getDefault();
+        }
+        return timeZone;
+    }
+
+    public void setTimeZone(TimeZone timeZone) {
+        sessionManager_.setAttribute(ATTR_TIMEZONE, timeZone);
+    }
+
+    public void removeTimeZone() {
+        sessionManager_.removeAttribute(ATTR_TIMEZONE);
     }
 }

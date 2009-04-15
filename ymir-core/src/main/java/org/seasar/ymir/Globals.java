@@ -1,5 +1,7 @@
 package org.seasar.ymir;
 
+import org.seasar.ymir.locale.LocaleManager;
+
 /**
  * フレームワーク関連の定数を定義するインタフェースです。
  * 
@@ -18,8 +20,9 @@ public interface Globals {
 
     /**
      * 現在のコンテキストに関連付けられているロケールオブジェクトを保持する属性の名前です。
+     * @deprecated 代わりに{@link LocaleManager#ATTR_LOCALE}を使って下さい。
      */
-    String ATTR_LOCALE = IDPREFIX + "locale";
+    String ATTR_LOCALE = LocaleManager.ATTR_LOCALE;
 
     /**
      * デフォルトのメッセージプロパティファイルから接尾辞を除いたものです。
