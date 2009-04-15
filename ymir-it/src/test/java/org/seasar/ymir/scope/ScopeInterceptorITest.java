@@ -6,10 +6,12 @@ import org.seasar.ymir.scope.annotation.In;
 import org.seasar.ymir.scope.annotation.Out;
 import org.seasar.ymir.scope.impl.ApplicationScope;
 import org.seasar.ymir.scope.impl.RequestParameterScope;
+import org.seasar.ymir.testing.RequestInitializer;
 import org.seasar.ymir.testing.YmirTestCase;
 
 import com.example.web.ScopeInterceptorITest2Page;
 import com.example.web.ScopeInterceptorITestPage;
+import com.example.web.ScopeInterceptorITest3Page;
 
 @SuppressWarnings("deprecation")
 public class ScopeInterceptorITest extends YmirTestCase {
@@ -47,5 +49,18 @@ public class ScopeInterceptorITest extends YmirTestCase {
         public String getValue() {
             return value_;
         }
+    }
+
+    public void test_include元とinclude先が共通の親クラスを持つ場合にインジェクションとアウトジェクションが正しく行なわれること()
+            throws Exception {
+        process(ScopeInterceptorITest3Page.class, new RequestInitializer() {
+            public void initialize() {
+                getHttpSession().setAttribute("test", "TESTING");
+            }
+        });
+
+        assertEquals(
+                "TESTEDになりそうだが、実際はインクルードされたPageからのアウトジェクションが後に行なわれるのでTESTINGになること",
+                "TESTING", getHttpSession().getAttribute("test"));
     }
 }
