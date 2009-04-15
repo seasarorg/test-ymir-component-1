@@ -1,6 +1,7 @@
 package org.seasar.ymir.zpt;
 
 import org.seasar.ymir.message.impl.NoteRendererImpl;
+import org.seasar.ymir.zpt.util.YmirUtils;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;
@@ -13,6 +14,8 @@ public class YmirTalesExpressionEvaluator extends
         ServletTalesExpressionEvaluator {
     public static final String TYPE_I18NPAGE = "i18npage";
 
+    public static final String TYPE_FORMAT = "format";
+
     public YmirTalesExpressionEvaluator() {
         NoteLocalizer noteLocalizer = newNoteLocalilzer();
         addPathResolver(new YmirPathResolver().setNoteLocalizer(noteLocalizer))
@@ -21,6 +24,7 @@ public class YmirTalesExpressionEvaluator extends
                                 .setNoteLocalizer(noteLocalizer));
         addTypePrefix(TYPE_I18NPAGE, new I18NPageTypePrefixHandler());
         addTypePrefix(TYPE_JAVA, new YmirJavaTypePrefixHandler());
+        addTypePrefix(TYPE_FORMAT, new FormatTypePrefixHandler());
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.ymir.zpt.annotation.IgnoreException;
+import org.seasar.ymir.zpt.util.YmirUtils;
 
 import net.skirnir.freyja.EvaluationRuntimeException;
 import net.skirnir.freyja.TemplateContext;

@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.seasar.ymir.zpt.util.YmirUtils;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.zpt.tales.Null;

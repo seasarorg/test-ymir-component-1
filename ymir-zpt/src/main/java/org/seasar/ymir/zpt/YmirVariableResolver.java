@@ -21,6 +21,7 @@ import org.seasar.ymir.message.Messages;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.token.Token;
 import org.seasar.ymir.token.TokenManager;
+import org.seasar.ymir.zpt.util.YmirUtils;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;

@@ -1,4 +1,4 @@
-package org.seasar.ymir.zpt;
+package org.seasar.ymir.zpt.util;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -13,16 +13,16 @@ import org.seasar.ymir.converter.annotation.TypeConversionHint;
 
 import net.skirnir.freyja.TemplateContext;
 
-class YmirUtils {
-    static final String ATTR_TYPECONVERSION_HINT = "ymir.typeConversion.hint";
+public class YmirUtils {
+    public static final String ATTR_TYPECONVERSION_HINT = "ymir.typeConversion.hint";
 
     private static final String SUBSTRING_PAGE = "Page";
 
     private YmirUtils() {
     }
 
-    static void preserveTypeConversionHint(TemplateContext context, Object obj,
-            String child) {
+    public static void preserveTypeConversionHint(TemplateContext context,
+            Object obj, String child) {
         Object hint = null;
         // 効率化のためにPageという文字列が含まれるクラスに限定している。
         // 「末尾に」ではないのは、エンハンスされていると末尾にPageがつかないため。
@@ -46,12 +46,12 @@ class YmirUtils {
         context.setAttribute(ATTR_TYPECONVERSION_HINT, hint);
     }
 
-    static AnnotationHandler getAnnotationHandler() {
+    public static AnnotationHandler getAnnotationHandler() {
         return (AnnotationHandler) YmirContext.getYmir().getApplication()
                 .getS2Container().getComponent(AnnotationHandler.class);
     }
 
-    static TypeConversionManager getTypeConversionManager() {
+    public static TypeConversionManager getTypeConversionManager() {
         return (TypeConversionManager) YmirContext.getYmir().getApplication()
                 .getS2Container().getComponent(TypeConversionManager.class);
     }
