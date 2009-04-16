@@ -3,6 +3,9 @@ package org.seasar.ymir.zpt;
 import java.text.DateFormat;
 import java.text.Format;
 import java.text.MessageFormat;
+import java.text.NumberFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -40,13 +43,49 @@ public class FormatTypePrefixHandler implements TypePrefixHandler {
         MessageFormat mf = new MessageFormat(StringUtils.asString(parameterList
                 .get(0)), findLocale(context));
         Format[] formats = mf.getFormatsByArgumentIndex();
+        Object[] parameters = parameterList.subList(1, parameterList.size())
+                .toArray(new Object[0]);
         for (int i = 0; i < formats.length; i++) {
             if (formats[i] instanceof DateFormat) {
                 ((DateFormat) formats[i]).setTimeZone(findTimeZone(context));
             }
+            if (i < parameters.length) {
+                adjustFormatAndParameter(context, mf, parameters, formats, i);
+            }
         }
-        return mf.format(parameterList.subList(1, parameterList.size())
-                .toArray(new Object[0]));
+        return mf.format(parameters);
+    }
+
+    protected void adjustFormatAndParameter(TemplateContext context,
+            MessageFormat mf, Object[] parameters, Format[] formats, int index) {
+        if (parameters[index] == null) {
+            ;
+        } else if (formats[index] instanceof DateFormat) {
+            if (parameters[index] instanceof Date) {
+                ;
+            } else if (parameters[index] instanceof Calendar) {
+                parameters[index] = ((Calendar) parameters[index]).getTime();
+            } else if (parameters[index] instanceof Number) {
+                parameters[index] = new Date(((Number) parameters[index])
+                        .longValue());
+            } else {
+                try {
+                    parameters[index] = new Date(Long
+                            .parseLong(parameters[index].toString()));
+                } catch (NumberFormatException ex) {
+                    mf.setFormatByArgumentIndex(index, null);
+                }
+            }
+        } else if (formats[index] instanceof NumberFormat) {
+            if (!(parameters[index] instanceof Number)) {
+                try {
+                    parameters[index] = Double.valueOf(parameters[index]
+                            .toString());
+                } catch (NumberFormatException ex) {
+                    mf.setFormatByArgumentIndex(index, null);
+                }
+            }
+        }
     }
 
     private Locale findLocale(TemplateContext context) {
