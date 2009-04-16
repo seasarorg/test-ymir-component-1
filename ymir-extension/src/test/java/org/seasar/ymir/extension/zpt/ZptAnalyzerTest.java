@@ -1498,7 +1498,21 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(pd);
     }
 
-    // TODO entry selector/candidates とした時にはDto名はCandidateDtoになるように。のテスト。
+    public void testAnalyze80_インタフェース型を返す既存クラスのプロパティであってもrepeat変数で受けている場合はrepeat変数名によって実装クラス名が決定されること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+
+        act("testAnalyze80");
+
+        assertNull(getClassDesc("com.example.dto.CandidateDto"));
+        assertNotNull(getClassDesc("com.example.dto.EntryDto"));
+    }
+
+    // TODO list4で、EntryDtoとSubEntryDtoのパッケージ名が違う。
+    // TODO list4で、CandidateDtoが生成されてしまう。setAsUsed()は参照カウントを保持すべき。
     // TODO インタフェースの実装型を生成する際にはインタフェースを実装するように。
     // TODO selector.candidates[0] とした時にSelectorDtoが生成されないように。のテスト。
     // SimpleClassDesc廃止。

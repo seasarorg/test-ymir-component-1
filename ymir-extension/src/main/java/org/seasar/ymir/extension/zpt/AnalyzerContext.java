@@ -160,16 +160,16 @@ public class AnalyzerContext extends ZptTemplateContext {
      * 
      * @param classDesc プロパティが属するクラスの情報を表すClassDescオブジェクト。nullを指定してはいけません。
      * @param propertyName プロパティ名。
-     * @param propertyAlias プロパティ名の別名。
-     * プロパティの型クラス名を生成する際にこちらが優先されます。
-     * 別名がない場合はプロパティ名と同じ名前を指定して下さい。
+     * @param propertyTypeAlias クラス名を生成する際の元になる名前。
+     * 通常クラス名はプロパティ名から生成されますが、この値としてnullでない値を指定した場合、
+     * プロパティ名よりもこちらが優先されます。
      * @param mode プロパティのモード。
      * @param force 強制的にプロパティ型を再推論するかどうか。
      * trueの場合、明示的に型が設定されていない限り強制的にプロパティ型を再推論します。
      * @return PropertyDescオブジェクト。nullが返されることはありません。
      */
     public PropertyDesc addProperty(ClassDesc classDesc, String propertyName,
-            String propertyAlias, int mode, boolean force) {
+            String propertyTypeAlias, int mode, boolean force) {
         PropertyDesc propertyDesc = classDesc.addProperty(propertyName, mode);
         if (propertyDesc.getTypeDesc().isExplicit()) {
             return propertyDesc;
@@ -195,14 +195,25 @@ public class AnalyzerContext extends ZptTemplateContext {
                     propertyDesc.setGetterName(readMethod.getName());
                 }
 
+                // typeのexplicitは、プロパティの所属クラスが自動生成対象かによって変わる。
+                // 自動生成対象でないクラスについては、プロパティの型は不変なのでtrueにすべき。
+                // 自動生成クラスについては、プロパティ型はHTMLテンプレートの内容によって変わり得るのでfalseにすべき。
+                boolean explicit = isOuter(className);
+
                 String componentClassName;
                 Class<?> componentClass = sourceCreator_.getClass(DescUtils
                         .getComponentPropertyTypeName(descriptor));
                 if (componentClass.isInterface()) {
                     // インタフェースの場合は実装クラス型を推論する。
-                    componentClassName = findPropertyClassName(Introspector
-                            .decapitalize(ClassUtils
-                                    .getShorterName(componentClass)), className);
+                    componentClassName = findPropertyClassName(
+                            propertyTypeAlias != null ? propertyTypeAlias
+                                    : Introspector.decapitalize(ClassUtils
+                                            .getShorterName(componentClass)),
+                            className);
+                    // クラスが実在する場合であっても、プロパティ型がインタフェース型の場合は
+                    // その実装型が自動生成対象クラスであるならばrepeat変数名からの推論型などに
+                    // 変更されうる。
+                    explicit = isOuter(componentClassName);
                     setUsedClassName(componentClassName);
                 } else {
                     // そうでない場合は実際の型をそのまま使う。
@@ -211,26 +222,23 @@ public class AnalyzerContext extends ZptTemplateContext {
 
                 String typeName = DescUtils
                         .getGenericPropertyTypeName(descriptor);
-                // typeのexplicitは、プロパティの所属クラスが自動生成対象かによって変わる。
-                // 自動生成対象でないクラスについては、プロパティの型は不変なのでtrueにすべき。
-                // 自動生成クラスについては、プロパティ型はHTMLテンプレートの内容によって変わり得るのでfalseにすべき。
                 if (Collection.class.isAssignableFrom(descriptor
                         .getPropertyType())) {
                     TypeToken typeToken = new TypeToken(typeName);
                     typeToken.getTypes()[0].setBaseName(componentClassName);
                     typeDesc = new TypeDescImpl(typeToken.getAsString(),
-                            !isGenerated(classDesc));
+                            explicit);
                 } else if (descriptor.getPropertyType().isArray()) {
                     typeDesc = new TypeDescImpl(componentClassName + "[]",
-                            !isGenerated(classDesc));
+                            explicit);
                 } else {
-                    typeDesc = new TypeDescImpl(componentClassName,
-                            !isGenerated(classDesc));
+                    typeDesc = new TypeDescImpl(componentClassName, explicit);
                 }
             } else {
                 // 推論できなかった場合は名前から推論を行なう。
                 typeDesc = new TypeDescImpl(inferPropertyClassName(
-                        propertyAlias, className));
+                        propertyTypeAlias != null ? propertyTypeAlias
+                                : propertyName, className));
             }
         }
 
@@ -247,7 +255,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
 
         propertyDesc.setTypeDesc(typeDesc);
-        if (!isGenerated(typeDesc.getComponentClassDesc())) {
+        if (isOuter(typeDesc.getComponentClassDesc())) {
             // 自動生成対象のクラスの場合はtal:conditionやtal:attributesなどでbooleanだとみなされる余地があるので
             // ここではnotifyTypeUpdated()を呼ばないようにしている。
             propertyDesc.notifyTypeUpdated();
@@ -258,7 +266,7 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     public PropertyDesc addProperty(ClassDesc classDesc, String propertyName,
             int mode) {
-        return addProperty(classDesc, propertyName, propertyName, mode, false);
+        return addProperty(classDesc, propertyName, null, mode, false);
     }
 
     /**
@@ -604,8 +612,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         // cf. ZptAnalyzerTest#testAnalyze36()
         // ただし指定されたプロパティを持つ場合は追加の必要がないため型推論は行なわない。
         if (!propertyDesc.getTypeDesc().isExplicit()
-                && !isGenerated(propertyDesc.getTypeDesc()
-                        .getComponentClassDesc())
+                && isOuter(propertyDesc.getTypeDesc().getComponentClassDesc())
                 && !hasProperty(propertyDesc.getTypeDesc()
                         .getComponentClassDesc().getName(), propertyName)) {
             TypeDesc typeDesc = new TypeDescImpl(findPropertyClassName(
@@ -759,14 +766,5 @@ public class AnalyzerContext extends ZptTemplateContext {
     public void setRepeatedPropertyGeneratedAsList(
             boolean repeatedPropertyGeneratedAsList) {
         repeatedPropertyGeneratedAsList_ = repeatedPropertyGeneratedAsList;
-    }
-
-    public boolean isGenerated(ClassDesc classDesc) {
-        if (classDesc == null) {
-            return false;
-        } else {
-            return classDesc.getName().startsWith(
-                    sourceCreator_.getFirstRootPackageName() + ".");
-        }
     }
 }

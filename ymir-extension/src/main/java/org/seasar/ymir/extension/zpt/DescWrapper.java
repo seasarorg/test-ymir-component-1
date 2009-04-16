@@ -55,7 +55,7 @@ public class DescWrapper {
         int mode = (cd.isTypeOf(ClassType.DTO) ? (PropertyDesc.READ | PropertyDesc.WRITE)
                 : PropertyDesc.READ);
         if (pd == null) {
-            if (!analyzerContext_.isGenerated(cd)
+            if (analyzerContext_.isOuter(cd)
                     && !analyzerContext_.hasProperty(cd.getName(), name)) {
                 // 自動生成対象クラスではないのでプロパティを増やせない。プロパティがないためnullを返す。
                 return null;
