@@ -26,8 +26,8 @@ import org.seasar.ymir.extension.creator.TemplateAnalyzer;
 import org.seasar.ymir.util.ServletUtils;
 import org.seasar.ymir.zpt.YmirVariableResolver;
 
+import net.skirnir.freyja.EvaluationRuntimeException;
 import net.skirnir.freyja.ExpressionEvaluator;
-import net.skirnir.freyja.IllegalSyntaxException;
 import net.skirnir.freyja.TagEvaluator;
 import net.skirnir.freyja.TagEvaluatorWrapper;
 import net.skirnir.freyja.TemplateEvaluator;
@@ -133,17 +133,13 @@ public class ZptAnalyzer implements TemplateAnalyzer {
         InputStream inputStream = null;
         try {
             inputStream = template.getInputStream();
-            evaluator_.evaluate(context, new InputStreamReader(inputStream,
-                    template.getEncoding()));
-            context.close();
-        } catch (RuntimeException ex) {
-            if (ex.getCause() instanceof IllegalSyntaxException) {
-                // TODO 文法エラーがあったのでスキップする旨
-                // 通知しよう。
-                ex.printStackTrace();
-            } else {
-                throw ex;
+            try {
+                evaluator_.evaluate(context, new InputStreamReader(inputStream,
+                        template.getEncoding()));
+            } catch (EvaluationRuntimeException ex) {
+                ex.setTemplateName(template.getName());
             }
+            context.close();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         } finally {
