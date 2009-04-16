@@ -84,7 +84,14 @@ public class AnalyzerVariableResolver implements VariableResolver {
                         .getNonGenericClassName(inferTypeOfVariable(
                                 analyzerContext, name));
                 if (className != null) {
-                    value = null;
+                    Class<?> clazz = analyzerContext.getSourceCreator()
+                            .getClass(className);
+                    if (clazz != null && value != null) {
+                        if (!clazz.isAssignableFrom(value.getClass())
+                                || !analyzerContext.isOuter(className)) {
+                            value = null;
+                        }
+                    }
                 } else {
                     if (value != null) {
                         className = value.getClass().getName();

@@ -37,11 +37,12 @@ import org.seasar.ymir.extension.creator.util.type.Token;
 import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
 import org.seasar.ymir.extension.zpt.DescWrapper;
+import org.seasar.ymir.util.ClassUtils;
 
 public class DescUtils {
     private static final String SUFFIX_ARRAY = "[]";
 
-    private static final String PACKAGE_JAVA_LANG = "java.lang.";
+    private static final String PACKAGEPREFIX_JAVA_LANG = "java.lang.";
 
     private DescUtils() {
     }
@@ -477,8 +478,9 @@ public class DescUtils {
             public Object visit(Token acceptor) {
                 String baseName = acceptor.getBaseName();
                 StringBuilder sb = new StringBuilder();
-                if (baseName.startsWith(PACKAGE_JAVA_LANG)) {
-                    sb.append(baseName.substring(PACKAGE_JAVA_LANG.length()));
+                if (baseName.startsWith(PACKAGEPREFIX_JAVA_LANG)) {
+                    sb.append(baseName.substring(PACKAGEPREFIX_JAVA_LANG
+                            .length()));
                 } else {
                     sb.append(baseName);
                 }
@@ -489,17 +491,61 @@ public class DescUtils {
         return typeToken.getAsString();
     }
 
+    public static String complementPackage(String typeName) {
+        if (typeName == null) {
+            return null;
+        }
+
+        TypeToken typeToken = new TypeToken(typeName);
+        typeToken.accept(new TokenVisitor<Object>() {
+            public Object visit(Token acceptor) {
+                String baseName = acceptor.getBaseName();
+                Class<?> baseClass = findClass(baseName);
+                if (baseClass != null) {
+                    acceptor.setBaseName(baseClass.getName());
+                }
+                return null;
+            }
+        });
+        return typeToken.getAsString();
+    }
+
     public static Class<?> getClass(String className) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if (cl == null) {
+            cl = DescUtils.class.getClassLoader();
+        }
         try {
-            if (cl != null) {
-                return cl.loadClass(className);
-            } else {
-                return DescUtils.class.getClassLoader().loadClass(className);
-            }
+            return cl.loadClass(className);
         } catch (ClassNotFoundException ignore) {
-        } finally {
-            Thread.currentThread().setContextClassLoader(cl);
+        }
+
+        return null;
+    }
+
+    public static Class<?> findClass(String className) {
+        if (className == null) {
+            return null;
+        }
+
+        Class<?> clazz = ClassUtils.getPrimitiveClass(className);
+        if (clazz != null) {
+            return clazz;
+        }
+
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if (cl == null) {
+            cl = DescUtils.class.getClassLoader();
+        }
+        try {
+            return cl.loadClass(className);
+        } catch (ClassNotFoundException ex) {
+            if (className.indexOf('.') < 0) {
+                try {
+                    return cl.loadClass(PACKAGEPREFIX_JAVA_LANG + className);
+                } catch (ClassNotFoundException ignore) {
+                }
+            }
         }
 
         return null;

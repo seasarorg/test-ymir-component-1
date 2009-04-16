@@ -7,5 +7,6 @@
 </head>
 <body>
   <p tal:repeat="hoe self/hoes"></p>
+  <p tal:content="self/number">CONTENT</p>
 </body>
 </html>

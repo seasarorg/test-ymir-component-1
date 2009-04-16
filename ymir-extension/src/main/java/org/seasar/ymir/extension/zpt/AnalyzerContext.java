@@ -541,7 +541,7 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     boolean isOuter(String typeName) {
-        return DescUtils.getNonGenericClassName(typeName).startsWith(
+        return !DescUtils.getNonGenericClassName(typeName).startsWith(
                 sourceCreator_.getFirstRootPackageName() + ".");
     }
 

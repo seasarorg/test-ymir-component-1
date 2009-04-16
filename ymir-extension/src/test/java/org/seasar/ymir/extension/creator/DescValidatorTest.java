@@ -40,7 +40,7 @@ public class DescValidatorTest extends TestCase {
                 .isValid();
 
         // ## Assert ##
-        assertFalse(actual);
+        assertTrue(actual);
     }
 
     public void testValidate4() throws Exception {

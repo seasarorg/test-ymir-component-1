@@ -24,6 +24,7 @@ import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateAnalyzer;
 import org.seasar.ymir.util.ServletUtils;
+import org.seasar.ymir.zpt.YmirTalesExpressionEvaluator;
 import org.seasar.ymir.zpt.YmirVariableResolver;
 
 import net.skirnir.freyja.EvaluationRuntimeException;
@@ -80,7 +81,9 @@ public class ZptAnalyzer implements TemplateAnalyzer {
                             (PageTypePrefixHandler) evaluator
                                     .getTypePrefixHandler(TYPE_PAGE)))
                     .addTypePrefix(TYPE_JAVA,
-                            new AnalyzerJavaTypePrefixHandler());
+                            new AnalyzerJavaTypePrefixHandler()).addTypePrefix(
+                            YmirTalesExpressionEvaluator.TYPE_FORMAT,
+                            new AnalyzerFormatTypePrefixHandler());
             evaluator.addPathResolver(new AnalyzerPathResolver());
         }
         evaluator_ = new TemplateEvaluatorImpl(templateEvaluator
@@ -138,6 +141,7 @@ public class ZptAnalyzer implements TemplateAnalyzer {
                         template.getEncoding()));
             } catch (EvaluationRuntimeException ex) {
                 ex.setTemplateName(template.getName());
+                throw ex;
             }
             context.close();
         } catch (IOException ex) {

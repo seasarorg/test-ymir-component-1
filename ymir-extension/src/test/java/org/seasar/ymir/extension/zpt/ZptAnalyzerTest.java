@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
 
+import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.S2ContainerFactory;
 import org.seasar.framework.convention.impl.NamingConventionImpl;
 import org.seasar.framework.mock.servlet.MockHttpServletRequestImpl;
@@ -196,14 +197,16 @@ public class ZptAnalyzerTest extends TestCase {
             }
         };
         sourceCreator_.setNamingConvention(new NamingConventionImpl());
-        ApplicationManagerImpl applicationManager = new ApplicationManagerImpl();
+        S2Container container = S2ContainerFactory
+                .create("org/seasar/ymir/extension/zpt/ZptAnalyzerTest.dicon");
+        ApplicationManagerImpl applicationManager = (ApplicationManagerImpl) container
+                .getComponent(ApplicationManagerImpl.class);
         MockApplication mockApplication = new MockApplication() {
             @Override
             public Enumeration<String> propertyNames() {
                 return new Vector<String>().elements();
             }
-        }.setS2Container(S2ContainerFactory
-                .create("org/seasar/ymir/extension/zpt/ZptAnalyzerTest.dicon"));
+        }.setS2Container(container);
         applicationManager.setHotdeployManager(new HotdeployManagerImpl());
         applicationManager.setBaseApplication(mockApplication);
         sourceCreator_.setApplicationManager(applicationManager);
@@ -242,6 +245,19 @@ public class ZptAnalyzerTest extends TestCase {
         ServletContext servletContext = new MockServletContextImpl("/context");
         HttpServletRequest request = new MockHttpServletRequestImpl(
                 servletContext, "/index.html");
+        Class<?> pageClass;
+        try {
+            pageClass = Class.forName(pageClassName);
+        } catch (ClassNotFoundException ex) {
+            pageClass = null;
+        }
+        if (pageClass != null) {
+            try {
+                request.setAttribute("self", pageClass.newInstance());
+            } catch (InstantiationException ignore) {
+            } catch (IllegalAccessException ignore) {
+            }
+        }
         HttpServletResponse response = new MockHttpServletResponseImpl(request);
         MockRequest ymirRequest = new MockRequest();
         MockDispatch dispatch = new MockDispatch();
@@ -1024,9 +1040,11 @@ public class ZptAnalyzerTest extends TestCase {
             throws Exception {
 
         ClassCreationHintBag hintBag = new ClassCreationHintBag(
-                new PropertyTypeHint[] { new PropertyTypeHint(
-                        "com.example.web.IndexPage", "hoes",
-                        "com.example.dto.HoeDto[]") }, null);
+                new PropertyTypeHint[] {
+                    new PropertyTypeHint("com.example.web.IndexPage", "hoes",
+                            "com.example.dto.HoeDto[]"),
+                    new PropertyTypeHint("com.example.web.IndexPage", "number",
+                            "java.lang.Integer") }, null);
 
         act("testAnalyze57", hintBag);
 
@@ -1034,6 +1052,10 @@ public class ZptAnalyzerTest extends TestCase {
         PropertyDesc pd = cd.getPropertyDesc("hoes");
         assertNotNull(pd);
         assertEquals("com.example.dto.HoeDto[]", pd.getTypeDesc().getName());
+        pd = cd.getPropertyDesc("number");
+        assertNotNull(pd);
+        assertEquals("java.lang.Integer", pd.getTypeDesc()
+                .getComponentClassDesc().getName());
     }
 
     public void testAnalyze58() throws Exception {
@@ -1466,7 +1488,19 @@ public class ZptAnalyzerTest extends TestCase {
             fail();
         }
     }
-    // TODO entry selector/candidates とした時にはDto名はCandidateDtoになるように。
+
+    public void testAnalyze79_既存の自動生成対象クラスがあるとプロパティが検出されない問題の確認()
+            throws Exception {
+
+        act("testAnalyze79");
+
+        PropertyDesc pd = getClassDesc(CLASSNAME).getPropertyDesc("param1");
+        assertNotNull(pd);
+    }
+
+    // TODO entry selector/candidates とした時にはDto名はCandidateDtoになるように。のテスト。
     // TODO インタフェースの実装型を生成する際にはインタフェースを実装するように。
-    // TODO selector.candidates[0] とした時にSelectorDtoが生成されないように。
+    // TODO selector.candidates[0] とした時にSelectorDtoが生成されないように。のテスト。
+    // SimpleClassDesc廃止。
+    // DescPoolの新設。
 }

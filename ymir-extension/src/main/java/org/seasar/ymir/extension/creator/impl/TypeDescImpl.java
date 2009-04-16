@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import static org.seasar.ymir.extension.creator.util.DescUtils.complementPackage;
 import static org.seasar.ymir.extension.creator.util.DescUtils.getComponentName;
 import static org.seasar.ymir.extension.creator.util.DescUtils.isArray;
 import static org.seasar.ymir.extension.creator.util.DescUtils.normalizePackage;
@@ -124,6 +125,7 @@ public class TypeDescImpl implements TypeDesc {
         collectionClassName_ = null;
         collection_ = isArray(typeName);
         name_ = normalizePackage(typeName.replace('$', '.'));
+        typeName = complementPackage(typeName);
 
         String componentClassName;
         if (collection_) {
@@ -132,7 +134,7 @@ public class TypeDescImpl implements TypeDesc {
         } else {
             // 配列でない場合はコレクションクラスである場合についての処理を行なう。
             TypeToken token = new TypeToken(typeName);
-            Class<?> clazz = DescUtils.getClass(token.getBaseName());
+            Class<?> clazz = DescUtils.findClass(token.getBaseName());
             if (clazz != null) {
                 collection_ = Collection.class.isAssignableFrom(clazz);
             }
