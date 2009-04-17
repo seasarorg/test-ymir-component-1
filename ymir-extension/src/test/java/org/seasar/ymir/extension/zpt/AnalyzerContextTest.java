@@ -91,4 +91,22 @@ public class AnalyzerContextTest extends TestCase {
 
         assertEquals("java.util.List<String[]>[]", typeDesc.getName());
     }
+
+    public void test_findPropertyClassName() throws Exception {
+        target_.setPageClassName("com.example.web.sub.IndexPage");
+
+        assertEquals("com.example.dto.EntryDto", target_.findPropertyClassName(
+                "entry", "com.example.web.IndexPage"));
+
+        assertEquals("com.example.dto.sub.EntryDto",
+                target_.findPropertyClassName("entry",
+                        "com.example.web.sub.IndexPage"));
+
+        assertEquals("com.example.dto.sub.EntryDto", target_
+                .findPropertyClassName("entry", null));
+
+        assertEquals("com.example.dto.sub.EntryDto", target_
+                .findPropertyClassName("entry",
+                        "org.seasar.ymir.render.Selector"));
+    }
 }

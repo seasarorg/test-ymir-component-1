@@ -1505,13 +1505,26 @@ public class ZptAnalyzerTest extends TestCase {
                 SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
                 "org.seasar.ymir.render.*");
 
-        act("testAnalyze80");
+        // 正しいサブパッケージにDTOが生成されない不具合があったので、サブパッケージに属するPageクラスでテストするようにしている。 
+        act("testAnalyze80", "com.example.web.sub.IndexPage");
 
-        assertNull(getClassDesc("com.example.dto.CandidateDto"));
-        assertNotNull(getClassDesc("com.example.dto.EntryDto"));
+        assertNull(getClassDesc("com.example.dto.sub.CandidateDto"));
+        assertNotNull(getClassDesc("com.example.dto.sub.EntryDto"));
     }
 
-    // TODO list4で、EntryDtoとSubEntryDtoのパッケージ名が違う。
+//    public void testAnalyze81_パス式とリクエストパラメータ名が同じプロパティを指す場合にプロパティ型が別々に判断されてしまわないこと()
+//            throws Exception {
+//
+//        sourceCreator_.getApplication().setProperty(
+//                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+//                "org.seasar.ymir.render.*");
+//
+//        act("testAnalyze81");
+//
+//        assertNull(getClassDesc("com.example.dto.CandidateDto"));
+//        assertNotNull(getClassDesc("com.example.dto.EntryDto"));
+//    }
+
     // TODO list4で、CandidateDtoが生成されてしまう。setAsUsed()は参照カウントを保持すべき。
     // TODO インタフェースの実装型を生成する際にはインタフェースを実装するように。
     // TODO selector.candidates[0] とした時にSelectorDtoが生成されないように。のテスト。

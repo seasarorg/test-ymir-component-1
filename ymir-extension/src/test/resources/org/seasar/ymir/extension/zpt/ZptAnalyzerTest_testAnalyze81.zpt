@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+  <form name="form" action="./index.html" method="post">
+    <table border="1">
+      <tbody>
+        <tr tal:repeat="entry form/entrySelector/candidates">
+          <td>
+            <p><input type="text" tal:define="name string:entrySelector.candidates[${repeat/entry/index}].name" tal:attributes="name name; value param-self/?name" /></p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <input type="submit" />
+  </form>
+  </body>
+</html>

@@ -160,16 +160,21 @@ public class AnalyzerContext extends ZptTemplateContext {
      * 
      * @param classDesc プロパティが属するクラスの情報を表すClassDescオブジェクト。nullを指定してはいけません。
      * @param propertyName プロパティ名。
+     * @param mode プロパティのモード。
      * @param propertyTypeAlias クラス名を生成する際の元になる名前。
      * 通常クラス名はプロパティ名から生成されますが、この値としてnullでない値を指定した場合、
      * プロパティ名よりもこちらが優先されます。
-     * @param mode プロパティのモード。
+     * @param asCollection trueの場合、プロパティがコレクション型であることを表します。
+     * falseの場合、プロパティがコレクション型かどうか判断できていないことを表します。
+     * @param collectionClassName コレクション型のクラス名です。nullの場合は配列型であることを表します。
+     * この引数はasCollectionがtrueの時のみ有効です。
      * @param force 強制的にプロパティ型を再推論するかどうか。
      * trueの場合、明示的に型が設定されていない限り強制的にプロパティ型を再推論します。
      * @return PropertyDescオブジェクト。nullが返されることはありません。
      */
     public PropertyDesc addProperty(ClassDesc classDesc, String propertyName,
-            String propertyTypeAlias, int mode, boolean force) {
+            int mode, String propertyTypeAlias, boolean asCollection,
+            String collectionClassName, boolean force) {
         PropertyDesc propertyDesc = classDesc.addProperty(propertyName, mode);
         if (propertyDesc.getTypeDesc().isExplicit()) {
             return propertyDesc;
@@ -179,6 +184,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
 
         TypeDesc typeDesc;
+        boolean shouldNotifyUpdated;
 
         // プロパティ型のヒント情報を見る。
         // ヒントがなければ、実際の親クラスからプロパティ型を取得する。
@@ -186,6 +192,8 @@ public class AnalyzerContext extends ZptTemplateContext {
         PropertyTypeHint hint = getPropertyTypeHint(className, propertyName);
         if (hint != null) {
             typeDesc = new TypeDescImpl(hint.getTypeName(), true);
+            // 型が明示的に指定されており確定なので、PropertyDesc#notifyTypeUpdated()を呼ぶようにする。
+            shouldNotifyUpdated = true;
         } else {
             PropertyDescriptor descriptor = sourceCreator_
                     .getPropertyDescriptor(className, propertyName);
@@ -210,14 +218,25 @@ public class AnalyzerContext extends ZptTemplateContext {
                                     : Introspector.decapitalize(ClassUtils
                                             .getShorterName(componentClass)),
                             className);
+
                     // クラスが実在する場合であっても、プロパティ型がインタフェース型の場合は
                     // その実装型が自動生成対象クラスであるならばrepeat変数名からの推論型などに
                     // 変更されうる。
                     explicit = isOuter(componentClassName);
+
+                    // propertyTypeAliasが指定されていない場合は、後でpropertyTypeAliasが
+                    // 指定されて型が変更されることがあるため、PropertyDesc#notifyTypeUpdated()を
+                    // 呼んではいけない。
+                    shouldNotifyUpdated = explicit || propertyTypeAlias != null;
+
                     setUsedClassName(componentClassName);
                 } else {
                     // そうでない場合は実際の型をそのまま使う。
                     componentClassName = componentClass.getName();
+
+                    // 自動生成対象のクラスの場合はtal:conditionやtal:attributesなどでbooleanだとみなされる余地があるので
+                    // PropertyDesc#notifyTypeUpdated()を呼ばないようにする。
+                    shouldNotifyUpdated = isOuter(componentClassName);
                 }
 
                 String typeName = DescUtils
@@ -236,9 +255,19 @@ public class AnalyzerContext extends ZptTemplateContext {
                 }
             } else {
                 // 推論できなかった場合は名前から推論を行なう。
-                typeDesc = new TypeDescImpl(inferPropertyClassName(
-                        propertyTypeAlias != null ? propertyTypeAlias
-                                : propertyName, className));
+                typeDesc = new TypeDescImpl(
+                        toCollectionType(
+                                inferPropertyClassName(
+                                        propertyTypeAlias != null ? propertyTypeAlias
+                                                : asCollection ? toSingular(propertyName)
+                                                        : propertyName,
+                                        className), asCollection,
+                                collectionClassName));
+
+                // propertyTypeAliasが指定されていない場合は、後でpropertyTypeAliasが
+                // 指定されて型が変更されることがあるため、PropertyDesc#notifyTypeUpdated()を
+                // 呼んではいけない。
+                shouldNotifyUpdated = propertyTypeAlias != null;
             }
         }
 
@@ -255,18 +284,39 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
 
         propertyDesc.setTypeDesc(typeDesc);
-        if (isOuter(typeDesc.getComponentClassDesc())) {
-            // 自動生成対象のクラスの場合はtal:conditionやtal:attributesなどでbooleanだとみなされる余地があるので
-            // ここではnotifyTypeUpdated()を呼ばないようにしている。
+        if (shouldNotifyUpdated) {
             propertyDesc.notifyTypeUpdated();
         }
 
         return propertyDesc;
     }
 
+    private String toCollectionType(String componentClassName,
+            boolean collection, String collectionClassName) {
+        if (componentClassName == null) {
+            return null;
+        }
+        if (!collection) {
+            return componentClassName;
+        } else {
+            StringBuilder sb = new StringBuilder();
+            if (collectionClassName != null) {
+                sb.append(collectionClassName).append("<");
+            }
+            sb.append(componentClassName);
+            if (collectionClassName != null) {
+                sb.append(">");
+            } else {
+                sb.append("[]");
+            }
+            return sb.toString();
+        }
+    }
+
     public PropertyDesc addProperty(ClassDesc classDesc, String propertyName,
             int mode) {
-        return addProperty(classDesc, propertyName, null, mode, false);
+        return addProperty(classDesc, propertyName, mode, null, false, null,
+                false);
     }
 
     /**
@@ -346,8 +396,7 @@ public class AnalyzerContext extends ZptTemplateContext {
             return findClassName(sourceCreator_.getDtoPackageName(),
                     subPackageName, getDtoShortClassName(propertyName));
         } else {
-            return sourceCreator_.getDtoPackageName() + "."
-                    + getDtoShortClassName(propertyName);
+            return findPropertyClassName(propertyName, pageClassName_);
         }
     }
 
@@ -574,29 +623,30 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
     }
 
-    public PropertyDesc getPropertyDesc(ClassDesc classDesc,
+    public PropertyDesc getRequestParameterPropertyDesc(ClassDesc classDesc,
             String requestParameterName, int mode) {
-        return getPropertyDesc(classDesc, requestParameterName, mode, false);
+        return getRequestParameterPropertyDesc(classDesc, requestParameterName,
+                mode, false);
     }
 
-    private PropertyDesc getPropertyDesc(ClassDesc classDesc,
+    private PropertyDesc getRequestParameterPropertyDesc(ClassDesc classDesc,
             String requestParameterName, int mode,
             boolean descendantOfIndexedProperty) {
         int dot = requestParameterName.indexOf('.');
         if (dot < 0) {
-            return getSinglePropertyDesc(classDesc, requestParameterName, mode,
-                    !descendantOfIndexedProperty);
+            return getSingleRequestParameterPropertyDesc(classDesc,
+                    requestParameterName, mode, !descendantOfIndexedProperty);
         } else {
             String baseName = requestParameterName.substring(0, dot);
-            PropertyDesc propertyDesc = getSinglePropertyDesc(classDesc,
-                    baseName, PropertyDesc.READ, false);
+            PropertyDesc propertyDesc = getSingleRequestParameterPropertyDesc(
+                    classDesc, baseName, PropertyDesc.READ, false);
 
             // 後に続くプロパティ名によって型の補正を行なう。
             replaceTypeToGeneratedClassIfNeedToAddProperty(propertyDesc,
                     BeanUtils.getFirstSimpleSegment(requestParameterName
                             .substring(dot + 1)), classDesc);
 
-            return getPropertyDesc(propertyDesc.getTypeDesc()
+            return getRequestParameterPropertyDesc(propertyDesc.getTypeDesc()
                     .getComponentClassDesc(), requestParameterName
                     .substring(dot + 1), mode,
             // 添え字つきプロパティか添え字つきプロパティの子孫の場合はプロパティをコレクションにしないようにしている。
@@ -630,8 +680,8 @@ public class AnalyzerContext extends ZptTemplateContext {
         return sourceCreator_.getPropertyDescriptor(className, propertyName) != null;
     }
 
-    private PropertyDesc getSinglePropertyDesc(ClassDesc classDesc,
-            String requestParameterName, int mode,
+    private PropertyDesc getSingleRequestParameterPropertyDesc(
+            ClassDesc classDesc, String requestParameterName, int mode,
             boolean setAsCollectionIfSetterExists) {
         boolean collection = false;
         String collectionClassName = null;
@@ -654,8 +704,8 @@ public class AnalyzerContext extends ZptTemplateContext {
             }
         }
         PropertyDesc propertyDesc = addProperty(classDesc,
-                requestParameterName, toSingular(requestParameterName), mode,
-                false);
+                requestParameterName, mode, null, collection,
+                collectionClassName, false);
         if (collection) {
             // なるべく元の状態を壊さないようにこうしている。
             // （添字があるならば配列である、は真であるが、裏は真ではない。）

@@ -159,8 +159,8 @@ public class DescWrapper {
         if (propertyDesc_ != null && !propertyDesc_.getTypeDesc().isExplicit()) {
             propertyDesc_ = analyzerContext_.addProperty(
                     parent_.getValueClassDescToModifyProeprty(propertyDesc_
-                            .getName()), propertyDesc_.getName(), variableName,
-                    propertyDesc_.getMode(), true);
+                            .getName()), propertyDesc_.getName(), propertyDesc_
+                            .getMode(), variableName, false, null, true);
         }
     }
 }
