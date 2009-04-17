@@ -150,26 +150,34 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
 
                     String parameterName = getAttributeValue(attrMap, "name",
                             null);
+                    boolean isRadio = "input".equals(name)
+                            && "radio".equals(type);
+                    formDesc.addParameter(parameterName, isRadio);
 
-                    if (!propertyDesc.getTypeDesc().isExplicit()) {
+                    TypeDesc typeDesc = propertyDesc.getTypeDesc();
+                    if (!typeDesc.isExplicit()) {
                         if (analyzerContext.isInRepeat()) {
                             // repeatタグの中であれば同一名のinputタグが複数あることになるため、プロパティの型をコレクションにする。
                             // ただし添え字つきパラメータの場合は、同一名のinputタグが複数存在するわけではないため、
                             // コレクションにはしない。
+                            // ラジオボタンの時もコレクションにはしない。
                             if (parameterName
-                                    .indexOf(AnalyzerContext.CHAR_ARRAY_LPAREN) < 0) {
-                                propertyDesc.getTypeDesc().setCollection(true);
+                                    .indexOf(AnalyzerContext.CHAR_ARRAY_LPAREN) < 0
+                                    && !isRadio) {
+                                analyzerContext.changeToCollection(typeDesc,
+                                        null);
+                            }
+                        } else {
+                            if (formDesc.isMultipleParameter(parameterName)) {
+                                analyzerContext.changeToCollection(typeDesc,
+                                        null);
                             }
                         }
                         if ("input".equals(name)) {
                             if ("file".equals(type)) {
-                                propertyDesc.getTypeDesc()
-                                        .setComponentClassDesc(
-                                                new SimpleClassDesc(
-                                                        FormFile.class
-                                                                .getName()));
-                            } else if ("radio".equals(type)) {
-                                propertyDesc.getTypeDesc().setCollection(false);
+                                typeDesc
+                                        .setComponentClassDesc(new SimpleClassDesc(
+                                                FormFile.class.getName()));
                             }
                         }
                     }
@@ -541,8 +549,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             Map<String, Attribute> attrMap, String annotation, FormDesc formDesc) {
         String name = getAttributeValue(attrMap, "name", null);
         if (name != null && shouldGeneratePropertyForParameter(name)) {
-            PropertyDesc pd = context.getRequestParameterPropertyDesc(formDesc.getClassDesc(),
-                    name, PropertyDesc.READ | PropertyDesc.WRITE);
+            PropertyDesc pd = context.getRequestParameterPropertyDesc(formDesc
+                    .getClassDesc(), name, PropertyDesc.READ
+                    | PropertyDesc.WRITE);
             // conditionで使われていた際にbooleanで上書きされないようにこうしている。
             if (!pd.isTypeAlreadySet()) {
                 TypeDesc oldTd = pd.getTypeDesc();

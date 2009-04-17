@@ -47,6 +47,8 @@ public class AnalyzerContextTest extends TestCase {
     }
 
     public void test_inferPropertyClassName() throws Exception {
+        target_.setPageClassName("com.example.web.IndexPage");
+
         assertEquals("com.example.dto.sub.NameDto", target_
                 .inferPropertyClassName("name", "com.example.web.sub.SubPage"));
 

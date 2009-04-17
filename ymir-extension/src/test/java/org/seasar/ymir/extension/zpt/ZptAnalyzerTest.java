@@ -611,17 +611,17 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull(pd.getTypeDesc().getCollectionClassName());
     }
 
-    public void testAnalyze23() throws Exception {
+    public void testAnalyze23_同一のnameを持つパラメータがラジオボタンである場合はコレクションにならないこと()
+            throws Exception {
 
         act("testAnalyze23");
 
         ClassDesc cd = getClassDesc("com.example.web.ActionPage");
         PropertyDesc pd = cd.getPropertyDesc("radio");
-        assertFalse("同一のnameを持つパラメータがradio buttonである場合は配列にならないこと", pd
-                .getTypeDesc().isCollection());
+        assertFalse(pd.getTypeDesc().isCollection());
     }
 
-    public void testAnalyze24_配列に対するlength呼び出しがあっても正しく自動生成されること()
+    public void testAnalyze24_コレクションに対するsize呼び出しがあっても正しく自動生成されること()
             throws Exception {
 
         act("testAnalyze24");
@@ -632,7 +632,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals("com.example.dto.CommentDto", pd.getTypeDesc()
                 .getComponentClassDesc().getName());
         assertNull(getClassDesc("com.example.dto.CommentDto").getPropertyDesc(
-                "length"));
+                "size"));
     }
 
     public void testAnalyze25_notesはYmir内蔵のNotesクラスと解釈されること() throws Exception {
@@ -1512,18 +1512,18 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(getClassDesc("com.example.dto.sub.EntryDto"));
     }
 
-//    public void testAnalyze81_パス式とリクエストパラメータ名が同じプロパティを指す場合にプロパティ型が別々に判断されてしまわないこと()
-//            throws Exception {
-//
-//        sourceCreator_.getApplication().setProperty(
-//                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
-//                "org.seasar.ymir.render.*");
-//
-//        act("testAnalyze81");
-//
-//        assertNull(getClassDesc("com.example.dto.CandidateDto"));
-//        assertNotNull(getClassDesc("com.example.dto.EntryDto"));
-//    }
+    //    public void testAnalyze81_パス式とリクエストパラメータ名が同じプロパティを指す場合にプロパティ型が別々に判断されてしまわないこと()
+    //            throws Exception {
+    //
+    //        sourceCreator_.getApplication().setProperty(
+    //                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+    //                "org.seasar.ymir.render.*");
+    //
+    //        act("testAnalyze81");
+    //
+    //        assertNull(getClassDesc("com.example.dto.CandidateDto"));
+    //        assertNotNull(getClassDesc("com.example.dto.EntryDto"));
+    //    }
 
     // TODO list4で、CandidateDtoが生成されてしまう。setAsUsed()は参照カウントを保持すべき。
     // TODO インタフェースの実装型を生成する際にはインタフェースを実装するように。

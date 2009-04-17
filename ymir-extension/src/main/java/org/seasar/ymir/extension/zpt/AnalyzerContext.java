@@ -52,6 +52,8 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private static final String PROP_LENGTH = "length";
 
+    private static final String PROP_SIZE = "size";
+
     private SourceCreator sourceCreator_;
 
     private HttpMethod method_;
@@ -132,15 +134,10 @@ public class AnalyzerContext extends ZptTemplateContext {
                 if (!td.isExplicit()) {
                     if (repeatedPropertyGeneratedAsList_) {
                         // List型に補正する。
-                        td.setName("java.util.List<" + valueClassDesc.getName()
-                                + ">");
+                        changeToCollection(td, List.class.getName());
                     } else {
                         // 配列型に補正する。
-                        if (!td.isCollection()) {
-                            td.getComponentClassDesc().removePropertyDesc(
-                                    PROP_LENGTH);
-                        }
-                        td.setName(valueClassDesc.getName() + "[]");
+                        changeToCollection(td, null);
                     }
                 }
             } else {
@@ -255,14 +252,15 @@ public class AnalyzerContext extends ZptTemplateContext {
                 }
             } else {
                 // 推論できなかった場合は名前から推論を行なう。
-                typeDesc = new TypeDescImpl(
-                        toCollectionType(
-                                inferPropertyClassName(
-                                        propertyTypeAlias != null ? propertyTypeAlias
-                                                : asCollection ? toSingular(propertyName)
-                                                        : propertyName,
-                                        className), asCollection,
-                                collectionClassName));
+                typeDesc = new TypeDescImpl(inferPropertyClassName(
+                        propertyTypeAlias != null ? propertyTypeAlias
+                                : asCollection ? toSingular(propertyName)
+                                        : propertyName, className),
+                        asCollection);
+                if (!propertyDesc.getTypeDesc().isCollection() && asCollection) {
+                    typeDesc.setCollection(true);
+                    typeDesc.setCollectionClassName(collectionClassName);
+                }
 
                 // propertyTypeAliasが指定されていない場合は、後でpropertyTypeAliasが
                 // 指定されて型が変更されることがあるため、PropertyDesc#notifyTypeUpdated()を
@@ -289,28 +287,6 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
 
         return propertyDesc;
-    }
-
-    private String toCollectionType(String componentClassName,
-            boolean collection, String collectionClassName) {
-        if (componentClassName == null) {
-            return null;
-        }
-        if (!collection) {
-            return componentClassName;
-        } else {
-            StringBuilder sb = new StringBuilder();
-            if (collectionClassName != null) {
-                sb.append(collectionClassName).append("<");
-            }
-            sb.append(componentClassName);
-            if (collectionClassName != null) {
-                sb.append(">");
-            } else {
-                sb.append("[]");
-            }
-            return sb.toString();
-        }
     }
 
     public PropertyDesc addProperty(ClassDesc classDesc, String propertyName,
@@ -625,21 +601,14 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     public PropertyDesc getRequestParameterPropertyDesc(ClassDesc classDesc,
             String requestParameterName, int mode) {
-        return getRequestParameterPropertyDesc(classDesc, requestParameterName,
-                mode, false);
-    }
-
-    private PropertyDesc getRequestParameterPropertyDesc(ClassDesc classDesc,
-            String requestParameterName, int mode,
-            boolean descendantOfIndexedProperty) {
         int dot = requestParameterName.indexOf('.');
         if (dot < 0) {
             return getSingleRequestParameterPropertyDesc(classDesc,
-                    requestParameterName, mode, !descendantOfIndexedProperty);
+                    requestParameterName, mode);
         } else {
             String baseName = requestParameterName.substring(0, dot);
             PropertyDesc propertyDesc = getSingleRequestParameterPropertyDesc(
-                    classDesc, baseName, PropertyDesc.READ, false);
+                    classDesc, baseName, PropertyDesc.READ);
 
             // 後に続くプロパティ名によって型の補正を行なう。
             replaceTypeToGeneratedClassIfNeedToAddProperty(propertyDesc,
@@ -648,10 +617,7 @@ public class AnalyzerContext extends ZptTemplateContext {
 
             return getRequestParameterPropertyDesc(propertyDesc.getTypeDesc()
                     .getComponentClassDesc(), requestParameterName
-                    .substring(dot + 1), mode,
-            // 添え字つきプロパティか添え字つきプロパティの子孫の場合はプロパティをコレクションにしないようにしている。
-                    descendantOfIndexedProperty ? true : baseName
-                            .indexOf(CHAR_ARRAY_LPAREN) >= 0);
+                    .substring(dot + 1), mode);
         }
     }
 
@@ -681,8 +647,7 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     private PropertyDesc getSingleRequestParameterPropertyDesc(
-            ClassDesc classDesc, String requestParameterName, int mode,
-            boolean setAsCollectionIfSetterExists) {
+            ClassDesc classDesc, String requestParameterName, int mode) {
         boolean collection = false;
         String collectionClassName = null;
         String collectionImplementationClassName = null;
@@ -694,31 +659,20 @@ public class AnalyzerContext extends ZptTemplateContext {
             collectionClassName = List.class.getName();
             collectionImplementationClassName = FlexibleList.class.getName();
             requestParameterName = requestParameterName.substring(0, lparen);
-        } else {
-            // 今のところ、添え字つきパラメータの型が配列というのはサポートできていない。
-            if (setAsCollectionIfSetterExists) {
-                // 添え字なしパラメータを複数受けるプロパティは配列。
-                collection = classDesc.getPropertyDesc(requestParameterName) != null
-                        && classDesc.getPropertyDesc(requestParameterName)
-                                .isWritable();
-            }
         }
-        PropertyDesc propertyDesc = addProperty(classDesc,
-                requestParameterName, mode, null, collection,
-                collectionClassName, false);
-        if (collection) {
-            // なるべく元の状態を壊さないようにこうしている。
-            // （添字があるならば配列である、は真であるが、裏は真ではない。）
-            // つまり、collectionがtrueの時だけsetCollection()している、ということ。
+        PropertyDesc propertyDesc = classDesc
+                .getPropertyDesc(requestParameterName);
+        if (propertyDesc != null && collection) {
+            // これから既存プロパティをコレクションにする場合はこの時点で補正しておく。
+            // ここでしないと余計なプロパティ（sizeとか）が消えてくれない。
             TypeDesc typeDesc = propertyDesc.getTypeDesc();
-            if (!typeDesc.isCollection()) {
-                typeDesc.getComponentClassDesc()
-                        .removePropertyDesc(PROP_LENGTH);
-            }
-            typeDesc.setCollection(collection);
-            typeDesc.setCollectionClassName(collectionClassName);
-            typeDesc
-                    .setCollectionImplementationClassName(collectionImplementationClassName);
+            changeToCollection(typeDesc, collectionClassName);
+        }
+        propertyDesc = addProperty(classDesc, requestParameterName, mode, null,
+                collection, collectionClassName, false);
+        if (collection) {
+            propertyDesc.getTypeDesc().setCollectionImplementationClassName(
+                    collectionImplementationClassName);
         }
 
         return propertyDesc;
@@ -816,5 +770,19 @@ public class AnalyzerContext extends ZptTemplateContext {
     public void setRepeatedPropertyGeneratedAsList(
             boolean repeatedPropertyGeneratedAsList) {
         repeatedPropertyGeneratedAsList_ = repeatedPropertyGeneratedAsList;
+    }
+
+    public void changeToCollection(TypeDesc typeDesc, String collectionClassName) {
+        if (!typeDesc.isCollection()) {
+            if (collectionClassName == null) {
+                typeDesc.getComponentClassDesc().removePropertyDesc(
+                        AnalyzerContext.PROP_LENGTH);
+            } else {
+                typeDesc.getComponentClassDesc().removePropertyDesc(
+                        AnalyzerContext.PROP_SIZE);
+            }
+        }
+        typeDesc.setCollectionClassName(collectionClassName);
+        typeDesc.setCollection(true);
     }
 }

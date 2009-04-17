@@ -11,5 +11,9 @@ public interface FormDesc {
 
     String getName();
 
+    void addParameter(String parameterName, boolean radio);
+
+    boolean isMultipleParameter(String parameterName);
+
     void close();
 }
