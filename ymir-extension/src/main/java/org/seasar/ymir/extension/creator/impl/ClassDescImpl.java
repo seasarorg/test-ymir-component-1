@@ -29,7 +29,7 @@ public class ClassDescImpl extends AbstractClassDesc {
     private boolean baseClassAbstract_;
 
     public ClassDescImpl(String name) {
-        setName(name);
+        name_ = name;
     }
 
     public Object clone() {
@@ -54,10 +54,6 @@ public class ClassDescImpl extends AbstractClassDesc {
 
     public String getName() {
         return name_;
-    }
-
-    public void setName(String name) {
-        name_ = name;
     }
 
     public PropertyDesc addProperty(String name, int mode) {

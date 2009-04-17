@@ -677,7 +677,6 @@ public class SourceCreatorImpl implements SourceCreator {
             // 何も行なえなかったことになる。これではClassDescを作る意味がないのでnullを返す。
             return null;
         }
-        classDesc.setName(className);
         classDesc.setSuperclassName(superclassName);
 
         return classDesc;

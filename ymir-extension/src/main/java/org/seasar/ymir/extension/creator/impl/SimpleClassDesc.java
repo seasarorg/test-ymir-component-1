@@ -20,10 +20,6 @@ public class SimpleClassDesc extends AbstractClassDesc {
         return name_;
     }
 
-    public void setName(String name) {
-        throw new UnsupportedOperationException();
-    }
-
     public MethodDesc[] getMethodDescs() {
         return new MethodDesc[0];
     }

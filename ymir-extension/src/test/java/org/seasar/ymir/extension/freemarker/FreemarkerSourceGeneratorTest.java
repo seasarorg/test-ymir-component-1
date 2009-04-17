@@ -131,8 +131,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         YmirContext.setYmir(new MockYmir());
     }
 
-    private ClassDesc prepareClassDesc() {
-        ClassDesc classDesc = new ClassDescImpl("com.example.page.TestPage");
+    private ClassDesc prepareClassDesc(String className) {
+        ClassDesc classDesc = new ClassDescImpl(className);
         classDesc.setSuperclassName(TestPageBaseBase.class.getName());
         PropertyDesc propertyDesc = new PropertyDescImpl("param1");
         propertyDesc.setTypeDesc("boolean");
@@ -155,8 +155,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateGapSource() throws Exception {
-        ClassDesc classDesc = prepareClassDesc();
-        classDesc.setName("com.example.dto.TestDto");
+        ClassDesc classDesc = prepareClassDesc("com.example.dto.TestDto");
 
         String actual = target_.generateGapSource(classDesc);
 
@@ -166,7 +165,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Page() throws Exception {
-        ClassDesc classDesc = prepareClassDesc();
+        ClassDesc classDesc = prepareClassDesc("com.example.page.TestPage");
         MethodDesc methodDesc = new MethodDescImpl("_get");
         classDesc.setAttribute(Globals.ATTR_ACTION,
                 new MethodDesc[] { methodDesc });
@@ -186,10 +185,10 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
             @Override
             public ClassDesc newClassDesc(String className,
                     ClassCreationHintBag bag) {
-                return new ClassDescImpl(className);
+                return new ClassDescImpl(
+                        "org.seasar.ymir.extension.freemarker.HoePage");
             }
         }.getClassDesc(HoePageBase.class);
-        classDesc.setName("org.seasar.ymir.extension.freemarker.HoePage");
         classDesc.setAttribute(Globals.ATTR_ACTION,
                 new MethodDesc[] { classDesc.getMethodDesc(new MethodDescImpl(
                         "_get")) });
@@ -205,10 +204,10 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
             @Override
             public ClassDesc newClassDesc(String className,
                     ClassCreationHintBag bag) {
-                return new ClassDescImpl(className);
+                return new ClassDescImpl(
+                        "org.seasar.ymir.extension.freemarker.Hoe3Page");
             }
         }.getClassDesc(Hoe3PageBase.class);
-        classDesc.setName("org.seasar.ymir.extension.freemarker.Hoe3Page");
 
         String actual = target_.generateBaseSource(classDesc);
 
@@ -240,10 +239,10 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
             @Override
             public ClassDesc newClassDesc(String className,
                     ClassCreationHintBag bag) {
-                return new ClassDescImpl(className);
+                return new ClassDescImpl(
+                        "org.seasar.ymir.extension.freemarker.Hoe5Page");
             }
         }.getClassDesc(Hoe5PageBase.class);
-        classDesc.setName("org.seasar.ymir.extension.freemarker.Hoe5Page");
 
         ClassDesc generated = new ClassDescImpl(
                 "org.seasar.ymir.extension.freemarker.Hoe5Page");
@@ -267,8 +266,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Dto() throws Exception {
-        ClassDesc classDesc = prepareClassDesc();
-        classDesc.setName("com.example.dto.TestDto");
+        ClassDesc classDesc = prepareClassDesc("com.example.dto.TestDto");
 
         String actual = target_.generateBaseSource(classDesc);
 
@@ -278,7 +276,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
 
     public void testGenerateGapSource_Page() throws Exception {
 
-        ClassDesc classDesc = prepareClassDesc();
+        ClassDesc classDesc = prepareClassDesc("com.example.page.TestPage");
         MethodDesc methodDesc = new MethodDescImpl("_get");
         methodDesc.setReturnTypeDesc(String.class.getName());
         methodDesc.setBodyDesc(new BodyDescImpl(
@@ -302,10 +300,10 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
             @Override
             public ClassDesc newClassDesc(String className,
                     ClassCreationHintBag bag) {
-                return new ClassDescImpl(className);
+                return new ClassDescImpl(
+                        "org.seasar.ymir.extension.freemarker.Hoe6Page");
             }
         }.getClassDesc(Hoe6PageBase.class);
-        classDesc.setName("org.seasar.ymir.extension.freemarker.Hoe6Page");
 
         String actual = target_.generateBaseSource(classDesc);
 

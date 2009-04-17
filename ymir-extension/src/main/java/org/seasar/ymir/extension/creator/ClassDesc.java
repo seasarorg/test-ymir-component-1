@@ -52,8 +52,6 @@ public interface ClassDesc extends AnnotatedDesc, Cloneable {
      */
     void merge(ClassDesc classDesc, boolean force);
 
-    void setName(String name);
-
     void setMethodDesc(MethodDesc methodDesc);
 
     void removeMethodDesc(MethodDesc methodDesc);
