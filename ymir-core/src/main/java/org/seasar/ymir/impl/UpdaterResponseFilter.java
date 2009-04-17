@@ -78,10 +78,6 @@ public class UpdaterResponseFilter extends HttpServletResponseWrapper implements
         if (shouldBuffering()) {
             String response;
             if (outputStream_ != null) {
-                String charset = MimeUtils.getCharset(type_);
-                if (charset == null) {
-                    charset = "ISO-8859-1";
-                }
                 try {
                     outputStream_.flush();
                 } catch (IOException ex) {
@@ -89,7 +85,7 @@ public class UpdaterResponseFilter extends HttpServletResponseWrapper implements
                 }
                 byte[] bytes = outputStream_.toByteArray();
                 try {
-                    response = new String(bytes, charset);
+                    response = new String(bytes, getCharacterEncoding());
                 } catch (UnsupportedEncodingException ex) {
                     commit(bytes);
                     return;
