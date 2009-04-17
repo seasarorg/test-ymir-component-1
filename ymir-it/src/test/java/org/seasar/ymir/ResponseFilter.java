@@ -32,6 +32,7 @@ public class ResponseFilter extends HttpServletResponseWrapper {
         super(response);
     }
 
+    @Override
     public ServletOutputStream getOutputStream() throws IOException {
         if (servletOutputStream_ == null) {
             outputStream_ = new ByteArrayOutputStream();
@@ -44,6 +45,7 @@ public class ResponseFilter extends HttpServletResponseWrapper {
         return servletOutputStream_;
     }
 
+    @Override
     public PrintWriter getWriter() throws IOException {
         if (printWriter_ == null) {
             writer_ = new StringWriter();
@@ -52,6 +54,7 @@ public class ResponseFilter extends HttpServletResponseWrapper {
         return printWriter_;
     }
 
+    @Override
     public void setContentType(String type) {
         type_ = type;
         getResponse().setContentType(type);
@@ -63,10 +66,6 @@ public class ResponseFilter extends HttpServletResponseWrapper {
         }
 
         if (outputStream_ != null) {
-            String charset = MimeUtils.getCharset(type_);
-            if (charset == null) {
-                charset = "ISO-8859-1";
-            }
             try {
                 outputStream_.flush();
             } catch (IOException ex) {
@@ -74,7 +73,7 @@ public class ResponseFilter extends HttpServletResponseWrapper {
             }
             byte[] bytes = outputStream_.toByteArray();
             try {
-                return new String(bytes, charset);
+                return new String(bytes, getCharacterEncoding());
             } catch (UnsupportedEncodingException ex) {
                 throw new RuntimeException(ex);
             }
