@@ -367,7 +367,11 @@ public class ClassUtils {
      * @since 1.0.3
      */
     public static boolean isPrimitive(Class<?> clazz) {
-        return wrapperByPrimitiveMap_.containsKey(clazz);
+        if (clazz == null) {
+            return false;
+        } else {
+            return clazz.isPrimitive();
+        }
     }
 
     /**
