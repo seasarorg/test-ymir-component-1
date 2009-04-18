@@ -1,12 +1,14 @@
 package org.seasar.ymir.extension.creator.mapping;
 
 import org.seasar.ymir.PathMapping;
+import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 
 public interface ExtraPathMapping {
     Class<? extends PathMapping> getPathMappingClass();
 
-    MethodDesc newActionMethodDesc(ActionSelectorSeed seed);
+    MethodDesc newActionMethodDesc(ClassDesc classDesc, ActionSelectorSeed seed);
 
-    MethodDesc newPrerenderActionMethodDesc(ActionSelectorSeed seed);
+    MethodDesc newPrerenderActionMethodDesc(ClassDesc classDesc,
+            ActionSelectorSeed seed);
 }

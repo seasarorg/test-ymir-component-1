@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.creator;
 
+import java.lang.reflect.Type;
+
 public interface PropertyDesc extends AnnotatedDesc, Cloneable {
     int NONE = 0;
 
@@ -9,15 +11,15 @@ public interface PropertyDesc extends AnnotatedDesc, Cloneable {
 
     Object clone();
 
+    DescPool getDescPool();
+
     String getName();
 
     TypeDesc getTypeDesc();
 
     void setTypeDesc(TypeDesc typeDesc);
 
-    void setTypeDesc(String typeName);
-
-    void setTypeDesc(String typeName, boolean explicit);
+    void setTypeDesc(Type type);
 
     int getMode();
 

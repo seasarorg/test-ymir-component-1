@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,13 +18,13 @@ import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.ClassType;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.FormDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.TypeDesc;
-import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
-import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
+import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
@@ -59,8 +58,6 @@ public class AnalyzerContext extends ZptTemplateContext {
     private HttpMethod method_;
 
     private Map<String, ClassDesc> classDescMap_;
-
-    private Map<String, ClassDesc> temporaryClassDescMap_ = new LinkedHashMap<String, ClassDesc>();
 
     private String pageClassName_;
 
@@ -188,7 +185,8 @@ public class AnalyzerContext extends ZptTemplateContext {
         String className = classDesc.getName();
         PropertyTypeHint hint = getPropertyTypeHint(className, propertyName);
         if (hint != null) {
-            typeDesc = new TypeDescImpl(hint.getTypeName(), true);
+            typeDesc = classDesc.getDescPool().newTypeDesc(hint.getTypeName());
+            typeDesc.setExplicit(true);
             // 型が明示的に指定されており確定なので、PropertyDesc#notifyTypeUpdated()を呼ぶようにする。
             shouldNotifyUpdated = true;
         } else {
@@ -242,21 +240,26 @@ public class AnalyzerContext extends ZptTemplateContext {
                         .getPropertyType())) {
                     TypeToken typeToken = new TypeToken(typeName);
                     typeToken.getTypes()[0].setBaseName(componentClassName);
-                    typeDesc = new TypeDescImpl(typeToken.getAsString(),
-                            explicit);
+                    typeDesc = classDesc.getDescPool().newTypeDesc(
+                            typeToken.getAsString());
                 } else if (descriptor.getPropertyType().isArray()) {
-                    typeDesc = new TypeDescImpl(componentClassName + "[]",
-                            explicit);
+                    typeDesc = classDesc.getDescPool().newTypeDesc(
+                            componentClassName + "[]");
                 } else {
-                    typeDesc = new TypeDescImpl(componentClassName, explicit);
+                    typeDesc = classDesc.getDescPool().newTypeDesc(
+                            componentClassName);
                 }
+                typeDesc.setExplicit(explicit);
             } else {
                 // 推論できなかった場合は名前から推論を行なう。
-                typeDesc = new TypeDescImpl(inferPropertyClassName(
-                        propertyTypeAlias != null ? propertyTypeAlias
-                                : asCollection ? toSingular(propertyName)
-                                        : propertyName, className),
-                        asCollection);
+                typeDesc = classDesc
+                        .getDescPool()
+                        .newTypeDesc(
+                                inferPropertyClassName(
+                                        propertyTypeAlias != null ? propertyTypeAlias
+                                                : asCollection ? toSingular(propertyName)
+                                                        : propertyName,
+                                        className));
                 if (!propertyDesc.getTypeDesc().isCollection() && asCollection) {
                     typeDesc.setCollection(true);
                     typeDesc.setCollectionClassName(collectionClassName);
@@ -268,11 +271,6 @@ public class AnalyzerContext extends ZptTemplateContext {
                 shouldNotifyUpdated = propertyTypeAlias != null;
             }
         }
-
-        String cname = typeDesc.getComponentClassDesc().getName();
-        Map<String, ClassDesc> map = new HashMap<String, ClassDesc>();
-        map.put(cname, getTemporaryClassDesc(cname));
-        typeDesc.setName(typeDesc.getName(), map);
 
         if (typeDesc.isCollection()
                 && List.class.getName().equals(
@@ -403,7 +401,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         if (propertyName == null) {
             return null;
         }
-        return capFirst(propertyName) + ClassType.DTO.getSuffix();
+        return DescUtils.capFirst(propertyName) + ClassType.DTO.getSuffix();
     }
 
     @Override
@@ -424,22 +422,8 @@ public class AnalyzerContext extends ZptTemplateContext {
         method_ = method;
     }
 
-    public Map<String, ClassDesc> getClassDescMap() {
-        return classDescMap_;
-    }
-
     public void setClassDescMap(Map<String, ClassDesc> classDescMap) {
         classDescMap_ = classDescMap;
-    }
-
-    public ClassDesc getTemporaryClassDesc(String className) {
-        ClassDesc classDesc = temporaryClassDescMap_.get(className);
-        if (classDesc == null) {
-            classDesc = sourceCreator_.newClassDesc(className, hintBag_);
-            classDesc.setBornOf(path_);
-            temporaryClassDescMap_.put(className, classDesc);
-        }
-        return classDesc;
     }
 
     boolean isAvailable(String className) {
@@ -455,7 +439,7 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     public ClassDesc getPageClassDesc() {
-        return getTemporaryClassDesc(getPageClassName());
+        return DescPool.getDefault().getClassDesc(getPageClassName());
     }
 
     public SourceCreator getSourceCreator() {
@@ -477,25 +461,27 @@ public class AnalyzerContext extends ZptTemplateContext {
     public void close() {
         // 自動生成対象のHTMLからPageオブジェクトのロジックを全く参照していない場合でも
         // 空のPageを自動生成する方が便利なので、空のPageを自動生成するためにこうしている。
-        getTemporaryClassDesc(pageClassName_);
+        getPageClassDesc();
 
-        for (Iterator<ClassDesc> itr = temporaryClassDescMap_.values()
-                .iterator(); itr.hasNext();) {
+        for (Iterator<ClassDesc> itr = DescPool.getDefault().iterator(); itr
+                .hasNext();) {
             ClassDesc classDesc = itr.next();
 
             // 自動生成対象外のクラスと中身のないDTOは除外しておく。
-
             if (isOuter(classDesc) || isEmptyDto(classDesc)) {
                 itr.remove();
                 continue;
             }
+
+            // スーパークラスと出自情報を設定する。
+            ClassHint hint = getClassHint(classDesc.getName());
+            if (hint != null) {
+                classDesc.setSuperclassName(hint.getSuperclassName());
+            }
+            classDesc.setBornOf(path_);
         }
 
-        for (Map.Entry<String, ClassDesc> entry : temporaryClassDescMap_
-                .entrySet()) {
-            String name = entry.getKey();
-            ClassDesc classDesc = entry.getValue();
-
+        for (ClassDesc classDesc : DescPool.getDefault()) {
             // プロパティの型に対応するDTOがMapに存在しない場合は、
             // そのDTOは上のフェーズで除外された、すなわちDTOかもしれないと考えて
             // 解析を進めたが結局DTOであることが確定しなかったので、
@@ -506,10 +492,11 @@ public class AnalyzerContext extends ZptTemplateContext {
                     replaceSimpleDtoTypeToDefaultType(pd.getTypeDesc());
                 }
             }
-            classDesc.merge(classDescMap_.get(name), false);
+            // TODO 消す。
+            //            classDesc.merge(classDescMap_.get(classDesc.getName()), false);
         }
 
-        for (ClassDesc classDesc : temporaryClassDescMap_.values()) {
+        for (ClassDesc classDesc : DescPool.getDefault()) {
             // PageクラスとPageクラスから利用されているDTOと、外部で定義されている変数の型クラスと、
             // renderクラスのプロパティのうちインタフェース型であるものの実装クラスとみなされているクラス
             // 以外は無視する。
@@ -532,16 +519,16 @@ public class AnalyzerContext extends ZptTemplateContext {
                 String componentName = DescUtils.getComponentName(acceptor
                         .getBaseName());
                 boolean array = DescUtils.isArray(acceptor.getBaseName());
-                if (isDto(new SimpleClassDesc(componentName))
-                        && !temporaryClassDescMap_.containsKey(componentName)) {
-                    acceptor.setBaseName(DescUtils.getClassName(
-                            TypeDesc.DEFAULT_CLASSDESC.getName(), array));
+                if (isDto(componentName)
+                        && !DescPool.getDefault().contains(componentName)) {
+                    acceptor.setBaseName(DescUtils.getClassName(String.class
+                            .getName(), array));
                 }
                 return null;
             }
         });
 
-        typeDesc.setName(typeToken.getAsString(), temporaryClassDescMap_);
+        typeDesc.setName(typeToken.getAsString());
     }
 
     void registerDependingClassDescs(ClassDesc classDesc) {
@@ -550,10 +537,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
         for (PropertyDesc pd : classDesc.getPropertyDescs()) {
             for (String className : pd.getTypeDesc().getImportClassNames()) {
-                ClassDesc cd = temporaryClassDescMap_.get(className);
-                if (cd == null) {
-                    cd = new SimpleClassDesc(className);
-                }
+                ClassDesc cd = DescPool.getDefault().getClassDesc(className);
                 if (isDto(cd)) {
                     registerDependingClassDescs(cd);
                 }
@@ -568,35 +552,34 @@ public class AnalyzerContext extends ZptTemplateContext {
         return registered != classDesc;
     }
 
-    boolean isOuter(ClassDesc classDesc) {
+    public boolean isOuter(ClassDesc classDesc) {
         return !classDesc.getPackageName().startsWith(
                 sourceCreator_.getFirstRootPackageName() + ".");
     }
 
-    boolean isOuter(String typeName) {
+    public boolean isOuter(String typeName) {
         return !DescUtils.getNonGenericClassName(typeName).startsWith(
                 sourceCreator_.getFirstRootPackageName() + ".");
     }
 
-    boolean isPage(ClassDesc classDesc) {
-        return classDesc.isTypeOf(ClassType.PAGE) && !isOuter(classDesc);
+    private boolean isPage(ClassDesc classDesc) {
+        return isTypeOf(classDesc, ClassType.PAGE);
     }
 
-    boolean isDto(ClassDesc classDesc) {
-        return classDesc.isTypeOf(ClassType.DTO) && !isOuter(classDesc);
+    private boolean isDto(String className) {
+        return isDto(new ClassDescImpl(null, className));
     }
 
-    boolean isEmptyDto(ClassDesc classDesc) {
-        return (isDto(classDesc) && classDesc.isEmpty());
+    private boolean isDto(ClassDesc classDesc) {
+        return isTypeOf(classDesc, ClassType.DTO);
     }
 
-    String capFirst(String string) {
-        if (string == null || string.length() == 0) {
-            return string;
-        } else {
-            return Character.toUpperCase(string.charAt(0))
-                    + string.substring(1);
-        }
+    private boolean isTypeOf(ClassDesc classDesc, ClassType type) {
+        return classDesc.isTypeOf(type) && !isOuter(classDesc);
+    }
+
+    private boolean isEmptyDto(ClassDesc classDesc) {
+        return isTypeOf(classDesc, ClassType.DTO) && classDesc.isEmpty();
     }
 
     public PropertyDesc getRequestParameterPropertyDesc(ClassDesc classDesc,
@@ -631,12 +614,9 @@ public class AnalyzerContext extends ZptTemplateContext {
                 && isOuter(propertyDesc.getTypeDesc().getComponentClassDesc())
                 && !hasProperty(propertyDesc.getTypeDesc()
                         .getComponentClassDesc().getName(), propertyName)) {
-            TypeDesc typeDesc = new TypeDescImpl(findPropertyClassName(
-                    propertyDesc.getName(), classDesc.getName()), false);
-            String cname = typeDesc.getComponentClassDesc().getName();
-            Map<String, ClassDesc> map = new HashMap<String, ClassDesc>();
-            map.put(cname, getTemporaryClassDesc(cname));
-            typeDesc.setName(typeDesc.getName(), map);
+            TypeDesc typeDesc = classDesc.getDescPool().newTypeDesc(
+                    findPropertyClassName(propertyDesc.getName(), classDesc
+                            .getName()));
             propertyDesc.setTypeDesc(typeDesc);
             propertyDesc.notifyTypeUpdated();
         }

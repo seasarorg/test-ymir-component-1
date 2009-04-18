@@ -1,32 +1,37 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import java.lang.reflect.Type;
+
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 
 public class ParameterDescImpl implements ParameterDesc {
+    private DescPool pool_;
+
     private TypeDesc typeDesc_;
 
     private String name_;
 
-    public ParameterDescImpl(TypeDesc typeDesc) {
-        this(typeDesc, null);
+    public ParameterDescImpl(DescPool pool, Type type) {
+        this(pool, type, null);
     }
 
-    public ParameterDescImpl(TypeDesc typeDesc, String name) {
+    public ParameterDescImpl(DescPool pool, TypeDesc typeDesc) {
+        this(pool, typeDesc, null);
+    }
+
+    public ParameterDescImpl(DescPool pool, Type type, String name) {
+        this(pool, pool.newTypeDesc(type), name);
+    }
+
+    public ParameterDescImpl(DescPool pool, TypeDesc typeDesc, String name) {
+        pool_ = pool;
         setTypeDesc(typeDesc);
         name_ = name;
     }
 
-    public ParameterDescImpl(Class<?> type) {
-        this(type, null);
-    }
-
-    public ParameterDescImpl(Class<?> type, String name) {
-        this(new TypeDescImpl(type), name);
-    }
-
     public Object clone() {
-
         ParameterDescImpl cloned;
         try {
             cloned = (ParameterDescImpl) super.clone();
@@ -40,22 +45,38 @@ public class ParameterDescImpl implements ParameterDesc {
     }
 
     public String toString() {
-
         return typeDesc_ + " " + name_;
     }
 
-    public TypeDesc getTypeDesc() {
+    public DescPool getDescPool() {
+        return pool_;
+    }
 
+    public TypeDesc getTypeDesc() {
         return typeDesc_;
     }
 
     public void setTypeDesc(TypeDesc typeDesc) {
-
         typeDesc_ = typeDesc;
     }
 
-    public String getName() {
+    public void setTypeDesc(Type type) {
+        if (pool_ != null) {
+            setTypeDesc(pool_.newTypeDesc(type));
+        } else {
+            setTypeDesc(new TypeDescImpl(null, type));
+        }
+    }
 
+    public void setTypeDesc(String typeName) {
+        if (pool_ != null) {
+            setTypeDesc(pool_.newTypeDesc(typeName));
+        } else {
+            setTypeDesc(new TypeDescImpl(null, typeName));
+        }
+    }
+
+    public String getName() {
         if (name_ != null) {
             return name_;
         } else {
@@ -64,12 +85,10 @@ public class ParameterDescImpl implements ParameterDesc {
     }
 
     public String getNameAsIs() {
-
         return name_;
     }
 
     public void setName(String name) {
-
         name_ = name;
     }
 }

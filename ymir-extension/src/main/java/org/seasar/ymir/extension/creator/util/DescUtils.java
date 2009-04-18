@@ -7,6 +7,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -47,12 +48,12 @@ public class DescUtils {
     private DescUtils() {
     }
 
-    public static String getNonGenericClassName(String className) {
-        if (className == null) {
+    public static String getNonGenericClassName(String typeName) {
+        if (typeName == null) {
             return null;
         }
 
-        return new TypeToken(className).getBaseName();
+        return new TypeToken(typeName).getBaseName();
     }
 
     public static String getGenericPropertyTypeName(PropertyDescriptor pd) {
@@ -422,7 +423,7 @@ public class DescUtils {
 
     public static AnnotationDesc[] merge(AnnotationDesc[] ad1s,
             AnnotationDesc[] ad2s, boolean force) {
-        ClassDesc dummyCd = new ClassDescImpl("");
+        ClassDesc dummyCd = new ClassDescImpl(null, "");
         Map<String, AnnotationDesc> adMap = new LinkedHashMap<String, AnnotationDesc>();
         for (AnnotationDesc ad : ad1s) {
             if (isMetaAnnotation(ad)) {
@@ -436,7 +437,7 @@ public class DescUtils {
                 if (force) {
                     dummyCd.setAnnotationDesc(ad);
                 } else {
-                    ClassDesc dummyCd2 = new ClassDescImpl("");
+                    ClassDesc dummyCd2 = new ClassDescImpl(null, "");
                     dummyCd2.setAnnotationDesc(ad);
                     for (MetaAnnotationDesc mad : dummyCd2
                             .getMetaAnnotationDescs()) {
@@ -618,4 +619,26 @@ public class DescUtils {
             return classDesc.getPackageName();
         }
     }
+
+    public static String capFirst(String str) {
+        if (str == null || str.length() == 0) {
+            return str;
+        }
+        return Character.toUpperCase(str.charAt(0)) + str.substring(1);
+    }
+
+    public static Field findField(String fieldName, Class<?> clazz) {
+        if (fieldName == null) {
+            return null;
+        }
+        do {
+            try {
+                return clazz.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException ignore) {
+            }
+        } while ((clazz = clazz.getSuperclass()) != null
+                && clazz != Object.class);
+        return null;
+    }
+
 }

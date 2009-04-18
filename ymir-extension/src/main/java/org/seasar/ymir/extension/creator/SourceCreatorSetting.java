@@ -467,4 +467,11 @@ public class SourceCreatorSetting {
             return shortName_;
         }
     }
+
+    public String getFieldName(String propertyName) {
+        if (propertyName == null) {
+            return null;
+        }
+        return getFieldPrefix() + propertyName + getFieldSuffix();
+    }
 }

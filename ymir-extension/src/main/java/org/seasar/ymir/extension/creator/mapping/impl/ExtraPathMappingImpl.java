@@ -3,6 +3,7 @@ package org.seasar.ymir.extension.creator.mapping.impl;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PathMapping;
+import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.mapping.ActionSelectorSeed;
 import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
@@ -30,13 +31,17 @@ public class ExtraPathMappingImpl implements ExtraPathMapping {
         return extraData_.getPathMappingClass();
     }
 
-    public MethodDesc newActionMethodDesc(ActionSelectorSeed seed) {
-        return extraData_.newActionMethodDesc(matched_.getPathMapping(),
-                matched_.getVariableResolver(), path_, method_, seed);
+    public MethodDesc newActionMethodDesc(ClassDesc classDesc,
+            ActionSelectorSeed seed) {
+        return extraData_.newActionMethodDesc(classDesc, matched_
+                .getPathMapping(), matched_.getVariableResolver(), path_,
+                method_, seed);
     }
 
-    public MethodDesc newPrerenderActionMethodDesc(ActionSelectorSeed seed) {
-        return extraData_.newRenderActionMethodDesc(matched_.getPathMapping(),
-                matched_.getVariableResolver(), path_, method_, seed);
+    public MethodDesc newPrerenderActionMethodDesc(ClassDesc classDesc,
+            ActionSelectorSeed seed) {
+        return extraData_.newRenderActionMethodDesc(classDesc, matched_
+                .getPathMapping(), matched_.getVariableResolver(), path_,
+                method_, seed);
     }
 }

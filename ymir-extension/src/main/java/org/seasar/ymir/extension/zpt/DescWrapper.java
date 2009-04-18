@@ -9,7 +9,6 @@ import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
-import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
 import org.seasar.ymir.zpt.annotation.IgnoreException;
 
 @IgnoreException(NoSuchMethodException.class)
@@ -69,9 +68,7 @@ public class DescWrapper {
         TypeDesc td = pd.getTypeDesc();
         if (!td.isExplicit() && !pd.isTypeAlreadySet()
                 && td.getName().equals("boolean")) {
-            td
-                    .setComponentClassDesc(new SimpleClassDesc(String.class
-                            .getName()));
+            td.setComponentClassDesc(String.class);
             pd.notifyTypeUpdated();
         }
 
@@ -118,7 +115,7 @@ public class DescWrapper {
                 break;
             }
 
-            cd = analyzerContext_.getSourceCreator().newClassDesc(
+            cd = analyzerContext_.getSourceCreator().newClassDesc(null,
                     superclassName, null);
         } while (true);
 

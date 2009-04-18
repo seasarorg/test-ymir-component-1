@@ -8,7 +8,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.seasar.ymir.extension.creator.PropertyDesc;
-import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
 import org.seasar.ymir.zpt.FormatTypePrefixHandler;
 
 import net.skirnir.freyja.TemplateContext;
@@ -27,12 +26,10 @@ public class AnalyzerFormatTypePrefixHandler extends FormatTypePrefixHandler {
                                 propertyDesc.getTypeDesc()
                                         .getComponentClassDesc().getName());
                 if (formats[index] instanceof DateFormat && !isDate(clazz)) {
-                    propertyDesc.getTypeDesc().setComponentClassDesc(
-                            new SimpleClassDesc(Date.class.getName()));
+                    propertyDesc.getTypeDesc().setComponentClassDesc(Date.class);
                 } else if (formats[index] instanceof NumberFormat
                         && !isNumber(clazz)) {
-                    propertyDesc.getTypeDesc().setComponentClassDesc(
-                            new SimpleClassDesc(Integer.class.getName()));
+                    propertyDesc.getTypeDesc().setComponentClassDesc(Integer.class);
                 }
             }
 

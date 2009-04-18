@@ -103,7 +103,31 @@ public interface SourceCreator extends Updater {
 
     void saveSourceCreatorProperties();
 
-    ClassDesc newClassDesc(String className, ClassCreationHintBag hintBag);
+    /**
+     * 指定されたクラスからClassDescオブジェクトを構築して返します。
+     * <p>指定されたクラスが持つ要素からClassDescオブジェクトを構築します。
+     * <code>onlyDeclared</code>がtrueである場合はクラスが直接持つ要素だけが参照されます。
+     * falseである場合は祖先クラスが持つ要素も参照されてClassDescオブジェクトが構築されます。
+     * </p>
+     * 
+     * @param clazz クラス。nullが指定された場合はnullを返します。
+     * @param onlyDeclared そのクラスが持つ要素だけを参照するかどうか。
+     * @return 構築したClassDescオブジェクト。
+     */
+    ClassDesc newClassDesc(Class<?> clazz, boolean onlyDeclared);
+
+    /**
+     * 指定されたクラス名に対応するClassDescオブジェクトを構築して返します。
+     *
+     * @param pool ClassDescオブジェクトが属することになるDescPool。
+     * nullを指定することもできます。
+     * @param className クラス名。nullを指定してはいけません。
+     * @param hintBag クラスに関するヒント情報。
+     * nullを指定することもできます。
+     * @return 構築したClassDescオブジェクト。
+     */
+    ClassDesc newClassDesc(DescPool pool, String className,
+            ClassCreationHintBag hintBag);
 
     void adjustByExistentClass(ClassDesc desc);
 
@@ -131,6 +155,6 @@ public interface SourceCreator extends Updater {
 
     Class<?> findClass(String name, String baseClassName);
 
-    MethodDesc newActionMethodDesc(String path, HttpMethod method,
-            ActionSelectorSeed seed);
+    MethodDesc newActionMethodDesc(ClassDesc classDesc, String path,
+            HttpMethod method, ActionSelectorSeed seed);
 }

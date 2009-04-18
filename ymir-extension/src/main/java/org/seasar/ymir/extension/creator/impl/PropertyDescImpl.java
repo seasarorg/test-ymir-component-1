@@ -2,34 +2,33 @@ package org.seasar.ymir.extension.creator.impl;
 
 import static org.seasar.ymir.extension.creator.util.DescUtils.normalizePackage;
 
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.ymir.extension.creator.AbstractAnnotatedDesc;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
+import org.seasar.ymir.util.ClassUtils;
 
 public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         PropertyDesc {
-    public static final int NONE = 0;
-
-    public static final int READ = 1;
-
-    public static final int WRITE = 2;
-
-    private static final String PACKAGEPREFIX_FREYJA_RENDER_CLASS = "net.skirnir.freyja.render.";
-
-    private static final String SUFFIX_DTO = "Dto";
+    private DescPool pool_;
 
     private String name_;
 
-    private TypeDesc typeDesc_ = new TypeDescImpl();
+    private TypeDesc typeDesc_;
 
     private int mode_;
 
@@ -41,8 +40,104 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
 
     private String getterName_;
 
-    public PropertyDescImpl(String name) {
+    private static final Log log_ = LogFactory.getLog(PropertyDescImpl.class);
+
+    public PropertyDescImpl(DescPool pool, String name) {
+        pool_ = pool;
         name_ = name;
+    }
+
+    public PropertyDescImpl(DescPool pool, PropertyDescriptor descriptor) {
+        pool_ = pool;
+        name_ = descriptor.getName();
+        setTypeDesc(newTypeDesc(descriptor));
+        if (descriptor.getReadMethod() != null) {
+            addMode(READ);
+            setGetterName(descriptor.getReadMethod().getName());
+            for (AnnotationDesc annotationDesc : DescUtils
+                    .newAnnotationDescs(descriptor.getReadMethod())) {
+                setAnnotationDescOnGetter(annotationDesc);
+            }
+        }
+        if (descriptor.getWriteMethod() != null) {
+            addMode(WRITE);
+            for (AnnotationDesc annotationDesc : DescUtils
+                    .newAnnotationDescs(descriptor.getWriteMethod())) {
+                setAnnotationDescOnSetter(annotationDesc);
+            }
+        }
+        Field field = findField(descriptor);
+        if (field != null) {
+            for (AnnotationDesc annotationDesc : DescUtils
+                    .newAnnotationDescs(field)) {
+                setAnnotationDesc(annotationDesc);
+            }
+            if (List.class.isAssignableFrom(descriptor.getPropertyType())
+                    && field != null) {
+                // Listのプロパティについては初期値の実装型情報をコピーする。
+
+                Class<?> clazz;
+                if (descriptor.getReadMethod() != null) {
+                    clazz = descriptor.getReadMethod().getDeclaringClass();
+                } else {
+                    clazz = descriptor.getWriteMethod().getDeclaringClass();
+                }
+
+                boolean accessible = field.isAccessible();
+                try {
+                    field.setAccessible(true);
+
+                    Object instance = ClassUtils.newInstance(clazz);
+                    Object value = field.get(instance);
+                    if (value != null) {
+                        getTypeDesc().setCollectionImplementationClass(
+                                value.getClass());
+                    }
+                } catch (Throwable ignore) {
+                    log_.debug("Can't get initial value of field ("
+                            + field.getName() + "): class=" + clazz.getName(),
+                            ignore);
+                } finally {
+                    field.setAccessible(accessible);
+                }
+            }
+        }
+    }
+
+    private TypeDesc newTypeDesc(PropertyDescriptor descriptor) {
+        Type type;
+        if (descriptor.getReadMethod() != null) {
+            type = descriptor.getReadMethod().getGenericReturnType();
+        } else {
+            type = descriptor.getWriteMethod().getGenericParameterTypes()[0];
+        }
+        if (pool_ != null) {
+            return pool_.newTypeDesc(type);
+        } else {
+            return new TypeDescImpl(null, type);
+        }
+    }
+
+    private Field findField(PropertyDescriptor descriptor) {
+        Field field = null;
+        if (descriptor.getReadMethod() != null) {
+            field = DescUtils.findField(toFieldName(descriptor.getName()),
+                    descriptor.getReadMethod().getDeclaringClass());
+        }
+        if (field == null && descriptor.getWriteMethod() != null) {
+            field = DescUtils.findField(toFieldName(descriptor.getName()),
+                    descriptor.getWriteMethod().getDeclaringClass());
+        }
+        return field;
+    }
+
+    private String toFieldName(String propertyName) {
+        if (pool_ != null) {
+            return pool_.getSourceCreator().getSourceCreatorSetting()
+                    .getFieldName(propertyName);
+        } else {
+            return propertyName;
+        }
     }
 
     public Object clone() {
@@ -77,53 +172,47 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         return sb.toString();
     }
 
-    public String getName() {
+    public DescPool getDescPool() {
+        return pool_;
+    }
 
+    public String getName() {
         return name_;
     }
 
     public TypeDesc getTypeDesc() {
-
         return typeDesc_;
     }
 
     public void setTypeDesc(TypeDesc typeDesc) {
-
         typeDesc_ = typeDesc;
     }
 
-    public void setTypeDesc(String typeName) {
-
-        setTypeDesc(typeName, false);
-    }
-
-    public void setTypeDesc(String typeName, boolean explicit) {
-
-        setTypeDesc(new TypeDescImpl(typeName, explicit));
+    public void setTypeDesc(Type type) {
+        if (pool_ != null) {
+            setTypeDesc(pool_.newTypeDesc(type));
+        } else {
+            setTypeDesc(new TypeDescImpl(null, type));
+        }
     }
 
     public int getMode() {
-
         return mode_;
     }
 
     public void setMode(int mode) {
-
         mode_ = mode;
     }
 
     public void addMode(int mode) {
-
         mode_ |= mode;
     }
 
     public boolean isReadable() {
-
         return ((mode_ & READ) != 0);
     }
 
     public boolean isWritable() {
-
         return ((mode_ & WRITE) != 0);
     }
 
@@ -137,17 +226,10 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
 
     String constructGetterName() {
         if ("boolean".equals(typeDesc_.getName())) {
-            return "is" + capFirst(name_);
+            return "is" + DescUtils.capFirst(name_);
         } else {
-            return "get" + capFirst(name_);
+            return "get" + DescUtils.capFirst(name_);
         }
-    }
-
-    String capFirst(String str) {
-        if (str == null || str.length() == 0) {
-            return str;
-        }
-        return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 
     public boolean isTypeAlreadySet() {
@@ -291,26 +373,21 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
                         + "[0]";
             }
         } else {
-            if (componentClassDesc.getPackageName().startsWith(
-                    PACKAGEPREFIX_FREYJA_RENDER_CLASS)
-                    || componentClassDesc.getName().endsWith(SUFFIX_DTO)) {
-                boolean generateInitialValue = false;
-                Class<?> clazz = DescUtils.getClass(componentClassDesc
-                        .getName());
-                if (clazz != null) {
-                    try {
-                        clazz.newInstance();
-                        generateInitialValue = true;
-                    } catch (InstantiationException ignore) {
-                    } catch (IllegalAccessException ignore) {
-                    }
-                } else {
-                    // まだ生成されていないDTO。自動生成対象のDTOはデフォルトコンストラクタを持つので非nullを返すようにする。
+            boolean generateInitialValue = false;
+            Class<?> clazz = DescUtils.getClass(componentClassDesc.getName());
+            if (clazz != null) {
+                try {
+                    clazz.newInstance();
                     generateInitialValue = true;
+                } catch (InstantiationException ignore) {
+                } catch (IllegalAccessException ignore) {
                 }
-                if (generateInitialValue) {
-                    initialValue = "new " + typeDesc_.getName() + "()";
-                }
+            } else {
+                // まだ生成されていないDTO。自動生成対象のDTOはデフォルトコンストラクタを持つので非nullを返すようにする。
+                generateInitialValue = true;
+            }
+            if (generateInitialValue) {
+                initialValue = "new " + typeDesc_.getName() + "()";
             }
         }
 

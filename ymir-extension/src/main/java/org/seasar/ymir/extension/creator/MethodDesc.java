@@ -1,8 +1,11 @@
 package org.seasar.ymir.extension.creator;
 
-public interface MethodDesc extends AnnotatedDesc, Cloneable {
+import java.lang.reflect.Type;
 
+public interface MethodDesc extends AnnotatedDesc, Cloneable {
     Object clone();
+
+    DescPool getDescPool();
 
     String getName();
 
@@ -10,9 +13,9 @@ public interface MethodDesc extends AnnotatedDesc, Cloneable {
 
     void setReturnTypeDesc(TypeDesc typeDesc);
 
-    void setReturnTypeDesc(String typeName);
+    void setReturnTypeDesc(Type type);
 
-    void setReturnTypeDesc(String typeName, boolean explicit);
+    void setReturnTypeDesc(String typeName);
 
     ParameterDesc[] getParameterDescs();
 

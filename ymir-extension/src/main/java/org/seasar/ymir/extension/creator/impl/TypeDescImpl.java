@@ -5,14 +5,15 @@ import static org.seasar.ymir.extension.creator.util.DescUtils.getComponentName;
 import static org.seasar.ymir.extension.creator.util.DescUtils.isArray;
 import static org.seasar.ymir.extension.creator.util.DescUtils.normalizePackage;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.type.Token;
@@ -21,7 +22,7 @@ import org.seasar.ymir.extension.creator.util.type.TypeToken;
 import org.seasar.ymir.util.ClassUtils;
 
 public class TypeDescImpl implements TypeDesc {
-    private static final String ARRAY_SUFFIX = "[]";
+    private DescPool pool_;
 
     private String name_;
 
@@ -35,49 +36,17 @@ public class TypeDescImpl implements TypeDesc {
 
     private boolean explicit_;
 
-    public TypeDescImpl() {
-        this(DEFAULT_CLASSDESC);
+    public TypeDescImpl(DescPool pool, Type type) {
+        this(pool, DescUtils.toString(type));
     }
 
-    public TypeDescImpl(String typeName) {
-        this(typeName, null, false);
+    public TypeDescImpl(DescPool pool, ClassDesc classDesc) {
+        this(pool, classDesc.getName());
     }
 
-    public TypeDescImpl(String typeName, Map<String, ClassDesc> classDescMap) {
-        this(typeName, classDescMap, false);
-    }
-
-    public TypeDescImpl(String typeName, boolean explicit) {
-        this(typeName, null, explicit);
-    }
-
-    public TypeDescImpl(String typeName, Map<String, ClassDesc> classDescMap,
-            boolean explicit) {
-        setName(typeName, classDescMap);
-        explicit_ = explicit;
-    }
-
-    public TypeDescImpl(ClassDesc classDesc) {
-        this(classDesc, false);
-    }
-
-    public TypeDescImpl(ClassDesc classDesc, boolean collection) {
-        this(classDesc, collection, false);
-    }
-
-    public TypeDescImpl(ClassDesc classDesc, boolean collection,
-            boolean explicit) {
-        setComponentClassDesc(classDesc);
-        collection_ = collection;
-        explicit_ = explicit;
-    }
-
-    public TypeDescImpl(Class<?> clazz) {
-        this(clazz, false);
-    }
-
-    public TypeDescImpl(Class<?> clazz, boolean explicit) {
-        this(new SimpleClassDesc(clazz.getName()), clazz.isArray(), explicit);
+    public TypeDescImpl(DescPool pool, String typeName) {
+        pool_ = pool;
+        setName(typeName);
     }
 
     public Object clone() {
@@ -87,7 +56,6 @@ public class TypeDescImpl implements TypeDesc {
         } catch (CloneNotSupportedException ex) {
             throw new RuntimeException(ex);
         }
-        // componentClassDescはループすることがあるためコピーしない。
 
         return cloned;
     }
@@ -95,16 +63,28 @@ public class TypeDescImpl implements TypeDesc {
     public boolean equals(Object obj) {
         if (obj == null || obj.getClass() != getClass()) {
             return false;
+        } else if (this == obj) {
+            return true;
         }
+
         TypeDescImpl o = (TypeDescImpl) obj;
-        if (!o.getName().equals(getName())) {
+        if (name_ == null) {
+            if (o.name_ != null) {
+                return false;
+            }
+        } else if (!name_.equals(o.name_)) {
             return false;
         }
+
         return true;
     }
 
     public String toString() {
         return getName();
+    }
+
+    public DescPool getDescPool() {
+        return pool_;
     }
 
     public ClassDesc getComponentClassDesc() {
@@ -116,11 +96,15 @@ public class TypeDescImpl implements TypeDesc {
         name_ = null;
     }
 
-    public void setName(String typeName) {
-        setName(typeName, null);
+    public void setComponentClassDesc(Class<?> clazz) {
+        if (pool_ != null) {
+            setComponentClassDesc(pool_.getClassDesc(clazz));
+        } else {
+            setComponentClassDesc(new ClassDescImpl(null, clazz));
+        }
     }
 
-    public void setName(String typeName, Map<String, ClassDesc> classDescMap) {
+    public void setName(String typeName) {
         componentClassDesc_ = null;
         collectionClassName_ = null;
         collection_ = isArray(typeName);
@@ -134,7 +118,12 @@ public class TypeDescImpl implements TypeDesc {
         } else {
             // 配列でない場合はコレクションクラスである場合についての処理を行なう。
             TypeToken token = new TypeToken(typeName);
-            Class<?> clazz = DescUtils.findClass(token.getBaseName());
+            Class<?> clazz;
+            if (pool_ != null) {
+                clazz = pool_.getSourceCreator().getClass(token.getBaseName());
+            } else {
+                clazz = DescUtils.findClass(token.getBaseName());
+            }
             if (clazz != null) {
                 collection_ = Collection.class.isAssignableFrom(clazz);
             }
@@ -153,11 +142,10 @@ public class TypeDescImpl implements TypeDesc {
         }
 
         String className = DescUtils.getNonGenericClassName(componentClassName);
-        if (classDescMap != null) {
-            componentClassDesc_ = classDescMap.get(className);
-        }
-        if (componentClassDesc_ == null) {
-            componentClassDesc_ = new SimpleClassDesc(className);
+        if (pool_ != null) {
+            componentClassDesc_ = pool_.getClassDesc(className);
+        } else {
+            componentClassDesc_ = new ClassDescImpl(null, className);
         }
     }
 
@@ -179,6 +167,11 @@ public class TypeDescImpl implements TypeDesc {
         name_ = null;
     }
 
+    public void setCollectionClass(Class<?> collectionClass) {
+        setCollectionClassName(collectionClass != null ? collectionClass
+                .getName() : null);
+    }
+
     public String getCollectionImplementationClassName() {
         return collectionImplementationClassName_;
     }
@@ -186,6 +179,13 @@ public class TypeDescImpl implements TypeDesc {
     public void setCollectionImplementationClassName(
             String collectionImplementationClassName) {
         collectionImplementationClassName_ = collectionImplementationClassName;
+    }
+
+    public void setCollectionImplementationClass(
+            Class<?> collectionImplementationClass) {
+        setCollectionImplementationClassName(collectionImplementationClass != null ? collectionImplementationClass
+                .getName()
+                : null);
     }
 
     public boolean isExplicit() {

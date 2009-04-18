@@ -1,6 +1,6 @@
 package org.seasar.ymir.extension.creator;
 
-import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
+import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 
 public class EntityMetaData {
     private SourceCreator creator_;
@@ -27,7 +27,7 @@ public class EntityMetaData {
     }
 
     void analyze(String className) {
-        entityName_ = new SimpleClassDesc(className).getNameBase();
+        entityName_ = new ClassDescImpl(null, className).getNameBase();
         String subPackageName = getSubPackageName(className);
         dtoClassName_ = creator_.getDtoPackageName() + "." + subPackageName
                 + entityName_ + ClassType.DTO.getSuffix();
@@ -54,22 +54,22 @@ public class EntityMetaData {
     }
 
     public ClassDesc newDtoClassDesc() {
-        return creator_.newClassDesc(dtoClassName_, hintBag_);
+        return creator_.newClassDesc(null, dtoClassName_, hintBag_);
     }
 
     public ClassDesc newBeanClassDesc() {
-        return creator_.newClassDesc(beanClassName_, hintBag_);
+        return creator_.newClassDesc(null, beanClassName_, hintBag_);
     }
 
     public ClassDesc newDaoClassDesc() {
-        return creator_.newClassDesc(daoClassName_, hintBag_);
+        return creator_.newClassDesc(null, daoClassName_, hintBag_);
     }
 
     public ClassDesc newDxoClassDesc() {
-        return creator_.newClassDesc(dxoClassName_, hintBag_);
+        return creator_.newClassDesc(null, dxoClassName_, hintBag_);
     }
 
     public ClassDesc newConverterClassDesc() {
-        return creator_.newClassDesc(converterClassName_, hintBag_);
+        return creator_.newClassDesc(null, converterClassName_, hintBag_);
     }
 }

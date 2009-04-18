@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.HttpMethod;
+import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
@@ -22,9 +23,9 @@ public class YmirPathMappingExtraData implements
         return YmirPathMapping.class;
     }
 
-    public MethodDesc newActionMethodDesc(YmirPathMapping pathMapping,
-            VariableResolver resolver, String path, HttpMethod method,
-            ActionSelectorSeed seed) {
+    public MethodDesc newActionMethodDesc(ClassDesc classDesc,
+            YmirPathMapping pathMapping, VariableResolver resolver,
+            String path, HttpMethod method, ActionSelectorSeed seed) {
         StringBuilder sb = new StringBuilder();
         sb.append(pathMapping.getActionName(resolver));
 
@@ -49,13 +50,15 @@ public class YmirPathMappingExtraData implements
                             type = String.class;
                         }
                     }
-                    pdList.add(new ParameterDescImpl(type, "index"
-                            + (i == 0 ? "" : String.valueOf(i + 1))));
+                    pdList.add(new ParameterDescImpl(classDesc.getDescPool(),
+                            type, "index"
+                                    + (i == 0 ? "" : String.valueOf(i + 1))));
                 }
             }
         }
 
-        MethodDesc md = new MethodDescImpl(sb.toString());
+        MethodDesc md = new MethodDescImpl(classDesc.getDescPool(), sb
+                .toString());
         md.setParameterDescs(pdList.toArray(new ParameterDesc[0]));
         return md;
     }
@@ -119,9 +122,10 @@ public class YmirPathMappingExtraData implements
         return sb.toString();
     }
 
-    public MethodDesc newRenderActionMethodDesc(YmirPathMapping pathMapping,
-            VariableResolver resolver, String path, HttpMethod method,
-            ActionSelectorSeed seed) {
-        return new MethodDescImpl(YmirPathMapping.ACTION_PRERENDER);
+    public MethodDesc newRenderActionMethodDesc(ClassDesc classDesc,
+            YmirPathMapping pathMapping, VariableResolver resolver,
+            String path, HttpMethod method, ActionSelectorSeed seed) {
+        return new MethodDescImpl(classDesc.getDescPool(),
+                YmirPathMapping.ACTION_PRERENDER);
     }
 }

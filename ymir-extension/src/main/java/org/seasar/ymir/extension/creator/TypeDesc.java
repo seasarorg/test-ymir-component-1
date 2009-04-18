@@ -1,23 +1,19 @@
 package org.seasar.ymir.extension.creator;
 
-import java.util.Map;
-
-import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
-
 public interface TypeDesc extends Cloneable {
-    String TYPE_VOID = "void";
-
-    ClassDesc DEFAULT_CLASSDESC = new SimpleClassDesc(String.class.getName());
+    String ARRAY_SUFFIX = "[]";
 
     Object clone();
+
+    DescPool getDescPool();
 
     ClassDesc getComponentClassDesc();
 
     void setComponentClassDesc(ClassDesc classDesc);
 
-    void setName(String typeName);
+    void setComponentClassDesc(Class<?> clazz);
 
-    void setName(String typeName, Map<String, ClassDesc> classDescMap);
+    void setName(String typeName);
 
     boolean isCollection();
 
@@ -27,10 +23,14 @@ public interface TypeDesc extends Cloneable {
 
     void setCollectionClassName(String collectionClassName);
 
+    void setCollectionClass(Class<?> collectionClass);
+
     String getCollectionImplementationClassName();
 
     void setCollectionImplementationClassName(
             String collectionImplementationClassName);
+
+    void setCollectionImplementationClass(Class<?> collectionImplementationClass);
 
     boolean isExplicit();
 

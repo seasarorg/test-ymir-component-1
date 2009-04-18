@@ -20,6 +20,7 @@ import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateAnalyzer;
@@ -108,51 +109,60 @@ public class ZptAnalyzer implements TemplateAnalyzer {
             Map<String, ClassDesc> classDescMap, Template template,
             String className, ClassCreationHintBag hintBag,
             String[] ignoreVariables) {
-        Zpt zpt = getZpt();
-
-        // 本来ZptYmir#processResponse()でやってくれることであるが、
-        // 自動生成処理がprocessResponse()より前に動くためにここでprocessResponse()
-        // と同じことをするようにしている。
-        emulateZptYmirProcessResponse(request, response, ymirRequest);
-
-        path = zpt.getTemplatePathResolver().resolve(
-                ServletUtils.normalizePath(path), request);
-        AnalyzerContext context = (AnalyzerContext) evaluator_.newContext();
-        context.setPath(path);
-        context.setIgnoreVariables(ignoreVariables);
-        zpt.buildTemplateContext(context, servletContext, request, response,
-                Locale.getDefault(), path);
-        context.setTemplateSet(new AnalyzerTemplateSet(evaluator_, context
-                .getTemplateSet(), sourceCreator_, zpt
-                .getTemplatePathResolver()));
-        context.setSourceCreator(sourceCreator_);
-        context.setMethod(method);
-        context.setClassDescMap(classDescMap);
-        context.setPageClassName(className);
-        context.setRepeatedPropertyGeneratedAsList(sourceCreator_
-                .getSourceCreatorSetting().isRepeatedPropertyGeneratedAsList());
-        context.setPropertyTypeHintBag(hintBag);
-
-        InputStream inputStream = null;
         try {
-            inputStream = template.getInputStream();
+            DescPool.getDefault().clear();
+            DescPool.getDefault().setSourceCreator(sourceCreator_);
+            DescPool.getDefault().setHintBag(hintBag);
+
+            Zpt zpt = getZpt();
+            // 本来ZptYmir#processResponse()でやってくれることであるが、
+            // 自動生成処理がprocessResponse()より前に動くためにここでprocessResponse()
+            // と同じことをするようにしている。
+            emulateZptYmirProcessResponse(request, response, ymirRequest);
+
+            path = zpt.getTemplatePathResolver().resolve(
+                    ServletUtils.normalizePath(path), request);
+            AnalyzerContext context = (AnalyzerContext) evaluator_.newContext();
+            context.setPath(path);
+            context.setIgnoreVariables(ignoreVariables);
+            zpt.buildTemplateContext(context, servletContext, request,
+                    response, Locale.getDefault(), path);
+            context.setTemplateSet(new AnalyzerTemplateSet(evaluator_, context
+                    .getTemplateSet(), sourceCreator_, zpt
+                    .getTemplatePathResolver()));
+            context.setSourceCreator(sourceCreator_);
+            context.setMethod(method);
+            context.setClassDescMap(classDescMap);
+            context.setPageClassName(className);
+            context.setRepeatedPropertyGeneratedAsList(sourceCreator_
+                    .getSourceCreatorSetting()
+                    .isRepeatedPropertyGeneratedAsList());
+            context.setPropertyTypeHintBag(hintBag);
+
+            InputStream inputStream = null;
             try {
-                evaluator_.evaluate(context, new InputStreamReader(inputStream,
-                        template.getEncoding()));
-            } catch (EvaluationRuntimeException ex) {
-                ex.setTemplateName(template.getName());
-                throw ex;
-            }
-            context.close();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        } finally {
-            if (inputStream != null) {
+                inputStream = template.getInputStream();
                 try {
-                    inputStream.close();
-                } catch (IOException ignore) {
+                    evaluator_.evaluate(context, new InputStreamReader(
+                            inputStream, template.getEncoding()));
+                } catch (EvaluationRuntimeException ex) {
+                    ex.setTemplateName(template.getName());
+                    throw ex;
+                }
+                context.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException ignore) {
+                    }
                 }
             }
+        } finally {
+            // 必ずしも必要ではないがメモリを開放するためにこうしている。
+            DescPool.getDefault().clear();
         }
     }
 

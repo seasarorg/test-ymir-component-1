@@ -7,7 +7,6 @@ import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.util.ClassUtils;
 
 public class DescValidator {
-
     private DescValidator() {
     }
 
@@ -17,7 +16,6 @@ public class DescValidator {
 
     static Result validate(ClassDesc classDesc, ClassDescSet classDescSet,
             Result result) {
-
         PropertyDesc[] pds = classDesc.getPropertyDescs();
         for (int i = 0; i < pds.length; i++) {
             validate(pds[i], classDescSet, result);
@@ -31,13 +29,11 @@ public class DescValidator {
 
     static Result validate(PropertyDesc propertyDesc,
             ClassDescSet classDescSet, Result result) {
-
         return validate(propertyDesc.getTypeDesc(), classDescSet, result);
     }
 
     static Result validate(MethodDesc methodDesc, ClassDescSet classDescSet,
             Result result) {
-
         validate(methodDesc.getReturnTypeDesc(), classDescSet, result);
 
         ParameterDesc[] parameterDescs = methodDesc.getParameterDescs();
@@ -49,18 +45,15 @@ public class DescValidator {
 
     static Result validate(ParameterDesc parameterDesc,
             ClassDescSet classDescSet, Result result) {
-
         return validate(parameterDesc.getTypeDesc(), classDescSet, result);
     }
 
     public static Result validate(TypeDesc typeDesc, ClassDescSet classDescSet) {
-
         return validate(typeDesc, classDescSet, new Result());
     }
 
     static Result validate(TypeDesc typeDesc, ClassDescSet classDescSet,
             Result result) {
-
         String className = typeDesc.getComponentClassDesc().getName();
         if (!isValidClassName(className, classDescSet)) {
             result.addClassName(className);
@@ -70,8 +63,7 @@ public class DescValidator {
 
     public static boolean isValidClassName(String className,
             ClassDescSet classDescSet) {
-
-        if (TypeDesc.TYPE_VOID.equals(className)) {
+        if (Void.TYPE.getName().equals(className)) {
             return true;
         } else if (ClassUtils.isPrimitive(className)) {
             return true;
@@ -85,21 +77,17 @@ public class DescValidator {
     }
 
     public static class Result {
-
         private Set<String> classNameSet_ = new TreeSet<String>();
 
         public void addClassName(String className) {
-
             classNameSet_.add(className);
         }
 
         public String[] getClassNames() {
-
             return classNameSet_.toArray(new String[0]);
         }
 
         public boolean isValid() {
-
             return classNameSet_.isEmpty();
         }
     }

@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import org.seasar.ymir.extension.creator.AbstractAnnotatedDesc;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.ThrowsDesc;
@@ -13,12 +14,13 @@ import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 
 public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc {
+    private DescPool pool_;
 
     private String name_;
 
     private ParameterDesc[] parameterDescs_ = new ParameterDesc[0];
 
-    private TypeDesc returnTypeDesc_ = new TypeDescImpl(TypeDesc.TYPE_VOID);
+    private TypeDesc returnTypeDesc_;
 
     private ThrowsDesc throwsDesc_ = new ThrowsDescImpl();
 
@@ -26,19 +28,21 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
 
     private String evaluatedBody_;
 
-    public MethodDescImpl(String name) {
+    public MethodDescImpl(DescPool pool, String name) {
+        pool_ = pool;
         name_ = name;
+        returnTypeDesc_ = pool_.newTypeDesc(Void.TYPE);
     }
 
-    public MethodDescImpl(Method method) {
+    public MethodDescImpl(DescPool pool, Method method) {
+        pool_ = pool;
         name_ = method.getName();
-        returnTypeDesc_ = new TypeDescImpl(DescUtils.toString(method
-                .getGenericReturnType()));
+        returnTypeDesc_ = pool_.newTypeDesc(method.getGenericReturnType());
         Type[] types = method.getGenericParameterTypes();
         parameterDescs_ = new ParameterDesc[types.length];
         for (int i = 0; i < types.length; i++) {
-            parameterDescs_[i] = new ParameterDescImpl(new TypeDescImpl(
-                    DescUtils.toString(types[i])));
+            parameterDescs_[i] = new ParameterDescImpl(pool_, pool_
+                    .newTypeDesc(types[i]));
         }
         types = method.getGenericExceptionTypes();
         for (int i = 0; i < types.length; i++) {
@@ -97,6 +101,10 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
         return sb.toString();
     }
 
+    public DescPool getDescPool() {
+        return pool_;
+    }
+
     public String getName() {
         return name_;
     }
@@ -109,12 +117,20 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
         returnTypeDesc_ = returnTypeDesc;
     }
 
-    public void setReturnTypeDesc(String typeName) {
-        setReturnTypeDesc(typeName, false);
+    public void setReturnTypeDesc(Type type) {
+        if (pool_ != null) {
+            setReturnTypeDesc(pool_.newTypeDesc(type));
+        } else {
+            setReturnTypeDesc(new TypeDescImpl(null, type));
+        }
     }
 
-    public void setReturnTypeDesc(String typeName, boolean explicit) {
-        setReturnTypeDesc(new TypeDescImpl(typeName, explicit));
+    public void setReturnTypeDesc(String typeName) {
+        if (pool_ != null) {
+            setReturnTypeDesc(pool_.newTypeDesc(typeName));
+        } else {
+            setReturnTypeDesc(new TypeDescImpl(null, typeName));
+        }
     }
 
     public ParameterDesc[] getParameterDescs() {

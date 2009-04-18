@@ -278,7 +278,9 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         pause(1000L);
         openJavaCodeInEclipseEditor(pathMetaData.getClassName());
 
-        String path = request.getCurrentDispatch().getPath();
+        ClassDesc classDesc = getSourceCreator().newClassDesc(null,
+                pathMetaData.getClassName(), null);
+        String path = pathMetaData.getPath();
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
         variableMap.put("method", method);
@@ -286,7 +288,8 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         variableMap.put("pathMetaData", pathMetaData);
         variableMap.put("classDescBag", classDescBag);
         variableMap.put("actionName", getSourceCreator().newActionMethodDesc(
-                path, method, new ActionSelectorSeedImpl()).getName());
+                classDesc, path, method, new ActionSelectorSeedImpl())
+                .getName());
         variableMap.put("suggestionExists", Boolean
                 .valueOf(classDescBag.getClassDescMap(ClassType.PAGE).size()
                         + classDescBag.getCreatedClassDescMap(ClassType.BEAN)
@@ -295,8 +298,8 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 .getClassDescs(ClassType.PAGE));
         variableMap.put("renderActionName", getSourceCreator()
                 .getExtraPathMapping(path, method)
-                .newPrerenderActionMethodDesc(new ActionSelectorSeedImpl())
-                .getName());
+                .newPrerenderActionMethodDesc(classDesc,
+                        new ActionSelectorSeedImpl()).getName());
         variableMap.put("createdBeanClassDescs", classDescBag
                 .getCreatedClassDescs(ClassType.BEAN));
         variableMap.put("successfullySynchronized", successfullySynchronized);

@@ -21,6 +21,7 @@ import org.seasar.ymir.Path;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassHint;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.FormDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -29,8 +30,6 @@ import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.impl.AnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.FormDescImpl;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
-import org.seasar.ymir.extension.creator.impl.SimpleClassDesc;
-import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 import org.seasar.ymir.render.html.Option;
 import org.seasar.ymir.scope.annotation.RequestParameter;
@@ -175,9 +174,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         }
                         if ("input".equals(name)) {
                             if ("file".equals(type)) {
-                                typeDesc
-                                        .setComponentClassDesc(new SimpleClassDesc(
-                                                FormFile.class.getName()));
+                                typeDesc.setComponentClassDesc(FormFile.class);
                             }
                         }
                     }
@@ -216,15 +213,15 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     }
                 } while (false);
             } else if ("option".equals(name)) {
-                String optionClassName = Option.class.getName();
-                if (!analyzerContext.isOnDtoSearchPath(optionClassName)) {
-                    optionClassName = net.skirnir.freyja.render.html.Option.class
-                            .getName();
-                    if (!analyzerContext.isOnDtoSearchPath(optionClassName)) {
-                        optionClassName = null;
+                Class<?> optionClass = Option.class;
+                if (!analyzerContext.isOnDtoSearchPath(optionClass.getName())) {
+                    optionClass = net.skirnir.freyja.render.html.Option.class;
+                    if (!analyzerContext.isOnDtoSearchPath(optionClass
+                            .getName())) {
+                        optionClass = null;
                     }
                 }
-                if (optionClassName != null) {
+                if (optionClass != null) {
                     String returned = super
                             .evaluate(context, name, attrs, body);
                     String statement = getAttributeValue(attrMap, "tal:repeat",
@@ -239,13 +236,15 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         if (evaluated instanceof DescWrapper[]) {
                             PropertyDesc pd = ((DescWrapper[]) evaluated)[0]
                                     .getPropertyDesc();
-                            if (pd != null && !pd.getTypeDesc().isExplicit()) {
+                            TypeDesc td = pd.getTypeDesc();
+                            if (pd != null && !td.isExplicit()) {
+                                td.setComponentClassDesc(optionClass);
+                                td.setCollection(true);
                                 if (analyzerContext
                                         .isRepeatedPropertyGeneratedAsList()) {
-                                    pd.setTypeDesc("java.util.List<"
-                                            + optionClassName + ">");
+                                    td.setCollectionClass(List.class);
                                 } else {
-                                    pd.setTypeDesc(optionClassName + "[]");
+                                    td.setCollectionClass(null);
                                 }
                             }
                         }
@@ -383,7 +382,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         if (className == null) {
             return null;
         }
-        ClassDesc classDesc = analyzerContext.getTemporaryClassDesc(className);
+        ClassDesc classDesc = DescPool.getDefault().getClassDesc(className);
         for (Iterator<String> itr = path.getParameterMap().keySet().iterator(); itr
                 .hasNext();) {
             String name = itr.next();
@@ -392,7 +391,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             }
             if (BeanUtils.isSingleSegment(name)) {
                 ParameterRole role = inferParameterRole(analyzerContext, path,
-                        className, name);
+                        classDesc, name);
                 switch (role) {
                 case PARAMETER:
                     PropertyDesc propertyDesc = analyzerContext.addProperty(
@@ -405,7 +404,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
 
                 case BUTTON:
                     MethodDesc methodDesc = analyzerContext.getSourceCreator()
-                            .newActionMethodDesc(path.getTrunk(),
+                            .newActionMethodDesc(classDesc, path.getTrunk(),
                                     HttpMethod.GET,
                                     new ActionSelectorSeedImpl(name));
                     if (classDesc.getMethodDesc(methodDesc) == null) {
@@ -462,8 +461,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             return new FormDescImpl(creator, classDesc, dtoClassDesc, formName,
                     path.getTrunk(), method);
         } else {
-            MethodDesc methodDesc = creator.newActionMethodDesc(
-                    path.getTrunk(), method, new ActionSelectorSeedImpl());
+            MethodDesc methodDesc = creator.newActionMethodDesc(classDesc, path
+                    .getTrunk(), method, new ActionSelectorSeedImpl());
             classDesc.setMethodDesc(methodDesc);
 
             return null;
@@ -471,7 +470,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
     }
 
     ParameterRole inferParameterRole(AnalyzerContext context, Path path,
-            String className, String parameterName) {
+            ClassDesc classDesc, String parameterName) {
         String[] parameterValue = path.getParameterMap().get(parameterName);
         if (parameterValue == null || parameterValue.length != 1
                 || !"".equals(parameterValue[0])) {
@@ -480,7 +479,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
 
         SourceCreator sourceCreator = context.getSourceCreator();
 
-        ClassHint classHint = context.getClassHint(className);
+        ClassHint classHint = context.getClassHint(classDesc.getName());
         if (classHint != null) {
             ParameterRole role = classHint.getParameterRole(parameterName);
             if (role != ParameterRole.UNDECIDED) {
@@ -488,14 +487,15 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             }
         }
 
-        if (sourceCreator.getPropertyDescriptor(className, parameterName) != null) {
+        if (sourceCreator.getPropertyDescriptor(classDesc.getName(),
+                parameterName) != null) {
             return ParameterRole.PARAMETER;
         }
 
-        String methodName = sourceCreator.newActionMethodDesc(path.getTrunk(),
-                HttpMethod.GET, new ActionSelectorSeedImpl(parameterName))
-                .getName();
-        Class<?> clazz = sourceCreator.getClass(className);
+        String methodName = sourceCreator.newActionMethodDesc(classDesc,
+                path.getTrunk(), HttpMethod.GET,
+                new ActionSelectorSeedImpl(parameterName)).getName();
+        Class<?> clazz = sourceCreator.getClass(classDesc.getName());
         if (clazz != null) {
             for (Method method : clazz.getMethods()) {
                 if (method.getName().equals(methodName)) {
@@ -555,9 +555,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             // conditionで使われていた際にbooleanで上書きされないようにこうしている。
             if (!pd.isTypeAlreadySet()) {
                 TypeDesc oldTd = pd.getTypeDesc();
-                TypeDesc td = new TypeDescImpl();
-                td.setComponentClassDesc(new SimpleClassDesc(String.class
-                        .getName()));
+                TypeDesc td = oldTd.getDescPool().newTypeDesc(String.class);
                 td.setCollection(oldTd.isCollection());
                 td.setCollectionClassName(oldTd.getCollectionClassName());
                 td.setCollectionImplementationClassName(oldTd
@@ -696,7 +694,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             PropertyDesc pd = wrapper.getPropertyDesc();
             if (pd != null && !pd.getTypeDesc().isExplicit()
                     && !pd.isTypeAlreadySet()) {
-                pd.setTypeDesc("boolean");
+                pd.setTypeDesc(Boolean.TYPE);
                 // 「tal:conditionに現れた場合にはbooleanとみなす」というルールは優先順位が低いため、
                 // notifyTypeUpdated()を呼ばない。
             }
@@ -845,7 +843,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         }
         TypeDesc typeDesc = propertyDesc.getTypeDesc();
         if (!propertyDesc.isTypeAlreadySet() || !typeDesc.isExplicit()) {
-            propertyDesc.setTypeDesc(new TypeDescImpl("boolean", true));
+            propertyDesc.setTypeDesc(Boolean.TYPE);
+            propertyDesc.getTypeDesc().setExplicit(true);
             propertyDesc.notifyTypeUpdated();
         }
     }

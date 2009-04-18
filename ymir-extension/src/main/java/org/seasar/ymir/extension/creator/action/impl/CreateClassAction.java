@@ -39,10 +39,12 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
     }
 
     Response actDefault(Request request, PathMetaData pathMetaData) {
-        String path = request.getCurrentDispatch().getPath();
+        ClassDesc classDesc = getSourceCreator().newClassDesc(null,
+                pathMetaData.getClassName(), null);
+        String path = pathMetaData.getPath();
         HttpMethod method = request.getMethod();
-        String actionName = getSourceCreator().newActionMethodDesc(path,
-                method, new ActionSelectorSeedImpl()).getName();
+        String actionName = getSourceCreator().newActionMethodDesc(classDesc,
+                path, method, new ActionSelectorSeedImpl()).getName();
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
@@ -65,13 +67,14 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
 
         updateMapping(pathMetaData);
 
-        ClassDesc classDesc = getSourceCreator().newClassDesc(
+        ClassDesc classDesc = getSourceCreator().newClassDesc(null,
                 pathMetaData.getClassName(), null);
         String path = pathMetaData.getPath();
         classDesc.setBornOf(path);
         MethodDesc actionMethodDesc = getSourceCreator().newActionMethodDesc(
-                path, method, new ActionSelectorSeedImpl());
-        actionMethodDesc.setReturnTypeDesc(String.class.getName(), true);
+                classDesc, path, method, new ActionSelectorSeedImpl());
+        actionMethodDesc.setReturnTypeDesc(String.class);
+        actionMethodDesc.getReturnTypeDesc().setExplicit(true);
         if (transition != null && transition.trim().length() > 0) {
             if (redirect) {
                 transition = "redirect:" + transition;

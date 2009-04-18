@@ -266,8 +266,8 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public MethodDesc newActionMethodDesc(String path, HttpMethod method,
-            ActionSelectorSeed seed) {
+    public MethodDesc newActionMethodDesc(ClassDesc classDesc, String path,
+            HttpMethod method, ActionSelectorSeed seed) {
         return null;
     }
 }

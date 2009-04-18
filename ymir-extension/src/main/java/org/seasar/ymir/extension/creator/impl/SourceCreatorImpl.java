@@ -52,6 +52,7 @@ import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.framework.container.annotation.tiger.InitMethod;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.convention.NamingConvention;
 import org.seasar.framework.util.ClassTraversal;
@@ -84,6 +85,7 @@ import org.seasar.ymir.extension.creator.ClassDescModifier;
 import org.seasar.ymir.extension.creator.ClassDescSet;
 import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.ClassType;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.DescValidator;
 import org.seasar.ymir.extension.creator.EntityMetaData;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
@@ -144,7 +146,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
     private static final String ID_BODY = "(org.seasar.dao.annotation.tiger.IdType.IDENTITY)";
 
-    private static final String ID_TYPE = "int";
+    private static final Class<?> ID_TYPE = Integer.TYPE;
 
     private static final String PACKAGEPREFIX_JAVA_LANG = "java.lang.";
 
@@ -487,7 +489,8 @@ public class SourceCreatorImpl implements SourceCreator {
             if (superclassName != null) {
                 Class<?> superclass = getClass(superclassName);
                 if (superclass == null) {
-                    ClassDesc classDesc = newClassDesc(superclassName, null);
+                    ClassDesc classDesc = newClassDesc(pageClassDescs[i]
+                            .getDescPool(), superclassName, null);
                     if (!isOuter(classDesc)) {
                         writeSourceFile("PageSuperclass.java", classDesc, false);
                         classDescBag.addAsCreated(classDesc, true);
@@ -517,8 +520,10 @@ public class SourceCreatorImpl implements SourceCreator {
 
             EntityMetaData metaData = new EntityMetaData(this, null, dtoCd
                     .getName());
-            addComponentSetterToPageIfValid(pageClassDesc, new TypeDescImpl(
-                    metaData.newConverterClassDesc()), classDescSet);
+            addComponentSetterToPageIfValid(pageClassDesc, pageClassDesc
+                    .getDescPool()
+                    .newTypeDesc(metaData.newConverterClassDesc()),
+                    classDescSet);
 
             addConverterSetterToPageClassDesc(pageClassDesc, dtoCd,
                     classDescSet);
@@ -532,6 +537,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
     protected ClassDesc createConverterClassDesc(ClassDesc dtoCd,
             String[] pairTypeNames, ClassCreationHintBag hintBag) {
+        // TODO cloneを撲滅する。
         ClassDesc clonedDtoCd = (ClassDesc) dtoCd.clone();
         mergeWithExistentClass(clonedDtoCd);
         EntityMetaData metaData = new EntityMetaData(this, hintBag, clonedDtoCd
@@ -547,13 +553,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     .getNonGenericClassName(pairTypeNames[i])))) {
                 continue;
             }
-            TypeDescImpl td = new TypeDescImpl(pairTypeNames[i]);
-            String className = td.getComponentClassDesc().getName();
-            Map<String, ClassDesc> map = new HashMap<String, ClassDesc>();
-            map.put(className, getClassDesc(getClass(className), false));
-            td.setName(pairTypeNames[i], map);
-
-            pairTdList.add(td);
+            pairTdList.add(dtoCd.getDescPool().newTypeDesc(pairTypeNames[i]));
         }
         param.put("pairTypeDescs", pairTdList.toArray(new TypeDesc[0]));
         converterCd.setOptionalSourceGeneratorParameter(param);
@@ -578,7 +578,7 @@ public class SourceCreatorImpl implements SourceCreator {
         ClassDesc pageClassDesc = classDescMap.get(pageClassName);
 
         // アクションメソッドがなければ追加する。
-        MethodDesc actionMethodDesc = newActionMethodDesc(pageClassName, path,
+        MethodDesc actionMethodDesc = newActionMethodDesc(pageClassDesc, path,
                 method);
         if (pageClassDesc.getMethodDesc(actionMethodDesc) == null) {
             pageClassDesc.setMethodDesc(actionMethodDesc);
@@ -586,25 +586,29 @@ public class SourceCreatorImpl implements SourceCreator {
 
         // _prerender()を追加する。
         MethodDesc prerenderMethodDesc = getExtraPathMapping(path, method)
-                .newPrerenderActionMethodDesc(new ActionSelectorSeedImpl());
+                .newPrerenderActionMethodDesc(pageClassDesc,
+                        new ActionSelectorSeedImpl());
         pageClassDesc.setMethodDesc(prerenderMethodDesc);
 
         if (isValidationFailedMethodEnabled()) {
             // _validationFailed(Notes)を追加する。
-            MethodDesc methodDesc = new MethodDescImpl(
+            MethodDesc methodDesc = new MethodDescImpl(pageClassDesc
+                    .getDescPool(),
                     ConstraintInterceptor.ACTION_VALIDATIONFAILED);
             methodDesc
                     .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
-                            Notes.class, "notes") });
+                            pageClassDesc.getDescPool(), Notes.class, "notes") });
             pageClassDesc.setMethodDesc(methodDesc);
         }
 
         if (isPermissionDeniedMethodEnabled()) {
             // _permissionDenied(PemissionDeniedException)を追加する。
-            MethodDesc methodDesc = new MethodDescImpl(
+            MethodDesc methodDesc = new MethodDescImpl(pageClassDesc
+                    .getDescPool(),
                     ConstraintInterceptor.ACTION_PERMISSIONDENIED);
             methodDesc
                     .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                            pageClassDesc.getDescPool(),
                             PermissionDeniedException.class, "ex") });
             methodDesc.setThrowsDesc(new ThrowsDescImpl(
                     PermissionDeniedException.class));
@@ -615,22 +619,23 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    MethodDesc newActionMethodDesc(String pageClassName, String path,
+    MethodDesc newActionMethodDesc(ClassDesc classDesc, String path,
             HttpMethod method) {
-        Class<?> pageClass = getClass(pageClassName);
+        Class<?> pageClass = getClass(classDesc.getName());
         if (pageClass != null) {
             Action action = ymir_.findMatchedPathMapping(path, method)
                     .getAction(newPageComponent(pageClass),
                             newRequest(path, method, null));
             if (action != null) {
-                MethodDesc methodDesc = new MethodDescImpl(action
-                        .getMethodInvoker().getMethod());
+                MethodDesc methodDesc = new MethodDescImpl(classDesc
+                        .getDescPool(), action.getMethodInvoker().getMethod());
                 setActionMethodDescBodyTo(methodDesc);
                 methodDesc.setAttribute(Globals.ATTR_ACTION, Boolean.TRUE);
                 return methodDesc;
             }
         }
-        return newActionMethodDesc(path, method, new ActionSelectorSeedImpl());
+        return newActionMethodDesc(classDesc, path, method,
+                new ActionSelectorSeedImpl());
     }
 
     @Begin
@@ -659,178 +664,36 @@ public class SourceCreatorImpl implements SourceCreator {
         return classDescBag;
     }
 
-    ClassDesc getClassDesc(String className, boolean onlyDeclared) {
-        if (className == null) {
-            return null;
-        }
-        Class<?> clazz = getClass(className);
-        if (clazz != null || onlyDeclared) {
-            return getClassDesc(clazz, onlyDeclared);
-        }
-
-        // クラスが存在しないので、スーパークラスを辿る。
-        ClassDesc classDesc = newClassDesc(className, null);
-        String superclassName = classDesc.getSuperclassName();
-        classDesc = getClassDesc(superclassName, false);
-        if (classDesc == null) {
-            // スーパークラスが指定されていないのでclassNameなクラスに関する推論が
-            // 何も行なえなかったことになる。これではClassDescを作る意味がないのでnullを返す。
-            return null;
-        }
-        classDesc.setSuperclassName(superclassName);
-
-        return classDesc;
-    }
-
-    public ClassDesc getClassDesc(Class<?> clazz) {
-        return getClassDesc(clazz, true);
-    }
-
-    public ClassDesc getClassDesc(Class<?> clazz, boolean onlyDeclared) {
+    public ClassDesc newClassDesc(Class<?> clazz, boolean onlyDeclared) {
         if (clazz == null) {
             return null;
         }
 
-        BeanInfo beanInfo;
-        try {
-            beanInfo = Introspector.getBeanInfo(clazz);
-        } catch (IntrospectionException ex) {
-            throw new RuntimeException(ex);
-        }
+        DescPool pool = DescPool.newInstance();
+        pool.setSourceCreator(this);
 
-        ClassDesc classDesc = newClassDesc(clazz.getName(), null);
-
-        String superclassName = null;
-        Class<?> superclass = clazz.getSuperclass();
-        if (superclass != null) {
-            superclassName = superclass.getName();
-        }
-        classDesc.setSuperclassName(superclassName);
+        ClassDesc classDesc = newClassDesc(null, clazz.getName(), null);
 
         AnnotationDesc[] ads = DescUtils.newAnnotationDescs(clazz);
         for (int i = 0; i < ads.length; i++) {
             classDesc.setAnnotationDesc(ads[i]);
         }
 
-        PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
-        Arrays.sort(pds, new Comparator<PropertyDescriptor>() {
+        PropertyDescriptor[] descriptors = getPropertyDescriptors(clazz,
+                onlyDeclared);
+        Arrays.sort(descriptors, new Comparator<PropertyDescriptor>() {
             public int compare(PropertyDescriptor o1, PropertyDescriptor o2) {
                 return o1.getName().compareTo(o2.getName());
             }
         });
-        for (int i = 0; i < pds.length; i++) {
-            Method readMethod = pds[i].getReadMethod();
-            Method writeMethod = pds[i].getWriteMethod();
 
-            if (readMethod != null
-                    && readMethod.getDeclaringClass() == Object.class
-                    || writeMethod != null
-                    && writeMethod.getDeclaringClass() == Object.class) {
-                // Objectクラスのプロパティは対象外とする。
-                continue;
-            }
-
-            if (onlyDeclared) {
-                // このクラスで定義されているプロパティだけを対象とする。
-                if (readMethod != null
-                        && readMethod.getDeclaringClass() != clazz
-                        || writeMethod != null
-                        && writeMethod.getDeclaringClass() != clazz) {
-                    continue;
-                }
-            }
-
-            String name = adjustPropertyName(pds[i].getName(), clazz,
-                    readMethod, writeMethod);
-
-            Class<?> declaringClass;
-            if (readMethod == null) {
-                if (writeMethod == null) {
-                    declaringClass = null;
-                } else {
-                    declaringClass = writeMethod.getDeclaringClass();
-                }
-            } else {
-                if (writeMethod == null) {
-                    declaringClass = readMethod.getDeclaringClass();
-                } else {
-                    // より祖先側のクラスで定義されているメソッドと同じクラスにフィールドがあるとみなす。
-                    Class<?> r = readMethod.getDeclaringClass();
-                    Class<?> w = writeMethod.getDeclaringClass();
-                    if (r.isAssignableFrom(w)) {
-                        declaringClass = r;
-                    } else {
-                        declaringClass = w;
-                    }
-                }
-            }
-
-            Field propertyField = null;
-            if (declaringClass != null) {
-                try {
-                    propertyField = declaringClass.getDeclaredField(name);
-                } catch (SecurityException ignore) {
-                } catch (NoSuchFieldException ignore) {
-                }
-            }
-
-            PropertyDesc propertyDesc = new PropertyDescImpl(name);
-            int mode = PropertyDesc.NONE;
-            if (readMethod != null) {
-                mode |= PropertyDesc.READ;
-                propertyDesc.setGetterName(readMethod.getName());
-            }
-            if (writeMethod != null) {
-                mode |= PropertyDesc.WRITE;
-            }
-
-            if (mode == PropertyDesc.NONE && propertyField == null) {
-                continue;
-            }
-
-            propertyDesc.setMode(mode);
-
-            TypeDesc typeDesc = new TypeDescImpl(DescUtils
-                    .getGenericPropertyTypeName(pds[i]));
-            propertyDesc.setTypeDesc(typeDesc);
-
-            if (List.class.isAssignableFrom(pds[i].getPropertyType())
-                    && propertyField != null) {
-                // Listのプロパティについては初期値の実装型情報をコピーする。
-                boolean accessible = propertyField.isAccessible();
-                try {
-                    propertyField.setAccessible(true);
-
-                    Object instance = ClassUtils.newInstance(clazz);
-                    Object value = propertyField.get(instance);
-                    if (value != null) {
-                        typeDesc.setCollectionImplementationClassName(value
-                                .getClass().getName());
-                    }
-                } catch (Throwable ignore) {
-                    log_.debug("Can't get initial value of field (" + name
-                            + "): class=" + clazz.getName(), ignore);
-                } finally {
-                    propertyField.setAccessible(accessible);
-                }
-            }
-
-            ads = DescUtils.newAnnotationDescs(readMethod);
-            for (int j = 0; j < ads.length; j++) {
-                propertyDesc.setAnnotationDescOnGetter(ads[j]);
-            }
-            ads = DescUtils.newAnnotationDescs(writeMethod);
-            for (int j = 0; j < ads.length; j++) {
-                propertyDesc.setAnnotationDescOnSetter(ads[j]);
-            }
-            ads = DescUtils.newAnnotationDescs(propertyField);
-            for (int j = 0; j < ads.length; j++) {
-                propertyDesc.setAnnotationDesc(ads[j]);
-            }
-
-            classDesc.setPropertyDesc(propertyDesc);
+        for (PropertyDescriptor descriptor : descriptors) {
+            Method readMethod = descriptor.getReadMethod();
+            Method writeMethod = descriptor.getWriteMethod();
+            classDesc.setPropertyDesc(new PropertyDescImpl(pool, descriptor));
         }
 
+        // 途中。
         Method[] methods;
         if (onlyDeclared) {
             // このクラスで定義されているメソッドだけを対象とする。
@@ -902,8 +765,7 @@ public class SourceCreatorImpl implements SourceCreator {
             if (propertyName != null) {
                 PropertyDesc pd = classDesc.getPropertyDesc(propertyName);
                 if (pd == null) {
-                    classDesc.addProperty(propertyName, PropertyDesc.NONE);
-                    pd = classDesc.getPropertyDesc(propertyName);
+                    pd = classDesc.addProperty(propertyName, PropertyDesc.NONE);
                 }
                 pd.setTypeDesc(DescUtils.toString(fields[i].getGenericType()));
                 for (Annotation annotation : fields[i].getAnnotations()) {
@@ -934,6 +796,51 @@ public class SourceCreatorImpl implements SourceCreator {
         return classDesc;
     }
 
+    private PropertyDescriptor[] getPropertyDescriptors(Class<?> clazz,
+            boolean onlyDeclared) {
+        BeanInfo beanInfo;
+        try {
+            beanInfo = Introspector.getBeanInfo(clazz);
+        } catch (IntrospectionException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        List<PropertyDescriptor> list = new ArrayList<PropertyDescriptor>();
+        for (PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()) {
+            Method readMethod = descriptor.getReadMethod();
+            Method writeMethod = descriptor.getWriteMethod();
+            if (readMethod != null
+                    && readMethod.getDeclaringClass() == Object.class
+                    || writeMethod != null
+                    && writeMethod.getDeclaringClass() == Object.class) {
+                // Objectクラスのプロパティは対象外とする。
+                continue;
+            }
+
+            if (onlyDeclared) {
+                if (readMethod != null
+                        && readMethod.getDeclaringClass() != clazz) {
+                    readMethod = null;
+                }
+                if (writeMethod != null
+                        && writeMethod.getDeclaringClass() != clazz) {
+                    writeMethod = null;
+                }
+            }
+            if (readMethod == null && writeMethod == null) {
+                continue;
+            }
+            try {
+                list.add(new PropertyDescriptor(descriptor.getName(),
+                        readMethod, writeMethod));
+            } catch (IntrospectionException ex) {
+                throw new RuntimeException("Can't happen!", ex);
+            }
+        }
+        return list.toArray(new PropertyDescriptor[0]);
+    }
+
+    @Deprecated
     String adjustPropertyName(String name, Class<?> clazz, Method readMethod,
             Method writeMethod) {
         if (name == null || name.length() < 2
@@ -964,28 +871,6 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         return name;
-    }
-
-    String toFieldName(String propertyName) {
-        if (propertyName == null) {
-            return null;
-        }
-        return setting_.getFieldPrefix() + propertyName
-                + setting_.getFieldSuffix();
-    }
-
-    Field findField(String fieldName, Class<?> clazz) {
-        if (fieldName == null) {
-            return null;
-        }
-        do {
-            try {
-                return clazz.getDeclaredField(fieldName);
-            } catch (NoSuchFieldException ignore) {
-            }
-        } while ((clazz = clazz.getSuperclass()) != null
-                && clazz != Object.class);
-        return null;
     }
 
     String quote(String value) {
@@ -1022,6 +907,7 @@ public class SourceCreatorImpl implements SourceCreator {
         List<ClassDesc> classDescList = new ArrayList<ClassDesc>(Arrays
                 .asList(classDescs));
         for (int i = 0; i < classDescs.length; i++) {
+            DescPool pool = classDescs[i].getDescPool();
             if (classDescs[i].isTypeOf(ClassType.DTO)) {
                 EntityMetaData metaData = new EntityMetaData(this, hintBag,
                         classDescs[i].getName());
@@ -1062,12 +948,13 @@ public class SourceCreatorImpl implements SourceCreator {
                     if (list != null) {
                         for (Iterator<ClassDesc> itr = list.iterator(); itr
                                 .hasNext();) {
-                            MethodDescImpl md = new MethodDescImpl("convert");
+                            MethodDescImpl md = new MethodDescImpl(pool,
+                                    "convert");
                             ParameterDesc[] pmds = new ParameterDesc[] { new ParameterDescImpl(
-                                    new TypeDescImpl(itr.next())) };
+                                    pool, new TypeDescImpl(pool, itr.next())) };
                             md.setParameterDescs(pmds);
-                            md.setReturnTypeDesc(metaData.newBeanClassDesc()
-                                    .getName());
+                            md.setReturnTypeDesc(pool.newTypeDesc(metaData
+                                    .newBeanClassDesc().getName()));
                             dxoClassDesc.setMethodDesc(md);
                         }
                     }
@@ -1154,7 +1041,7 @@ public class SourceCreatorImpl implements SourceCreator {
         Class<?> clazz = getClass(className);
         ClassDesc gapDesc = getClassDesc(clazz);
         if (gapDesc == null) {
-            gapDesc = newClassDesc(className, null);
+            gapDesc = newClassDesc(null, className, null);
         }
 
         String baseClassName = className + "Base";
@@ -1166,7 +1053,7 @@ public class SourceCreatorImpl implements SourceCreator {
         ClassDesc baseDesc = desc.getType().isSubordinate() ? null
                 : getClassDesc(baseClass);
         if (baseDesc == null) {
-            baseDesc = newClassDesc(baseClassName, null);
+            baseDesc = newClassDesc(null, baseClassName, null);
             baseDesc.setSuperclassName(desc.getSuperclassName());
         }
         if (baseClass != null) {
@@ -1195,8 +1082,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
         ClassDesc superDesc = getClassDesc(desc.getSuperclassName(), false);
         if (superDesc == null) {
-            superDesc = newClassDesc(Object.class.getName(), null);
-            superDesc.setType(type);
+            superDesc = newClassDesc(null, Object.class.getName(), null);
         }
 
         PropertyDesc[] pds = generated.getPropertyDescs();
@@ -1767,15 +1653,9 @@ public class SourceCreatorImpl implements SourceCreator {
         actionSelector_.register(condition, updateAction);
     }
 
-    public ClassDesc newClassDesc(String className, ClassCreationHintBag hintBag) {
-        // プリミティブ型についてはSimpleClassDescを返した方が都合が良いのでこうしている。
-        if (className.indexOf('.') < 0) {
-            return new SimpleClassDesc(className);
-        }
-
-        ClassDescImpl classDescImpl = new ClassDescImpl(className);
-        ClassType type = ClassType.typeOfClass(className);
-        classDescImpl.setType(type);
+    public ClassDesc newClassDesc(DescPool pool, String className,
+            ClassCreationHintBag hintBag) {
+        ClassDesc classDesc = new ClassDescImpl(pool, className);
 
         // スーパークラスをセットする。
         String superclassName = null;
@@ -1798,7 +1678,8 @@ public class SourceCreatorImpl implements SourceCreator {
             }
             if (superclassName == null) {
                 superclassName = setting_.getSuperclassName(className);
-                if (superclassName == null && type == ClassType.PAGE) {
+                if (superclassName == null
+                        && classDesc.isTypeOf(ClassType.PAGE)) {
                     superclassName = setting_.getPageSuperclassName();
                     if (className.equals(superclassName)) {
                         // Page共通の親クラス名をPageBase等にしていると、共通の親クラスが存在しない場合に
@@ -1818,10 +1699,10 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         if (superclassName != null) {
-            classDescImpl.setSuperclassName(superclassName);
+            classDesc.setSuperclassName(superclassName);
         }
 
-        return classDescImpl;
+        return classDesc;
     }
 
     public TemplateProvider getTemplateProvider() {
@@ -1982,10 +1863,10 @@ public class SourceCreatorImpl implements SourceCreator {
         return null;
     }
 
-    public MethodDesc newActionMethodDesc(String path, HttpMethod method,
-            ActionSelectorSeed seed) {
+    public MethodDesc newActionMethodDesc(ClassDesc classDesc, String path,
+            HttpMethod method, ActionSelectorSeed seed) {
         MethodDesc methodDesc = getExtraPathMapping(path, method)
-                .newActionMethodDesc(seed);
+                .newActionMethodDesc(classDesc, seed);
         methodDesc.setAttribute(Globals.ATTR_ACTION, Boolean.TRUE);
         String returnType = setting_.getActionReturnType(method);
         methodDesc.setReturnTypeDesc(returnType);

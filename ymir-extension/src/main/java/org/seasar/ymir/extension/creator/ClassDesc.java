@@ -2,8 +2,10 @@ package org.seasar.ymir.extension.creator;
 
 import java.util.Map;
 
-public interface ClassDesc extends AnnotatedDesc, Cloneable {
+public interface ClassDesc extends AnnotatedDesc {
     Object clone();
+
+    DescPool getDescPool();
 
     String getName();
 
@@ -15,9 +17,11 @@ public interface ClassDesc extends AnnotatedDesc, Cloneable {
 
     ClassType getType();
 
-    void setType(ClassType type);
-
     boolean isTypeOf(ClassType type);
+
+    TypeDesc[] getInterfaceTypeDescs();
+
+    void setInterfaceTypeDescs(TypeDesc[] interfaceTypeDescs);
 
     String getNameBase();
 

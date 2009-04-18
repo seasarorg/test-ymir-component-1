@@ -89,13 +89,14 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
             return null;
         }
 
-        ClassDesc classDesc = getSourceCreator().newClassDesc(
+        ClassDesc classDesc = getSourceCreator().newClassDesc(null,
                 pathMetaData.getClassName(), null);
         String path = pathMetaData.getPath();
         classDesc.setBornOf(path);
-        MethodDesc methodDesc = getSourceCreator().newActionMethodDesc(path,
-                method, new ActionSelectorSeedImpl());
-        methodDesc.setReturnTypeDesc(String.class.getName(), true);
+        MethodDesc methodDesc = getSourceCreator().newActionMethodDesc(
+                classDesc, path, method, new ActionSelectorSeedImpl());
+        methodDesc.setReturnTypeDesc(String.class);
+        methodDesc.getReturnTypeDesc().setExplicit(true);
         methodDesc.setBodyDesc(new BodyDescImpl("return "
                 + quote("redirect:" + redirectPath) + ";"));
         classDesc.setMethodDesc(methodDesc);

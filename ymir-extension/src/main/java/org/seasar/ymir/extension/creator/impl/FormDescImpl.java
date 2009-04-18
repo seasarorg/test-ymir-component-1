@@ -43,8 +43,8 @@ public class FormDescImpl implements FormDesc {
     }
 
     public void setActionMethodDesc(String parameterName) {
-        MethodDesc methodDesc = sourceCreator_.newActionMethodDesc(path_,
-                method_, new ActionSelectorSeedImpl(parameterName));
+        MethodDesc methodDesc = sourceCreator_.newActionMethodDesc(classDesc_,
+                path_, method_, new ActionSelectorSeedImpl(parameterName));
         classDesc_.setMethodDesc(methodDesc);
     }
 

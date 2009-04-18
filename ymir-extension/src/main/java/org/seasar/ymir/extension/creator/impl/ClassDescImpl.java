@@ -3,63 +3,113 @@ package org.seasar.ymir.extension.creator.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.extension.Globals;
-import org.seasar.ymir.extension.creator.AbstractClassDesc;
+import org.seasar.ymir.extension.creator.AbstractAnnotatedDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.ClassType;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.MethodDescKey;
 import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
+import org.seasar.ymir.util.ClassUtils;
 
-public class ClassDescImpl extends AbstractClassDesc {
+public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
+    private DescPool pool_;
+
     private String name_;
 
+    private ClassType type_;
+
     private String superclassName_;
+
+    private boolean baseClassAbstract_;
+
+    private TypeDesc[] interfaceTypeDescs_;
 
     private Map<String, PropertyDesc> propertyDescMap_ = new LinkedHashMap<String, PropertyDesc>();
 
     private Map<MethodDescKey, MethodDesc> methodDescMap_ = new LinkedHashMap<MethodDescKey, MethodDesc>();
 
-    private boolean baseClassAbstract_;
+    private Map<String, Object> parameter_;
 
-    public ClassDescImpl(String name) {
+    private String bornOf_;
+
+    public ClassDescImpl(DescPool pool, String name) {
+        pool_ = pool;
         name_ = name;
+        type_ = ClassType.typeOfClass(name);
     }
 
-    public Object clone() {
-        ClassDescImpl cloned = (ClassDescImpl) super.clone();
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name_ == null) ? 0 : name_.hashCode());
+        result = prime * result + ((pool_ == null) ? 0 : pool_.hashCode());
+        return result;
+    }
 
-        cloned.propertyDescMap_ = new LinkedHashMap<String, PropertyDesc>();
-        for (Iterator<Map.Entry<String, PropertyDesc>> itr = propertyDescMap_
-                .entrySet().iterator(); itr.hasNext();) {
-            Map.Entry<String, PropertyDesc> entry = itr.next();
-            cloned.propertyDescMap_.put(entry.getKey(), (PropertyDesc) entry
-                    .getValue().clone());
-        }
-        cloned.methodDescMap_ = new LinkedHashMap<MethodDescKey, MethodDesc>();
-        for (Iterator<Map.Entry<MethodDescKey, MethodDesc>> itr = methodDescMap_
-                .entrySet().iterator(); itr.hasNext();) {
-            Map.Entry<MethodDescKey, MethodDesc> entry = itr.next();
-            cloned.methodDescMap_.put(entry.getKey(), (MethodDesc) entry
-                    .getValue().clone());
-        }
-        return cloned;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final ClassDescImpl other = (ClassDescImpl) obj;
+        if (name_ == null) {
+            if (other.name_ != null)
+                return false;
+        } else if (!name_.equals(other.name_))
+            return false;
+        if (pool_ == null) {
+            if (other.pool_ != null)
+                return false;
+        } else if (!pool_.equals(other.pool_))
+            return false;
+        return true;
+    }
+
+    public String toString() {
+        return name_;
+    }
+
+    public DescPool getDescPool() {
+        return pool_;
     }
 
     public String getName() {
         return name_;
     }
 
+    public ClassType getType() {
+        return type_;
+    }
+
+    public boolean isTypeOf(ClassType type) {
+        return type == getType();
+    }
+
+    public TypeDesc[] getInterfaceTypeDescs() {
+        return interfaceTypeDescs_;
+    }
+
+    public void setInterfaceTypeDescs(TypeDesc[] interfaceTypeDescs) {
+        interfaceTypeDescs_ = interfaceTypeDescs;
+    }
+
     public PropertyDesc addProperty(String name, int mode) {
         PropertyDesc propertyDesc = getPropertyDesc(name);
         if (propertyDesc == null) {
-            propertyDesc = new PropertyDescImpl(name);
+            propertyDesc = new PropertyDescImpl(pool_, name);
             propertyDescMap_.put(name, propertyDesc);
         }
         propertyDesc.addMode(mode);
@@ -323,6 +373,7 @@ public class ClassDescImpl extends AbstractClassDesc {
 
     public void clear() {
         super.clear();
+        parameter_ = null;
         propertyDescMap_.clear();
         methodDescMap_.clear();
     }
@@ -343,5 +394,70 @@ public class ClassDescImpl extends AbstractClassDesc {
 
     public String getPathOfClass() {
         return YmirContext.getYmir().getPathOfPageClass(getName());
+    }
+
+    public String getShortName() {
+        return ClassUtils.getShortName(getName());
+    }
+
+    public String getNameBase() {
+        return getNameBase(getName());
+    }
+
+    String getNameBase(String name) {
+        name = ClassUtils.getShortName(name);
+        return name
+                .substring(0, name.length() - getType().getSuffix().length());
+    }
+
+    public String getPackageName() {
+        return getPackageName(getName());
+    }
+
+    String getPackageName(String name) {
+        int dot = name.lastIndexOf('.');
+        if (dot < 0) {
+            return "";
+        } else {
+            return name.substring(0, dot);
+        }
+    }
+
+    public String getInstanceName() {
+        return getInstanceName(getName());
+    }
+
+    String getInstanceName(String name) {
+        String instanceName = uncapFirst(ClassUtils.getShorterName(name));
+        if (instanceName.equals(name)) {
+            instanceName += "Value";
+        }
+        return instanceName;
+    }
+
+    String uncapFirst(String string) {
+        if (string == null || string.length() == 0) {
+            return string;
+        } else {
+            return Character.toLowerCase(string.charAt(0))
+                    + string.substring(1);
+        }
+    }
+
+    public Map<String, Object> getOptionalSourceGeneratorParameter() {
+        return parameter_;
+    }
+
+    public void setOptionalSourceGeneratorParameter(
+            Map<String, Object> parameter) {
+        parameter_ = parameter;
+    }
+
+    public String getBornOf() {
+        return bornOf_;
+    }
+
+    public void setBornOf(String bornOf) {
+        bornOf_ = bornOf;
     }
 }

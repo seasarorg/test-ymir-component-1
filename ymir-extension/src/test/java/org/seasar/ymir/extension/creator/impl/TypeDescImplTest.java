@@ -105,7 +105,7 @@ public class TypeDescImplTest extends TestCase {
         TypeDescImpl target = new TypeDescImpl();
         target.setCollection(true);
         target.setCollectionClassName("java.util.List");
-        target.setComponentClassDesc(new SimpleClassDesc("java.lang.String"));
+        target.setComponentClassDesc(new ClassDescImpl("java.lang.String"));
 
         assertEquals("java.util.List<String>", target.getName());
     }
@@ -114,7 +114,7 @@ public class TypeDescImplTest extends TestCase {
         TypeDescImpl target = new TypeDescImpl();
         target.setCollection(true);
         target.setCollectionClassName("java.util.List");
-        target.setComponentClassDesc(new SimpleClassDesc("java.lang.String"));
+        target.setComponentClassDesc(new ClassDescImpl("java.lang.String"));
 
         assertEquals("java.util.List<java.lang.String>", target
                 .getCompleteName());

@@ -110,14 +110,15 @@ public class CreateTemplateAction extends AbstractAction implements
             pause(1000L);
             openResourceInEclipseEditor(getPath(template));
         } else if (transition != null) {
-            ClassDesc classDesc = getSourceCreator().newClassDesc(
+            ClassDesc classDesc = getSourceCreator().newClassDesc(null,
                     pathMetaData.getClassName(), null);
             String path = pathMetaData.getPath();
             classDesc.setBornOf(path);
             MethodDesc actionMethodDesc = getSourceCreator()
-                    .newActionMethodDesc(path, method,
+                    .newActionMethodDesc(classDesc, path, method,
                             new ActionSelectorSeedImpl());
-            actionMethodDesc.setReturnTypeDesc(String.class.getName(), true);
+            actionMethodDesc.setReturnTypeDesc(String.class);
+            actionMethodDesc.getReturnTypeDesc().setExplicit(true);
             if (redirect) {
                 transition = "redirect:" + transition;
             }

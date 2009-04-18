@@ -3,6 +3,7 @@ package org.seasar.ymir.extension.zpt;
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.message.Messages;
 import org.seasar.ymir.message.Notes;
@@ -101,8 +102,8 @@ public class AnalyzerVariableResolver implements VariableResolver {
                     }
                 }
                 if (value == null) {
-                    value = new DescWrapper(analyzerContext, analyzerContext
-                            .getTemporaryClassDesc(className));
+                    value = new DescWrapper(analyzerContext, DescPool
+                            .getDefault().getClassDesc(className));
                 }
                 analyzerContext.setUsedClassName(className);
             }
