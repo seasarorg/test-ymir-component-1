@@ -19,7 +19,7 @@ public interface PropertyDesc extends AnnotatedDesc, Cloneable {
 
     void setTypeDesc(TypeDesc typeDesc);
 
-    void setTypeDesc(Type type);
+    TypeDesc setTypeDesc(Type type);
 
     int getMode();
 

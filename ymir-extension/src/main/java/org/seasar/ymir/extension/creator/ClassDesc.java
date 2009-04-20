@@ -2,7 +2,7 @@ package org.seasar.ymir.extension.creator;
 
 import java.util.Map;
 
-public interface ClassDesc extends AnnotatedDesc {
+public interface ClassDesc extends AnnotatedDesc, Cloneable {
     Object clone();
 
     DescPool getDescPool();

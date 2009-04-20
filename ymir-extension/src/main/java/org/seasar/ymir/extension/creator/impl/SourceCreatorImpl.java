@@ -29,13 +29,16 @@ import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,7 +55,6 @@ import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.framework.container.annotation.tiger.InitMethod;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.convention.NamingConvention;
 import org.seasar.framework.util.ClassTraversal;
@@ -537,7 +539,6 @@ public class SourceCreatorImpl implements SourceCreator {
 
     protected ClassDesc createConverterClassDesc(ClassDesc dtoCd,
             String[] pairTypeNames, ClassCreationHintBag hintBag) {
-        // TODO cloneを撲滅する。
         ClassDesc clonedDtoCd = (ClassDesc) dtoCd.clone();
         mergeWithExistentClass(clonedDtoCd);
         EntityMetaData metaData = new EntityMetaData(this, hintBag, clonedDtoCd
@@ -553,11 +554,19 @@ public class SourceCreatorImpl implements SourceCreator {
                     .getNonGenericClassName(pairTypeNames[i])))) {
                 continue;
             }
-            pairTdList.add(dtoCd.getDescPool().newTypeDesc(pairTypeNames[i]));
+            pairTdList.add(newTypeDesc(dtoCd.getDescPool(), pairTypeNames[i]));
         }
         param.put("pairTypeDescs", pairTdList.toArray(new TypeDesc[0]));
         converterCd.setOptionalSourceGeneratorParameter(param);
         return converterCd;
+    }
+
+    private TypeDesc newTypeDesc(DescPool pool, String typeName) {
+        if (pool != null) {
+            return pool.newTypeDesc(typeName);
+        } else {
+            return new TypeDescImpl(null, typeName);
+        }
     }
 
     public void gatherClassDescs(Map<String, ClassDesc> classDescMap,
@@ -679,74 +688,22 @@ public class SourceCreatorImpl implements SourceCreator {
             classDesc.setAnnotationDesc(ads[i]);
         }
 
-        PropertyDescriptor[] descriptors = getPropertyDescriptors(clazz,
-                onlyDeclared);
-        Arrays.sort(descriptors, new Comparator<PropertyDescriptor>() {
-            public int compare(PropertyDescriptor o1, PropertyDescriptor o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
-
-        for (PropertyDescriptor descriptor : descriptors) {
-            Method readMethod = descriptor.getReadMethod();
-            Method writeMethod = descriptor.getWriteMethod();
+        for (PropertyDescriptor descriptor : getPropertyDescriptors(clazz,
+                onlyDeclared)) {
             classDesc.setPropertyDesc(new PropertyDescImpl(pool, descriptor));
         }
 
-        // 途中。
-        Method[] methods;
-        if (onlyDeclared) {
-            // このクラスで定義されているメソッドだけを対象とする。
-            methods = clazz.getDeclaredMethods();
-        } else {
-            // 祖先クラスにあるメソッドも対象とする。ただしObjectクラスのメソッドは対象外とする。
-            List<Method> methodList = new ArrayList<Method>();
-            for (Class<?> c = clazz; c != null && c != Object.class; c = c
-                    .getSuperclass()) {
-                methodList.addAll(Arrays.asList(c.getDeclaredMethods()));
-            }
-            for (Class<?> c : clazz.getInterfaces()) {
-                methodList.addAll(Arrays.asList(c.getDeclaredMethods()));
-            }
-            methods = methodList.toArray(new Method[0]);
-        }
-        Arrays.sort(methods, new Comparator<Method>() {
-            public int compare(Method o1, Method o2) {
-                int cmp = o1.getName().compareTo(o2.getName());
-                if (cmp != 0) {
-                    return cmp;
-                }
-                Type[] types1 = o1.getGenericParameterTypes();
-                Type[] types2 = o2.getGenericParameterTypes();
-                cmp = types1.length - types2.length;
-                if (cmp != 0) {
-                    return cmp;
-                }
-                for (int i = 0; i < types1.length; i++) {
-                    cmp = types1[i].toString().compareTo(types2[i].toString());
-                    if (cmp != 0) {
-                        return cmp;
-                    }
-                }
-                return 0;
-            }
-        });
-        for (int i = 0; i < methods.length; i++) {
-            String name = methods[i].getName();
-            if (name.startsWith("get") || name.startsWith("is")
-                    || name.startsWith("set")) {
-                continue;
-            }
-            MethodDesc md = new MethodDescImpl(methods[i]);
+        for (Method method : getMethods(clazz, onlyDeclared)) {
+            MethodDesc md = new MethodDescImpl(pool, method);
             classDesc.setMethodDesc(md);
             String[] source = md.getMetaValue(Globals.META_NAME_SOURCE);
             if (source != null) {
                 int idx = 0;
                 md.setBodyDesc(new BodyDescImpl(source[idx++]));
                 ParameterDesc[] parameterDescs = md.getParameterDescs();
-                for (int j = 0; idx < source.length
-                        && j < parameterDescs.length; idx++, j++) {
-                    parameterDescs[j].setName(source[idx]);
+                for (int i = 0; idx < source.length
+                        && i < parameterDescs.length; idx++, i++) {
+                    parameterDescs[i].setName(source[idx]);
                 }
             }
         }
@@ -767,7 +724,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 if (pd == null) {
                     pd = classDesc.addProperty(propertyName, PropertyDesc.NONE);
                 }
-                pd.setTypeDesc(DescUtils.toString(fields[i].getGenericType()));
+                pd.setTypeDesc(fields[i].getGenericType());
                 for (Annotation annotation : fields[i].getAnnotations()) {
                     pd.setAnnotationDesc(DescUtils
                             .newAnnotationDesc(annotation));
@@ -783,7 +740,8 @@ public class SourceCreatorImpl implements SourceCreator {
                             .getDeclaringClass(), name.substring(PREFIX_ACTION
                             .length()))) {
                         MethodDesc actionMd = classDesc
-                                .getMethodDesc(new MethodDescImpl(actionMethod));
+                                .getMethodDesc(new MethodDescImpl(pool,
+                                        actionMethod));
                         if (actionMd != null) {
                             actionMd.setAttribute(Globals.ATTR_ACTION,
                                     Boolean.TRUE);
@@ -794,6 +752,57 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         return classDesc;
+    }
+
+    private Method[] getMethods(Class<?> clazz, boolean onlyDeclared) {
+        Set<Method> excludeMethodSet = new HashSet<Method>();
+        for (PropertyDescriptor descriptor : getPropertyDescriptors(clazz,
+                onlyDeclared)) {
+            Method method = descriptor.getReadMethod();
+            if (method != null) {
+                excludeMethodSet.add(method);
+            }
+            method = descriptor.getWriteMethod();
+            if (method != null) {
+                excludeMethodSet.add(method);
+            }
+        }
+
+        List<Method> list = new ArrayList<Method>();
+        for (Method method : ClassUtils.getMethods(clazz)) {
+            if (onlyDeclared && method.getDeclaringClass() != clazz) {
+                continue;
+            } else if (method.getDeclaringClass() == Object.class) {
+                continue;
+            } else if (excludeMethodSet.contains(method)) {
+                continue;
+            }
+            list.add(method);
+        }
+
+        Collections.sort(list, new Comparator<Method>() {
+            public int compare(Method o1, Method o2) {
+                int cmp = o1.getName().compareTo(o2.getName());
+                if (cmp != 0) {
+                    return cmp;
+                }
+                Type[] types1 = o1.getGenericParameterTypes();
+                Type[] types2 = o2.getGenericParameterTypes();
+                cmp = types1.length - types2.length;
+                if (cmp != 0) {
+                    return cmp;
+                }
+                for (int i = 0; i < types1.length; i++) {
+                    cmp = types1[i].toString().compareTo(types2[i].toString());
+                    if (cmp != 0) {
+                        return cmp;
+                    }
+                }
+                return 0;
+            }
+        });
+
+        return list.toArray(new Method[0]);
     }
 
     private PropertyDescriptor[] getPropertyDescriptors(Class<?> clazz,
@@ -837,40 +846,14 @@ public class SourceCreatorImpl implements SourceCreator {
                 throw new RuntimeException("Can't happen!", ex);
             }
         }
-        return list.toArray(new PropertyDescriptor[0]);
-    }
 
-    @Deprecated
-    String adjustPropertyName(String name, Class<?> clazz, Method readMethod,
-            Method writeMethod) {
-        if (name == null || name.length() < 2
-                || Character.isLowerCase(name.charAt(1))) {
-            return name;
-        }
-
-        String formName = MetaUtils.getFirstValue(readMethod, "formProperty");
-        if (formName == null) {
-            formName = MetaUtils.getFirstValue(writeMethod, "formProperty");
-        }
-        if (formName != null) {
-            String formFieldName = toFieldName(formName);
-            Field formField = findField(formFieldName, clazz);
-            if (formField != null) {
-                return adjustPropertyName(name, formField.getType(), null, null);
+        Collections.sort(list, new Comparator<PropertyDescriptor>() {
+            public int compare(PropertyDescriptor o1, PropertyDescriptor o2) {
+                return o1.getName().compareTo(o2.getName());
             }
-        }
+        });
 
-        String fieldName = toFieldName(name);
-        String name2 = Character.toLowerCase(name.charAt(0))
-                + name.substring(1);
-        String fieldName2 = toFieldName(name2);
-        if (findField(fieldName, clazz) != null) {
-            return name;
-        } else if (findField(fieldName2, clazz) != null) {
-            return name2;
-        }
-
-        return name;
+        return list.toArray(new PropertyDescriptor[0]);
     }
 
     String quote(String value) {
@@ -1037,9 +1020,8 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public void adjustByExistentClass(ClassDesc desc) {
         String className = desc.getName();
-        ClassType type = desc.getType();
         Class<?> clazz = getClass(className);
-        ClassDesc gapDesc = getClassDesc(clazz);
+        ClassDesc gapDesc = newClassDesc(clazz, true);
         if (gapDesc == null) {
             gapDesc = newClassDesc(null, className, null);
         }
@@ -1051,7 +1033,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 : null);
         // 従属タイプのクラスの場合は既存のBaseクラスの情報とマージしなくて良い。
         ClassDesc baseDesc = desc.getType().isSubordinate() ? null
-                : getClassDesc(baseClass);
+                : newClassDesc(baseClass, true);
         if (baseDesc == null) {
             baseDesc = newClassDesc(null, baseClassName, null);
             baseDesc.setSuperclassName(desc.getSuperclassName());
@@ -1080,9 +1062,10 @@ public class SourceCreatorImpl implements SourceCreator {
         baseDescOtherBoneOf.removeBornOfFromAllMembers(desc.getBornOf());
         desc.merge(baseDescOtherBoneOf, true);
 
-        ClassDesc superDesc = getClassDesc(desc.getSuperclassName(), false);
+        ClassDesc superDesc = newClassDesc(getClass(desc.getSuperclassName()),
+                false);
         if (superDesc == null) {
-            superDesc = newClassDesc(null, Object.class.getName(), null);
+            superDesc = newClassDesc(Object.class, false);
         }
 
         PropertyDesc[] pds = generated.getPropertyDescs();
@@ -1262,7 +1245,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public void mergeWithExistentClass(ClassDesc classDesc) {
         String className = classDesc.getName();
-        classDesc.merge(getClassDesc(getClass(className), false), false);
+        classDesc.merge(newClassDesc(getClass(className), false), false);
     }
 
     public void writeSourceFile(ClassDesc classDesc, ClassDescSet classDescSet)
@@ -1456,12 +1439,9 @@ public class SourceCreatorImpl implements SourceCreator {
         } catch (IntrospectionException ex) {
             throw new RuntimeException(ex);
         }
-        PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
-        for (int i = 0; i < pds.length; i++) {
-            if (adjustPropertyName(pds[i].getName(), clazz,
-                    pds[i].getReadMethod(), pds[i].getWriteMethod()).equals(
-                    propertyName)) {
-                return pds[i];
+        for (PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()) {
+            if (descriptor.getName().equals(propertyName)) {
+                return descriptor;
             }
         }
         return null;

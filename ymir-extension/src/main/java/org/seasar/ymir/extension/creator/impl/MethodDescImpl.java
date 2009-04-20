@@ -31,18 +31,17 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
     public MethodDescImpl(DescPool pool, String name) {
         pool_ = pool;
         name_ = name;
-        returnTypeDesc_ = pool_.newTypeDesc(Void.TYPE);
+        setReturnTypeDesc(Void.TYPE);
     }
 
     public MethodDescImpl(DescPool pool, Method method) {
         pool_ = pool;
         name_ = method.getName();
-        returnTypeDesc_ = pool_.newTypeDesc(method.getGenericReturnType());
+        setReturnTypeDesc(method.getGenericReturnType());
         Type[] types = method.getGenericParameterTypes();
         parameterDescs_ = new ParameterDesc[types.length];
         for (int i = 0; i < types.length; i++) {
-            parameterDescs_[i] = new ParameterDescImpl(pool_, pool_
-                    .newTypeDesc(types[i]));
+            parameterDescs_[i] = newParameterDesc(types[i]);
         }
         types = method.getGenericExceptionTypes();
         for (int i = 0; i < types.length; i++) {
@@ -51,6 +50,14 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
         AnnotationDesc[] ads = DescUtils.newAnnotationDescs(method);
         for (int i = 0; i < ads.length; i++) {
             setAnnotationDesc(ads[i]);
+        }
+    }
+
+    private ParameterDesc newParameterDesc(Type type) {
+        if (pool_ != null) {
+            return new ParameterDescImpl(pool_, pool_.newTypeDesc(type));
+        } else {
+            return new ParameterDescImpl(null, new TypeDescImpl(null, type));
         }
     }
 
@@ -117,20 +124,28 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
         returnTypeDesc_ = returnTypeDesc;
     }
 
-    public void setReturnTypeDesc(Type type) {
+    public TypeDesc setReturnTypeDesc(Type type) {
+        TypeDesc typeDesc;
         if (pool_ != null) {
-            setReturnTypeDesc(pool_.newTypeDesc(type));
+            typeDesc = pool_.newTypeDesc(type);
+            setReturnTypeDesc(typeDesc);
         } else {
-            setReturnTypeDesc(new TypeDescImpl(null, type));
+            typeDesc = new TypeDescImpl(null, type);
+            setReturnTypeDesc(typeDesc);
         }
+        return typeDesc;
     }
 
-    public void setReturnTypeDesc(String typeName) {
+    public TypeDesc setReturnTypeDesc(String typeName) {
+        TypeDesc typeDesc;
         if (pool_ != null) {
-            setReturnTypeDesc(pool_.newTypeDesc(typeName));
+            typeDesc = pool_.newTypeDesc(typeName);
+            setReturnTypeDesc(typeDesc);
         } else {
-            setReturnTypeDesc(new TypeDescImpl(null, typeName));
+            typeDesc = new TypeDescImpl(null, typeName);
+            setReturnTypeDesc(typeDesc);
         }
+        return typeDesc;
     }
 
     public ParameterDesc[] getParameterDescs() {

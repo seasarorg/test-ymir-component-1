@@ -9,7 +9,7 @@ public class DescValidatorTest extends TestCase {
 
     public void testValidate1() throws Exception {
         // ## Arrange ##
-        TypeDesc target = new TypeDescImpl(TypeDesc.TYPE_VOID);
+        TypeDesc target = new TypeDescImpl(null, Void.TYPE);
 
         // ## Act ##
         boolean actual = DescValidator.validate(target, classDescSet_)
@@ -21,7 +21,7 @@ public class DescValidatorTest extends TestCase {
 
     public void testValidate2() throws Exception {
         // ## Arrange ##
-        TypeDesc target = new TypeDescImpl("int");
+        TypeDesc target = new TypeDescImpl(null, "int");
 
         // ## Act ##
         boolean actual = DescValidator.validate(target, classDescSet_)
@@ -33,7 +33,7 @@ public class DescValidatorTest extends TestCase {
 
     public void testValidate3() throws Exception {
         // ## Arrange ##
-        TypeDesc target = new TypeDescImpl("String");
+        TypeDesc target = new TypeDescImpl(null, "String");
 
         // ## Act ##
         boolean actual = DescValidator.validate(target, classDescSet_)
@@ -45,7 +45,7 @@ public class DescValidatorTest extends TestCase {
 
     public void testValidate4() throws Exception {
         // ## Arrange ##
-        TypeDesc target = new TypeDescImpl("java.lang.String");
+        TypeDesc target = new TypeDescImpl(null, "java.lang.String");
 
         // ## Act ##
         boolean actual = DescValidator.validate(target, classDescSet_)
@@ -57,7 +57,7 @@ public class DescValidatorTest extends TestCase {
 
     public void testValidate5() throws Exception {
         // ## Arrange ##
-        TypeDesc target = new TypeDescImpl("java.lang.String[]");
+        TypeDesc target = new TypeDescImpl(null, "java.lang.String[]");
 
         // ## Act ##
         boolean actual = DescValidator.validate(target, classDescSet_)
@@ -69,7 +69,7 @@ public class DescValidatorTest extends TestCase {
 
     public void testValidate6() throws Exception {
         // ## Arrange ##
-        TypeDesc target = new TypeDescImpl("java.lang.Hoehoe");
+        TypeDesc target = new TypeDescImpl(null, "java.lang.Hoehoe");
 
         // ## Act ##
         boolean actual = DescValidator.validate(target, classDescSet_)
@@ -81,7 +81,8 @@ public class DescValidatorTest extends TestCase {
 
     public void testValidate7() throws Exception {
         // ## Arrange ##
-        TypeDesc target = new TypeDescImpl("java.util.List<java.lang.String>");
+        TypeDesc target = new TypeDescImpl(null,
+                "java.util.List<java.lang.String>");
 
         // ## Act ##
         boolean actual = DescValidator.validate(target, classDescSet_)

@@ -9,7 +9,7 @@ public class MethodDescImplTest extends TestCase {
     public void testConstructor_Genericクラス() throws Exception {
         Method method = Hoe.class.getMethod("fuga", new Class[] { List.class });
 
-        MethodDescImpl target = new MethodDescImpl(method);
+        MethodDescImpl target = new MethodDescImpl(null, method);
         assertEquals("java.util.List<String>", target.getReturnTypeDesc()
                 .getName());
         assertEquals("java.util.List<String>", target.getParameterDescs()[0]
@@ -20,7 +20,7 @@ public class MethodDescImplTest extends TestCase {
         Method method = Hoe.class.getMethod("fuga2",
                 new Class[] { String.class });
 
-        MethodDescImpl target = new MethodDescImpl(method);
+        MethodDescImpl target = new MethodDescImpl(null, method);
         assertEquals("String", target.getReturnTypeDesc().getName());
         assertEquals("String", target.getParameterDescs()[0].getTypeDesc()
                 .getName());

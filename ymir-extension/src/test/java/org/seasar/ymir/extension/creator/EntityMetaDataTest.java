@@ -44,9 +44,9 @@ public class EntityMetaDataTest extends TestCase {
                 }
 
                 @Override
-                public ClassDesc newClassDesc(String className,
+                public ClassDesc newClassDesc(DescPool pool, String className,
                         ClassCreationHintBag hintBag) {
-                    return new ClassDescImpl(className);
+                    return new ClassDescImpl(pool, className);
                 }
             }, null, "com.example.dto.sub.TestDto");
 

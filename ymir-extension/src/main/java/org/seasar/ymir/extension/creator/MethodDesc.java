@@ -13,9 +13,9 @@ public interface MethodDesc extends AnnotatedDesc, Cloneable {
 
     void setReturnTypeDesc(TypeDesc typeDesc);
 
-    void setReturnTypeDesc(Type type);
+    TypeDesc setReturnTypeDesc(Type type);
 
-    void setReturnTypeDesc(String typeName);
+    TypeDesc setReturnTypeDesc(String typeName);
 
     ParameterDesc[] getParameterDescs();
 

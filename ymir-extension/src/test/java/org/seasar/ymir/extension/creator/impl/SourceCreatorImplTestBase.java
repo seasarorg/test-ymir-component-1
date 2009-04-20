@@ -61,8 +61,9 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
     protected SourceCreatorImpl target_;
 
     protected ClassDesc constructClassDesc() {
-        ClassDesc classDesc = new ClassDescImpl("com.example.web.TestPage");
-        PropertyDesc pd = new PropertyDescImpl("param1");
+        ClassDesc classDesc = new ClassDescImpl(null,
+                "com.example.web.TestPage");
+        PropertyDesc pd = new PropertyDescImpl(null, "param1");
         pd.setMode(PropertyDesc.READ | PropertyDesc.WRITE);
         classDesc.setPropertyDesc(pd);
         return classDesc;

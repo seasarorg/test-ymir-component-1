@@ -13,7 +13,7 @@ import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 public class FormDescImpl implements FormDesc {
     private SourceCreator sourceCreator_;
 
-    private ClassDesc classDesc_;
+    private ClassDesc actionPageClassDesc_;
 
     private ClassDesc dtoClassDesc_;
 
@@ -25,10 +25,10 @@ public class FormDescImpl implements FormDesc {
 
     private Map<String, ParameterMetaData> parameterMap_ = new HashMap<String, ParameterMetaData>();
 
-    public FormDescImpl(SourceCreator sourceCreator, ClassDesc classDesc,
+    public FormDescImpl(SourceCreator sourceCreator, ClassDesc actionPageClassDesc,
             ClassDesc dtoClassDesc, String name, String path, HttpMethod method) {
         sourceCreator_ = sourceCreator;
-        classDesc_ = classDesc;
+        actionPageClassDesc_ = actionPageClassDesc;
         dtoClassDesc_ = dtoClassDesc;
         name_ = name;
         path_ = path;
@@ -43,17 +43,17 @@ public class FormDescImpl implements FormDesc {
     }
 
     public void setActionMethodDesc(String parameterName) {
-        MethodDesc methodDesc = sourceCreator_.newActionMethodDesc(classDesc_,
+        MethodDesc methodDesc = sourceCreator_.newActionMethodDesc(actionPageClassDesc_,
                 path_, method_, new ActionSelectorSeedImpl(parameterName));
-        classDesc_.setMethodDesc(methodDesc);
+        actionPageClassDesc_.setMethodDesc(methodDesc);
     }
 
     public String getActionPageClassName() {
-        return classDesc_.getName();
+        return actionPageClassDesc_.getName();
     }
 
-    public ClassDesc getClassDesc() {
-        return classDesc_;
+    public ClassDesc getActionPageClassDesc() {
+        return actionPageClassDesc_;
     }
 
     public ClassDesc getDtoClassDesc() {

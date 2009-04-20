@@ -314,7 +314,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(cd);
         assertNotNull(cd.getPropertyDesc("body"));
         assertNull("TemplateAnalyzerではリクエストメソッドのためのメソッド定義を生成しないこと", cd
-                .getMethodDesc(new MethodDescImpl("GET")));
+                .getMethodDesc(new MethodDescImpl(null, "GET")));
     }
 
     public void testAnalyze2() throws Exception {
@@ -406,7 +406,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull(cd.getPropertyDesc("image2"));
         assertNull(cd.getPropertyDesc("submit2"));
 
-        MethodDesc md = cd.getMethodDesc(new MethodDescImpl("POST"));
+        MethodDesc md = cd.getMethodDesc(new MethodDescImpl(null, "POST"));
         assertNull("YmirPathMappingではnameつきボタンがある場合はPOSTアクションメソッドは生成されないこと", md);
     }
 
@@ -428,7 +428,7 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc actual = getClassDesc("com.example.web.ActionPage");
         assertNotNull(actual);
-        MethodDesc md = actual.getMethodDesc(new MethodDescImpl("GET"));
+        MethodDesc md = actual.getMethodDesc(new MethodDescImpl(null, "GET"));
         assertNotNull(md);
         PropertyDesc pd = actual.getPropertyDesc("id");
         assertNotNull(pd);
@@ -440,7 +440,7 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc actual = getClassDesc("com.example.web.ActionPage");
         assertNotNull(actual);
-        MethodDesc md = actual.getMethodDesc(new MethodDescImpl("GET"));
+        MethodDesc md = actual.getMethodDesc(new MethodDescImpl(null, "GET"));
         assertNotNull(md);
         PropertyDesc pd = actual.getPropertyDesc("id");
         assertNotNull(pd);
@@ -549,17 +549,17 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull("submitのnameに対応するプロパティのgetter/setterは生成されないこと", cd
                 .getPropertyDesc("submit"));
         assertNotNull("対応するメソッドがないボタンがある場合はデフォルトのアクションメソッドが生成されること", cd
-                .getMethodDesc(new MethodDescImpl("POST")));
+                .getMethodDesc(new MethodDescImpl(null, "POST")));
         assertNotNull("buttonのnameに対応するアクションメソッドが生成されること", cd
-                .getMethodDesc(new MethodDescImpl("POST_button")));
+                .getMethodDesc(new MethodDescImpl(null, "POST_button")));
         assertNotNull("imageのnameに対応するアクションメソッドが生成されること", cd
-                .getMethodDesc(new MethodDescImpl("POST_image")));
+                .getMethodDesc(new MethodDescImpl(null, "POST_image")));
         assertNotNull("submitのnameに対応するアクションメソッドが生成されること", cd
-                .getMethodDesc(new MethodDescImpl("POST_submit")));
+                .getMethodDesc(new MethodDescImpl(null, "POST_submit")));
         assertNotNull("nameが実行時に決まるようなタグでもstring定数なら自動生成対象になること", cd
-                .getMethodDesc(new MethodDescImpl("POST_submit2")));
+                .getMethodDesc(new MethodDescImpl(null, "POST_submit2")));
         assertNull("nameが実行時に決まるようなタグでパラメータを持つものは無視されること", cd
-                .getMethodDesc(new MethodDescImpl("POST_submitt")));
+                .getMethodDesc(new MethodDescImpl(null, "POST_submitt")));
     }
 
     public void testAnalyze18() throws Exception {
@@ -876,8 +876,8 @@ public class ZptAnalyzerTest extends TestCase {
         act("testAnalyze46");
 
         ClassDesc cd = getClassDesc("com.example.web.UpdatePage");
-        MethodDesc md = new MethodDescImpl("POST_action");
-        md.setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+        MethodDesc md = new MethodDescImpl(null, "POST_action");
+        md.setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(null,
                 Integer.TYPE, "index") });
         md = cd.getMethodDesc(md);
         assertNotNull(md);
@@ -958,19 +958,19 @@ public class ZptAnalyzerTest extends TestCase {
                 cd.getPropertyDesc("submit"));
         assertNotNull(
                 "dispatchingByRequestParameterがtrueであるようなPathMappingにactionのパスがマッチする場合はbuttonのnameに対応するアクションメソッドが生成されること",
-                cd.getMethodDesc(new MethodDescImpl("POST_button")));
+                cd.getMethodDesc(new MethodDescImpl(null, "POST_button")));
         assertNotNull(
                 "dispatchingByRequestParameterがtrueであるようなPathMappingにactionのパスがマッチする場合はbutton（type=submit）のnameに対応するアクションメソッドが生成されること",
-                cd.getMethodDesc(new MethodDescImpl("POST_submit")));
+                cd.getMethodDesc(new MethodDescImpl(null, "POST_submit")));
 
         cd = getClassDesc(CLASSNAME);
         assertNull("formの外にあるbuttonタグは無視されること", cd.getPropertyDesc("button2"));
         assertNull("formの外にあるbuttonタグは無視されること", cd
-                .getMethodDesc(new MethodDescImpl("POST_button2")));
+                .getMethodDesc(new MethodDescImpl(null, "POST_button2")));
         assertNull("formの外にあるbuttonタグ（type=submit）は無視されること", cd
                 .getPropertyDesc("submit2"));
         assertNull("formの外にあるbuttonタグ（type=submit）は無視されること", cd
-                .getMethodDesc(new MethodDescImpl("POST_submit2")));
+                .getMethodDesc(new MethodDescImpl(null, "POST_submit2")));
     }
 
     public void testAnalyze52_YMIR_180_formのname属性で指定した名前と同じ名前のプロパティのGetterが生成されること()
@@ -1063,38 +1063,39 @@ public class ZptAnalyzerTest extends TestCase {
         act("testAnalyze58");
 
         ClassDesc updateCd = getClassDesc("com.example.web.UpdatePage");
-        MethodDesc md = updateCd.getMethodDesc(new MethodDescImpl("POST"));
+        MethodDesc md = updateCd
+                .getMethodDesc(new MethodDescImpl(null, "POST"));
         assertNull("submit等がない場合はPOSTが作られないこと", md);
 
         ClassDesc update2Cd = getClassDesc("com.example.web.Update2Page");
-        md = update2Cd.getMethodDesc(new MethodDescImpl("GET"));
+        md = update2Cd.getMethodDesc(new MethodDescImpl(null, "GET"));
         assertNull("[#YMIR-207] HTTPメソッドがGETである場合でもGETが作られないこと", md);
 
         ClassDesc indexCd = getClassDesc("com.example.web.IndexPage");
-        md = indexCd.getMethodDesc(new MethodDescImpl("GET"));
+        md = indexCd.getMethodDesc(new MethodDescImpl(null, "GET"));
         assertNull(
                 "nameつきsubmitしかない場合でもポストバックの時はGETが作られるが、HTMLテンプレートの解析処理では作られない",
                 md);
 
         ClassDesc update3Cd = getClassDesc("com.example.web.Update3Page");
-        md = update3Cd.getMethodDesc(new MethodDescImpl("POST"));
+        md = update3Cd.getMethodDesc(new MethodDescImpl(null, "POST"));
         assertNull("nameを持つsubmit等がある場合はPOSTが作られないこと", md);
 
         ClassDesc update4Cd = getClassDesc("com.example.web.Update4Page");
-        md = update4Cd.getMethodDesc(new MethodDescImpl("POST"));
+        md = update4Cd.getMethodDesc(new MethodDescImpl(null, "POST"));
         assertNotNull("適切なnameを持つsubmit等がない場合はPOSTが作られること", md);
 
         ClassDesc update5Cd = getClassDesc("com.example.web.Update5Page");
-        md = update5Cd.getMethodDesc(new MethodDescImpl("POST"));
+        md = update5Cd.getMethodDesc(new MethodDescImpl(null, "POST"));
         assertNotNull("nameを持たないsubmit等がある場合はPOSTが作られること", md);
 
         ClassDesc update6Cd = getClassDesc("com.example.web.Update6Page");
-        md = update6Cd.getMethodDesc(new MethodDescImpl("POST"));
+        md = update6Cd.getMethodDesc(new MethodDescImpl(null, "POST"));
         assertNotNull(
                 "適切なnameを持つsubmit等があっても適切なnameを持つsubmit等がない場合はPOSTが作られること", md);
 
         ClassDesc update7Cd = getClassDesc("com.example.web.Update7Page");
-        md = update7Cd.getMethodDesc(new MethodDescImpl("POST"));
+        md = update7Cd.getMethodDesc(new MethodDescImpl(null, "POST"));
         assertNotNull(
                 "適切なnameを持つsubmit等があってもnameを持たないsubmit等がある場合はPOSTが作られること", md);
     }
@@ -1242,16 +1243,16 @@ public class ZptAnalyzerTest extends TestCase {
         ClassDesc cd = getClassDesc(CLASSNAME);
         assertNotNull(cd);
 
-        MethodDesc md = cd.getMethodDesc(new MethodDescImpl("GET"));
+        MethodDesc md = cd.getMethodDesc(new MethodDescImpl(null, "GET"));
         assertNotNull(md);
         assertEquals("org.seasar.ymir.Response", md.getReturnTypeDesc()
                 .getName());
 
-        md = cd.getMethodDesc(new MethodDescImpl("POST"));
+        md = cd.getMethodDesc(new MethodDescImpl(null, "POST"));
         assertNotNull(md);
         assertEquals("String", md.getReturnTypeDesc().getName());
 
-        md = cd.getMethodDesc(new MethodDescImpl("POST_button"));
+        md = cd.getMethodDesc(new MethodDescImpl(null, "POST_button"));
         assertNotNull(md);
         assertEquals("String", md.getReturnTypeDesc().getName());
     }
@@ -1356,7 +1357,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull(names);
         assertNull("プロパティが生成されないこと", cd.getPropertyDesc("edit"));
         assertNotNull("ボタンに対応するメソッドが生成されること", cd
-                .getMethodDesc(new MethodDescImpl("GET_edit")));
+                .getMethodDesc(new MethodDescImpl(null, "GET_edit")));
     }
 
     public void testAnalyze72_相対パスを正しく解釈できること() throws Exception {

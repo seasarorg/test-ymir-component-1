@@ -3,6 +3,8 @@ package org.seasar.ymir.extension.creator.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +82,40 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
 
     public String toString() {
         return name_;
+    }
+
+    public Object clone() {
+        ClassDescImpl cloned = (ClassDescImpl) super.clone();
+
+        cloned.pool_ = null;
+
+        if (interfaceTypeDescs_ != null) {
+            cloned.interfaceTypeDescs_ = new TypeDesc[interfaceTypeDescs_.length];
+            System.arraycopy(interfaceTypeDescs_, 0,
+                    cloned.interfaceTypeDescs_, 0, interfaceTypeDescs_.length);
+        }
+
+        cloned.propertyDescMap_ = new LinkedHashMap<String, PropertyDesc>();
+        for (Iterator<Map.Entry<String, PropertyDesc>> itr = propertyDescMap_
+                .entrySet().iterator(); itr.hasNext();) {
+            Map.Entry<String, PropertyDesc> entry = itr.next();
+            cloned.propertyDescMap_.put(entry.getKey(), (PropertyDesc) entry
+                    .getValue().clone());
+        }
+
+        cloned.methodDescMap_ = new LinkedHashMap<MethodDescKey, MethodDesc>();
+        for (Iterator<Map.Entry<MethodDescKey, MethodDesc>> itr = methodDescMap_
+                .entrySet().iterator(); itr.hasNext();) {
+            Map.Entry<MethodDescKey, MethodDesc> entry = itr.next();
+            cloned.methodDescMap_.put(entry.getKey(), (MethodDesc) entry
+                    .getValue().clone());
+        }
+
+        if (parameter_ != null) {
+            cloned.parameter_ = new HashMap<String, Object>(parameter_);
+        }
+
+        return cloned;
     }
 
     public DescPool getDescPool() {

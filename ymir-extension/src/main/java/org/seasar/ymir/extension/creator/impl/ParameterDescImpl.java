@@ -22,7 +22,8 @@ public class ParameterDescImpl implements ParameterDesc {
     }
 
     public ParameterDescImpl(DescPool pool, Type type, String name) {
-        this(pool, pool.newTypeDesc(type), name);
+        this(pool, pool != null ? pool.newTypeDesc(type) : new TypeDescImpl(
+                null, type), name);
     }
 
     public ParameterDescImpl(DescPool pool, TypeDesc typeDesc, String name) {

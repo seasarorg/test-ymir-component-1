@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -30,7 +29,6 @@ import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
-import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
@@ -279,7 +277,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testGetClassDesc_bodyアノテーションが付与されている場合はボディが復元されること()
             throws Exception {
-        ClassDesc cd = target_.getClassDesc(Class1Base.class);
+        ClassDesc cd = target_.newClassDesc(Class1Base.class, true);
 
         BodyDesc actual = cd.getMethodDescs()[0].getBodyDesc();
 
@@ -288,7 +286,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testGetClassDesc_プロパティのGetterとSetterに付与したAnnotationが保持されること()
             throws Exception {
-        ClassDesc cd = target_.getClassDesc(Class2Base.class);
+        ClassDesc cd = target_.newClassDesc(Class2Base.class, true);
 
         AnnotationDesc[] ads = cd.getPropertyDesc("value")
                 .getAnnotationDescsOnGetter();
@@ -302,7 +300,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testGetClassDesc_YMIR_191_フォームDtoのfieldが保存されること()
             throws Exception {
-        ClassDesc cd = target_.getClassDesc(Class3Base.class);
+        ClassDesc cd = target_.newClassDesc(Class3Base.class, true);
 
         PropertyDesc pd = cd.getPropertyDesc("form");
         assertNotNull(pd);
@@ -490,7 +488,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testGetClassDesc_YMIR_226_aNameのようなプロパティを正しく検出できること1()
             throws Exception {
-        ClassDesc actual = target_.getClassDesc(new Object() {
+        ClassDesc actual = target_.newClassDesc(new Object() {
             private String aName_;
 
             @SuppressWarnings("unused")
@@ -510,7 +508,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testGetClassDesc_YMIR_226_aNameのようなプロパティを正しく検出できること2()
             throws Exception {
-        ClassDesc actual = target_.getClassDesc(new Object() {
+        ClassDesc actual = target_.newClassDesc(new Object() {
             @org.seasar.ymir.annotation.Meta(name = "property", value = "hoehoe")
             protected HoehoeDto hoehoe_ = new HoehoeDto();
 
@@ -553,7 +551,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass_Baseにあるメソッドのアノテーションとボディが保持されること()
             throws Exception {
-        ClassDesc classDesc = target_.getClassDesc(AdjustPage.class);
+        ClassDesc classDesc = target_.newClassDesc(AdjustPage.class, true);
         target_.adjustByExistentClass(classDesc);
 
         MethodDesc actual = classDesc.getMethodDesc(new MethodDescImpl(null,
@@ -565,7 +563,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass_Baseにあるプロパティの初期値情報が正しくマージされること()
             throws Exception {
-        ClassDesc classDesc = target_.getClassDesc(Adjust4Page.class, false);
+        ClassDesc classDesc = target_.newClassDesc(Adjust4Page.class, false);
         classDesc.getPropertyDesc("list").getTypeDesc()
                 .setCollectionImplementationClassName(null);
         target_.adjustByExistentClass(classDesc);
@@ -578,7 +576,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass_Baseにあるプロパティの初期値情報よりもClassDescのプロパティの型情報が優先されること()
             throws Exception {
-        ClassDesc classDesc = target_.getClassDesc(Adjust5Page.class, false);
+        ClassDesc classDesc = target_.newClassDesc(Adjust5Page.class, false);
         classDesc.getPropertyDesc("list").getTypeDesc().setComponentClassDesc(
                 new ClassDescImpl(null, String.class.getName()));
         classDesc.getPropertyDesc("list").getTypeDesc()

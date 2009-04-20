@@ -179,7 +179,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         }
                     }
 
-                    PropertyDesc firstPropertyDesc = formDesc.getClassDesc()
+                    PropertyDesc firstPropertyDesc = formDesc.getActionPageClassDesc()
                             .getPropertyDesc(
                                     getFirstSimpleSegment(parameterName));
 
@@ -550,7 +550,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         String name = getAttributeValue(attrMap, "name", null);
         if (name != null && shouldGeneratePropertyForParameter(name)) {
             PropertyDesc pd = context.getRequestParameterPropertyDesc(formDesc
-                    .getClassDesc(), name, PropertyDesc.READ
+                    .getActionPageClassDesc(), name, PropertyDesc.READ
                     | PropertyDesc.WRITE);
             // conditionで使われていた際にbooleanで上書きされないようにこうしている。
             if (!pd.isTypeAlreadySet()) {

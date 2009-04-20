@@ -366,17 +366,6 @@ public class ClassUtils {
     /**
      * @since 1.0.3
      */
-    public static boolean isPrimitive(Class<?> clazz) {
-        if (clazz == null) {
-            return false;
-        } else {
-            return clazz.isPrimitive();
-        }
-    }
-
-    /**
-     * @since 1.0.3
-     */
     public static boolean isPrimitive(String className) {
         return wrapperByPrimitiveMap_.containsKey(getPrimitiveClass(className));
     }

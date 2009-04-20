@@ -24,6 +24,12 @@ import org.seasar.ymir.util.ClassUtils;
 
 public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         PropertyDesc {
+    private static final String PREFIX_JAVA = "java.";
+
+    private static final String PREFIX_JAVAX = "javax.";
+
+    private static final Log log_ = LogFactory.getLog(PropertyDescImpl.class);
+
     private DescPool pool_;
 
     private String name_;
@@ -40,11 +46,10 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
 
     private String getterName_;
 
-    private static final Log log_ = LogFactory.getLog(PropertyDescImpl.class);
-
     public PropertyDescImpl(DescPool pool, String name) {
         pool_ = pool;
         name_ = name;
+        setTypeDesc(String.class);
     }
 
     public PropertyDescImpl(DescPool pool, PropertyDescriptor descriptor) {
@@ -188,12 +193,16 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         typeDesc_ = typeDesc;
     }
 
-    public void setTypeDesc(Type type) {
+    public TypeDesc setTypeDesc(Type type) {
+        TypeDesc typeDesc;
         if (pool_ != null) {
-            setTypeDesc(pool_.newTypeDesc(type));
+            typeDesc = pool_.newTypeDesc(type);
+            setTypeDesc(typeDesc);
         } else {
-            setTypeDesc(new TypeDescImpl(null, type));
+            typeDesc = new TypeDescImpl(null, type);
+            setTypeDesc(typeDesc);
         }
+        return typeDesc;
     }
 
     public int getMode() {
@@ -347,6 +356,7 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         String initialValue = null;
 
         ClassDesc componentClassDesc = typeDesc_.getComponentClassDesc();
+        String componentClassName = componentClassDesc.getName();
         if (typeDesc_.isCollection()) {
             String collectionClassName = typeDesc_.getCollectionClassName();
             if (collectionClassName != null) {
@@ -355,36 +365,38 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
                 if (collectionImplementationClassName != null) {
                     initialValue = "new "
                             + normalizePackage(collectionImplementationClassName
-                                    + "<" + componentClassDesc.getName() + ">")
-                            + "()";
+                                    + "<" + componentClassName + ">") + "()";
                 } else {
                     // 実装クラスが指定されていない場合は、可能であればインタフェースごとに空の実装クラスをぶら下げておく。
                     if (List.class.getName().equals(collectionClassName)) {
                         initialValue = "new "
                                 + normalizePackage(ArrayList.class.getName()
-                                        + "<" + componentClassDesc.getName()
-                                        + ">") + "()";
+                                        + "<" + componentClassName + ">")
+                                + "()";
                     }
                 }
             } else {
                 // 配列の場合は（何を生成すればいいかも分かるし）空の配列をぶら下げておく。
-                initialValue = "new "
-                        + normalizePackage(componentClassDesc.getName())
+                initialValue = "new " + normalizePackage(componentClassName)
                         + "[0]";
             }
         } else {
             boolean generateInitialValue = false;
-            Class<?> clazz = DescUtils.getClass(componentClassDesc.getName());
-            if (clazz != null) {
-                try {
-                    clazz.newInstance();
+            if (!ClassUtils.isPrimitive(componentClassName)
+                    && !componentClassName.startsWith(PREFIX_JAVA)
+                    && !componentClassName.startsWith(PREFIX_JAVAX)) {
+                Class<?> clazz = DescUtils.getClass(componentClassName);
+                if (clazz != null) {
+                    try {
+                        clazz.newInstance();
+                        generateInitialValue = true;
+                    } catch (InstantiationException ignore) {
+                    } catch (IllegalAccessException ignore) {
+                    }
+                } else {
+                    // まだ生成されていないDTO。自動生成対象のDTOはデフォルトコンストラクタを持つので非nullを返すようにする。
                     generateInitialValue = true;
-                } catch (InstantiationException ignore) {
-                } catch (IllegalAccessException ignore) {
                 }
-            } else {
-                // まだ生成されていないDTO。自動生成対象のDTOはデフォルトコンストラクタを持つので非nullを返すようにする。
-                generateInitialValue = true;
             }
             if (generateInitialValue) {
                 initialValue = "new " + typeDesc_.getName() + "()";

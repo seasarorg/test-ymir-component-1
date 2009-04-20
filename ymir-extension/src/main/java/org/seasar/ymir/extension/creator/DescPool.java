@@ -1,8 +1,10 @@
 package org.seasar.ymir.extension.creator;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
@@ -71,6 +73,11 @@ public class DescPool implements Iterable<ClassDesc> {
 
     public Iterator<ClassDesc> iterator() {
         return classDescMap_.values().iterator();
+    }
+
+    public List<ClassDesc> getClassDescs() {
+        // 返したListが加工されても問題ないようにコピーを返している。
+        return new ArrayList<ClassDesc>(classDescMap_.values());
     }
 
     public boolean contains(String className) {

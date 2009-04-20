@@ -481,7 +481,7 @@ public class AnalyzerContext extends ZptTemplateContext {
             classDesc.setBornOf(path_);
         }
 
-        for (ClassDesc classDesc : DescPool.getDefault()) {
+        for (ClassDesc classDesc : DescPool.getDefault().getClassDescs()) {
             // プロパティの型に対応するDTOがMapに存在しない場合は、
             // そのDTOは上のフェーズで除外された、すなわちDTOかもしれないと考えて
             // 解析を進めたが結局DTOであることが確定しなかったので、
@@ -496,7 +496,7 @@ public class AnalyzerContext extends ZptTemplateContext {
             //            classDesc.merge(classDescMap_.get(classDesc.getName()), false);
         }
 
-        for (ClassDesc classDesc : DescPool.getDefault()) {
+        for (ClassDesc classDesc : DescPool.getDefault().getClassDescs()) {
             // PageクラスとPageクラスから利用されているDTOと、外部で定義されている変数の型クラスと、
             // renderクラスのプロパティのうちインタフェース型であるものの実装クラスとみなされているクラス
             // 以外は無視する。

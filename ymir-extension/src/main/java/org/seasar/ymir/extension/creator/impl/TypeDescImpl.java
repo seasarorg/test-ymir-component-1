@@ -100,7 +100,7 @@ public class TypeDescImpl implements TypeDesc {
         if (pool_ != null) {
             setComponentClassDesc(pool_.getClassDesc(clazz));
         } else {
-            setComponentClassDesc(new ClassDescImpl(null, clazz));
+            setComponentClassDesc(new ClassDescImpl(null, clazz.getName()));
         }
     }
 

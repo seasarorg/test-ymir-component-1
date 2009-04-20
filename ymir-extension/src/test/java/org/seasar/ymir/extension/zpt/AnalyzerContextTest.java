@@ -61,7 +61,7 @@ public class AnalyzerContextTest extends TestCase {
     }
 
     public void testReplaceSimpleDtoTypeToDefaultType1() throws Exception {
-        TypeDesc typeDesc = new TypeDescImpl("com.example.dto.HoeDto");
+        TypeDesc typeDesc = new TypeDescImpl(null, "com.example.dto.HoeDto");
 
         target_.replaceSimpleDtoTypeToDefaultType(typeDesc);
 
@@ -69,7 +69,7 @@ public class AnalyzerContextTest extends TestCase {
     }
 
     public void testReplaceSimpleDtoTypeToDefaultType2() throws Exception {
-        TypeDesc typeDesc = new TypeDescImpl(
+        TypeDesc typeDesc = new TypeDescImpl(null,
                 "java.util.List<com.example.dto.HoeDto>");
 
         target_.replaceSimpleDtoTypeToDefaultType(typeDesc);
@@ -78,7 +78,7 @@ public class AnalyzerContextTest extends TestCase {
     }
 
     public void testReplaceSimpleDtoTypeToDefaultType3() throws Exception {
-        TypeDesc typeDesc = new TypeDescImpl("com.example.dto.HoeDto[]");
+        TypeDesc typeDesc = new TypeDescImpl(null, "com.example.dto.HoeDto[]");
 
         target_.replaceSimpleDtoTypeToDefaultType(typeDesc);
 
@@ -86,7 +86,7 @@ public class AnalyzerContextTest extends TestCase {
     }
 
     public void testReplaceSimpleDtoTypeToDefaultType4() throws Exception {
-        TypeDesc typeDesc = new TypeDescImpl(
+        TypeDesc typeDesc = new TypeDescImpl(null,
                 "java.util.List<com.example.dto.HoeDto[]>[]");
 
         target_.replaceSimpleDtoTypeToDefaultType(typeDesc);
