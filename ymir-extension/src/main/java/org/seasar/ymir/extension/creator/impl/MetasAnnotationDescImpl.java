@@ -25,18 +25,17 @@ public class MetasAnnotationDescImpl implements MetasAnnotationDesc {
     }
 
     public Object clone() {
+        MetasAnnotationDescImpl cloned;
         try {
-            MetasAnnotationDescImpl cloned = (MetasAnnotationDescImpl) super
-                    .clone();
-            cloned.metaAnnotationDescs_ = new MetaAnnotationDesc[metaAnnotationDescs_.length];
-            System
-                    .arraycopy(metaAnnotationDescs_, 0,
-                            cloned.metaAnnotationDescs_, 0,
-                            metaAnnotationDescs_.length);
-            return cloned;
+            cloned = (MetasAnnotationDescImpl) super.clone();
         } catch (CloneNotSupportedException ex) {
             throw new RuntimeException(ex);
         }
+
+        cloned.metaAnnotationDescs_ = new MetaAnnotationDesc[metaAnnotationDescs_.length];
+        System.arraycopy(metaAnnotationDescs_, 0, cloned.metaAnnotationDescs_,
+                0, metaAnnotationDescs_.length);
+        return cloned;
     }
 
     @Override

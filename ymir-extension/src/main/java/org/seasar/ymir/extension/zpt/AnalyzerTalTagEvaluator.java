@@ -179,13 +179,15 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         }
                     }
 
-                    PropertyDesc firstPropertyDesc = formDesc.getActionPageClassDesc()
-                            .getPropertyDesc(
+                    PropertyDesc firstPropertyDesc = formDesc
+                            .getActionPageClassDesc().getPropertyDesc(
                                     getFirstSimpleSegment(parameterName));
 
                     if (formDesc.getDtoClassDesc() != null) {
-                        PropertyDesc cloned = (PropertyDesc) firstPropertyDesc
-                                .clone();
+                        PropertyDesc cloned = firstPropertyDesc
+                                .transcriptTo(firstPropertyDesc.getDescPool()
+                                        .newPropertyDesc(
+                                                firstPropertyDesc.getName()));
                         // Pageのフォーム要素プロパティとフォームDtoのプロパティは型情報を同期させる必要があるため、
                         // 同じTypeDescを指すようにしておく。
                         cloned.setTypeDesc(firstPropertyDesc.getTypeDesc());

@@ -13,6 +13,10 @@ public class ParameterDescImpl implements ParameterDesc {
 
     private String name_;
 
+    public ParameterDescImpl(DescPool pool) {
+        pool_ = pool;
+    }
+
     public ParameterDescImpl(DescPool pool, Type type) {
         this(pool, type, null);
     }
@@ -30,19 +34,6 @@ public class ParameterDescImpl implements ParameterDesc {
         pool_ = pool;
         setTypeDesc(typeDesc);
         name_ = name;
-    }
-
-    public Object clone() {
-        ParameterDescImpl cloned;
-        try {
-            cloned = (ParameterDescImpl) super.clone();
-        } catch (CloneNotSupportedException ex) {
-            throw new RuntimeException(ex);
-        }
-        if (cloned.typeDesc_ != null) {
-            cloned.typeDesc_ = (TypeDesc) typeDesc_.clone();
-        }
-        return cloned;
     }
 
     public String toString() {
@@ -91,5 +82,13 @@ public class ParameterDescImpl implements ParameterDesc {
 
     public void setName(String name) {
         name_ = name;
+    }
+
+    public ParameterDesc transcriptTo(ParameterDesc desc) {
+        desc.setTypeDesc(typeDesc_.transcriptTo(desc.getDescPool().newTypeDesc(
+                typeDesc_.getName())));
+        desc.setName(name_);
+
+        return desc;
     }
 }

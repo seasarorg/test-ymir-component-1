@@ -2,16 +2,12 @@ package org.seasar.ymir.extension.creator;
 
 import java.lang.reflect.Type;
 
-public interface PropertyDesc extends AnnotatedDesc, Cloneable {
+public interface PropertyDesc extends AnnotatedDesc<PropertyDesc> {
     int NONE = 0;
 
     int READ = 1;
 
     int WRITE = 2;
-
-    Object clone();
-
-    DescPool getDescPool();
 
     String getName();
 

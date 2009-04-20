@@ -2,9 +2,7 @@ package org.seasar.ymir.extension.creator;
 
 import java.lang.reflect.Type;
 
-public interface ParameterDesc extends Cloneable {
-    Object clone();
-
+public interface ParameterDesc extends Desc<ParameterDesc> {
     DescPool getDescPool();
 
     TypeDesc getTypeDesc();

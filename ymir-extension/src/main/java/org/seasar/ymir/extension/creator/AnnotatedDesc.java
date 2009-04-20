@@ -5,7 +5,7 @@ import java.util.Map;
 import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Metas;
 
-public interface AnnotatedDesc {
+public interface AnnotatedDesc<T extends AnnotatedDesc<?>> extends Desc<T> {
     String ANNOTATION_NAME_META = Meta.class.getName();
 
     String ANNOTATION_NAME_METAS = Metas.class.getName();

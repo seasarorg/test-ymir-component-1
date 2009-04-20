@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.extension.Globals;
-import org.seasar.ymir.extension.creator.AbstractAnnotatedDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.DescPool;
@@ -84,40 +82,6 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         return name_;
     }
 
-    public Object clone() {
-        ClassDescImpl cloned = (ClassDescImpl) super.clone();
-
-        cloned.pool_ = null;
-
-        if (interfaceTypeDescs_ != null) {
-            cloned.interfaceTypeDescs_ = new TypeDesc[interfaceTypeDescs_.length];
-            System.arraycopy(interfaceTypeDescs_, 0,
-                    cloned.interfaceTypeDescs_, 0, interfaceTypeDescs_.length);
-        }
-
-        cloned.propertyDescMap_ = new LinkedHashMap<String, PropertyDesc>();
-        for (Iterator<Map.Entry<String, PropertyDesc>> itr = propertyDescMap_
-                .entrySet().iterator(); itr.hasNext();) {
-            Map.Entry<String, PropertyDesc> entry = itr.next();
-            cloned.propertyDescMap_.put(entry.getKey(), (PropertyDesc) entry
-                    .getValue().clone());
-        }
-
-        cloned.methodDescMap_ = new LinkedHashMap<MethodDescKey, MethodDesc>();
-        for (Iterator<Map.Entry<MethodDescKey, MethodDesc>> itr = methodDescMap_
-                .entrySet().iterator(); itr.hasNext();) {
-            Map.Entry<MethodDescKey, MethodDesc> entry = itr.next();
-            cloned.methodDescMap_.put(entry.getKey(), (MethodDesc) entry
-                    .getValue().clone());
-        }
-
-        if (parameter_ != null) {
-            cloned.parameter_ = new HashMap<String, Object>(parameter_);
-        }
-
-        return cloned;
-    }
-
     public DescPool getDescPool() {
         return pool_;
     }
@@ -145,7 +109,7 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
     public PropertyDesc addProperty(String name, int mode) {
         PropertyDesc propertyDesc = getPropertyDesc(name);
         if (propertyDesc == null) {
-            propertyDesc = new PropertyDescImpl(pool_, name);
+            propertyDesc = pool_.newPropertyDesc(name);
             propertyDescMap_.put(name, propertyDesc);
         }
         propertyDesc.addMode(mode);
@@ -157,6 +121,10 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
     }
 
     public void setPropertyDesc(PropertyDesc propertyDesc) {
+        if (propertyDesc.getDescPool() != pool_) {
+            throw new IllegalArgumentException(
+                    "Can't set PropertyDesc born from another DescPool");
+        }
         propertyDescMap_.put(propertyDesc.getName(), propertyDesc);
     }
 
@@ -236,7 +204,8 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         for (PropertyDesc propertyDesc : classDesc.getPropertyDescs()) {
             PropertyDesc pd = getPropertyDesc(propertyDesc.getName());
             if (pd == null) {
-                setPropertyDesc((PropertyDesc) propertyDesc.clone());
+                setPropertyDesc(propertyDesc.transcriptTo(pool_
+                        .newPropertyDesc(propertyDesc.getName())));
             } else {
                 DescUtils.merge(pd, propertyDesc, force);
             }
@@ -245,7 +214,8 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         for (MethodDesc methodDesc : classDesc.getMethodDescs()) {
             MethodDesc md = getMethodDesc(methodDesc);
             if (md == null) {
-                setMethodDesc((MethodDesc) methodDesc.clone());
+                setMethodDesc(methodDesc.transcriptTo(pool_
+                        .newMethodDesc(methodDesc.getName())));
             } else {
                 DescUtils.merge(md, methodDesc, force);
             }
@@ -495,5 +465,42 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
 
     public void setBornOf(String bornOf) {
         bornOf_ = bornOf;
+    }
+
+    public ClassDesc transcriptTo(ClassDesc desc) {
+        DescPool pool = desc.getDescPool();
+        super.transcriptTo(desc);
+
+        desc.setSuperclassName(superclassName_);
+        desc.setBaseClassAbstract(baseClassAbstract_);
+
+        if (interfaceTypeDescs_ != null) {
+            List<TypeDesc> list = new ArrayList<TypeDesc>();
+            for (TypeDesc interfaceTypeDesc : interfaceTypeDescs_) {
+                list.add(interfaceTypeDesc.transcriptTo(pool
+                        .newTypeDesc(interfaceTypeDesc.getName())));
+            }
+            desc.setInterfaceTypeDescs(list.toArray(new TypeDesc[0]));
+        }
+
+        for (PropertyDesc propertyDesc : propertyDescMap_.values()) {
+            desc.setPropertyDesc(propertyDesc.transcriptTo(pool
+                    .newPropertyDesc(propertyDesc.getName())));
+        }
+
+        for (MethodDesc methodDesc : methodDescMap_.values()) {
+            desc.setMethodDesc(methodDesc.transcriptTo(pool
+                    .newMethodDesc(methodDesc.getName())));
+        }
+
+        if (parameter_ != null) {
+            desc
+                    .setOptionalSourceGeneratorParameter(new HashMap<String, Object>(
+                            parameter_));
+        }
+
+        desc.setBornOf(bornOf_);
+
+        return desc;
     }
 }

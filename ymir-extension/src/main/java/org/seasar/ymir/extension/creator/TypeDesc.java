@@ -1,9 +1,7 @@
 package org.seasar.ymir.extension.creator;
 
-public interface TypeDesc extends Cloneable {
+public interface TypeDesc extends Desc<TypeDesc> {
     String ARRAY_SUFFIX = "[]";
-
-    Object clone();
 
     DescPool getDescPool();
 
@@ -35,8 +33,6 @@ public interface TypeDesc extends Cloneable {
     boolean isExplicit();
 
     void setExplicit(boolean explicit);
-
-    void transcript(TypeDesc typeDesc);
 
     boolean isGeneric();
 

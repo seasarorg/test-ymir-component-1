@@ -132,23 +132,23 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     private ClassDesc prepareClassDesc(String className) {
-        ClassDesc classDesc = new ClassDescImpl(DescPool.newInstance(
-                sourceCreator_, null), className);
+        DescPool pool = DescPool.newInstance(sourceCreator_, null);
+        ClassDesc classDesc = new ClassDescImpl(pool, className);
         classDesc.setSuperclassName(TestPageBaseBase.class.getName());
-        PropertyDesc propertyDesc = new PropertyDescImpl(null, "param1");
+        PropertyDesc propertyDesc = new PropertyDescImpl(pool, "param1");
         propertyDesc.setTypeDesc(Boolean.TYPE);
         propertyDesc.setMode(PropertyDesc.READ);
         classDesc.setPropertyDesc(propertyDesc);
-        propertyDesc = new PropertyDescImpl(null, "param2");
+        propertyDesc = new PropertyDescImpl(pool, "param2");
         propertyDesc.setMode(PropertyDesc.WRITE);
         classDesc.setPropertyDesc(propertyDesc);
         // 順番をアルファベット順でないようにしているのは、プロパティやメソッドがアルファベット順に
         // 生成されることを検証するため。（Dtoではコンストラクタのみアルファベット順）
-        propertyDesc = new PropertyDescImpl(null, "param4");
+        propertyDesc = new PropertyDescImpl(pool, "param4");
         propertyDesc.setMode(PropertyDesc.READ | PropertyDesc.WRITE);
         propertyDesc.setTypeDesc(Integer[].class).setExplicit(true);
         classDesc.setPropertyDesc(propertyDesc);
-        propertyDesc = new PropertyDescImpl(null, "param3");
+        propertyDesc = new PropertyDescImpl(pool, "param3");
         propertyDesc.setMode(PropertyDesc.READ | PropertyDesc.WRITE);
         classDesc.setPropertyDesc(propertyDesc);
 
@@ -191,7 +191,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 }
                 return new ClassDescImpl(pool, className);
             }
-        }.newClassDesc(DescPool.newInstance(sourceCreator_,null), HoePageBase.class, true);
+        }.newClassDesc(DescPool.newInstance(sourceCreator_, null),
+                HoePageBase.class, true);
         classDesc.setAttribute(Globals.ATTR_ACTION,
                 new MethodDesc[] { classDesc.getMethodDesc(new MethodDescImpl(
                         null, "_get")) });
@@ -212,7 +213,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 }
                 return new ClassDescImpl(pool, className);
             }
-        }.newClassDesc(DescPool.newInstance(sourceCreator_,null), Hoe3PageBase.class, true);
+        }.newClassDesc(DescPool.newInstance(sourceCreator_, null),
+                Hoe3PageBase.class, true);
 
         String actual = target_.generateBaseSource(classDesc);
 
@@ -250,7 +252,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 }
                 return new ClassDescImpl(pool, className);
             }
-        }.newClassDesc(DescPool.newInstance(sourceCreator_,null), Hoe5PageBase.class, true);
+        }.newClassDesc(DescPool.newInstance(sourceCreator_, null),
+                Hoe5PageBase.class, true);
 
         ClassDesc generated = new ClassDescImpl(null,
                 "org.seasar.ymir.extension.freemarker.Hoe5Page");
@@ -314,7 +317,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 }
                 return new ClassDescImpl(pool, className);
             }
-        }.newClassDesc(DescPool.newInstance(sourceCreator_, null), Hoe6PageBase.class, true);
+        }.newClassDesc(DescPool.newInstance(sourceCreator_, null),
+                Hoe6PageBase.class, true);
 
         String actual = target_.generateBaseSource(classDesc);
 

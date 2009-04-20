@@ -22,14 +22,6 @@ public class BodyDescImpl implements BodyDesc {
         root_ = root;
     }
 
-    public Object clone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
     public String getKey() {
         return key_;
     }

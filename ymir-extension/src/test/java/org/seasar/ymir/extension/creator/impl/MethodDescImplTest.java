@@ -5,11 +5,32 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.seasar.ymir.extension.creator.DescPool;
+import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.mock.MockSourceCreator;
+
 public class MethodDescImplTest extends TestCase {
+    private SourceCreator sourceCreator_;
+
+    @Override
+    protected void setUp() throws Exception {
+        sourceCreator_ = new MockSourceCreator() {
+            @Override
+            public Class<?> getClass(String className) {
+                try {
+                    return Class.forName(className);
+                } catch (ClassNotFoundException ex) {
+                    return null;
+                }
+            }
+        };
+    }
+
     public void testConstructor_Genericクラス() throws Exception {
         Method method = Hoe.class.getMethod("fuga", new Class[] { List.class });
 
-        MethodDescImpl target = new MethodDescImpl(null, method);
+        MethodDescImpl target = new MethodDescImpl(DescPool.newInstance(
+                sourceCreator_, null), method);
         assertEquals("java.util.List<String>", target.getReturnTypeDesc()
                 .getName());
         assertEquals("java.util.List<String>", target.getParameterDescs()[0]
@@ -20,7 +41,8 @@ public class MethodDescImplTest extends TestCase {
         Method method = Hoe.class.getMethod("fuga2",
                 new Class[] { String.class });
 
-        MethodDescImpl target = new MethodDescImpl(null, method);
+        MethodDescImpl target = new MethodDescImpl(DescPool.newInstance(
+                sourceCreator_, null), method);
         assertEquals("String", target.getReturnTypeDesc().getName());
         assertEquals("String", target.getParameterDescs()[0].getTypeDesc()
                 .getName());

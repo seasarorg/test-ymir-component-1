@@ -11,8 +11,6 @@ import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.util.MethodUtils;
 
 public class AnnotationDescImpl implements AnnotationDesc {
-    private AnnotationsMetaData metaData_ = new AnnotationsMetaData();
-
     private String name_;
 
     private String body_;
@@ -42,8 +40,8 @@ public class AnnotationDescImpl implements AnnotationDesc {
         });
         for (int i = 0; i < methods.length; i++) {
             String attribute = methods[i].getName();
-            if (metaData_.isDefaultValue(annotation, attribute, MethodUtils
-                    .invoke(methods[i], annotation))) {
+            if (AnnotationsMetaData.INSTANCE.isDefaultValue(annotation,
+                    attribute, MethodUtils.invoke(methods[i], annotation))) {
                 continue;
             }
             methodSet.add(methods[i]);

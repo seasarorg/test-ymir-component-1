@@ -1,6 +1,6 @@
 package com.example.web;
 
-public class SourceCreatorImplTest2PageBase {
+public class SourceCreatorImplTest2PageBase extends com.example.page.TestPageBaseBase {
     public static final String PACKAGE = "com.example.web";
 
     public static final String NAME = "sourceCreatorImplTest2";

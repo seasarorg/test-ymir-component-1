@@ -2,6 +2,8 @@ package org.seasar.ymir.extension.creator.mock;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -279,5 +281,13 @@ public class MockSourceCreator implements SourceCreator {
 
     public boolean isGeneratedClass(String className) {
         return false;
+    }
+
+    public boolean isDtoClass(String className) {
+        return false;
+    }
+
+    public Field findField(Method accessorMethod, String propertyName) {
+        return null;
     }
 }

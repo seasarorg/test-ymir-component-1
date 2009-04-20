@@ -11,6 +11,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.seasar.ymir.extension.creator.AnnotationDesc;
+import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 
 public class DescUtilsTest extends TestCase {
     public void testGetNonGenericClassName() throws Exception {
@@ -95,4 +96,14 @@ public class DescUtilsTest extends TestCase {
         assertEquals("java.lang.String", DescUtils
                 .getComponentPropertyTypeName(map.get("value3")));
     }
+
+    public void test_transcript() throws Exception {
+        TypeDescImpl target = new TypeDescImpl(null, "java.util.List<String>");
+
+        TypeDescImpl actual = new TypeDescImpl(null, "");
+        DescUtils.transcript(actual, target);
+
+        assertEquals("java.util.List<String>", actual.getName());
+    }
+
 }

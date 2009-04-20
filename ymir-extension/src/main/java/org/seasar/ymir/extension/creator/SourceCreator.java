@@ -2,6 +2,8 @@ package org.seasar.ymir.extension.creator;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -161,4 +163,15 @@ public interface SourceCreator extends Updater {
             HttpMethod method, ActionSelectorSeed seed);
 
     boolean isGeneratedClass(String className);
+
+    /**
+     * 指定されたクラスが自動生成対象のDTOクラスまたはDTO検索パス上にあるDTOクラス
+     * であるかどうかを返します。
+     * 
+     * @param className クラス名。nullが指定された場合はこのメソッドはfalseを返します。
+     * @return DTOクラスかどうか。
+     */
+    boolean isDtoClass(String className);
+
+    Field findField(Method accessorMethod, String propertyName);
 }

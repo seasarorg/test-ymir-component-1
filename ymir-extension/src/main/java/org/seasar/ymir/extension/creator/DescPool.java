@@ -7,6 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
+import org.seasar.ymir.extension.creator.impl.ParameterDescImpl;
+import org.seasar.ymir.extension.creator.impl.PropertyDescImpl;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 
 public class DescPool implements Iterable<ClassDesc> {
@@ -123,5 +126,17 @@ public class DescPool implements Iterable<ClassDesc> {
                     "Can't unregister ClassDesc born from another DescPool");
         }
         return classDescMap_.remove(classDesc.getName());
+    }
+
+    public PropertyDesc newPropertyDesc(String name) {
+        return new PropertyDescImpl(this, name);
+    }
+
+    public MethodDesc newMethodDesc(String name) {
+        return new MethodDescImpl(this, name);
+    }
+
+    public ParameterDesc newParameterDesc() {
+        return new ParameterDescImpl(this);
     }
 }

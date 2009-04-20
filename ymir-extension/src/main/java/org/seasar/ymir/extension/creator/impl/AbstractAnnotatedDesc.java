@@ -1,36 +1,30 @@
-package org.seasar.ymir.extension.creator;
+package org.seasar.ymir.extension.creator.impl;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.seasar.ymir.extension.creator.AnnotatedDesc;
+import org.seasar.ymir.extension.creator.AnnotationDesc;
+import org.seasar.ymir.extension.creator.DescPool;
+import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 
-abstract public class AbstractAnnotatedDesc implements AnnotatedDesc {
+abstract public class AbstractAnnotatedDesc {
     private Map<String, AnnotationDesc> annotationDescMap_ = new TreeMap<String, AnnotationDesc>();
 
     private Map<String, Object> attributeMap_ = new HashMap<String, Object>();
 
-    public Object clone() {
-        AbstractAnnotatedDesc cloned;
-        try {
-            cloned = (AbstractAnnotatedDesc) super.clone();
-        } catch (CloneNotSupportedException ex) {
-            throw new RuntimeException(ex);
+    abstract public DescPool getDescPool();
+
+    public AnnotatedDesc<?> transcriptTo(AnnotatedDesc<?> desc) {
+        for (AnnotationDesc annotationDesc : getAnnotationDescs()) {
+            desc.setAnnotationDesc((AnnotationDesc) annotationDesc.clone());
         }
 
-        cloned.annotationDescMap_ = new TreeMap<String, AnnotationDesc>();
-        for (Iterator<Map.Entry<String, AnnotationDesc>> itr = annotationDescMap_
-                .entrySet().iterator(); itr.hasNext();) {
-            Map.Entry<String, AnnotationDesc> entry = itr.next();
-            cloned.annotationDescMap_.put(entry.getKey(),
-                    (AnnotationDesc) entry.getValue().clone());
-        }
+        desc.setAttributeMap(new HashMap<String, Object>(attributeMap_));
 
-        cloned.attributeMap_ = new HashMap<String, Object>(attributeMap_);
-
-        return cloned;
+        return desc;
     }
 
     public AnnotationDesc getAnnotationDesc(String name) {

@@ -62,9 +62,10 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
     protected SourceCreatorImpl target_;
 
     protected ClassDesc constructClassDesc() {
-        ClassDesc classDesc = new ClassDescImpl(DescPool.newInstance(target_,
-                null), "com.example.web.TestPage");
-        PropertyDesc pd = new PropertyDescImpl(null, "param1");
+        DescPool pool = DescPool.newInstance(target_, null);
+        ClassDesc classDesc = new ClassDescImpl(pool,
+                "com.example.web.TestPage");
+        PropertyDesc pd = new PropertyDescImpl(pool, "param1");
         pd.setMode(PropertyDesc.READ | PropertyDesc.WRITE);
         classDesc.setPropertyDesc(pd);
         return classDesc;
@@ -178,6 +179,9 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
                 getSourceDir().getCanonicalPath());
         configuration.setProperty(AbstractApplication.KEY_RESOURCESDIRECTORY,
                 getResourcesDir().getCanonicalPath());
+        configuration.setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
 
         target_ = (SourceCreatorImpl) container_
                 .getComponent(SourceCreator.class);

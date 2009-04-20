@@ -46,15 +46,6 @@ public class TypeDescImplTest extends TestCase {
         assertEquals("java.util.List<String>", target.getName());
     }
 
-    public void testTranscript() throws Exception {
-        TypeDescImpl target = new TypeDescImpl(null, "java.util.List<String>");
-
-        TypeDescImpl actual = new TypeDescImpl(null, "");
-        actual.transcript(target);
-
-        assertEquals("java.util.List<String>", actual.getName());
-    }
-
     public void testSetName() throws Exception {
         TypeDescImpl target = new TypeDescImpl(null, "java.lang.Date");
 

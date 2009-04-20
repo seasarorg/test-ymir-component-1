@@ -405,7 +405,7 @@ public class DescUtils {
             return force;
         } else if (!force && !td1.isExplicit() && td2.isExplicit() || force
                 && (!td1.isExplicit() || td2.isExplicit())) {
-            td1.transcript(td2);
+            transcript(td1, td2);
             return true;
         } else {
             // マージしない。その場合でも、コレクションの実装型情報だけは補完するようにする。
@@ -419,6 +419,29 @@ public class DescUtils {
 
             return false;
         }
+    }
+
+    static void transcript(TypeDesc toTypeDesc, TypeDesc fromTypeDesc) {
+        boolean transcriptCollectionImplementationClassName = true;
+        if (toTypeDesc.getCollectionClassName() != null
+                && toTypeDesc.getCollectionClassName().equals(
+                        fromTypeDesc.getCollectionClassName())
+                && fromTypeDesc.getCollectionImplementationClassName() == null) {
+            // このTypeDescのcollectionClassNameがtranscript元と同じでかつ
+            // transcript元のcollectionImplementationClassNameがnullの場合は、
+            // このTypeDescのcollectionImplementationClassName情報をnullにしてしまわないようにする。
+            transcriptCollectionImplementationClassName = false;
+        }
+
+        toTypeDesc.setComponentClassDesc(fromTypeDesc.getComponentClassDesc());
+        toTypeDesc.setCollection(fromTypeDesc.isCollection());
+        toTypeDesc
+                .setCollectionClassName(fromTypeDesc.getCollectionClassName());
+        if (transcriptCollectionImplementationClassName) {
+            toTypeDesc.setCollectionImplementationClassName(fromTypeDesc
+                    .getCollectionImplementationClassName());
+        }
+        toTypeDesc.setName(fromTypeDesc.getName());
     }
 
     public static AnnotationDesc[] merge(AnnotationDesc[] ad1s,
@@ -449,7 +472,8 @@ public class DescUtils {
             } else {
                 AnnotationDesc a = adMap.get(ad.getName());
                 if (force || a == null) {
-                    adMap.put(ad.getName(), (AnnotationDesc) ad.clone());
+                    adMap.put(ad.getName(), new AnnotationDescImpl(
+                            ad.getName(), ad.getBody()));
                 }
             }
         }

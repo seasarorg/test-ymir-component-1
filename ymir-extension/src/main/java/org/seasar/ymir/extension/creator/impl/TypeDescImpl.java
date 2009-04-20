@@ -49,33 +49,53 @@ public class TypeDescImpl implements TypeDesc {
         setName(typeName);
     }
 
-    public Object clone() {
-        TypeDescImpl cloned;
-        try {
-            cloned = (TypeDescImpl) super.clone();
-        } catch (CloneNotSupportedException ex) {
-            throw new RuntimeException(ex);
-        }
-
-        return cloned;
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime
+                * result
+                + ((collectionClassName_ == null) ? 0 : collectionClassName_
+                        .hashCode());
+        result = prime
+                * result
+                + ((collectionImplementationClassName_ == null) ? 0
+                        : collectionImplementationClassName_.hashCode());
+        result = prime * result + (collection_ ? 1231 : 1237);
+        result = prime
+                * result
+                + ((componentClassDesc_ == null) ? 0 : componentClassDesc_
+                        .hashCode());
+        return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
-        if (obj == null || obj.getClass() != getClass()) {
-            return false;
-        } else if (this == obj) {
+        if (this == obj)
             return true;
-        }
-
-        TypeDescImpl o = (TypeDescImpl) obj;
-        if (name_ == null) {
-            if (o.name_ != null) {
-                return false;
-            }
-        } else if (!name_.equals(o.name_)) {
+        if (obj == null)
             return false;
-        }
-
+        if (getClass() != obj.getClass())
+            return false;
+        final TypeDescImpl other = (TypeDescImpl) obj;
+        if (collectionClassName_ == null) {
+            if (other.collectionClassName_ != null)
+                return false;
+        } else if (!collectionClassName_.equals(other.collectionClassName_))
+            return false;
+        if (collectionImplementationClassName_ == null) {
+            if (other.collectionImplementationClassName_ != null)
+                return false;
+        } else if (!collectionImplementationClassName_
+                .equals(other.collectionImplementationClassName_))
+            return false;
+        if (collection_ != other.collection_)
+            return false;
+        if (componentClassDesc_ == null) {
+            if (other.componentClassDesc_ != null)
+                return false;
+        } else if (!componentClassDesc_.equals(other.componentClassDesc_))
+            return false;
         return true;
     }
 
@@ -194,28 +214,6 @@ public class TypeDescImpl implements TypeDesc {
 
     public void setExplicit(boolean explicit) {
         explicit_ = explicit;
-    }
-
-    public void transcript(TypeDesc typeDesc) {
-        boolean transcriptCollectionImplementationClassName = true;
-        if (collectionClassName_ != null
-                && collectionClassName_.equals(typeDesc
-                        .getCollectionClassName())
-                && typeDesc.getCollectionImplementationClassName() == null) {
-            // このTypeDescのcollectionClassNameがtranscript元と同じでかつ
-            // transcript元のcollectionImplementationClassNameがnullの場合は、
-            // このTypeDescのcollectionImplementationClassName情報をnullにしてしまわないようにする。
-            transcriptCollectionImplementationClassName = false;
-        }
-
-        setComponentClassDesc(typeDesc.getComponentClassDesc());
-        collection_ = typeDesc.isCollection();
-        collectionClassName_ = typeDesc.getCollectionClassName();
-        if (transcriptCollectionImplementationClassName) {
-            collectionImplementationClassName_ = typeDesc
-                    .getCollectionImplementationClassName();
-        }
-        name_ = typeDesc.getName();
     }
 
     public boolean isGeneric() {
@@ -391,5 +389,27 @@ public class TypeDescImpl implements TypeDesc {
         } else {
             return componentClassDesc_.getInstanceName();
         }
+    }
+
+    public TypeDesc transcriptTo(TypeDesc desc) {
+        DescPool pool = desc.getDescPool();
+
+        if (componentClassDesc_ != null) {
+            if (componentClassDesc_.getDescPool() == pool) {
+                desc.setComponentClassDesc(componentClassDesc_);
+            } else {
+                desc.setComponentClassDesc(componentClassDesc_
+                        .transcriptTo(pool.getClassDesc(componentClassDesc_
+                                .getName())));
+            }
+        }
+
+        desc.setCollection(collection_);
+        desc.setCollectionClassName(collectionClassName_);
+        desc
+                .setCollectionImplementationClassName(collectionImplementationClassName_);
+        desc.setExplicit(explicit_);
+
+        return desc;
     }
 }

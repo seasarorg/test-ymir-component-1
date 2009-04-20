@@ -12,7 +12,6 @@ import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.seasar.ymir.extension.creator.AbstractAnnotatedDesc;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.DescPool;
@@ -24,10 +23,6 @@ import org.seasar.ymir.util.ClassUtils;
 
 public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         PropertyDesc {
-    private static final String PREFIX_JAVA = "java.";
-
-    private static final String PREFIX_JAVAX = "javax.";
-
     private static final Log log_ = LogFactory.getLog(PropertyDescImpl.class);
 
     private DescPool pool_;
@@ -109,6 +104,31 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         }
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name_ == null) ? 0 : name_.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final PropertyDescImpl other = (PropertyDescImpl) obj;
+        if (name_ == null) {
+            if (other.name_ != null)
+                return false;
+        } else if (!name_.equals(other.name_))
+            return false;
+        return true;
+    }
+
     private TypeDesc newTypeDesc(PropertyDescriptor descriptor) {
         Type type;
         if (descriptor.getReadMethod() != null) {
@@ -124,39 +144,14 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
     }
 
     private Field findField(PropertyDescriptor descriptor) {
-        Field field = null;
-        if (descriptor.getReadMethod() != null) {
-            field = DescUtils.findField(toFieldName(descriptor.getName()),
-                    descriptor.getReadMethod().getDeclaringClass());
-        }
-        if (field == null && descriptor.getWriteMethod() != null) {
-            field = DescUtils.findField(toFieldName(descriptor.getName()),
-                    descriptor.getWriteMethod().getDeclaringClass());
+        String name = descriptor.getName();
+        Field field = pool_.getSourceCreator().findField(
+                descriptor.getReadMethod(), name);
+        if (field == null) {
+            field = pool_.getSourceCreator().findField(
+                    descriptor.getWriteMethod(), name);
         }
         return field;
-    }
-
-    private String toFieldName(String propertyName) {
-        if (pool_ != null) {
-            return pool_.getSourceCreator().getSourceCreatorSetting()
-                    .getFieldName(propertyName);
-        } else {
-            return propertyName;
-        }
-    }
-
-    public Object clone() {
-        PropertyDescImpl cloned = (PropertyDescImpl) super.clone();
-
-        if (typeDesc_ != null) {
-            cloned.typeDesc_ = (TypeDesc) typeDesc_.clone();
-        }
-        cloned.annotationDescForGetterMap_ = new TreeMap<String, AnnotationDesc>(
-                annotationDescForGetterMap_);
-        cloned.annotationDescForSetterMap_ = new TreeMap<String, AnnotationDesc>(
-                annotationDescForSetterMap_);
-
-        return cloned;
     }
 
     @Override
@@ -382,9 +377,7 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
             }
         } else {
             boolean generateInitialValue = false;
-            if (!ClassUtils.isPrimitive(componentClassName)
-                    && !componentClassName.startsWith(PREFIX_JAVA)
-                    && !componentClassName.startsWith(PREFIX_JAVAX)) {
+            if (pool_.getSourceCreator().isDtoClass(componentClassName)) {
                 Class<?> clazz = DescUtils.getClass(componentClassName);
                 if (clazz != null) {
                     try {
@@ -404,5 +397,34 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         }
 
         return initialValue;
+    }
+
+    public PropertyDesc transcriptTo(PropertyDesc desc) {
+        DescPool pool = desc.getDescPool();
+        super.transcriptTo(desc);
+
+        if (typeDesc_ != null) {
+            desc.setTypeDesc(typeDesc_.transcriptTo(pool.newTypeDesc(typeDesc_
+                    .getName())));
+        }
+
+        desc.setMode(mode_);
+        if (typeAlreadySet_) {
+            desc.notifyTypeUpdated();
+        }
+
+        for (AnnotationDesc annotationDesc : getAnnotationDescsOnGetter()) {
+            desc.setAnnotationDescOnGetter((AnnotationDesc) annotationDesc
+                    .clone());
+        }
+
+        for (AnnotationDesc annotationDesc : getAnnotationDescsOnSetter()) {
+            desc.setAnnotationDescOnSetter((AnnotationDesc) annotationDesc
+                    .clone());
+        }
+
+        desc.setGetterName(getterName_);
+
+        return desc;
     }
 }

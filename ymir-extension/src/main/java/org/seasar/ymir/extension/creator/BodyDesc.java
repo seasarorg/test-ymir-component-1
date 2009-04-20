@@ -4,14 +4,12 @@ import java.util.Map;
 
 import org.seasar.ymir.constraint.ConstraintInterceptor;
 
-public interface BodyDesc extends Cloneable {
+public interface BodyDesc {
     String KEY_ASIS = "asIs";
 
     String KEY_PERMISSIONDENIED = ConstraintInterceptor.ACTION_PERMISSIONDENIED;
 
     String PROP_BODY = "body";
-
-    Object clone();
 
     String getKey();
 

@@ -543,7 +543,8 @@ public class SourceCreatorImpl implements SourceCreator {
         converterCd.setBornOf(dtoCd.getBornOf());
 
         Map<String, Object> param = new HashMap<String, Object>();
-        ClassDesc clonedDtoCd = (ClassDesc) dtoCd.clone();
+        ClassDesc clonedDtoCd = dtoCd.transcriptTo(DescPool.newInstance(this,
+                null).getClassDesc(dtoCd.getName()));
         mergeWithExistentClass(clonedDtoCd);
         param.put("targetClassDesc", clonedDtoCd);
         List<TypeDesc> pairTdList = new ArrayList<TypeDesc>();
@@ -671,6 +672,11 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         ClassDesc classDesc = newClassDesc(pool, clazz.getName(), null);
+
+        Class<?> superclass = clazz.getSuperclass();
+        if (superclass != null && superclass != Object.class) {
+            classDesc.setSuperclassName(clazz.getSuperclass().getName());
+        }
 
         AnnotationDesc[] ads = DescUtils.newAnnotationDescs(clazz);
         for (int i = 0; i < ads.length; i++) {
@@ -828,8 +834,9 @@ public class SourceCreatorImpl implements SourceCreator {
             if (readMethod == null && writeMethod == null) {
                 continue;
             }
+
             try {
-                list.add(new PropertyDescriptor(descriptor.getName(),
+                list.add(new PropertyDescriptor(getPropertyName(descriptor),
                         readMethod, writeMethod));
             } catch (IntrospectionException ex) {
                 throw new RuntimeException("Can't happen!", ex);
@@ -843,6 +850,57 @@ public class SourceCreatorImpl implements SourceCreator {
         });
 
         return list.toArray(new PropertyDescriptor[0]);
+    }
+
+    private String getPropertyName(PropertyDescriptor descriptor) {
+        String name = descriptor.getName();
+        if (findField(descriptor.getReadMethod(), name) == null
+                && findField(descriptor.getWriteMethod(), name) == null
+                && name.length() > 1 && Character.isUpperCase(name.charAt(1))) {
+            // aNameのようなパラメータに対応するプロパティとして生成されたプロパティ
+            // であるかもしれないため、そのようなフィールドも検索する。
+            // （このような名称はJavaBeans名規約に反するため推奨しないが、
+            // もしも作られてしまったときのために検索するようにしている。）
+            String n = Character.toLowerCase(name.charAt(0))
+                    + name.substring(1);
+            if (findField(descriptor.getReadMethod(), n) != null
+                    || findField(descriptor.getWriteMethod(), n) != null) {
+                return n;
+            }
+        }
+
+        return name;
+    }
+
+    public Field findField(Method accessorMethod, String propertyName) {
+        Field field = null;
+        if (accessorMethod != null) {
+            String formName = MetaUtils.getFirstValue(accessorMethod,
+                    Globals.META_NAME_FORMPROPERTY);
+            if (formName != null) {
+                Field formField = findField(formName, accessorMethod
+                        .getDeclaringClass());
+                if (formField != null) {
+                    field = findField(propertyName, formField.getType());
+                }
+            } else {
+                field = findField(propertyName, accessorMethod
+                        .getDeclaringClass());
+            }
+        }
+        return field;
+    }
+
+    private Field findField(String propertyName, Class<?> clazz) {
+        Field field = null;
+        if (clazz != null) {
+            field = DescUtils.findField(setting_.getFieldName(propertyName),
+                    clazz);
+            if (field == null) {
+                field = DescUtils.findField(propertyName, clazz);
+            }
+        }
+        return field;
     }
 
     String quote(String value) {
@@ -895,8 +953,8 @@ public class SourceCreatorImpl implements SourceCreator {
                     beanClassDesc.setBornOf(classDescs[i].getBornOf());
                     PropertyDesc[] pds = classDescs[i].getPropertyDescs();
                     for (int j = 0; j < pds.length; j++) {
-                        beanClassDesc.setPropertyDesc((PropertyDesc) pds[j]
-                                .clone());
+                        beanClassDesc.setPropertyDesc(pds[j].transcriptTo(pool
+                                .newPropertyDesc(pds[j].getName())));
                     }
                     // プライマリキーがないとS2Daoがエラーになるので生成しておく。
                     PropertyDesc idPd = beanClassDesc
@@ -1013,42 +1071,37 @@ public class SourceCreatorImpl implements SourceCreator {
         Class<?> clazz = getClass(className);
         ClassDesc gapDesc = newClassDesc(pool, clazz, true);
         if (gapDesc == null) {
-            gapDesc = newClassDesc(null, className, null);
+            gapDesc = newClassDesc(pool, className, null);
         }
 
         String baseClassName = className + "Base";
-        Class<?> baseClass = (clazz != null
-                && clazz.getSuperclass().getName().equals(baseClassName) ? clazz
-                .getSuperclass()
-                : null);
+        Class<?> baseClass = getClass(baseClassName);
         // 従属タイプのクラスの場合は既存のBaseクラスの情報とマージしなくて良い。
         ClassDesc baseDesc = desc.getType().isSubordinate() ? null
                 : newClassDesc(pool, baseClass, true);
         if (baseDesc == null) {
-            baseDesc = newClassDesc(null, baseClassName, null);
-            baseDesc.setSuperclassName(desc.getSuperclassName());
-        }
-        if (baseClass != null) {
-            if (desc.getSuperclassName() != null) {
-                // 親クラス情報は適切にdescに設定されている。
-                // 先でのマージのことを考えて、baseクラスの方にもdescの親クラス情報をセットしておく。
+            baseDesc = newClassDesc(pool, baseClassName, null);
+            if (!baseClassName.equals(desc.getSuperclassName())) {
                 baseDesc.setSuperclassName(desc.getSuperclassName());
             }
+        }
 
-            // abstractかどうかを保持するようにする。
+        // abstractかどうかを保持するようにする。
+        if (baseClass != null) {
             desc.setBaseClassAbstract(Modifier.isAbstract(baseClass
                     .getModifiers()));
         }
 
-        // baseにあるものは必ず残す。baseになくてsuperやgapにあるものは除去する。
-        ClassDesc generated = (ClassDesc) desc.clone();
+        ClassDesc generated = desc.transcriptTo(newClassDesc(pool, desc
+                .getName(), null));
         desc.clear();
         desc.setOptionalSourceGeneratorParameter(generated
                 .getOptionalSourceGeneratorParameter());
         desc.setAttributeMap(generated.getAttributeMap());
 
         // baseのうち同じパス由来でないメンバを残す。
-        ClassDesc baseDescOtherBoneOf = (ClassDesc) baseDesc.clone();
+        ClassDesc baseDescOtherBoneOf = baseDesc.transcriptTo(pool
+                .getClassDesc(baseDesc.getName()));
         baseDescOtherBoneOf.removeBornOfFromAllMembers(desc.getBornOf());
         desc.merge(baseDescOtherBoneOf, true);
 
@@ -1064,6 +1117,7 @@ public class SourceCreatorImpl implements SourceCreator {
             PropertyDesc basePd = baseDesc.getPropertyDesc(generatedPd
                     .getName());
 
+            // baseにあるものは必ず残す。baseになくてsuperやgapにあるものは除去する。
             if (basePd == null || !basePd.isReadable()) {
                 removeModeFrom(generatedPd, PropertyDesc.READ, gapDesc);
                 removeModeFrom(generatedPd, PropertyDesc.READ, superDesc);
@@ -1072,6 +1126,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 removeModeFrom(generatedPd, PropertyDesc.WRITE, gapDesc);
                 removeModeFrom(generatedPd, PropertyDesc.WRITE, superDesc);
             }
+
             if (!generatedPd.isReadable() && !generatedPd.isWritable()) {
                 // GetterもSetterもないものは削除する。
                 // ただし@Meta(name="property")なプロパティはformのDTOのフィールドを生成するために残す。
@@ -1082,15 +1137,25 @@ public class SourceCreatorImpl implements SourceCreator {
                     generated.removePropertyDesc(generatedPd.getName());
                 }
             }
-            // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
-            // GeneratedにあるアノテーションのうちBaseにもあるものについてはBaseのものをGeneratedに上書きする。
+
             if (basePd != null && generatedPd != null) {
+                TypeDesc baseTd = basePd.getTypeDesc();
+                TypeDesc generatedTd = generatedPd.getTypeDesc();
+                if (generatedTd.getCollectionImplementationClassName() == null) {
+                    generatedTd.setCollectionImplementationClassName(baseTd
+                            .getCollectionImplementationClassName());
+                }
+
+                // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
+                // GeneratedにあるアノテーションのうちBaseにもあるものについてはBaseのものをGeneratedに上書きする。
+
                 List<AnnotationDesc> list = new ArrayList<AnnotationDesc>();
-                for (AnnotationDesc ad : generatedPd.getAnnotationDescs()) {
-                    AnnotationDesc baseAd = basePd.getAnnotationDesc(ad
-                            .getName());
-                    if (DescUtils.isMetaAnnotation(ad) || baseAd == null) {
-                        list.add(ad);
+                for (AnnotationDesc baseAd : basePd.getAnnotationDescs()) {
+                    AnnotationDesc generatedAd = generatedPd
+                            .getAnnotationDesc(baseAd.getName());
+                    if (DescUtils.isMetaAnnotation(generatedAd)
+                            || baseAd == null) {
+                        list.add(generatedAd);
                     } else {
                         list.add(baseAd);
                     }
@@ -1099,12 +1164,13 @@ public class SourceCreatorImpl implements SourceCreator {
                         .toArray(new AnnotationDesc[0]));
 
                 list = new ArrayList<AnnotationDesc>();
-                for (AnnotationDesc ad : generatedPd
+                for (AnnotationDesc baseAd : basePd
                         .getAnnotationDescsOnGetter()) {
-                    AnnotationDesc baseAd = basePd.getAnnotationDescOnGetter(ad
-                            .getName());
-                    if (DescUtils.isMetaAnnotation(ad) || baseAd == null) {
-                        list.add(ad);
+                    AnnotationDesc generatedAd = generatedPd
+                            .getAnnotationDescOnGetter(baseAd.getName());
+                    if (DescUtils.isMetaAnnotation(generatedAd)
+                            || baseAd == null) {
+                        list.add(generatedAd);
                     } else {
                         list.add(baseAd);
                     }
@@ -1113,12 +1179,13 @@ public class SourceCreatorImpl implements SourceCreator {
                         .toArray(new AnnotationDesc[0]));
 
                 list = new ArrayList<AnnotationDesc>();
-                for (AnnotationDesc ad : generatedPd
+                for (AnnotationDesc baseAd : basePd
                         .getAnnotationDescsOnSetter()) {
-                    AnnotationDesc baseAd = basePd.getAnnotationDescOnSetter(ad
-                            .getName());
-                    if (DescUtils.isMetaAnnotation(ad) || baseAd == null) {
-                        list.add(ad);
+                    AnnotationDesc generatedAd = generatedPd
+                            .getAnnotationDescOnSetter(baseAd.getName());
+                    if (DescUtils.isMetaAnnotation(generatedAd)
+                            || baseAd == null) {
+                        list.add(generatedAd);
                     } else {
                         list.add(baseAd);
                     }
@@ -1127,6 +1194,7 @@ public class SourceCreatorImpl implements SourceCreator {
                         .toArray(new AnnotationDesc[0]));
             }
         }
+
         MethodDesc[] mds = generated.getMethodDescs();
         for (int i = 0; i < mds.length; i++) {
             MethodDesc generatedMd = mds[i];
@@ -1138,13 +1206,19 @@ public class SourceCreatorImpl implements SourceCreator {
             } else if (gapMd != null
                     && !generatedMd.getReturnTypeDesc().equals(
                             gapMd.getReturnTypeDesc())) {
-                generatedMd.setReturnTypeDesc((TypeDesc) gapMd
-                        .getReturnTypeDesc().clone());
+                generatedMd.setReturnTypeDesc(gapMd.getReturnTypeDesc()
+                        .transcriptTo(
+                                desc.getDescPool().newTypeDesc(
+                                        gapMd.getReturnTypeDesc().getName())));
             } else if (superMd != null
                     && !generatedMd.getReturnTypeDesc().equals(
                             superMd.getReturnTypeDesc())) {
-                generatedMd.setReturnTypeDesc((TypeDesc) superMd
-                        .getReturnTypeDesc().clone());
+                generatedMd
+                        .setReturnTypeDesc(superMd.getReturnTypeDesc()
+                                .transcriptTo(
+                                        desc.getDescPool().newTypeDesc(
+                                                superMd.getReturnTypeDesc()
+                                                        .getName())));
             }
             // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
             // GeneratedにあるアノテーションのうちBaseにもあるものについてはBaseのものをGeneratedに上書きする。
@@ -1235,7 +1309,8 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public void mergeWithExistentClass(ClassDesc classDesc) {
         String className = classDesc.getName();
-        classDesc.merge(newClassDesc(null, getClass(className), false), false);
+        classDesc.merge(newClassDesc(classDesc.getDescPool(),
+                getClass(className), false), false);
     }
 
     public void writeSourceFile(ClassDesc classDesc, ClassDescSet classDescSet)
@@ -1872,5 +1947,13 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public boolean isGeneratedClass(String className) {
         return className.startsWith(getFirstRootPackageName() + ".");
+    }
+
+    public boolean isDtoClass(String className) {
+        if (className == null) {
+            return false;
+        }
+        return setting_.isOnDtoSearchPath(className)
+                || new ClassDescImpl(null, className).isTypeOf(ClassType.DTO);
     }
 }

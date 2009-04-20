@@ -1,7 +1,6 @@
 package org.seasar.ymir.extension.creator;
 
 public interface AnnotationDesc extends Cloneable {
-
     Object clone();
 
     String getName();

@@ -64,9 +64,11 @@ public class AnnotationsMetaData {
     @DefaultAnnotations
     private static final Object DEFAULT_ANNOTATIONS_HOLDER = null;
 
+    public static final AnnotationsMetaData INSTANCE = new AnnotationsMetaData();
+
     private Map<Class<?>, AnnotationMetaData> metaDataMap_ = new HashMap<Class<?>, AnnotationMetaData>();
 
-    public AnnotationsMetaData() {
+    private AnnotationsMetaData() {
         loadDefaultAnnotations();
     }
 

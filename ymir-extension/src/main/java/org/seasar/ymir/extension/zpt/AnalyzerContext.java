@@ -255,7 +255,7 @@ public class AnalyzerContext extends ZptTemplateContext {
                                                 : asCollection ? toSingular(propertyName)
                                                         : propertyName,
                                         className));
-                if (!propertyDesc.getTypeDesc().isCollection() && asCollection) {
+                if (asCollection) {
                     typeDesc.setCollection(true);
                     typeDesc.setCollectionClassName(collectionClassName);
                 }
