@@ -139,8 +139,7 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public void updateClasses(ClassDescBag classDescBag,
-            ClassCreationHintBag hintBag) {
+    public void updateClasses(ClassDescBag classDescBag) {
     }
 
     public void updateClass(ClassDesc classDesc)
@@ -183,7 +182,8 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public ClassDesc newClassDesc(Class<?> clazz, boolean onlyDeclared) {
+    public ClassDesc newClassDesc(DescPool pool, Class<?> clazz,
+            boolean onlyDeclared) {
         return null;
     }
 
@@ -275,5 +275,9 @@ public class MockSourceCreator implements SourceCreator {
     public MethodDesc newActionMethodDesc(ClassDesc classDesc, String path,
             HttpMethod method, ActionSelectorSeed seed) {
         return null;
+    }
+
+    public boolean isGeneratedClass(String className) {
+        return false;
     }
 }

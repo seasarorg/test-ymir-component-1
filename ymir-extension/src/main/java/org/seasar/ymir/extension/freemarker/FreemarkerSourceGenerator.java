@@ -82,7 +82,7 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
         Map<String, Object> root = new HashMap<String, Object>();
         root.put("preamble", sourceCreator_.getJavaPreamble());
         root.put("classDesc", classDesc);
-        root.put("entityMetaData", new EntityMetaData(sourceCreator_, null,
+        root.put("entityMetaData", new EntityMetaData(classDesc.getDescPool(),
                 classDesc.getName()));
         Map<String, Object> map = classDesc
                 .getOptionalSourceGeneratorParameter();

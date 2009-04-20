@@ -6,49 +6,53 @@ import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 import org.seasar.ymir.extension.creator.mock.MockSourceCreator;
 
 public class EntityMetaDataTest extends TestCase {
-    private EntityMetaData target_ = new EntityMetaData(
-            new MockSourceCreator() {
-                @Override
-                public String getFirstRootPackageName() {
-                    return "com.example";
-                }
+    private EntityMetaData target_;
 
-                @Override
-                public String[] getRootPackageNames() {
-                    return new String[] { getFirstRootPackageName() };
-                }
+    protected void setUp() throws Exception {
+        DescPool pool = DescPool.newInstance(new MockSourceCreator() {
+            @Override
+            public String getFirstRootPackageName() {
+                return "com.example";
+            }
 
-                @Override
-                public String getPagePackageName() {
-                    return "com.example.web";
-                }
+            @Override
+            public String[] getRootPackageNames() {
+                return new String[] { getFirstRootPackageName() };
+            }
 
-                @Override
-                public String getDtoPackageName() {
-                    return "com.example.dto";
-                }
+            @Override
+            public String getPagePackageName() {
+                return "com.example.web";
+            }
 
-                @Override
-                public String getDaoPackageName() {
-                    return "com.example.dao";
-                }
+            @Override
+            public String getDtoPackageName() {
+                return "com.example.dto";
+            }
 
-                @Override
-                public String getDxoPackageName() {
-                    return "com.example.dxo";
-                }
+            @Override
+            public String getDaoPackageName() {
+                return "com.example.dao";
+            }
 
-                @Override
-                public String getConverterPackageName() {
-                    return "com.example.converter";
-                }
+            @Override
+            public String getDxoPackageName() {
+                return "com.example.dxo";
+            }
 
-                @Override
-                public ClassDesc newClassDesc(DescPool pool, String className,
-                        ClassCreationHintBag hintBag) {
-                    return new ClassDescImpl(pool, className);
-                }
-            }, null, "com.example.dto.sub.TestDto");
+            @Override
+            public String getConverterPackageName() {
+                return "com.example.converter";
+            }
+
+            @Override
+            public ClassDesc newClassDesc(DescPool pool, String className,
+                    ClassCreationHintBag hintBag) {
+                return new ClassDescImpl(pool, className);
+            }
+        }, null);
+        target_ = new EntityMetaData(pool, "com.example.dto.sub.TestDto");
+    }
 
     public void testGetEntityName() throws Exception {
         // ## Arrange ##

@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -18,8 +17,6 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
-import org.seasar.ymir.extension.creator.ClassCreationHintBag;
-import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
@@ -106,14 +103,10 @@ public class ZptAnalyzer implements TemplateAnalyzer {
     public void analyze(ServletContext servletContext,
             HttpServletRequest request, HttpServletResponse response,
             Request ymirRequest, String path, HttpMethod method,
-            Map<String, ClassDesc> classDescMap, Template template,
-            String className, ClassCreationHintBag hintBag,
+            Template template, String className, DescPool pool,
             String[] ignoreVariables) {
         try {
-            DescPool.getDefault().clear();
-            DescPool.getDefault().setSourceCreator(sourceCreator_);
-            DescPool.getDefault().setHintBag(hintBag);
-
+            DescPool.setDefault(pool);
             Zpt zpt = getZpt();
             // 本来ZptYmir#processResponse()でやってくれることであるが、
             // 自動生成処理がprocessResponse()より前に動くためにここでprocessResponse()
@@ -132,12 +125,10 @@ public class ZptAnalyzer implements TemplateAnalyzer {
                     .getTemplatePathResolver()));
             context.setSourceCreator(sourceCreator_);
             context.setMethod(method);
-            context.setClassDescMap(classDescMap);
             context.setPageClassName(className);
             context.setRepeatedPropertyGeneratedAsList(sourceCreator_
                     .getSourceCreatorSetting()
                     .isRepeatedPropertyGeneratedAsList());
-            context.setPropertyTypeHintBag(hintBag);
 
             InputStream inputStream = null;
             try {
@@ -161,8 +152,7 @@ public class ZptAnalyzer implements TemplateAnalyzer {
                 }
             }
         } finally {
-            // 必ずしも必要ではないがメモリを開放するためにこうしている。
-            DescPool.getDefault().clear();
+            DescPool.setDefault(null);
         }
     }
 

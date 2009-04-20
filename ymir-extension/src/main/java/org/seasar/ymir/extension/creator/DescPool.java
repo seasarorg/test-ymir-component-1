@@ -10,7 +10,7 @@ import java.util.Map;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
 
 public class DescPool implements Iterable<ClassDesc> {
-    private static ThreadLocal<DescPool> descPools_ = new ThreadLocal<DescPool>();
+    private static ThreadLocal<DescPool> pools_ = new ThreadLocal<DescPool>();
 
     private Map<String, ClassDesc> classDescMap_ = new HashMap<String, ClassDesc>();
 
@@ -18,20 +18,22 @@ public class DescPool implements Iterable<ClassDesc> {
 
     private ClassCreationHintBag hintBag_;
 
-    private DescPool() {
+    private DescPool(SourceCreator sourceCreator, ClassCreationHintBag hintBag) {
+        sourceCreator_ = sourceCreator;
+        hintBag_ = hintBag;
     }
 
     public static DescPool getDefault() {
-        DescPool descPool = descPools_.get();
-        if (descPool == null) {
-            descPool = new DescPool();
-            descPools_.set(descPool);
-        }
-        return descPool;
+        return pools_.get();
     }
 
-    public static DescPool newInstance() {
-        return new DescPool();
+    public static void setDefault(DescPool pool) {
+        pools_.set(pool);
+    }
+
+    public static DescPool newInstance(SourceCreator sourceCreator,
+            ClassCreationHintBag hintBag) {
+        return new DescPool(sourceCreator, hintBag);
     }
 
     public ClassDesc getClassDesc(Class<?> clazz) {
@@ -75,9 +77,14 @@ public class DescPool implements Iterable<ClassDesc> {
         return classDescMap_.values().iterator();
     }
 
-    public List<ClassDesc> getClassDescs() {
-        // 返したListが加工されても問題ないようにコピーを返している。
-        return new ArrayList<ClassDesc>(classDescMap_.values());
+    public List<ClassDesc> getGeneratedClassDescs() {
+        List<ClassDesc> list = new ArrayList<ClassDesc>();
+        for (ClassDesc classDesc : classDescMap_.values()) {
+            if (getSourceCreator().isGeneratedClass(classDesc.getName())) {
+                list.add(classDesc);
+            }
+        }
+        return list;
     }
 
     public boolean contains(String className) {
@@ -88,15 +95,33 @@ public class DescPool implements Iterable<ClassDesc> {
         return hintBag_;
     }
 
-    public void setHintBag(ClassCreationHintBag hintBag) {
-        hintBag_ = hintBag;
-    }
-
     public SourceCreator getSourceCreator() {
         return sourceCreator_;
     }
 
-    public void setSourceCreator(SourceCreator sourceCreator) {
-        sourceCreator_ = sourceCreator;
+    public ClassDesc registerClassDesc(ClassDesc classDesc) {
+        if (classDesc.getDescPool() != this) {
+            throw new IllegalArgumentException(
+                    "Can't register ClassDesc born from another DescPool");
+        }
+        return classDescMap_.put(classDesc.getName(), classDesc);
+    }
+
+    public ClassDesc unregisterClassDesc(String className) {
+        if (className == null) {
+            return null;
+        }
+        return classDescMap_.remove(className);
+    }
+
+    public ClassDesc unregisterClassDesc(ClassDesc classDesc) {
+        if (classDesc == null) {
+            return null;
+        }
+        if (classDesc.getDescPool() != this) {
+            throw new IllegalArgumentException(
+                    "Can't unregister ClassDesc born from another DescPool");
+        }
+        return classDescMap_.remove(classDesc.getName());
     }
 }

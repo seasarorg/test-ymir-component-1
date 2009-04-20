@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.kvasir.util.io.IOUtils;
@@ -113,16 +111,18 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
     }
 
     public void testGatherClassDescs() throws Exception {
-        Map<String, ClassDesc> classDescMap = new LinkedHashMap<String, ClassDesc>();
         ClassCreationHintBag hintBag = new ClassCreationHintBag(
                 new PropertyTypeHint[] { new PropertyTypeHint(
                         "com.example.web.TestPage", "result",
                         "java.lang.Integer") }, null);
-        target_.gatherClassDescs(classDescMap, new PathMetaDataImpl(
-                "/test.html", HttpMethod.GET, false, "testPage",
-                "com.example.web.TestPage", null, null, null,
-                getSourceCreator().getTemplate("/test.html")), hintBag, null);
-        ClassDesc[] actual = classDescMap.values().toArray(new ClassDesc[0]);
+        DescPool pool = DescPool.newInstance(target_, hintBag);
+        target_.gatherClassDescs(pool,
+                new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
+                        "testPage", "com.example.web.TestPage", null, null,
+                        null, getSourceCreator().getTemplate("/test.html")),
+                null);
+        ClassDesc[] actual = pool.getGeneratedClassDescs().toArray(
+                new ClassDesc[0]);
 
         assertNotNull(actual);
         assertEquals(2, actual.length);
@@ -149,16 +149,18 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testGatherClassDescs2_hintとして外部のDtoクラスを指定していても正しく利用されること()
             throws Exception {
-        Map<String, ClassDesc> classDescMap = new LinkedHashMap<String, ClassDesc>();
         ClassCreationHintBag hintBag = new ClassCreationHintBag(
                 new PropertyTypeHint[] { new PropertyTypeHint(
                         "com.example.web.TestPage", "result",
                         "com.outer.dto.EntryDto") }, null);
-        target_.gatherClassDescs(classDescMap, new PathMetaDataImpl(
-                "/test.html", HttpMethod.GET, false, "testPage",
-                "com.example.web.TestPage", null, null, null,
-                getSourceCreator().getTemplate("/test.html")), hintBag, null);
-        ClassDesc[] actual = classDescMap.values().toArray(new ClassDesc[0]);
+        DescPool pool = DescPool.newInstance(target_, hintBag);
+        target_.gatherClassDescs(pool,
+                new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
+                        "testPage", "com.example.web.TestPage", null, null,
+                        null, getSourceCreator().getTemplate("/test.html")),
+                null);
+        ClassDesc[] actual = pool.getGeneratedClassDescs().toArray(
+                new ClassDesc[0]);
 
         assertEquals("com.outer.dto.EntryDto", actual[0].getPropertyDesc(
                 "result").getTypeDesc().getName());
@@ -166,31 +168,35 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testGatherClassDescs2_外部のDtoクラスは自動生成対象にならないこと()
             throws Exception {
-        Map<String, ClassDesc> classDescMap = new LinkedHashMap<String, ClassDesc>();
         ClassCreationHintBag hintBag = new ClassCreationHintBag(
                 new PropertyTypeHint[] { new PropertyTypeHint(
                         "com.example.web.TestPage", "result",
                         "com.outer.dto.EntryDto") }, null);
-        target_.gatherClassDescs(classDescMap, new PathMetaDataImpl(
-                "/test.html", HttpMethod.GET, false, "testPage",
-                "com.example.web.TestPage", null, null, null,
-                getSourceCreator().getTemplate("/test.html")), hintBag, null);
+        DescPool pool = DescPool.newInstance(target_, hintBag);
+        target_.gatherClassDescs(pool,
+                new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
+                        "testPage", "com.example.web.TestPage", null, null,
+                        null, getSourceCreator().getTemplate("/test.html")),
+                null);
 
-        assertNull(classDescMap.get("com.outer.dto.EntryDto"));
+        assertFalse(pool.contains("com.outer.dto.EntryDto"));
     }
 
     public void testNewClassDesc() throws Exception {
         assertEquals("マッチしたパターンに関連付けられているスーパークラス名がセットされていること",
-                "com.example.web.HndexPageBaseBase", target_.newClassDesc(null,
+                "com.example.web.HndexPageBaseBase", target_.newClassDesc(
+                        DescPool.newInstance(target_, null),
                         "com.example.web.HndexPage", null).getSuperclassName());
 
         assertEquals(
                 "マッチするパターンが無くデフォルトのスーパークラス名が指定されている場合はデフォルトのスーパークラス名がセットされていること",
-                "com.example.page.TestPageBaseBase", target_.newClassDesc(null,
+                "com.example.page.TestPageBaseBase", target_.newClassDesc(
+                        DescPool.newInstance(target_, null),
                         "com.example.page.TestPage", null).getSuperclassName());
 
         assertEquals("マッチしたパターンに関連付けられているスーパークラス名よりも実際のスーパークラス名が優先されること",
-                "com.example.web.IndexPageBaseBase", target_.newClassDesc(null,
+                "com.example.web.IndexPageBaseBase", target_.newClassDesc(
+                        DescPool.newInstance(target_, null),
                         "com.example.web.IndexPage", null).getSuperclassName());
     }
 
@@ -198,14 +204,15 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
             throws Exception {
         ClassHint classHint = new ClassHint("com.example.web.IndexPage");
         classHint.setSuperclassName("com.example.web.PageBase");
-        assertEquals("com.example.web.PageBase", target_.newClassDesc(null,
+        assertEquals("com.example.web.PageBase", target_.newClassDesc(
+                DescPool.newInstance(target_, null),
                 "com.example.web.IndexPage",
                 new ClassCreationHintBag(null, new ClassHint[] { classHint }))
                 .getSuperclassName());
     }
 
     public void testAdjustByExistentClass() throws Exception {
-        ClassDesc cd = new ClassDescImpl(null,
+        ClassDesc cd = new ClassDescImpl(DescPool.newInstance(target_, null),
                 "org.seasar.ymir.extension.creator.impl.Merge3Page");
         cd.setSuperclassName(Merge3PageBaseBase.class.getName());
         PropertyDesc pd = new PropertyDescImpl(null, "hoe");
@@ -262,7 +269,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
     }
 
     public void testAdjustByExistentClass2() throws Exception {
-        ClassDesc cd = new ClassDescImpl(null,
+        ClassDesc cd = new ClassDescImpl(DescPool.newInstance(target_, null),
                 "org.seasar.ymir.extension.creator.impl.Merge2Page");
         cd.setSuperclassName(Merge2PageBaseBase.class.getName());
         MethodDesc md = new MethodDescImpl(null, "_render");
@@ -277,7 +284,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testGetClassDesc_bodyアノテーションが付与されている場合はボディが復元されること()
             throws Exception {
-        ClassDesc cd = target_.newClassDesc(Class1Base.class, true);
+        ClassDesc cd = target_.newClassDesc(
+                DescPool.newInstance(target_, null), Class1Base.class, true);
 
         BodyDesc actual = cd.getMethodDescs()[0].getBodyDesc();
 
@@ -286,7 +294,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testGetClassDesc_プロパティのGetterとSetterに付与したAnnotationが保持されること()
             throws Exception {
-        ClassDesc cd = target_.newClassDesc(Class2Base.class, true);
+        ClassDesc cd = target_.newClassDesc(
+                DescPool.newInstance(target_, null), Class2Base.class, true);
 
         AnnotationDesc[] ads = cd.getPropertyDesc("value")
                 .getAnnotationDescsOnGetter();
@@ -300,7 +309,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testGetClassDesc_YMIR_191_フォームDtoのfieldが保存されること()
             throws Exception {
-        ClassDesc cd = target_.newClassDesc(Class3Base.class, true);
+        ClassDesc cd = target_.newClassDesc(
+                DescPool.newInstance(target_, null), Class3Base.class, true);
 
         PropertyDesc pd = cd.getPropertyDesc("form");
         assertNotNull(pd);
@@ -340,7 +350,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         getConfiguration().removeProperty(
                 SourceCreatorSetting.APPKEY_SOURCECREATOR_SUPERCLASS);
 
-        ClassDesc cd = new ClassDescImpl(null,
+        ClassDesc cd = new ClassDescImpl(DescPool.newInstance(target_, null),
                 "org.seasar.ymir.extension.creator.impl.Merge5Page");
 
         target_.adjustByExistentClass(cd);
@@ -350,7 +360,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass2_validationFailedなどがスーパークラスにある時は自動生成されないこと()
             throws Exception {
-        ClassDesc cd = new ClassDescImpl(null,
+        ClassDesc cd = new ClassDescImpl(DescPool.newInstance(target_, null),
                 "com.example.page.SourceCreatorImplTestPage");
         cd.setSuperclassName(SourceCreatorImplTestPageBaseBase.class.getName());
         MethodDescImpl md = new MethodDescImpl(null,
@@ -366,7 +376,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass3_Baseクラスの親クラス情報は維持されること()
             throws Exception {
-        ClassDesc cd = new ClassDescImpl(null,
+        ClassDesc cd = new ClassDescImpl(DescPool.newInstance(target_, null),
                 "org.seasar.ymir.extension.creator.impl.Merge3Page");
         cd.setSuperclassName(TestPageBase.class.getName());
 
@@ -378,7 +388,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass5_Baseクラスのabstract状態が維持されること()
             throws Exception {
-        ClassDesc cd = new ClassDescImpl(null,
+        ClassDesc cd = new ClassDescImpl(DescPool.newInstance(target_, null),
                 "org.seasar.ymir.extension.creator.impl.Merge7Page");
         cd.setSuperclassName(TestPageBase.class.getName());
 
@@ -389,7 +399,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass6_プロパティのGetterやSetterがスーパークラスにある時は自動生成されないこと()
             throws Exception {
-        ClassDesc cd = new ClassDescImpl(null,
+        ClassDesc cd = new ClassDescImpl(DescPool.newInstance(target_, null),
                 "org.seasar.ymir.extension.creator.impl.Merge8Page");
         PropertyDescImpl pd = new PropertyDescImpl(null, "value");
         pd.setMode(PropertyDesc.READ);
@@ -402,7 +412,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass9_BaseクラスのAnnotationが上書きされること()
             throws Exception {
-        ClassDesc cd = new ClassDescImpl(null,
+        ClassDesc cd = new ClassDescImpl(DescPool.newInstance(target_, null),
                 "org.seasar.ymir.extension.creator.impl.Merge9Page");
         cd.setAnnotationDesc(new MetaAnnotationDescImpl("meta",
                 new String[] { "newValue" }, new Class[0]));
@@ -417,7 +427,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass10_Baseクラスのメソッドの返り値型()
             throws Exception {
-        ClassDesc cd = new ClassDescImpl(null,
+        ClassDesc cd = new ClassDescImpl(DescPool.newInstance(target_, null),
                 "org.seasar.ymir.extension.creator.impl.Merge10Page");
         MethodDesc getMd = new MethodDescImpl(null, "_get");
         getMd.setReturnTypeDesc(new TypeDescImpl(null, Void.TYPE));
@@ -438,7 +448,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass11_FormDtoフィールドがsuperクラスにある場合はプロパティが除去されれること()
             throws Exception {
-        ClassDesc cd = new ClassDescImpl(null,
+        ClassDesc cd = new ClassDescImpl(DescPool.newInstance(target_, null),
                 "org.seasar.ymir.extension.creator.impl.Merge11Page");
         PropertyDesc pd = new PropertyDescImpl(null, "hoehoe");
         cd.setPropertyDesc(pd);
@@ -476,19 +486,22 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
     }
 
     public void testIsFormDtoFieldPresent() throws Exception {
-        assertFalse(target_.isFormDtoFieldPresent(new ClassDescImpl(null,
-                Object.class.getName()), "hoehoe"));
+        assertFalse(target_.isFormDtoFieldPresent(new ClassDescImpl(DescPool
+                .newInstance(target_, null), Object.class.getName()), "hoehoe"));
 
-        assertFalse(target_.isFormDtoFieldPresent(new ClassDescImpl(null,
-                Merge10Page.class.getName()), "hoehoe"));
+        assertFalse(target_.isFormDtoFieldPresent(new ClassDescImpl(DescPool
+                .newInstance(target_, null), Merge10Page.class.getName()),
+                "hoehoe"));
 
-        assertTrue(target_.isFormDtoFieldPresent(new ClassDescImpl(null,
-                Merge11Page.class.getName()), "hoehoe"));
+        assertTrue(target_.isFormDtoFieldPresent(new ClassDescImpl(DescPool
+                .newInstance(target_, null), Merge11Page.class.getName()),
+                "hoehoe"));
     }
 
     public void testGetClassDesc_YMIR_226_aNameのようなプロパティを正しく検出できること1()
             throws Exception {
-        ClassDesc actual = target_.newClassDesc(new Object() {
+        ClassDesc actual = target_.newClassDesc(DescPool.newInstance(target_,
+                null), new Object() {
             private String aName_;
 
             @SuppressWarnings("unused")
@@ -508,7 +521,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testGetClassDesc_YMIR_226_aNameのようなプロパティを正しく検出できること2()
             throws Exception {
-        ClassDesc actual = target_.newClassDesc(new Object() {
+        ClassDesc actual = target_.newClassDesc(DescPool.newInstance(target_,
+                null), new Object() {
             @org.seasar.ymir.annotation.Meta(name = "property", value = "hoehoe")
             protected HoehoeDto hoehoe_ = new HoehoeDto();
 
@@ -537,12 +551,14 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 "com.example.web.TraversePageBase");
 
         assertEquals("com.example.web.aaa1.bbb1.TraversePageBase", target_
-                .newClassDesc(null, "com.example.web.aaa1.bbb1.Traverse1Page",
-                        null).getSuperclassName());
+                .newClassDesc(DescPool.newInstance(target_, null),
+                        "com.example.web.aaa1.bbb1.Traverse1Page", null)
+                .getSuperclassName());
 
         assertEquals("com.example.web.aaa1.TraversePageBase", target_
-                .newClassDesc(null, "com.example.web.aaa1.bbb2.Traverse2Page",
-                        null).getSuperclassName());
+                .newClassDesc(DescPool.newInstance(target_, null),
+                        "com.example.web.aaa1.bbb2.Traverse2Page", null)
+                .getSuperclassName());
 
         assertEquals("com.example.web.TraversePageBase", target_.newClassDesc(
                 null, "com.example.web.aaa2.bbb.TraversePage", null)
@@ -551,7 +567,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass_Baseにあるメソッドのアノテーションとボディが保持されること()
             throws Exception {
-        ClassDesc classDesc = target_.newClassDesc(AdjustPage.class, true);
+        ClassDesc classDesc = target_.newClassDesc(DescPool.newInstance(
+                target_, null), AdjustPage.class, true);
         target_.adjustByExistentClass(classDesc);
 
         MethodDesc actual = classDesc.getMethodDesc(new MethodDescImpl(null,
@@ -563,7 +580,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass_Baseにあるプロパティの初期値情報が正しくマージされること()
             throws Exception {
-        ClassDesc classDesc = target_.newClassDesc(Adjust4Page.class, false);
+        ClassDesc classDesc = target_.newClassDesc(DescPool.newInstance(
+                target_, null), Adjust4Page.class, false);
         classDesc.getPropertyDesc("list").getTypeDesc()
                 .setCollectionImplementationClassName(null);
         target_.adjustByExistentClass(classDesc);
@@ -576,9 +594,11 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass_Baseにあるプロパティの初期値情報よりもClassDescのプロパティの型情報が優先されること()
             throws Exception {
-        ClassDesc classDesc = target_.newClassDesc(Adjust5Page.class, false);
+        ClassDesc classDesc = target_.newClassDesc(DescPool.newInstance(
+                target_, null), Adjust5Page.class, false);
         classDesc.getPropertyDesc("list").getTypeDesc().setComponentClassDesc(
-                new ClassDescImpl(null, String.class.getName()));
+                new ClassDescImpl(DescPool.newInstance(target_, null),
+                        String.class.getName()));
         classDesc.getPropertyDesc("list").getTypeDesc()
                 .setCollectionImplementationClassName(null);
         target_.adjustByExistentClass(classDesc);
@@ -591,8 +611,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass2_由来が同じプロパティのうち生成されたClassDescに含まれていないものが削除されること()
             throws Exception {
-        ClassDesc classDesc = new ClassDescImpl(null, Adjust2Page.class
-                .getName());
+        ClassDesc classDesc = new ClassDescImpl(DescPool.newInstance(target_,
+                null), Adjust2Page.class.getName());
         classDesc.setBornOf("/adjust2.html");
         classDesc.addProperty("param4", PropertyDesc.READ | PropertyDesc.WRITE);
 
@@ -623,8 +643,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass3_由来が同じメソッドのうち生成されたClassDescに含まれていないものが削除されること()
             throws Exception {
-        ClassDesc classDesc = new ClassDescImpl(null, Adjust3Page.class
-                .getName());
+        ClassDesc classDesc = new ClassDescImpl(DescPool.newInstance(target_,
+                null), Adjust3Page.class.getName());
         classDesc.setBornOf("/adjust3.html");
         classDesc.setMethodDesc(new MethodDescImpl(null, "_get_write"));
 
@@ -646,8 +666,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass4_由来が同じプロパティのうち生成されたClassDescにも含まれているものが正しく残ること()
             throws Exception {
-        ClassDesc classDesc = new ClassDescImpl(null, Adjust2Page.class
-                .getName());
+        ClassDesc classDesc = new ClassDescImpl(DescPool.newInstance(target_,
+                null), Adjust2Page.class.getName());
         classDesc.setBornOf("/adjust2.html");
         classDesc.addProperty("param6", PropertyDesc.READ);
 
@@ -665,8 +685,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass5_オーバライドされたメソッドが消えないこと()
             throws Exception {
-        ClassDesc classDesc = new ClassDescImpl(null, Adjust6Page.class
-                .getName());
+        ClassDesc classDesc = new ClassDescImpl(DescPool.newInstance(target_,
+                null), Adjust6Page.class.getName());
         classDesc.setBornOf("/adjust6.html");
         MethodDesc methodDesc = new MethodDescImpl(null, "_get");
         classDesc.setMethodDesc(methodDesc);
@@ -682,8 +702,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
     }
 
     public void testUpdateClass_Page() throws Exception {
-        ClassDesc classDesc = new ClassDescImpl(null,
-                SourceCreatorImplTest2Page.class.getName());
+        ClassDesc classDesc = new ClassDescImpl(DescPool.newInstance(target_,
+                null), SourceCreatorImplTest2Page.class.getName());
         MethodDesc methodDesc = target_.newActionMethodDesc(classDesc,
                 "/sourceCreatorImplTest2.html", HttpMethod.GET);
         classDesc.setBornOf("/sourceCreatorImplTest2.html");
@@ -704,7 +724,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAddConverterSetterToPageClassDesc_YMIR_325()
             throws Exception {
-        DescPool pool = DescPool.getDefault();
+        DescPool pool = DescPool.newInstance(target_, null);
         ClassDescSet set = new ClassDescSet();
         ClassDesc pageCd = pool.getClassDesc("com.example.web.IndexPage");
         set.add(pageCd);

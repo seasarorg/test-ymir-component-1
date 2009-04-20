@@ -6,9 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 
 import javax.servlet.ServletContext;
@@ -35,6 +33,7 @@ import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassHint;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -81,7 +80,7 @@ public class ZptAnalyzerTest extends TestCase {
 
     private SourceCreatorImpl sourceCreator_;
 
-    private Map<String, ClassDesc> classDescMap_ = new HashMap<String, ClassDesc>();
+    private DescPool pool_;
 
     private String path_ = "/hoe.html";
 
@@ -264,8 +263,9 @@ public class ZptAnalyzerTest extends TestCase {
         dispatch.setPath("/index.html");
         ymirRequest.enterDispatch(dispatch);
         ymirRequest.setContextPath("/context");
+        pool_ = DescPool.newInstance(sourceCreator_, hintBag);
         target_.analyze(servletContext, request, response, ymirRequest, path_,
-                HttpMethod.GET, classDescMap_, new Template() {
+                HttpMethod.GET, new Template() {
                     public InputStream getInputStream() throws IOException {
                         return getClass().getResourceAsStream(
                                 "ZptAnalyzerTest_" + methodName + ".zpt");
@@ -298,12 +298,15 @@ public class ZptAnalyzerTest extends TestCase {
                     public boolean isDirectory() {
                         return false;
                     }
-                }, pageClassName, hintBag, ignoreVariables);
+                }, pageClassName, pool_, ignoreVariables);
     }
 
     private ClassDesc getClassDesc(String name) {
-
-        return classDescMap_.get(name);
+        if (pool_.contains(name)) {
+            return pool_.getClassDesc(name);
+        } else {
+            return null;
+        }
     }
 
     public void testAnalyze1() throws Exception {

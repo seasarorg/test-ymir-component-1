@@ -271,7 +271,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         }
         getSourceCreator().saveSourceCreatorProperties();
 
-        getSourceCreator().updateClasses(classDescBag, hintBag);
+        getSourceCreator().updateClasses(classDescBag);
 
         boolean successfullySynchronized = synchronizeResources(new String[] {
             getRootPackagePath(), getPath(pathMetaData.getTemplate()) });

@@ -3,9 +3,7 @@ package org.seasar.ymir.extension.creator;
 import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 
 public class EntityMetaData {
-    private SourceCreator creator_;
-
-    private ClassCreationHintBag hintBag_;
+    private DescPool pool_;
 
     private String entityName_;
 
@@ -19,31 +17,33 @@ public class EntityMetaData {
 
     private String converterClassName_;
 
-    public EntityMetaData(SourceCreator creator, ClassCreationHintBag hintBag,
-            String className) {
-        creator_ = creator;
-        hintBag_ = hintBag;
+    public EntityMetaData(DescPool pool, String className) {
+        pool_ = pool;
         analyze(className);
     }
 
     void analyze(String className) {
         entityName_ = new ClassDescImpl(null, className).getNameBase();
         String subPackageName = getSubPackageName(className);
-        dtoClassName_ = creator_.getDtoPackageName() + "." + subPackageName
-                + entityName_ + ClassType.DTO.getSuffix();
-        beanClassName_ = creator_.getDaoPackageName() + "." + entityName_;
-        daoClassName_ = creator_.getDaoPackageName() + "." + entityName_
-                + ClassType.DAO.getSuffix();
-        dxoClassName_ = creator_.getDxoPackageName() + "." + subPackageName
-                + entityName_ + ClassType.DXO.getSuffix();
-        converterClassName_ = creator_.getConverterPackageName() + "."
-                + subPackageName + entityName_
+        dtoClassName_ = pool_.getSourceCreator().getDtoPackageName() + "."
+                + subPackageName + entityName_ + ClassType.DTO.getSuffix();
+        beanClassName_ = pool_.getSourceCreator().getDaoPackageName() + "."
+                + entityName_;
+        daoClassName_ = pool_.getSourceCreator().getDaoPackageName() + "."
+                + entityName_ + ClassType.DAO.getSuffix();
+        dxoClassName_ = pool_.getSourceCreator().getDxoPackageName() + "."
+                + subPackageName + entityName_ + ClassType.DXO.getSuffix();
+        converterClassName_ = pool_.getSourceCreator()
+                .getConverterPackageName()
+                + "."
+                + subPackageName
+                + entityName_
                 + ClassType.CONVERTER.getSuffix();
     }
 
     String getSubPackageName(String className) {
-        String name = className.substring(creator_.getFirstRootPackageName()
-                .length() + 1);
+        String name = className.substring(pool_.getSourceCreator()
+                .getFirstRootPackageName().length() + 1);
         int start = name.indexOf('.') + 1;
         int end = name.lastIndexOf('.') + 1;
         return name.substring(start, end);
@@ -54,22 +54,22 @@ public class EntityMetaData {
     }
 
     public ClassDesc newDtoClassDesc() {
-        return creator_.newClassDesc(null, dtoClassName_, hintBag_);
+        return pool_.getClassDesc(dtoClassName_);
     }
 
     public ClassDesc newBeanClassDesc() {
-        return creator_.newClassDesc(null, beanClassName_, hintBag_);
+        return pool_.getClassDesc(beanClassName_);
     }
 
     public ClassDesc newDaoClassDesc() {
-        return creator_.newClassDesc(null, daoClassName_, hintBag_);
+        return pool_.getClassDesc(daoClassName_);
     }
 
     public ClassDesc newDxoClassDesc() {
-        return creator_.newClassDesc(null, dxoClassName_, hintBag_);
+        return pool_.getClassDesc(dxoClassName_);
     }
 
     public ClassDesc newConverterClassDesc() {
-        return creator_.newClassDesc(null, converterClassName_, hintBag_);
+        return pool_.getClassDesc(converterClassName_);
     }
 }

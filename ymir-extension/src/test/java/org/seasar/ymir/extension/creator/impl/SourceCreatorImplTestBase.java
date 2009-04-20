@@ -29,6 +29,7 @@ import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.creator.PageCreator;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
@@ -61,8 +62,8 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
     protected SourceCreatorImpl target_;
 
     protected ClassDesc constructClassDesc() {
-        ClassDesc classDesc = new ClassDescImpl(null,
-                "com.example.web.TestPage");
+        ClassDesc classDesc = new ClassDescImpl(DescPool.newInstance(target_,
+                null), "com.example.web.TestPage");
         PropertyDesc pd = new PropertyDescImpl(null, "param1");
         pd.setMode(PropertyDesc.READ | PropertyDesc.WRITE);
         classDesc.setPropertyDesc(pd);

@@ -2,10 +2,13 @@ package org.seasar.ymir.extension.zpt;
 
 import junit.framework.TestCase;
 
+import org.seasar.ymir.Application;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
+import org.seasar.ymir.mock.MockApplication;
 
 public class AnalyzerContextTest extends TestCase {
     private AnalyzerContext target_;
@@ -35,6 +38,21 @@ public class AnalyzerContextTest extends TestCase {
             }
 
             @Override
+            public Application getApplication() {
+                return new MockApplication() {
+                    @Override
+                    public String getProperty(String key, String defaultValue) {
+                        return defaultValue;
+                    }
+
+                    @Override
+                    public String getRootPackageName() {
+                        return "com.example";
+                    }
+                };
+            }
+
+            @Override
             public SourceCreatorSetting getSourceCreatorSetting() {
                 return new SourceCreatorSetting(this) {
                     @Override
@@ -61,7 +79,9 @@ public class AnalyzerContextTest extends TestCase {
     }
 
     public void testReplaceSimpleDtoTypeToDefaultType1() throws Exception {
-        TypeDesc typeDesc = new TypeDescImpl(null, "com.example.dto.HoeDto");
+        DescPool pool = DescPool.newInstance(target_.getSourceCreator(), null);
+        TypeDesc typeDesc = new TypeDescImpl(pool, "com.example.dto.HoeDto");
+        pool.unregisterClassDesc("com.example.dto.HoeDto");
 
         target_.replaceSimpleDtoTypeToDefaultType(typeDesc);
 
@@ -69,8 +89,10 @@ public class AnalyzerContextTest extends TestCase {
     }
 
     public void testReplaceSimpleDtoTypeToDefaultType2() throws Exception {
-        TypeDesc typeDesc = new TypeDescImpl(null,
+        DescPool pool = DescPool.newInstance(target_.getSourceCreator(), null);
+        TypeDesc typeDesc = new TypeDescImpl(pool,
                 "java.util.List<com.example.dto.HoeDto>");
+        pool.unregisterClassDesc("com.example.dto.HoeDto");
 
         target_.replaceSimpleDtoTypeToDefaultType(typeDesc);
 
@@ -78,7 +100,9 @@ public class AnalyzerContextTest extends TestCase {
     }
 
     public void testReplaceSimpleDtoTypeToDefaultType3() throws Exception {
-        TypeDesc typeDesc = new TypeDescImpl(null, "com.example.dto.HoeDto[]");
+        DescPool pool = DescPool.newInstance(target_.getSourceCreator(), null);
+        TypeDesc typeDesc = new TypeDescImpl(pool, "com.example.dto.HoeDto[]");
+        pool.unregisterClassDesc("com.example.dto.HoeDto");
 
         target_.replaceSimpleDtoTypeToDefaultType(typeDesc);
 
@@ -86,8 +110,10 @@ public class AnalyzerContextTest extends TestCase {
     }
 
     public void testReplaceSimpleDtoTypeToDefaultType4() throws Exception {
-        TypeDesc typeDesc = new TypeDescImpl(null,
+        DescPool pool = DescPool.newInstance(target_.getSourceCreator(), null);
+        TypeDesc typeDesc = new TypeDescImpl(pool,
                 "java.util.List<com.example.dto.HoeDto[]>[]");
+        pool.unregisterClassDesc("com.example.dto.HoeDto");
 
         target_.replaceSimpleDtoTypeToDefaultType(typeDesc);
 

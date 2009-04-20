@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.seasar.ymir.HttpMethod;
-import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.ClassType;
@@ -57,8 +56,6 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private HttpMethod method_;
 
-    private Map<String, ClassDesc> classDescMap_;
-
     private String pageClassName_;
 
     private FormDesc formDesc_;
@@ -72,8 +69,6 @@ public class AnalyzerContext extends ZptTemplateContext {
     private Set<String> ignoreVariableSet_ = new HashSet<String>();
 
     private String path_;
-
-    private ClassCreationHintBag hintBag_;
 
     private Stack<Map<String, String>> variableExpressions_ = new Stack<Map<String, String>>();
 
@@ -422,10 +417,6 @@ public class AnalyzerContext extends ZptTemplateContext {
         method_ = method;
     }
 
-    public void setClassDescMap(Map<String, ClassDesc> classDescMap) {
-        classDescMap_ = classDescMap;
-    }
-
     boolean isAvailable(String className) {
         return (sourceCreator_.getClass(className) != null);
     }
@@ -467,8 +458,8 @@ public class AnalyzerContext extends ZptTemplateContext {
                 .hasNext();) {
             ClassDesc classDesc = itr.next();
 
-            // 自動生成対象外のクラスと中身のないDTOは除外しておく。
-            if (isOuter(classDesc) || isEmptyDto(classDesc)) {
+            // 中身のないDTOは除外しておく。
+            if (isEmptyDto(classDesc)) {
                 itr.remove();
                 continue;
             }
@@ -481,7 +472,8 @@ public class AnalyzerContext extends ZptTemplateContext {
             classDesc.setBornOf(path_);
         }
 
-        for (ClassDesc classDesc : DescPool.getDefault().getClassDescs()) {
+        for (ClassDesc classDesc : DescPool.getDefault()
+                .getGeneratedClassDescs()) {
             // プロパティの型に対応するDTOがMapに存在しない場合は、
             // そのDTOは上のフェーズで除外された、すなわちDTOかもしれないと考えて
             // 解析を進めたが結局DTOであることが確定しなかったので、
@@ -496,12 +488,21 @@ public class AnalyzerContext extends ZptTemplateContext {
             //            classDesc.merge(classDescMap_.get(classDesc.getName()), false);
         }
 
-        for (ClassDesc classDesc : DescPool.getDefault().getClassDescs()) {
+        Set<ClassDesc> usedClassDescSet = new HashSet<ClassDesc>();
+        for (ClassDesc classDesc : DescPool.getDefault()
+                .getGeneratedClassDescs()) {
             // PageクラスとPageクラスから利用されているDTOと、外部で定義されている変数の型クラスと、
             // renderクラスのプロパティのうちインタフェース型であるものの実装クラスとみなされているクラス
             // 以外は無視する。
             if (isPage(classDesc) || isUsedClassName(classDesc.getName())) {
-                registerDependingClassDescs(classDesc);
+                registerDependingClassDescs(classDesc, usedClassDescSet);
+            }
+        }
+        for (Iterator<ClassDesc> itr = DescPool.getDefault().iterator(); itr
+                .hasNext();) {
+            ClassDesc classDesc = itr.next();
+            if (!usedClassDescSet.contains(classDesc)) {
+                itr.remove();
             }
         }
     }
@@ -511,7 +512,7 @@ public class AnalyzerContext extends ZptTemplateContext {
                 className);
     }
 
-    void replaceSimpleDtoTypeToDefaultType(TypeDesc typeDesc) {
+    void replaceSimpleDtoTypeToDefaultType(final TypeDesc typeDesc) {
         TypeToken typeToken = new TypeToken(typeDesc.getCompleteName());
         typeToken.accept(new TokenVisitor<Object>() {
             public Object visit(
@@ -520,7 +521,7 @@ public class AnalyzerContext extends ZptTemplateContext {
                         .getBaseName());
                 boolean array = DescUtils.isArray(acceptor.getBaseName());
                 if (isDto(componentName)
-                        && !DescPool.getDefault().contains(componentName)) {
+                        && !typeDesc.getDescPool().contains(componentName)) {
                     acceptor.setBaseName(DescUtils.getClassName(String.class
                             .getName(), array));
                 }
@@ -531,35 +532,28 @@ public class AnalyzerContext extends ZptTemplateContext {
         typeDesc.setName(typeToken.getAsString());
     }
 
-    void registerDependingClassDescs(ClassDesc classDesc) {
-        if (!register(classDesc)) {
+    void registerDependingClassDescs(ClassDesc classDesc,
+            Set<ClassDesc> usedClassDescSet) {
+        if (!usedClassDescSet.add(classDesc)) {
             return;
         }
         for (PropertyDesc pd : classDesc.getPropertyDescs()) {
             for (String className : pd.getTypeDesc().getImportClassNames()) {
-                ClassDesc cd = DescPool.getDefault().getClassDesc(className);
+                ClassDesc cd = classDesc.getDescPool().getClassDesc(className);
                 if (isDto(cd)) {
-                    registerDependingClassDescs(cd);
+                    registerDependingClassDescs(cd, usedClassDescSet);
                 }
             }
         }
     }
 
-    boolean register(ClassDesc classDesc) {
-        String key = classDesc.getName();
-        Object registered = classDescMap_.get(key);
-        classDescMap_.put(key, classDesc);
-        return registered != classDesc;
-    }
-
     public boolean isOuter(ClassDesc classDesc) {
-        return !classDesc.getPackageName().startsWith(
-                sourceCreator_.getFirstRootPackageName() + ".");
+        return isOuter(classDesc.getName());
     }
 
     public boolean isOuter(String typeName) {
-        return !DescUtils.getNonGenericClassName(typeName).startsWith(
-                sourceCreator_.getFirstRootPackageName() + ".");
+        return !sourceCreator_.isGeneratedClass(DescUtils
+                .getNonGenericClassName(typeName));
     }
 
     private boolean isPage(ClassDesc classDesc) {
@@ -688,22 +682,19 @@ public class AnalyzerContext extends ZptTemplateContext {
         path_ = path;
     }
 
-    public void setPropertyTypeHintBag(ClassCreationHintBag hintBag) {
-        hintBag_ = hintBag;
-    }
-
     public PropertyTypeHint getPropertyTypeHint(String className,
             String propertyName) {
-        if (hintBag_ != null) {
-            return hintBag_.getPropertyTypeHint(className, propertyName);
+        if (DescPool.getDefault().getHintBag() != null) {
+            return DescPool.getDefault().getHintBag().getPropertyTypeHint(
+                    className, propertyName);
         } else {
             return null;
         }
     }
 
     public ClassHint getClassHint(String className) {
-        if (hintBag_ != null) {
-            return hintBag_.getClassHint(className);
+        if (DescPool.getDefault().getHintBag() != null) {
+            return DescPool.getDefault().getHintBag().getClassHint(className);
         } else {
             return null;
         }

@@ -36,11 +36,14 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     private FreemarkerSourceGenerator target_;
 
     public static class FSourceCreatorImpl extends SourceCreatorImpl {
+        public FSourceCreatorImpl() {
+            setNamingConvention(new YmirNamingConvention());
+        }
+
         @Override
         public ClassDesc createConverterClassDesc(ClassDesc dtoCd,
-                String[] pairTypeNames, ClassCreationHintBag hintBag) {
-            return super
-                    .createConverterClassDesc(dtoCd, pairTypeNames, hintBag);
+                String[] pairTypeNames) {
+            return super.createConverterClassDesc(dtoCd, pairTypeNames);
         }
 
         @Override
@@ -82,50 +85,46 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 }
             };
         }
+
+        @Override
+        public String[] getRootPackageNames() {
+            return new String[] { getFirstRootPackageName() };
+        }
+
+        @Override
+        public String getFirstRootPackageName() {
+            return "com.example";
+        }
+
+        @Override
+        public String getPagePackageName() {
+            return "com.example.web";
+        }
+
+        @Override
+        public String getDtoPackageName() {
+            return "com.example.dto";
+        }
+
+        @Override
+        public String getDaoPackageName() {
+            return "com.example.dao";
+        }
+
+        @Override
+        public String getDxoPackageName() {
+            return "com.example.dxo";
+        }
+
+        @Override
+        public String getConverterPackageName() {
+            return "com.example.converter";
+        }
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        sourceCreator_ = new FSourceCreatorImpl() {
-            {
-                setNamingConvention(new YmirNamingConvention());
-            }
-
-            @Override
-            public String[] getRootPackageNames() {
-                return new String[] { getFirstRootPackageName() };
-            }
-
-            @Override
-            public String getFirstRootPackageName() {
-                return "com.example";
-            }
-
-            @Override
-            public String getPagePackageName() {
-                return "com.example.web";
-            }
-
-            @Override
-            public String getDtoPackageName() {
-                return "com.example.dto";
-            }
-
-            @Override
-            public String getDaoPackageName() {
-                return "com.example.dao";
-            }
-
-            @Override
-            public String getDxoPackageName() {
-                return "com.example.dxo";
-            }
-
-            @Override
-            public String getConverterPackageName() {
-                return "com.example.converter";
-            }
-        };
+        sourceCreator_ = new FSourceCreatorImpl();
         target_ = new FreemarkerSourceGenerator();
         target_.setSourceCreator(sourceCreator_);
 
@@ -133,7 +132,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     private ClassDesc prepareClassDesc(String className) {
-        ClassDesc classDesc = new ClassDescImpl(null, className);
+        ClassDesc classDesc = new ClassDescImpl(DescPool.newInstance(
+                sourceCreator_, null), className);
         classDesc.setSuperclassName(TestPageBaseBase.class.getName());
         PropertyDesc propertyDesc = new PropertyDescImpl(null, "param1");
         propertyDesc.setTypeDesc(Boolean.TYPE);
@@ -191,7 +191,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 }
                 return new ClassDescImpl(pool, className);
             }
-        }.newClassDesc(HoePageBase.class, true);
+        }.newClassDesc(DescPool.newInstance(sourceCreator_,null), HoePageBase.class, true);
         classDesc.setAttribute(Globals.ATTR_ACTION,
                 new MethodDesc[] { classDesc.getMethodDesc(new MethodDescImpl(
                         null, "_get")) });
@@ -212,7 +212,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 }
                 return new ClassDescImpl(pool, className);
             }
-        }.newClassDesc(Hoe3PageBase.class, true);
+        }.newClassDesc(DescPool.newInstance(sourceCreator_,null), Hoe3PageBase.class, true);
 
         String actual = target_.generateBaseSource(classDesc);
 
@@ -221,8 +221,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Page4() throws Exception {
-        ClassDesc classDesc = new ClassDescImpl(null,
-                "com.example.web.TestPage");
+        ClassDesc classDesc = new ClassDescImpl(DescPool.newInstance(
+                sourceCreator_, null), "com.example.web.TestPage");
         MethodDesc methodDesc = new MethodDescImpl(null, "_permissionDenied");
         methodDesc.setThrowsDesc(new ThrowsDescImpl()
                 .addThrowable(PermissionDeniedException.class));
@@ -250,7 +250,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 }
                 return new ClassDescImpl(pool, className);
             }
-        }.newClassDesc(Hoe5PageBase.class, true);
+        }.newClassDesc(DescPool.newInstance(sourceCreator_,null), Hoe5PageBase.class, true);
 
         ClassDesc generated = new ClassDescImpl(null,
                 "org.seasar.ymir.extension.freemarker.Hoe5Page");
@@ -285,7 +285,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     public void testGenerateGapSource_Page() throws Exception {
 
         ClassDesc classDesc = prepareClassDesc("com.example.page.TestPage");
-        MethodDesc methodDesc = new MethodDescImpl(null, "_get");
+        MethodDesc methodDesc = new MethodDescImpl(classDesc.getDescPool(),
+                "_get");
         methodDesc.setReturnTypeDesc(String.class.getName());
         methodDesc.setBodyDesc(new BodyDescImpl(
                 "return \"redirect:/path/to/redirect.html\";"));
@@ -313,7 +314,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 }
                 return new ClassDescImpl(pool, className);
             }
-        }.newClassDesc(Hoe6PageBase.class, true);
+        }.newClassDesc(DescPool.newInstance(sourceCreator_, null), Hoe6PageBase.class, true);
 
         String actual = target_.generateBaseSource(classDesc);
 
@@ -322,10 +323,11 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Converter() throws Exception {
+        DescPool pool = DescPool.newInstance(sourceCreator_, null);
         ClassDesc classDesc = sourceCreator_.createConverterClassDesc(
-                new ClassDescImpl(null, HoeDto.class.getName()), new String[] {
+                new ClassDescImpl(pool, HoeDto.class.getName()), new String[] {
                     Hoe.class.getName() + "<java.util.List>",
-                    "java.lang.Object" }, null);
+                    "java.lang.Object" });
         String actual = target_.generateBaseSource(classDesc);
 
         assertEquals(readResource(getClass(),
@@ -333,10 +335,11 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateGapSource_Converter() throws Exception {
+        DescPool pool = DescPool.newInstance(sourceCreator_, null);
         ClassDesc classDesc = sourceCreator_.createConverterClassDesc(
-                new ClassDescImpl(null, HoeDto.class.getName()), new String[] {
+                new ClassDescImpl(pool, HoeDto.class.getName()), new String[] {
                     Hoe.class.getName() + "<java.util.List>",
-                    "java.lang.Object" }, null);
+                    "java.lang.Object" });
         String actual = target_.generateGapSource(classDesc);
 
         assertEquals(readResource(getClass(),
@@ -344,9 +347,10 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Converter2_中身が空の場合() throws Exception {
+        DescPool pool = DescPool.newInstance(sourceCreator_, null);
         ClassDesc classDesc = sourceCreator_.createConverterClassDesc(
-                new ClassDescImpl(null, HoeDto.class.getName()),
-                new String[] { "java.lang.Object" }, null);
+                new ClassDescImpl(pool, HoeDto.class.getName()),
+                new String[] { "java.lang.Object" });
         String actual = target_.generateBaseSource(classDesc);
 
         assertEquals(readResource(getClass(),
@@ -355,9 +359,10 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
 
     public void test_YMIR_309_GenerateBaseSource_Page7_プリミティブ型の引数を持つメソッドの引数名が適切に生成されること()
             throws Exception {
-        ClassDesc classDesc = new ClassDescImpl(null,
+        DescPool pool = DescPool.newInstance(sourceCreator_, null);
+        ClassDesc classDesc = new ClassDescImpl(pool,
                 "com.example.page.TestPage");
-        MethodDesc methodDesc = new MethodDescImpl(null, "_get");
+        MethodDesc methodDesc = new MethodDescImpl(pool, "_get");
         classDesc.setAttribute(Globals.ATTR_ACTION,
                 new MethodDesc[] { methodDesc });
         methodDesc.setReturnTypeDesc("void");
@@ -374,9 +379,10 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
 
     public void test_YMIR_310_GenerateBaseSource_Page8_同一型の引数を複数持つメソッドの引数名が適切に生成されること()
             throws Exception {
-        ClassDesc classDesc = new ClassDescImpl(null,
+        DescPool pool = DescPool.newInstance(sourceCreator_, null);
+        ClassDesc classDesc = new ClassDescImpl(pool,
                 "com.example.page.TestPage");
-        MethodDesc methodDesc = new MethodDescImpl(null, "_get");
+        MethodDesc methodDesc = new MethodDescImpl(pool, "_get");
         classDesc.setAttribute(Globals.ATTR_ACTION,
                 new MethodDesc[] { methodDesc });
         methodDesc.setReturnTypeDesc("void");

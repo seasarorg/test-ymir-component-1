@@ -251,7 +251,7 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         md.setReturnTypeDesc("java.lang.String");
         md.setAnnotationDesc(new MetaAnnotationDescImpl("b", new String[0],
                 new Class[0]));
-        md.setAnnotationDesc(new AnnotationDescImpl(null, "name2"));
+        md.setAnnotationDesc(new AnnotationDescImpl("name2"));
         cd2.setMethodDesc(md);
 
         actual.merge(cd2, true);

@@ -1,13 +1,12 @@
 package org.seasar.ymir.extension.creator.action.impl;
 
 import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescSet;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.impl.PathMetaDataImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImplTestBase;
 import org.seasar.ymir.mock.MockRequest;
@@ -37,15 +36,14 @@ public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
         assertFalse("ソースファイルが存在しない場合は最初だけtrueになること", target_.shouldUpdate(
                 request, pathMetaData));
 
-        Map<String, ClassDesc> classDescMap = new LinkedHashMap<String, ClassDesc>();
+        DescPool pool = DescPool.newInstance(getSourceCreator(), null);
         getSourceCreator().gatherClassDescs(
-                classDescMap,
+                pool,
                 new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
                         "testPage", "com.example.web.TestPage", null, null,
                         null, getSourceCreator().getTemplate("/test.html")),
-                null, null);
-        ClassDesc[] classDescs = classDescMap.values()
-                .toArray(new ClassDesc[0]);
+                null);
+        ClassDesc[] classDescs = pool.getGeneratedClassDescs().toArray(new ClassDesc[0]);
         ClassDescSet classDescSet = new ClassDescSet(classDescs);
         for (int i = classDescs.length - 1; i >= 0; i--) {
             getSourceCreator().adjustByExistentClass(classDescs[i]);

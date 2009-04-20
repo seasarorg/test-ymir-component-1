@@ -91,7 +91,7 @@ public interface SourceCreator extends Updater {
     ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
             ClassCreationHintBag hintBag, String[] ignoreVariables);
 
-    void updateClasses(ClassDescBag classDescBag, ClassCreationHintBag hintBag);
+    void updateClasses(ClassDescBag classDescBag);
 
     void updateClass(ClassDesc classDesc) throws InvalidClassDescException;
 
@@ -110,11 +110,13 @@ public interface SourceCreator extends Updater {
      * falseである場合は祖先クラスが持つ要素も参照されてClassDescオブジェクトが構築されます。
      * </p>
      * 
+     * @param pool ClassDescオブジェクトが属することになるDescPool。
+     * nullを指定することもできます。
      * @param clazz クラス。nullが指定された場合はnullを返します。
      * @param onlyDeclared そのクラスが持つ要素だけを参照するかどうか。
      * @return 構築したClassDescオブジェクト。
      */
-    ClassDesc newClassDesc(Class<?> clazz, boolean onlyDeclared);
+    ClassDesc newClassDesc(DescPool pool, Class<?> clazz, boolean onlyDeclared);
 
     /**
      * 指定されたクラス名に対応するClassDescオブジェクトを構築して返します。
@@ -157,4 +159,6 @@ public interface SourceCreator extends Updater {
 
     MethodDesc newActionMethodDesc(ClassDesc classDesc, String path,
             HttpMethod method, ActionSelectorSeed seed);
+
+    boolean isGeneratedClass(String className);
 }

@@ -450,26 +450,24 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
             ClassCreationHintBag hintBag, String[] ignoreVariables) {
-        Map<String, ClassDesc> classDescMap = new LinkedHashMap<String, ClassDesc>();
+        DescPool pool = DescPool.newInstance(this, hintBag);
         for (int i = 0; i < pathMetaDatas.length; i++) {
-            gatherClassDescs(classDescMap, pathMetaDatas[i], hintBag,
-                    ignoreVariables);
+            gatherClassDescs(pool, pathMetaDatas[i], ignoreVariables);
         }
-        ClassDesc[] classDescs = addRelativeClassDescs(classDescMap.values()
-                .toArray(new ClassDesc[0]), hintBag);
+        ClassDesc[] classDescs = addRelativeClassDescs(pool
+                .getGeneratedClassDescs().toArray(new ClassDesc[0]), hintBag);
 
         return classifyClassDescs(classDescs);
     }
 
-    public void updateClasses(ClassDescBag classDescBag,
-            ClassCreationHintBag hintBag) {
+    public void updateClasses(ClassDescBag classDescBag) {
         if (setting_.isConverterCreationFeatureEnabled()) {
             // Converter用のClassDescを生成する。
             for (ClassDesc dtoCd : classDescBag.getClassDescs(ClassType.DTO)) {
                 String[] pairTypeNames = getPairTypeNames(dtoCd);
                 if (pairTypeNames != null) {
                     ClassDesc converterCd = createConverterClassDesc(dtoCd,
-                            pairTypeNames, hintBag);
+                            pairTypeNames);
                     if (getClass(converterCd.getName()) == null) {
                         classDescBag.addAsCreated(converterCd);
                     } else {
@@ -520,8 +518,8 @@ public class SourceCreatorImpl implements SourceCreator {
                 continue;
             }
 
-            EntityMetaData metaData = new EntityMetaData(this, null, dtoCd
-                    .getName());
+            EntityMetaData metaData = new EntityMetaData(pageClassDesc
+                    .getDescPool(), dtoCd.getName());
             addComponentSetterToPageIfValid(pageClassDesc, pageClassDesc
                     .getDescPool()
                     .newTypeDesc(metaData.newConverterClassDesc()),
@@ -538,53 +536,46 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     protected ClassDesc createConverterClassDesc(ClassDesc dtoCd,
-            String[] pairTypeNames, ClassCreationHintBag hintBag) {
+            String[] pairTypeNames) {
+        DescPool pool = dtoCd.getDescPool();
+        ClassDesc converterCd = new EntityMetaData(pool, dtoCd.getName())
+                .newConverterClassDesc();
+        converterCd.setBornOf(dtoCd.getBornOf());
+
+        Map<String, Object> param = new HashMap<String, Object>();
         ClassDesc clonedDtoCd = (ClassDesc) dtoCd.clone();
         mergeWithExistentClass(clonedDtoCd);
-        EntityMetaData metaData = new EntityMetaData(this, hintBag, clonedDtoCd
-                .getName());
-
-        ClassDesc converterCd = metaData.newConverterClassDesc();
-        converterCd.setBornOf(dtoCd.getBornOf());
-        Map<String, Object> param = new HashMap<String, Object>();
         param.put("targetClassDesc", clonedDtoCd);
         List<TypeDesc> pairTdList = new ArrayList<TypeDesc>();
         for (int i = 0; i < pairTypeNames.length; i++) {
-            if ("Object".equals(DescUtils.getShortName(DescUtils
-                    .getNonGenericClassName(pairTypeNames[i])))) {
+            Class<?> pairClass = getClass(DescUtils
+                    .getNonGenericClassName(pairTypeNames[i]));
+            if (pairClass == null || pairClass == Object.class) {
                 continue;
             }
-            pairTdList.add(newTypeDesc(dtoCd.getDescPool(), pairTypeNames[i]));
+            pool.registerClassDesc(newClassDesc(pool, pairClass, false));
+            pairTdList.add(pool.newTypeDesc(pairTypeNames[i]));
         }
         param.put("pairTypeDescs", pairTdList.toArray(new TypeDesc[0]));
         converterCd.setOptionalSourceGeneratorParameter(param);
         return converterCd;
     }
 
-    private TypeDesc newTypeDesc(DescPool pool, String typeName) {
-        if (pool != null) {
-            return pool.newTypeDesc(typeName);
-        } else {
-            return new TypeDescImpl(null, typeName);
-        }
-    }
-
-    public void gatherClassDescs(Map<String, ClassDesc> classDescMap,
-            PathMetaData pathMetaData, ClassCreationHintBag hintBag,
+    public void gatherClassDescs(DescPool pool, PathMetaData pathMetaData,
             String[] ignoreVariables) {
         String path = pathMetaData.getPath();
         HttpMethod method = pathMetaData.getMethod();
         String pageClassName = pathMetaData.getClassName();
         analyzer_.analyze(getServletContext(), getHttpServletRequest(),
                 getHttpServletResponse(), getRequest(), path, method,
-                classDescMap, pathMetaData.getTemplate(), pageClassName,
-                hintBag, ignoreVariables);
+                pathMetaData.getTemplate(), pageClassName, pool,
+                ignoreVariables);
 
         for (int i = 0; i < classDescModifiers_.length; i++) {
-            classDescModifiers_[i].modify(classDescMap, pathMetaData);
+            classDescModifiers_[i].modify(pool, pathMetaData);
         }
 
-        ClassDesc pageClassDesc = classDescMap.get(pageClassName);
+        ClassDesc pageClassDesc = pool.getClassDesc(pageClassName);
 
         // アクションメソッドがなければ追加する。
         MethodDesc actionMethodDesc = newActionMethodDesc(pageClassDesc, path,
@@ -673,15 +664,13 @@ public class SourceCreatorImpl implements SourceCreator {
         return classDescBag;
     }
 
-    public ClassDesc newClassDesc(Class<?> clazz, boolean onlyDeclared) {
+    public ClassDesc newClassDesc(DescPool pool, Class<?> clazz,
+            boolean onlyDeclared) {
         if (clazz == null) {
             return null;
         }
 
-        DescPool pool = DescPool.newInstance();
-        pool.setSourceCreator(this);
-
-        ClassDesc classDesc = newClassDesc(null, clazz.getName(), null);
+        ClassDesc classDesc = newClassDesc(pool, clazz.getName(), null);
 
         AnnotationDesc[] ads = DescUtils.newAnnotationDescs(clazz);
         for (int i = 0; i < ads.length; i++) {
@@ -892,7 +881,7 @@ public class SourceCreatorImpl implements SourceCreator {
         for (int i = 0; i < classDescs.length; i++) {
             DescPool pool = classDescs[i].getDescPool();
             if (classDescs[i].isTypeOf(ClassType.DTO)) {
-                EntityMetaData metaData = new EntityMetaData(this, hintBag,
+                EntityMetaData metaData = new EntityMetaData(pool,
                         classDescs[i].getName());
 
                 if (setting_.isDaoCreationFeatureEnabled()) {
@@ -1019,9 +1008,10 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public void adjustByExistentClass(ClassDesc desc) {
+        DescPool pool = DescPool.newInstance(this, null);
         String className = desc.getName();
         Class<?> clazz = getClass(className);
-        ClassDesc gapDesc = newClassDesc(clazz, true);
+        ClassDesc gapDesc = newClassDesc(pool, clazz, true);
         if (gapDesc == null) {
             gapDesc = newClassDesc(null, className, null);
         }
@@ -1033,7 +1023,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 : null);
         // 従属タイプのクラスの場合は既存のBaseクラスの情報とマージしなくて良い。
         ClassDesc baseDesc = desc.getType().isSubordinate() ? null
-                : newClassDesc(baseClass, true);
+                : newClassDesc(pool, baseClass, true);
         if (baseDesc == null) {
             baseDesc = newClassDesc(null, baseClassName, null);
             baseDesc.setSuperclassName(desc.getSuperclassName());
@@ -1062,10 +1052,10 @@ public class SourceCreatorImpl implements SourceCreator {
         baseDescOtherBoneOf.removeBornOfFromAllMembers(desc.getBornOf());
         desc.merge(baseDescOtherBoneOf, true);
 
-        ClassDesc superDesc = newClassDesc(getClass(desc.getSuperclassName()),
-                false);
+        ClassDesc superDesc = newClassDesc(pool, getClass(desc
+                .getSuperclassName()), false);
         if (superDesc == null) {
-            superDesc = newClassDesc(Object.class, false);
+            superDesc = newClassDesc(pool, Object.class, false);
         }
 
         PropertyDesc[] pds = generated.getPropertyDescs();
@@ -1245,7 +1235,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public void mergeWithExistentClass(ClassDesc classDesc) {
         String className = classDesc.getName();
-        classDesc.merge(newClassDesc(getClass(className), false), false);
+        classDesc.merge(newClassDesc(null, getClass(className), false), false);
     }
 
     public void writeSourceFile(ClassDesc classDesc, ClassDescSet classDescSet)
@@ -1878,5 +1868,9 @@ public class SourceCreatorImpl implements SourceCreator {
                 .findContextApplication().getProperty(
                         APPKEY_CORE_CONSTRAINT_PERMISSIONDENIEDMETHOD_ENABLE),
                 true);
+    }
+
+    public boolean isGeneratedClass(String className) {
+        return className.startsWith(getFirstRootPackageName() + ".");
     }
 }
