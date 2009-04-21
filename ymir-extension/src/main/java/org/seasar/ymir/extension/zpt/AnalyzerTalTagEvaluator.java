@@ -550,23 +550,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             Map<String, Attribute> attrMap, String annotation, FormDesc formDesc) {
         String name = getAttributeValue(attrMap, "name", null);
         if (name != null && shouldGeneratePropertyForParameter(name)) {
-            PropertyDesc pd = context.getRequestParameterPropertyDesc(formDesc
+            return context.getRequestParameterPropertyDesc(formDesc
                     .getActionPageClassDesc(), name, PropertyDesc.READ
                     | PropertyDesc.WRITE);
-            // conditionで使われていた際にbooleanで上書きされないようにこうしている。
-            // TODO けす
-            //            if (!pd.isTypeAlreadySet()) {
-            //                TypeDesc oldTd = pd.getTypeDesc();
-            //                TypeDesc td = oldTd.getDescPool().newTypeDesc(String.class);
-            //                td.setCollection(oldTd.isCollection());
-            //                td.setCollectionClassName(oldTd.getCollectionClassName());
-            //                td.setCollectionImplementationClassName(oldTd
-            //                        .getCollectionImplementationClassName());
-            //                pd.setTypeDesc(td);
-            //                pd.notifyTypeUpdated();
-            //            }
-
-            return pd;
         }
 
         return null;

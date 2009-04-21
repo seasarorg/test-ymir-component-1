@@ -1011,8 +1011,6 @@ public class SourceCreatorImpl implements SourceCreator {
             PropertyDesc propertyDesc = pageClassDesc.addProperty(typeDesc
                     .getInstanceName(), PropertyDesc.WRITE);
             propertyDesc.setTypeDesc(typeDesc);
-            // TODO けす
-            //             propertyDesc.notifyTypeUpdated(AnalyzerContext.PROBABILITY_DEFAULT);
             AnnotationDesc ad = propertyDesc.getAnnotationDesc(Inject.class
                     .getName());
             if (ad == null) {
@@ -1067,7 +1065,7 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public void adjustByExistentClass(ClassDesc desc) {
-        DescPool pool = DescPool.newInstance(this, null);
+        DescPool pool = desc.getDescPool();
         String className = desc.getName();
         Class<?> clazz = getClass(className);
         ClassDesc gapDesc = newClassDesc(pool, clazz, true);

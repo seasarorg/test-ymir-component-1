@@ -1,5 +1,8 @@
 package org.seasar.ymir.extension.zpt;
 
+import static org.seasar.ymir.extension.creator.PropertyDesc.PROBABILITY_DEFAULT;
+import static org.seasar.ymir.extension.creator.PropertyDesc.PROBABILITY_MAXIMUM;
+
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -57,17 +60,15 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private static final String PROP_SIZE = "size";
 
-    public static final int PROBABILITY_MINIMUM = PropertyDesc.PROBABILITY_MINIMUM;
+    public static final int PROBABILITY_BOOLEAN_ATTRIBUTE = PROBABILITY_DEFAULT * 2;
 
-    public static final int PROBABILITY_DEFAULT = PropertyDesc.PROBABILITY_DEFAULT;
+    public static final int PROBABILITY_NAME = PROBABILITY_DEFAULT * 3;
 
-    public static final int PROBABILITY_BOOLEAN_ATTRIBUTE = PropertyDesc.PROBABILITY_DEFAULT * 2;
+    public static final int PROBABILITY_COMPONENT_TYPE = PROBABILITY_DEFAULT * 3;
 
-    public static final int PROBABILITY_TAL_DEFINE_VARIABLE = PropertyDesc.PROBABILITY_DEFAULT * 3;
+    public static final int PROBABILITY_COLLECTION = PROBABILITY_DEFAULT * 4;
 
-    public static final int PROBABILITY_TAL_REPEAT_VARIABLE = PropertyDesc.PROBABILITY_DEFAULT * 3;
-
-    public static final int PROBABILITY_GROUPNAME = PropertyDesc.PROBABILITY_DEFAULT * 3;
+    public static final int PROBABILITY_TYPE = PROBABILITY_DEFAULT * 5;
 
     private SourceCreator sourceCreator_;
 
@@ -126,7 +127,7 @@ public class AnalyzerContext extends ZptTemplateContext {
     public void defineVariable(int scope, String name, Object value) {
         if (value instanceof DescWrapper) {
             ((DescWrapper) value).setVariableName(name, false, null,
-                    PROBABILITY_TAL_DEFINE_VARIABLE);
+                    PROBABILITY_NAME);
         }
         super.defineVariable(scope, name, value);
     }
@@ -138,7 +139,7 @@ public class AnalyzerContext extends ZptTemplateContext {
             DescWrapper wrapper = (DescWrapper) objs[0];
             wrapper.setVariableName(name, true,
                     repeatedPropertyGeneratedAsList_ ? List.class.getName()
-                            : null, PROBABILITY_TAL_REPEAT_VARIABLE);
+                            : null, PROBABILITY_NAME);
             ClassDesc valueClassDesc;
             PropertyDesc pd = wrapper.getPropertyDesc();
             if (pd != null) {
@@ -187,22 +188,16 @@ public class AnalyzerContext extends ZptTemplateContext {
             return propertyDesc;
         }
         if (propertyDesc.isTypeAlreadySet(probability)) {
-            // 差し替えないが、確からしさが同じ場合はコレクションに変更することは許可する。
-            if (probability == propertyDesc.getProbability() && asCollection) {
-                if (log_.isDebugEnabled()) {
-                    log_.debug("Probability is same. Set as array.");
-                }
-                setToCollection(propertyDesc.getTypeDesc(), collectionClassName);
-            } else {
-                if (log_.isDebugEnabled()) {
-                    log_
-                            .debug("Nothing has been done because type of this property had been set.");
-                }
+            // 差し替えない。
+            if (log_.isDebugEnabled()) {
+                log_
+                        .debug("Nothing has been done because type of this property had been set.");
             }
             return propertyDesc;
         }
 
         TypeDesc typeDesc;
+        String groupName = null;
 
         // プロパティ型のヒント情報を見る。
         // ヒントがなければ、実際の親クラスからプロパティ型を取得する。
@@ -211,6 +206,13 @@ public class AnalyzerContext extends ZptTemplateContext {
         if (hint != null) {
             typeDesc = classDesc.getDescPool().newTypeDesc(hint.getTypeName());
             typeDesc.setExplicit(true);
+            probability = PROBABILITY_MAXIMUM;
+
+            groupName = getGroupName(
+                    propertyTypeAlias != null ? propertyTypeAlias
+                            : asCollection ? toSingular(propertyName)
+                                    : propertyName, typeDesc
+                            .getComponentClassDesc().getName());
         } else {
             PropertyDescriptor descriptor = sourceCreator_
                     .getPropertyDescriptor(className, propertyName);
@@ -227,24 +229,32 @@ public class AnalyzerContext extends ZptTemplateContext {
 
                 if (componentClass.isInterface()) {
                     // インタフェースの場合は実装クラス型を推論する。
-                    String groupName = findGroupName(propertyDesc);
+                    String gn = findGroupName(propertyDesc);
                     componentClassName = findPropertyClassName(
                             propertyTypeAlias != null ? propertyTypeAlias
-                                    : groupName != null ? groupName
+                                    : gn != null ? gn
+                                            + ClassUtils
+                                                    .getShorterName(componentClass)
                                             : Introspector
                                                     .decapitalize(ClassUtils
                                                             .getShorterName(componentClass)),
                             className);
 
-                    // グループ名はrepeat変数と同じくらい強い。
-                    if (groupName != null) {
-                        probability = PROBABILITY_GROUPNAME;
+                    // グループ名はrepeat変数以上に強い。
+                    if (gn != null) {
+                        probability = PROBABILITY_TYPE;
                     }
 
                     interfaceClassName = componentClass.getName();
                 } else {
                     // そうでない場合は実際の型をそのまま使う。
                     componentClassName = componentClass.getName();
+                    probability = PROBABILITY_TYPE;
+
+                    groupName = getGroupName(
+                            propertyTypeAlias != null ? propertyTypeAlias
+                                    : asCollection ? toSingular(propertyName)
+                                            : propertyName, componentClassName);
                 }
 
                 String typeName = DescUtils
@@ -278,12 +288,14 @@ public class AnalyzerContext extends ZptTemplateContext {
                     setToCollection(typeDesc, collectionClassName);
                 }
 
-                String groupName = getGroupName(seed, typeDesc);
-                if (groupName != null) {
-                    typeDesc.getComponentClassDesc().setAttribute(
-                            Globals.ATTR_GROUPNAME, groupName);
-                }
+                groupName = getGroupName(seed, typeDesc.getComponentClassDesc()
+                        .getName());
             }
+        }
+
+        if (groupName != null) {
+            typeDesc.getComponentClassDesc().setAttribute(
+                    Globals.ATTR_GROUPNAME, groupName);
         }
 
         if (typeDesc.isCollection()
@@ -318,13 +330,12 @@ public class AnalyzerContext extends ZptTemplateContext {
         return null;
     }
 
-    private String getGroupName(String seed, TypeDesc typeDesc) {
-        ClassDesc classDesc = typeDesc.getComponentClassDesc();
-        if (!isOnDtoSearchPath(classDesc.getName())) {
+    private String getGroupName(String seed, String className) {
+        if (!isOnDtoSearchPath(className)) {
             return null;
         }
 
-        String suffix = classDesc.getShortName();
+        String suffix = ClassUtils.getShorterName(className);
         if (seed.endsWith(suffix)) {
             return seed.substring(0, seed.length() - suffix.length());
         } else {
@@ -689,15 +700,8 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
         PropertyDesc propertyDesc = classDesc
                 .getPropertyDesc(requestParameterName);
-        // TODO けす。
-        //        if (propertyDesc != null && collection) {
-        //            // これから既存プロパティをコレクションにする場合はこの時点で補正しておく。
-        //            // ここでしないと余計なプロパティ（sizeとか）が消えてくれない。
-        //            TypeDesc typeDesc = propertyDesc.getTypeDesc();
-        //            setToCollection(typeDesc, collectionClassName);
-        //        }
         propertyDesc = addProperty(classDesc, requestParameterName, mode, null,
-                collection, collectionClassName, PROBABILITY_DEFAULT);
+                collection, collectionClassName, PROBABILITY_COLLECTION);
         if (collection) {
             propertyDesc.getTypeDesc().setCollectionImplementationClassName(
                     collectionImplementationClassName);

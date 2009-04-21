@@ -39,7 +39,7 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
     }
 
     Response actDefault(Request request, PathMetaData pathMetaData) {
-        ClassDesc classDesc = getSourceCreator().newClassDesc(null,
+        ClassDesc classDesc = getSourceCreator().newClassDesc(newDescPool(),
                 pathMetaData.getClassName(), null);
         String path = pathMetaData.getPath();
         HttpMethod method = request.getMethod();
@@ -67,7 +67,7 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
 
         updateMapping(pathMetaData);
 
-        ClassDesc classDesc = getSourceCreator().newClassDesc(null,
+        ClassDesc classDesc = getSourceCreator().newClassDesc(newDescPool(),
                 pathMetaData.getClassName(), null);
         String path = pathMetaData.getPath();
         classDesc.setBornOf(path);

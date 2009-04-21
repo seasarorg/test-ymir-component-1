@@ -37,7 +37,7 @@ public class CreateActionAction extends AbstractAction implements
     Response actDefault(Request request, PathMetaData pathMetaData, Throwable t) {
         ActionNotFoundRuntimeException anfe = (ActionNotFoundRuntimeException) t;
 
-        ClassDesc classDesc = getSourceCreator().newClassDesc(null,
+        ClassDesc classDesc = getSourceCreator().newClassDesc(newDescPool(),
                 pathMetaData.getClassName(), null);
         String actionName = getSourceCreator().newActionMethodDesc(classDesc,
                 anfe.getPath(), anfe.getMethod(), new ActionSelectorSeedImpl())
@@ -60,7 +60,7 @@ public class CreateActionAction extends AbstractAction implements
             return null;
         }
 
-        ClassDesc classDesc = getSourceCreator().newClassDesc(null,
+        ClassDesc classDesc = getSourceCreator().newClassDesc(newDescPool(),
                 pathMetaData.getClassName(), null);
         classDesc.setBornOf(pathMetaData.getPath());
         MethodDesc actionMethodDesc = getSourceCreator().newActionMethodDesc(

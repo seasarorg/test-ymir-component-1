@@ -278,7 +278,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         pause(1000L);
         openJavaCodeInEclipseEditor(pathMetaData.getClassName());
 
-        ClassDesc classDesc = getSourceCreator().newClassDesc(null,
+        ClassDesc classDesc = getSourceCreator().newClassDesc(newDescPool(),
                 pathMetaData.getClassName(), null);
         String path = pathMetaData.getPath();
         Map<String, Object> variableMap = newVariableMap();

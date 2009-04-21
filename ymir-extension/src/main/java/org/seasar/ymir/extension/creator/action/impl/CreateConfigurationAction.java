@@ -108,9 +108,10 @@ public class CreateConfigurationAction extends AbstractAction implements
                     .equals(key)) {
                 if (!StringUtils.isEmpty(value)) {
                     application.setProperty(key, value);
-                    getSourceCreator().writeSourceFile("PageSuperclass.java",
-                            getSourceCreator().newClassDesc(null, value, null),
-                            false);
+                    getSourceCreator().writeSourceFile(
+                            "PageSuperclass.java",
+                            getSourceCreator().newClassDesc(newDescPool(),
+                                    value, null), false);
                 } else {
                     application.removeProperty(key);
                     remove = true;

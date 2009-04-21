@@ -56,6 +56,7 @@ import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
 import org.seasar.ymir.render.Candidate;
+import org.seasar.ymir.render.Selector;
 import org.seasar.ymir.scope.annotation.RequestParameter;
 import org.seasar.ymir.util.FlexibleList;
 import org.seasar.ymir.util.ServletUtils;
@@ -1503,7 +1504,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(pd);
     }
 
-    public void testAnalyze80_インタフェース型を返す既存DTOクラスのプロパティであってもrepeat変数で受けている場合はrepeat変数名によって実装クラス名が決定されること()
+    public void testAnalyze80_インタフェース型を返す既存DTOクラスのプロパティであってもグループ名がない場合はrepeat変数で受けている場合はrepeat変数名によって実装クラス名が決定されること()
             throws Exception {
 
         sourceCreator_.getApplication().setProperty(
@@ -1527,7 +1528,8 @@ public class ZptAnalyzerTest extends TestCase {
         act("testAnalyze81");
 
         assertNull(getClassDesc("com.example.dto.CandidateDto"));
-        assertNotNull(getClassDesc("com.example.dto.EntryDto"));
+        assertNull(getClassDesc("com.example.dto.EntryDto"));
+        assertNotNull(getClassDesc("com.example.dto.EntryCandidateDto"));
     }
 
     public void testAnalyze82_インタフェースを返す既存DTOクラスのプロパティに対応する自動生成DTO型はそのインタフェースを実装していること()
@@ -1558,7 +1560,8 @@ public class ZptAnalyzerTest extends TestCase {
 
         assertNull(getClassDesc("com.example.dto.CandidateDto"));
         assertNull(getClassDesc("com.example.dto.EntDto"));
-        assertNotNull(getClassDesc("com.example.dto.EntryDto"));
+        assertNull(getClassDesc("com.example.dto.EntryDto"));
+        assertNotNull(getClassDesc("com.example.dto.EntryCandidateDto"));
     }
 
     public void testAnalyze84_インタフェースを返す既存DTOクラスのプロパティをrepeat変数で受けている場合にはグループ名がなければrepeat変数名がインタフェース名よりも優先されること()
@@ -1576,5 +1579,39 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals(1, actual.getPropertyDescs().length);
         assertNotNull(getClassDesc("com.example.dto.EntDto"));
         assertNull(getClassDesc("com.example.dto.EntryDto"));
+        assertNull(getClassDesc("com.example.dto.EntryCandidateDto"));
+    }
+
+    public void testAnalyze85_再生成の際にインタフェースを返す既存DTOクラスのプロパティの型を正しく推論できること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+
+        act("testAnalyze85");
+
+        assertNull(getClassDesc("com.example.dto.CandidateDto"));
+        assertNull(getClassDesc("com.example.dto.EntDto"));
+        assertNull(getClassDesc("com.example.dto.EntryDto"));
+        assertNotNull(getClassDesc("com.example.dto.EntryCandidateDto"));
+    }
+
+    public void testAnalyze86_ヒントでインタフェースを返す既存DTOクラスのプロパティの型を指定した場合に正しく推論できること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+
+        act("testAnalyze86", new ClassCreationHintBag(
+                new PropertyTypeHint[] { new PropertyTypeHint(
+                        "com.example.dto.FormDto", "entrySelector",
+                        Selector.class.getName()) }, null));
+
+        assertNull(getClassDesc("com.example.dto.CandidateDto"));
+        assertNull(getClassDesc("com.example.dto.EntDto"));
+        assertNull(getClassDesc("com.example.dto.EntryDto"));
+        assertNotNull(getClassDesc("com.example.dto.EntryCandidateDto"));
     }
 }

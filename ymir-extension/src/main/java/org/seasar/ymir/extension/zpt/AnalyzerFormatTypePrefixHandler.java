@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.zpt;
 
+import static org.seasar.ymir.extension.zpt.AnalyzerContext.PROBABILITY_COMPONENT_TYPE;
+
 import java.text.DateFormat;
 import java.text.Format;
 import java.text.MessageFormat;
@@ -20,16 +22,22 @@ public class AnalyzerFormatTypePrefixHandler extends FormatTypePrefixHandler {
             PropertyDesc propertyDesc = ((DescWrapper) parameters[index])
                     .getPropertyDesc();
             if (propertyDesc != null
-                    && !propertyDesc.getTypeDesc().isExplicit()) {
+                    && !propertyDesc.getTypeDesc().isExplicit()
+                    && !propertyDesc
+                            .isTypeAlreadySet(PROBABILITY_COMPONENT_TYPE)) {
                 Class<?> clazz = ((AnalyzerContext) context).getSourceCreator()
                         .getClass(
                                 propertyDesc.getTypeDesc()
                                         .getComponentClassDesc().getName());
                 if (formats[index] instanceof DateFormat && !isDate(clazz)) {
-                    propertyDesc.getTypeDesc().setComponentClassDesc(Date.class);
+                    propertyDesc.getTypeDesc()
+                            .setComponentClassDesc(Date.class);
+                    propertyDesc.notifyTypeUpdated(PROBABILITY_COMPONENT_TYPE);
                 } else if (formats[index] instanceof NumberFormat
                         && !isNumber(clazz)) {
-                    propertyDesc.getTypeDesc().setComponentClassDesc(Integer.class);
+                    propertyDesc.getTypeDesc().setComponentClassDesc(
+                            Integer.class);
+                    propertyDesc.notifyTypeUpdated(PROBABILITY_COMPONENT_TYPE);
                 }
             }
 

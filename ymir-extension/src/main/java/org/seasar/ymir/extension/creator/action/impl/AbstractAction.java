@@ -27,6 +27,7 @@ import org.seasar.ymir.Application;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.extension.Globals;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
@@ -442,5 +443,9 @@ abstract public class AbstractAction {
                     .getPath());
         }
         props.save();
+    }
+
+    protected DescPool newDescPool() {
+        return DescPool.newInstance(sourceCreator_, null);
     }
 }

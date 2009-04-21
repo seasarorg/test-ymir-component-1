@@ -29,8 +29,7 @@ public class ParameterDescImpl implements ParameterDesc {
     }
 
     public ParameterDescImpl(DescPool pool, Type type, String name) {
-        this(pool, pool != null ? pool.newTypeDesc(type) : new TypeDescImpl(
-                null, type), name);
+        this(pool, pool.newTypeDesc(type), name);
     }
 
     public ParameterDescImpl(DescPool pool, TypeDesc typeDesc, String name) {
@@ -57,19 +56,11 @@ public class ParameterDescImpl implements ParameterDesc {
     }
 
     public void setTypeDesc(Type type) {
-        if (pool_ != null) {
-            setTypeDesc(pool_.newTypeDesc(type));
-        } else {
-            setTypeDesc(new TypeDescImpl(null, type));
-        }
+        setTypeDesc(pool_.newTypeDesc(type));
     }
 
     public void setTypeDesc(String typeName) {
-        if (pool_ != null) {
-            setTypeDesc(pool_.newTypeDesc(typeName));
-        } else {
-            setTypeDesc(new TypeDescImpl(null, typeName));
-        }
+        setTypeDesc(pool_.newTypeDesc(typeName));
     }
 
     public String getName() {

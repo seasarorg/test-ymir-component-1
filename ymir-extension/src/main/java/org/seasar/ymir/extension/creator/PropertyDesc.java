@@ -13,6 +13,8 @@ public interface PropertyDesc extends AnnotatedDesc<PropertyDesc> {
 
     int PROBABILITY_DEFAULT = 1000;
 
+    int PROBABILITY_MAXIMUM = Integer.MAX_VALUE;
+
     String getName();
 
     TypeDesc getTypeDesc();

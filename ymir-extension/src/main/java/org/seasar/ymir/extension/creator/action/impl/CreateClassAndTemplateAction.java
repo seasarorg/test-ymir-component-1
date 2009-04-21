@@ -89,7 +89,7 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
             return null;
         }
 
-        ClassDesc classDesc = getSourceCreator().newClassDesc(null,
+        ClassDesc classDesc = getSourceCreator().newClassDesc(newDescPool(),
                 pathMetaData.getClassName(), null);
         String path = pathMetaData.getPath();
         classDesc.setBornOf(path);

@@ -143,11 +143,7 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         } else {
             type = descriptor.getWriteMethod().getGenericParameterTypes()[0];
         }
-        if (pool_ != null) {
-            return pool_.newTypeDesc(type);
-        } else {
-            return new TypeDescImpl(null, type);
-        }
+        return pool_.newTypeDesc(type);
     }
 
     private Field findField(PropertyDescriptor descriptor) {
@@ -197,14 +193,8 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
     }
 
     public TypeDesc setTypeDesc(Type type) {
-        TypeDesc typeDesc;
-        if (pool_ != null) {
-            typeDesc = pool_.newTypeDesc(type);
-            setTypeDesc(typeDesc);
-        } else {
-            typeDesc = new TypeDescImpl(null, type);
-            setTypeDesc(typeDesc);
-        }
+        TypeDesc typeDesc = pool_.newTypeDesc(type);
+        setTypeDesc(typeDesc);
         return typeDesc;
     }
 
