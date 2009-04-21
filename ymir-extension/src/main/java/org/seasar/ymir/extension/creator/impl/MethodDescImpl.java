@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
+import org.seasar.ymir.extension.creator.Desc;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
@@ -28,6 +29,8 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
     private BodyDesc bodyDesc_;
 
     private String evaluatedBody_;
+
+    private Desc<?> parent_;
 
     public MethodDescImpl(DescPool pool, String name) {
         pool_ = pool;
@@ -89,29 +92,18 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
 
     public void setReturnTypeDesc(TypeDesc returnTypeDesc) {
         returnTypeDesc_ = returnTypeDesc;
+        returnTypeDesc_.setParent(this);
     }
 
     public TypeDesc setReturnTypeDesc(Type type) {
-        TypeDesc typeDesc;
-        if (pool_ != null) {
-            typeDesc = pool_.newTypeDesc(type);
-            setReturnTypeDesc(typeDesc);
-        } else {
-            typeDesc = new TypeDescImpl(null, type);
-            setReturnTypeDesc(typeDesc);
-        }
+        TypeDesc typeDesc = pool_.newTypeDesc(type);
+        setReturnTypeDesc(typeDesc);
         return typeDesc;
     }
 
     public TypeDesc setReturnTypeDesc(String typeName) {
-        TypeDesc typeDesc;
-        if (pool_ != null) {
-            typeDesc = pool_.newTypeDesc(typeName);
-            setReturnTypeDesc(typeDesc);
-        } else {
-            typeDesc = new TypeDescImpl(null, typeName);
-            setReturnTypeDesc(typeDesc);
-        }
+        TypeDesc typeDesc = pool_.newTypeDesc(typeName);
+        setReturnTypeDesc(typeDesc);
         return typeDesc;
     }
 
@@ -121,6 +113,9 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
 
     public void setParameterDescs(ParameterDesc[] parameterDescs) {
         parameterDescs_ = parameterDescs;
+        for (ParameterDesc parameterDesc : parameterDescs_) {
+            parameterDesc.setParent(this);
+        }
     }
 
     public BodyDesc getBodyDesc() {
@@ -172,5 +167,14 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
         desc.setEvaluatedBody(evaluatedBody_);
 
         return desc;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <D extends Desc<?>> D getParent() {
+        return (D) parent_;
+    }
+
+    public void setParent(Desc<?> parent) {
+        parent_ = parent;
     }
 }

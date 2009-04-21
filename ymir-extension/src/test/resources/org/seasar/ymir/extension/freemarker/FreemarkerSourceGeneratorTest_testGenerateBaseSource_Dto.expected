@@ -3,7 +3,7 @@ package com.example.dto;
 import java.io.Serializable;
 
 public class TestDtoBase
-    implements Serializable {
+    implements Serializable, java.util.List<String> {
     private static final long serialVersionUID = 1L;
 
     protected boolean param1_;

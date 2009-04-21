@@ -10,10 +10,31 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.seasar.ymir.Application;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
+import org.seasar.ymir.extension.creator.DescPool;
+import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.extension.creator.impl.TypeDescImpl;
+import org.seasar.ymir.mock.MockApplication;
 
 public class DescUtilsTest extends TestCase {
+    private DescPool pool_;
+
+    @Override
+    protected void setUp() throws Exception {
+        pool_ = DescPool.newInstance(new SourceCreatorImpl() {
+            @Override
+            public Application getApplication() {
+                return new MockApplication();
+            }
+
+            @Override
+            protected ClassLoader getClassLoader() {
+                return getClass().getClassLoader();
+            }
+        }, null);
+    }
+
     public void testGetNonGenericClassName() throws Exception {
         assertNull(DescUtils.getNonGenericClassName(null));
 
@@ -98,9 +119,9 @@ public class DescUtilsTest extends TestCase {
     }
 
     public void test_transcript() throws Exception {
-        TypeDescImpl target = new TypeDescImpl(null, "java.util.List<String>");
+        TypeDescImpl target = new TypeDescImpl(pool_, "java.util.List<String>");
 
-        TypeDescImpl actual = new TypeDescImpl(null, "");
+        TypeDescImpl actual = new TypeDescImpl(pool_, "");
         DescUtils.transcript(actual, target);
 
         assertEquals("java.util.List<String>", actual.getName());

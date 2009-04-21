@@ -1011,7 +1011,8 @@ public class SourceCreatorImpl implements SourceCreator {
             PropertyDesc propertyDesc = pageClassDesc.addProperty(typeDesc
                     .getInstanceName(), PropertyDesc.WRITE);
             propertyDesc.setTypeDesc(typeDesc);
-            propertyDesc.notifyTypeUpdated();
+            // TODO けす
+            //             propertyDesc.notifyTypeUpdated(AnalyzerContext.PROBABILITY_DEFAULT);
             AnnotationDesc ad = propertyDesc.getAnnotationDesc(Inject.class
                     .getName());
             if (ad == null) {
@@ -1088,8 +1089,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
         // abstractかどうかを保持するようにする。
         if (baseClass != null) {
-            desc.setBaseClassAbstract(Modifier.isAbstract(baseClass
-                    .getModifiers()));
+            desc.setAbstract(Modifier.isAbstract(baseClass.getModifiers()));
         }
 
         ClassDesc generated = desc.transcriptTo(newClassDesc(pool, desc

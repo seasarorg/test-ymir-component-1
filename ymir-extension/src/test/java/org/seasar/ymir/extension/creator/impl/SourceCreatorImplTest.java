@@ -129,19 +129,19 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertEquals("com.example.web.TestPage", actual[0].getName());
         assertEquals("com.example.dto.EntityDto", actual[1].getName());
         MethodDesc md = actual[0]
-                .getMethodDesc(new MethodDescImpl(null, "_get"));
+                .getMethodDesc(new MethodDescImpl(pool, "_get"));
         assertNotNull(md);
         assertEquals(Void.TYPE.getName(), md.getReturnTypeDesc().getName());
-        assertNotNull(actual[0].getMethodDesc(new MethodDescImpl(null,
+        assertNotNull(actual[0].getMethodDesc(new MethodDescImpl(pool,
                 "_prerender")));
         assertEquals("Integer", actual[0].getPropertyDesc("result")
                 .getTypeDesc().getName());
-        md = new MethodDescImpl(null, "_validationFailed");
-        md.setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(null,
+        md = new MethodDescImpl(pool, "_validationFailed");
+        md.setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(pool,
                 Notes.class) });
         assertNotNull(actual[0].getMethodDesc(md));
-        md = new MethodDescImpl(null, "_permissionDenied");
-        md.setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(null,
+        md = new MethodDescImpl(pool, "_permissionDenied");
+        md.setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(pool,
                 PermissionDeniedException.class) });
         md = actual[0].getMethodDesc(md);
         assertNotNull(md);
@@ -397,7 +397,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
         target_.adjustByExistentClass(cd);
 
-        assertTrue(cd.isBaseClassAbstract());
+        assertTrue(cd.isAbstract());
     }
 
     public void testAdjustByExistentClass6_プロパティのGetterやSetterがスーパークラスにある時は自動生成されないこと()

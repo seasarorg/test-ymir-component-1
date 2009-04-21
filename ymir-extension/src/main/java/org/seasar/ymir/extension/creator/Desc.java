@@ -3,6 +3,10 @@ package org.seasar.ymir.extension.creator;
 public interface Desc<T extends Desc<?>> {
     DescPool getDescPool();
 
+    <D extends Desc<?>> D getParent();
+
+    void setParent(Desc<?> parent);
+
     /**
      * 指定されたオブジェクトにこのオブジェクトの内容を転記します。
      * 

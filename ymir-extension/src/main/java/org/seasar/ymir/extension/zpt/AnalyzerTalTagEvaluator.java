@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.zpt;
 
+import static org.seasar.ymir.extension.zpt.AnalyzerContext.PROBABILITY_BOOLEAN_ATTRIBUTE;
 import static org.seasar.ymir.util.BeanUtils.getFirstSimpleSegment;
 
 import java.lang.reflect.Method;
@@ -163,13 +164,11 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                             if (parameterName
                                     .indexOf(AnalyzerContext.CHAR_ARRAY_LPAREN) < 0
                                     && !isRadio) {
-                                analyzerContext.changeToCollection(typeDesc,
-                                        null);
+                                analyzerContext.setToCollection(typeDesc, null);
                             }
                         } else {
                             if (formDesc.isMultipleParameter(parameterName)) {
-                                analyzerContext.changeToCollection(typeDesc,
-                                        null);
+                                analyzerContext.setToCollection(typeDesc, null);
                             }
                         }
                         if ("input".equals(name)) {
@@ -555,16 +554,17 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     .getActionPageClassDesc(), name, PropertyDesc.READ
                     | PropertyDesc.WRITE);
             // conditionで使われていた際にbooleanで上書きされないようにこうしている。
-            if (!pd.isTypeAlreadySet()) {
-                TypeDesc oldTd = pd.getTypeDesc();
-                TypeDesc td = oldTd.getDescPool().newTypeDesc(String.class);
-                td.setCollection(oldTd.isCollection());
-                td.setCollectionClassName(oldTd.getCollectionClassName());
-                td.setCollectionImplementationClassName(oldTd
-                        .getCollectionImplementationClassName());
-                pd.setTypeDesc(td);
-                pd.notifyTypeUpdated();
-            }
+            // TODO けす
+            //            if (!pd.isTypeAlreadySet()) {
+            //                TypeDesc oldTd = pd.getTypeDesc();
+            //                TypeDesc td = oldTd.getDescPool().newTypeDesc(String.class);
+            //                td.setCollection(oldTd.isCollection());
+            //                td.setCollectionClassName(oldTd.getCollectionClassName());
+            //                td.setCollectionImplementationClassName(oldTd
+            //                        .getCollectionImplementationClassName());
+            //                pd.setTypeDesc(td);
+            //                pd.notifyTypeUpdated();
+            //            }
 
             return pd;
         }
@@ -694,11 +694,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         if (evaluated instanceof DescWrapper) {
             DescWrapper wrapper = (DescWrapper) evaluated;
             PropertyDesc pd = wrapper.getPropertyDesc();
-            if (pd != null && !pd.getTypeDesc().isExplicit()
-                    && !pd.isTypeAlreadySet()) {
-                pd.setTypeDesc(Boolean.TYPE);
-                // 「tal:conditionに現れた場合にはbooleanとみなす」というルールは優先順位が低いため、
-                // notifyTypeUpdated()を呼ばない。
+            if (pd != null && !pd.getTypeDesc().isExplicit()) {
+                pd.decrementReferCount();
+                pd.setMayBoolean(true);
             }
         }
 
@@ -844,10 +842,12 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             return;
         }
         TypeDesc typeDesc = propertyDesc.getTypeDesc();
-        if (!propertyDesc.isTypeAlreadySet() || !typeDesc.isExplicit()) {
+        if (!typeDesc.isExplicit()
+                && !propertyDesc
+                        .isTypeAlreadySet(PROBABILITY_BOOLEAN_ATTRIBUTE)) {
             propertyDesc.setTypeDesc(Boolean.TYPE);
             propertyDesc.getTypeDesc().setExplicit(true);
-            propertyDesc.notifyTypeUpdated();
+            propertyDesc.notifyTypeUpdated(PROBABILITY_BOOLEAN_ATTRIBUTE);
         }
     }
 }

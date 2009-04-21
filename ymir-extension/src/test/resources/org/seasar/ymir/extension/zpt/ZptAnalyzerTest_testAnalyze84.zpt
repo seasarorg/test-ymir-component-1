@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+  <form name="form" action="./index.html" method="post">
+    <table border="1">
+      <tbody>
+        <tr tal:repeat="ent self/form/selector/candidates">
+          <td>
+            <input type="checkbox" name="selector.selectedValues" tal:attributes="value ent/value; checked ent/selected" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <input type="submit" value="Go" />
+  </form>
+  <p><span tal:content="self/form/selector/selectedCandidate/label"></span></p>
+  </body>
+</html>

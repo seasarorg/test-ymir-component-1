@@ -9,6 +9,10 @@ public interface PropertyDesc extends AnnotatedDesc<PropertyDesc> {
 
     int WRITE = 2;
 
+    int PROBABILITY_MINIMUM = 0;
+
+    int PROBABILITY_DEFAULT = 1000;
+
     String getName();
 
     TypeDesc getTypeDesc();
@@ -37,10 +41,20 @@ public interface PropertyDesc extends AnnotatedDesc<PropertyDesc> {
      * そうでない場合は{@link #isTypeAlreadySet()}がtrueである場合は「確定でないが推論結果として妥当な結果が設定済み」、
      * そうでない場合は「未設定または推論結果として弱い結果が設定済み」となります。
      * </p>
+     * 
+     * @param probability 確からしさ。数字が大きいほど妥当であることを表します。
      */
-    void notifyTypeUpdated();
+    void notifyTypeUpdated(int probability);
 
-    boolean isTypeAlreadySet();
+    /**
+     * 指定された確からしさ以上に高い確からしさで型が設定済みかどうかを返します。
+     * 
+     * @param probability 確からしさ。
+     * @return 指定された確からしさ以上に高い確からしさで型が設定済みかどうか。
+     */
+    boolean isTypeAlreadySet(int probability);
+
+    int getProbability();
 
     AnnotationDesc getAnnotationDescOnGetter(String name);
 
@@ -85,4 +99,16 @@ public interface PropertyDesc extends AnnotatedDesc<PropertyDesc> {
     MetaAnnotationDesc[] getMetaAnnotationDescsOnSetter();
 
     String getInitialValue();
+
+    boolean isMayBoolean();
+
+    void setMayBoolean(boolean mayBoolean);
+
+    int getReferCount();
+
+    void setReferCount(int referCount);
+
+    void incrementReferCount();
+
+    void decrementReferCount();
 }

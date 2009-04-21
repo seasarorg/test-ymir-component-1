@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.Desc;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -27,19 +28,25 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
 
     private DescPool pool_;
 
+    private Desc<?> parent_;
+
     private String name_;
 
     private TypeDesc typeDesc_;
 
     private int mode_;
 
-    private boolean typeAlreadySet_;
+    private int probability_ = PROBABILITY_MINIMUM;
 
     private Map<String, AnnotationDesc> annotationDescForGetterMap_ = new TreeMap<String, AnnotationDesc>();
 
     private Map<String, AnnotationDesc> annotationDescForSetterMap_ = new TreeMap<String, AnnotationDesc>();
 
     private String getterName_;
+
+    private boolean mayBoolean_;
+
+    private int referCount_;
 
     public PropertyDescImpl(DescPool pool, String name) {
         pool_ = pool;
@@ -186,6 +193,7 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
 
     public void setTypeDesc(TypeDesc typeDesc) {
         typeDesc_ = typeDesc;
+        typeDesc_.setParent(this);
     }
 
     public TypeDesc setTypeDesc(Type type) {
@@ -236,12 +244,17 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         }
     }
 
-    public boolean isTypeAlreadySet() {
-        return typeAlreadySet_;
+    public boolean isTypeAlreadySet(int probability) {
+        return probability_ >= probability;
     }
 
-    public void notifyTypeUpdated() {
-        typeAlreadySet_ = true;
+    public void notifyTypeUpdated(int probability) {
+        if (isTypeAlreadySet(probability)) {
+            throw new IllegalStateException(
+                    "Can't make probability down: current=" + probability_
+                            + ", new=" + probability);
+        }
+        probability_ = probability;
     }
 
     public AnnotationDesc getAnnotationDescOnGetter(String name) {
@@ -409,8 +422,8 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         }
 
         desc.setMode(mode_);
-        if (typeAlreadySet_) {
-            desc.notifyTypeUpdated();
+        if (probability_ > PROBABILITY_MINIMUM) {
+            desc.notifyTypeUpdated(probability_);
         }
 
         for (AnnotationDesc annotationDesc : getAnnotationDescsOnGetter()) {
@@ -426,5 +439,42 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         desc.setGetterName(getterName_);
 
         return desc;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <D extends Desc<?>> D getParent() {
+        return (D) parent_;
+    }
+
+    public void setParent(Desc<?> parent) {
+        parent_ = parent;
+    }
+
+    public boolean isMayBoolean() {
+        return mayBoolean_;
+    }
+
+    public void setMayBoolean(boolean mayBoolean) {
+        mayBoolean_ = mayBoolean;
+    }
+
+    public int getReferCount() {
+        return referCount_;
+    }
+
+    public void setReferCount(int referCount) {
+        referCount_ = referCount;
+    }
+
+    public void incrementReferCount() {
+        referCount_++;
+    }
+
+    public void decrementReferCount() {
+        referCount_--;
+    }
+
+    public int getProbability() {
+        return probability_;
     }
 }

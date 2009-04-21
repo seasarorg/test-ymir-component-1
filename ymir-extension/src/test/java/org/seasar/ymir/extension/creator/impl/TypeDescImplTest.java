@@ -1,53 +1,74 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import org.seasar.ymir.Application;
+import org.seasar.ymir.extension.creator.DescPool;
+import org.seasar.ymir.mock.MockApplication;
+
 import junit.framework.TestCase;
 
 public class TypeDescImplTest extends TestCase {
+    private DescPool pool_;
+
+    @Override
+    protected void setUp() throws Exception {
+        pool_ = DescPool.newInstance(new SourceCreatorImpl() {
+            @Override
+            public Application getApplication() {
+                return new MockApplication();
+            }
+
+            @Override
+            protected ClassLoader getClassLoader() {
+                return getClass().getClassLoader();
+            }
+        }, null);
+    }
+
     public void testGetDefaultValue() throws Exception {
-        String actual = new TypeDescImpl(null, "com.example.dto.TestDto[]")
+        String actual = new TypeDescImpl(pool_, "com.example.dto.TestDto[]")
                 .getDefaultValue();
         assertEquals("null", actual);
 
-        actual = new TypeDescImpl(null, "byte").getDefaultValue();
+        actual = new TypeDescImpl(pool_, "byte").getDefaultValue();
         assertEquals("0", actual);
 
-        actual = new TypeDescImpl(null, "short").getDefaultValue();
+        actual = new TypeDescImpl(pool_, "short").getDefaultValue();
         assertEquals("0", actual);
 
-        actual = new TypeDescImpl(null, "int").getDefaultValue();
+        actual = new TypeDescImpl(pool_, "int").getDefaultValue();
         assertEquals("0", actual);
 
-        actual = new TypeDescImpl(null, "long").getDefaultValue();
+        actual = new TypeDescImpl(pool_, "long").getDefaultValue();
         assertEquals("0", actual);
 
-        actual = new TypeDescImpl(null, "float").getDefaultValue();
+        actual = new TypeDescImpl(pool_, "float").getDefaultValue();
         assertEquals("0", actual);
 
-        actual = new TypeDescImpl(null, "double").getDefaultValue();
+        actual = new TypeDescImpl(pool_, "double").getDefaultValue();
         assertEquals("0.0", actual);
 
-        actual = new TypeDescImpl(null, "char").getDefaultValue();
+        actual = new TypeDescImpl(pool_, "char").getDefaultValue();
         assertEquals("0", actual);
 
-        actual = new TypeDescImpl(null, "boolean").getDefaultValue();
+        actual = new TypeDescImpl(pool_, "boolean").getDefaultValue();
         assertEquals("false", actual);
     }
 
     public void testGetName() throws Exception {
-        TypeDescImpl target = new TypeDescImpl(null, "java.lang.Integer");
+        TypeDescImpl target = new TypeDescImpl(pool_, "java.lang.Integer");
 
         assertEquals("Integer", target.getName());
     }
 
     public void testGetName_Generics対応() throws Exception {
-        TypeDescImpl target = new TypeDescImpl(null,
+        TypeDescImpl target = new TypeDescImpl(pool_,
                 "java.util.List<java.lang.String>");
 
         assertEquals("java.util.List<String>", target.getName());
     }
 
     public void testSetName() throws Exception {
-        TypeDescImpl target = new TypeDescImpl(null, "java.lang.Date");
+        TypeDescImpl target = new TypeDescImpl(pool_, "java.lang.Date");
 
         assertEquals("java.lang.Date", target.getComponentClassDesc().getName());
         assertFalse(target.isCollection());
@@ -55,7 +76,7 @@ public class TypeDescImplTest extends TestCase {
     }
 
     public void testSetName_配列() throws Exception {
-        TypeDescImpl target = new TypeDescImpl(null, "java.lang.Date[]");
+        TypeDescImpl target = new TypeDescImpl(pool_, "java.lang.Date[]");
 
         assertEquals("java.lang.Date", target.getComponentClassDesc().getName());
         assertTrue(target.isCollection());
@@ -63,7 +84,7 @@ public class TypeDescImplTest extends TestCase {
     }
 
     public void testSetName_コレクション() throws Exception {
-        TypeDescImpl target = new TypeDescImpl(null,
+        TypeDescImpl target = new TypeDescImpl(pool_,
                 "java.util.List<java.lang.Date>");
 
         assertEquals("java.lang.Date", target.getComponentClassDesc().getName());
@@ -72,7 +93,7 @@ public class TypeDescImplTest extends TestCase {
     }
 
     public void testSetName_コレクションの配列() throws Exception {
-        TypeDescImpl target = new TypeDescImpl(null,
+        TypeDescImpl target = new TypeDescImpl(pool_,
                 "java.util.List<java.lang.Date>[]");
 
         assertEquals("java.util.List", target.getComponentClassDesc().getName());
@@ -81,7 +102,7 @@ public class TypeDescImplTest extends TestCase {
     }
 
     public void testSetName_コレクションでないGenerics() throws Exception {
-        TypeDescImpl target = new TypeDescImpl(null,
+        TypeDescImpl target = new TypeDescImpl(pool_,
                 "java.lang.ThreadLocal<java.lang.Date>");
 
         assertEquals("java.lang.ThreadLocal", target.getComponentClassDesc()
@@ -91,7 +112,7 @@ public class TypeDescImplTest extends TestCase {
     }
 
     public void testGetName_コレクション() throws Exception {
-        TypeDescImpl target = new TypeDescImpl(null, "");
+        TypeDescImpl target = new TypeDescImpl(pool_, "");
         target.setCollection(true);
         target.setCollectionClassName("java.util.List");
         target.setComponentClassDesc(String.class);
@@ -100,7 +121,7 @@ public class TypeDescImplTest extends TestCase {
     }
 
     public void testGetCompleteName_コレクション() throws Exception {
-        TypeDescImpl target = new TypeDescImpl(null, "");
+        TypeDescImpl target = new TypeDescImpl(pool_, "");
         target.setCollection(true);
         target.setCollectionClassName("java.util.List");
         target.setComponentClassDesc(String.class);

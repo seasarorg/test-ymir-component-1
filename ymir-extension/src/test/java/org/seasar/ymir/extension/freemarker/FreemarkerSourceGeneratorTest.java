@@ -15,6 +15,7 @@ import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
+import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.impl.BodyDescImpl;
 import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 import org.seasar.ymir.extension.creator.impl.MethodDescImpl;
@@ -34,6 +35,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     private FSourceCreatorImpl sourceCreator_;
 
     private FreemarkerSourceGenerator target_;
+
+    private DescPool pool_;
 
     public static class FSourceCreatorImpl extends SourceCreatorImpl {
         public FSourceCreatorImpl() {
@@ -127,28 +130,28 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         sourceCreator_ = new FSourceCreatorImpl();
         target_ = new FreemarkerSourceGenerator();
         target_.setSourceCreator(sourceCreator_);
+        pool_ = DescPool.newInstance(sourceCreator_, null);
 
         YmirContext.setYmir(new MockYmir());
     }
 
     private ClassDesc prepareClassDesc(String className) {
-        DescPool pool = DescPool.newInstance(sourceCreator_, null);
-        ClassDesc classDesc = new ClassDescImpl(pool, className);
+        ClassDesc classDesc = new ClassDescImpl(pool_, className);
         classDesc.setSuperclassName(TestPageBaseBase.class.getName());
-        PropertyDesc propertyDesc = new PropertyDescImpl(pool, "param1");
+        PropertyDesc propertyDesc = new PropertyDescImpl(pool_, "param1");
         propertyDesc.setTypeDesc(Boolean.TYPE);
         propertyDesc.setMode(PropertyDesc.READ);
         classDesc.setPropertyDesc(propertyDesc);
-        propertyDesc = new PropertyDescImpl(pool, "param2");
+        propertyDesc = new PropertyDescImpl(pool_, "param2");
         propertyDesc.setMode(PropertyDesc.WRITE);
         classDesc.setPropertyDesc(propertyDesc);
         // 順番をアルファベット順でないようにしているのは、プロパティやメソッドがアルファベット順に
         // 生成されることを検証するため。（Dtoではコンストラクタのみアルファベット順）
-        propertyDesc = new PropertyDescImpl(pool, "param4");
+        propertyDesc = new PropertyDescImpl(pool_, "param4");
         propertyDesc.setMode(PropertyDesc.READ | PropertyDesc.WRITE);
         propertyDesc.setTypeDesc(Integer[].class).setExplicit(true);
         classDesc.setPropertyDesc(propertyDesc);
-        propertyDesc = new PropertyDescImpl(pool, "param3");
+        propertyDesc = new PropertyDescImpl(pool_, "param3");
         propertyDesc.setMode(PropertyDesc.READ | PropertyDesc.WRITE);
         classDesc.setPropertyDesc(propertyDesc);
 
@@ -167,7 +170,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
 
     public void testGenerateBaseSource_Page() throws Exception {
         ClassDesc classDesc = prepareClassDesc("com.example.page.TestPage");
-        MethodDesc methodDesc = new MethodDescImpl(null, "_get");
+        MethodDesc methodDesc = new MethodDescImpl(pool_, "_get");
         classDesc.setAttribute(Globals.ATTR_ACTION,
                 new MethodDesc[] { methodDesc });
         methodDesc.setReturnTypeDesc(String.class.getName());
@@ -191,11 +194,10 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 }
                 return new ClassDescImpl(pool, className);
             }
-        }.newClassDesc(DescPool.newInstance(sourceCreator_, null),
-                HoePageBase.class, true);
+        }.newClassDesc(pool_, HoePageBase.class, true);
         classDesc.setAttribute(Globals.ATTR_ACTION,
                 new MethodDesc[] { classDesc.getMethodDesc(new MethodDescImpl(
-                        null, "_get")) });
+                        pool_, "_get")) });
 
         String actual = target_.generateBaseSource(classDesc);
 
@@ -213,8 +215,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 }
                 return new ClassDescImpl(pool, className);
             }
-        }.newClassDesc(DescPool.newInstance(sourceCreator_, null),
-                Hoe3PageBase.class, true);
+        }.newClassDesc(pool_, Hoe3PageBase.class, true);
 
         String actual = target_.generateBaseSource(classDesc);
 
@@ -223,14 +224,14 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Page4() throws Exception {
-        ClassDesc classDesc = new ClassDescImpl(DescPool.newInstance(
-                sourceCreator_, null), "com.example.web.TestPage");
-        MethodDesc methodDesc = new MethodDescImpl(null, "_permissionDenied");
+        ClassDesc classDesc = new ClassDescImpl(pool_,
+                "com.example.web.TestPage");
+        MethodDesc methodDesc = new MethodDescImpl(pool_, "_permissionDenied");
         methodDesc.setThrowsDesc(new ThrowsDescImpl()
                 .addThrowable(PermissionDeniedException.class));
         methodDesc
                 .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
-                        null, PermissionDeniedException.class, "ex") });
+                        pool_, PermissionDeniedException.class, "ex") });
         methodDesc.setBodyDesc(new BodyDescImpl(
                 ConstraintInterceptor.ACTION_PERMISSIONDENIED,
                 new HashMap<String, Object>()));
@@ -252,17 +253,16 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 }
                 return new ClassDescImpl(pool, className);
             }
-        }.newClassDesc(DescPool.newInstance(sourceCreator_, null),
-                Hoe5PageBase.class, true);
+        }.newClassDesc(pool_, Hoe5PageBase.class, true);
 
-        ClassDesc generated = new ClassDescImpl(null,
+        ClassDesc generated = new ClassDescImpl(pool_,
                 "org.seasar.ymir.extension.freemarker.Hoe5Page");
-        MethodDesc methodDesc = new MethodDescImpl(null, "_permissionDenied");
+        MethodDesc methodDesc = new MethodDescImpl(pool_, "_permissionDenied");
         methodDesc.setThrowsDesc(new ThrowsDescImpl()
                 .addThrowable(PermissionDeniedException.class));
         methodDesc
                 .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
-                        null, PermissionDeniedException.class, "ex") });
+                        pool_, PermissionDeniedException.class, "ex") });
         methodDesc.setBodyDesc(new BodyDescImpl(
                 ConstraintInterceptor.ACTION_PERMISSIONDENIED,
                 new HashMap<String, Object>()));
@@ -278,6 +278,9 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
 
     public void testGenerateBaseSource_Dto() throws Exception {
         ClassDesc classDesc = prepareClassDesc("com.example.dto.TestDto");
+        classDesc
+                .setInterfaceTypeDescs(new TypeDesc[] { classDesc.getDescPool()
+                        .newTypeDesc("java.util.List<java.lang.String>") });
 
         String actual = target_.generateBaseSource(classDesc);
 
@@ -317,8 +320,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 }
                 return new ClassDescImpl(pool, className);
             }
-        }.newClassDesc(DescPool.newInstance(sourceCreator_, null),
-                Hoe6PageBase.class, true);
+        }.newClassDesc(pool_, Hoe6PageBase.class, true);
 
         String actual = target_.generateBaseSource(classDesc);
 
@@ -327,9 +329,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Converter() throws Exception {
-        DescPool pool = DescPool.newInstance(sourceCreator_, null);
         ClassDesc classDesc = sourceCreator_.createConverterClassDesc(
-                new ClassDescImpl(pool, HoeDto.class.getName()), new String[] {
+                new ClassDescImpl(pool_, HoeDto.class.getName()), new String[] {
                     Hoe.class.getName() + "<java.util.List>",
                     "java.lang.Object" });
         String actual = target_.generateBaseSource(classDesc);
@@ -339,9 +340,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateGapSource_Converter() throws Exception {
-        DescPool pool = DescPool.newInstance(sourceCreator_, null);
         ClassDesc classDesc = sourceCreator_.createConverterClassDesc(
-                new ClassDescImpl(pool, HoeDto.class.getName()), new String[] {
+                new ClassDescImpl(pool_, HoeDto.class.getName()), new String[] {
                     Hoe.class.getName() + "<java.util.List>",
                     "java.lang.Object" });
         String actual = target_.generateGapSource(classDesc);
@@ -351,9 +351,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Converter2_中身が空の場合() throws Exception {
-        DescPool pool = DescPool.newInstance(sourceCreator_, null);
         ClassDesc classDesc = sourceCreator_.createConverterClassDesc(
-                new ClassDescImpl(pool, HoeDto.class.getName()),
+                new ClassDescImpl(pool_, HoeDto.class.getName()),
                 new String[] { "java.lang.Object" });
         String actual = target_.generateBaseSource(classDesc);
 
@@ -363,16 +362,15 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
 
     public void test_YMIR_309_GenerateBaseSource_Page7_プリミティブ型の引数を持つメソッドの引数名が適切に生成されること()
             throws Exception {
-        DescPool pool = DescPool.newInstance(sourceCreator_, null);
-        ClassDesc classDesc = new ClassDescImpl(pool,
+        ClassDesc classDesc = new ClassDescImpl(pool_,
                 "com.example.page.TestPage");
-        MethodDesc methodDesc = new MethodDescImpl(pool, "_get");
+        MethodDesc methodDesc = new MethodDescImpl(pool_, "_get");
         classDesc.setAttribute(Globals.ATTR_ACTION,
                 new MethodDesc[] { methodDesc });
         methodDesc.setReturnTypeDesc("void");
         methodDesc
                 .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
-                        null, Integer.TYPE) });
+                        pool_, Integer.TYPE) });
         classDesc.setMethodDesc(methodDesc);
 
         String actual = target_.generateBaseSource(classDesc);
@@ -383,16 +381,15 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
 
     public void test_YMIR_310_GenerateBaseSource_Page8_同一型の引数を複数持つメソッドの引数名が適切に生成されること()
             throws Exception {
-        DescPool pool = DescPool.newInstance(sourceCreator_, null);
-        ClassDesc classDesc = new ClassDescImpl(pool,
+        ClassDesc classDesc = new ClassDescImpl(pool_,
                 "com.example.page.TestPage");
-        MethodDesc methodDesc = new MethodDescImpl(pool, "_get");
+        MethodDesc methodDesc = new MethodDescImpl(pool_, "_get");
         classDesc.setAttribute(Globals.ATTR_ACTION,
                 new MethodDesc[] { methodDesc });
         methodDesc.setReturnTypeDesc("void");
         methodDesc.setParameterDescs(new ParameterDesc[] {
-            new ParameterDescImpl(null, String.class),
-            new ParameterDescImpl(null, String.class) });
+            new ParameterDescImpl(pool_, String.class),
+            new ParameterDescImpl(pool_, String.class) });
         classDesc.setMethodDesc(methodDesc);
 
         String actual = target_.generateBaseSource(classDesc);

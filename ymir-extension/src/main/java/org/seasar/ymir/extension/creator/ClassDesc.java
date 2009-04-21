@@ -60,9 +60,9 @@ public interface ClassDesc extends AnnotatedDesc<ClassDesc> {
 
     void setSuperclassName(String superclassName);
 
-    boolean isBaseClassAbstract();
+    boolean isAbstract();
 
-    void setBaseClassAbstract(boolean baseClassAbstract);
+    void setAbstract(boolean baseClassAbstract);
 
     boolean isEmpty();
 

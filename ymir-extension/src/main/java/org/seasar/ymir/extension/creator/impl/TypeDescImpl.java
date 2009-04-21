@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.Desc;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
@@ -35,6 +36,8 @@ public class TypeDescImpl implements TypeDesc {
     private String collectionImplementationClassName_;
 
     private boolean explicit_;
+
+    private Desc<?> parent_;
 
     public TypeDescImpl(DescPool pool, Type type) {
         this(pool, DescUtils.toString(type));
@@ -113,15 +116,12 @@ public class TypeDescImpl implements TypeDesc {
 
     public void setComponentClassDesc(ClassDesc classDesc) {
         componentClassDesc_ = classDesc;
+        componentClassDesc_.setParent(this);
         name_ = null;
     }
 
     public void setComponentClassDesc(Class<?> clazz) {
-        if (pool_ != null) {
-            setComponentClassDesc(pool_.getClassDesc(clazz));
-        } else {
-            setComponentClassDesc(new ClassDescImpl(null, clazz.getName()));
-        }
+        setComponentClassDesc(pool_.getClassDesc(clazz));
     }
 
     public void setName(String typeName) {
@@ -162,11 +162,8 @@ public class TypeDescImpl implements TypeDesc {
         }
 
         String className = DescUtils.getNonGenericClassName(componentClassName);
-        if (pool_ != null) {
-            componentClassDesc_ = pool_.getClassDesc(className);
-        } else {
-            componentClassDesc_ = new ClassDescImpl(null, className);
-        }
+        componentClassDesc_ = pool_.getClassDesc(className);
+        componentClassDesc_.setParent(this);
     }
 
     public boolean isCollection() {
@@ -411,5 +408,14 @@ public class TypeDescImpl implements TypeDesc {
         desc.setExplicit(explicit_);
 
         return desc;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <D extends Desc<?>> D getParent() {
+        return (D) parent_;
+    }
+
+    public void setParent(Desc<?> parent) {
+        parent_ = parent;
     }
 }

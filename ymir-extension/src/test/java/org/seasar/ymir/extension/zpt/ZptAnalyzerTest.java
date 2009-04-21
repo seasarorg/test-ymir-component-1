@@ -55,6 +55,7 @@ import org.seasar.ymir.message.Note;
 import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
+import org.seasar.ymir.render.Candidate;
 import org.seasar.ymir.scope.annotation.RequestParameter;
 import org.seasar.ymir.util.FlexibleList;
 import org.seasar.ymir.util.ServletUtils;
@@ -317,7 +318,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(cd);
         assertNotNull(cd.getPropertyDesc("body"));
         assertNull("TemplateAnalyzerではリクエストメソッドのためのメソッド定義を生成しないこと", cd
-                .getMethodDesc(new MethodDescImpl(null, "GET")));
+                .getMethodDesc(new MethodDescImpl(pool_, "GET")));
     }
 
     public void testAnalyze2() throws Exception {
@@ -409,7 +410,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull(cd.getPropertyDesc("image2"));
         assertNull(cd.getPropertyDesc("submit2"));
 
-        MethodDesc md = cd.getMethodDesc(new MethodDescImpl(null, "POST"));
+        MethodDesc md = cd.getMethodDesc(new MethodDescImpl(pool_, "POST"));
         assertNull("YmirPathMappingではnameつきボタンがある場合はPOSTアクションメソッドは生成されないこと", md);
     }
 
@@ -431,7 +432,7 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc actual = getClassDesc("com.example.web.ActionPage");
         assertNotNull(actual);
-        MethodDesc md = actual.getMethodDesc(new MethodDescImpl(null, "GET"));
+        MethodDesc md = actual.getMethodDesc(new MethodDescImpl(pool_, "GET"));
         assertNotNull(md);
         PropertyDesc pd = actual.getPropertyDesc("id");
         assertNotNull(pd);
@@ -443,7 +444,7 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc actual = getClassDesc("com.example.web.ActionPage");
         assertNotNull(actual);
-        MethodDesc md = actual.getMethodDesc(new MethodDescImpl(null, "GET"));
+        MethodDesc md = actual.getMethodDesc(new MethodDescImpl(pool_, "GET"));
         assertNotNull(md);
         PropertyDesc pd = actual.getPropertyDesc("id");
         assertNotNull(pd);
@@ -552,17 +553,17 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull("submitのnameに対応するプロパティのgetter/setterは生成されないこと", cd
                 .getPropertyDesc("submit"));
         assertNotNull("対応するメソッドがないボタンがある場合はデフォルトのアクションメソッドが生成されること", cd
-                .getMethodDesc(new MethodDescImpl(null, "POST")));
+                .getMethodDesc(new MethodDescImpl(pool_, "POST")));
         assertNotNull("buttonのnameに対応するアクションメソッドが生成されること", cd
-                .getMethodDesc(new MethodDescImpl(null, "POST_button")));
+                .getMethodDesc(new MethodDescImpl(pool_, "POST_button")));
         assertNotNull("imageのnameに対応するアクションメソッドが生成されること", cd
-                .getMethodDesc(new MethodDescImpl(null, "POST_image")));
+                .getMethodDesc(new MethodDescImpl(pool_, "POST_image")));
         assertNotNull("submitのnameに対応するアクションメソッドが生成されること", cd
-                .getMethodDesc(new MethodDescImpl(null, "POST_submit")));
+                .getMethodDesc(new MethodDescImpl(pool_, "POST_submit")));
         assertNotNull("nameが実行時に決まるようなタグでもstring定数なら自動生成対象になること", cd
-                .getMethodDesc(new MethodDescImpl(null, "POST_submit2")));
+                .getMethodDesc(new MethodDescImpl(pool_, "POST_submit2")));
         assertNull("nameが実行時に決まるようなタグでパラメータを持つものは無視されること", cd
-                .getMethodDesc(new MethodDescImpl(null, "POST_submitt")));
+                .getMethodDesc(new MethodDescImpl(pool_, "POST_submitt")));
     }
 
     public void testAnalyze18() throws Exception {
@@ -645,7 +646,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull(getClassDesc("com.example.dto.NotesDto"));
     }
 
-    public void testAnalyze26_明示的に型を指定したプロパティについては自動的にマッピングされるDto型が生成されないこと()
+    public void testAnalyze26_明示的に型が指定されているプロパティについては自動的にマッピングされるDto型が生成されないこと()
             throws Exception {
 
         act("testAnalyze26");
@@ -879,8 +880,8 @@ public class ZptAnalyzerTest extends TestCase {
         act("testAnalyze46");
 
         ClassDesc cd = getClassDesc("com.example.web.UpdatePage");
-        MethodDesc md = new MethodDescImpl(null, "POST_action");
-        md.setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(null,
+        MethodDesc md = new MethodDescImpl(pool_, "POST_action");
+        md.setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(pool_,
                 Integer.TYPE, "index") });
         md = cd.getMethodDesc(md);
         assertNotNull(md);
@@ -961,19 +962,19 @@ public class ZptAnalyzerTest extends TestCase {
                 cd.getPropertyDesc("submit"));
         assertNotNull(
                 "dispatchingByRequestParameterがtrueであるようなPathMappingにactionのパスがマッチする場合はbuttonのnameに対応するアクションメソッドが生成されること",
-                cd.getMethodDesc(new MethodDescImpl(null, "POST_button")));
+                cd.getMethodDesc(new MethodDescImpl(pool_, "POST_button")));
         assertNotNull(
                 "dispatchingByRequestParameterがtrueであるようなPathMappingにactionのパスがマッチする場合はbutton（type=submit）のnameに対応するアクションメソッドが生成されること",
-                cd.getMethodDesc(new MethodDescImpl(null, "POST_submit")));
+                cd.getMethodDesc(new MethodDescImpl(pool_, "POST_submit")));
 
         cd = getClassDesc(CLASSNAME);
         assertNull("formの外にあるbuttonタグは無視されること", cd.getPropertyDesc("button2"));
         assertNull("formの外にあるbuttonタグは無視されること", cd
-                .getMethodDesc(new MethodDescImpl(null, "POST_button2")));
+                .getMethodDesc(new MethodDescImpl(pool_, "POST_button2")));
         assertNull("formの外にあるbuttonタグ（type=submit）は無視されること", cd
                 .getPropertyDesc("submit2"));
         assertNull("formの外にあるbuttonタグ（type=submit）は無視されること", cd
-                .getMethodDesc(new MethodDescImpl(null, "POST_submit2")));
+                .getMethodDesc(new MethodDescImpl(pool_, "POST_submit2")));
     }
 
     public void testAnalyze52_YMIR_180_formのname属性で指定した名前と同じ名前のプロパティのGetterが生成されること()
@@ -1067,38 +1068,38 @@ public class ZptAnalyzerTest extends TestCase {
 
         ClassDesc updateCd = getClassDesc("com.example.web.UpdatePage");
         MethodDesc md = updateCd
-                .getMethodDesc(new MethodDescImpl(null, "POST"));
+                .getMethodDesc(new MethodDescImpl(pool_, "POST"));
         assertNull("submit等がない場合はPOSTが作られないこと", md);
 
         ClassDesc update2Cd = getClassDesc("com.example.web.Update2Page");
-        md = update2Cd.getMethodDesc(new MethodDescImpl(null, "GET"));
+        md = update2Cd.getMethodDesc(new MethodDescImpl(pool_, "GET"));
         assertNull("[#YMIR-207] HTTPメソッドがGETである場合でもGETが作られないこと", md);
 
         ClassDesc indexCd = getClassDesc("com.example.web.IndexPage");
-        md = indexCd.getMethodDesc(new MethodDescImpl(null, "GET"));
+        md = indexCd.getMethodDesc(new MethodDescImpl(pool_, "GET"));
         assertNull(
                 "nameつきsubmitしかない場合でもポストバックの時はGETが作られるが、HTMLテンプレートの解析処理では作られない",
                 md);
 
         ClassDesc update3Cd = getClassDesc("com.example.web.Update3Page");
-        md = update3Cd.getMethodDesc(new MethodDescImpl(null, "POST"));
+        md = update3Cd.getMethodDesc(new MethodDescImpl(pool_, "POST"));
         assertNull("nameを持つsubmit等がある場合はPOSTが作られないこと", md);
 
         ClassDesc update4Cd = getClassDesc("com.example.web.Update4Page");
-        md = update4Cd.getMethodDesc(new MethodDescImpl(null, "POST"));
+        md = update4Cd.getMethodDesc(new MethodDescImpl(pool_, "POST"));
         assertNotNull("適切なnameを持つsubmit等がない場合はPOSTが作られること", md);
 
         ClassDesc update5Cd = getClassDesc("com.example.web.Update5Page");
-        md = update5Cd.getMethodDesc(new MethodDescImpl(null, "POST"));
+        md = update5Cd.getMethodDesc(new MethodDescImpl(pool_, "POST"));
         assertNotNull("nameを持たないsubmit等がある場合はPOSTが作られること", md);
 
         ClassDesc update6Cd = getClassDesc("com.example.web.Update6Page");
-        md = update6Cd.getMethodDesc(new MethodDescImpl(null, "POST"));
+        md = update6Cd.getMethodDesc(new MethodDescImpl(pool_, "POST"));
         assertNotNull(
                 "適切なnameを持つsubmit等があっても適切なnameを持つsubmit等がない場合はPOSTが作られること", md);
 
         ClassDesc update7Cd = getClassDesc("com.example.web.Update7Page");
-        md = update7Cd.getMethodDesc(new MethodDescImpl(null, "POST"));
+        md = update7Cd.getMethodDesc(new MethodDescImpl(pool_, "POST"));
         assertNotNull(
                 "適切なnameを持つsubmit等があってもnameを持たないsubmit等がある場合はPOSTが作られること", md);
     }
@@ -1246,16 +1247,16 @@ public class ZptAnalyzerTest extends TestCase {
         ClassDesc cd = getClassDesc(CLASSNAME);
         assertNotNull(cd);
 
-        MethodDesc md = cd.getMethodDesc(new MethodDescImpl(null, "GET"));
+        MethodDesc md = cd.getMethodDesc(new MethodDescImpl(pool_, "GET"));
         assertNotNull(md);
         assertEquals("org.seasar.ymir.Response", md.getReturnTypeDesc()
                 .getName());
 
-        md = cd.getMethodDesc(new MethodDescImpl(null, "POST"));
+        md = cd.getMethodDesc(new MethodDescImpl(pool_, "POST"));
         assertNotNull(md);
         assertEquals("String", md.getReturnTypeDesc().getName());
 
-        md = cd.getMethodDesc(new MethodDescImpl(null, "POST_button"));
+        md = cd.getMethodDesc(new MethodDescImpl(pool_, "POST_button"));
         assertNotNull(md);
         assertEquals("String", md.getReturnTypeDesc().getName());
     }
@@ -1360,7 +1361,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull(names);
         assertNull("プロパティが生成されないこと", cd.getPropertyDesc("edit"));
         assertNotNull("ボタンに対応するメソッドが生成されること", cd
-                .getMethodDesc(new MethodDescImpl(null, "GET_edit")));
+                .getMethodDesc(new MethodDescImpl(pool_, "GET_edit")));
     }
 
     public void testAnalyze72_相対パスを正しく解釈できること() throws Exception {
@@ -1502,7 +1503,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(pd);
     }
 
-    public void testAnalyze80_インタフェース型を返す既存クラスのプロパティであってもrepeat変数で受けている場合はrepeat変数名によって実装クラス名が決定されること()
+    public void testAnalyze80_インタフェース型を返す既存DTOクラスのプロパティであってもrepeat変数で受けている場合はrepeat変数名によって実装クラス名が決定されること()
             throws Exception {
 
         sourceCreator_.getApplication().setProperty(
@@ -1516,22 +1517,64 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(getClassDesc("com.example.dto.sub.EntryDto"));
     }
 
-    //    public void testAnalyze81_パス式とリクエストパラメータ名が同じプロパティを指す場合にプロパティ型が別々に判断されてしまわないこと()
-    //            throws Exception {
-    //
-    //        sourceCreator_.getApplication().setProperty(
-    //                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
-    //                "org.seasar.ymir.render.*");
-    //
-    //        act("testAnalyze81");
-    //
-    //        assertNull(getClassDesc("com.example.dto.CandidateDto"));
-    //        assertNotNull(getClassDesc("com.example.dto.EntryDto"));
-    //    }
+    public void testAnalyze81_パス式とリクエストパラメータ名が同じプロパティを指す場合にプロパティ型が別々に判断されてしまわないこと()
+            throws Exception {
 
-    // TODO list4で、CandidateDtoが生成されてしまう。setAsUsed()は参照カウントを保持すべき。
-    // TODO インタフェースの実装型を生成する際にはインタフェースを実装するように。
-    // TODO selector.candidates[0] とした時にSelectorDtoが生成されないように。のテスト。
-    // SimpleClassDesc廃止。
-    // DescPoolの新設。
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+
+        act("testAnalyze81");
+
+        assertNull(getClassDesc("com.example.dto.CandidateDto"));
+        assertNotNull(getClassDesc("com.example.dto.EntryDto"));
+    }
+
+    public void testAnalyze82_インタフェースを返す既存DTOクラスのプロパティに対応する自動生成DTO型はそのインタフェースを実装していること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+
+        act("testAnalyze82");
+
+        assertNull(getClassDesc("com.example.dto.CandidateDto"));
+        ClassDesc actual = getClassDesc("com.example.dto.EntryDto");
+        assertNotNull(actual);
+        TypeDesc[] tds = actual.getInterfaceTypeDescs();
+        assertEquals(1, tds.length);
+        assertEquals(Candidate.class.getName(), tds[0].getName());
+    }
+
+    public void testAnalyze83_インタフェースを返す既存DTOクラスのプロパティをrepeat変数で受けている場合にはグループ名がrepeat変数名よりも優先されること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+
+        act("testAnalyze83");
+
+        assertNull(getClassDesc("com.example.dto.CandidateDto"));
+        assertNull(getClassDesc("com.example.dto.EntDto"));
+        assertNotNull(getClassDesc("com.example.dto.EntryDto"));
+    }
+
+    public void testAnalyze84_インタフェースを返す既存DTOクラスのプロパティをrepeat変数で受けている場合にはグループ名がなければrepeat変数名がインタフェース名よりも優先されること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+
+        act("testAnalyze84");
+
+        ClassDesc actual = getClassDesc("com.example.dto.CandidateDto");
+        assertNotNull(actual);
+        assertNotNull(actual.getPropertyDesc("label"));
+        assertEquals(1, actual.getPropertyDescs().length);
+        assertNotNull(getClassDesc("com.example.dto.EntDto"));
+        assertNull(getClassDesc("com.example.dto.EntryDto"));
+    }
 }

@@ -1,7 +1,8 @@
 ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
 
 <#list classDesc.annotationDescs as annotationDesc>${annotationDesc.string}
-</#list>public <#if classDesc.baseClassAbstract>abstract </#if>class ${classDesc.shortName}Base<#if classDesc.superclassName?exists && classDesc.superclassName != "java.lang.Object"> extends ${classDesc.superclassName}</#if> {
+</#list>public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#if classDesc.superclassName?exists && classDesc.superclassName != "java.lang.Object"> extends ${classDesc.superclassName}</#if><#list classDesc.interfaceTypeDescs as interfaceTypeDesc><#if interfaceTypeDesc_index == 0>
+    implements </#if>${interfaceTypeDesc.name}<#if interfaceTypeDesc_has_next>, </#if></#list> {
     public static final String PACKAGE = "${classDesc.packageName}";
 
     public static final String NAME = "${classDesc.nameBase?uncap_first}";

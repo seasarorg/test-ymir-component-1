@@ -64,12 +64,15 @@ public class DescWrapper {
             pd.addMode(mode);
         }
 
+        pd.incrementReferCount();
+
         // cf. ZptAnalyzerTest#test41
         TypeDesc td = pd.getTypeDesc();
-        if (!td.isExplicit() && !pd.isTypeAlreadySet()
+        if (!td.isExplicit()
+                && !pd.isTypeAlreadySet(AnalyzerContext.PROBABILITY_DEFAULT)
                 && td.getName().equals("boolean")) {
             td.setComponentClassDesc(String.class);
-            pd.notifyTypeUpdated();
+            pd.notifyTypeUpdated(AnalyzerContext.PROBABILITY_DEFAULT);
         }
 
         DescWrapper returned = new DescWrapper(this, pd);
@@ -152,12 +155,29 @@ public class DescWrapper {
         return parent_;
     }
 
-    public void setVariableName(String variableName) {
+    public void setVariableName(String variableName, boolean asCollection,
+            String collectionClassName, int probability) {
         if (propertyDesc_ != null && !propertyDesc_.getTypeDesc().isExplicit()) {
-            propertyDesc_ = analyzerContext_.addProperty(
-                    parent_.getValueClassDescToModifyProeprty(propertyDesc_
-                            .getName()), propertyDesc_.getName(), propertyDesc_
-                            .getMode(), variableName, false, null, true);
+            ClassDesc componentClassDesc = propertyDesc_.getTypeDesc()
+                    .getComponentClassDesc();
+            if (analyzerContext_.getSourceCreator().isDtoClass(
+                    componentClassDesc.getName())
+                    && analyzerContext_.isOuter(componentClassDesc)) {
+                // 自動生成ではないDTOクラスの場合は差し替えない。
+                // しかしコレクションにする処理は行なう。
+                if (probability >= propertyDesc_.getProbability()
+                        && asCollection) {
+                    analyzerContext_.setToCollection(propertyDesc_
+                            .getTypeDesc(), collectionClassName);
+                }
+            } else {
+                propertyDesc_ = analyzerContext_.addProperty(parent_
+                        .getValueClassDescToModifyProeprty(propertyDesc_
+                                .getName()), propertyDesc_.getName(),
+                        propertyDesc_.getMode(), variableName, asCollection,
+                        collectionClassName, probability);
+            }
         }
     }
+
 }

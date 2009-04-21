@@ -9,102 +9,109 @@ import org.seasar.ymir.extension.creator.PropertyDesc;
 import com.example.page.TestPageBase;
 
 public class ClassDescImplTest extends SourceCreatorImplTestBase {
+    private DescPool pool_;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        pool_ = DescPool.newInstance(target_, null);
+    }
+
     public void testGetInstanceName() throws Exception {
-        String actual = new ClassDescImpl(null, "com.example.dto.TestDto")
+        String actual = new ClassDescImpl(pool_, "com.example.dto.TestDto")
                 .getInstanceName();
         assertEquals("testDto", actual);
     }
 
     public void testGetInstanceName_プリミティブ型の場合() throws Exception {
-        String actual = new ClassDescImpl(null, "int").getInstanceName();
+        String actual = new ClassDescImpl(pool_, "int").getInstanceName();
         assertEquals("intValue", actual);
     }
 
     public void testMerge() throws Exception {
-        DescPool pool = DescPool.newInstance(target_, null);
-        ClassDesc actual = new ClassDescImpl(pool, "com.example.page.TestPage");
-        PropertyDesc pd = new PropertyDescImpl(pool, "param1");
+        ClassDesc actual = new ClassDescImpl(pool_, "com.example.page.TestPage");
+        PropertyDesc pd = new PropertyDescImpl(pool_, "param1");
         pd.setMode(PropertyDesc.READ);
         actual.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param2");
+        pd = new PropertyDescImpl(pool_, "param2");
         pd.setMode(PropertyDesc.WRITE);
         actual.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param3");
+        pd = new PropertyDescImpl(pool_, "param3");
         pd.setTypeDesc(String.class);
         pd.getTypeDesc().setExplicit(true);
         actual.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param4");
+        pd = new PropertyDescImpl(pool_, "param4");
         pd.setTypeDesc(String[].class);
         actual.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param6");
+        pd = new PropertyDescImpl(pool_, "param6");
         pd.setTypeDesc(Integer.class);
         actual.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param7");
+        pd = new PropertyDescImpl(pool_, "param7");
         pd.setTypeDesc(String.class);
         actual.setPropertyDesc(pd);
-        MethodDesc md = new MethodDescImpl(pool, "method");
+        MethodDesc md = new MethodDescImpl(pool_, "method");
         md.setReturnTypeDesc("java.lang.String");
         actual.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method2");
+        md = new MethodDescImpl(pool_, "method2");
         md.setReturnTypeDesc(String.class);
         md.getReturnTypeDesc().setExplicit(true);
         actual.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method3");
+        md = new MethodDescImpl(pool_, "method3");
         md.setReturnTypeDesc(String.class);
         md.getReturnTypeDesc().setExplicit(true);
         actual.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method4");
+        md = new MethodDescImpl(pool_, "method4");
         md.setReturnTypeDesc("java.lang.String");
         actual.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method5");
+        md = new MethodDescImpl(pool_, "method5");
         md.setReturnTypeDesc("java.lang.String");
         md.setAnnotationDesc(new MetaAnnotationDescImpl("a", new String[0],
                 new Class[0]));
         md.setAnnotationDesc(new AnnotationDescImpl("name1"));
         actual.setMethodDesc(md);
 
-        ClassDesc cd2 = new ClassDescImpl(pool, "com.example.page.TestPage");
+        ClassDesc cd2 = new ClassDescImpl(pool_, "com.example.page.TestPage");
         cd2.setSuperclassName(TestPageBase.class.getName());
-        pd = new PropertyDescImpl(pool, "param1");
+        pd = new PropertyDescImpl(pool_, "param1");
         pd.setTypeDesc(Integer.class);
         pd.getTypeDesc().setExplicit(true);
         pd.setMode(PropertyDesc.WRITE);
         cd2.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param2");
+        pd = new PropertyDescImpl(pool_, "param2");
         pd.setTypeDesc(Integer.class);
         pd.getTypeDesc().setExplicit(true);
         pd.setMode(PropertyDesc.READ);
         cd2.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param3");
+        pd = new PropertyDescImpl(pool_, "param3");
         pd.setTypeDesc(Integer.class);
         pd.getTypeDesc().setExplicit(true);
         cd2.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param5");
+        pd = new PropertyDescImpl(pool_, "param5");
         pd.setTypeDesc(Integer[].class);
         pd.getTypeDesc().setExplicit(true);
         cd2.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param7");
+        pd = new PropertyDescImpl(pool_, "param7");
         pd.setTypeDesc(Integer.class);
         cd2.setPropertyDesc(pd);
-        md = new MethodDescImpl(pool, "method");
+        md = new MethodDescImpl(pool_, "method");
         md.setReturnTypeDesc(Integer.class);
         md.getReturnTypeDesc().setExplicit(true);
         md.setBodyDesc(new BodyDescImpl("body"));
         cd2.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method2");
+        md = new MethodDescImpl(pool_, "method2");
         md.setReturnTypeDesc("java.lang.Integer");
         md.setBodyDesc(new BodyDescImpl("body"));
         cd2.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method3");
+        md = new MethodDescImpl(pool_, "method3");
         md.setReturnTypeDesc(Integer.class);
         md.getReturnTypeDesc().setExplicit(true);
         md.setBodyDesc(new BodyDescImpl("body"));
         cd2.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method4");
+        md = new MethodDescImpl(pool_, "method4");
         md.setReturnTypeDesc("java.lang.Integer");
         md.setBodyDesc(new BodyDescImpl("body"));
         cd2.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method5");
+        md = new MethodDescImpl(pool_, "method5");
         md.setReturnTypeDesc("java.lang.String");
         md.setAnnotationDesc(new MetaAnnotationDescImpl("b", new String[0],
                 new Class[0]));
@@ -138,119 +145,118 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         assertEquals("プロパティのtypeが両方ともimplicitである場合はもともとのtypeが優先されること",
                 "String", actual.getPropertyDesc("param7").getTypeDesc()
                         .getName());
-        MethodDesc actualMd = actual.getMethodDesc(new MethodDescImpl(null,
+        MethodDesc actualMd = actual.getMethodDesc(new MethodDescImpl(pool_,
                 "method"));
         assertNotNull(actualMd);
         assertEquals("body", actualMd.getBodyDesc().getRoot().get("body"));
         assertEquals("Integer", actual.getMethodDesc(
-                new MethodDescImpl(null, "method")).getReturnTypeDesc()
+                new MethodDescImpl(pool_, "method")).getReturnTypeDesc()
                 .getName());
         assertEquals("String", actual.getMethodDesc(
-                new MethodDescImpl(null, "method2")).getReturnTypeDesc()
+                new MethodDescImpl(pool_, "method2")).getReturnTypeDesc()
                 .getName());
         assertEquals("メソッドの返り値のtypeが両方ともexplicitである場合はもともとのtypeが優先されること",
                 "String", actual.getMethodDesc(
-                        new MethodDescImpl(null, "method3"))
+                        new MethodDescImpl(pool_, "method3"))
                         .getReturnTypeDesc().getName());
         assertEquals("メソッドの返り値のtypeが両方ともimplicitである場合はもともとのtypeが優先されること",
                 "String", actual.getMethodDesc(
-                        new MethodDescImpl(null, "method4"))
+                        new MethodDescImpl(pool_, "method4"))
                         .getReturnTypeDesc().getName());
         assertNotNull("メソッドのMeta系でないアノテーションはマージされること", actual.getMethodDesc(
-                new MethodDescImpl(null, "method5")).getAnnotationDesc("name1"));
+                new MethodDescImpl(pool_, "method5")).getAnnotationDesc("name1"));
         assertNotNull("メソッドのMeta系でないアノテーションはマージされること", actual.getMethodDesc(
-                new MethodDescImpl(null, "method5")).getAnnotationDesc("name2"));
+                new MethodDescImpl(pool_, "method5")).getAnnotationDesc("name2"));
         assertNotNull("メソッドのMeta系アノテーションもマージされること", actual.getMethodDesc(
-                new MethodDescImpl(null, "method5")).getMetaValue("a"));
+                new MethodDescImpl(pool_, "method5")).getMetaValue("a"));
         assertNotNull("メソッドのMeta系アノテーションもマージされること", actual.getMethodDesc(
-                new MethodDescImpl(null, "method5")).getMetaValue("b"));
+                new MethodDescImpl(pool_, "method5")).getMetaValue("b"));
     }
 
     public void testMerge2() throws Exception {
-        DescPool pool = DescPool.newInstance(target_, null);
-        ClassDesc actual = new ClassDescImpl(pool, "com.example.page.TestPage");
-        PropertyDesc pd = new PropertyDescImpl(pool, "param1");
+        ClassDesc actual = new ClassDescImpl(pool_, "com.example.page.TestPage");
+        PropertyDesc pd = new PropertyDescImpl(pool_, "param1");
         pd.setMode(PropertyDesc.READ);
         actual.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param2");
+        pd = new PropertyDescImpl(pool_, "param2");
         pd.setMode(PropertyDesc.WRITE);
         actual.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param3");
+        pd = new PropertyDescImpl(pool_, "param3");
         pd.setTypeDesc(String.class);
         pd.getTypeDesc().setExplicit(true);
         actual.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param4");
+        pd = new PropertyDescImpl(pool_, "param4");
         pd.setTypeDesc(String[].class);
         actual.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param6");
+        pd = new PropertyDescImpl(pool_, "param6");
         pd.setTypeDesc(Integer.class);
         actual.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param7");
+        pd = new PropertyDescImpl(pool_, "param7");
         pd.setTypeDesc(String.class);
         actual.setPropertyDesc(pd);
-        MethodDesc md = new MethodDescImpl(pool, "method");
+        MethodDesc md = new MethodDescImpl(pool_, "method");
         md.setReturnTypeDesc("java.lang.String");
         actual.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method2");
+        md = new MethodDescImpl(pool_, "method2");
         md.setReturnTypeDesc(String.class);
         md.getReturnTypeDesc().setExplicit(true);
         actual.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method3");
+        md = new MethodDescImpl(pool_, "method3");
         md.setReturnTypeDesc(String.class);
         md.getReturnTypeDesc().setExplicit(true);
         actual.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method4");
+        md = new MethodDescImpl(pool_, "method4");
         md.setReturnTypeDesc("java.lang.String");
         actual.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method5");
+        md = new MethodDescImpl(pool_, "method5");
         md.setReturnTypeDesc("java.lang.String");
         md.setAnnotationDesc(new MetaAnnotationDescImpl("a", new String[0],
                 new Class[0]));
         md.setAnnotationDesc(new AnnotationDescImpl("name1"));
         actual.setMethodDesc(md);
 
-        ClassDesc cd2 = new ClassDescImpl(pool, "com.example.page.TestPage");
+        ClassDesc cd2 = new ClassDescImpl(pool_, "com.example.page.TestPage");
         cd2.setSuperclassName(TestPageBase.class.getName());
-        pd = new PropertyDescImpl(pool, "param1");
+        pd = new PropertyDescImpl(pool_, "param1");
         pd.setTypeDesc(Integer.class);
         pd.getTypeDesc().setExplicit(true);
         pd.setMode(PropertyDesc.WRITE);
         cd2.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param2");
+        pd = new PropertyDescImpl(pool_, "param2");
         pd.setTypeDesc(Integer.class);
         pd.getTypeDesc().setExplicit(true);
         pd.setMode(PropertyDesc.READ);
         cd2.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param3");
+        pd = new PropertyDescImpl(pool_, "param3");
         pd.setTypeDesc(Integer.class);
         pd.getTypeDesc().setExplicit(true);
         cd2.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param5");
+        pd = new PropertyDescImpl(pool_, "param5");
         pd.setTypeDesc(Integer[].class);
         pd.getTypeDesc().setExplicit(true);
         cd2.setPropertyDesc(pd);
-        pd = new PropertyDescImpl(pool, "param7");
+        pd = new PropertyDescImpl(pool_, "param7");
         pd.setTypeDesc(Integer.class);
         cd2.setPropertyDesc(pd);
-        md = new MethodDescImpl(pool, "method");
+        md = new MethodDescImpl(pool_, "method");
         md.setReturnTypeDesc(Integer.class);
         md.getReturnTypeDesc().setExplicit(true);
         md.setBodyDesc(new BodyDescImpl("body"));
         cd2.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method2");
+        md = new MethodDescImpl(pool_, "method2");
         md.setReturnTypeDesc("java.lang.Integer");
         md.setBodyDesc(new BodyDescImpl("body"));
         cd2.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method3");
+        md = new MethodDescImpl(pool_, "method3");
         md.setReturnTypeDesc(Integer.class);
         md.getReturnTypeDesc().setExplicit(true);
         md.setBodyDesc(new BodyDescImpl("body"));
         cd2.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method4");
+        md = new MethodDescImpl(pool_, "method4");
         md.setReturnTypeDesc("java.lang.Integer");
         md.setBodyDesc(new BodyDescImpl("body"));
         cd2.setMethodDesc(md);
-        md = new MethodDescImpl(pool, "method5");
+        md = new MethodDescImpl(pool_, "method5");
         md.setReturnTypeDesc("java.lang.String");
         md.setAnnotationDesc(new MetaAnnotationDescImpl("b", new String[0],
                 new Class[0]));
@@ -284,37 +290,37 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         assertEquals("プロパティのtypeが両方ともimplicitである場合は引数で指定された側のtypeが優先されること",
                 "Integer", actual.getPropertyDesc("param7").getTypeDesc()
                         .getName());
-        MethodDesc actualMd = actual.getMethodDesc(new MethodDescImpl(null,
+        MethodDesc actualMd = actual.getMethodDesc(new MethodDescImpl(pool_,
                 "method"));
         assertNotNull(actualMd);
         assertEquals("body", actualMd.getBodyDesc().getRoot().get("body"));
         assertEquals("Integer", actual.getMethodDesc(
-                new MethodDescImpl(null, "method")).getReturnTypeDesc()
+                new MethodDescImpl(pool_, "method")).getReturnTypeDesc()
                 .getName());
         assertEquals("String", actual.getMethodDesc(
-                new MethodDescImpl(null, "method2")).getReturnTypeDesc()
+                new MethodDescImpl(pool_, "method2")).getReturnTypeDesc()
                 .getName());
         assertEquals("メソッドの返り値のtypeが両方ともexplicitである場合は引数で指定された側のtypeが優先されること",
                 "Integer", actual.getMethodDesc(
-                        new MethodDescImpl(null, "method3"))
+                        new MethodDescImpl(pool_, "method3"))
                         .getReturnTypeDesc().getName());
         assertEquals("メソッドの返り値のtypeが両方ともimplicitである場合は引数で指定された側のtypeが優先されること",
                 "Integer", actual.getMethodDesc(
-                        new MethodDescImpl(null, "method4"))
+                        new MethodDescImpl(pool_, "method4"))
                         .getReturnTypeDesc().getName());
         assertNotNull("メソッドのMeta系でないアノテーションはマージされること", actual.getMethodDesc(
-                new MethodDescImpl(null, "method5")).getAnnotationDesc("name1"));
+                new MethodDescImpl(pool_, "method5")).getAnnotationDesc("name1"));
         assertNotNull("メソッドのMeta系でないアノテーションはマージされること", actual.getMethodDesc(
-                new MethodDescImpl(null, "method5")).getAnnotationDesc("name2"));
+                new MethodDescImpl(pool_, "method5")).getAnnotationDesc("name2"));
         assertNotNull("メソッドのMeta系アノテーションもマージされること", actual.getMethodDesc(
-                new MethodDescImpl(null, "method5")).getMetaValue("a"));
+                new MethodDescImpl(pool_, "method5")).getMetaValue("a"));
         assertNotNull("メソッドのMeta系アノテーションもマージされること", actual.getMethodDesc(
-                new MethodDescImpl(null, "method5")).getMetaValue("b"));
+                new MethodDescImpl(pool_, "method5")).getMetaValue("b"));
     }
 
     public void testMerge3_YMIR_221_プロパティのアノテーションがマージされること() throws Exception {
-        ClassDesc actual = new ClassDescImpl(null, "com.example.page.TestPage");
-        PropertyDesc pd = new PropertyDescImpl(null, "param1");
+        ClassDesc actual = new ClassDescImpl(pool_, "com.example.page.TestPage");
+        PropertyDesc pd = new PropertyDescImpl(pool_, "param1");
         pd.setMode(PropertyDesc.READ);
         pd.setAnnotationDesc(new MetaAnnotationDescImpl("a", new String[0],
                 new Class[0]));
@@ -328,9 +334,9 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         pd.setAnnotationDescOnSetter(new AnnotationDescImpl("name1_setter"));
         actual.setPropertyDesc(pd);
 
-        ClassDesc cd2 = new ClassDescImpl(null, "com.example.page.TestPage");
+        ClassDesc cd2 = new ClassDescImpl(pool_, "com.example.page.TestPage");
         cd2.setSuperclassName(TestPageBase.class.getName());
-        pd = new PropertyDescImpl(null, "param1");
+        pd = new PropertyDescImpl(pool_, "param1");
         pd.setTypeDesc(Integer.class);
         pd.getTypeDesc().setExplicit(true);
         pd.setMode(PropertyDesc.WRITE);
@@ -381,8 +387,8 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
     }
 
     public void testMerge4_YMIR_221_プロパティのアノテーションがマージされること() throws Exception {
-        ClassDesc actual = new ClassDescImpl(null, "com.example.page.TestPage");
-        PropertyDesc pd = new PropertyDescImpl(null, "param1");
+        ClassDesc actual = new ClassDescImpl(pool_, "com.example.page.TestPage");
+        PropertyDesc pd = new PropertyDescImpl(pool_, "param1");
         pd.setMode(PropertyDesc.READ);
         pd.setAnnotationDesc(new MetaAnnotationDescImpl("a", new String[0],
                 new Class[0]));
@@ -395,9 +401,9 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         pd.setAnnotationDescOnSetter(new AnnotationDescImpl("name1_setter"));
         actual.setPropertyDesc(pd);
 
-        ClassDesc cd2 = new ClassDescImpl(null, "com.example.page.TestPage");
+        ClassDesc cd2 = new ClassDescImpl(pool_, "com.example.page.TestPage");
         cd2.setSuperclassName(TestPageBase.class.getName());
-        pd = new PropertyDescImpl(null, "param1");
+        pd = new PropertyDescImpl(pool_, "param1");
         pd.setTypeDesc(Integer.class);
         pd.getTypeDesc().setExplicit(true);
         pd.setMode(PropertyDesc.WRITE);
@@ -443,8 +449,8 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
     }
 
     public void testRemoveBornOfFrom_PropertyDesc1() throws Exception {
-        ClassDescImpl target = new ClassDescImpl(DescPool.newInstance(target_,
-                null), "com.example.page.TestPage");
+        ClassDescImpl target = new ClassDescImpl(pool_,
+                "com.example.page.TestPage");
         PropertyDesc propertyDesc = target.addProperty("property",
                 PropertyDesc.READ | PropertyDesc.WRITE);
         propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
@@ -475,8 +481,8 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
     }
 
     public void testRemoveBornOfFrom_PropertyDesc2() throws Exception {
-        ClassDescImpl target = new ClassDescImpl(DescPool.newInstance(target_,
-                null), "com.example.page.TestPage");
+        ClassDescImpl target = new ClassDescImpl(pool_,
+                "com.example.page.TestPage");
         PropertyDesc propertyDesc = target.addProperty("property",
                 PropertyDesc.READ | PropertyDesc.WRITE);
         propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
@@ -505,8 +511,8 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
     }
 
     public void testRemoveBornOfFrom_PropertyDesc3() throws Exception {
-        ClassDescImpl target = new ClassDescImpl(DescPool.newInstance(target_,
-                null), "com.example.page.TestPage");
+        ClassDescImpl target = new ClassDescImpl(pool_,
+                "com.example.page.TestPage");
         PropertyDesc propertyDesc = target.addProperty("property",
                 PropertyDesc.READ | PropertyDesc.WRITE);
         propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
@@ -522,8 +528,8 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
     }
 
     public void testRemoveBornOfFrom_PropertyDesc4() throws Exception {
-        ClassDescImpl target = new ClassDescImpl(DescPool.newInstance(target_,
-                null), "com.example.page.TestPage");
+        ClassDescImpl target = new ClassDescImpl(pool_,
+                "com.example.page.TestPage");
         PropertyDesc propertyDesc = target.addProperty("property",
                 PropertyDesc.NONE);
         propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
@@ -548,8 +554,8 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
     }
 
     public void testRemoveBornOfFrom_PropertyDesc5() throws Exception {
-        ClassDescImpl target = new ClassDescImpl(DescPool.newInstance(target_,
-                null), "com.example.page.TestPage");
+        ClassDescImpl target = new ClassDescImpl(pool_,
+                "com.example.page.TestPage");
         PropertyDesc propertyDesc = target.addProperty("property",
                 PropertyDesc.NONE);
         propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
@@ -561,10 +567,9 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
     }
 
     public void testRemoveBornOfFrom_MethodDesc1() throws Exception {
-        DescPool pool = DescPool.newInstance(target_, null);
-        ClassDescImpl target = new ClassDescImpl(pool,
+        ClassDescImpl target = new ClassDescImpl(pool_,
                 "com.example.page.TestPage");
-        MethodDesc methodDesc = new MethodDescImpl(pool, "_get");
+        MethodDesc methodDesc = new MethodDescImpl(pool_, "_get");
         target.setMethodDesc(methodDesc);
         methodDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
                 Globals.META_NAME_BORNOF, new String[] { "a", "b" }));
@@ -581,10 +586,9 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
     }
 
     public void testRemoveBornOfFrom_MethodDesc2() throws Exception {
-        DescPool pool = DescPool.newInstance(target_, null);
-        ClassDescImpl target = new ClassDescImpl(pool,
+        ClassDescImpl target = new ClassDescImpl(pool_,
                 "com.example.page.TestPage");
-        MethodDesc methodDesc = new MethodDescImpl(pool, "_get");
+        MethodDesc methodDesc = new MethodDescImpl(pool_, "_get");
         target.setMethodDesc(methodDesc);
         methodDesc.setAnnotationDesc(new MetaAnnotationDescImpl(
                 Globals.META_NAME_BORNOF, new String[] { "a" }));

@@ -2,6 +2,7 @@ package org.seasar.ymir.extension.creator.impl;
 
 import java.lang.reflect.Type;
 
+import org.seasar.ymir.extension.creator.Desc;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
@@ -12,6 +13,8 @@ public class ParameterDescImpl implements ParameterDesc {
     private TypeDesc typeDesc_;
 
     private String name_;
+
+    private Desc<?> parent_;
 
     public ParameterDescImpl(DescPool pool) {
         pool_ = pool;
@@ -50,6 +53,7 @@ public class ParameterDescImpl implements ParameterDesc {
 
     public void setTypeDesc(TypeDesc typeDesc) {
         typeDesc_ = typeDesc;
+        typeDesc_.setParent(this);
     }
 
     public void setTypeDesc(Type type) {
@@ -90,5 +94,14 @@ public class ParameterDescImpl implements ParameterDesc {
         desc.setName(name_);
 
         return desc;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <D extends Desc<?>> D getParent() {
+        return (D) parent_;
+    }
+
+    public void setParent(Desc<?> parent) {
+        parent_ = parent;
     }
 }

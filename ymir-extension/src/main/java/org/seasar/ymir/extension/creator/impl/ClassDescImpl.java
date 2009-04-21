@@ -5,13 +5,16 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassType;
+import org.seasar.ymir.extension.creator.Desc;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.MethodDescKey;
@@ -29,9 +32,9 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
 
     private String superclassName_;
 
-    private boolean baseClassAbstract_;
+    private boolean abstract_;
 
-    private TypeDesc[] interfaceTypeDescs_;
+    private TypeDesc[] interfaceTypeDescs_ = new TypeDesc[0];
 
     private Map<String, PropertyDesc> propertyDescMap_ = new LinkedHashMap<String, PropertyDesc>();
 
@@ -40,6 +43,8 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
     private Map<String, Object> parameter_;
 
     private String bornOf_;
+
+    private Desc<?> parent_;
 
     public ClassDescImpl(DescPool pool, String name) {
         pool_ = pool;
@@ -104,12 +109,16 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
 
     public void setInterfaceTypeDescs(TypeDesc[] interfaceTypeDescs) {
         interfaceTypeDescs_ = interfaceTypeDescs;
+        for (TypeDesc interfaceTypeDesc : interfaceTypeDescs_) {
+            interfaceTypeDesc.setParent(this);
+        }
     }
 
     public PropertyDesc addProperty(String name, int mode) {
         PropertyDesc propertyDesc = getPropertyDesc(name);
         if (propertyDesc == null) {
             propertyDesc = pool_.newPropertyDesc(name);
+            propertyDesc.setParent(this);
             propertyDescMap_.put(name, propertyDesc);
         }
         propertyDesc.addMode(mode);
@@ -125,6 +134,7 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
             throw new IllegalArgumentException(
                     "Can't set PropertyDesc born from another DescPool");
         }
+        propertyDesc.setParent(this);
         propertyDescMap_.put(propertyDesc.getName(), propertyDesc);
     }
 
@@ -151,6 +161,7 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
     }
 
     public void setMethodDesc(MethodDesc methodDesc) {
+        methodDesc.setParent(this);
         methodDescMap_.put(new MethodDescKey(methodDesc), methodDesc);
     }
 
@@ -180,13 +191,12 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         superclassName_ = superclassName;
     }
 
-    public boolean isBaseClassAbstract() {
-
-        return baseClassAbstract_;
+    public boolean isAbstract() {
+        return abstract_;
     }
 
-    public void setBaseClassAbstract(boolean baseClassAbstract) {
-        baseClassAbstract_ = baseClassAbstract;
+    public void setAbstract(boolean isAbstract) {
+        abstract_ = isAbstract;
     }
 
     public void merge(ClassDesc classDesc, boolean force) {
@@ -200,6 +210,16 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
                 && (force || superclassName_ == null)) {
             setSuperclassName(classDesc.getSuperclassName());
         }
+
+        if (force) {
+            setAbstract(classDesc.isAbstract());
+        }
+
+        Set<TypeDesc> interfaceTypeDescSet = new LinkedHashSet<TypeDesc>();
+        interfaceTypeDescSet.addAll(Arrays.asList(interfaceTypeDescs_));
+        interfaceTypeDescSet.addAll(Arrays.asList(classDesc
+                .getInterfaceTypeDescs()));
+        setInterfaceTypeDescs(interfaceTypeDescSet.toArray(new TypeDesc[0]));
 
         for (PropertyDesc propertyDesc : classDesc.getPropertyDescs()) {
             PropertyDesc pd = getPropertyDesc(propertyDesc.getName());
@@ -380,6 +400,7 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
     public void clear() {
         super.clear();
         parameter_ = null;
+        interfaceTypeDescs_ = new TypeDesc[0];
         propertyDescMap_.clear();
         methodDescMap_.clear();
     }
@@ -472,16 +493,14 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         super.transcriptTo(desc);
 
         desc.setSuperclassName(superclassName_);
-        desc.setBaseClassAbstract(baseClassAbstract_);
+        desc.setAbstract(abstract_);
 
-        if (interfaceTypeDescs_ != null) {
-            List<TypeDesc> list = new ArrayList<TypeDesc>();
-            for (TypeDesc interfaceTypeDesc : interfaceTypeDescs_) {
-                list.add(interfaceTypeDesc.transcriptTo(pool
-                        .newTypeDesc(interfaceTypeDesc.getName())));
-            }
-            desc.setInterfaceTypeDescs(list.toArray(new TypeDesc[0]));
+        List<TypeDesc> list = new ArrayList<TypeDesc>();
+        for (TypeDesc interfaceTypeDesc : interfaceTypeDescs_) {
+            list.add(interfaceTypeDesc.transcriptTo(pool
+                    .newTypeDesc(interfaceTypeDesc.getName())));
         }
+        desc.setInterfaceTypeDescs(list.toArray(new TypeDesc[0]));
 
         for (PropertyDesc propertyDesc : propertyDescMap_.values()) {
             desc.setPropertyDesc(propertyDesc.transcriptTo(pool
@@ -502,5 +521,14 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         desc.setBornOf(bornOf_);
 
         return desc;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <D extends Desc<?>> D getParent() {
+        return (D) parent_;
+    }
+
+    public void setParent(Desc<?> parent) {
+        parent_ = parent;
     }
 }

@@ -5,32 +5,32 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.seasar.ymir.Application;
 import org.seasar.ymir.extension.creator.DescPool;
-import org.seasar.ymir.extension.creator.SourceCreator;
-import org.seasar.ymir.extension.creator.mock.MockSourceCreator;
+import org.seasar.ymir.mock.MockApplication;
 
 public class MethodDescImplTest extends TestCase {
-    private SourceCreator sourceCreator_;
+    private DescPool pool_;
 
     @Override
     protected void setUp() throws Exception {
-        sourceCreator_ = new MockSourceCreator() {
+        pool_ = DescPool.newInstance(new SourceCreatorImpl() {
             @Override
-            public Class<?> getClass(String className) {
-                try {
-                    return Class.forName(className);
-                } catch (ClassNotFoundException ex) {
-                    return null;
-                }
+            public Application getApplication() {
+                return new MockApplication();
             }
-        };
+
+            @Override
+            protected ClassLoader getClassLoader() {
+                return getClass().getClassLoader();
+            }
+        }, null);
     }
 
     public void testConstructor_Genericクラス() throws Exception {
         Method method = Hoe.class.getMethod("fuga", new Class[] { List.class });
 
-        MethodDescImpl target = new MethodDescImpl(DescPool.newInstance(
-                sourceCreator_, null), method);
+        MethodDescImpl target = new MethodDescImpl(pool_, method);
         assertEquals("java.util.List<String>", target.getReturnTypeDesc()
                 .getName());
         assertEquals("java.util.List<String>", target.getParameterDescs()[0]
@@ -41,8 +41,7 @@ public class MethodDescImplTest extends TestCase {
         Method method = Hoe.class.getMethod("fuga2",
                 new Class[] { String.class });
 
-        MethodDescImpl target = new MethodDescImpl(DescPool.newInstance(
-                sourceCreator_, null), method);
+        MethodDescImpl target = new MethodDescImpl(pool_, method);
         assertEquals("String", target.getReturnTypeDesc().getName());
         assertEquals("String", target.getParameterDescs()[0].getTypeDesc()
                 .getName());

@@ -8,15 +8,20 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.ymir.HttpMethod;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.ClassType;
+import org.seasar.ymir.extension.creator.Desc;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.FormDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -52,6 +57,18 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private static final String PROP_SIZE = "size";
 
+    public static final int PROBABILITY_MINIMUM = PropertyDesc.PROBABILITY_MINIMUM;
+
+    public static final int PROBABILITY_DEFAULT = PropertyDesc.PROBABILITY_DEFAULT;
+
+    public static final int PROBABILITY_BOOLEAN_ATTRIBUTE = PropertyDesc.PROBABILITY_DEFAULT * 2;
+
+    public static final int PROBABILITY_TAL_DEFINE_VARIABLE = PropertyDesc.PROBABILITY_DEFAULT * 3;
+
+    public static final int PROBABILITY_TAL_REPEAT_VARIABLE = PropertyDesc.PROBABILITY_DEFAULT * 3;
+
+    public static final int PROBABILITY_GROUPNAME = PropertyDesc.PROBABILITY_DEFAULT * 3;
+
     private SourceCreator sourceCreator_;
 
     private HttpMethod method_;
@@ -75,6 +92,8 @@ public class AnalyzerContext extends ZptTemplateContext {
     private Map<String, String> globalVariableExpression_ = new HashMap<String, String>();
 
     private int repeatDepth_;
+
+    private static final Log log_ = LogFactory.getLog(AnalyzerContext.class);
 
     @Override
     public VariableResolver getVariableResolver() {
@@ -106,7 +125,8 @@ public class AnalyzerContext extends ZptTemplateContext {
     @Override
     public void defineVariable(int scope, String name, Object value) {
         if (value instanceof DescWrapper) {
-            ((DescWrapper) value).setVariableName(name);
+            ((DescWrapper) value).setVariableName(name, false, null,
+                    PROBABILITY_TAL_DEFINE_VARIABLE);
         }
         super.defineVariable(scope, name, value);
     }
@@ -116,27 +136,17 @@ public class AnalyzerContext extends ZptTemplateContext {
         repeatDepth_++;
         if (objs != null && objs.length == 1 && objs[0] instanceof DescWrapper) {
             DescWrapper wrapper = (DescWrapper) objs[0];
-            wrapper.setVariableName(name);
+            wrapper.setVariableName(name, true,
+                    repeatedPropertyGeneratedAsList_ ? List.class.getName()
+                            : null, PROBABILITY_TAL_REPEAT_VARIABLE);
             ClassDesc valueClassDesc;
             PropertyDesc pd = wrapper.getPropertyDesc();
             if (pd != null) {
-                TypeDesc td = pd.getTypeDesc();
-                valueClassDesc = td.getComponentClassDesc();
-
-                if (!td.isExplicit()) {
-                    if (repeatedPropertyGeneratedAsList_) {
-                        // List型に補正する。
-                        changeToCollection(td, List.class.getName());
-                    } else {
-                        // 配列型に補正する。
-                        changeToCollection(td, null);
-                    }
-                }
+                valueClassDesc = pd.getTypeDesc().getComponentClassDesc();
             } else {
                 valueClassDesc = wrapper.getValueClassDesc();
             }
             objs[0] = new DescWrapper(this, valueClassDesc);
-            setUsedClassName(valueClassDesc.getName());
         }
 
         return super.pushRepeatInfo(name, objs);
@@ -157,23 +167,42 @@ public class AnalyzerContext extends ZptTemplateContext {
      * falseの場合、プロパティがコレクション型かどうか判断できていないことを表します。
      * @param collectionClassName コレクション型のクラス名です。nullの場合は配列型であることを表します。
      * この引数はasCollectionがtrueの時のみ有効です。
-     * @param force 強制的にプロパティ型を再推論するかどうか。
-     * trueの場合、明示的に型が設定されていない限り強制的にプロパティ型を再推論します。
+     * @param probability 確からしさ。既存の型情報の確からしさがこの値よりも小さい場合はプロパティ型が再推論されます。
      * @return PropertyDescオブジェクト。nullが返されることはありません。
      */
     public PropertyDesc addProperty(ClassDesc classDesc, String propertyName,
             int mode, String propertyTypeAlias, boolean asCollection,
-            String collectionClassName, boolean force) {
+            String collectionClassName, int probability) {
         PropertyDesc propertyDesc = classDesc.addProperty(propertyName, mode);
+        if (log_.isDebugEnabled()) {
+            log_.debug("Adding property '" + propertyName
+                    + "' (object path is '" + getPathExpression(propertyDesc)
+                    + "' ...");
+        }
         if (propertyDesc.getTypeDesc().isExplicit()) {
+            if (log_.isDebugEnabled()) {
+                log_
+                        .debug("Nothing has been done because type of this property had been explicitly set.");
+            }
             return propertyDesc;
         }
-        if (!force && propertyDesc.isTypeAlreadySet()) {
+        if (propertyDesc.isTypeAlreadySet(probability)) {
+            // 差し替えないが、確からしさが同じ場合はコレクションに変更することは許可する。
+            if (probability == propertyDesc.getProbability() && asCollection) {
+                if (log_.isDebugEnabled()) {
+                    log_.debug("Probability is same. Set as array.");
+                }
+                setToCollection(propertyDesc.getTypeDesc(), collectionClassName);
+            } else {
+                if (log_.isDebugEnabled()) {
+                    log_
+                            .debug("Nothing has been done because type of this property had been set.");
+                }
+            }
             return propertyDesc;
         }
 
         TypeDesc typeDesc;
-        boolean shouldNotifyUpdated;
 
         // プロパティ型のヒント情報を見る。
         // ヒントがなければ、実際の親クラスからプロパティ型を取得する。
@@ -182,8 +211,6 @@ public class AnalyzerContext extends ZptTemplateContext {
         if (hint != null) {
             typeDesc = classDesc.getDescPool().newTypeDesc(hint.getTypeName());
             typeDesc.setExplicit(true);
-            // 型が明示的に指定されており確定なので、PropertyDesc#notifyTypeUpdated()を呼ぶようにする。
-            shouldNotifyUpdated = true;
         } else {
             PropertyDescriptor descriptor = sourceCreator_
                     .getPropertyDescriptor(className, propertyName);
@@ -193,40 +220,31 @@ public class AnalyzerContext extends ZptTemplateContext {
                     propertyDesc.setGetterName(readMethod.getName());
                 }
 
-                // typeのexplicitは、プロパティの所属クラスが自動生成対象かによって変わる。
-                // 自動生成対象でないクラスについては、プロパティの型は不変なのでtrueにすべき。
-                // 自動生成クラスについては、プロパティ型はHTMLテンプレートの内容によって変わり得るのでfalseにすべき。
-                boolean explicit = isOuter(className);
-
                 String componentClassName;
                 Class<?> componentClass = sourceCreator_.getClass(DescUtils
                         .getComponentPropertyTypeName(descriptor));
+                String interfaceClassName = null;
+
                 if (componentClass.isInterface()) {
                     // インタフェースの場合は実装クラス型を推論する。
+                    String groupName = findGroupName(propertyDesc);
                     componentClassName = findPropertyClassName(
                             propertyTypeAlias != null ? propertyTypeAlias
-                                    : Introspector.decapitalize(ClassUtils
-                                            .getShorterName(componentClass)),
+                                    : groupName != null ? groupName
+                                            : Introspector
+                                                    .decapitalize(ClassUtils
+                                                            .getShorterName(componentClass)),
                             className);
 
-                    // クラスが実在する場合であっても、プロパティ型がインタフェース型の場合は
-                    // その実装型が自動生成対象クラスであるならばrepeat変数名からの推論型などに
-                    // 変更されうる。
-                    explicit = isOuter(componentClassName);
+                    // グループ名はrepeat変数と同じくらい強い。
+                    if (groupName != null) {
+                        probability = PROBABILITY_GROUPNAME;
+                    }
 
-                    // propertyTypeAliasが指定されていない場合は、後でpropertyTypeAliasが
-                    // 指定されて型が変更されることがあるため、PropertyDesc#notifyTypeUpdated()を
-                    // 呼んではいけない。
-                    shouldNotifyUpdated = explicit || propertyTypeAlias != null;
-
-                    setUsedClassName(componentClassName);
+                    interfaceClassName = componentClass.getName();
                 } else {
                     // そうでない場合は実際の型をそのまま使う。
                     componentClassName = componentClass.getName();
-
-                    // 自動生成対象のクラスの場合はtal:conditionやtal:attributesなどでbooleanだとみなされる余地があるので
-                    // PropertyDesc#notifyTypeUpdated()を呼ばないようにする。
-                    shouldNotifyUpdated = isOuter(componentClassName);
                 }
 
                 String typeName = DescUtils
@@ -244,26 +262,27 @@ public class AnalyzerContext extends ZptTemplateContext {
                     typeDesc = classDesc.getDescPool().newTypeDesc(
                             componentClassName);
                 }
-                typeDesc.setExplicit(explicit);
+                if (interfaceClassName != null) {
+                    typeDesc.getComponentClassDesc().setInterfaceTypeDescs(
+                            new TypeDesc[] { classDesc.getDescPool()
+                                    .newTypeDesc(interfaceClassName) });
+                }
             } else {
                 // 推論できなかった場合は名前から推論を行なう。
-                typeDesc = classDesc
-                        .getDescPool()
-                        .newTypeDesc(
-                                inferPropertyClassName(
-                                        propertyTypeAlias != null ? propertyTypeAlias
-                                                : asCollection ? toSingular(propertyName)
-                                                        : propertyName,
-                                        className));
+                String seed = propertyTypeAlias != null ? propertyTypeAlias
+                        : asCollection ? toSingular(propertyName)
+                                : propertyName;
+                typeDesc = classDesc.getDescPool().newTypeDesc(
+                        inferPropertyClassName(seed, className));
                 if (asCollection) {
-                    typeDesc.setCollection(true);
-                    typeDesc.setCollectionClassName(collectionClassName);
+                    setToCollection(typeDesc, collectionClassName);
                 }
 
-                // propertyTypeAliasが指定されていない場合は、後でpropertyTypeAliasが
-                // 指定されて型が変更されることがあるため、PropertyDesc#notifyTypeUpdated()を
-                // 呼んではいけない。
-                shouldNotifyUpdated = propertyTypeAlias != null;
+                String groupName = getGroupName(seed, typeDesc);
+                if (groupName != null) {
+                    typeDesc.getComponentClassDesc().setAttribute(
+                            Globals.ATTR_GROUPNAME, groupName);
+                }
             }
         }
 
@@ -275,17 +294,48 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
 
         propertyDesc.setTypeDesc(typeDesc);
-        if (shouldNotifyUpdated) {
-            propertyDesc.notifyTypeUpdated();
+        propertyDesc.notifyTypeUpdated(probability);
+
+        if (log_.isDebugEnabled()) {
+            log_.debug("This' property's type has been inferred as '"
+                    + typeDesc + "'");
         }
 
         return propertyDesc;
     }
 
+    private String findGroupName(PropertyDesc propertyDesc) {
+        for (Desc<?> desc = propertyDesc; desc != null; desc = desc.getParent()) {
+            if (!(desc instanceof ClassDesc)) {
+                continue;
+            }
+            String groupName = (String) ((ClassDesc) desc)
+                    .getAttribute(Globals.ATTR_GROUPNAME);
+            if (groupName != null) {
+                return groupName;
+            }
+        }
+        return null;
+    }
+
+    private String getGroupName(String seed, TypeDesc typeDesc) {
+        ClassDesc classDesc = typeDesc.getComponentClassDesc();
+        if (!isOnDtoSearchPath(classDesc.getName())) {
+            return null;
+        }
+
+        String suffix = classDesc.getShortName();
+        if (seed.endsWith(suffix)) {
+            return seed.substring(0, seed.length() - suffix.length());
+        } else {
+            return null;
+        }
+    }
+
     public PropertyDesc addProperty(ClassDesc classDesc, String propertyName,
             int mode) {
         return addProperty(classDesc, propertyName, mode, null, false, null,
-                false);
+                PROBABILITY_DEFAULT);
     }
 
     /**
@@ -474,18 +524,16 @@ public class AnalyzerContext extends ZptTemplateContext {
 
         for (ClassDesc classDesc : DescPool.getDefault()
                 .getGeneratedClassDescs()) {
-            // プロパティの型に対応するDTOがMapに存在しない場合は、
+            // プロパティの型に対応するDTOがDescPoolに存在しない場合は、
             // そのDTOは上のフェーズで除外された、すなわちDTOかもしれないと考えて
             // 解析を進めたが結局DTOであることが確定しなかったので、
             // 型をデフォルトクラスに差し替える。
             // [#YMIR-198] ただし明示的に型を指定されている場合は差し替えない。
             for (PropertyDesc pd : classDesc.getPropertyDescs()) {
                 if (!pd.getTypeDesc().isExplicit()) {
-                    replaceSimpleDtoTypeToDefaultType(pd.getTypeDesc());
+                    replaceSimpleDtoTypeToDefaultType(pd);
                 }
             }
-            // TODO 消す。
-            //            classDesc.merge(classDescMap_.get(classDesc.getName()), false);
         }
 
         Set<ClassDesc> usedClassDescSet = new HashSet<ClassDesc>();
@@ -501,7 +549,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         for (Iterator<ClassDesc> itr = DescPool.getDefault().iterator(); itr
                 .hasNext();) {
             ClassDesc classDesc = itr.next();
-            if (!usedClassDescSet.contains(classDesc)) {
+            if (!usedClassDescSet.contains(classDesc) || isOuter(classDesc)) {
                 itr.remove();
             }
         }
@@ -512,7 +560,8 @@ public class AnalyzerContext extends ZptTemplateContext {
                 className);
     }
 
-    void replaceSimpleDtoTypeToDefaultType(final TypeDesc typeDesc) {
+    void replaceSimpleDtoTypeToDefaultType(final PropertyDesc propertyDesc) {
+        final TypeDesc typeDesc = propertyDesc.getTypeDesc();
         TypeToken typeToken = new TypeToken(typeDesc.getCompleteName());
         typeToken.accept(new TokenVisitor<Object>() {
             public Object visit(
@@ -522,8 +571,10 @@ public class AnalyzerContext extends ZptTemplateContext {
                 boolean array = DescUtils.isArray(acceptor.getBaseName());
                 if (isDto(componentName)
                         && !typeDesc.getDescPool().contains(componentName)) {
-                    acceptor.setBaseName(DescUtils.getClassName(String.class
-                            .getName(), array));
+                    acceptor.setBaseName(DescUtils.getClassName(propertyDesc
+                            .isMayBoolean()
+                            && propertyDesc.getReferCount() == 0 ? Boolean.TYPE
+                            .getName() : String.class.getName(), array));
                 }
                 return null;
             }
@@ -540,7 +591,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         for (PropertyDesc pd : classDesc.getPropertyDescs()) {
             for (String className : pd.getTypeDesc().getImportClassNames()) {
                 ClassDesc cd = classDesc.getDescPool().getClassDesc(className);
-                if (isDto(cd)) {
+                if (sourceCreator_.isDtoClass(cd.getName())) {
                     registerDependingClassDescs(cd, usedClassDescSet);
                 }
             }
@@ -612,7 +663,9 @@ public class AnalyzerContext extends ZptTemplateContext {
                     findPropertyClassName(propertyDesc.getName(), classDesc
                             .getName()));
             propertyDesc.setTypeDesc(typeDesc);
-            propertyDesc.notifyTypeUpdated();
+            if (!propertyDesc.isTypeAlreadySet(PROBABILITY_DEFAULT)) {
+                propertyDesc.notifyTypeUpdated(PROBABILITY_DEFAULT);
+            }
         }
     }
 
@@ -636,18 +689,20 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
         PropertyDesc propertyDesc = classDesc
                 .getPropertyDesc(requestParameterName);
-        if (propertyDesc != null && collection) {
-            // これから既存プロパティをコレクションにする場合はこの時点で補正しておく。
-            // ここでしないと余計なプロパティ（sizeとか）が消えてくれない。
-            TypeDesc typeDesc = propertyDesc.getTypeDesc();
-            changeToCollection(typeDesc, collectionClassName);
-        }
+        // TODO けす。
+        //        if (propertyDesc != null && collection) {
+        //            // これから既存プロパティをコレクションにする場合はこの時点で補正しておく。
+        //            // ここでしないと余計なプロパティ（sizeとか）が消えてくれない。
+        //            TypeDesc typeDesc = propertyDesc.getTypeDesc();
+        //            setToCollection(typeDesc, collectionClassName);
+        //        }
         propertyDesc = addProperty(classDesc, requestParameterName, mode, null,
-                collection, collectionClassName, false);
+                collection, collectionClassName, PROBABILITY_DEFAULT);
         if (collection) {
             propertyDesc.getTypeDesc().setCollectionImplementationClassName(
                     collectionImplementationClassName);
         }
+        propertyDesc.incrementReferCount();
 
         return propertyDesc;
     }
@@ -743,17 +798,45 @@ public class AnalyzerContext extends ZptTemplateContext {
         repeatedPropertyGeneratedAsList_ = repeatedPropertyGeneratedAsList;
     }
 
-    public void changeToCollection(TypeDesc typeDesc, String collectionClassName) {
-        if (!typeDesc.isCollection()) {
-            if (collectionClassName == null) {
-                typeDesc.getComponentClassDesc().removePropertyDesc(
-                        AnalyzerContext.PROP_LENGTH);
-            } else {
-                typeDesc.getComponentClassDesc().removePropertyDesc(
-                        AnalyzerContext.PROP_SIZE);
-            }
+    public void setToCollection(TypeDesc typeDesc, String collectionClassName) {
+        if (collectionClassName == null) {
+            removePropertyIfNotExistActually(typeDesc.getComponentClassDesc(),
+                    PROP_LENGTH);
+        } else {
+            removePropertyIfNotExistActually(typeDesc.getComponentClassDesc(),
+                    PROP_SIZE);
         }
         typeDesc.setCollectionClassName(collectionClassName);
         typeDesc.setCollection(true);
+    }
+
+    private void removePropertyIfNotExistActually(ClassDesc classDesc,
+            String propertyName) {
+        if (sourceCreator_.getPropertyDescriptor(classDesc.getName(),
+                propertyName) == null) {
+            classDesc.removePropertyDesc(propertyName);
+        }
+    }
+
+    String getPathExpression(PropertyDesc propertyDesc) {
+        LinkedList<String> list = new LinkedList<String>();
+        int count = 10;
+        Desc<?> desc = propertyDesc;
+        do {
+            if (desc instanceof PropertyDesc) {
+                list.addFirst(((PropertyDesc) desc).getName());
+            } else if (desc instanceof ClassDesc) {
+                list.addFirst("[" + ((ClassDesc) desc).getShortName() + "]");
+            }
+            count--;
+        } while ((desc = desc.getParent()) != null && count >= 0);
+
+        StringBuilder sb = new StringBuilder();
+        String delim = "";
+        for (String segment : list) {
+            sb.append(delim).append(segment);
+            delim = "/";
+        }
+        return sb.toString();
     }
 }

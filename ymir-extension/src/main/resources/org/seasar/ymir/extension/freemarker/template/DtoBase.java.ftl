@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 <#list classDesc.annotationDescs as annotationDesc>${annotationDesc.string}
 </#list>public class ${classDesc.shortName}Base
-    implements Serializable {
+    implements Serializable<#list classDesc.interfaceTypeDescs as interfaceTypeDesc>, ${interfaceTypeDesc.name}</#list> {
     private static final long serialVersionUID = 1L;
 
 <#list classDesc.propertyDescs as propertyDesc><#list propertyDesc.annotationDescs as annotationDesc>    ${annotationDesc.string}
