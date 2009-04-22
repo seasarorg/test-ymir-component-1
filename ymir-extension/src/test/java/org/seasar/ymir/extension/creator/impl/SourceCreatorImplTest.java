@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.kvasir.util.io.IOUtils;
@@ -123,6 +125,11 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 null);
         ClassDesc[] actual = pool.getGeneratedClassDescs().toArray(
                 new ClassDesc[0]);
+        Arrays.sort(actual, new Comparator<ClassDesc>() {
+            public int compare(ClassDesc o1, ClassDesc o2) {
+                return o2.getName().compareTo(o1.getName());
+            }
+        });
 
         assertNotNull(actual);
         assertEquals(2, actual.length);
@@ -159,11 +166,11 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         "testPage", "com.example.web.TestPage", null, null,
                         null, getSourceCreator().getTemplate("/test.html")),
                 null);
-        ClassDesc[] actual = pool.getGeneratedClassDescs().toArray(
-                new ClassDesc[0]);
 
-        assertEquals("com.outer.dto.EntryDto", actual[0].getPropertyDesc(
-                "result").getTypeDesc().getName());
+        assertTrue(pool.contains("com.example.web.TestPage"));
+        assertEquals("com.outer.dto.EntryDto", pool.getClassDesc(
+                "com.example.web.TestPage").getPropertyDesc("result")
+                .getTypeDesc().getName());
     }
 
     public void testGatherClassDescs2_外部のDtoクラスは自動生成対象にならないこと()

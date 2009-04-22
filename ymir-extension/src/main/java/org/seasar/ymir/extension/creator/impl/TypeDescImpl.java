@@ -180,6 +180,10 @@ public class TypeDescImpl implements TypeDesc {
         setComponentClassDesc(pool_.getClassDesc(clazz));
     }
 
+    public String getComponentTypeName() {
+        return componentTypeName_;
+    }
+
     public boolean isCollection() {
         return collection_;
     }
@@ -271,7 +275,13 @@ public class TypeDescImpl implements TypeDesc {
         }
 
         TypeToken token = new TypeToken(componentTypeName_);
-        token.setBaseName(ClassUtils.getShorterName(token.getBaseName()));
+        token.accept(new TokenVisitor<Object>() {
+            public Object visit(Token acceptor) {
+                acceptor.setBaseName(ClassUtils.getShorterName(acceptor
+                        .getBaseName()));
+                return null;
+            }
+        });
         sb.append(token.getAsString());
 
         if (collection_) {

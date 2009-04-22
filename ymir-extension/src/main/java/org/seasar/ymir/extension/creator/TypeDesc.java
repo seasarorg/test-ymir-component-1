@@ -11,6 +11,8 @@ public interface TypeDesc extends Desc<TypeDesc> {
 
     void setComponentClassDesc(Class<?> clazz);
 
+    String getComponentTypeName();
+
     boolean isCollection();
 
     void setCollection(boolean collection);

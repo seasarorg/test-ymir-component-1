@@ -15,6 +15,8 @@ import org.seasar.ymir.mock.MockApplication;
 public class AnalyzerContextTest extends TestCase {
     private AnalyzerContext target_;
 
+    private DescPool pool_;
+
     @Override
     protected void setUp() throws Exception {
         target_ = new AnalyzerContext();
@@ -64,6 +66,7 @@ public class AnalyzerContextTest extends TestCase {
                 };
             }
         });
+        pool_ = DescPool.newInstance(target_.getSourceCreator(), null);
     }
 
     public void test_inferPropertyClassName() throws Exception {
@@ -81,11 +84,10 @@ public class AnalyzerContextTest extends TestCase {
     }
 
     public void testReplaceSimpleDtoTypeToDefaultType1() throws Exception {
-        DescPool pool = DescPool.newInstance(target_.getSourceCreator(), null);
-        PropertyDesc propertyDesc = new PropertyDescImpl(pool, "name");
-        TypeDesc typeDesc = new TypeDescImpl(pool, "com.example.dto.HoeDto");
+        PropertyDesc propertyDesc = new PropertyDescImpl(pool_, "name");
+        TypeDesc typeDesc = new TypeDescImpl(pool_, "com.example.dto.HoeDto");
         propertyDesc.setTypeDesc(typeDesc);
-        pool.unregisterClassDesc("com.example.dto.HoeDto");
+        pool_.unregisterClassDesc("com.example.dto.HoeDto");
 
         target_.replaceSimpleDtoTypeToDefaultType(propertyDesc);
 
@@ -93,12 +95,11 @@ public class AnalyzerContextTest extends TestCase {
     }
 
     public void testReplaceSimpleDtoTypeToDefaultType2() throws Exception {
-        DescPool pool = DescPool.newInstance(target_.getSourceCreator(), null);
-        PropertyDesc propertyDesc = new PropertyDescImpl(pool, "name");
-        TypeDesc typeDesc = new TypeDescImpl(pool,
+        PropertyDesc propertyDesc = new PropertyDescImpl(pool_, "name");
+        TypeDesc typeDesc = new TypeDescImpl(pool_,
                 "java.util.List<com.example.dto.HoeDto>");
         propertyDesc.setTypeDesc(typeDesc);
-        pool.unregisterClassDesc("com.example.dto.HoeDto");
+        pool_.unregisterClassDesc("com.example.dto.HoeDto");
 
         target_.replaceSimpleDtoTypeToDefaultType(propertyDesc);
 
@@ -106,11 +107,10 @@ public class AnalyzerContextTest extends TestCase {
     }
 
     public void testReplaceSimpleDtoTypeToDefaultType3() throws Exception {
-        DescPool pool = DescPool.newInstance(target_.getSourceCreator(), null);
-        PropertyDesc propertyDesc = new PropertyDescImpl(pool, "name");
-        TypeDesc typeDesc = new TypeDescImpl(pool, "com.example.dto.HoeDto[]");
+        PropertyDesc propertyDesc = new PropertyDescImpl(pool_, "name");
+        TypeDesc typeDesc = new TypeDescImpl(pool_, "com.example.dto.HoeDto[]");
         propertyDesc.setTypeDesc(typeDesc);
-        pool.unregisterClassDesc("com.example.dto.HoeDto");
+        pool_.unregisterClassDesc("com.example.dto.HoeDto");
 
         target_.replaceSimpleDtoTypeToDefaultType(propertyDesc);
 
@@ -118,16 +118,16 @@ public class AnalyzerContextTest extends TestCase {
     }
 
     public void testReplaceSimpleDtoTypeToDefaultType4() throws Exception {
-        DescPool pool = DescPool.newInstance(target_.getSourceCreator(), null);
-        PropertyDesc propertyDesc = new PropertyDescImpl(pool, "name");
-        TypeDesc typeDesc = new TypeDescImpl(pool,
+        PropertyDesc propertyDesc = new PropertyDescImpl(pool_, "name");
+        TypeDesc typeDesc = new TypeDescImpl(pool_,
                 "java.util.List<com.example.dto.HoeDto[]>[]");
         propertyDesc.setTypeDesc(typeDesc);
-        pool.unregisterClassDesc("com.example.dto.HoeDto");
+        pool_.unregisterClassDesc("com.example.dto.HoeDto");
 
         target_.replaceSimpleDtoTypeToDefaultType(propertyDesc);
 
-        assertEquals("java.util.List<String[]>[]", typeDesc.getName());
+        assertEquals("java.util.List<com.example.dto.HoeDto[]>[]", typeDesc
+                .getName());
     }
 
     public void test_findPropertyClassName() throws Exception {
