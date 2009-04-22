@@ -667,11 +667,17 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public ClassDesc newClassDesc(DescPool pool, Class<?> clazz,
             boolean onlyDeclared) {
+        return newClassDesc(pool, clazz, null, onlyDeclared);
+    }
+
+    public ClassDesc newClassDesc(DescPool pool, Class<?> clazz,
+            String qualifier, boolean onlyDeclared) {
         if (clazz == null) {
             return null;
         }
 
-        ClassDesc classDesc = newClassDesc(pool, clazz.getName(), null);
+        ClassDesc classDesc = newClassDesc(pool, clazz.getName(), qualifier,
+                null);
 
         Class<?> superclass = clazz.getSuperclass();
         if (superclass != null && superclass != Object.class) {
@@ -1207,16 +1213,14 @@ public class SourceCreatorImpl implements SourceCreator {
                 generatedMd.setReturnTypeDesc(gapMd.getReturnTypeDesc()
                         .transcriptTo(
                                 desc.getDescPool().newTypeDesc(
-                                        gapMd.getReturnTypeDesc().getName())));
+                                        gapMd.getReturnTypeDesc())));
             } else if (superMd != null
                     && !generatedMd.getReturnTypeDesc().equals(
                             superMd.getReturnTypeDesc())) {
-                generatedMd
-                        .setReturnTypeDesc(superMd.getReturnTypeDesc()
-                                .transcriptTo(
-                                        desc.getDescPool().newTypeDesc(
-                                                superMd.getReturnTypeDesc()
-                                                        .getName())));
+                generatedMd.setReturnTypeDesc(superMd.getReturnTypeDesc()
+                        .transcriptTo(
+                                desc.getDescPool().newTypeDesc(
+                                        superMd.getReturnTypeDesc())));
             }
             // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
             // GeneratedにあるアノテーションのうちBaseにもあるものについてはBaseのものをGeneratedに上書きする。
@@ -1698,7 +1702,12 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public ClassDesc newClassDesc(DescPool pool, String className,
             ClassCreationHintBag hintBag) {
-        ClassDesc classDesc = new ClassDescImpl(pool, className);
+        return newClassDesc(pool, className, null, hintBag);
+    }
+
+    public ClassDesc newClassDesc(DescPool pool, String className,
+            String qualifier, ClassCreationHintBag hintBag) {
+        ClassDesc classDesc = new ClassDescImpl(pool, className, qualifier);
 
         // スーパークラスをセットする。
         String superclassName = null;

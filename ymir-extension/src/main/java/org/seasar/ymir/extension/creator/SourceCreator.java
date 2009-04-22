@@ -105,6 +105,8 @@ public interface SourceCreator extends Updater {
 
     void saveSourceCreatorProperties();
 
+    ClassDesc newClassDesc(DescPool pool, Class<?> clazz, boolean onlyDeclared);
+
     /**
      * 指定されたクラスからClassDescオブジェクトを構築して返します。
      * <p>指定されたクラスが持つ要素からClassDescオブジェクトを構築します。
@@ -115,10 +117,15 @@ public interface SourceCreator extends Updater {
      * @param pool ClassDescオブジェクトが属することになるDescPool。
      * nullを指定することもできます。
      * @param clazz クラス。nullが指定された場合はnullを返します。
+     * @param qualifier クラスの修飾子。nullを指定することもできます。
      * @param onlyDeclared そのクラスが持つ要素だけを参照するかどうか。
      * @return 構築したClassDescオブジェクト。
      */
-    ClassDesc newClassDesc(DescPool pool, Class<?> clazz, boolean onlyDeclared);
+    ClassDesc newClassDesc(DescPool pool, Class<?> clazz, String qualifier,
+            boolean onlyDeclared);
+
+    ClassDesc newClassDesc(DescPool pool, String className,
+            ClassCreationHintBag hintBag);
 
     /**
      * 指定されたクラス名に対応するClassDescオブジェクトを構築して返します。
@@ -126,11 +133,12 @@ public interface SourceCreator extends Updater {
      * @param pool ClassDescオブジェクトが属することになるDescPool。
      * nullを指定することもできます。
      * @param className クラス名。nullを指定してはいけません。
+     * @param qualifier クラスの修飾子。nullを指定することもできます。
      * @param hintBag クラスに関するヒント情報。
      * nullを指定することもできます。
      * @return 構築したClassDescオブジェクト。
      */
-    ClassDesc newClassDesc(DescPool pool, String className,
+    ClassDesc newClassDesc(DescPool pool, String className, String qualifier,
             ClassCreationHintBag hintBag);
 
     void adjustByExistentClass(ClassDesc desc);

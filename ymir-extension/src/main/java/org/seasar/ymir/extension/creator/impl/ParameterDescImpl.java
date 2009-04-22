@@ -81,7 +81,7 @@ public class ParameterDescImpl implements ParameterDesc {
 
     public ParameterDesc transcriptTo(ParameterDesc desc) {
         desc.setTypeDesc(typeDesc_.transcriptTo(desc.getDescPool().newTypeDesc(
-                typeDesc_.getName())));
+                typeDesc_)));
         desc.setName(name_);
 
         return desc;

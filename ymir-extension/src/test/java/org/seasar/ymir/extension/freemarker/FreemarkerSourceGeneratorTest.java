@@ -188,11 +188,11 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         ClassDesc classDesc = new FSourceCreatorImpl() {
             @Override
             public ClassDesc newClassDesc(DescPool pool, String className,
-                    ClassCreationHintBag bag) {
+                    String qualifier, ClassCreationHintBag bag) {
                 if (className.equals(HoePageBase.class.getName())) {
                     className = "org.seasar.ymir.extension.freemarker.HoePage";
                 }
-                return new ClassDescImpl(pool, className);
+                return new ClassDescImpl(pool, className, qualifier);
             }
         }.newClassDesc(pool_, HoePageBase.class, true);
         classDesc.setAttribute(Globals.ATTR_ACTION,
@@ -209,11 +209,11 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         ClassDesc classDesc = new FSourceCreatorImpl() {
             @Override
             public ClassDesc newClassDesc(DescPool pool, String className,
-                    ClassCreationHintBag bag) {
+                    String qualifier, ClassCreationHintBag bag) {
                 if (className.equals(Hoe3PageBase.class.getName())) {
                     className = "org.seasar.ymir.extension.freemarker.Hoe3Page";
                 }
-                return new ClassDescImpl(pool, className);
+                return new ClassDescImpl(pool, className, qualifier);
             }
         }.newClassDesc(pool_, Hoe3PageBase.class, true);
 
@@ -247,11 +247,11 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         ClassDesc classDesc = new FSourceCreatorImpl() {
             @Override
             public ClassDesc newClassDesc(DescPool pool, String className,
-                    ClassCreationHintBag bag) {
+                    String qualifier, ClassCreationHintBag bag) {
                 if (className.equals(Hoe5PageBase.class.getName())) {
                     className = "org.seasar.ymir.extension.freemarker.Hoe5Page";
                 }
-                return new ClassDescImpl(pool, className);
+                return new ClassDescImpl(pool, className, qualifier);
             }
         }.newClassDesc(pool_, Hoe5PageBase.class, true);
 
@@ -314,11 +314,11 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         ClassDesc classDesc = new FSourceCreatorImpl() {
             @Override
             public ClassDesc newClassDesc(DescPool pool, String className,
-                    ClassCreationHintBag bag) {
+                    String qualifier, ClassCreationHintBag bag) {
                 if (className.equals(Hoe6PageBase.class.getName())) {
                     className = "org.seasar.ymir.extension.freemarker.Hoe6Page";
                 }
-                return new ClassDescImpl(pool, className);
+                return new ClassDescImpl(pool, className, qualifier);
             }
         }.newClassDesc(pool_, Hoe6PageBase.class, true);
 

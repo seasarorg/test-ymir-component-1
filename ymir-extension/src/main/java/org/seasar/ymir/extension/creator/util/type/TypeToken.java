@@ -144,4 +144,12 @@ public class TypeToken implements Token {
     public TypeToken[] getTypes() {
         return types_;
     }
+
+    public String getComponentName() {
+        return name_.getComponentName();
+    }
+
+    public boolean isArray() {
+        return name_.isArray();
+    }
 }

@@ -13,6 +13,10 @@ public interface Token extends Acceptor<TokenVisitor<?>> {
 
     String getBaseName();
 
+    String getComponentName();
+
+    boolean isArray();
+
     String getAsString();
 
     void setBaseName(String baseName);

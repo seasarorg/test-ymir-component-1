@@ -407,8 +407,8 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         super.transcriptTo(desc);
 
         if (typeDesc_ != null) {
-            desc.setTypeDesc(typeDesc_.transcriptTo(pool.newTypeDesc(typeDesc_
-                    .getName())));
+            desc.setTypeDesc(typeDesc_
+                    .transcriptTo(pool.newTypeDesc(typeDesc_)));
         }
 
         desc.setMode(mode_);

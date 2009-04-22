@@ -1614,4 +1614,23 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull(getClassDesc("com.example.dto.EntryDto"));
         assertNotNull(getClassDesc("com.example.dto.EntryCandidateDto"));
     }
+
+    public void testAnalyze87_インタフェースを返す既存DTOクラスが入れ子になっている場合に正しく推論できること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+
+        act("testAnalyze87", new ClassCreationHintBag(
+                new PropertyTypeHint[] { new PropertyTypeHint(
+                        "com.example.dto.FormDto", "entrySelector",
+                        Selector.class.getName()) }, null));
+
+        assertNull(getClassDesc("com.example.dto.CandidateDto"));
+        assertNull(getClassDesc("com.example.dto.EntDto"));
+        assertNull(getClassDesc("com.example.dto.SubEntDto"));
+        assertNotNull(getClassDesc("com.example.dto.EntryCandidateDto"));
+        assertNotNull(getClassDesc("com.example.dto.SubEntryCandidateDto"));
+    }
 }

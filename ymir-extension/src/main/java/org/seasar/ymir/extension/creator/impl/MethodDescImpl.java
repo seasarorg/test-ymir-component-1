@@ -153,7 +153,7 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
         desc.setParameterDescs(list.toArray(new ParameterDesc[0]));
 
         desc.setReturnTypeDesc(returnTypeDesc_.transcriptTo(pool
-                .newTypeDesc(returnTypeDesc_.getName())));
+                .newTypeDesc(returnTypeDesc_)));
 
         for (String className : throwsDesc_.getThrowableClassNames()) {
             desc.getThrowsDesc().addThrowable(className);

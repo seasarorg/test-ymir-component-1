@@ -1,9 +1,10 @@
 package org.seasar.ymir.extension.zpt;
 
+import static java.beans.Introspector.decapitalize;
 import static org.seasar.ymir.extension.creator.PropertyDesc.PROBABILITY_DEFAULT;
 import static org.seasar.ymir.extension.creator.PropertyDesc.PROBABILITY_MAXIMUM;
+import static org.seasar.ymir.util.ClassUtils.getShorterName;
 
-import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -20,7 +21,6 @@ import java.util.Stack;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.ymir.HttpMethod;
-import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.ClassType;
@@ -31,9 +31,7 @@ import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.TypeDesc;
-import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 import org.seasar.ymir.extension.creator.util.DescUtils;
-import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
 import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ClassUtils;
@@ -197,22 +195,20 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
 
         TypeDesc typeDesc;
-        String groupName = null;
 
         // プロパティ型のヒント情報を見る。
         // ヒントがなければ、実際の親クラスからプロパティ型を取得する。
         String className = classDesc.getName();
         PropertyTypeHint hint = getPropertyTypeHint(className, propertyName);
         if (hint != null) {
-            typeDesc = classDesc.getDescPool().newTypeDesc(hint.getTypeName());
+            typeDesc = classDesc.getDescPool().newTypeDesc(
+                    hint.getTypeName(),
+                    getQualifier(propertyTypeAlias != null ? propertyTypeAlias
+                            : asCollection ? toSingular(propertyName)
+                                    : propertyName, DescUtils
+                            .getComponentClassName(hint.getTypeName())));
             typeDesc.setExplicit(true);
             probability = PROBABILITY_MAXIMUM;
-
-            groupName = getGroupName(
-                    propertyTypeAlias != null ? propertyTypeAlias
-                            : asCollection ? toSingular(propertyName)
-                                    : propertyName, typeDesc
-                            .getComponentClassDesc().getName());
         } else {
             PropertyDescriptor descriptor = sourceCreator_
                     .getPropertyDescriptor(className, propertyName);
@@ -225,23 +221,22 @@ public class AnalyzerContext extends ZptTemplateContext {
                 String componentClassName;
                 Class<?> componentClass = sourceCreator_.getClass(DescUtils
                         .getComponentPropertyTypeName(descriptor));
+                String qualifier = null;
                 String interfaceClassName = null;
 
                 if (componentClass.isInterface()) {
                     // インタフェースの場合は実装クラス型を推論する。
-                    String gn = findGroupName(propertyDesc);
+                    String qfr = findQualifier(propertyDesc);
                     componentClassName = findPropertyClassName(
                             propertyTypeAlias != null ? propertyTypeAlias
-                                    : gn != null ? gn
-                                            + ClassUtils
-                                                    .getShorterName(componentClass)
-                                            : Introspector
-                                                    .decapitalize(ClassUtils
-                                                            .getShorterName(componentClass)),
+                                    : qfr != null ? qfr
+                                            + getShorterName(componentClass)
+                                            : decapitalize(ClassUtils
+                                                    .getShorterName(componentClass)),
                             className);
 
-                    // グループ名はrepeat変数以上に強い。
-                    if (gn != null) {
+                    if (qfr != null) {
+                        // qualifierはrepeat変数以上に強い。
                         probability = PROBABILITY_TYPE;
                     }
 
@@ -251,7 +246,7 @@ public class AnalyzerContext extends ZptTemplateContext {
                     componentClassName = componentClass.getName();
                     probability = PROBABILITY_TYPE;
 
-                    groupName = getGroupName(
+                    qualifier = getQualifier(
                             propertyTypeAlias != null ? propertyTypeAlias
                                     : asCollection ? toSingular(propertyName)
                                             : propertyName, componentClassName);
@@ -264,14 +259,15 @@ public class AnalyzerContext extends ZptTemplateContext {
                     TypeToken typeToken = new TypeToken(typeName);
                     typeToken.getTypes()[0].setBaseName(componentClassName);
                     typeDesc = classDesc.getDescPool().newTypeDesc(
-                            typeToken.getAsString());
+                            typeToken.getAsString(), qualifier);
                 } else if (descriptor.getPropertyType().isArray()) {
                     typeDesc = classDesc.getDescPool().newTypeDesc(
-                            componentClassName + "[]");
+                            componentClassName + "[]", qualifier);
                 } else {
                     typeDesc = classDesc.getDescPool().newTypeDesc(
-                            componentClassName);
+                            componentClassName, qualifier);
                 }
+
                 if (interfaceClassName != null) {
                     typeDesc.getComponentClassDesc().setInterfaceTypeDescs(
                             new TypeDesc[] { classDesc.getDescPool()
@@ -282,20 +278,15 @@ public class AnalyzerContext extends ZptTemplateContext {
                 String seed = propertyTypeAlias != null ? propertyTypeAlias
                         : asCollection ? toSingular(propertyName)
                                 : propertyName;
+                String propertyClassName = inferPropertyClassName(seed,
+                        className);
                 typeDesc = classDesc.getDescPool().newTypeDesc(
-                        inferPropertyClassName(seed, className));
+                        propertyClassName,
+                        getQualifier(seed, propertyClassName));
                 if (asCollection) {
                     setToCollection(typeDesc, collectionClassName);
                 }
-
-                groupName = getGroupName(seed, typeDesc.getComponentClassDesc()
-                        .getName());
             }
-        }
-
-        if (groupName != null) {
-            typeDesc.getComponentClassDesc().setAttribute(
-                    Globals.ATTR_GROUPNAME, groupName);
         }
 
         if (typeDesc.isCollection()
@@ -316,21 +307,28 @@ public class AnalyzerContext extends ZptTemplateContext {
         return propertyDesc;
     }
 
-    private String findGroupName(PropertyDesc propertyDesc) {
-        for (Desc<?> desc = propertyDesc; desc != null; desc = desc.getParent()) {
-            if (!(desc instanceof ClassDesc)) {
-                continue;
-            }
-            String groupName = (String) ((ClassDesc) desc)
-                    .getAttribute(Globals.ATTR_GROUPNAME);
-            if (groupName != null) {
-                return groupName;
-            }
+    private String findQualifier(PropertyDesc propertyDesc) {
+        // TODO ClassDesc が親を複数持つことがありうるが、再帰的にqualifierを辿るとその場合に正しくないqualifierを返す場合がある。
+        // この問題に対処できるまでは、直上の親しか見ないようにしている。
+        Desc<?> parent = propertyDesc.getParent();
+        if (parent instanceof ClassDesc) {
+            return ((ClassDesc) parent).getQualifier();
+        } else {
+            return null;
         }
-        return null;
+        //        for (Desc<?> desc = propertyDesc; desc != null; desc = desc.getParent()) {
+        //            if (!(desc instanceof ClassDesc)) {
+        //                continue;
+        //            }
+        //            String qualifier = ((ClassDesc) desc).getQualifier();
+        //            if (qualifier != null) {
+        //                return qualifier;
+        //            }
+        //        }
+        //        return null;
     }
 
-    private String getGroupName(String seed, String className) {
+    private String getQualifier(String seed, String className) {
         if (!isOnDtoSearchPath(className)) {
             return null;
         }
@@ -573,25 +571,13 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     void replaceSimpleDtoTypeToDefaultType(final PropertyDesc propertyDesc) {
         final TypeDesc typeDesc = propertyDesc.getTypeDesc();
-        TypeToken typeToken = new TypeToken(typeDesc.getCompleteName());
-        typeToken.accept(new TokenVisitor<Object>() {
-            public Object visit(
-                    org.seasar.ymir.extension.creator.util.type.Token acceptor) {
-                String componentName = DescUtils.getComponentName(acceptor
-                        .getBaseName());
-                boolean array = DescUtils.isArray(acceptor.getBaseName());
-                if (isDto(componentName)
-                        && !typeDesc.getDescPool().contains(componentName)) {
-                    acceptor.setBaseName(DescUtils.getClassName(propertyDesc
-                            .isMayBoolean()
-                            && propertyDesc.getReferCount() == 0 ? Boolean.TYPE
-                            .getName() : String.class.getName(), array));
-                }
-                return null;
-            }
-        });
-
-        typeDesc.setName(typeToken.getAsString());
+        if (isDto(typeDesc.getComponentClassDesc())
+                && !propertyDesc.getDescPool().contains(
+                        typeDesc.getComponentClassDesc())) {
+            typeDesc.setComponentClassDesc(propertyDesc.isMayBoolean()
+                    && propertyDesc.getReferCount() == 0 ? Boolean.TYPE
+                    : String.class);
+        }
     }
 
     void registerDependingClassDescs(ClassDesc classDesc,
@@ -600,11 +586,9 @@ public class AnalyzerContext extends ZptTemplateContext {
             return;
         }
         for (PropertyDesc pd : classDesc.getPropertyDescs()) {
-            for (String className : pd.getTypeDesc().getImportClassNames()) {
-                ClassDesc cd = classDesc.getDescPool().getClassDesc(className);
-                if (sourceCreator_.isDtoClass(cd.getName())) {
-                    registerDependingClassDescs(cd, usedClassDescSet);
-                }
+            ClassDesc cd = pd.getTypeDesc().getComponentClassDesc();
+            if (sourceCreator_.isDtoClass(cd.getName())) {
+                registerDependingClassDescs(cd, usedClassDescSet);
             }
         }
     }
@@ -620,10 +604,6 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private boolean isPage(ClassDesc classDesc) {
         return isTypeOf(classDesc, ClassType.PAGE);
-    }
-
-    private boolean isDto(String className) {
-        return isDto(new ClassDescImpl(null, className));
     }
 
     private boolean isDto(ClassDesc classDesc) {
@@ -698,10 +678,9 @@ public class AnalyzerContext extends ZptTemplateContext {
             collectionImplementationClassName = FlexibleList.class.getName();
             requestParameterName = requestParameterName.substring(0, lparen);
         }
-        PropertyDesc propertyDesc = classDesc
-                .getPropertyDesc(requestParameterName);
-        propertyDesc = addProperty(classDesc, requestParameterName, mode, null,
-                collection, collectionClassName, PROBABILITY_COLLECTION);
+        PropertyDesc propertyDesc = addProperty(classDesc,
+                requestParameterName, mode, null, collection,
+                collectionClassName, PROBABILITY_COLLECTION);
         if (collection) {
             propertyDesc.getTypeDesc().setCollectionImplementationClassName(
                     collectionImplementationClassName);

@@ -181,11 +181,21 @@ public class MockSourceCreator implements SourceCreator {
 
     public ClassDesc newClassDesc(DescPool pool, String className,
             ClassCreationHintBag bag) {
+        return newClassDesc(pool, className, null, bag);
+    }
+
+    public ClassDesc newClassDesc(DescPool pool, String className,
+            String qualifier, ClassCreationHintBag hintBag) {
         return null;
     }
 
     public ClassDesc newClassDesc(DescPool pool, Class<?> clazz,
             boolean onlyDeclared) {
+        return newClassDesc(pool, clazz, null, onlyDeclared);
+    }
+
+    public ClassDesc newClassDesc(DescPool pool, Class<?> clazz,
+            String qualifier, boolean onlyDeclared) {
         return null;
     }
 

@@ -5,6 +5,8 @@ import java.util.Map;
 public interface ClassDesc extends AnnotatedDesc<ClassDesc> {
     String getName();
 
+    String getQualifier();
+
     String getPackageName();
 
     String getShortName();

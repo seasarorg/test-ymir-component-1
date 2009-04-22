@@ -16,6 +16,4 @@ public interface Globals extends org.seasar.ymir.Globals {
     String ATTR_ACTION = "action";
 
     String ATTR_OWNERPAGE = "ownerPage";
-
-    String ATTR_GROUPNAME = "groupName";
 }

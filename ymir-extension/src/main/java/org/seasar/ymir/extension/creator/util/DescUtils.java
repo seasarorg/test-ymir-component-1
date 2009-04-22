@@ -81,15 +81,34 @@ public class DescUtils {
         }
     }
 
-    public static String getComponentName(String className) {
-        if (className == null) {
+    public static String getComponentName(String typeName) {
+        if (typeName == null) {
             return null;
         }
-        if (className.endsWith(SUFFIX_ARRAY)) {
-            return className.substring(0, className.length()
+        if (typeName.endsWith(SUFFIX_ARRAY)) {
+            return typeName.substring(0, typeName.length()
                     - SUFFIX_ARRAY.length());
         } else {
-            return className;
+            return typeName;
+        }
+    }
+
+    public static String getComponentClassName(String typeName) {
+        if (typeName == null) {
+            return null;
+        }
+        TypeToken token = new TypeToken(typeName);
+        if (token.isArray()) {
+            return token.getComponentName();
+        } else {
+            try {
+                if (Collection.class.isAssignableFrom(Class.forName(token
+                        .getComponentName()))) {
+                    return token.getTypes()[0].getBaseName();
+                }
+            } catch (ClassNotFoundException ignore) {
+            }
+            return token.getBaseName();
         }
     }
 
@@ -441,7 +460,6 @@ public class DescUtils {
             toTypeDesc.setCollectionImplementationClassName(fromTypeDesc
                     .getCollectionImplementationClassName());
         }
-        toTypeDesc.setName(fromTypeDesc.getName());
     }
 
     public static AnnotationDesc[] merge(AnnotationDesc[] ad1s,
@@ -524,10 +542,10 @@ public class DescUtils {
         TypeToken typeToken = new TypeToken(typeName);
         typeToken.accept(new TokenVisitor<Object>() {
             public Object visit(Token acceptor) {
-                String baseName = acceptor.getBaseName();
-                Class<?> baseClass = findClass(baseName);
-                if (baseClass != null) {
-                    acceptor.setBaseName(baseClass.getName());
+                Class<?> componentClass = findClass(acceptor.getComponentName());
+                if (componentClass != null) {
+                    acceptor.setBaseName(componentClass.getName()
+                            + (acceptor.isArray() ? SUFFIX_ARRAY : ""));
                 }
                 return null;
             }

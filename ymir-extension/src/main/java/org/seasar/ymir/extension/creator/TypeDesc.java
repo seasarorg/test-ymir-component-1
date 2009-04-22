@@ -11,8 +11,6 @@ public interface TypeDesc extends Desc<TypeDesc> {
 
     void setComponentClassDesc(Class<?> clazz);
 
-    void setName(String typeName);
-
     boolean isCollection();
 
     void setCollection(boolean collection);
@@ -33,8 +31,6 @@ public interface TypeDesc extends Desc<TypeDesc> {
     boolean isExplicit();
 
     void setExplicit(boolean explicit);
-
-    boolean isGeneric();
 
     String getName();
 

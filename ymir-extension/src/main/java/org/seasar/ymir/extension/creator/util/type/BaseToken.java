@@ -28,4 +28,16 @@ public class BaseToken implements Token {
     public void setBaseName(String baseName) {
         token_ = baseName;
     }
+
+    public String getComponentName() {
+        if (token_.endsWith(SUFFIX_ARRAY)) {
+            return token_.substring(0, token_.length() - SUFFIX_ARRAY.length());
+        } else {
+            return token_;
+        }
+    }
+
+    public boolean isArray() {
+        return token_.endsWith(SUFFIX_ARRAY);
+    }
 }

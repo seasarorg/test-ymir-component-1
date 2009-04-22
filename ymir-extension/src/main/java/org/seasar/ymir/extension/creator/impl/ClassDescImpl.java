@@ -28,6 +28,8 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
 
     private String name_;
 
+    private String qualifier_;
+
     private ClassType type_;
 
     private String superclassName_;
@@ -47,8 +49,13 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
     private Desc<?> parent_;
 
     public ClassDescImpl(DescPool pool, String name) {
+        this(pool, name, null);
+    }
+
+    public ClassDescImpl(DescPool pool, String name, String qualifier) {
         pool_ = pool;
         name_ = name;
+        qualifier_ = qualifier;
         type_ = ClassType.typeOfClass(name);
     }
 
@@ -58,6 +65,8 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         int result = 1;
         result = prime * result + ((name_ == null) ? 0 : name_.hashCode());
         result = prime * result + ((pool_ == null) ? 0 : pool_.hashCode());
+        result = prime * result
+                + ((qualifier_ == null) ? 0 : qualifier_.hashCode());
         return result;
     }
 
@@ -80,11 +89,21 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
                 return false;
         } else if (!pool_.equals(other.pool_))
             return false;
+        if (qualifier_ == null) {
+            if (other.qualifier_ != null)
+                return false;
+        } else if (!qualifier_.equals(other.qualifier_))
+            return false;
         return true;
     }
 
     public String toString() {
-        return name_;
+        StringBuilder sb = new StringBuilder();
+        sb.append(name_);
+        if (qualifier_ != null) {
+            sb.append(" (").append(qualifier_).append(")");
+        }
+        return sb.toString();
     }
 
     public DescPool getDescPool() {
@@ -93,6 +112,34 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
 
     public String getName() {
         return name_;
+    }
+
+    public String getQualifier() {
+        return qualifier_;
+    }
+
+    public void setQualifier(String qualifier) {
+        if (equals(qualifier_, qualifier)) {
+            return;
+        }
+
+        // qualifierが変わるとDescPoolにも登録しなおす必要がある。
+        boolean registered = pool_.unregisterClassDesc(this);
+
+        qualifier_ = qualifier;
+
+        if (registered) {
+            // 登録されていたので再登録する。
+            pool_.registerClassDesc(this);
+        }
+    }
+
+    private boolean equals(Object o1, Object o2) {
+        if (o1 == null) {
+            return o2 == null;
+        } else {
+            return o1.equals(o2);
+        }
     }
 
     public ClassType getType() {
@@ -498,7 +545,7 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         List<TypeDesc> list = new ArrayList<TypeDesc>();
         for (TypeDesc interfaceTypeDesc : interfaceTypeDescs_) {
             list.add(interfaceTypeDesc.transcriptTo(pool
-                    .newTypeDesc(interfaceTypeDesc.getName())));
+                    .newTypeDesc(interfaceTypeDesc)));
         }
         desc.setInterfaceTypeDescs(list.toArray(new TypeDesc[0]));
 
