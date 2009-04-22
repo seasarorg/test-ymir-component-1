@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.extension.Globals;
@@ -577,5 +578,30 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
 
     public void setParent(Desc<?> parent) {
         parent_ = parent;
+    }
+
+    public String[] getDependingClassNames() {
+        Set<String> set = new TreeSet<String>();
+        set.addAll(Arrays.asList(super.getDependingClassNames()));
+
+        if (superclassName_ != null) {
+            set.add(superclassName_);
+        }
+
+        for (TypeDesc interfaceTypeDesc : interfaceTypeDescs_) {
+            set.addAll(Arrays
+                    .asList(interfaceTypeDesc.getDependingClassNames()));
+        }
+
+        for (PropertyDesc propertyDesc : propertyDescMap_.values()) {
+            set.addAll(Arrays.asList(propertyDesc.getDependingClassNames()));
+        }
+
+        for (MethodDesc methodDesc : methodDescMap_.values()) {
+            set.addAll(Arrays.asList(methodDesc.getDependingClassNames()));
+        }
+
+        DescUtils.removeStandardClassNames(set);
+        return set.toArray(new String[0]);
     }
 }

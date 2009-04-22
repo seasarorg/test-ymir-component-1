@@ -42,8 +42,6 @@ public interface TypeDesc extends Desc<TypeDesc> {
 
     String getShortClassName();
 
-    String[] getImportClassNames();
-
     String getDefaultValue();
 
     String getInstanceName();

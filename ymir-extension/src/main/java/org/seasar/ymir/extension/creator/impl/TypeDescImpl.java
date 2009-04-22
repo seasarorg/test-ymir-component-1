@@ -335,7 +335,7 @@ public class TypeDescImpl implements TypeDesc {
         return typeToken;
     }
 
-    public String[] getImportClassNames() {
+    public String[] getDependingClassNames() {
         final Set<String> set = new TreeSet<String>();
         TypeToken token = new TypeToken(componentTypeName_);
         token.accept(new TokenVisitor<Object>() {

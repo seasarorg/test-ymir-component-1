@@ -13,6 +13,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -681,6 +682,17 @@ public class DescUtils {
         } while ((clazz = clazz.getSuperclass()) != null
                 && clazz != Object.class);
         return null;
+    }
+
+    public static void removeStandardClassNames(Set<String> classNameSet) {
+        for (Iterator<String> itr = classNameSet.iterator(); itr.hasNext();) {
+            String className = itr.next();
+            if (Void.TYPE.getName().equals(className)
+                    || ClassUtils.isPrimitive(className)
+                    || className.startsWith(PACKAGEPREFIX_JAVA_LANG)) {
+                itr.remove();
+            }
+        }
     }
 
 }

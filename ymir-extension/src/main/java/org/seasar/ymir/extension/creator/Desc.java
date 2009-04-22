@@ -15,4 +15,12 @@ public interface Desc<T extends Desc<?>> {
      * @return 引数で渡されたオブジェクト。
      */
     T transcriptTo(T desc);
+
+    /**
+     * このDescが依存している全てのクラスのFQCNを返します。
+     * 
+     * @return このDescが依存している全てのクラスのFQCNの配列。
+     * nullを返すことはありません。
+     */
+    String[] getDependingClassNames();
 }

@@ -11,8 +11,8 @@ import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.message.Messages;
 
 <#if pairTypeDescs?size &gt; 0>import ${targetClassDesc.name};
-</#if><#list pairTypeDescs as pairTypeDesc><#list pairTypeDesc.importClassNames as importClassName>
-import ${importClassName};
+</#if><#list pairTypeDescs as pairTypeDesc><#list pairTypeDesc.dependingClassNames as dependingClassName>
+import ${dependingClassName};
 </#list></#list>
 
 /**

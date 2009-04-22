@@ -1,8 +1,11 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.seasar.ymir.extension.creator.AnnotatedDesc;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
@@ -97,5 +100,15 @@ abstract public class AbstractAnnotatedDesc {
 
     public void setAttributeMap(Map<String, Object> attributeMap) {
         attributeMap_ = attributeMap;
+    }
+
+    public String[] getDependingClassNames() {
+        Set<String> set = new TreeSet<String>();
+        for (AnnotationDesc annotationDesc : getAnnotationDescs()) {
+            set.addAll(Arrays.asList(annotationDesc.getDependingClassNames()));
+        }
+
+        DescUtils.removeStandardClassNames(set);
+        return set.toArray(new String[0]);
     }
 }
