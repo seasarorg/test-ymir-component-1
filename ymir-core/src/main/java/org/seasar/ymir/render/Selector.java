@@ -3,6 +3,7 @@ package org.seasar.ymir.render;
 import static org.seasar.ymir.util.StringUtils.asString;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -103,6 +104,18 @@ public class Selector implements Serializable {
 
     /**
      * 選択されている値を設定します。
+     * <p>このメソッドは{@link #setSelectedValues(value)と同じです。
+     * </p>
+     * 
+     * @param values 値。nullを指定してはいけません。
+     * @see #setSelectedValues(String...)
+     */
+    public void setSelectedValue(String value) {
+        setSelectedValues(value);
+    }
+
+    /**
+     * 選択されている値を設定します。
      * <p>{@link #setCandidates(Candidate...)}などによって
      * 候補オブジェクトが設定済みである場合、
      * 候補オブジェクトの選択状態がリセットされて更新されます。
@@ -118,6 +131,19 @@ public class Selector implements Serializable {
         for (int i = 0; i < values.length; i++) {
             values[i] = asString(valueObjects[i]);
         }
+        setSelectedValues(values);
+    }
+
+    /**
+     * 選択されている値を設定します。
+     * <p>このメソッドは{@link #setSelectedValueObjects(value)と同じです。
+     * </p>
+     * 
+     * @param values 値。nullを指定してはいけません。
+     * @see #setSelectedValueObjects(Object...)
+     */
+    public void setSelectedValueObject(Object value) {
+        setSelectedValueObjects(value);
     }
 
     /**
@@ -128,12 +154,12 @@ public class Selector implements Serializable {
      * 
      * @return 選択されている候補オブジェクト。
      */
-    public Candidate getSelectedCandidate() {
-        Candidate[] candidates = getSelectedCandidates();
-        if (candidates.length > 0) {
-            return candidates[0];
-        } else {
+    public <C extends Candidate> C getSelectedCandidate() {
+        List<C> candidateList = getSelectedCandidateList();
+        if (candidateList.isEmpty()) {
             return null;
+        } else {
+            return candidateList.get(0);
         }
     }
 
@@ -144,7 +170,10 @@ public class Selector implements Serializable {
      * 
      * @return 選択されている候補オブジェクト。
      */
+    @SuppressWarnings("unchecked")
     public Candidate[] getSelectedCandidates() {
+        // 本当は<C extends Candidate>[]を返すようにしたいが、1つもCandidateを持っていない場合に
+        // 空のCの配列を生成できないため断念。
         return getSelectedCandidateList().toArray(EMPTY_CANDIDATES);
     }
 
@@ -156,15 +185,15 @@ public class Selector implements Serializable {
      * @return 選択されている候補オブジェクトのList。
      */
     @SuppressWarnings("unchecked")
-    public <E extends Candidate> List<E> getSelectedCandidateList() {
+    public <C extends Candidate> List<C> getSelectedCandidateList() {
         if (selectedValues_ == null) {
             if (candidates_ == null) {
                 return Collections.emptyList();
             } else {
-                List<E> list = new ArrayList<E>();
+                List<C> list = new ArrayList<C>();
                 for (Candidate candidate : candidates_) {
                     if (candidate.isSelected()) {
-                        list.add((E) candidate);
+                        list.add((C) candidate);
                     }
                 }
                 return list;
@@ -173,11 +202,11 @@ public class Selector implements Serializable {
             if (candidates_ == null) {
                 return Collections.emptyList();
             } else {
-                List<E> list = new ArrayList<E>();
+                List<C> list = new ArrayList<C>();
                 for (String value : selectedValues_) {
                     Candidate candidate = candidateMap_.get(value);
                     if (candidate != null) {
-                        list.add((E) candidate);
+                        list.add((C) candidate);
                     }
                 }
                 return list;
@@ -192,8 +221,9 @@ public class Selector implements Serializable {
      * 
      * @return 全ての候補オブジェクト。
      */
-    public Candidate[] getCandidates() {
-        return candidates_;
+    @SuppressWarnings("unchecked")
+    public <C extends Candidate> C[] getCandidates() {
+        return (C[]) candidates_;
     }
 
     /**
@@ -228,7 +258,7 @@ public class Selector implements Serializable {
      * @return 全ての候補オブジェクトのList。
      */
     @SuppressWarnings("unchecked")
-    public <E extends Candidate> List<E> getCandidateList() {
+    public <C extends Candidate> List<C> getCandidateList() {
         if (candidates_ == null) {
             return null;
         } else {
