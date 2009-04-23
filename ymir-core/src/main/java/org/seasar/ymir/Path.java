@@ -8,8 +8,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.seasar.framework.container.ComponentNotFoundRuntimeException;
-import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.util.StringUtils;
 
 /**
@@ -66,11 +64,10 @@ public class Path implements Serializable {
      * 
      * @param path コンテキスト相対のパス文字列。
      * @param parameterMap パスに追加するパラメータが格納されているMap。
-     * パラメータの文字エンコーディングは、現在リクエストの処理中であればリクエストの文字エンコーディング、
-     * そうでない場合はUTF-8とみなされます。
+     * パラメータの文字エンコーディングはUTF-8とみなされます。
      */
     public Path(String path, Map<String, String[]> parameterMap) {
-        this(path, parameterMap, Path.getRequestCharacterEncoding());
+        this(path, parameterMap, "UTF-8");
     }
 
     /**
@@ -422,26 +419,5 @@ public class Path implements Serializable {
      */
     public String getFragment() {
         return fragment_;
-    }
-
-    private static String getRequestCharacterEncoding() {
-        Ymir ymir = YmirContext.getYmir();
-        if (ymir != null) {
-            Application application = ymir.getApplication();
-            if (application != null) {
-                S2Container container = application.getS2Container();
-                if (container != null) {
-                    try {
-                        Request request = (Request) container
-                                .getComponent(Request.class);
-                        if (request != null) {
-                            return request.getCharacterEncoding();
-                        }
-                    } catch (ComponentNotFoundRuntimeException ignore) {
-                    }
-                }
-            }
-        }
-        return "UTF-8";
     }
 }
