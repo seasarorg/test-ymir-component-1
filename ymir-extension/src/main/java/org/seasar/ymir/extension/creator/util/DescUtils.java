@@ -8,8 +8,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,11 +66,11 @@ public class DescUtils {
 
         Method method = pd.getReadMethod();
         if (method != null) {
-            return DescUtils.toString(method.getGenericReturnType());
+            return DescUtils.getTypeName(method.getGenericReturnType());
         }
         method = pd.getWriteMethod();
         if (method != null) {
-            return DescUtils.toString(method.getGenericParameterTypes()[0]);
+            return DescUtils.getTypeName(method.getGenericParameterTypes()[0]);
         }
         return pd.getPropertyType().getName();
     }
@@ -165,6 +167,35 @@ public class DescUtils {
                 sb.append(SUFFIX_ARRAY);
             }
             return clazz.getName() + sb.toString();
+        } else {
+            return type.toString();
+        }
+    }
+
+    public static String getTypeName(Type type) {
+        if (type == null) {
+            return null;
+        }
+        if (type instanceof Class<?>) {
+            Class<?> clazz = (Class<?>) type;
+            StringBuffer sb = new StringBuffer();
+            while (clazz.isArray()) {
+                clazz = clazz.getComponentType();
+                sb.append(SUFFIX_ARRAY);
+            }
+            return clazz.getName() + sb.toString();
+        } else if (type instanceof TypeVariable) {
+            TypeVariable<?> typeVariable = (TypeVariable<?>) type;
+            Type[] bounds = typeVariable.getBounds();
+            if (bounds.length > 0) {
+                return getTypeName(bounds[0]);
+            } else {
+                return Object.class.getName();
+            }
+        } else if (type instanceof GenericArrayType) {
+            return getTypeName(((GenericArrayType) type)
+                    .getGenericComponentType())
+                    + SUFFIX_ARRAY;
         } else {
             return type.toString();
         }

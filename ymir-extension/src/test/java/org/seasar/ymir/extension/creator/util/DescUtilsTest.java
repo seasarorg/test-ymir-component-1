@@ -5,7 +5,6 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -48,32 +47,6 @@ public class DescUtilsTest extends TestCase {
                 .getNonGenericClassName("Iterator<Map.Entry<String, String>>"));
     }
 
-    public void testGetGenericPropertyTypeName() throws Exception {
-        BeanInfo beanInfo = Introspector.getBeanInfo(Hoe.class);
-        PropertyDescriptor descriptor = null;
-        for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-            if ("list".equals(pd.getName())) {
-                descriptor = pd;
-                break;
-            }
-        }
-
-        assertEquals("java.util.List<java.lang.String>[]", DescUtils
-                .getGenericPropertyTypeName(descriptor));
-    }
-
-    public static class Hoe {
-        private List<String>[] list_;
-
-        public List<String>[] getList() {
-            return list_;
-        }
-
-        public void setList(List<String>[] list) {
-            list_ = list;
-        }
-    }
-
     @SuppressWarnings("deprecation")
     public void testNewAnnotationDesc() throws Exception {
         AnnotationDesc[] ads = DescUtils
@@ -96,7 +69,7 @@ public class DescUtilsTest extends TestCase {
         assertEquals("java.lang.String[][]", DescUtils
                 .toString(String[][].class));
 
-        Method method = Hoe.class.getMethod("getList", new Class[0]);
+        Method method = DescUtilsBean.class.getMethod("getList", new Class[0]);
         assertEquals("java.util.List<java.lang.String>[]", DescUtils
                 .toString(method.getGenericReturnType()));
     }
@@ -118,6 +91,26 @@ public class DescUtilsTest extends TestCase {
                 .getComponentPropertyTypeName(map.get("value3")));
     }
 
+    public void test_getGenericPropertyTypeName() throws Exception {
+        BeanInfo beanInfo = Introspector.getBeanInfo(DescUtilsBean.class);
+        Map<String, PropertyDescriptor> map = new HashMap<String, PropertyDescriptor>();
+        for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+            map.put(pd.getName(), pd);
+        }
+
+        assertEquals("java.util.List<java.lang.String>[]", DescUtils
+                .getGenericPropertyTypeName(map.get("list")));
+
+        assertEquals("java.lang.Object", DescUtils
+                .getGenericPropertyTypeName(map.get("value4")));
+
+        assertEquals("java.util.List<java.lang.String>", DescUtils
+                .getGenericPropertyTypeName(map.get("value5")));
+
+        assertEquals("java.util.List<java.lang.String>[]", DescUtils
+                .getGenericPropertyTypeName(map.get("value6")));
+    }
+
     public void test_transcript() throws Exception {
         TypeDescImpl target = new TypeDescImpl(pool_, "java.util.List<String>");
 
@@ -126,5 +119,4 @@ public class DescUtilsTest extends TestCase {
 
         assertEquals("java.util.List<String>", actual.getName());
     }
-
 }
