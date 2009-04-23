@@ -777,4 +777,10 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertTrue(target_.isDtoClass("com.example.dto.HoeDto"));
         assertTrue(target_.isDtoClass("org.seasar.ymir.render.Selector"));
     }
+
+    public void test_getMethods_Objectクラスが持つメソッドをオーバライドしている場合それが除外されること()
+            throws Exception {
+        assertEquals(0, target_.getMethods(Hoe3Base.class, true).length);
+        assertEquals(0, target_.getMethods(Hoe3.class, false).length);
+    }
 }

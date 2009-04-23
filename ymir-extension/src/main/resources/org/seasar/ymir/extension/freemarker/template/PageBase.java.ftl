@@ -58,10 +58,10 @@ public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#
 <#list methodDesc.annotationDescs as annotationDesc>
     ${annotationDesc.asShortString}
 </#list>
-    public ${methodDesc.returnTypeDesc.name} ${methodDesc.name}(<#list methodDesc.parameterDescs as parameterDesc>${parameterDesc.typeDesc.shortName} <#if parameterDesc.nameAsIs??>${parameterDesc.nameAsIs}<#else>arg${parameterDesc_index}</#if><#if parameterDesc_has_next>, </#if></#list>)<#if !methodDesc.throwsDesc.empty>
+    public ${methodDesc.returnTypeDesc.shortName} ${methodDesc.name}(<#list methodDesc.parameterDescs as parameterDesc>${parameterDesc.typeDesc.shortName} <#if parameterDesc.nameAsIs??>${parameterDesc.nameAsIs}<#else>arg${parameterDesc_index}</#if><#if parameterDesc_has_next>, </#if></#list>)<#if !methodDesc.throwsDesc.empty>
         throws </#if><#list methodDesc.throwsDesc.throwableClassShortNames as throwableClassShortName>${throwableClassShortName}<#if throwableClassShortName_has_next>, </#if></#list> {
 <#if methodDesc.evaluatedBody?exists>
-        ${methodDesc.evaluatedBody}<#elseif methodDesc.returnTypeDesc.name != "void">
+        ${methodDesc.evaluatedBody}<#elseif methodDesc.returnTypeDesc.shortName != "void">
         return ${methodDesc.returnTypeDesc.defaultValue};</#if>
     }
 </#list>

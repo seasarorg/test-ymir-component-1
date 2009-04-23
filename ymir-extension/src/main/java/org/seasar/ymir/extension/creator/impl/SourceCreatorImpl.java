@@ -761,7 +761,7 @@ public class SourceCreatorImpl implements SourceCreator {
         return classDesc;
     }
 
-    private Method[] getMethods(Class<?> clazz, boolean onlyDeclared) {
+    Method[] getMethods(Class<?> clazz, boolean onlyDeclared) {
         Set<Method> excludeMethodSet = new HashSet<Method>();
         for (PropertyDescriptor descriptor : getPropertyDescriptors(clazz,
                 onlyDeclared)) {
@@ -779,7 +779,7 @@ public class SourceCreatorImpl implements SourceCreator {
         for (Method method : ClassUtils.getMethods(clazz)) {
             if (onlyDeclared && method.getDeclaringClass() != clazz) {
                 continue;
-            } else if (method.getDeclaringClass() == Object.class) {
+            } else if (getOriginalDeclaringClass(method) == Object.class) {
                 continue;
             } else if (excludeMethodSet.contains(method)) {
                 continue;
@@ -810,6 +810,25 @@ public class SourceCreatorImpl implements SourceCreator {
         });
 
         return list.toArray(new Method[0]);
+    }
+
+    private Class<?> getOriginalDeclaringClass(Method method) {
+        Class<?> clazz = method.getDeclaringClass();
+        while (true) {
+            Class<?> superclass = clazz.getSuperclass();
+            if (superclass == null) {
+                return clazz;
+            } else {
+                try {
+                    superclass.getDeclaredMethod(method.getName(), method
+                            .getParameterTypes());
+                } catch (SecurityException ignore) {
+                } catch (NoSuchMethodException ex) {
+                    return clazz;
+                }
+            }
+            clazz = superclass;
+        }
     }
 
     private PropertyDescriptor[] getPropertyDescriptors(Class<?> clazz,
@@ -1121,6 +1140,7 @@ public class SourceCreatorImpl implements SourceCreator {
             break;
 
         case DTO:
+            importDesc.clear();
             baseImportDesc.add(Serializable.class);
             break;
 
@@ -1135,6 +1155,7 @@ public class SourceCreatorImpl implements SourceCreator {
             break;
 
         case CONVERTER:
+            importDesc.clear();
             baseImportDesc.add(Binding.class);
             baseImportDesc.add(BindingType.class);
             baseImportDesc.add(Messages.class);
