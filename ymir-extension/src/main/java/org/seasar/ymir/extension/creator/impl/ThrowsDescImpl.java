@@ -1,6 +1,7 @@
 package org.seasar.ymir.extension.creator.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -9,8 +10,9 @@ import org.seasar.ymir.extension.creator.ThrowsDesc;
 import org.seasar.ymir.util.ClassUtils;
 
 public class ThrowsDescImpl implements ThrowsDesc {
-
     private Set<String> throwableClassNameSet_ = new LinkedHashSet<String>();
+
+    private Set<String> touchedClassNameSet_ = new HashSet<String>();
 
     public ThrowsDescImpl() {
     }
@@ -39,6 +41,7 @@ public class ThrowsDescImpl implements ThrowsDesc {
     public String[] getThrowableClassShortNames() {
         List<String> list = new ArrayList<String>();
         for (String className : throwableClassNameSet_) {
+            touchedClassNameSet_.add(className);
             list.add(ClassUtils.getShortName(className));
         }
         return list.toArray(new String[0]);
@@ -46,5 +49,15 @@ public class ThrowsDescImpl implements ThrowsDesc {
 
     public boolean isEmpty() {
         return throwableClassNameSet_.isEmpty();
+    }
+
+    public void addDependingClassNamesTo(Set<String> set) {
+        for (String className : throwableClassNameSet_) {
+            set.add(className);
+        }
+    }
+
+    public void setTouchedClassNameSet(Set<String> set) {
+        touchedClassNameSet_ = set;
     }
 }

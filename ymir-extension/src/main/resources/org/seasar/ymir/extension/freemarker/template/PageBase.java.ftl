@@ -1,7 +1,7 @@
 ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
-<#if !baseImportDesc.empty>
+<#if !importDesc.empty>
 
-${baseImportDesc.asString}</#if>
+${importDesc.asString}</#if>
 <#list classDesc.annotationDescs as annotationDesc>
 ${annotationDesc.asShortString}
 </#list>

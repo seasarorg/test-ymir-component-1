@@ -24,4 +24,6 @@ public interface AnnotationDesc extends Cloneable {
      * nullを指定してはいけません。
      */
     void addDependingClassNamesTo(Set<String> set);
+
+    void setTouchedClassNameSet(Set<String> set);
 }

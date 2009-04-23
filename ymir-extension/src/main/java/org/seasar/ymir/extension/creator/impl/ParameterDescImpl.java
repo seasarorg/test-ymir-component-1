@@ -110,4 +110,8 @@ public class ParameterDescImpl implements ParameterDesc {
         DescUtils.removeStandardClassNames(set);
         return set.toArray(new String[0]);
     }
+
+    public void setTouchedClassNameSet(Set<String> set) {
+        typeDesc_.setTouchedClassNameSet(set);
+    }
 }

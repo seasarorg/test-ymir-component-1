@@ -1,7 +1,7 @@
 ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
-<#if !baseImportDesc.empty>
+<#if !importDesc.empty>
 
-${baseImportDesc.asString}</#if>
+${importDesc.asString}</#if>
 /**
  * A class to convert Dto objects and entity objects.
  * <p>Developer can override methods to customize this class's behavior,

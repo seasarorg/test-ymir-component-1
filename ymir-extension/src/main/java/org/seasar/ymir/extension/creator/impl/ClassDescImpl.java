@@ -239,6 +239,7 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
     }
 
     public String getSuperclassShortName() {
+        getTouchedClassNameSet().add(superclassName_);
         return ClassUtils.getShortName(superclassName_);
     }
 
@@ -475,6 +476,7 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
     }
 
     public String getShortName() {
+        getTouchedClassNameSet().add(getName());
         return ClassUtils.getShortName(getName());
     }
 
@@ -526,8 +528,7 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         return parameter_;
     }
 
-    public void setSourceGeneratorParameter(
-            Map<String, Object> parameter) {
+    public void setSourceGeneratorParameter(Map<String, Object> parameter) {
         parameter_ = new HashMap<String, Object>(parameter);
     }
 
@@ -597,6 +598,23 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
 
         for (MethodDesc methodDesc : methodDescMap_.values()) {
             methodDesc.addDependingClassNamesTo(set);
+        }
+    }
+
+    @Override
+    public void setTouchedClassNameSet(Set<String> set) {
+        setTouchedClassNameSet0(set);
+
+        for (TypeDesc interfaceTypeDesc : interfaceTypeDescs_) {
+            interfaceTypeDesc.setTouchedClassNameSet(set);
+        }
+
+        for (PropertyDesc propertyDesc : propertyDescMap_.values()) {
+            propertyDesc.setTouchedClassNameSet(set);
+        }
+
+        for (MethodDesc methodDesc : methodDescMap_.values()) {
+            methodDesc.setTouchedClassNameSet(set);
         }
     }
 }

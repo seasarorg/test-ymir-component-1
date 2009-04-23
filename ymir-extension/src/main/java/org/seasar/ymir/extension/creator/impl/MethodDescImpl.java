@@ -189,8 +189,19 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
 
         returnTypeDesc_.addDependingClassNamesTo(set);
 
-        for (String className : throwsDesc_.getThrowableClassNames()) {
-            set.add(className);
+        throwsDesc_.addDependingClassNamesTo(set);
+    }
+
+    @Override
+    public void setTouchedClassNameSet(Set<String> set) {
+        setTouchedClassNameSet0(set);
+
+        for (ParameterDesc parameterDesc : parameterDescs_) {
+            parameterDesc.setTouchedClassNameSet(set);
         }
+
+        returnTypeDesc_.setTouchedClassNameSet(set);
+
+        throwsDesc_.setTouchedClassNameSet(set);
     }
 }

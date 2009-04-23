@@ -5,6 +5,7 @@ import static org.seasar.ymir.extension.creator.util.DescUtils.normalizePackage;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -34,6 +35,8 @@ public class TypeDescImpl implements TypeDesc {
     private boolean explicit_;
 
     private Desc<?> parent_;
+
+    private Set<String> touchedClassNamsSet_ = new HashSet<String>();
 
     public TypeDescImpl(DescPool pool, Type type) {
         this(pool, type, null);
@@ -269,6 +272,7 @@ public class TypeDescImpl implements TypeDesc {
         StringBuilder sb = new StringBuilder();
         if (collection_) {
             if (collectionClassName_ != null) {
+                touchedClassNamsSet_.add(collectionClassName_);
                 sb.append(ClassUtils.getShortName(collectionClassName_))
                         .append("<");
             }
@@ -277,6 +281,7 @@ public class TypeDescImpl implements TypeDesc {
         TypeToken token = new TypeToken(componentTypeName_);
         token.accept(new TokenVisitor<Object>() {
             public Object visit(Token acceptor) {
+                touchedClassNamsSet_.add(acceptor.getComponentName());
                 acceptor.setBaseName(ClassUtils.getShorterName(acceptor
                         .getBaseName()));
                 return null;
@@ -413,5 +418,10 @@ public class TypeDescImpl implements TypeDesc {
 
         DescUtils.removeStandardClassNames(set);
         return set.toArray(new String[0]);
+    }
+
+    public void setTouchedClassNameSet(Set<String> set) {
+        touchedClassNamsSet_ = set;
+        componentClassDesc_.setTouchedClassNameSet(set);
     }
 }

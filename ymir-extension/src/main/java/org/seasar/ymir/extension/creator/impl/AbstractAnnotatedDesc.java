@@ -1,6 +1,7 @@
 package org.seasar.ymir.extension.creator.impl;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -16,6 +17,8 @@ abstract public class AbstractAnnotatedDesc {
     private Map<String, AnnotationDesc> annotationDescMap_ = new TreeMap<String, AnnotationDesc>();
 
     private Map<String, Object> attributeMap_ = new HashMap<String, Object>();
+
+    private Set<String> touchedClassNameSet_ = new HashSet<String>();
 
     abstract public DescPool getDescPool();
 
@@ -101,13 +104,13 @@ abstract public class AbstractAnnotatedDesc {
         attributeMap_ = new HashMap<String, Object>(attributeMap);
     }
 
+    abstract public void addDependingClassNamesTo(Set<String> set);
+
     protected void addDependingClassNamesTo0(Set<String> set) {
         for (AnnotationDesc annotationDesc : getAnnotationDescs()) {
             annotationDesc.addDependingClassNamesTo(set);
         }
     }
-
-    abstract public void addDependingClassNamesTo(Set<String> set);
 
     public String[] getImportClassNames() {
         Set<String> set = new TreeSet<String>();
@@ -115,5 +118,22 @@ abstract public class AbstractAnnotatedDesc {
 
         DescUtils.removeStandardClassNames(set);
         return set.toArray(new String[0]);
+    }
+
+    abstract public void setTouchedClassNameSet(Set<String> set);
+
+    protected void setTouchedClassNameSet0(Set<String> set) {
+        if (set == touchedClassNameSet_) {
+            // ループを避けるため。
+            return;
+        }
+        touchedClassNameSet_ = set;
+        for (AnnotationDesc annotationDesc : getAnnotationDescs()) {
+            annotationDesc.setTouchedClassNameSet(touchedClassNameSet_);
+        }
+    }
+
+    protected Set<String> getTouchedClassNameSet() {
+        return touchedClassNameSet_;
     }
 }

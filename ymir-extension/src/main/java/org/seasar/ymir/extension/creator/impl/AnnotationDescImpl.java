@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -15,6 +16,8 @@ public class AnnotationDescImpl implements AnnotationDesc {
     private String name_;
 
     private String body_;
+
+    private Set<String> touchedClassNameSet_ = new HashSet<String>();
 
     public AnnotationDescImpl(Annotation annotation) {
         analyze(annotation);
@@ -171,6 +174,7 @@ public class AnnotationDescImpl implements AnnotationDesc {
     }
 
     public String getAsShortString() {
+        touchedClassNameSet_.add(name_);
         return "@" + ClassUtils.getShortName(name_) + body_;
     }
 
@@ -192,5 +196,9 @@ public class AnnotationDescImpl implements AnnotationDesc {
 
     public void addDependingClassNamesTo(Set<String> set) {
         set.add(name_);
+    }
+
+    public void setTouchedClassNameSet(Set<String> set) {
+        touchedClassNameSet_ = set;
     }
 }

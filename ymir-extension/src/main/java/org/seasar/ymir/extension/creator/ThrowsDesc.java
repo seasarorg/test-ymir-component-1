@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.creator;
 
+import java.util.Set;
+
 public interface ThrowsDesc {
     ThrowsDesc addThrowable(Class<?> throwableClass);
 
@@ -10,4 +12,8 @@ public interface ThrowsDesc {
     String[] getThrowableClassShortNames();
 
     boolean isEmpty();
+
+    void addDependingClassNamesTo(Set<String> set);
+
+    void setTouchedClassNameSet(Set<String> set);
 }

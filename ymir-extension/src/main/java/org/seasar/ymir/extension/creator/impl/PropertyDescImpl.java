@@ -475,4 +475,18 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
             annotationDesc.addDependingClassNamesTo(set);
         }
     }
+
+    @Override
+    public void setTouchedClassNameSet(Set<String> set) {
+        setTouchedClassNameSet0(set);
+
+        typeDesc_.setTouchedClassNameSet(set);
+
+        for (AnnotationDesc annotationDesc : getAnnotationDescsOnGetter()) {
+            annotationDesc.setTouchedClassNameSet(set);
+        }
+        for (AnnotationDesc annotationDesc : getAnnotationDescsOnSetter()) {
+            annotationDesc.setTouchedClassNameSet(set);
+        }
+    }
 }

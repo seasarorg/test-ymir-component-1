@@ -1,5 +1,6 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.seasar.kvasir.util.StringUtils;
@@ -13,6 +14,8 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
     private String[] metaValue_;
 
     private Class<?>[] metaClassValue_;
+
+    private Set<String> touchedClassNameSet_ = new HashSet<String>();
 
     public MetaAnnotationDescImpl(Meta meta) {
         this(meta.name(), meta.value(), meta.classValue());
@@ -51,6 +54,7 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
     }
 
     public String getAsShortString() {
+        touchedClassNameSet_.add(getName());
         return "@" + ClassUtils.getShortName(getName()) + getShortBody();
     }
 
@@ -103,6 +107,7 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
             return String.valueOf(null);
         } else if (obj instanceof Class) {
             if (shorten) {
+                touchedClassNameSet_.add(((Class<?>) obj).getName());
                 return ClassUtils.getShortName((Class<?>) obj) + ".class";
             } else {
                 return ((Class<?>) obj).getName() + ".class";
@@ -153,5 +158,9 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
         for (Class<?> value : metaClassValue_) {
             set.add(value.getName());
         }
+    }
+
+    public void setTouchedClassNameSet(Set<String> set) {
+        touchedClassNameSet_ = set;
     }
 }

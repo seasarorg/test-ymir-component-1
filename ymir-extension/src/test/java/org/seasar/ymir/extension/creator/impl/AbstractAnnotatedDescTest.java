@@ -18,6 +18,10 @@ public class AbstractAnnotatedDescTest extends TestCase {
             public DescPool getDescPool() {
                 return null;
             }
+
+            @Override
+            public void setTouchedClassNameSet(Set<String> set) {
+            }
         };
 
         target.setAnnotationDesc(new AnnotationDescImpl("org.example.Noe",

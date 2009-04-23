@@ -17,9 +17,9 @@ public interface Globals extends org.seasar.ymir.Globals {
 
     String ATTR_OWNERPAGE = "ownerPage";
 
-    String PARAMETER_IMPORTDESC = "importDesc";
+    String PARAMETER_IMPORTCLASSSET = "importClassSet";
 
-    String PARAMETER_BASEIMPORTDESC = "baseImportDesc";
+    String PARAMETER_BASEIMPORTCLASSSET = "baseImportClassSet";
 
     String PARAMETER_ENTITYMETADATA = "entityMetaData";
 
@@ -30,4 +30,6 @@ public interface Globals extends org.seasar.ymir.Globals {
     String PARAMETER_PREAMBLE = "preamble";
 
     String PARAMETER_CLASSDESC = "classDesc";
+
+    String PARAMETER_IMPORTDESC = "importDesc";
 }

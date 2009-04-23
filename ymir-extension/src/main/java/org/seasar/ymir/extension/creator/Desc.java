@@ -33,4 +33,6 @@ public interface Desc<T extends Desc<?>> {
      * nullを指定してはいけません。
      */
     void addDependingClassNamesTo(Set<String> set);
+
+    void setTouchedClassNameSet(Set<String> set);
 }

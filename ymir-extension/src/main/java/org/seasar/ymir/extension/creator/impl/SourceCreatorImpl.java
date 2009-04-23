@@ -92,7 +92,6 @@ import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.DescValidator;
 import org.seasar.ymir.extension.creator.EntityMetaData;
-import org.seasar.ymir.extension.creator.ImportDesc;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.MethodDescKey;
@@ -1124,52 +1123,49 @@ public class SourceCreatorImpl implements SourceCreator {
         EntityMetaData entityMetaData = new EntityMetaData(classDesc
                 .getDescPool(), classDesc.getName());
 
-        ImportDesc importDesc = new ImportDescImpl(this, classDesc);
-        ImportDesc baseImportDesc = new ImportDescImpl(this, classDesc);
-        String[] importClassNames = classDesc.getImportClassNames();
-        importDesc.add(importClassNames);
-        baseImportDesc.add(importClassNames);
+        Set<String> importClassNameSet = new HashSet<String>();
+        Set<String> baseImportClassNameSet = new HashSet<String>();
 
         switch (classDesc.getType()) {
         case BEAN:
-            importDesc.add("org.seasar.ymir.beantable.annotation.Managed");
+            importClassNameSet
+                    .add("org.seasar.ymir.beantable.annotation.Managed");
             break;
 
         case PAGE:
-            importDesc.clear();
             break;
 
         case DTO:
-            importDesc.clear();
-            baseImportDesc.add(Serializable.class);
+            baseImportClassNameSet.add(Serializable.class.getName());
             break;
 
         case DAO:
-            importDesc.add("org.seasar.dao.annotation.tiger.S2Dao");
+            importClassNameSet.add("org.seasar.dao.annotation.tiger.S2Dao");
             break;
 
         case DXO:
-            importDesc.add(List.class);
-            importDesc.add(entityMetaData.getBeanClassDesc().getName());
-            importDesc.add(entityMetaData.getDtoClassDesc().getName());
+            importClassNameSet.add(List.class.getName());
+            importClassNameSet.add(entityMetaData.getBeanClassDesc().getName());
+            importClassNameSet.add(entityMetaData.getDtoClassDesc().getName());
             break;
 
         case CONVERTER:
-            importDesc.clear();
-            baseImportDesc.add(Binding.class);
-            baseImportDesc.add(BindingType.class);
-            baseImportDesc.add(Messages.class);
-            baseImportDesc.add(TypeConversionManager.class);
+            importClassNameSet.clear();
+            baseImportClassNameSet.add(Binding.class.getName());
+            baseImportClassNameSet.add(BindingType.class.getName());
+            baseImportClassNameSet.add(Messages.class.getName());
+            baseImportClassNameSet.add(TypeConversionManager.class.getName());
             ClassDesc targetClassDesc = (ClassDesc) parameter
                     .get(Globals.PARAMETER_TARGETCLASSDESC);
             TypeDesc[] pairTypeDescs = (TypeDesc[]) parameter
                     .get(Globals.PARAMETER_PAIRTYPEDESCS);
             if (pairTypeDescs.length > 0) {
-                baseImportDesc.add(ArrayList.class);
-                baseImportDesc.add(List.class);
-                baseImportDesc.add(targetClassDesc.getName());
+                baseImportClassNameSet.add(ArrayList.class.getName());
+                baseImportClassNameSet.add(List.class.getName());
+                baseImportClassNameSet.add(targetClassDesc.getName());
                 for (TypeDesc pairTypeDesc : pairTypeDescs) {
-                    baseImportDesc.add(pairTypeDesc.getImportClassNames());
+                    baseImportClassNameSet.addAll(Arrays.asList(pairTypeDesc
+                            .getImportClassNames()));
                 }
             }
             break;
@@ -1180,8 +1176,9 @@ public class SourceCreatorImpl implements SourceCreator {
 
         parameter.put(Globals.PARAMETER_PREAMBLE, getJavaPreamble());
         parameter.put(Globals.PARAMETER_CLASSDESC, classDesc);
-        parameter.put(Globals.PARAMETER_IMPORTDESC, importDesc);
-        parameter.put(Globals.PARAMETER_BASEIMPORTDESC, baseImportDesc);
+        parameter.put(Globals.PARAMETER_IMPORTCLASSSET, importClassNameSet);
+        parameter.put(Globals.PARAMETER_BASEIMPORTCLASSSET,
+                baseImportClassNameSet);
     }
 
     public void prepareForAttribute(ClassDesc classDesc) {
