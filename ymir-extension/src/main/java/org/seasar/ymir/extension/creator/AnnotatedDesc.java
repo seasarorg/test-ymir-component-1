@@ -14,6 +14,8 @@ public interface AnnotatedDesc<T extends AnnotatedDesc<?>> extends Desc<T> {
 
     void setAnnotationDesc(AnnotationDesc annotationDesc);
 
+    void setAnnotationDescs(AnnotationDesc... annotationDescs);
+
     void removeMetaAnnotationDesc(String metaName);
 
     AnnotationDesc[] getAnnotationDescs();

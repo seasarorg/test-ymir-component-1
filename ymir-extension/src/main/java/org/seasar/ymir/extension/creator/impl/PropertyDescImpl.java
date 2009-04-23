@@ -8,6 +8,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
@@ -299,13 +300,6 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         }
     }
 
-    public void setAnnotationDescs(AnnotationDesc[] annotationDescs) {
-        super.clear();
-        for (AnnotationDesc annotationDesc : annotationDescs) {
-            setAnnotationDesc(annotationDesc);
-        }
-    }
-
     public String getMetaFirstValueOnGetter(String name) {
         return DescUtils.getMetaFirstValue(annotationDescForGetterMap_, name);
     }
@@ -466,5 +460,19 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
 
     public int getProbability() {
         return probability_;
+    }
+
+    @Override
+    public void addDependingClassNamesTo(Set<String> set) {
+        addDependingClassNamesTo0(set);
+
+        typeDesc_.addDependingClassNamesTo(set);
+
+        for (AnnotationDesc annotationDesc : getAnnotationDescsOnGetter()) {
+            annotationDesc.addDependingClassNamesTo(set);
+        }
+        for (AnnotationDesc annotationDesc : getAnnotationDescsOnSetter()) {
+            annotationDesc.addDependingClassNamesTo(set);
+        }
     }
 }

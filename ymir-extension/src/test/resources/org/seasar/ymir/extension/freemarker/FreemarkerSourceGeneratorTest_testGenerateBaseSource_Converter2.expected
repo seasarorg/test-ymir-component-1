@@ -5,7 +5,6 @@ import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.message.Messages;
 
-
 /**
  * A class to convert Dto objects and entity objects.
  * <p>Developer can override methods to customize this class's behavior,

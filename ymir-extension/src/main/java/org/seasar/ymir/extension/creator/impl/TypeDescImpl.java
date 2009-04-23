@@ -335,28 +335,6 @@ public class TypeDescImpl implements TypeDesc {
         return typeToken;
     }
 
-    public String[] getDependingClassNames() {
-        final Set<String> set = new TreeSet<String>();
-        TypeToken token = new TypeToken(componentTypeName_);
-        token.accept(new TokenVisitor<Object>() {
-            public Object visit(Token acceptor) {
-                String componentName = acceptor.getComponentName();
-                Class<?> componentClass = pool_.getSourceCreator().getClass(
-                        componentName);
-                if (componentClass != null) {
-                    set.add(componentClass.getName());
-                } else {
-                    set.add(componentName);
-                }
-                return null;
-            }
-        });
-        if (collection_ && collectionClassName_ != null) {
-            set.add(collectionClassName_);
-        }
-        return set.toArray(new String[0]);
-    }
-
     public String getDefaultValue() {
         if (collection_) {
             return String.valueOf((Object) null);
@@ -407,5 +385,33 @@ public class TypeDescImpl implements TypeDesc {
 
     public void setParent(Desc<?> parent) {
         parent_ = parent;
+    }
+
+    public void addDependingClassNamesTo(final Set<String> set) {
+        TypeToken token = new TypeToken(componentTypeName_);
+        token.accept(new TokenVisitor<Object>() {
+            public Object visit(Token acceptor) {
+                String componentName = acceptor.getComponentName();
+                Class<?> componentClass = pool_.getSourceCreator().getClass(
+                        componentName);
+                if (componentClass != null) {
+                    set.add(componentClass.getName());
+                } else {
+                    set.add(componentName);
+                }
+                return null;
+            }
+        });
+        if (collection_ && collectionClassName_ != null) {
+            set.add(collectionClassName_);
+        }
+    }
+
+    public String[] getImportClassNames() {
+        Set<String> set = new TreeSet<String>();
+        addDependingClassNamesTo(set);
+
+        DescUtils.removeStandardClassNames(set);
+        return set.toArray(new String[0]);
     }
 }

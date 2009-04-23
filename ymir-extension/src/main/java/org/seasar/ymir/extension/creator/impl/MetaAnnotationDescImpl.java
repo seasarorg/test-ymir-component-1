@@ -1,8 +1,11 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import java.util.Set;
+
 import org.seasar.kvasir.util.StringUtils;
 import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
+import org.seasar.ymir.util.ClassUtils;
 
 public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
     private String metaName_;
@@ -40,11 +43,15 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
 
     @Override
     public String toString() {
-        return getString();
+        return getAsString();
     }
 
-    public String getString() {
+    public String getAsString() {
         return "@" + getName() + getBody();
+    }
+
+    public String getAsShortString() {
+        return "@" + ClassUtils.getShortName(getName()) + getShortBody();
     }
 
     public String getMetaName() {
@@ -52,29 +59,38 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
     }
 
     public String getBody() {
+        return getBody0(false);
+    }
+
+    public String getShortBody() {
+        return getBody0(true);
+    }
+
+    protected String getBody0(boolean shorten) {
         StringBuilder sb = new StringBuilder();
         sb.append("(name = \"").append(metaName_).append("\"");
         if (metaValue_.length > 0) {
-            sb.append(", value = ").append(toLiteral(metaValue_));
+            sb.append(", value = ").append(toLiteral(metaValue_, shorten));
         }
         if (metaClassValue_.length > 0) {
-            sb.append(", classValue = ").append(toLiteral(metaClassValue_));
+            sb.append(", classValue = ").append(
+                    toLiteral(metaClassValue_, shorten));
         }
         sb.append(")");
         return sb.toString();
     }
 
-    protected String toLiteral(Object[] objs) {
+    protected String toLiteral(Object[] objs, boolean shorten) {
         if (objs == null) {
             return String.valueOf(null);
         } else if (objs.length == 1) {
-            return toLiteral(objs[0]);
+            return toLiteral(objs[0], shorten);
         } else {
             StringBuilder sb = new StringBuilder();
             sb.append("{");
             String delim = "";
             for (int i = 0; i < objs.length; i++) {
-                sb.append(delim).append(toLiteral(objs[i]));
+                sb.append(delim).append(toLiteral(objs[i], shorten));
                 delim = ", ";
             }
             sb.append("}");
@@ -82,11 +98,15 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
         }
     }
 
-    protected String toLiteral(Object obj) {
+    protected String toLiteral(Object obj, boolean shorten) {
         if (obj == null) {
             return String.valueOf(null);
         } else if (obj instanceof Class) {
-            return ((Class<?>) obj).getName() + ".class";
+            if (shorten) {
+                return ClassUtils.getShortName((Class<?>) obj) + ".class";
+            } else {
+                return ((Class<?>) obj).getName() + ".class";
+            }
         } else {
             return StringUtils.quoteString(obj.toString(), '"');
         }
@@ -125,6 +145,13 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
             return metaClassValue_;
         } else {
             return null;
+        }
+    }
+
+    public void addDependingClassNamesTo(Set<String> set) {
+        set.add(Meta.class.getName());
+        for (Class<?> value : metaClassValue_) {
+            set.add(value.getName());
         }
     }
 }

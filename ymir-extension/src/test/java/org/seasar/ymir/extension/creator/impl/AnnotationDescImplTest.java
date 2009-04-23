@@ -1,6 +1,7 @@
 package org.seasar.ymir.extension.creator.impl;
 
 import java.lang.reflect.Method;
+import java.util.TreeSet;
 
 import junit.framework.TestCase;
 
@@ -9,7 +10,7 @@ public class AnnotationDescImplTest extends TestCase {
             throws Exception {
         Method method = Hoe.class.getMethod(methodName, new Class[0]);
         assertEquals(expected, new AnnotationDescImpl(
-                method.getAnnotations()[0]).getString());
+                method.getAnnotations()[0]).getAsString());
     }
 
     public void testAnalyze1() throws Exception {
@@ -117,5 +118,18 @@ public class AnnotationDescImplTest extends TestCase {
     public void test_RequestParameter2() throws Exception {
         assertAnalyzedString("RequestParameter2",
                 "@org.seasar.ymir.scope.annotation.RequestParameter(populateWhereNull = false)");
+    }
+
+    public void test_addDependingClassNamesTo() throws Exception {
+        AnnotationDescImpl target = new AnnotationDescImpl("com.example.Hoe",
+                "value");
+        TreeSet<String> set = new TreeSet<String>();
+
+        target.addDependingClassNamesTo(set);
+
+        String[] actual = set.toArray(new String[0]);
+        assertEquals(1, actual.length);
+        int idx = 0;
+        assertEquals("com.example.Hoe", actual[idx++]);
     }
 }

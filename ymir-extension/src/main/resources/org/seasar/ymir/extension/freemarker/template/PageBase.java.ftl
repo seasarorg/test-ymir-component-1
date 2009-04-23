@@ -1,10 +1,12 @@
 ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
+<#if !baseImportDesc.empty>
 
+${baseImportDesc.asString}</#if>
 <#list classDesc.annotationDescs as annotationDesc>
-${annotationDesc.string}
+${annotationDesc.asShortString}
 </#list>
-public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#if classDesc.superclassName?exists && classDesc.superclassName != "java.lang.Object"> extends ${classDesc.superclassName}</#if><#list classDesc.interfaceTypeDescs as interfaceTypeDesc><#if interfaceTypeDesc_index == 0>
-    implements </#if>${interfaceTypeDesc.name}<#if interfaceTypeDesc_has_next>, </#if></#list> {
+public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#if classDesc.superclassShortName?exists && classDesc.superclassShortName != "Object"> extends ${classDesc.superclassShortName}</#if><#list classDesc.interfaceTypeDescs as interfaceTypeDesc><#if interfaceTypeDesc_index == 0>
+    implements </#if>${interfaceTypeDesc.shortName}<#if interfaceTypeDesc_has_next>, </#if></#list> {
     public static final String PACKAGE = "${classDesc.packageName}";
 
     public static final String NAME = "${classDesc.nameBase?uncap_first}";
@@ -26,27 +28,27 @@ public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#
 <#if !propertyDesc.hasMetaOnSetter("formProperty")>
 
 <#list propertyDesc.annotationDescs as annotationDesc>
-    ${annotationDesc.string}
+    ${annotationDesc.asShortString}
 </#list>
-    protected ${propertyDesc.typeDesc.name} ${fieldPrefix}${propertyDesc.name}${fieldSuffix}<#if propertyDesc.initialValue??> = ${propertyDesc.initialValue}</#if>;
+    protected ${propertyDesc.typeDesc.shortName} ${fieldPrefix}${propertyDesc.name}${fieldSuffix}<#if propertyDesc.initialValue??> = ${propertyDesc.initialValue}</#if>;
 </#if>
 </#list>
 <#list classDesc.propertyDescs as propertyDesc>
 <#if propertyDesc.readable>
 
 <#list propertyDesc.annotationDescsOnGetter as annotationDesc>
-    ${annotationDesc.string}
+    ${annotationDesc.asShortString}
 </#list>
-    public ${propertyDesc.typeDesc.name} <#if propertyDesc.typeDesc.name == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}() {
-        return <#if propertyDesc.hasMetaOnGetter("formProperty")>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.getMetaFirstValueOnGetter("formProperty")}${fieldSuffix}.<#if propertyDesc.typeDesc.name == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}();<#else>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix};</#if>
+    public ${propertyDesc.typeDesc.shortName} <#if propertyDesc.typeDesc.shortName == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}() {
+        return <#if propertyDesc.hasMetaOnGetter("formProperty")>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.getMetaFirstValueOnGetter("formProperty")}${fieldSuffix}.<#if propertyDesc.typeDesc.shortName == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}();<#else>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix};</#if>
     }
 </#if>
 <#if propertyDesc.writable>
 
 <#list propertyDesc.annotationDescsOnSetter as annotationDesc>
-    ${annotationDesc.string}
+    ${annotationDesc.asShortString}
 </#list>
-    public void set${propertyDesc.name?cap_first}(${propertyDesc.typeDesc.name} ${propertyDesc.name}) {
+    public void set${propertyDesc.name?cap_first}(${propertyDesc.typeDesc.shortName} ${propertyDesc.name}) {
         <#if propertyDesc.hasMetaOnSetter("formProperty")>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.getMetaFirstValueOnSetter("formProperty")}${fieldSuffix}.set${propertyDesc.name?cap_first}(${propertyDesc.name});<#else>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix} = ${propertyDesc.name};</#if>
     }
 </#if>
@@ -54,10 +56,10 @@ public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#
 <#list classDesc.methodDescs as methodDesc>
 
 <#list methodDesc.annotationDescs as annotationDesc>
-    ${annotationDesc.string}
+    ${annotationDesc.asShortString}
 </#list>
-    public ${methodDesc.returnTypeDesc.name} ${methodDesc.name}(<#list methodDesc.parameterDescs as parameterDesc>${parameterDesc.typeDesc.name} <#if parameterDesc.nameAsIs??>${parameterDesc.nameAsIs}<#else>arg${parameterDesc_index}</#if><#if parameterDesc_has_next>, </#if></#list>)<#if !methodDesc.throwsDesc.empty>
-        throws </#if><#list methodDesc.throwsDesc.throwableClassNames as throwableClassName>${throwableClassName}<#if throwableClassName_has_next>, </#if></#list> {
+    public ${methodDesc.returnTypeDesc.name} ${methodDesc.name}(<#list methodDesc.parameterDescs as parameterDesc>${parameterDesc.typeDesc.shortName} <#if parameterDesc.nameAsIs??>${parameterDesc.nameAsIs}<#else>arg${parameterDesc_index}</#if><#if parameterDesc_has_next>, </#if></#list>)<#if !methodDesc.throwsDesc.empty>
+        throws </#if><#list methodDesc.throwsDesc.throwableClassShortNames as throwableClassShortName>${throwableClassShortName}<#if throwableClassShortName_has_next>, </#if></#list> {
 <#if methodDesc.evaluatedBody?exists>
         ${methodDesc.evaluatedBody}<#elseif methodDesc.returnTypeDesc.name != "void">
         return ${methodDesc.returnTypeDesc.defaultValue};</#if>

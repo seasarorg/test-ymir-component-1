@@ -1,13 +1,16 @@
 package com.example.web;
 
+import org.seasar.ymir.annotation.Meta;
+import org.seasar.ymir.constraint.PermissionDeniedException;
+
 public class TestPageBase {
     public static final String PACKAGE = "com.example.web";
 
     public static final String NAME = "test";
 
-    @org.seasar.ymir.annotation.Meta(name = "source", value = {"throw ex;", "ex"})
-    public void _permissionDenied(org.seasar.ymir.constraint.PermissionDeniedException ex)
-        throws org.seasar.ymir.constraint.PermissionDeniedException {
+    @Meta(name = "source", value = {"throw ex;", "ex"})
+    public void _permissionDenied(PermissionDeniedException ex)
+        throws PermissionDeniedException {
         throw ex;
     }
 }

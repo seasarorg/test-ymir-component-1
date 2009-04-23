@@ -1,6 +1,5 @@
 package org.seasar.ymir.extension.creator.impl;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +24,7 @@ abstract public class AbstractAnnotatedDesc {
             desc.setAnnotationDesc((AnnotationDesc) annotationDesc.clone());
         }
 
-        desc.setAttributeMap(new HashMap<String, Object>(attributeMap_));
+        desc.setAttributeMap(attributeMap_);
 
         return desc;
     }
@@ -42,7 +41,7 @@ abstract public class AbstractAnnotatedDesc {
         DescUtils.setAnnotationDesc(annotationDescMap_, annotationDesc);
     }
 
-    public void setAnnotationDescs(AnnotationDesc[] annotationDescs) {
+    public void setAnnotationDescs(AnnotationDesc... annotationDescs) {
         annotationDescMap_.clear();
         for (AnnotationDesc ad : annotationDescs) {
             setAnnotationDesc(ad);
@@ -99,14 +98,20 @@ abstract public class AbstractAnnotatedDesc {
     }
 
     public void setAttributeMap(Map<String, Object> attributeMap) {
-        attributeMap_ = attributeMap;
+        attributeMap_ = new HashMap<String, Object>(attributeMap);
     }
 
-    public String[] getDependingClassNames() {
-        Set<String> set = new TreeSet<String>();
+    protected void addDependingClassNamesTo0(Set<String> set) {
         for (AnnotationDesc annotationDesc : getAnnotationDescs()) {
-            set.addAll(Arrays.asList(annotationDesc.getDependingClassNames()));
+            annotationDesc.addDependingClassNamesTo(set);
         }
+    }
+
+    abstract public void addDependingClassNamesTo(Set<String> set);
+
+    public String[] getImportClassNames() {
+        Set<String> set = new TreeSet<String>();
+        addDependingClassNamesTo(set);
 
         DescUtils.removeStandardClassNames(set);
         return set.toArray(new String[0]);

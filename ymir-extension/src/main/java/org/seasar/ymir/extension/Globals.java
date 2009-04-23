@@ -16,4 +16,18 @@ public interface Globals extends org.seasar.ymir.Globals {
     String ATTR_ACTION = "action";
 
     String ATTR_OWNERPAGE = "ownerPage";
+
+    String PARAMETER_IMPORTDESC = "importDesc";
+
+    String PARAMETER_BASEIMPORTDESC = "baseImportDesc";
+
+    String PARAMETER_ENTITYMETADATA = "entityMetaData";
+
+    String PARAMETER_TARGETCLASSDESC = "targetClassDesc";
+
+    String PARAMETER_PAIRTYPEDESCS = "pairTypeDescs";
+
+    String PARAMETER_PREAMBLE = "preamble";
+
+    String PARAMETER_CLASSDESC = "classDesc";
 }

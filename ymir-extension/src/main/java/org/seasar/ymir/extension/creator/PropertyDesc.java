@@ -78,8 +78,6 @@ public interface PropertyDesc extends AnnotatedDesc<PropertyDesc> {
 
     void setAnnotationDescsOnSetter(AnnotationDesc[] annotationDescs);
 
-    void setAnnotationDescs(AnnotationDesc[] annotationDescs);
-
     String getMetaFirstValueOnSetter(String name);
 
     String getMetaFirstValueOnGetter(String name);

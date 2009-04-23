@@ -1,27 +1,14 @@
 ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
+<#if !baseImportDesc.empty>
 
-<#if pairTypeDescs?size &gt; 0>
-import java.util.ArrayList;
-import java.util.List;
-
-</#if>
-import org.seasar.framework.container.annotation.tiger.Binding;
-import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.ymir.converter.TypeConversionManager;
-import org.seasar.ymir.message.Messages;
-
-<#if pairTypeDescs?size &gt; 0>import ${targetClassDesc.name};
-</#if><#list pairTypeDescs as pairTypeDesc><#list pairTypeDesc.dependingClassNames as dependingClassName>
-import ${dependingClassName};
-</#list></#list>
-
+${baseImportDesc.asString}</#if>
 /**
  * A class to convert Dto objects and entity objects.
  * <p>Developer can override methods to customize this class's behavior,
  * and add methods to gain conversion ability.
  * </p>
  */
-<#list classDesc.annotationDescs as annotationDesc>${annotationDesc.string}
+<#list classDesc.annotationDescs as annotationDesc>${annotationDesc.asShortString}
 </#list>public class ${classDesc.shortName}Base {
     protected TypeConversionManager ${fieldPrefix}typeConversionManager${fieldSuffix};
 
@@ -139,7 +126,7 @@ import ${dependingClassName};
      * Copies ${pairTypeDesc.shortName} entity to ${targetClassDesc.shortName} instance.
      * <p>This methods copies the following properties automatically:</p>
      * <ul>
-<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
      *   <li>${propertyDesc.name}</li>
 </#if></#if></#list>
      * </ul>
@@ -149,7 +136,7 @@ import ${dependingClassName};
      * @return The first argument of this method.
      */
     public ${targetClassDesc.shortName} copyEntityToDto(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto) {
-<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
         reflect${propertyDesc.name?cap_first}ToDto(entity, dto);
 </#if></#if></#list>
 
@@ -160,7 +147,7 @@ import ${dependingClassName};
      * Copies a List of ${pairTypeDesc.shortName} entity to a List of ${targetClassDesc.shortName}.
      * <p>This methods copies the following properties automatically:</p>
      * <ul>
-<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
      *   <li>${propertyDesc.name}</li>
 </#if></#if></#list>
      * </ul>
@@ -175,7 +162,7 @@ import ${dependingClassName};
         }
         return dtoList;
     }
-<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
 
     /**
      * Copies '${propertyDesc.name}' property of ${pairTypeDesc.shortName} entity to ${targetClassDesc.shortName} instance's '${propertyDesc.name}' property.
@@ -193,8 +180,8 @@ import ${dependingClassName};
      * @param entity Source object.
      * @return Extracted value.
      */
-    protected ${propertyDesc.typeDesc.name} extract${propertyDesc.name?cap_first}FromEntity(${pairTypeDesc.shortName} entity) {
-        return convert(entity.${pd.getterName}(), ${propertyDesc.typeDesc.name}.class);
+    protected ${propertyDesc.typeDesc.shortName} extract${propertyDesc.name?cap_first}FromEntity(${pairTypeDesc.shortName} entity) {
+        return convert(entity.${pd.getterName}(), ${propertyDesc.typeDesc.shortName}.class);
     }
 </#if></#if></#list>
 
@@ -202,7 +189,7 @@ import ${dependingClassName};
      * Copies ${targetClassDesc.shortName} entity to ${pairTypeDesc.shortName} instance.
      * <p>This methods copies the following properties automatically:</p>
      * <ul>
-<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
      *   <li>${propertyDesc.name}</li>
 </#if></#if></#list>
      * </ul>
@@ -212,7 +199,7 @@ import ${dependingClassName};
      * @return The first argument of this method.
      */
     public ${pairTypeDesc.shortName} copyDtoToEntity(${targetClassDesc.shortName} dto, ${pairTypeDesc.shortName} entity) {
-<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
         reflect${propertyDesc.name?cap_first}ToEntity(dto, entity);
 </#if></#if></#list>
 
@@ -223,7 +210,7 @@ import ${dependingClassName};
      * Copies a List of ${targetClassDesc.shortName} entity to a List of ${pairTypeDesc.shortName}.
      * <p>This methods copies the following properties automatically:</p>
      * <ul>
-<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
      *   <li>${propertyDesc.name}</li>
 </#if></#if></#list>
      * </ul>
@@ -238,7 +225,7 @@ import ${dependingClassName};
         }
         return entityList;
     }
-<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.getName())??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.getName())><#if propertyDesc.isWritable() && pd.isReadable()>
+<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
 
     /**
      * Copies '${propertyDesc.name}' property of ${targetClassDesc.shortName} entity to ${pairTypeDesc.shortName} instance's '${propertyDesc.name}' property.
@@ -256,8 +243,8 @@ import ${dependingClassName};
      * @param dto Source object.
      * @return Extracted value.
      */
-    protected ${propertyDesc.typeDesc.name} extract${propertyDesc.name?cap_first}FromDto(${targetClassDesc.shortName} dto) {
-        return convertForEntity(dto.${pd.getterName}(), ${propertyDesc.typeDesc.name}.class);
+    protected ${propertyDesc.typeDesc.shortName} extract${propertyDesc.name?cap_first}FromDto(${targetClassDesc.shortName} dto) {
+        return convertForEntity(dto.${pd.getterName}(), ${propertyDesc.typeDesc.shortName}.class);
     }
 </#if></#if></#list>
 

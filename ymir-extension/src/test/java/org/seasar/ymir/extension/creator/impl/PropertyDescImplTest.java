@@ -1,5 +1,8 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import java.util.List;
+import java.util.TreeSet;
+
 import org.seasar.ymir.extension.creator.DescPool;
 
 import net.skirnir.freyja.render.html.Option;
@@ -68,5 +71,30 @@ public class PropertyDescImplTest extends SourceCreatorImplTestBase {
                 "com.example.converter.HoeConverter"));
         actual = pd.getInitialValue();
         assertNull(actual);
+    }
+
+    public void test_addDependingClassNamesTo() throws Exception {
+        PropertyDescImpl target = new PropertyDescImpl(pool_, "name");
+        target.setTypeDesc(new TypeDescImpl(pool_, "java.util.List<"
+                + PropertyDescImplTest.class.getName() + ">"));
+        target.setAnnotationDesc(new AnnotationDescImpl("org.example.Noe",
+                "value"));
+        target.setAnnotationDescOnGetter(new AnnotationDescImpl(
+                "org.example.Hoe", "value"));
+        target.setAnnotationDescOnSetter(new AnnotationDescImpl(
+                "org.example.Foe", "value"));
+
+        TreeSet<String> set = new TreeSet<String>();
+
+        target.addDependingClassNamesTo(set);
+
+        String[] actual = set.toArray(new String[0]);
+        assertEquals(5, actual.length);
+        int idx = 0;
+        assertEquals(List.class.getName(), actual[idx++]);
+        assertEquals("org.example.Foe", actual[idx++]);
+        assertEquals("org.example.Hoe", actual[idx++]);
+        assertEquals("org.example.Noe", actual[idx++]);
+        assertEquals(PropertyDescImplTest.class.getName(), actual[idx++]);
     }
 }

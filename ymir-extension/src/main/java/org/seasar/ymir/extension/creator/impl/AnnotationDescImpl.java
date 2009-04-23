@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.seasar.ymir.extension.creator.AnnotationDesc;
+import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.MethodUtils;
 
 public class AnnotationDescImpl implements AnnotationDesc {
@@ -94,7 +95,7 @@ public class AnnotationDescImpl implements AnnotationDesc {
         if (type == Class.class) {
             sb.append(((Class<?>) value).getName()).append(".class");
         } else if (Annotation.class.isAssignableFrom(type)) {
-            sb.append(new AnnotationDescImpl((Annotation) value).getString());
+            sb.append(new AnnotationDescImpl((Annotation) value).getAsString());
         } else if (type == String.class) {
             append(sb, (String) value);
         } else if (type == Character.TYPE) {
@@ -162,11 +163,15 @@ public class AnnotationDescImpl implements AnnotationDesc {
 
     @Override
     public String toString() {
-        return getString();
+        return getAsString();
     }
 
-    public String getString() {
+    public String getAsString() {
         return "@" + name_ + body_;
+    }
+
+    public String getAsShortString() {
+        return "@" + ClassUtils.getShortName(name_) + body_;
     }
 
     public String getName() {
@@ -177,7 +182,15 @@ public class AnnotationDescImpl implements AnnotationDesc {
         return body_;
     }
 
+    public String getShortBody() {
+        return getBody();
+    }
+
     public void setBody(String body) {
         body_ = body;
+    }
+
+    public void addDependingClassNamesTo(Set<String> set) {
+        set.add(name_);
     }
 }

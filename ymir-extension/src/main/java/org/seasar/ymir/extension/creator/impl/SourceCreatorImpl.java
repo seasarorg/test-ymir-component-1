@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -77,6 +78,7 @@ import org.seasar.ymir.Ymir;
 import org.seasar.ymir.constraint.ConstraintInterceptor;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.conversation.annotation.Begin;
+import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
@@ -90,6 +92,7 @@ import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.DescValidator;
 import org.seasar.ymir.extension.creator.EntityMetaData;
+import org.seasar.ymir.extension.creator.ImportDesc;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.MethodDescKey;
@@ -132,6 +135,7 @@ import org.seasar.ymir.extension.creator.util.PersistentProperties;
 import org.seasar.ymir.extension.creator.util.SourceCreatorUtils;
 import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.message.MessageNotFoundRuntimeException;
+import org.seasar.ymir.message.Messages;
 import org.seasar.ymir.message.MessagesNotFoundRuntimeException;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.scope.annotation.Inject;
@@ -522,7 +526,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     .getDescPool(), dtoCd.getName());
             addComponentSetterToPageIfValid(pageClassDesc, pageClassDesc
                     .getDescPool()
-                    .newTypeDesc(metaData.newConverterClassDesc()),
+                    .newTypeDesc(metaData.getConverterClassDesc()),
                     classDescSet);
 
             addConverterSetterToPageClassDesc(pageClassDesc, dtoCd,
@@ -539,14 +543,15 @@ public class SourceCreatorImpl implements SourceCreator {
             String[] pairTypeNames) {
         DescPool pool = dtoCd.getDescPool();
         ClassDesc converterCd = new EntityMetaData(pool, dtoCd.getName())
-                .newConverterClassDesc();
+                .getConverterClassDesc();
         converterCd.setBornOf(dtoCd.getBornOf());
 
-        Map<String, Object> param = new HashMap<String, Object>();
+        Map<String, Object> parameter = converterCd
+                .getSourceGeneratorParameter();
         ClassDesc clonedDtoCd = dtoCd.transcriptTo(DescPool.newInstance(this,
                 null).getClassDesc(dtoCd.getName()));
         mergeWithExistentClass(clonedDtoCd);
-        param.put("targetClassDesc", clonedDtoCd);
+        parameter.put(Globals.PARAMETER_TARGETCLASSDESC, clonedDtoCd);
         List<TypeDesc> pairTdList = new ArrayList<TypeDesc>();
         for (int i = 0; i < pairTypeNames.length; i++) {
             Class<?> pairClass = getClass(DescUtils
@@ -557,8 +562,9 @@ public class SourceCreatorImpl implements SourceCreator {
             pool.registerClassDesc(newClassDesc(pool, pairClass, false));
             pairTdList.add(pool.newTypeDesc(pairTypeNames[i]));
         }
-        param.put("pairTypeDescs", pairTdList.toArray(new TypeDesc[0]));
-        converterCd.setOptionalSourceGeneratorParameter(param);
+        parameter.put(Globals.PARAMETER_PAIRTYPEDESCS, pairTdList
+                .toArray(new TypeDesc[0]));
+
         return converterCd;
     }
 
@@ -950,12 +956,12 @@ public class SourceCreatorImpl implements SourceCreator {
 
                 if (setting_.isDaoCreationFeatureEnabled()) {
                     // Dao用のClassDescを生成しておく。
-                    ClassDesc daoClassDesc = metaData.newDaoClassDesc();
+                    ClassDesc daoClassDesc = metaData.getDaoClassDesc();
                     daoClassDesc.setBornOf(classDescs[i].getBornOf());
                     classDescList.add(daoClassDesc);
 
                     // Bean用のClassDescを生成しておく。
-                    ClassDesc beanClassDesc = metaData.newBeanClassDesc();
+                    ClassDesc beanClassDesc = metaData.getBeanClassDesc();
                     beanClassDesc.setBornOf(classDescs[i].getBornOf());
                     PropertyDesc[] pds = classDescs[i].getPropertyDescs();
                     for (int j = 0; j < pds.length; j++) {
@@ -977,7 +983,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
                 if (setting_.isDxoCreationFeatureEnabled()) {
                     // Dxo用のClassDescを生成しておく。
-                    ClassDesc dxoClassDesc = metaData.newDxoClassDesc();
+                    ClassDesc dxoClassDesc = metaData.getDxoClassDesc();
                     dxoClassDesc.setBornOf(classDescs[i].getBornOf());
                     List<ClassDesc> list = pageByDtoMap.get(classDescs[i]
                             .getName());
@@ -990,7 +996,7 @@ public class SourceCreatorImpl implements SourceCreator {
                                     pool, new TypeDescImpl(pool, itr.next())) };
                             md.setParameterDescs(pmds);
                             md.setReturnTypeDesc(pool.newTypeDesc(metaData
-                                    .newBeanClassDesc().getName()));
+                                    .getBeanClassDesc().getName()));
                             dxoClassDesc.setMethodDesc(md);
                         }
                     }
@@ -1056,6 +1062,108 @@ public class SourceCreatorImpl implements SourceCreator {
         // 既存のクラスの情報を使って調整する。
         adjustByExistentClass(classDesc);
 
+        // 自動生成後に自動生成処理の呼び出し元に返すべき付加情報を設定する。
+        prepareForAttribute(classDesc);
+
+        writeSourceFile(classDesc, classDescSet);
+    }
+
+    public void prepareForMethodDescs(ClassDesc classDesc) {
+        MethodDesc[] mds = classDesc.getMethodDescs();
+        for (int i = 0; i < mds.length; i++) {
+            String evaluatedBody = sourceGenerator_.generateBodySource(mds[i]
+                    .getBodyDesc());
+            mds[i].setEvaluatedBody(evaluatedBody);
+
+            boolean shouldRemainSourceMeta = false;
+            if (evaluatedBody != null && evaluatedBody.length() > 0) {
+                shouldRemainSourceMeta = true;
+            } else {
+                for (ParameterDesc pd : mds[i].getParameterDescs()) {
+                    if (pd.getNameAsIs() != null) {
+                        shouldRemainSourceMeta = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldRemainSourceMeta) {
+                List<String> list = new ArrayList<String>();
+                list.add(evaluatedBody != null ? evaluatedBody : "");
+                for (ParameterDesc pd : mds[i].getParameterDescs()) {
+                    list.add(pd.getName());
+                }
+                mds[i].setAnnotationDesc(new MetaAnnotationDescImpl(
+                        Globals.META_NAME_SOURCE, list.toArray(new String[0]),
+                        new Class[0]));
+            }
+        }
+    }
+
+    public void prepareForSourceGeneratorParameter(ClassDesc classDesc) {
+        Map<String, Object> parameter = classDesc.getSourceGeneratorParameter();
+
+        EntityMetaData entityMetaData = new EntityMetaData(classDesc
+                .getDescPool(), classDesc.getName());
+
+        ImportDesc importDesc = new ImportDescImpl(this, classDesc);
+        ImportDesc baseImportDesc = new ImportDescImpl(this, classDesc);
+        String[] importClassNames = classDesc.getImportClassNames();
+        importDesc.add(importClassNames);
+        baseImportDesc.add(importClassNames);
+
+        switch (classDesc.getType()) {
+        case BEAN:
+            importDesc.add("org.seasar.ymir.beantable.annotation.Managed");
+            break;
+
+        case PAGE:
+            importDesc.clear();
+            break;
+
+        case DTO:
+            baseImportDesc.add(Serializable.class);
+            break;
+
+        case DAO:
+            importDesc.add("org.seasar.dao.annotation.tiger.S2Dao");
+            break;
+
+        case DXO:
+            importDesc.add(List.class);
+            importDesc.add(entityMetaData.getBeanClassDesc().getName());
+            importDesc.add(entityMetaData.getDtoClassDesc().getName());
+            break;
+
+        case CONVERTER:
+            baseImportDesc.add(Binding.class);
+            baseImportDesc.add(BindingType.class);
+            baseImportDesc.add(Messages.class);
+            baseImportDesc.add(TypeConversionManager.class);
+            ClassDesc targetClassDesc = (ClassDesc) parameter
+                    .get(Globals.PARAMETER_TARGETCLASSDESC);
+            TypeDesc[] pairTypeDescs = (TypeDesc[]) parameter
+                    .get(Globals.PARAMETER_PAIRTYPEDESCS);
+            if (pairTypeDescs.length > 0) {
+                baseImportDesc.add(ArrayList.class);
+                baseImportDesc.add(List.class);
+                baseImportDesc.add(targetClassDesc.getName());
+                for (TypeDesc pairTypeDesc : pairTypeDescs) {
+                    baseImportDesc.add(pairTypeDesc.getImportClassNames());
+                }
+            }
+            break;
+
+        default:
+            throw new IllegalArgumentException("Logic error");
+        }
+
+        parameter.put(Globals.PARAMETER_PREAMBLE, getJavaPreamble());
+        parameter.put(Globals.PARAMETER_CLASSDESC, classDesc);
+        parameter.put(Globals.PARAMETER_IMPORTDESC, importDesc);
+        parameter.put(Globals.PARAMETER_BASEIMPORTDESC, baseImportDesc);
+    }
+
+    public void prepareForAttribute(ClassDesc classDesc) {
         if (classDesc.isTypeOf(ClassType.PAGE)) {
             List<MethodDesc> list = new ArrayList<MethodDesc>();
             for (MethodDesc methodDesc : classDesc.getMethodDescs()) {
@@ -1066,8 +1174,6 @@ public class SourceCreatorImpl implements SourceCreator {
             classDesc.setAttribute(Globals.ATTR_ACTION, list
                     .toArray(new MethodDesc[0]));
         }
-
-        writeSourceFile(classDesc, classDescSet);
     }
 
     public void adjustByExistentClass(ClassDesc desc) {
@@ -1099,8 +1205,8 @@ public class SourceCreatorImpl implements SourceCreator {
         ClassDesc generated = desc.transcriptTo(newClassDesc(pool, desc
                 .getName(), null));
         desc.clear();
-        desc.setOptionalSourceGeneratorParameter(generated
-                .getOptionalSourceGeneratorParameter());
+        desc.setSourceGeneratorParameter(generated
+                .getSourceGeneratorParameter());
         desc.setAttributeMap(generated.getAttributeMap());
 
         // baseのうち同じパス由来でないメンバを残す。
@@ -1321,6 +1427,12 @@ public class SourceCreatorImpl implements SourceCreator {
         if (!result.isValid()) {
             throw new InvalidClassDescException(result.getClassNames());
         }
+
+        // メソッドのボディの準備をする。
+        prepareForMethodDescs(classDesc);
+
+        // 自動生成に必要な付加情報を設定する。
+        prepareForSourceGeneratorParameter(classDesc);
 
         writeString(sourceGenerator_.generateBaseSource(classDesc),
                 getSourceFile(classDesc.getName() + "Base"));

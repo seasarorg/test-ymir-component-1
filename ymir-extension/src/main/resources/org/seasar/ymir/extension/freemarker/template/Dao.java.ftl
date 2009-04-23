@@ -1,7 +1,7 @@
 ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
+<#if !importDesc.empty>
 
-import org.seasar.dao.annotation.tiger.S2Dao;
-
+${importDesc.asString}</#if>
 @S2Dao(bean = ${entityMetaData.beanClassDesc.shortName}.class)
 public interface ${classDesc.shortName} {
     ${entityMetaData.beanClassDesc.shortName}[] selectAll();

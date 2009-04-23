@@ -2,11 +2,13 @@ package org.seasar.ymir.extension.creator.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Metas;
 import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.MetasAnnotationDesc;
+import org.seasar.ymir.util.ClassUtils;
 
 public class MetasAnnotationDescImpl implements MetasAnnotationDesc {
     private MetaAnnotationDesc[] metaAnnotationDescs_;
@@ -40,14 +42,26 @@ public class MetasAnnotationDescImpl implements MetasAnnotationDesc {
 
     @Override
     public String toString() {
-        return getString();
+        return getAsString();
     }
 
-    public String getString() {
+    public String getAsString() {
         return "@" + getName() + getBody();
     }
 
+    public String getAsShortString() {
+        return "@" + ClassUtils.getShortName(getName()) + getShortBody();
+    }
+
     public String getBody() {
+        return getBody0(false);
+    }
+
+    public String getShortBody() {
+        return getBody0(true);
+    }
+
+    protected String getBody0(boolean shorten) {
         StringBuilder sb = new StringBuilder();
         sb.append("(");
         if (metaAnnotationDescs_.length > 1) {
@@ -55,7 +69,9 @@ public class MetasAnnotationDescImpl implements MetasAnnotationDesc {
         }
         String delim = "";
         for (int i = 0; i < metaAnnotationDescs_.length; i++) {
-            sb.append(delim).append(metaAnnotationDescs_[i].getString());
+            sb.append(delim).append(
+                    shorten ? metaAnnotationDescs_[i].getAsShortString()
+                            : metaAnnotationDescs_[i].getAsString());
             delim = ", ";
         }
         if (metaAnnotationDescs_.length > 1) {
@@ -119,5 +135,12 @@ public class MetasAnnotationDescImpl implements MetasAnnotationDesc {
 
     public String getMetaName() {
         throw new UnsupportedOperationException();
+    }
+
+    public void addDependingClassNamesTo(Set<String> set) {
+        set.add(Metas.class.getName());
+        for (MetaAnnotationDesc metaAnnotationDesc : metaAnnotationDescs_) {
+            metaAnnotationDesc.addDependingClassNamesTo(set);
+        }
     }
 }

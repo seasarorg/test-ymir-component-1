@@ -7,5 +7,7 @@ public interface ThrowsDesc {
 
     String[] getThrowableClassNames();
 
+    String[] getThrowableClassShortNames();
+
     boolean isEmpty();
 }

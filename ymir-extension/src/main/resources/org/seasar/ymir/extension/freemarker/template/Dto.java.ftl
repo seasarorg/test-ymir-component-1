@@ -1,9 +1,8 @@
 ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
+<#if !importDesc.empty>
 
-import java.io.Serializable;
-
-public class ${classDesc.shortName} extends ${classDesc.shortName}Base
-    implements Serializable {
+${importDesc.asString}</#if>
+public class ${classDesc.shortName} extends ${classDesc.shortName}Base {
     private static final long serialVersionUID = 1L;
 
     public ${classDesc.shortName}() {

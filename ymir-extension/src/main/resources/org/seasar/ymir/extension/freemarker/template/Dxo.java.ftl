@@ -1,9 +1,7 @@
 ${preamble}<#if classDesc.packageName != "">package ${classDesc.packageName};</#if>
+<#if !importDesc.empty>
 
-import java.util.List;
-import ${entityMetaData.beanClassDesc.name};
-import ${entityMetaData.dtoClassDesc.name};
-
+${importDesc.asString}</#if>
 public interface ${classDesc.shortName} {
     ${entityMetaData.dtoClassDesc.shortName} convert(${entityMetaData.beanClassDesc.shortName} ${entityMetaData.beanClassDesc.instanceName});
 
@@ -20,6 +18,6 @@ public interface ${classDesc.shortName} {
     ${entityMetaData.beanClassDesc.shortName}[] convert(${entityMetaData.dtoClassDesc.shortName}[] ${entityMetaData.dtoClassDesc.instanceName}s);
 <#list classDesc.methodDescs as methodDesc>
 
-    ${methodDesc.returnTypeDesc.name} ${methodDesc.name}(<#list methodDesc.parameterDescs as parameterDesc>${parameterDesc.typeDesc.name} <#if parameterDesc.nameAsIs??>${parameterDesc.nameAsIs}<#else>arg${parameterDesc_index}</#if><#if parameterDesc_has_next>, </#if></#list>);
+    ${methodDesc.returnTypeDesc.name} ${methodDesc.name}(<#list methodDesc.parameterDescs as parameterDesc>${parameterDesc.typeDesc.shortName} <#if parameterDesc.nameAsIs??>${parameterDesc.nameAsIs}<#else>arg${parameterDesc_index}</#if><#if parameterDesc_has_next>, </#if></#list>);
 </#list>
 }

@@ -19,7 +19,7 @@ public interface ClassDesc extends AnnotatedDesc<ClassDesc> {
 
     TypeDesc[] getInterfaceTypeDescs();
 
-    void setInterfaceTypeDescs(TypeDesc[] interfaceTypeDescs);
+    void setInterfaceTypeDescs(TypeDesc... interfaceTypeDescs);
 
     String getNameBase();
 
@@ -62,6 +62,8 @@ public interface ClassDesc extends AnnotatedDesc<ClassDesc> {
 
     void setSuperclassName(String superclassName);
 
+    String getSuperclassShortName();
+
     boolean isAbstract();
 
     void setAbstract(boolean baseClassAbstract);
@@ -70,13 +72,13 @@ public interface ClassDesc extends AnnotatedDesc<ClassDesc> {
 
     void clear();
 
-    Map<String, Object> getOptionalSourceGeneratorParameter();
+    Map<String, Object> getSourceGeneratorParameter();
 
-    void setOptionalSourceGeneratorParameter(Map<String, Object> parameter);
+    void setSourceGeneratorParameter(Map<String, Object> parameter);
 
-    void setPropertyDescs(PropertyDesc[] propertyDescs);
+    void setPropertyDescs(PropertyDesc... propertyDescs);
 
-    void setMethodDescs(MethodDesc[] methodDescs);
+    void setMethodDescs(MethodDesc... methodDescs);
 
     String getBornOf();
 

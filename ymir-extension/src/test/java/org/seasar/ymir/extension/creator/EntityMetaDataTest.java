@@ -69,7 +69,7 @@ public class EntityMetaDataTest extends TestCase {
         // ## Arrange ##
 
         // ## Act ##
-        ClassDesc actual = target_.newDtoClassDesc();
+        ClassDesc actual = target_.getDtoClassDesc();
 
         // ## Assert ##
         assertEquals("com.example.dto.sub.TestDto", actual.getName());
@@ -79,7 +79,7 @@ public class EntityMetaDataTest extends TestCase {
         // ## Arrange ##
 
         // ## Act ##
-        ClassDesc actual = target_.newBeanClassDesc();
+        ClassDesc actual = target_.getBeanClassDesc();
 
         // ## Assert ##
         assertEquals("Beanにはサブパッケージを付与しないこと", "com.example.dao.Test", actual
@@ -90,7 +90,7 @@ public class EntityMetaDataTest extends TestCase {
         // ## Arrange ##
 
         // ## Act ##
-        ClassDesc actual = target_.newDaoClassDesc();
+        ClassDesc actual = target_.getDaoClassDesc();
 
         // ## Assert ##
         assertEquals("Daoにはサブパッケージを付与しないこと", "com.example.dao.TestDao", actual
@@ -101,7 +101,7 @@ public class EntityMetaDataTest extends TestCase {
         // ## Arrange ##
 
         // ## Act ##
-        ClassDesc actual = target_.newDxoClassDesc();
+        ClassDesc actual = target_.getDxoClassDesc();
 
         // ## Assert ##
         assertEquals("com.example.dxo.sub.TestDxo", actual.getName());
@@ -111,7 +111,7 @@ public class EntityMetaDataTest extends TestCase {
         // ## Arrange ##
 
         // ## Act ##
-        ClassDesc actual = target_.newConverterClassDesc();
+        ClassDesc actual = target_.getConverterClassDesc();
 
         // ## Assert ##
         assertEquals("com.example.converter.sub.TestConverter", actual

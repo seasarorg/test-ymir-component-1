@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.creator;
 
+import java.util.Set;
+
 public interface AnnotationDesc extends Cloneable {
     Object clone();
 
@@ -7,15 +9,19 @@ public interface AnnotationDesc extends Cloneable {
 
     String getBody();
 
+    String getShortBody();
+
     void setBody(String body);
 
-    String getString();
+    String getAsString();
+
+    String getAsShortString();
 
     /**
-     * このAnnotationDescが依存している全てのクラスのFQCNを返します。
+     * このAnnotationDescが依存しているクラスのFQCNを指定されたSetに追加します。
      * 
-     * @return このAnnotationDescが依存している全てのクラスのFQCNの配列。
-     * nullを返すことはありません。
+     * @param set クラス名を追加するためのSet。
+     * nullを指定してはいけません。
      */
-    String[] getDependingClassNames();
+    void addDependingClassNamesTo(Set<String> set);
 }

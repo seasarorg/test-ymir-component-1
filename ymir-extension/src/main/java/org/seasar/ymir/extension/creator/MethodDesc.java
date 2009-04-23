@@ -15,7 +15,7 @@ public interface MethodDesc extends AnnotatedDesc<MethodDesc> {
 
     ParameterDesc[] getParameterDescs();
 
-    void setParameterDescs(ParameterDesc[] parameterDescs);
+    void setParameterDescs(ParameterDesc... parameterDescs);
 
     BodyDesc getBodyDesc();
 
@@ -28,6 +28,4 @@ public interface MethodDesc extends AnnotatedDesc<MethodDesc> {
     ThrowsDesc getThrowsDesc();
 
     void setThrowsDesc(ThrowsDesc throwsDesc);
-
-    void setAnnotationDescs(AnnotationDesc[] annotationDescs);
 }

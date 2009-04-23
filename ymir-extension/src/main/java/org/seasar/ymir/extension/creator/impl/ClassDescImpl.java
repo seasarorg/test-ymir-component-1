@@ -9,7 +9,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.extension.Globals;
@@ -43,7 +42,7 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
 
     private Map<MethodDescKey, MethodDesc> methodDescMap_ = new LinkedHashMap<MethodDescKey, MethodDesc>();
 
-    private Map<String, Object> parameter_;
+    private Map<String, Object> parameter_ = new HashMap<String, Object>();
 
     private String bornOf_;
 
@@ -155,7 +154,7 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         return interfaceTypeDescs_;
     }
 
-    public void setInterfaceTypeDescs(TypeDesc[] interfaceTypeDescs) {
+    public void setInterfaceTypeDescs(TypeDesc... interfaceTypeDescs) {
         interfaceTypeDescs_ = interfaceTypeDescs;
         for (TypeDesc interfaceTypeDesc : interfaceTypeDescs_) {
             interfaceTypeDesc.setParent(this);
@@ -237,6 +236,10 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
 
     public void setSuperclassName(String superclassName) {
         superclassName_ = superclassName;
+    }
+
+    public String getSuperclassShortName() {
+        return ClassUtils.getShortName(superclassName_);
     }
 
     public boolean isAbstract() {
@@ -447,20 +450,20 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
 
     public void clear() {
         super.clear();
-        parameter_ = null;
+        parameter_.clear();
         interfaceTypeDescs_ = new TypeDesc[0];
         propertyDescMap_.clear();
         methodDescMap_.clear();
     }
 
-    public void setPropertyDescs(PropertyDesc[] propertyDescs) {
+    public void setPropertyDescs(PropertyDesc... propertyDescs) {
         propertyDescMap_.clear();
         for (PropertyDesc propertyDesc : propertyDescs) {
             setPropertyDesc(propertyDesc);
         }
     }
 
-    public void setMethodDescs(MethodDesc[] methodDescs) {
+    public void setMethodDescs(MethodDesc... methodDescs) {
         methodDescMap_.clear();
         for (MethodDesc methodDesc : methodDescs) {
             setMethodDesc(methodDesc);
@@ -519,13 +522,13 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         }
     }
 
-    public Map<String, Object> getOptionalSourceGeneratorParameter() {
+    public Map<String, Object> getSourceGeneratorParameter() {
         return parameter_;
     }
 
-    public void setOptionalSourceGeneratorParameter(
+    public void setSourceGeneratorParameter(
             Map<String, Object> parameter) {
-        parameter_ = parameter;
+        parameter_ = new HashMap<String, Object>(parameter);
     }
 
     public String getBornOf() {
@@ -560,11 +563,7 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
                     .newMethodDesc(methodDesc.getName())));
         }
 
-        if (parameter_ != null) {
-            desc
-                    .setOptionalSourceGeneratorParameter(new HashMap<String, Object>(
-                            parameter_));
-        }
+        desc.setSourceGeneratorParameter(parameter_);
 
         desc.setBornOf(bornOf_);
 
@@ -580,28 +579,24 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         parent_ = parent;
     }
 
-    public String[] getDependingClassNames() {
-        Set<String> set = new TreeSet<String>();
-        set.addAll(Arrays.asList(super.getDependingClassNames()));
+    @Override
+    public void addDependingClassNamesTo(Set<String> set) {
+        addDependingClassNamesTo0(set);
 
         if (superclassName_ != null) {
             set.add(superclassName_);
         }
 
         for (TypeDesc interfaceTypeDesc : interfaceTypeDescs_) {
-            set.addAll(Arrays
-                    .asList(interfaceTypeDesc.getDependingClassNames()));
+            interfaceTypeDesc.addDependingClassNamesTo(set);
         }
 
         for (PropertyDesc propertyDesc : propertyDescMap_.values()) {
-            set.addAll(Arrays.asList(propertyDesc.getDependingClassNames()));
+            propertyDesc.addDependingClassNamesTo(set);
         }
 
         for (MethodDesc methodDesc : methodDescMap_.values()) {
-            set.addAll(Arrays.asList(methodDesc.getDependingClassNames()));
+            methodDesc.addDependingClassNamesTo(set);
         }
-
-        DescUtils.removeStandardClassNames(set);
-        return set.toArray(new String[0]);
     }
 }

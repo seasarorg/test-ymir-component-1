@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
@@ -111,7 +112,7 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
         return parameterDescs_;
     }
 
-    public void setParameterDescs(ParameterDesc[] parameterDescs) {
+    public void setParameterDescs(ParameterDesc... parameterDescs) {
         parameterDescs_ = parameterDescs;
         for (ParameterDesc parameterDesc : parameterDescs_) {
             parameterDesc.setParent(this);
@@ -176,5 +177,20 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
 
     public void setParent(Desc<?> parent) {
         parent_ = parent;
+    }
+
+    @Override
+    public void addDependingClassNamesTo(Set<String> set) {
+        addDependingClassNamesTo0(set);
+
+        for (ParameterDesc parameterDesc : parameterDescs_) {
+            parameterDesc.addDependingClassNamesTo(set);
+        }
+
+        returnTypeDesc_.addDependingClassNamesTo(set);
+
+        for (String className : throwsDesc_.getThrowableClassNames()) {
+            set.add(className);
+        }
     }
 }

@@ -1,17 +1,21 @@
 package org.seasar.ymir.extension.freemarker;
 
+import org.seasar.ymir.annotation.Meta;
+import org.seasar.ymir.constraint.PermissionDeniedException;
+import org.seasar.ymir.message.Notes;
+
 public class Hoe3PageBase {
     public static final String PACKAGE = "org.seasar.ymir.extension.freemarker";
 
     public static final String NAME = "hoe3";
 
-    @org.seasar.ymir.annotation.Meta(name = "source", value = {"throw ex;", "ex"})
-    public void _permissionDenied(org.seasar.ymir.constraint.PermissionDeniedException ex)
-        throws org.seasar.ymir.constraint.PermissionDeniedException {
+    @Meta(name = "source", value = {"throw ex;", "ex"})
+    public void _permissionDenied(PermissionDeniedException ex)
+        throws PermissionDeniedException {
         throw ex;
     }
 
-    public void _validationFailed(org.seasar.ymir.message.Notes arg0) {
+    public void _validationFailed(Notes arg0) {
 
     }
 }

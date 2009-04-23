@@ -1,9 +1,6 @@
 package com.example.dto;
 
-import java.io.Serializable;
-
-public class TestDto extends TestDtoBase
-    implements Serializable {
+public class TestDto extends TestDtoBase {
     private static final long serialVersionUID = 1L;
 
     public TestDto() {

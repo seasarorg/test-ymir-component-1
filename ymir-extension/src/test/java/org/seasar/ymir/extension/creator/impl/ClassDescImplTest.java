@@ -1,5 +1,9 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.DescPool;
@@ -164,9 +168,11 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
                         new MethodDescImpl(pool_, "method4"))
                         .getReturnTypeDesc().getName());
         assertNotNull("メソッドのMeta系でないアノテーションはマージされること", actual.getMethodDesc(
-                new MethodDescImpl(pool_, "method5")).getAnnotationDesc("name1"));
+                new MethodDescImpl(pool_, "method5"))
+                .getAnnotationDesc("name1"));
         assertNotNull("メソッドのMeta系でないアノテーションはマージされること", actual.getMethodDesc(
-                new MethodDescImpl(pool_, "method5")).getAnnotationDesc("name2"));
+                new MethodDescImpl(pool_, "method5"))
+                .getAnnotationDesc("name2"));
         assertNotNull("メソッドのMeta系アノテーションもマージされること", actual.getMethodDesc(
                 new MethodDescImpl(pool_, "method5")).getMetaValue("a"));
         assertNotNull("メソッドのMeta系アノテーションもマージされること", actual.getMethodDesc(
@@ -309,9 +315,11 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
                         new MethodDescImpl(pool_, "method4"))
                         .getReturnTypeDesc().getName());
         assertNotNull("メソッドのMeta系でないアノテーションはマージされること", actual.getMethodDesc(
-                new MethodDescImpl(pool_, "method5")).getAnnotationDesc("name1"));
+                new MethodDescImpl(pool_, "method5"))
+                .getAnnotationDesc("name1"));
         assertNotNull("メソッドのMeta系でないアノテーションはマージされること", actual.getMethodDesc(
-                new MethodDescImpl(pool_, "method5")).getAnnotationDesc("name2"));
+                new MethodDescImpl(pool_, "method5"))
+                .getAnnotationDesc("name2"));
         assertNotNull("メソッドのMeta系アノテーションもマージされること", actual.getMethodDesc(
                 new MethodDescImpl(pool_, "method5")).getMetaValue("a"));
         assertNotNull("メソッドのMeta系アノテーションもマージされること", actual.getMethodDesc(
@@ -596,5 +604,35 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         target.removeBornOfFrom(methodDesc, "a");
 
         assertNull(target.getMethodDesc(methodDesc));
+    }
+
+    public void test_addDependingClassNamesTo() throws Exception {
+        ClassDescImpl target = new ClassDescImpl(pool_, "name");
+        target.setSuperclassName("org.example.Foe");
+        target.setInterfaceTypeDescs(new TypeDescImpl(pool_, Map.class));
+        target.setAnnotationDesc(new AnnotationDescImpl("org.example.Noe",
+                "value"));
+        MethodDescImpl methodDesc = new MethodDescImpl(pool_, "name");
+        methodDesc.setReturnTypeDesc(new TypeDescImpl(pool_, "java.util.List<"
+                + MethodDescImplTest.class.getName() + ">"));
+        target.setMethodDesc(methodDesc);
+        PropertyDescImpl propertyDesc = new PropertyDescImpl(pool_, "name");
+        propertyDesc.setTypeDesc(new TypeDescImpl(pool_, "java.util.List<"
+                + PropertyDescImplTest.class.getName() + ">"));
+        target.setPropertyDesc(propertyDesc);
+
+        TreeSet<String> set = new TreeSet<String>();
+
+        target.addDependingClassNamesTo(set);
+
+        String[] actual = set.toArray(new String[0]);
+        assertEquals(6, actual.length);
+        int idx = 0;
+        assertEquals(List.class.getName(), actual[idx++]);
+        assertEquals(Map.class.getName(), actual[idx++]);
+        assertEquals("org.example.Foe", actual[idx++]);
+        assertEquals("org.example.Noe", actual[idx++]);
+        assertEquals(MethodDescImplTest.class.getName(), actual[idx++]);
+        assertEquals(PropertyDescImplTest.class.getName(), actual[idx++]);
     }
 }

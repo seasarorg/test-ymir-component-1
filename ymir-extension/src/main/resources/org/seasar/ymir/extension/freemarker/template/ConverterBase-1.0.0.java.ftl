@@ -277,7 +277,7 @@ public class ${classDesc.shortName}Base {
      * @param dto Source object.
      */
     protected void copy${propertyDesc.name?cap_first}To(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto) {
-        entity.set${propertyDesc.name?cap_first}(convertForEntity(dto.${pd.getterName}(), ${propertyDesc.typeDesc.name}.class));
+        entity.set${propertyDesc.name?cap_first}(convertForEntity(dto.${pd.getterName}(), ${propertyDesc.typeDesc.shortName}.class));
     }
 </#if></#if></#list>
 

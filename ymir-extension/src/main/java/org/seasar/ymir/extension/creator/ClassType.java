@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum ClassType {
-    PAGE("Page", false), DTO("Dto", false), DAO("Dao", true), DXO("Dxo", true), BEAN(
-            "", true), CONVERTER("Converter", true), ;
+    BEAN("", true), PAGE("Page", false), DTO("Dto", false), DAO("Dao", true), DXO(
+            "Dxo", true), CONVERTER("Converter", true), ;
 
     private static final String SUFFIX_BASE = "Base";
 

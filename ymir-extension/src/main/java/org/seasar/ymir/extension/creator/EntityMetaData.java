@@ -53,23 +53,23 @@ public class EntityMetaData {
         return entityName_;
     }
 
-    public ClassDesc newDtoClassDesc() {
+    public ClassDesc getDtoClassDesc() {
         return pool_.getClassDesc(dtoClassName_);
     }
 
-    public ClassDesc newBeanClassDesc() {
+    public ClassDesc getBeanClassDesc() {
         return pool_.getClassDesc(beanClassName_);
     }
 
-    public ClassDesc newDaoClassDesc() {
+    public ClassDesc getDaoClassDesc() {
         return pool_.getClassDesc(daoClassName_);
     }
 
-    public ClassDesc newDxoClassDesc() {
+    public ClassDesc getDxoClassDesc() {
         return pool_.getClassDesc(dxoClassName_);
     }
 
-    public ClassDesc newConverterClassDesc() {
+    public ClassDesc getConverterClassDesc() {
         return pool_.getClassDesc(converterClassName_);
     }
 }

@@ -2,6 +2,7 @@ package org.seasar.ymir.extension.creator.impl;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.TreeSet;
 
 import junit.framework.TestCase;
 
@@ -55,5 +56,26 @@ public class MethodDescImplTest extends TestCase {
         public String fuga2(String string) {
             return string;
         }
+    }
+
+    public void test_addDependingClassNamesTo() throws Exception {
+        MethodDescImpl target = new MethodDescImpl(pool_, "name");
+        target.setReturnTypeDesc(new TypeDescImpl(pool_, "java.util.List<"
+                + MethodDescImplTest.class.getName() + ">"));
+        target.setAnnotationDesc(new AnnotationDescImpl("org.example.Noe",
+                "value"));
+        target.setParameterDescs(new ParameterDescImpl(pool_, String.class));
+
+        TreeSet<String> set = new TreeSet<String>();
+
+        target.addDependingClassNamesTo(set);
+
+        String[] actual = set.toArray(new String[0]);
+        assertEquals(4, actual.length);
+        int idx = 0;
+        assertEquals(String.class.getName(), actual[idx++]);
+        assertEquals(List.class.getName(), actual[idx++]);
+        assertEquals("org.example.Noe", actual[idx++]);
+        assertEquals(MethodDescImplTest.class.getName(), actual[idx++]);
     }
 }

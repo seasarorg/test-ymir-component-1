@@ -1,5 +1,7 @@
 package org.seasar.ymir.extension.creator;
 
+import java.util.Set;
+
 public interface Desc<T extends Desc<?>> {
     DescPool getDescPool();
 
@@ -17,10 +19,18 @@ public interface Desc<T extends Desc<?>> {
     T transcriptTo(T desc);
 
     /**
-     * このDescが依存している全てのクラスのFQCNを返します。
+     * このDescが依存しているクラスのうち、パッケージ名を省略可能でないクラスのFQCNを返します。
      * 
-     * @return このDescが依存している全てのクラスのFQCNの配列。
+     * @return クラスのFQCNの配列。
      * nullを返すことはありません。
      */
-    String[] getDependingClassNames();
+    String[] getImportClassNames();
+
+    /**
+     * このDescが依存しているクラスのFQCNを指定されたSetに追加します。
+     * 
+     * @param set クラス名を追加するためのSet。
+     * nullを指定してはいけません。
+     */
+    void addDependingClassNamesTo(Set<String> set);
 }

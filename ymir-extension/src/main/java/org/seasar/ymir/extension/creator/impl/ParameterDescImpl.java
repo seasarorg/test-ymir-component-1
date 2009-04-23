@@ -1,11 +1,14 @@
 package org.seasar.ymir.extension.creator.impl;
 
 import java.lang.reflect.Type;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.seasar.ymir.extension.creator.Desc;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
+import org.seasar.ymir.extension.creator.util.DescUtils;
 
 public class ParameterDescImpl implements ParameterDesc {
     private DescPool pool_;
@@ -94,5 +97,17 @@ public class ParameterDescImpl implements ParameterDesc {
 
     public void setParent(Desc<?> parent) {
         parent_ = parent;
+    }
+
+    public void addDependingClassNamesTo(Set<String> set) {
+        typeDesc_.addDependingClassNamesTo(set);
+    }
+
+    public String[] getImportClassNames() {
+        Set<String> set = new TreeSet<String>();
+        addDependingClassNamesTo(set);
+
+        DescUtils.removeStandardClassNames(set);
+        return set.toArray(new String[0]);
     }
 }

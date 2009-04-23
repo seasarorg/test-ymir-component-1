@@ -1,6 +1,8 @@
 package com.example.page;
 
-public class TestPageBase extends com.example.page.TestPageBaseBase {
+import org.seasar.ymir.annotation.Meta;
+
+public class TestPageBase extends TestPageBaseBase {
     public static final String PACKAGE = "com.example.page";
 
     public static final String NAME = "test";
@@ -47,7 +49,7 @@ public class TestPageBase extends com.example.page.TestPageBaseBase {
         param3_ = param3;
     }
 
-    @org.seasar.ymir.annotation.Meta(name = "source", value = "return \"redirect:/path/to/redirect.html\";")
+    @Meta(name = "source", value = "return \"redirect:/path/to/redirect.html\";")
     public String _get() {
         return "redirect:/path/to/redirect.html";
     }

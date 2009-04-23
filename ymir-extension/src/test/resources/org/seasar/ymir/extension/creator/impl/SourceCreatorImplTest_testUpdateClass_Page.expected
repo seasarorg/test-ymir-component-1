@@ -1,6 +1,10 @@
 package com.example.web;
 
-public class SourceCreatorImplTest2PageBase extends com.example.page.TestPageBaseBase {
+import org.seasar.ymir.annotation.Meta;
+
+import com.example.page.TestPageBaseBase;
+
+public class SourceCreatorImplTest2PageBase extends TestPageBaseBase {
     public static final String PACKAGE = "com.example.web";
 
     public static final String NAME = "sourceCreatorImplTest2";
@@ -9,12 +13,12 @@ public class SourceCreatorImplTest2PageBase extends com.example.page.TestPageBas
 
     public static final String A_get = "_get";
 
-    @org.seasar.ymir.annotation.Meta(name = "bornOf", value = "/index.html")
+    @Meta(name = "bornOf", value = "/index.html")
     public void _post() {
 
     }
 
-    @org.seasar.ymir.annotation.Meta(name = "bornOf", value = "/sourceCreatorImplTest2.html")
+    @Meta(name = "bornOf", value = "/sourceCreatorImplTest2.html")
     public void _get() {
 
     }
