@@ -59,6 +59,7 @@ import org.seasar.ymir.token.constraint.annotation.TokenRequired;
 import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.MethodUtils;
 
+@SuppressWarnings("deprecation")
 public class AnnotationsMetaData {
     @SuppressWarnings("unused")
     @DefaultAnnotations
