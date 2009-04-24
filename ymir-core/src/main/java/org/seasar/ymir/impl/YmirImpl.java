@@ -1,10 +1,14 @@
 package org.seasar.ymir.impl;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
@@ -20,6 +24,7 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.el.VariableResolver;
+import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.AttributeContainer;
@@ -40,11 +45,20 @@ import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
+import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.ServletUtils;
 import org.seasar.ymir.util.YmirUtils;
 
 public class YmirImpl implements Ymir {
     public static final String PARAM_METHOD = "__ymir__method";
+
+    private static final String PATH_POM_PROPERTIES = "META-INF/maven/"
+            + ClassUtils.getPackageName(Ymir.class)
+            + "/ymir-core/pom.properties";
+
+    private static final String KEY_VERSION = "version";
+
+    private static final String SUFFIX_SNAPSHOT = "-SNAPSHOT";
 
     private LifecycleListener[] lifecycleListeners_ = new LifecycleListener[0];
 
@@ -110,11 +124,11 @@ public class YmirImpl implements Ymir {
     }
 
     public void init() {
-        log_.debug("Ymir initialize start");
+        log_.info("Ymir (version: " + getVersion() + ") initialize start");
 
         initializeListeners();
 
-        log_.debug("Ymir initialize end");
+        log_.info("Ymir initialize end");
     }
 
     void initializeListeners() {
@@ -619,6 +633,52 @@ public class YmirImpl implements Ymir {
         } else {
             return ymirNamingConvention_.fromComponentNameToClassName(matched
                     .getPageComponentName());
+        }
+    }
+
+    public String getVersion() {
+        InputStream is = getClass().getClassLoader().getResourceAsStream(
+                PATH_POM_PROPERTIES);
+        if (is == null) {
+            return "unknown";
+        }
+
+        Properties prop = new Properties();
+        try {
+            prop.load(is);
+        } catch (IOException ex) {
+            log_.warn("Can't get version information from '"
+                    + PATH_POM_PROPERTIES + "'", ex);
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
+
+        String version = prop.getProperty(KEY_VERSION);
+        if (!version.endsWith(SUFFIX_SNAPSHOT)) {
+            return version;
+        } else {
+            String buildDate = "build date is unknown";
+
+            is = getClass().getClassLoader().getResourceAsStream(
+                    PATH_POM_PROPERTIES);
+            try {
+                BufferedReader br = new BufferedReader(new InputStreamReader(
+                        is, "ISO-8859-1"));
+                String line = br.readLine();
+                line = br.readLine();
+                if (line != null && line.startsWith("#")) {
+                    buildDate = line.substring(1/*= "#".length() */).trim();
+                }
+            } catch (UnsupportedEncodingException ex) {
+                throw new RuntimeException("Can't happen!", ex);
+            } catch (IOException ex) {
+                log_.warn("Can't read '" + PATH_POM_PROPERTIES + "'", ex);
+                return version;
+            } finally {
+                IOUtils.closeQuietly(is);
+            }
+
+            return version + " (" + buildDate + ")";
         }
     }
 }

@@ -17,6 +17,7 @@ import javassist.NotFoundException;
 import org.apache.poi.hssf.record.formula.functions.Ispmt;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.ymir.Application;
+import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.convention.YmirNamingConvention;
 
@@ -411,5 +412,22 @@ public class ClassUtils {
      */
     public static Object getDefaultValue(String className) {
         return defaultValueMap_.get(className);
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static String getPackageName(Class<?> clazz) {
+        if (clazz == null) {
+            return null;
+        }
+
+        String className = clazz.getName();
+        int dot = className.lastIndexOf('.');
+        if (dot < 0) {
+            return "";
+        } else {
+            return className.substring(0, dot);
+        }
     }
 }

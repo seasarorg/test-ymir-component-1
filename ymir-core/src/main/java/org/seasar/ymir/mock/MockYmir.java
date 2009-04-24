@@ -91,4 +91,8 @@ public class MockYmir implements Ymir {
             Map<String, FormFile[]> fileParameterMap, FilterChain chain)
             throws IOException, ServletException {
     }
+
+    public String getVersion() {
+        return "(Mock)";
+    }
 }

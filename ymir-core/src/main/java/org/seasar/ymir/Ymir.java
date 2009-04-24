@@ -146,4 +146,12 @@ public interface Ymir {
      * @since 1.0.2
      */
     String getPageClassNameOfPath(String path);
+
+    /**
+     * Ymirのバージョンを返します。
+     * 
+     * @return Ymirのバージョン。
+     * @since 1.0.3
+     */
+    String getVersion();
 }
