@@ -21,6 +21,7 @@ import java.util.Stack;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.ymir.HttpMethod;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.ClassType;
@@ -518,7 +519,8 @@ public class AnalyzerContext extends ZptTemplateContext {
             ClassDesc classDesc = itr.next();
 
             // 中身のないDTOは除外しておく。
-            if (isEmptyDto(classDesc)) {
+            // ただしFormDtoは残す。
+            if (isEmptyDto(classDesc) && !isFormDto(classDesc)) {
                 itr.remove();
                 continue;
             }
@@ -561,6 +563,12 @@ public class AnalyzerContext extends ZptTemplateContext {
                 itr.remove();
             }
         }
+    }
+
+    private boolean isFormDto(ClassDesc classDesc) {
+        Boolean formDto = (Boolean) classDesc
+                .getAttribute(Globals.ATTR_FORMDTO);
+        return formDto != null && formDto.booleanValue();
     }
 
     public boolean isOnDtoSearchPath(String className) {

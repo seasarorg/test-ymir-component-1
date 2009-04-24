@@ -454,6 +454,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                                     new String[] { name }, new Class[0]));
                     dtoClassDesc = propertyDesc.getTypeDesc()
                             .getComponentClassDesc();
+                    dtoClassDesc.setAttribute(Globals.ATTR_FORMDTO,
+                            Boolean.TRUE);
                     dtoClassDesc
                             .setAttribute(Globals.ATTR_OWNERPAGE, classDesc);
                 }

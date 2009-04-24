@@ -1617,4 +1617,14 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(getClassDesc("com.example.dto.EntryCandidateDto"));
         assertNotNull(getClassDesc("com.example.dto.SubEntryCandidateDto"));
     }
+
+    public void testAnalyze88_FormDtoは空でも生成されること() throws Exception {
+
+        act("testAnalyze88");
+
+        assertNotNull(getClassDesc("com.example.dto.FormDto"));
+        assertEquals("com.example.dto.FormDto", getClassDesc(CLASSNAME)
+                .getPropertyDesc("form").getTypeDesc().getComponentClassDesc()
+                .getName());
+    }
 }
