@@ -9,18 +9,19 @@ import java.util.Map;
 
 import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.ActionManager;
+import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.MethodNotFoundRuntimeException;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.converter.annotation.TypeConversionHint;
+import org.seasar.ymir.scope.Globals;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.ScopeMetaData;
 import org.seasar.ymir.scope.annotation.In;
 import org.seasar.ymir.scope.annotation.Out;
 import org.seasar.ymir.scope.annotation.Populate;
-import org.seasar.ymir.scope.annotation.Resolve;
 import org.seasar.ymir.scope.handler.ScopeAttributeInjector;
 import org.seasar.ymir.scope.handler.ScopeAttributeOutjector;
 import org.seasar.ymir.scope.handler.ScopeAttributePopulator;
@@ -43,6 +44,8 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
 
     private AnnotationHandler annotationHandler_;
 
+    private ApplicationManager applicationManager_;
+
     private ScopeManager scopeManager_;
 
     private TypeConversionManager typeConversionManager_;
@@ -57,12 +60,13 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
 
     public ScopeMetaDataImpl(Class<?> clazz, S2Container container,
             ActionManager actionManager, AnnotationHandler annotationHandler,
-            ScopeManager scopeManager,
+            ApplicationManager applicationManager, ScopeManager scopeManager,
             TypeConversionManager typeConversionManager) {
         class_ = clazz;
         container_ = container;
         actionManager_ = actionManager;
         annotationHandler_ = annotationHandler;
+        applicationManager_ = applicationManager;
         scopeManager_ = scopeManager;
         typeConversionManager_ = typeConversionManager;
         Method[] methods = ClassUtils.getMethods(clazz);
@@ -105,8 +109,8 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
         ScopeAttributeResolver[] resolvers = new ScopeAttributeResolver[types.length];
         for (int i = 0; i < types.length; i++) {
             ScopeAttributeResolverImpl resolver = null;
-            Resolve[] is = annotationHandler_.getParameterAnnotations(method,
-                    i, Resolve.class);
+            In[] is = annotationHandler_.getParameterAnnotations(method, i,
+                    In.class);
             if (is.length > 0) {
                 resolver = new ScopeAttributeResolverImpl(types[i],
                         annotationHandler_.getMarkedParameterAnnotations(
@@ -187,7 +191,7 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
         } else if (in.value() != Scope.class) {
             key = in.value();
         } else {
-            key = RequestScope.class;
+            key = normalizeScopeName(getDefaultScopeName());
         }
         return (Scope) getComponent(key);
     }
@@ -201,7 +205,7 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
         } else if (populate.value() != Scope.class) {
             key = populate.value();
         } else {
-            key = RequestScope.class;
+            key = normalizeScopeName(getDefaultScopeName());
         }
         return (Scope) getComponent(key);
     }
@@ -215,23 +219,15 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
         } else if (out.value() != Scope.class) {
             key = out.value();
         } else {
-            key = RequestScope.class;
+            key = normalizeScopeName(getDefaultScopeName());
         }
         return (Scope) getComponent(key);
     }
 
-    Scope getScope(Resolve resolve) {
-        Object key;
-        if (resolve.scopeName().length() > 0) {
-            key = normalizeScopeName(resolve.scopeName());
-        } else if (resolve.value() != Scope.class) {
-            key = resolve.value();
-        } else if (resolve.scopeClass() != Scope.class) {
-            key = resolve.scopeClass();
-        } else {
-            key = ComponentScope.class;
-        }
-        return (Scope) getComponent(key);
+    private String getDefaultScopeName() {
+        return applicationManager_.findContextApplication().getProperty(
+                Globals.APPKEY_CORE_SCOPE_DEFAULTSCOPENAME,
+                Globals.DEFAULT_CORE_SCOPE_DEFAULTSCOPENAME);
     }
 
     String normalizeScopeName(String scopeName) {

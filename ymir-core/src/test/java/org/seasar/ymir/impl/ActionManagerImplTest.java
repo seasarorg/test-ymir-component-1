@@ -5,6 +5,7 @@ import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.scope.annotation.Resolve;
 import org.seasar.ymir.scope.impl.MapScope;
 
+@SuppressWarnings("deprecation")
 public class ActionManagerImplTest extends ComponentClientTestCase {
     private ActionManagerImpl target_;
 

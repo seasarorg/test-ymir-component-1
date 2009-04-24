@@ -5,8 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.seasar.ymir.annotation.Alias;
 import org.seasar.ymir.scope.AttributeNotFoundRuntimeException;
 import org.seasar.ymir.scope.Scope;
+import org.seasar.ymir.scope.impl.RequestParameterScope;
 
 /**
  * スコープから属性値を取り出してアクションメソッドの引数とすることを表すアノテーションです。
@@ -17,10 +19,14 @@ import org.seasar.ymir.scope.Scope;
  * @see In
  * @author YOKOTA Takehiko
  * @since 1.0.0
+ * @deprecated このアノテーションの代わりに{@link In}アノテーションを使って下さい。
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
+@Alias
 public @interface Resolve {
+    In z_alias() default @In;
+
     /**
      * スコープを表すClassオブジェクトです。
      * <p>{@link #value()}または{@link #scopeClass()}または{@link #scopeName()}

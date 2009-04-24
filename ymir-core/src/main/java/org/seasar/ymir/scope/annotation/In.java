@@ -10,15 +10,15 @@ import org.seasar.ymir.scope.Scope;
 
 /**
  * スコープから属性値をインジェクトする対象であることを表すアノテーションです。
- * <p>このアノテーションをPageクラスのSetterメソッドに付与することで、アクションの実行に先立って
- * スコープから属性値がPageオブジェクトにインジェクトされるようになります。
+ * <p>このアノテーションをPageクラスのSetterメソッドやアクションメソッドの引数に付与することで、
+ * アクションメソッドの実行に先立ってスコープから属性値がインジェクトされるようになります。
  * </p> 
  *
  * @see Out
  * @author YOKOTA Takehiko
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target( { ElementType.METHOD, ElementType.PARAMETER })
 public @interface In {
     /**
      * スコープを表すClassオブジェクトです。

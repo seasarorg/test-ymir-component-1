@@ -124,7 +124,8 @@ public class ScopeManagerImpl implements ScopeManager {
     protected ScopeMetaData newInstance(Class<?> clazz) {
         return new ScopeMetaDataImpl(clazz, applicationManager_
                 .findContextApplication().getS2Container(), actionManager_,
-                annotationHandler_, this, typeConversionManager_);
+                annotationHandler_, applicationManager_, this,
+                typeConversionManager_);
     }
 
     public void populateScopeAttributes(PageComponent pageComponent,
