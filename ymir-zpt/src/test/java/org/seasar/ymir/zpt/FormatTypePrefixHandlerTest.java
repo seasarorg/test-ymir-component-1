@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.S2ContainerFactory;
-import org.seasar.ymir.mock.MockLocaleManager;
+import org.seasar.ymir.locale.mock.MockLocaleManager;
 
 import net.skirnir.freyja.ExpressionEvaluator;
 import net.skirnir.freyja.TemplateContext;
