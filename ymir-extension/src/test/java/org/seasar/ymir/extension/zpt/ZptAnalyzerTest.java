@@ -311,18 +311,19 @@ public class ZptAnalyzerTest extends TestCase {
         }
     }
 
-    public void testAnalyze1() throws Exception {
+    public void testAnalyze1_TemplateAnalyzerではリクエストメソッドのためのメソッド定義を生成しないこと()
+            throws Exception {
 
         act("testAnalyze1");
 
         ClassDesc cd = getClassDesc(CLASSNAME);
         assertNotNull(cd);
         assertNotNull(cd.getPropertyDesc("body"));
-        assertNull("TemplateAnalyzerではリクエストメソッドのためのメソッド定義を生成しないこと", cd
-                .getMethodDesc(new MethodDescImpl(pool_, "GET")));
+        assertNull(cd.getMethodDesc(new MethodDescImpl(pool_, "GET")));
     }
 
-    public void testAnalyze2() throws Exception {
+    public void testAnalyze2_フォームパラメータに対してはSetterが作成され参照時にはGetterが生成されること()
+            throws Exception {
 
         act("testAnalyze2");
 
@@ -338,7 +339,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertTrue(pd2.isWritable());
     }
 
-    public void testAnalyze3() throws Exception {
+    public void testAnalyze3_repeat対象のプロパティの型が配列型になること() throws Exception {
 
         act("testAnalyze3");
 
@@ -357,7 +358,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertTrue(pd2.isWritable());
     }
 
-    public void testAnalyze4() throws Exception {
+    public void testAnalyze4_repeat対象のプロパティの型が適切に決定されること() throws Exception {
 
         act("testAnalyze4");
 
@@ -378,7 +379,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull("Dto型がプロパティを持つこと", cd.getPropertyDesc("content"));
     }
 
-    public void testAnalyze5() throws Exception {
+    public void testAnalyze5_ボタンに対応するプロパティは生成されないこと() throws Exception {
 
         act("testAnalyze5");
 
@@ -415,10 +416,8 @@ public class ZptAnalyzerTest extends TestCase {
         assertNull("YmirPathMappingではnameつきボタンがある場合はPOSTアクションメソッドは生成されないこと", md);
     }
 
-    /*
-     * for [#YMIR-21]
-     */
-    public void testAnalyze6() throws Exception {
+    public void testAnalyze6_YMIR_21_コンポーネント名っぽいものが指定されていてもDtoとみなしてClassDescを生成すること()
+            throws Exception {
 
         act("testAnalyze6");
 
@@ -427,7 +426,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(cd.getPropertyDesc("body"));
     }
 
-    public void testAnalyze7() throws Exception {
+    public void testAnalyze7_href属性からプロパティが自動生成されること() throws Exception {
 
         act("testAnalyze7");
 
@@ -439,7 +438,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(pd);
     }
 
-    public void testAnalyze8() throws Exception {
+    public void testAnalyze8_src属性からプロパティが自動生成されること() throws Exception {
 
         act("testAnalyze8");
 
@@ -451,7 +450,7 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(pd);
     }
 
-    public void testAnalyze9() throws Exception {
+    public void testAnalyze9_formのパラメータに対応するプロパティが生成されること() throws Exception {
 
         act("testAnalyze9");
 
@@ -467,17 +466,18 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(cd.getPropertyDesc("body"));
     }
 
-    public void testAnalyze10() throws Exception {
+    public void testAnalyze10_ファイルパラメータについてはプロパティの型がFormFileになること()
+            throws Exception {
 
         act("testAnalyze10");
 
         ClassDesc cd = getClassDesc("com.example.dto.TestDto");
         PropertyDesc pd = cd.getPropertyDesc("file");
-        assertEquals("ファイルパラメータについてはプロパティの型がFormFileになること", FormFile.class
-                .getName(), pd.getTypeDesc().getName());
+        assertEquals(FormFile.class.getName(), pd.getTypeDesc().getName());
     }
 
-    public void testAnalyze11() throws Exception {
+    public void testAnalyze11_フォームパラメータ名に添え字指定がある場合に適切に自動生成されること()
+            throws Exception {
 
         act("testAnalyze11");
 
@@ -510,38 +510,23 @@ public class ZptAnalyzerTest extends TestCase {
                 .getComponentClassDesc().getName());
     }
 
-    public void testAnalyze13() throws Exception {
+    public void testAnalyze13_page式で指定したパラメータ置換が正しく行われてその結果Pageクラスが生成されること()
+            throws Exception {
 
         act("testAnalyze13");
 
-        ClassDesc cd = getClassDesc("com.example.web.Image0Page");
-        assertNotNull("page:指定のパラメータ置換が正しく行われ、その結果Pageクラスが生成されること", cd);
+        assertNotNull(getClassDesc("com.example.web.Image0Page"));
     }
 
-    public void testAnalyze14() throws Exception {
-
-        act("testAnalyze14");
-
-        ClassDesc cd = getClassDesc(CLASSNAME);
-        assertNotNull(cd);
-        PropertyDesc pd = cd.getPropertyDesc("entity");
-        assertEquals("プロパティを持つ変数はDtoになること", "com.example.dto.EntityDto", pd
-                .getTypeDesc().getName());
-        cd = getClassDesc("com.example.dto.EntityDto");
-        assertNotNull("プロパティを持つ変数の型が生成されていること", cd);
-        assertNotNull("Dto型がプロパティを持つこと", cd.getPropertyDesc("content"));
-    }
-
-    public void testAnalyze15() throws Exception {
+    public void testAnalyze15_組み込み変数などVariableResolverから元々取得可能な変数に対応するClassDescは生成されないこと()
+            throws Exception {
 
         act("testAnalyze15");
 
-        assertNull(
-                "組み込み変数など、VariableResolverから元々取得可能な変数に対応するClassDescは生成されないこと",
-                getClassDesc("com.example.dto.RepeatDto"));
+        assertNull(getClassDesc("com.example.dto.RepeatDto"));
     }
 
-    public void testAnalyze17() throws Exception {
+    public void testAnalyze17_submit関連の扱いが正しく行なわれること() throws Exception {
 
         act("testAnalyze17");
 
@@ -567,23 +552,21 @@ public class ZptAnalyzerTest extends TestCase {
                 .getMethodDesc(new MethodDescImpl(pool_, "POST_submitt")));
     }
 
-    public void testAnalyze18() throws Exception {
+    public void testAnalyze18_パスが3段以上でも正しくClassDescを生成できること() throws Exception {
 
         act("testAnalyze18");
 
         ClassDesc cd = getClassDesc(CLASSNAME).getPropertyDesc("entry")
                 .getTypeDesc().getComponentClassDesc();
-        assertEquals("パスが3段以上でも正しくClassDescを生成できること",
-                "com.example.dto.BodyDto", cd.getPropertyDesc("body")
-                        .getTypeDesc().getComponentClassDesc().getName());
+        assertEquals("com.example.dto.BodyDto", cd.getPropertyDesc("body")
+                .getTypeDesc().getComponentClassDesc().getName());
     }
 
-    public void testAnalyze19() throws Exception {
+    public void testAnalyze19_余計なDtoが生成されないこと() throws Exception {
 
         act("testAnalyze19");
 
-        assertNull("余計なDtoが生成されないこと",
-                getClassDesc("com.example.dto.CommentsDto"));
+        assertNull(getClassDesc("com.example.dto.CommentsDto"));
     }
 
     public void testAnalyze20_talConditionの式については生成するプロパティの型がbooleanになること()
@@ -1013,13 +996,14 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(cd);
     }
 
-    public void testAnalyze55() throws Exception {
+    public void testAnalyze55_omitTagの式については生成するプロパティの型がbooleanになること()
+            throws Exception {
 
         act("testAnalyze55");
 
         PropertyDesc actual = getClassDesc(CLASSNAME)
                 .getPropertyDesc("enabled");
-        assertNotNull("tal:omit-tagの式については生成するプロパティの型がbooleanになること", actual);
+        assertNotNull(actual);
         assertEquals("boolean", actual.getTypeDesc().getName());
     }
 
@@ -1063,7 +1047,7 @@ public class ZptAnalyzerTest extends TestCase {
                 .getComponentClassDesc().getName());
     }
 
-    public void testAnalyze58() throws Exception {
+    public void testAnalyze58_submit関連のタグについて正しく自動生成されること() throws Exception {
 
         act("testAnalyze58");
 

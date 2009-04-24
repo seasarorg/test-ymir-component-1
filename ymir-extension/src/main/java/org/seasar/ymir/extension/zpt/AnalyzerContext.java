@@ -548,8 +548,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         Set<ClassDesc> usedClassDescSet = new HashSet<ClassDesc>();
         for (ClassDesc classDesc : DescPool.getDefault()
                 .getGeneratedClassDescs()) {
-            // PageクラスとPageクラスから利用されているDTOと、外部で定義されている変数の型クラスと、
-            // renderクラスのプロパティのうちインタフェース型であるものの実装クラスとみなされているクラス
+            // PageクラスとPageクラスから利用されているDTOと、外部で定義されている変数の型クラス
             // 以外は無視する。
             if (isPage(classDesc) || isUsedClassName(classDesc.getName())) {
                 registerDependingClassDescs(classDesc, usedClassDescSet);
