@@ -10,6 +10,7 @@ import org.seasar.ymir.testing.RequestInitializer;
 import org.seasar.ymir.testing.YmirTestCase;
 
 import com.example.web.ScopeInterceptorITest2Page;
+import com.example.web.ScopeInterceptorITest4Page;
 import com.example.web.ScopeInterceptorITestPage;
 import com.example.web.ScopeInterceptorITest3Page;
 
@@ -76,5 +77,12 @@ public class ScopeInterceptorITest extends YmirTestCase {
         assertEquals(
                 "TESTEDになりそうだが、実際はインクルードされたPageからのアウトジェクションが後に行なわれるのでTESTINGになること",
                 "TESTING", getHttpSession().getAttribute("test"));
+    }
+
+    public void test_pathInfoScopeからのインジェクションが行なわれること() throws Exception {
+        process("/scopeInterceptorITest4.html/pathInfo");
+
+        assertEquals("/pathInfo", getPage(ScopeInterceptorITest4Page.class)
+                .getPathInfo());
     }
 }
