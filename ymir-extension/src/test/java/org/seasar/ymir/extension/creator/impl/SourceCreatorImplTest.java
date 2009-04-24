@@ -475,6 +475,19 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertNull(cd.getPropertyDesc("hoehoe"));
     }
 
+    public void test_adjustByExistentClass11_Gapクラスに同名のアクションメソッドがある場合はBaseクラスにアクションメソッドが生成されないこと()
+            throws Exception {
+        DescPool pool = DescPool.newInstance(target_, null);
+        ClassDesc cd = new ClassDescImpl(pool, Merge12Page.class.getName());
+        MethodDesc md = new MethodDescImpl(pool, "_get");
+        md.setAttribute(Globals.ATTR_ACTION, Boolean.TRUE);
+        cd.setMethodDesc(md);
+
+        target_.adjustByExistentClass(cd);
+
+        assertNull(cd.getMethodDesc(md));
+    }
+
     public void testGetBeginAnnotation() throws Exception {
         Begin actual = target_.getBeginAnnotation();
 

@@ -1345,10 +1345,16 @@ public class SourceCreatorImpl implements SourceCreator {
                         .transcriptTo(
                                 desc.getDescPool().newTypeDesc(
                                         superMd.getReturnTypeDesc())));
+            } else if (isAction(generatedMd)
+                    && gapDesc.getMethodDescs(generatedMd.getName()).length > 0) {
+                // アクションについては、メソッドシグネチャが一致しなくとも名前が一致するメソッドがあった場合は
+                // 生成しない。
+                generated.removeMethodDesc(generatedMd);
             }
+
             // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
             // GeneratedにあるアノテーションのうちBaseにもあるものについてはBaseのものをGeneratedに上書きする。
-            if (baseMd != null && generated.getMethodDesc(generatedMd) != null) {
+            if (baseMd != null) {
                 List<AnnotationDesc> list = new ArrayList<AnnotationDesc>();
                 for (AnnotationDesc ad : generatedMd.getAnnotationDescs()) {
                     AnnotationDesc baseAd = baseMd.getAnnotationDesc(ad
@@ -1407,6 +1413,16 @@ public class SourceCreatorImpl implements SourceCreator {
         generated.applyBornOfToAllMembers();
 
         desc.merge(generated, true);
+    }
+
+    private boolean isAction(MethodDesc methodDesc) {
+        if (methodDesc == null) {
+            return false;
+        } else {
+            Boolean action = (Boolean) methodDesc
+                    .getAttribute(Globals.ATTR_ACTION);
+            return action != null && action.booleanValue();
+        }
     }
 
     boolean isFormDtoFieldPresent(ClassDesc cd, String name) {

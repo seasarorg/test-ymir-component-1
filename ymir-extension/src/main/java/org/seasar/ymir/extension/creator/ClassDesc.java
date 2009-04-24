@@ -23,6 +23,8 @@ public interface ClassDesc extends AnnotatedDesc<ClassDesc> {
 
     String getNameBase();
 
+    MethodDesc[] getMethodDescs(String name);
+
     MethodDesc getMethodDesc(MethodDesc methodDesc);
 
     MethodDesc[] getMethodDescs();

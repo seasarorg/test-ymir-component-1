@@ -203,6 +203,16 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         return pds;
     }
 
+    public MethodDesc[] getMethodDescs(String name) {
+        List<MethodDesc> list = new ArrayList<MethodDesc>();
+        for (MethodDesc methodDesc : methodDescMap_.values()) {
+            if (methodDesc.getName().equals(name)) {
+                list.add(methodDesc);
+            }
+        }
+        return list.toArray(new MethodDesc[0]);
+    }
+
     public MethodDesc getMethodDesc(MethodDesc methodDesc) {
         return methodDescMap_.get(new MethodDescKey(methodDesc));
     }
