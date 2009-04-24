@@ -1,10 +1,15 @@
 package org.seasar.ymir;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
 import org.seasar.framework.container.ComponentDef;
@@ -12,7 +17,11 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.impl.SingleApplication;
+import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.servlet.YmirListener;
+import org.seasar.ymir.util.ArtifactMetaData;
+import org.seasar.ymir.util.ClassUtils;
+import org.seasar.ymir.util.YmirUtils;
 
 /**
  * WebアプリケーションでYmirを利用するためのブートストラップクラスです。
@@ -26,7 +35,13 @@ import org.seasar.ymir.servlet.YmirListener;
 public class YmirBootstrap {
     private static final String SP = System.getProperty("line.separator");
 
+    private static final String PATHPREFIX_POM_PROPERTIES = "/META-INF/maven/";
+
+    private static final String PATHSUFFIX_POM_PROPERTIES = "pom.properties";
+
     private Ymir ymir_;
+
+    private final Log log_ = LogFactory.getLog(YmirBootstrap.class);
 
     /**
      * フレームワークを初期化する前に行なっておくべき準備を行ないます。
@@ -68,6 +83,72 @@ public class YmirBootstrap {
         ApplicationManager applicationManager = (ApplicationManager) getContainer()
                 .getComponent(ApplicationManager.class);
         applicationManager.setBaseApplication(application);
+
+        String signature = null;
+        ArtifactMetaData metaData = ArtifactMetaData
+                .newInstance(findApplicationPomProperties(servletContext));
+        if (metaData != null) {
+            signature = metaData.getSignature();
+        }
+        if (signature == null) {
+            signature = "unknown";
+        }
+        log_.info("Application '" + signature + "' has been initialized");
+    }
+
+    @SuppressWarnings("unchecked")
+    private URL findApplicationPomProperties(ServletContext servletContext) {
+        String groupPath = null;
+        Set<String> paths = servletContext
+                .getResourcePaths(PATHPREFIX_POM_PROPERTIES);
+        if (paths == null) {
+            if (log_.isDebugEnabled()) {
+                log_.debug("Can't find child resource of '"
+                        + PATHPREFIX_POM_PROPERTIES + "'");
+            }
+            return null;
+        }
+        for (String path : paths) {
+            if (path.endsWith("/")) {
+                groupPath = path;
+                break;
+            }
+        }
+        if (groupPath == null) {
+            if (log_.isDebugEnabled()) {
+                log_.debug("Can't find child resource of '"
+                        + PATHPREFIX_POM_PROPERTIES + "'");
+            }
+            return null;
+        }
+
+        String artifactPath = null;
+        paths = servletContext.getResourcePaths(groupPath);
+        if (paths == null) {
+            if (log_.isDebugEnabled()) {
+                log_.debug("Can't find child resource of '" + groupPath + "'");
+            }
+            return null;
+        }
+        for (String path : paths) {
+            if (path.endsWith("/")) {
+                artifactPath = path;
+                break;
+            }
+        }
+        if (artifactPath == null) {
+            if (log_.isDebugEnabled()) {
+                log_.debug("Can't find child resource of '" + groupPath + "'");
+            }
+            return null;
+        }
+
+        try {
+            return servletContext.getResource(artifactPath
+                    + PATHSUFFIX_POM_PROPERTIES);
+        } catch (MalformedURLException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     Class<?>[] getLandmarks(Configuration configuration) {
