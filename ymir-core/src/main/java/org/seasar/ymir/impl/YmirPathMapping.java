@@ -107,6 +107,18 @@ public class YmirPathMapping implements PathMapping {
     }
 
     public YmirPathMapping(String patternString,
+            String pageComponentNameTemplate, String pathInfoTemplate) {
+        this(false, patternString, pageComponentNameTemplate,
+                DEFAULT_ACTIONNAMETEMPLATE, pathInfoTemplate, null, null);
+    }
+
+    public YmirPathMapping(boolean denied, String patternString,
+            String pageComponentNameTemplate, String pathInfoTemplate) {
+        this(denied, patternString, pageComponentNameTemplate,
+                DEFAULT_ACTIONNAMETEMPLATE, pathInfoTemplate, null, null);
+    }
+
+    public YmirPathMapping(String patternString,
             String pageComponentNameTemplate, String pathInfoTemplate,
             String parameterTemplate) {
         this(false, patternString, pageComponentNameTemplate,
@@ -215,8 +227,8 @@ public class YmirPathMapping implements PathMapping {
         }
     }
 
-    public void setReverseMapping(
-            String pageComponentNamePatternString, String template) {
+    public void setReverseMapping(String pageComponentNamePatternString,
+            String template) {
         pageComponentNamePattern_ = pageComponentNamePatternString != null ? Pattern
                 .compile(pageComponentNamePatternString)
                 : null;
@@ -274,9 +286,6 @@ public class YmirPathMapping implements PathMapping {
             map.put(j + "l", lower(matched));
             map.put(j + "d", decapitalize(matched));
         }
-        map.put("`", pattern.substring(0, matcher.start()));
-        map.put("&", pattern.substring(matcher.start(), matcher.end()));
-        map.put("'", pattern.substring(matcher.end()));
 
         return map;
     }

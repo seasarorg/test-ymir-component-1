@@ -9,6 +9,8 @@
     class="org.seasar.ymir.scope.impl.SessionScope" />
   <component name="requestScope"
     class="org.seasar.ymir.scope.impl.RequestScope" />
+  <component name="pathInfoScope"
+    class="org.seasar.ymir.scope.impl.PathInfoScope" />
   <component name="cookieScope"
     class="org.seasar.ymir.scope.impl.CookieScope" />
   <component name="requestParameterScope"
