@@ -4,11 +4,9 @@ import java.util.Locale;
 
 import junit.framework.TestCase;
 
+import org.seasar.ymir.locale.mock.MockLocaleManager;
 import org.seasar.ymir.message.Messages;
 import org.seasar.ymir.message.Note;
-import org.seasar.ymir.message.impl.MessagesImpl;
-import org.seasar.ymir.message.impl.NoteRendererImpl;
-import org.seasar.ymir.mock.MockLocaleManager;
 
 public class NoteRendererImplTest extends TestCase {
     private NoteRendererImpl target_ = new NoteRendererImpl();

@@ -3,6 +3,8 @@ package org.seasar.ymir.date;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.seasar.ymir.annotation.ForTesting;
+
 /**
  * 現在の日付を管理するためのインタフェースです。
  * <p>アプリケーションコードで現在の日付を取得する場合は、日付に関連する単体テストが行ないやすいよう、
@@ -47,5 +49,6 @@ public interface DateManager {
      * nullでない値を設定すると、常に設定した値が時刻として返されるようになります。
      * nullを設定すると、実際の時刻が返されるようになります。
      */
+    @ForTesting
     void setDate(Date date);
 }

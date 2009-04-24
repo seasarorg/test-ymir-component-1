@@ -2,13 +2,22 @@ package org.seasar.ymir.date.impl;
 
 import java.util.Calendar;
 import java.util.Date;
-
-import org.seasar.ymir.date.impl.DateManagerImpl;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
+import org.seasar.ymir.locale.impl.LocaleManagerImpl;
+import org.seasar.ymir.locale.mock.MockLocaleManager;
+
 public class DateManagerImplTest extends TestCase {
     private DateManagerImpl target_ = new DateManagerImpl();
+
+    @Override
+    protected void setUp() throws Exception {
+        MockLocaleManager localeManager = new MockLocaleManager();
+        localeManager.setTimeZone(TimeZone.getTimeZone("GMT"));
+        target_.setLocaleManager(localeManager);
+    }
 
     public void testGetDate() throws Exception {
         long time1 = System.currentTimeMillis();

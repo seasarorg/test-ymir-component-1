@@ -5,8 +5,7 @@ import java.util.Locale;
 import junit.framework.TestCase;
 
 import org.seasar.ymir.Ymir;
-import org.seasar.ymir.message.impl.MessagesImpl;
-import org.seasar.ymir.mock.MockLocaleManager;
+import org.seasar.ymir.locale.mock.MockLocaleManager;
 import org.seasar.ymir.mock.MockYmir;
 
 public class MessagesImplTest extends TestCase {
