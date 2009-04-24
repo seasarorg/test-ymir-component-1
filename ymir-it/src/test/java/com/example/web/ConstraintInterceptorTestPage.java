@@ -16,9 +16,11 @@ import org.seasar.ymir.message.Note;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.scope.annotation.Resolve;
 import org.seasar.ymir.scope.impl.ApplicationScope;
+import org.seasar.ymir.scope.impl.ComponentScope;
 
 @Fuga("saru")
 @Fufu("tora")
+@SuppressWarnings("deprecation")
 public class ConstraintInterceptorTestPage {
     private Request request_;
 
@@ -92,7 +94,7 @@ public class ConstraintInterceptorTestPage {
     @Validator("_get_button7")
     public void validate7(
             @Resolve(scopeClass = ApplicationScope.class, name = "app")
-            String app, @Resolve
+            String app, @Resolve(ComponentScope.class)
             HttpServletRequest request, int param1, String param2) {
         request_.setAttribute("app", app);
         request_.setAttribute("request", request);

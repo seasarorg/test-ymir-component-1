@@ -5,6 +5,7 @@ import org.seasar.ymir.annotation.Invoke;
 import org.seasar.ymir.scope.annotation.Resolve;
 import org.seasar.ymir.scope.impl.ApplicationScope;
 
+@SuppressWarnings("deprecation")
 public class InvokePageMethodTest2Page {
     private String value_;
 

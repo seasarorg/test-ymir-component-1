@@ -21,6 +21,20 @@ public class ScopeInterceptorITest extends YmirTestCase {
         assertEquals("aaa", getServletContext().getAttribute("value"));
     }
 
+    public void test_Inアノテーションを使ってPageのアクションメソッドの引数へのインジェクションが行なわれること()
+            throws Exception {
+        process(ScopeInterceptorITestPage.class, "value", "aaa", "resolve");
+
+        assertEquals("aaa", getServletContext().getAttribute("value"));
+    }
+
+    public void test_Resolveアノテーションを使ってPageのアクションメソッドの引数へのインジェクションが行なわれること()
+            throws Exception {
+        process(ScopeInterceptorITestPage.class, "value", "aaa", "resolve2");
+
+        assertEquals("aaa", getServletContext().getAttribute("value"));
+    }
+
     public void test_ExceptionHandlerへのインジェクションとアウトジェクションが行なわれること()
             throws Exception {
         S2Container container = getContainer("ymir.dicon");
