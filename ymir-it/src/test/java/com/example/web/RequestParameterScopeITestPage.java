@@ -49,7 +49,7 @@ public class RequestParameterScopeITestPage {
         injectedValue6_ = injectedValue6;
     }
 
-    @RequestParameter(name = "i7")
+    @RequestParameter("i7")
     public void setInjectedValue7(String injectedValue7) {
         injectedValue7_ = injectedValue7;
     }

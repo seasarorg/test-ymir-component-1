@@ -17,7 +17,7 @@ public class DoubleConverter extends TypeConverterBase<Double> {
         }
 
         try {
-            return (new Double(value.toString()));
+            return (Double.valueOf(value.toString()));
         } catch (Exception ex) {
             if (log_.isDebugEnabled()) {
                 log_.debug("Conversion error occured."

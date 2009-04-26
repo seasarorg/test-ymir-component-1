@@ -16,7 +16,7 @@ import org.seasar.ymir.annotation.Collection;
  * @author YOKOTA Takehiko
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target( { ElementType.METHOD, ElementType.PARAMETER })
 @Collection
 public @interface Ins {
     /**

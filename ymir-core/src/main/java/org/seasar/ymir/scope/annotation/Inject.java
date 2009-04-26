@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.seasar.ymir.annotation.Alias;
+import org.seasar.ymir.annotation.ElementAlias;
 import org.seasar.ymir.scope.impl.ComponentScope;
 
 /**
@@ -18,12 +19,13 @@ import org.seasar.ymir.scope.impl.ComponentScope;
  * @since 1.0.0
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target( { ElementType.METHOD, ElementType.PARAMETER })
 @Alias
 public @interface Inject {
     In z_alias() default @In(ComponentScope.class);
 
-    String name() default "";
+    @ElementAlias("name")
+    String value() default "";
 
     String[] actionName() default {};
 

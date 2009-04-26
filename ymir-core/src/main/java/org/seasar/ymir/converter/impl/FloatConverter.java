@@ -17,7 +17,7 @@ public class FloatConverter extends TypeConverterBase<Float> {
         }
 
         try {
-            return (new Float(value.toString()));
+            return (Float.valueOf(value.toString()));
         } catch (Exception ex) {
             if (log_.isDebugEnabled()) {
                 log_.debug("Conversion error occured."

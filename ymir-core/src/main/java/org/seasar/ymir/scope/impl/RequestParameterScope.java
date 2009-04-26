@@ -33,7 +33,11 @@ public class RequestParameterScope implements Scope {
         }
 
         Request request = getRequest();
-        if (type.isAssignableFrom(FormFile.class)) {
+        Class<?> componentType = type.getComponentType();
+        if (componentType == null) {
+            componentType = type;
+        }
+        if (componentType.isAssignableFrom(FormFile.class)) {
             FormFile[] values = request.getFileParameterValues(name);
             if (values != null) {
                 return values;

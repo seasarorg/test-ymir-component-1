@@ -17,7 +17,7 @@ public class ByteConverter extends TypeConverterBase<Byte> {
         }
 
         try {
-            return (new Byte(value.toString()));
+            return (Byte.valueOf(value.toString()));
         } catch (Exception ex) {
             if (log_.isDebugEnabled()) {
                 log_.debug("Conversion error occured."

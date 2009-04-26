@@ -17,7 +17,7 @@ public class ShortConverter extends TypeConverterBase<Short> {
         }
 
         try {
-            return (new Short(value.toString()));
+            return (Short.valueOf(value.toString()));
         } catch (Exception ex) {
             if (log_.isDebugEnabled()) {
                 log_.debug("Conversion error occured."

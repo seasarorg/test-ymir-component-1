@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.seasar.ymir.annotation.Alias;
+import org.seasar.ymir.annotation.ElementAlias;
 import org.seasar.ymir.scope.impl.RequestParameterScope;
 
 /**
@@ -17,7 +18,7 @@ import org.seasar.ymir.scope.impl.RequestParameterScope;
  * @author YOKOTA Takehiko
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target( { ElementType.METHOD, ElementType.PARAMETER })
 @Alias
 public @interface RequestParameter {
     Populate z_alias() default @Populate(RequestParameterScope.class);
@@ -36,7 +37,8 @@ public @interface RequestParameter {
      * 
      * @return 属性名。
      */
-    String name() default "";
+    @ElementAlias("name")
+    String value() default "";
 
     /**
      * ポピュレートを行なうアクションの名前です。

@@ -111,14 +111,19 @@ public class ScopeMetaDataImpl implements ScopeMetaData {
             ScopeAttributeResolverImpl resolver = null;
             In[] is = annotationHandler_.getParameterAnnotations(method, i,
                     In.class);
-            if (is.length > 0) {
+            Populate[] ps = annotationHandler_.getParameterAnnotations(method,
+                    i, Populate.class);
+            if (is.length + ps.length > 0) {
                 resolver = new ScopeAttributeResolverImpl(types[i],
                         annotationHandler_.getMarkedParameterAnnotations(
                                 method, i, TypeConversionHint.class),
                         scopeManager_, typeConversionManager_);
-                for (int j = 0; j < is.length; j++) {
-                    resolver.addEntry(getScope(is[j]), is[j].name(), is[j]
-                            .required());
+                for (In in : is) {
+                    resolver.addEntry(getScope(in), in.name(), in.required());
+                }
+                for (Populate populate : ps) {
+                    resolver.addEntry(getScope(populate), populate.name(),
+                            false);
                 }
             }
             resolvers[i] = resolver;
