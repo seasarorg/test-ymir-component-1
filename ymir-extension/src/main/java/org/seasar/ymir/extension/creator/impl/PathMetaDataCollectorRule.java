@@ -16,7 +16,6 @@ public class PathMetaDataCollectorRule implements Rule<PathMetaData> {
 
     public void add(String path, List<PathMetaData> resourceList) {
         addPathMetaDataIfNecessary(path, HttpMethod.GET, resourceList);
-        addPathMetaDataIfNecessary(path, HttpMethod.POST, resourceList);
     }
 
     void addPathMetaDataIfNecessary(String path, HttpMethod method,

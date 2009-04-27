@@ -88,10 +88,10 @@ public interface SourceCreator extends Updater {
 
     ServletContext getServletContext();
 
-    ClassDescBag gatherClassDescs(String bornOf, PathMetaData[] pathMetaDatas);
+    ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas);
 
-    ClassDescBag gatherClassDescs(String bornOf,
-            PathMetaData[] pathMetaDatas, ClassCreationHintBag hintBag, String[] ignoreVariables);
+    ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
+            ClassCreationHintBag hintBag, String[] ignoreVariables);
 
     void updateClasses(ClassDescBag classDescBag);
 

@@ -447,17 +447,15 @@ public class SourceCreatorImpl implements SourceCreator {
                 .getFirstRootPackageName() != null);
     }
 
-    public ClassDescBag gatherClassDescs(String bornOf,
-            PathMetaData[] pathMetaDatas) {
-        return gatherClassDescs(bornOf, pathMetaDatas, null, null);
+    public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas) {
+        return gatherClassDescs(pathMetaDatas, null, null);
     }
 
-    public ClassDescBag gatherClassDescs(String bornOf,
-            PathMetaData[] pathMetaDatas, ClassCreationHintBag hintBag,
-            String[] ignoreVariables) {
+    public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
+            ClassCreationHintBag hintBag, String[] ignoreVariables) {
         DescPool pool = DescPool.newInstance(this, hintBag);
         for (int i = 0; i < pathMetaDatas.length; i++) {
-            gatherClassDescs(pool, bornOf, pathMetaDatas[i], ignoreVariables);
+            gatherClassDescs(pool, pathMetaDatas[i], ignoreVariables);
         }
         ClassDesc[] classDescs = addRelativeClassDescs(pool
                 .getGeneratedClassDescs().toArray(new ClassDesc[0]), hintBag);
@@ -569,8 +567,8 @@ public class SourceCreatorImpl implements SourceCreator {
         return converterCd;
     }
 
-    public void gatherClassDescs(DescPool pool, String bornOf,
-            PathMetaData pathMetaData, String[] ignoreVariables) {
+    public void gatherClassDescs(DescPool pool, PathMetaData pathMetaData,
+            String[] ignoreVariables) {
         String path = pathMetaData.getPath();
         HttpMethod method = pathMetaData.getMethod();
         String pageClassName = pathMetaData.getClassName();

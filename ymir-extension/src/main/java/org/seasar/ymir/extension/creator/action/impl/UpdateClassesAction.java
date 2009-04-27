@@ -87,7 +87,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         }
 
         ClassDescBag classDescBag = getSourceCreator().gatherClassDescs(
-                pathMetaData.getPath(), new PathMetaData[] { pathMetaData });
+                new PathMetaData[] { pathMetaData });
         if (classDescBag.isEmpty()) {
             return null;
         }
@@ -233,8 +233,8 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 propertyTypeHintList.toArray(new PropertyTypeHint[0]),
                 classHintMap.values().toArray(new ClassHint[0]));
         ClassDescBag classDescBag = getSourceCreator().gatherClassDescs(
-                pathMetaData.getPath(), new PathMetaData[] { pathMetaData },
-                hintBag, null);
+                new PathMetaData[] { pathMetaData }, hintBag,
+                null);
 
         String[] appliedOriginalClassNames = request
                 .getParameterValues(PARAM_APPLY);
