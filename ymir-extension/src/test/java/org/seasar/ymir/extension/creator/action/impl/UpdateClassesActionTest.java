@@ -39,11 +39,13 @@ public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
         DescPool pool = DescPool.newInstance(getSourceCreator(), null);
         getSourceCreator().gatherClassDescs(
                 pool,
+                "/test/html",
                 new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
                         "testPage", "com.example.web.TestPage", null, null,
                         null, getSourceCreator().getTemplate("/test.html")),
                 null);
-        ClassDesc[] classDescs = pool.getGeneratedClassDescs().toArray(new ClassDesc[0]);
+        ClassDesc[] classDescs = pool.getGeneratedClassDescs().toArray(
+                new ClassDesc[0]);
         ClassDescSet classDescSet = new ClassDescSet(classDescs);
         for (int i = classDescs.length - 1; i >= 0; i--) {
             getSourceCreator().adjustByExistentClass(classDescs[i]);

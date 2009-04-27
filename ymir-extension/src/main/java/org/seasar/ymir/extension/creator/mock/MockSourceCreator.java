@@ -132,12 +132,12 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas) {
+    public ClassDescBag gatherClassDescs(String bornOf, PathMetaData[] pathMetaDatas) {
         return null;
     }
 
-    public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
-            ClassCreationHintBag hintBag, String[] ignoreVariables) {
+    public ClassDescBag gatherClassDescs(String bornOf,
+            PathMetaData[] pathMetaDatas, ClassCreationHintBag hintBag, String[] ignoreVariables) {
         return null;
     }
 

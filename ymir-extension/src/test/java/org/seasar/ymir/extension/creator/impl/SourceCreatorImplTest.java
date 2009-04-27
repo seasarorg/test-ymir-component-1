@@ -118,11 +118,10 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         "com.example.web.TestPage", "result",
                         "java.lang.Integer") }, null);
         DescPool pool = DescPool.newInstance(target_, hintBag);
-        target_.gatherClassDescs(pool,
-                new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
-                        "testPage", "com.example.web.TestPage", null, null,
-                        null, getSourceCreator().getTemplate("/test.html")),
-                null);
+        target_.gatherClassDescs(pool, "/test.html", new PathMetaDataImpl(
+                "/test.html", HttpMethod.GET, false, "testPage",
+                "com.example.web.TestPage", null, null, null,
+                getSourceCreator().getTemplate("/test.html")), null);
         ClassDesc[] actual = pool.getGeneratedClassDescs().toArray(
                 new ClassDesc[0]);
         Arrays.sort(actual, new Comparator<ClassDesc>() {
@@ -161,11 +160,10 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         "com.example.web.TestPage", "result",
                         "com.outer.dto.EntryDto") }, null);
         DescPool pool = DescPool.newInstance(target_, hintBag);
-        target_.gatherClassDescs(pool,
-                new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
-                        "testPage", "com.example.web.TestPage", null, null,
-                        null, getSourceCreator().getTemplate("/test.html")),
-                null);
+        target_.gatherClassDescs(pool, "/test.html", new PathMetaDataImpl(
+                "/test.html", HttpMethod.GET, false, "testPage",
+                "com.example.web.TestPage", null, null, null,
+                getSourceCreator().getTemplate("/test.html")), null);
 
         assertTrue(pool.contains("com.example.web.TestPage"));
         assertEquals("com.outer.dto.EntryDto", pool.getClassDesc(
@@ -180,11 +178,10 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         "com.example.web.TestPage", "result",
                         "com.outer.dto.EntryDto") }, null);
         DescPool pool = DescPool.newInstance(target_, hintBag);
-        target_.gatherClassDescs(pool,
-                new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
-                        "testPage", "com.example.web.TestPage", null, null,
-                        null, getSourceCreator().getTemplate("/test.html")),
-                null);
+        target_.gatherClassDescs(pool, "/test.html", new PathMetaDataImpl(
+                "/test.html", HttpMethod.GET, false, "testPage",
+                "com.example.web.TestPage", null, null, null,
+                getSourceCreator().getTemplate("/test.html")), null);
 
         assertFalse(pool.contains("com.outer.dto.EntryDto"));
     }
