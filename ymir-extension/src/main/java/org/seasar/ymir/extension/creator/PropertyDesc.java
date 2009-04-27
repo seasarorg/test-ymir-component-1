@@ -112,7 +112,5 @@ public interface PropertyDesc extends AnnotatedDesc<PropertyDesc> {
 
     void decrementReferCount();
 
-    void applyBornOf(String bornOf);
-
     boolean removeBornOf(String bornOf);
 }

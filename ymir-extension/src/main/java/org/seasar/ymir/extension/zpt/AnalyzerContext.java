@@ -525,12 +525,11 @@ public class AnalyzerContext extends ZptTemplateContext {
                 continue;
             }
 
-            // スーパークラスと出自情報を設定する。
+            // スーパークラスを設定する。
             ClassHint hint = getClassHint(classDesc.getName());
             if (hint != null) {
                 classDesc.setSuperclassName(hint.getSuperclassName());
             }
-            classDesc.setBornOf(path_);
         }
 
         for (ClassDesc classDesc : DescPool.getDefault()

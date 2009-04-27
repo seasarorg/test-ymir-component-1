@@ -16,6 +16,7 @@ import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.ThrowsDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
+import org.seasar.ymir.extension.creator.util.MetaUtils;
 
 public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc {
     private DescPool pool_;
@@ -38,6 +39,7 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
         pool_ = pool;
         name_ = name;
         setReturnTypeDesc(Void.TYPE);
+        applyBornOf(pool_.getBornOf());
     }
 
     public MethodDescImpl(DescPool pool, Method method) {
@@ -58,6 +60,7 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
         for (int i = 0; i < ads.length; i++) {
             setAnnotationDesc(ads[i]);
         }
+        applyBornOf(pool_.getBornOf());
     }
 
     public String toString() {
@@ -206,13 +209,15 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
         throwsDesc_.setTouchedClassNameSet(set);
     }
 
-    public void applyBornOf(String bornOf) {
+    void applyBornOf(String bornOf) {
         if (bornOf == null) {
             return;
         }
 
-        setAnnotationDesc(new MetaAnnotationDescImpl(Globals.META_NAME_BORNOF,
-                new String[] { bornOf }));
+        AnnotationDesc annotationDesc = MetaUtils.newBornOfMetaAnnotationDesc(
+                getMetaValue(Globals.META_NAME_BORNOF), bornOf);
+        removeMetaAnnotationDesc(Globals.META_NAME_BORNOF);
+        setAnnotationDesc(annotationDesc);
     }
 
     public boolean removeBornOf(String bornOf) {

@@ -61,23 +61,22 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
 
     protected SourceCreatorImpl target_;
 
+    protected DescPool pool_;
+
     protected ClassDesc constructClassDesc() {
-        DescPool pool = DescPool.newInstance(target_, null);
-        ClassDesc classDesc = new ClassDescImpl(pool,
+        ClassDesc classDesc = new ClassDescImpl(pool_,
                 "com.example.web.TestPage");
-        PropertyDesc pd = new PropertyDescImpl(pool, "param1");
+        PropertyDesc pd = new PropertyDescImpl(pool_, "param1");
         pd.setMode(PropertyDesc.READ | PropertyDesc.WRITE);
         classDesc.setPropertyDesc(pd);
         return classDesc;
     }
 
     protected SourceCreatorImpl getSourceCreator() {
-
         return target_;
     }
 
     protected void setUp() throws Exception {
-
         ServletContext context = new MockServletContextImpl("/context") {
             private static final long serialVersionUID = 1L;
 
@@ -196,6 +195,8 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         ymir.setYmirNamingConvention(namingConvention);
         YmirContext.setYmir(ymir);
         SingletonPluggableContainerFactory.init();
+
+        pool_ = DescPool.newInstance(target_, null);
     }
 
     protected File getResourcesDir() {

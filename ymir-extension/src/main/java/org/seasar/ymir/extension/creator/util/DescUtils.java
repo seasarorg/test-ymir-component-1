@@ -17,10 +17,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Metas;
@@ -667,7 +667,7 @@ public class DescUtils {
             return null;
         }
 
-        Set<T> valueSet = new LinkedHashSet<T>();
+        Set<T> valueSet = new TreeSet<T>();
         if (values1 != null) {
             valueSet.addAll(Arrays.asList(values1));
         }

@@ -541,87 +541,101 @@ public class SourceCreatorImpl implements SourceCreator {
     protected ClassDesc createConverterClassDesc(ClassDesc dtoCd,
             String[] pairTypeNames) {
         DescPool pool = dtoCd.getDescPool();
-        ClassDesc converterCd = new EntityMetaData(pool, dtoCd.getName())
-                .getConverterClassDesc();
-        converterCd.setBornOf(dtoCd.getBornOf());
+        String oldBornOf = pool.getBornOf();
+        try {
+            pool.setBornOf(dtoCd.getBornOf());
 
-        Map<String, Object> parameter = converterCd
-                .getSourceGeneratorParameter();
-        ClassDesc clonedDtoCd = dtoCd.transcriptTo(DescPool.newInstance(this,
-                null).getClassDesc(dtoCd.getName()));
-        mergeWithExistentClass(clonedDtoCd);
-        parameter.put(Globals.PARAMETER_TARGETCLASSDESC, clonedDtoCd);
-        List<TypeDesc> pairTdList = new ArrayList<TypeDesc>();
-        for (int i = 0; i < pairTypeNames.length; i++) {
-            Class<?> pairClass = getClass(DescUtils
-                    .getNonGenericClassName(pairTypeNames[i]));
-            if (pairClass == null || pairClass == Object.class) {
-                continue;
+            ClassDesc converterCd = new EntityMetaData(pool, dtoCd.getName())
+                    .getConverterClassDesc();
+
+            Map<String, Object> parameter = converterCd
+                    .getSourceGeneratorParameter();
+            ClassDesc clonedDtoCd = dtoCd.transcriptTo(DescPool.newInstance(
+                    this, null).getClassDesc(dtoCd.getName()));
+            mergeWithExistentClass(clonedDtoCd);
+            parameter.put(Globals.PARAMETER_TARGETCLASSDESC, clonedDtoCd);
+            List<TypeDesc> pairTdList = new ArrayList<TypeDesc>();
+            for (int i = 0; i < pairTypeNames.length; i++) {
+                Class<?> pairClass = getClass(DescUtils
+                        .getNonGenericClassName(pairTypeNames[i]));
+                if (pairClass == null || pairClass == Object.class) {
+                    continue;
+                }
+                pool.registerClassDesc(newClassDesc(pool, pairClass, false));
+                pairTdList.add(pool.newTypeDesc(pairTypeNames[i]));
             }
-            pool.registerClassDesc(newClassDesc(pool, pairClass, false));
-            pairTdList.add(pool.newTypeDesc(pairTypeNames[i]));
-        }
-        parameter.put(Globals.PARAMETER_PAIRTYPEDESCS, pairTdList
-                .toArray(new TypeDesc[0]));
+            parameter.put(Globals.PARAMETER_PAIRTYPEDESCS, pairTdList
+                    .toArray(new TypeDesc[0]));
 
-        return converterCd;
+            return converterCd;
+        } finally {
+            pool.setBornOf(oldBornOf);
+        }
     }
 
     public void gatherClassDescs(DescPool pool, PathMetaData pathMetaData,
             String[] ignoreVariables) {
         String path = pathMetaData.getPath();
-        HttpMethod method = pathMetaData.getMethod();
-        String pageClassName = pathMetaData.getClassName();
-        analyzer_.analyze(getServletContext(), getHttpServletRequest(),
-                getHttpServletResponse(), getRequest(), path, method,
-                pathMetaData.getTemplate(), pageClassName, pool,
-                ignoreVariables);
+        String oldBornOf = pool.getBornOf();
+        try {
+            pool.setBornOf(path);
 
-        for (int i = 0; i < classDescModifiers_.length; i++) {
-            classDescModifiers_[i].modify(pool, pathMetaData);
-        }
+            HttpMethod method = pathMetaData.getMethod();
+            String pageClassName = pathMetaData.getClassName();
+            analyzer_.analyze(getServletContext(), getHttpServletRequest(),
+                    getHttpServletResponse(), getRequest(), path, method,
+                    pathMetaData.getTemplate(), pageClassName, pool,
+                    ignoreVariables);
 
-        ClassDesc pageClassDesc = pool.getClassDesc(pageClassName);
+            for (int i = 0; i < classDescModifiers_.length; i++) {
+                classDescModifiers_[i].modify(pool, pathMetaData);
+            }
 
-        // アクションメソッドがなければ追加する。
-        MethodDesc actionMethodDesc = newActionMethodDesc(pageClassDesc, path,
-                method);
-        if (pageClassDesc.getMethodDesc(actionMethodDesc) == null) {
-            pageClassDesc.setMethodDesc(actionMethodDesc);
-        }
+            ClassDesc pageClassDesc = pool.getClassDesc(pageClassName);
 
-        // _prerender()を追加する。
-        MethodDesc prerenderMethodDesc = getExtraPathMapping(path, method)
-                .newPrerenderActionMethodDesc(pageClassDesc,
-                        new ActionSelectorSeedImpl());
-        pageClassDesc.setMethodDesc(prerenderMethodDesc);
+            // アクションメソッドがなければ追加する。
+            MethodDesc actionMethodDesc = newActionMethodDesc(pageClassDesc,
+                    path, method);
+            if (pageClassDesc.getMethodDesc(actionMethodDesc) == null) {
+                pageClassDesc.setMethodDesc(actionMethodDesc);
+            }
 
-        if (isValidationFailedMethodEnabled()) {
-            // _validationFailed(Notes)を追加する。
-            MethodDesc methodDesc = new MethodDescImpl(pageClassDesc
-                    .getDescPool(),
-                    ConstraintInterceptor.ACTION_VALIDATIONFAILED);
-            methodDesc
-                    .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
-                            pageClassDesc.getDescPool(), Notes.class, "notes") });
-            pageClassDesc.setMethodDesc(methodDesc);
-        }
+            // _prerender()を追加する。
+            MethodDesc prerenderMethodDesc = getExtraPathMapping(path, method)
+                    .newPrerenderActionMethodDesc(pageClassDesc,
+                            new ActionSelectorSeedImpl());
+            pageClassDesc.setMethodDesc(prerenderMethodDesc);
 
-        if (isPermissionDeniedMethodEnabled()) {
-            // _permissionDenied(PemissionDeniedException)を追加する。
-            MethodDesc methodDesc = new MethodDescImpl(pageClassDesc
-                    .getDescPool(),
-                    ConstraintInterceptor.ACTION_PERMISSIONDENIED);
-            methodDesc
-                    .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
-                            pageClassDesc.getDescPool(),
-                            PermissionDeniedException.class, "ex") });
-            methodDesc.setThrowsDesc(new ThrowsDescImpl(
-                    PermissionDeniedException.class));
-            methodDesc.setBodyDesc(new BodyDescImpl(
-                    BodyDesc.KEY_PERMISSIONDENIED,
-                    new HashMap<String, Object>()));
-            pageClassDesc.setMethodDesc(methodDesc);
+            if (isValidationFailedMethodEnabled()) {
+                // _validationFailed(Notes)を追加する。
+                MethodDesc methodDesc = new MethodDescImpl(pageClassDesc
+                        .getDescPool(),
+                        ConstraintInterceptor.ACTION_VALIDATIONFAILED);
+                methodDesc
+                        .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                                pageClassDesc.getDescPool(), Notes.class,
+                                "notes") });
+                pageClassDesc.setMethodDesc(methodDesc);
+            }
+
+            if (isPermissionDeniedMethodEnabled()) {
+                // _permissionDenied(PemissionDeniedException)を追加する。
+                MethodDesc methodDesc = new MethodDescImpl(pageClassDesc
+                        .getDescPool(),
+                        ConstraintInterceptor.ACTION_PERMISSIONDENIED);
+                methodDesc
+                        .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
+                                pageClassDesc.getDescPool(),
+                                PermissionDeniedException.class, "ex") });
+                methodDesc.setThrowsDesc(new ThrowsDescImpl(
+                        PermissionDeniedException.class));
+                methodDesc.setBodyDesc(new BodyDescImpl(
+                        BodyDesc.KEY_PERMISSIONDENIED,
+                        new HashMap<String, Object>()));
+                pageClassDesc.setMethodDesc(methodDesc);
+            }
+        } finally {
+            pool.setBornOf(oldBornOf);
         }
     }
 
@@ -944,14 +958,14 @@ public class SourceCreatorImpl implements SourceCreator {
     ClassDesc[] addRelativeClassDescs(ClassDesc[] classDescs,
             ClassCreationHintBag hintBag) {
         Map<String, List<ClassDesc>> pageByDtoMap = new HashMap<String, List<ClassDesc>>();
-        for (int i = 0; i < classDescs.length; i++) {
-            if (!classDescs[i].isTypeOf(ClassType.PAGE)) {
+        for (ClassDesc classDesc : classDescs) {
+            if (!classDesc.isTypeOf(ClassType.PAGE)) {
                 continue;
             }
 
-            PropertyDesc[] pds = classDescs[i].getPropertyDescs();
-            for (int j = 0; j < pds.length; j++) {
-                ClassDesc cd = pds[j].getTypeDesc().getComponentClassDesc();
+            for (PropertyDesc propertyDesc : classDesc.getPropertyDescs()) {
+                ClassDesc cd = propertyDesc.getTypeDesc()
+                        .getComponentClassDesc();
                 if (!cd.isTypeOf(ClassType.DTO)) {
                     continue;
                 }
@@ -960,66 +974,72 @@ public class SourceCreatorImpl implements SourceCreator {
                     list = new ArrayList<ClassDesc>();
                     pageByDtoMap.put(cd.getName(), list);
                 }
-                list.add(classDescs[i]);
+                list.add(classDesc);
             }
         }
 
         List<ClassDesc> classDescList = new ArrayList<ClassDesc>(Arrays
                 .asList(classDescs));
-        for (int i = 0; i < classDescs.length; i++) {
-            DescPool pool = classDescs[i].getDescPool();
-            if (classDescs[i].isTypeOf(ClassType.DTO)) {
-                EntityMetaData metaData = new EntityMetaData(pool,
-                        classDescs[i].getName());
+        for (ClassDesc classDesc : classDescs) {
+            DescPool pool = classDesc.getDescPool();
+            String oldBornOf = pool.getBornOf();
+            try {
+                pool.setBornOf(classDesc.getBornOf());
 
-                if (setting_.isDaoCreationFeatureEnabled()) {
-                    // Dao用のClassDescを生成しておく。
-                    ClassDesc daoClassDesc = metaData.getDaoClassDesc();
-                    daoClassDesc.setBornOf(classDescs[i].getBornOf());
-                    classDescList.add(daoClassDesc);
+                if (classDesc.isTypeOf(ClassType.DTO)) {
+                    EntityMetaData metaData = new EntityMetaData(pool,
+                            classDesc.getName());
 
-                    // Bean用のClassDescを生成しておく。
-                    ClassDesc beanClassDesc = metaData.getBeanClassDesc();
-                    beanClassDesc.setBornOf(classDescs[i].getBornOf());
-                    PropertyDesc[] pds = classDescs[i].getPropertyDescs();
-                    for (int j = 0; j < pds.length; j++) {
-                        beanClassDesc.setPropertyDesc(pds[j].transcriptTo(pool
-                                .newPropertyDesc(pds[j].getName())));
-                    }
-                    // プライマリキーがないとS2Daoがエラーになるので生成しておく。
-                    PropertyDesc idPd = beanClassDesc
-                            .getPropertyDesc(PROPERTY_ID);
-                    if (idPd == null) {
-                        idPd = beanClassDesc.addProperty(PROPERTY_ID,
-                                PropertyDesc.READ | PropertyDesc.WRITE);
-                        idPd.setTypeDesc(ID_TYPE);
-                    }
-                    idPd.setAnnotationDescOnGetter(new AnnotationDescImpl(
-                            ID_ANNOTATIONNAME, ID_BODY));
-                    classDescList.add(beanClassDesc);
-                }
+                    if (setting_.isDaoCreationFeatureEnabled()) {
+                        // Dao用のClassDescを生成しておく。
+                        ClassDesc daoClassDesc = metaData.getDaoClassDesc();
+                        classDescList.add(daoClassDesc);
 
-                if (setting_.isDxoCreationFeatureEnabled()) {
-                    // Dxo用のClassDescを生成しておく。
-                    ClassDesc dxoClassDesc = metaData.getDxoClassDesc();
-                    dxoClassDesc.setBornOf(classDescs[i].getBornOf());
-                    List<ClassDesc> list = pageByDtoMap.get(classDescs[i]
-                            .getName());
-                    if (list != null) {
-                        for (Iterator<ClassDesc> itr = list.iterator(); itr
-                                .hasNext();) {
-                            MethodDescImpl md = new MethodDescImpl(pool,
-                                    "convert");
-                            ParameterDesc[] pmds = new ParameterDesc[] { new ParameterDescImpl(
-                                    pool, new TypeDescImpl(pool, itr.next())) };
-                            md.setParameterDescs(pmds);
-                            md.setReturnTypeDesc(pool.newTypeDesc(metaData
-                                    .getBeanClassDesc().getName()));
-                            dxoClassDesc.setMethodDesc(md);
+                        // Bean用のClassDescを生成しておく。
+                        ClassDesc beanClassDesc = metaData.getBeanClassDesc();
+                        PropertyDesc[] pds = classDesc.getPropertyDescs();
+                        for (int j = 0; j < pds.length; j++) {
+                            beanClassDesc.setPropertyDesc(pds[j]
+                                    .transcriptTo(pool.newPropertyDesc(pds[j]
+                                            .getName())));
                         }
+                        // プライマリキーがないとS2Daoがエラーになるので生成しておく。
+                        PropertyDesc idPd = beanClassDesc
+                                .getPropertyDesc(PROPERTY_ID);
+                        if (idPd == null) {
+                            idPd = beanClassDesc.addProperty(PROPERTY_ID,
+                                    PropertyDesc.READ | PropertyDesc.WRITE);
+                            idPd.setTypeDesc(ID_TYPE);
+                        }
+                        idPd.setAnnotationDescOnGetter(new AnnotationDescImpl(
+                                ID_ANNOTATIONNAME, ID_BODY));
+                        classDescList.add(beanClassDesc);
                     }
-                    classDescList.add(dxoClassDesc);
+
+                    if (setting_.isDxoCreationFeatureEnabled()) {
+                        // Dxo用のClassDescを生成しておく。
+                        ClassDesc dxoClassDesc = metaData.getDxoClassDesc();
+                        List<ClassDesc> list = pageByDtoMap.get(classDesc
+                                .getName());
+                        if (list != null) {
+                            for (Iterator<ClassDesc> itr = list.iterator(); itr
+                                    .hasNext();) {
+                                MethodDescImpl md = new MethodDescImpl(pool,
+                                        "convert");
+                                ParameterDesc[] pmds = new ParameterDesc[] { new ParameterDescImpl(
+                                        pool,
+                                        new TypeDescImpl(pool, itr.next())) };
+                                md.setParameterDescs(pmds);
+                                md.setReturnTypeDesc(pool.newTypeDesc(metaData
+                                        .getBeanClassDesc().getName()));
+                                dxoClassDesc.setMethodDesc(md);
+                            }
+                        }
+                        classDescList.add(dxoClassDesc);
+                    }
                 }
+            } finally {
+                pool.setBornOf(oldBornOf);
             }
         }
 
@@ -1196,223 +1216,228 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public void adjustByExistentClass(ClassDesc desc) {
         DescPool pool = desc.getDescPool();
-        String className = desc.getName();
-        Class<?> clazz = getClass(className);
-        ClassDesc gapDesc = newClassDesc(pool, clazz, true);
-        if (gapDesc == null) {
-            gapDesc = newClassDesc(pool, className, null);
-        }
+        String oldBornOf = pool.getBornOf();
+        try {
+            pool.setBornOf(null);
 
-        String baseClassName = className + "Base";
-        Class<?> baseClass = getClass(baseClassName);
-        // 従属タイプのクラスの場合は既存のBaseクラスの情報とマージしなくて良い。
-        ClassDesc baseDesc = desc.getType().isSubordinate() ? null
-                : newClassDesc(pool, baseClass, true);
-        if (baseDesc == null) {
-            baseDesc = newClassDesc(pool, baseClassName, null);
-            if (!baseClassName.equals(desc.getSuperclassName())) {
-                baseDesc.setSuperclassName(desc.getSuperclassName());
-            }
-        }
-
-        // abstractかどうかを保持するようにする。
-        if (baseClass != null) {
-            desc.setAbstract(Modifier.isAbstract(baseClass.getModifiers()));
-        }
-
-        ClassDesc generated = desc.transcriptTo(newClassDesc(pool, desc
-                .getName(), null));
-        desc.clear();
-        desc.setSourceGeneratorParameter(generated
-                .getSourceGeneratorParameter());
-        desc.setAttributeMap(generated.getAttributeMap());
-
-        // baseのうち同じパス由来でないメンバを残す。
-        ClassDesc baseDescOtherBoneOf = baseDesc.transcriptTo(pool
-                .getClassDesc(baseDesc.getName()));
-        baseDescOtherBoneOf.removeBornOfFromAllMembers(desc.getBornOf());
-        desc.merge(baseDescOtherBoneOf, true);
-
-        ClassDesc superDesc = newClassDesc(pool, getClass(desc
-                .getSuperclassName()), false);
-        if (superDesc == null) {
-            superDesc = newClassDesc(pool, Object.class, false);
-        }
-
-        PropertyDesc[] pds = generated.getPropertyDescs();
-        for (int i = 0; i < pds.length; i++) {
-            PropertyDesc generatedPd = pds[i];
-            PropertyDesc basePd = baseDesc.getPropertyDesc(generatedPd
-                    .getName());
-
-            // baseにあるものは必ず残す。baseになくてsuperやgapにあるものは除去する。
-            if (basePd == null || !basePd.isReadable()) {
-                removeModeFrom(generatedPd, PropertyDesc.READ, gapDesc);
-                removeModeFrom(generatedPd, PropertyDesc.READ, superDesc);
-            }
-            if (basePd == null || !basePd.isWritable()) {
-                removeModeFrom(generatedPd, PropertyDesc.WRITE, gapDesc);
-                removeModeFrom(generatedPd, PropertyDesc.WRITE, superDesc);
+            String className = desc.getName();
+            Class<?> clazz = getClass(className);
+            ClassDesc gapDesc = newClassDesc(pool, clazz, true);
+            if (gapDesc == null) {
+                gapDesc = newClassDesc(pool, className, null);
             }
 
-            if (!generatedPd.isReadable() && !generatedPd.isWritable()) {
-                // GetterもSetterもないものは削除する。
-                // ただし@Meta(name="property")なプロパティはformのDTOのフィールドを生成するために残す。
-                // superclassがformのDTOのフィールドを持っている時は削除する。
-                if (!pds[i].hasMeta(Globals.META_NAME_PROPERTY)
-                        || isFormDtoFieldPresent(superDesc, generatedPd
-                                .getName())) {
-                    generated.removePropertyDesc(generatedPd.getName());
+            String baseClassName = className + "Base";
+            Class<?> baseClass = getClass(baseClassName);
+            // 従属タイプのクラスの場合は既存のBaseクラスの情報とマージしなくて良い。
+            ClassDesc baseDesc = desc.getType().isSubordinate() ? null
+                    : newClassDesc(pool, baseClass, true);
+            if (baseDesc == null) {
+                baseDesc = newClassDesc(pool, baseClassName, null);
+                if (!baseClassName.equals(desc.getSuperclassName())) {
+                    baseDesc.setSuperclassName(desc.getSuperclassName());
                 }
             }
 
-            if (basePd != null && generatedPd != null) {
-                TypeDesc baseTd = basePd.getTypeDesc();
-                TypeDesc generatedTd = generatedPd.getTypeDesc();
-                if (generatedTd.getCollectionImplementationClassName() == null) {
-                    generatedTd.setCollectionImplementationClassName(baseTd
-                            .getCollectionImplementationClassName());
+            // abstractかどうかを保持するようにする。
+            if (baseClass != null) {
+                desc.setAbstract(Modifier.isAbstract(baseClass.getModifiers()));
+            }
+
+            ClassDesc generated = desc.transcriptTo(newClassDesc(pool, desc
+                    .getName(), null));
+            desc.clear();
+            desc.setSourceGeneratorParameter(generated
+                    .getSourceGeneratorParameter());
+            desc.setAttributeMap(generated.getAttributeMap());
+
+            // baseのうち同じパス由来でないメンバを残す。
+            ClassDesc baseDescOtherBoneOf = baseDesc.transcriptTo(pool
+                    .getClassDesc(baseDesc.getName()));
+            baseDescOtherBoneOf.removeBornOf(desc.getBornOf());
+            desc.merge(baseDescOtherBoneOf, true);
+
+            ClassDesc superDesc = newClassDesc(pool, getClass(desc
+                    .getSuperclassName()), false);
+            if (superDesc == null) {
+                superDesc = newClassDesc(pool, Object.class, false);
+            }
+
+            PropertyDesc[] pds = generated.getPropertyDescs();
+            for (int i = 0; i < pds.length; i++) {
+                PropertyDesc generatedPd = pds[i];
+                PropertyDesc basePd = baseDesc.getPropertyDesc(generatedPd
+                        .getName());
+
+                // baseにあるものは必ず残す。baseになくてsuperやgapにあるものは除去する。
+                if (basePd == null || !basePd.isReadable()) {
+                    removeModeFrom(generatedPd, PropertyDesc.READ, gapDesc);
+                    removeModeFrom(generatedPd, PropertyDesc.READ, superDesc);
+                }
+                if (basePd == null || !basePd.isWritable()) {
+                    removeModeFrom(generatedPd, PropertyDesc.WRITE, gapDesc);
+                    removeModeFrom(generatedPd, PropertyDesc.WRITE, superDesc);
+                }
+
+                if (!generatedPd.isReadable() && !generatedPd.isWritable()) {
+                    // GetterもSetterもないものは削除する。
+                    // ただし@Meta(name="property")なプロパティはformのDTOのフィールドを生成するために残す。
+                    // superclassがformのDTOのフィールドを持っている時は削除する。
+                    if (!pds[i].hasMeta(Globals.META_NAME_PROPERTY)
+                            || isFormDtoFieldPresent(superDesc, generatedPd
+                                    .getName())) {
+                        generated.removePropertyDesc(generatedPd.getName());
+                    }
+                }
+
+                if (basePd != null && generatedPd != null) {
+                    TypeDesc baseTd = basePd.getTypeDesc();
+                    TypeDesc generatedTd = generatedPd.getTypeDesc();
+                    if (generatedTd.getCollectionImplementationClassName() == null) {
+                        generatedTd.setCollectionImplementationClassName(baseTd
+                                .getCollectionImplementationClassName());
+                    }
+
+                    // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
+                    // GeneratedにあるアノテーションのうちBaseにもあるものについてはBaseのものをGeneratedに上書きする。
+
+                    List<AnnotationDesc> list = new ArrayList<AnnotationDesc>();
+                    for (AnnotationDesc baseAd : basePd.getAnnotationDescs()) {
+                        AnnotationDesc generatedAd = generatedPd
+                                .getAnnotationDesc(baseAd.getName());
+                        if (DescUtils.isMetaAnnotation(generatedAd)
+                                || baseAd == null) {
+                            list.add(generatedAd);
+                        } else {
+                            list.add(baseAd);
+                        }
+                    }
+                    generatedPd.setAnnotationDescs(list
+                            .toArray(new AnnotationDesc[0]));
+
+                    list = new ArrayList<AnnotationDesc>();
+                    for (AnnotationDesc baseAd : basePd
+                            .getAnnotationDescsOnGetter()) {
+                        AnnotationDesc generatedAd = generatedPd
+                                .getAnnotationDescOnGetter(baseAd.getName());
+                        if (DescUtils.isMetaAnnotation(generatedAd)
+                                || baseAd == null) {
+                            list.add(generatedAd);
+                        } else {
+                            list.add(baseAd);
+                        }
+                    }
+                    generatedPd.setAnnotationDescsOnGetter(list
+                            .toArray(new AnnotationDesc[0]));
+
+                    list = new ArrayList<AnnotationDesc>();
+                    for (AnnotationDesc baseAd : basePd
+                            .getAnnotationDescsOnSetter()) {
+                        AnnotationDesc generatedAd = generatedPd
+                                .getAnnotationDescOnSetter(baseAd.getName());
+                        if (DescUtils.isMetaAnnotation(generatedAd)
+                                || baseAd == null) {
+                            list.add(generatedAd);
+                        } else {
+                            list.add(baseAd);
+                        }
+                    }
+                    generatedPd.setAnnotationDescsOnSetter(list
+                            .toArray(new AnnotationDesc[0]));
+                }
+            }
+
+            MethodDesc[] mds = generated.getMethodDescs();
+            for (int i = 0; i < mds.length; i++) {
+                MethodDesc generatedMd = mds[i];
+                MethodDesc gapMd = gapDesc.getMethodDesc(generatedMd);
+                MethodDesc baseMd = baseDesc.getMethodDesc(generatedMd);
+                MethodDesc superMd = superDesc.getMethodDesc(generatedMd);
+                if (baseMd == null && (gapMd != null || superMd != null)) {
+                    generated.removeMethodDesc(generatedMd);
+                } else if (gapMd != null
+                        && !generatedMd.getReturnTypeDesc().equals(
+                                gapMd.getReturnTypeDesc())) {
+                    generatedMd.setReturnTypeDesc(gapMd.getReturnTypeDesc()
+                            .transcriptTo(
+                                    desc.getDescPool().newTypeDesc(
+                                            gapMd.getReturnTypeDesc())));
+                } else if (superMd != null
+                        && !generatedMd.getReturnTypeDesc().equals(
+                                superMd.getReturnTypeDesc())) {
+                    generatedMd.setReturnTypeDesc(superMd.getReturnTypeDesc()
+                            .transcriptTo(
+                                    desc.getDescPool().newTypeDesc(
+                                            superMd.getReturnTypeDesc())));
+                } else if (isAction(generatedMd)
+                        && gapDesc.getMethodDescs(generatedMd.getName()).length > 0) {
+                    // アクションについては、メソッドシグネチャが一致しなくとも名前が一致するメソッドがあった場合は
+                    // 生成しない。
+                    generated.removeMethodDesc(generatedMd);
                 }
 
                 // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
                 // GeneratedにあるアノテーションのうちBaseにもあるものについてはBaseのものをGeneratedに上書きする。
-
-                List<AnnotationDesc> list = new ArrayList<AnnotationDesc>();
-                for (AnnotationDesc baseAd : basePd.getAnnotationDescs()) {
-                    AnnotationDesc generatedAd = generatedPd
-                            .getAnnotationDesc(baseAd.getName());
-                    if (DescUtils.isMetaAnnotation(generatedAd)
-                            || baseAd == null) {
-                        list.add(generatedAd);
-                    } else {
-                        list.add(baseAd);
+                if (baseMd != null) {
+                    List<AnnotationDesc> list = new ArrayList<AnnotationDesc>();
+                    for (AnnotationDesc ad : generatedMd.getAnnotationDescs()) {
+                        AnnotationDesc baseAd = baseMd.getAnnotationDesc(ad
+                                .getName());
+                        if (DescUtils.isMetaAnnotation(ad) || baseAd == null) {
+                            list.add(ad);
+                        } else {
+                            list.add(baseAd);
+                        }
                     }
+                    generatedMd.setAnnotationDescs(list
+                            .toArray(new AnnotationDesc[0]));
                 }
-                generatedPd.setAnnotationDescs(list
-                        .toArray(new AnnotationDesc[0]));
+            }
 
-                list = new ArrayList<AnnotationDesc>();
-                for (AnnotationDesc baseAd : basePd
-                        .getAnnotationDescsOnGetter()) {
-                    AnnotationDesc generatedAd = generatedPd
-                            .getAnnotationDescOnGetter(baseAd.getName());
-                    if (DescUtils.isMetaAnnotation(generatedAd)
-                            || baseAd == null) {
-                        list.add(generatedAd);
-                    } else {
-                        list.add(baseAd);
-                    }
+            // マージ後にもgenerated側のプロパティやメソッドの順番を保持したいため、こうしている。
+
+            Map<String, PropertyDesc> newDescPdMap = new LinkedHashMap<String, PropertyDesc>();
+            Map<String, PropertyDesc> descPdMap = new LinkedHashMap<String, PropertyDesc>();
+            for (PropertyDesc descPd : desc.getPropertyDescs()) {
+                descPdMap.put(descPd.getName(), descPd);
+            }
+            for (PropertyDesc generatedPd : generated.getPropertyDescs()) {
+                String key = generatedPd.getName();
+                PropertyDesc pd = descPdMap.get(key);
+                if (pd != null) {
+                    newDescPdMap.put(key, pd);
+                    descPdMap.remove(key);
                 }
-                generatedPd.setAnnotationDescsOnGetter(list
-                        .toArray(new AnnotationDesc[0]));
+            }
+            for (PropertyDesc descPd : descPdMap.values()) {
+                newDescPdMap.put(descPd.getName(), descPd);
+            }
+            desc.setPropertyDescs(newDescPdMap.values().toArray(
+                    new PropertyDesc[0]));
 
-                list = new ArrayList<AnnotationDesc>();
-                for (AnnotationDesc baseAd : basePd
-                        .getAnnotationDescsOnSetter()) {
-                    AnnotationDesc generatedAd = generatedPd
-                            .getAnnotationDescOnSetter(baseAd.getName());
-                    if (DescUtils.isMetaAnnotation(generatedAd)
-                            || baseAd == null) {
-                        list.add(generatedAd);
-                    } else {
-                        list.add(baseAd);
-                    }
+            Map<MethodDescKey, MethodDesc> newDescMdMap = new LinkedHashMap<MethodDescKey, MethodDesc>();
+            Map<MethodDescKey, MethodDesc> descMdMap = new LinkedHashMap<MethodDescKey, MethodDesc>();
+            for (MethodDesc descMd : desc.getMethodDescs()) {
+                descMdMap.put(new MethodDescKey(descMd), descMd);
+            }
+            for (MethodDesc generatedMd : generated.getMethodDescs()) {
+                MethodDescKey key = new MethodDescKey(generatedMd);
+                MethodDesc md = descMdMap.get(key);
+                if (md != null) {
+                    newDescMdMap.put(key, md);
+                    descMdMap.remove(key);
                 }
-                generatedPd.setAnnotationDescsOnSetter(list
-                        .toArray(new AnnotationDesc[0]));
             }
-        }
-
-        MethodDesc[] mds = generated.getMethodDescs();
-        for (int i = 0; i < mds.length; i++) {
-            MethodDesc generatedMd = mds[i];
-            MethodDesc gapMd = gapDesc.getMethodDesc(generatedMd);
-            MethodDesc baseMd = baseDesc.getMethodDesc(generatedMd);
-            MethodDesc superMd = superDesc.getMethodDesc(generatedMd);
-            if (baseMd == null && (gapMd != null || superMd != null)) {
-                generated.removeMethodDesc(generatedMd);
-            } else if (gapMd != null
-                    && !generatedMd.getReturnTypeDesc().equals(
-                            gapMd.getReturnTypeDesc())) {
-                generatedMd.setReturnTypeDesc(gapMd.getReturnTypeDesc()
-                        .transcriptTo(
-                                desc.getDescPool().newTypeDesc(
-                                        gapMd.getReturnTypeDesc())));
-            } else if (superMd != null
-                    && !generatedMd.getReturnTypeDesc().equals(
-                            superMd.getReturnTypeDesc())) {
-                generatedMd.setReturnTypeDesc(superMd.getReturnTypeDesc()
-                        .transcriptTo(
-                                desc.getDescPool().newTypeDesc(
-                                        superMd.getReturnTypeDesc())));
-            } else if (isAction(generatedMd)
-                    && gapDesc.getMethodDescs(generatedMd.getName()).length > 0) {
-                // アクションについては、メソッドシグネチャが一致しなくとも名前が一致するメソッドがあった場合は
-                // 生成しない。
-                generated.removeMethodDesc(generatedMd);
+            for (MethodDesc descMd : descMdMap.values()) {
+                newDescMdMap.put(new MethodDescKey(descMd), descMd);
             }
+            desc.setMethodDescs(newDescMdMap.values()
+                    .toArray(new MethodDesc[0]));
 
-            // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
-            // GeneratedにあるアノテーションのうちBaseにもあるものについてはBaseのものをGeneratedに上書きする。
-            if (baseMd != null) {
-                List<AnnotationDesc> list = new ArrayList<AnnotationDesc>();
-                for (AnnotationDesc ad : generatedMd.getAnnotationDescs()) {
-                    AnnotationDesc baseAd = baseMd.getAnnotationDesc(ad
-                            .getName());
-                    if (DescUtils.isMetaAnnotation(ad) || baseAd == null) {
-                        list.add(ad);
-                    } else {
-                        list.add(baseAd);
-                    }
-                }
-                generatedMd.setAnnotationDescs(list
-                        .toArray(new AnnotationDesc[0]));
-            }
+            desc.merge(generated, true);
+        } finally {
+            pool.setBornOf(oldBornOf);
         }
-
-        // マージ後にもgenerated側のプロパティやメソッドの順番を保持したいため、こうしている。
-
-        Map<String, PropertyDesc> newDescPdMap = new LinkedHashMap<String, PropertyDesc>();
-        Map<String, PropertyDesc> descPdMap = new LinkedHashMap<String, PropertyDesc>();
-        for (PropertyDesc descPd : desc.getPropertyDescs()) {
-            descPdMap.put(descPd.getName(), descPd);
-        }
-        for (PropertyDesc generatedPd : generated.getPropertyDescs()) {
-            String key = generatedPd.getName();
-            PropertyDesc pd = descPdMap.get(key);
-            if (pd != null) {
-                newDescPdMap.put(key, pd);
-                descPdMap.remove(key);
-            }
-        }
-        for (PropertyDesc descPd : descPdMap.values()) {
-            newDescPdMap.put(descPd.getName(), descPd);
-        }
-        desc.setPropertyDescs(newDescPdMap.values()
-                .toArray(new PropertyDesc[0]));
-
-        Map<MethodDescKey, MethodDesc> newDescMdMap = new LinkedHashMap<MethodDescKey, MethodDesc>();
-        Map<MethodDescKey, MethodDesc> descMdMap = new LinkedHashMap<MethodDescKey, MethodDesc>();
-        for (MethodDesc descMd : desc.getMethodDescs()) {
-            descMdMap.put(new MethodDescKey(descMd), descMd);
-        }
-        for (MethodDesc generatedMd : generated.getMethodDescs()) {
-            MethodDescKey key = new MethodDescKey(generatedMd);
-            MethodDesc md = descMdMap.get(key);
-            if (md != null) {
-                newDescMdMap.put(key, md);
-                descMdMap.remove(key);
-            }
-        }
-        for (MethodDesc descMd : descMdMap.values()) {
-            newDescMdMap.put(new MethodDescKey(descMd), descMd);
-        }
-        desc.setMethodDescs(newDescMdMap.values().toArray(new MethodDesc[0]));
-
-        // 生成された全てのメンバにbornOfを付与しておく。
-        generated.applyBornOf();
-
-        desc.merge(generated, true);
     }
 
     private boolean isAction(MethodDesc methodDesc) {

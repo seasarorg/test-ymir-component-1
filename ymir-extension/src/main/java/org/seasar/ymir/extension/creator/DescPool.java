@@ -21,6 +21,8 @@ public class DescPool implements Iterable<ClassDesc> {
 
     private ClassCreationHintBag hintBag_;
 
+    private String bornOf_;
+
     private DescPool(SourceCreator sourceCreator, ClassCreationHintBag hintBag) {
         sourceCreator_ = sourceCreator;
         hintBag_ = hintBag;
@@ -72,6 +74,7 @@ public class DescPool implements Iterable<ClassDesc> {
         if (classDesc == null) {
             classDesc = sourceCreator_.newClassDesc(this, classDescKey
                     .getClassName(), classDescKey.getQualifier(), hintBag_);
+            classDesc.setBornOf(bornOf_);
             classDescMap_.put(classDescKey, classDesc);
         }
         return classDesc;
@@ -163,6 +166,14 @@ public class DescPool implements Iterable<ClassDesc> {
 
     public SourceCreator getSourceCreator() {
         return sourceCreator_;
+    }
+
+    public String getBornOf() {
+        return bornOf_;
+    }
+
+    public void setBornOf(String bornOf) {
+        bornOf_ = bornOf;
     }
 
     public ClassDesc registerClassDesc(ClassDesc classDesc) {

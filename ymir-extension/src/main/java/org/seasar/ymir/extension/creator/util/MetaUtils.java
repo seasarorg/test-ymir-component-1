@@ -1,9 +1,15 @@
 package org.seasar.ymir.extension.creator.util;
 
 import java.lang.reflect.AnnotatedElement;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Metas;
+import org.seasar.ymir.extension.Globals;
+import org.seasar.ymir.extension.creator.AnnotationDesc;
+import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
 
 public class MetaUtils {
     private MetaUtils() {
@@ -70,5 +76,17 @@ public class MetaUtils {
         } else {
             return value[0];
         }
+    }
+
+    public static AnnotationDesc newBornOfMetaAnnotationDesc(String[] values,
+            String bornOf) {
+        if (values == null) {
+            values = new String[] { bornOf };
+        } else {
+            Set<String> set = new TreeSet<String>(Arrays.asList(values));
+            set.add(bornOf);
+            values = set.toArray(new String[0]);
+        }
+        return new MetaAnnotationDescImpl(Globals.META_NAME_BORNOF, values);
     }
 }

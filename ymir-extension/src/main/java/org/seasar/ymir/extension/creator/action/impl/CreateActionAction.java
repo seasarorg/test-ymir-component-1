@@ -8,6 +8,7 @@ import org.seasar.ymir.ActionNotFoundRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.PathMetaData;
@@ -60,9 +61,10 @@ public class CreateActionAction extends AbstractAction implements
             return null;
         }
 
-        ClassDesc classDesc = getSourceCreator().newClassDesc(newDescPool(),
+        DescPool pool = newDescPool();
+        pool.setBornOf(pathMetaData.getPath());
+        ClassDesc classDesc = getSourceCreator().newClassDesc(pool,
                 pathMetaData.getClassName(), null);
-        classDesc.setBornOf(pathMetaData.getPath());
         MethodDesc actionMethodDesc = getSourceCreator().newActionMethodDesc(
                 classDesc, anfe.getPath(), anfe.getMethod(),
                 new ActionSelectorSeedImpl());

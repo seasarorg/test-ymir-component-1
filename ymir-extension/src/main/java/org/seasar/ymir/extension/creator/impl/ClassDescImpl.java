@@ -306,22 +306,7 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
                 .getAnnotationDescs(), force));
     }
 
-    public void applyBornOf() {
-        String bornOf = getBornOf();
-        if (bornOf == null) {
-            return;
-        }
-
-        for (PropertyDesc propertyDesc : getPropertyDescs()) {
-            propertyDesc.applyBornOf(bornOf);
-        }
-
-        for (MethodDesc methodDesc : getMethodDescs()) {
-            methodDesc.applyBornOf(bornOf);
-        }
-    }
-
-    public void removeBornOfFromAllMembers(String bornOf) {
+    public void removeBornOf(String bornOf) {
         if (bornOf == null) {
             return;
         }

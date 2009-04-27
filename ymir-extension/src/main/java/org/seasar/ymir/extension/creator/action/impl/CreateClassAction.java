@@ -6,6 +6,7 @@ import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.PathMetaData;
@@ -67,10 +68,11 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
 
         updateMapping(pathMetaData);
 
-        ClassDesc classDesc = getSourceCreator().newClassDesc(newDescPool(),
-                pathMetaData.getClassName(), null);
+        DescPool pool = newDescPool();
         String path = pathMetaData.getPath();
-        classDesc.setBornOf(path);
+        pool.setBornOf(path);
+        ClassDesc classDesc = getSourceCreator().newClassDesc(pool,
+                pathMetaData.getClassName(), null);
         MethodDesc actionMethodDesc = getSourceCreator().newActionMethodDesc(
                 classDesc, path, method, new ActionSelectorSeedImpl());
         actionMethodDesc.setReturnTypeDesc(String.class);

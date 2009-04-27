@@ -22,6 +22,7 @@ import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
+import org.seasar.ymir.extension.creator.util.MetaUtils;
 import org.seasar.ymir.util.ClassUtils;
 
 public class PropertyDescImpl extends AbstractAnnotatedDesc implements
@@ -54,6 +55,7 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         pool_ = pool;
         name_ = name;
         setTypeDesc(String.class);
+        applyBornOf(pool_.getBornOf());
     }
 
     public PropertyDescImpl(DescPool pool, PropertyDescriptor descriptor) {
@@ -112,6 +114,7 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
                 }
             }
         }
+        applyBornOf(pool_.getBornOf());
     }
 
     @Override
@@ -492,22 +495,30 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         }
     }
 
-    public void applyBornOf(String bornOf) {
+    void applyBornOf(String bornOf) {
         if (bornOf == null) {
             return;
         }
 
         // Getter。
-        setAnnotationDescOnGetter(new MetaAnnotationDescImpl(
-                Globals.META_NAME_BORNOF, new String[] { bornOf }));
+        AnnotationDesc annotationDescOnGetter = MetaUtils
+                .newBornOfMetaAnnotationDesc(
+                        getMetaValueOnGetter(Globals.META_NAME_BORNOF), bornOf);
+        removeMetaAnnotationDescOnGetter(Globals.META_NAME_BORNOF);
+        setAnnotationDescOnGetter(annotationDescOnGetter);
 
         // Setter。
-        setAnnotationDescOnSetter(new MetaAnnotationDescImpl(
-                Globals.META_NAME_BORNOF, new String[] { bornOf }));
+        AnnotationDesc annotationDescOnSetter = MetaUtils
+                .newBornOfMetaAnnotationDesc(
+                        getMetaValueOnSetter(Globals.META_NAME_BORNOF), bornOf);
+        removeMetaAnnotationDescOnSetter(Globals.META_NAME_BORNOF);
+        setAnnotationDescOnSetter(annotationDescOnSetter);
 
         // フィールド。
-        setAnnotationDesc(new MetaAnnotationDescImpl(Globals.META_NAME_BORNOF,
-                new String[] { bornOf }));
+        AnnotationDesc annotationDesc = MetaUtils.newBornOfMetaAnnotationDesc(
+                getMetaValue(Globals.META_NAME_BORNOF), bornOf);
+        removeMetaAnnotationDesc(Globals.META_NAME_BORNOF);
+        setAnnotationDesc(annotationDesc);
     }
 
     public boolean removeBornOf(String bornOf) {
