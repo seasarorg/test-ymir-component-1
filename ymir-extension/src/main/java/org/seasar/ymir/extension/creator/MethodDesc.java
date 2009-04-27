@@ -28,4 +28,8 @@ public interface MethodDesc extends AnnotatedDesc<MethodDesc> {
     ThrowsDesc getThrowsDesc();
 
     void setThrowsDesc(ThrowsDesc throwsDesc);
+
+    void applyBornOf(String bornOf);
+
+    boolean removeBornOf(String bornOf);
 }

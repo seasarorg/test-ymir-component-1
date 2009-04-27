@@ -13,6 +13,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.Desc;
@@ -487,6 +488,101 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         }
         for (AnnotationDesc annotationDesc : getAnnotationDescsOnSetter()) {
             annotationDesc.setTouchedClassNameSet(set);
+        }
+    }
+
+    public void applyBornOf(String bornOf) {
+        if (bornOf == null) {
+            return;
+        }
+
+        // Getter。
+        setAnnotationDescOnGetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { bornOf }));
+
+        // Setter。
+        setAnnotationDescOnSetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { bornOf }));
+
+        // フィールド。
+        setAnnotationDesc(new MetaAnnotationDescImpl(Globals.META_NAME_BORNOF,
+                new String[] { bornOf }));
+    }
+
+    public boolean removeBornOf(String bornOf) {
+        if (bornOf == null) {
+            return false;
+        }
+
+        boolean mayFieldBeRemoved = false;
+
+        // Getter。
+
+        String[] values = getMetaValueOnGetter(Globals.META_NAME_BORNOF);
+        if (values != null) {
+            removeMetaAnnotationDescOnGetter(Globals.META_NAME_BORNOF);
+
+            List<String> valueList = new ArrayList<String>();
+            for (String value : values) {
+                if (!value.equals(bornOf)) {
+                    valueList.add(value);
+                }
+            }
+            values = valueList.toArray(new String[0]);
+            if (values.length == 0) {
+                mode_ &= ~PropertyDesc.READ;
+            } else {
+                setAnnotationDescOnGetter(new MetaAnnotationDescImpl(
+                        Globals.META_NAME_BORNOF, values));
+            }
+        }
+
+        // Setter。
+
+        values = getMetaValueOnSetter(Globals.META_NAME_BORNOF);
+        if (values != null) {
+            removeMetaAnnotationDescOnSetter(Globals.META_NAME_BORNOF);
+
+            List<String> valueList = new ArrayList<String>();
+            for (String value : values) {
+                if (!value.equals(bornOf)) {
+                    valueList.add(value);
+                }
+            }
+            values = valueList.toArray(new String[0]);
+            if (values.length == 0) {
+                mode_ &= ~PropertyDesc.WRITE;
+            } else {
+                setAnnotationDescOnSetter(new MetaAnnotationDescImpl(
+                        Globals.META_NAME_BORNOF, values));
+            }
+        }
+
+        // フィールド。
+
+        values = getMetaValue(Globals.META_NAME_BORNOF);
+        if (values != null) {
+            removeMetaAnnotationDesc(Globals.META_NAME_BORNOF);
+
+            List<String> valueList = new ArrayList<String>();
+            for (String value : values) {
+                if (!value.equals(bornOf)) {
+                    valueList.add(value);
+                }
+            }
+            values = valueList.toArray(new String[0]);
+            if (values.length == 0) {
+                mayFieldBeRemoved = true;
+            } else {
+                setAnnotationDesc(new MetaAnnotationDescImpl(
+                        Globals.META_NAME_BORNOF, values));
+            }
+        }
+
+        if (mode_ == PropertyDesc.NONE && mayFieldBeRemoved) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

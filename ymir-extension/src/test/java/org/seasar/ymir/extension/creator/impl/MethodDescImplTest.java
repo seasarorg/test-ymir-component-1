@@ -7,7 +7,9 @@ import java.util.TreeSet;
 import junit.framework.TestCase;
 
 import org.seasar.ymir.Application;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.DescPool;
+import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.mock.MockApplication;
 
 public class MethodDescImplTest extends TestCase {
@@ -77,5 +79,26 @@ public class MethodDescImplTest extends TestCase {
         assertEquals(List.class.getName(), actual[idx++]);
         assertEquals("org.example.Noe", actual[idx++]);
         assertEquals(MethodDescImplTest.class.getName(), actual[idx++]);
+    }
+
+    public void testRemoveBornOf1() throws Exception {
+        MethodDesc target = new MethodDescImpl(pool_, "_get");
+        target.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a", "b" }));
+
+        assertFalse(target.removeBornOf("a"));
+
+        String[] values = target.getMetaValue(Globals.META_NAME_BORNOF);
+        assertNotNull(values);
+        assertEquals(1, values.length);
+        assertEquals("b", values[0]);
+    }
+
+    public void testRemoveBornOf2() throws Exception {
+        MethodDesc target = new MethodDescImpl(pool_, "_get");
+        target.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+
+        assertTrue(target.removeBornOf("a"));
     }
 }

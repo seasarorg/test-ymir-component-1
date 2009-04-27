@@ -88,7 +88,7 @@ public interface ClassDesc extends AnnotatedDesc<ClassDesc> {
 
     void removeBornOfFromAllMembers(String bornOf);
 
-    void applyBornOfToAllMembers();
+    void applyBornOf();
 
     String getPathOfClass();
 }

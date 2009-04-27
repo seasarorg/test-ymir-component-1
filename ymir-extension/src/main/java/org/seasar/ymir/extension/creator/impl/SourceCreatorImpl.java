@@ -1410,7 +1410,7 @@ public class SourceCreatorImpl implements SourceCreator {
         desc.setMethodDescs(newDescMdMap.values().toArray(new MethodDesc[0]));
 
         // 生成された全てのメンバにbornOfを付与しておく。
-        generated.applyBornOfToAllMembers();
+        generated.applyBornOf();
 
         desc.merge(generated, true);
     }

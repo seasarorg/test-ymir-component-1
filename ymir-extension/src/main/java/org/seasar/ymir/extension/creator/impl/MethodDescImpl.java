@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.Desc;
@@ -203,5 +204,42 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
         returnTypeDesc_.setTouchedClassNameSet(set);
 
         throwsDesc_.setTouchedClassNameSet(set);
+    }
+
+    public void applyBornOf(String bornOf) {
+        if (bornOf == null) {
+            return;
+        }
+
+        setAnnotationDesc(new MetaAnnotationDescImpl(Globals.META_NAME_BORNOF,
+                new String[] { bornOf }));
+    }
+
+    public boolean removeBornOf(String bornOf) {
+        if (bornOf == null) {
+            return false;
+        }
+
+        boolean removeThis = false;
+        String[] values = getMetaValue(Globals.META_NAME_BORNOF);
+        if (values != null) {
+            removeMetaAnnotationDesc(Globals.META_NAME_BORNOF);
+
+            List<String> valueList = new ArrayList<String>();
+            for (String value : values) {
+                if (!value.equals(bornOf)) {
+                    valueList.add(value);
+                }
+            }
+            values = valueList.toArray(new String[0]);
+            if (values.length == 0) {
+                removeThis = true;
+            } else {
+                setAnnotationDesc(new MetaAnnotationDescImpl(
+                        Globals.META_NAME_BORNOF, values));
+            }
+        }
+
+        return removeThis;
     }
 }

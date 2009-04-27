@@ -3,7 +3,9 @@ package org.seasar.ymir.extension.creator.impl;
 import java.util.List;
 import java.util.TreeSet;
 
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.DescPool;
+import org.seasar.ymir.extension.creator.PropertyDesc;
 
 import net.skirnir.freyja.render.html.Option;
 
@@ -96,5 +98,103 @@ public class PropertyDescImplTest extends SourceCreatorImplTestBase {
         assertEquals("org.example.Hoe", actual[idx++]);
         assertEquals("org.example.Noe", actual[idx++]);
         assertEquals(PropertyDescImplTest.class.getName(), actual[idx++]);
+    }
+
+    public void testRemoveBornOf1() throws Exception {
+        PropertyDesc target = new PropertyDescImpl(pool_, "property");
+        target.setMode(PropertyDesc.READ | PropertyDesc.WRITE);
+        target.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a", "b" }));
+        target.setAnnotationDescOnGetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a", "b" }));
+        target.setAnnotationDescOnSetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+
+        assertFalse(target.removeBornOf("a"));
+
+        assertEquals(PropertyDesc.READ, target.getMode());
+
+        String[] values = target.getMetaValue(Globals.META_NAME_BORNOF);
+        assertNotNull(values);
+        assertEquals(1, values.length);
+        assertEquals("b", values[0]);
+
+        values = target.getMetaValueOnGetter(Globals.META_NAME_BORNOF);
+        assertNotNull(values);
+        assertEquals(1, values.length);
+        assertEquals("b", values[0]);
+
+        values = target.getMetaValueOnSetter(Globals.META_NAME_BORNOF);
+        assertNull(values);
+    }
+
+    public void testRemoveBornOf2() throws Exception {
+        PropertyDesc target = new PropertyDescImpl(pool_, "property");
+        target.setMode(PropertyDesc.READ | PropertyDesc.WRITE);
+        target.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a", "b" }));
+        target.setAnnotationDescOnGetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+        target.setAnnotationDescOnSetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+
+        assertFalse(target.removeBornOf("a"));
+
+        assertEquals(PropertyDesc.NONE, target.getMode());
+
+        String[] values = target.getMetaValue(Globals.META_NAME_BORNOF);
+        assertNotNull(values);
+        assertEquals(1, values.length);
+        assertEquals("b", values[0]);
+
+        values = target.getMetaValueOnGetter(Globals.META_NAME_BORNOF);
+        assertNull(values);
+
+        values = target.getMetaValueOnSetter(Globals.META_NAME_BORNOF);
+        assertNull(values);
+    }
+
+    public void testRemoveBornOf3() throws Exception {
+        PropertyDesc target = new PropertyDescImpl(pool_, "property");
+        target.setMode(PropertyDesc.READ | PropertyDesc.WRITE);
+        target.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+        target.setAnnotationDescOnGetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+        target.setAnnotationDescOnSetter(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+
+        assertTrue(target.removeBornOf("a"));
+    }
+
+    public void testRemoveBornOf4() throws Exception {
+        PropertyDesc target = new PropertyDescImpl(pool_, "property");
+        target.setMode(PropertyDesc.NONE);
+        target.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a", "b" }));
+
+        assertFalse(target.removeBornOf("a"));
+
+        assertEquals(PropertyDesc.NONE, target.getMode());
+
+        String[] values = target.getMetaValue(Globals.META_NAME_BORNOF);
+        assertNotNull(values);
+        assertEquals(1, values.length);
+        assertEquals("b", values[0]);
+
+        values = target.getMetaValueOnGetter(Globals.META_NAME_BORNOF);
+        assertNull(values);
+
+        values = target.getMetaValueOnSetter(Globals.META_NAME_BORNOF);
+        assertNull(values);
+    }
+
+    public void testRemoveBornOf5() throws Exception {
+        PropertyDesc target = new PropertyDescImpl(pool_, "property");
+        target.setMode(PropertyDesc.NONE);
+        target.setAnnotationDesc(new MetaAnnotationDescImpl(
+                Globals.META_NAME_BORNOF, new String[] { "a" }));
+
+        assertTrue(target.removeBornOf("a"));
     }
 }
