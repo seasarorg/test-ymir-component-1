@@ -2,8 +2,8 @@ package org.seasar.ymir.extension.creator;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class ClassDescBag {
 
@@ -105,7 +105,7 @@ public class ClassDescBag {
             Map<ClassType, Map<String, ClassDesc>> map, ClassType type) {
         Map<String, ClassDesc> got = map.get(type);
         if (got == null) {
-            got = new LinkedHashMap<String, ClassDesc>();
+            got = new TreeMap<String, ClassDesc>();
             map.put(type, got);
         }
         return got;

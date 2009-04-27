@@ -1,5 +1,8 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -98,6 +101,22 @@ public class PropertyDescImplTest extends SourceCreatorImplTestBase {
         assertEquals("org.example.Hoe", actual[idx++]);
         assertEquals("org.example.Noe", actual[idx++]);
         assertEquals(PropertyDescImplTest.class.getName(), actual[idx++]);
+    }
+
+    public void test_Collection型の場合は実装型を取得できること() throws Exception {
+        PropertyDescriptor listDescriptor = null;
+        for (PropertyDescriptor descriptor : Introspector.getBeanInfo(
+                Hoe4.class).getPropertyDescriptors()) {
+            if ("list".equals(descriptor.getName())) {
+                listDescriptor = descriptor;
+                break;
+            }
+        }
+
+        PropertyDescImpl target = new PropertyDescImpl(pool_, listDescriptor);
+
+        assertEquals(ArrayList.class.getName(), target.getTypeDesc()
+                .getCollectionImplementationClassName());
     }
 
     public void testRemoveBornOf1() throws Exception {

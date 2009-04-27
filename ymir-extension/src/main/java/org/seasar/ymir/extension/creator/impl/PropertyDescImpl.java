@@ -96,7 +96,8 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
                 try {
                     field.setAccessible(true);
 
-                    Object instance = ClassUtils.newInstance(clazz);
+                    Object instance = ClassUtils.newInstance(field
+                            .getDeclaringClass());
                     Object value = field.get(instance);
                     if (value != null) {
                         getTypeDesc().setCollectionImplementationClass(
