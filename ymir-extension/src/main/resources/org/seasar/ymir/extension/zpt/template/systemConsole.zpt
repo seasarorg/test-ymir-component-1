@@ -77,7 +77,7 @@ SubversionからプロジェクトのHTMLテンプレートを更新した後な
 </form>
 
 <h2>Pageクラスとパスのマッピングの対応データの一括生成</h2>
-<p>ViliのためのPageクラスとパスのマッピングの対応データを一括生成します。</p>
+<p>VeのためのPageクラスとパスのマッピングの対応データを一括生成します。</p>
 <form tal:attributes="action request/absolutePath" method="post">
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
   <input type="hidden" name="__ymir__task" value="systemConsole" />

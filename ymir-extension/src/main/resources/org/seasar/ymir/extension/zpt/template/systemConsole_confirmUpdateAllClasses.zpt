@@ -14,13 +14,13 @@
 <div tal:condition="classDescBag/createdClassDescs">
 <p>以下のクラスが追加されます：</p>
 <ul>
-  <li tal:repeat="classDesc classDescBag/createdClassDescs"><input type="checkbox" name="__ymir__apply" tal:define="kind classDesc/kind" tal:attributes='value classDesc/name; checked not:java:kind.equals("Dao") || kind.equals("Bean")' /> <span tal:content="classDesc/name">CLASS</span></li>
+  <li tal:repeat="classDesc classDescBag/createdClassDescs"><input type="checkbox" name="__ymir__apply" tal:define="suffix classDesc/type/suffix" tal:attributes='value classDesc/name; checked not:java:suffix.equals("Dao") || suffix.equals("")' /> <span tal:content="classDesc/name">CLASS</span></li>
 </ul>
 </div>
 <div tal:condition="classDescBag/updatedClassDescs">
 <p>以下のクラスが更新されます：</p>
 <ul>
-  <li tal:repeat="classDesc classDescBag/updatedClassDescs"><input type="checkbox" name="__ymir__apply" tal:define="kind classDesc/kind" tal:attributes='value classDesc/name; checked not:java:kind.equals("Dao") || kind.equals("Bean")' /> <span tal:content="classDesc/name">CLASS</span></li>
+  <li tal:repeat="classDesc classDescBag/updatedClassDescs"><input type="checkbox" name="__ymir__apply" tal:define="suffix classDesc/type/suffix" tal:attributes='value classDesc/name; checked not:java:suffix.equals("Dao") || suffix.equals("")' /> <span tal:content="classDesc/name">CLASS</span></li>
 </ul>
 </div>
 <p>よろしいですか？</p>
