@@ -218,8 +218,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
     }
 
     public void testAdjustByExistentClass() throws Exception {
-        ClassDesc cd = new ClassDescImpl(pool_,
-                "org.seasar.ymir.extension.creator.impl.Merge3Page");
+        ClassDesc cd = pool_
+                .getClassDesc("org.seasar.ymir.extension.creator.impl.Merge3Page");
         cd.setSuperclassName(Merge3PageBaseBase.class.getName());
         PropertyDesc pd = new PropertyDescImpl(pool_, "hoe");
         pd.addMode(PropertyDesc.READ);
@@ -674,8 +674,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass4_由来が同じプロパティのうち生成されたClassDescにも含まれているものが正しく残ること()
             throws Exception {
-        ClassDesc classDesc = new ClassDescImpl(pool_, Adjust2Page.class
-                .getName());
+        ClassDesc classDesc = pool_.getClassDesc(Adjust2Page.class);
         classDesc.setBornOf("/adjust2.html");
         classDesc.addProperty("param6", PropertyDesc.READ);
 
@@ -711,8 +710,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testUpdateClass_Page() throws Exception {
         pool_.setBornOf("/sourceCreatorImplTest2.html");
-        ClassDesc classDesc = new ClassDescImpl(pool_,
-                SourceCreatorImplTest2Page.class.getName());
+        ClassDesc classDesc = pool_
+                .getClassDesc(SourceCreatorImplTest2Page.class);
         MethodDesc methodDesc = target_.newActionMethodDesc(classDesc,
                 "/sourceCreatorImplTest2.html", HttpMethod.GET);
         classDesc.setMethodDesc(methodDesc);
