@@ -523,11 +523,13 @@ public class DescUtils {
         TypeToken typeToken = new TypeToken(typeName);
         typeToken.accept(new TokenVisitor<Object>() {
             public Object visit(Token acceptor) {
-                String baseName = acceptor.getBaseName();
-                if (baseName.startsWith(PACKAGEPREFIX_JAVA_LANG)) {
-                    acceptor.setBaseName(baseName
-                            .substring(PACKAGEPREFIX_JAVA_LANG.length()));
+                String componentName = acceptor.getComponentName();
+                StringBuilder sb = new StringBuilder();
+                sb.append(ClassUtils.getNormalizedName(componentName));
+                if (acceptor.isArray()) {
+                    sb.append(SUFFIX_ARRAY);
                 }
+                acceptor.setBaseName(sb.toString());
                 return null;
             }
         });
@@ -544,7 +546,7 @@ public class DescUtils {
             public Object visit(Token acceptor) {
                 String componentName = acceptor.getComponentName();
                 StringBuilder sb = new StringBuilder();
-                sb.append(ClassUtils.getShorterName(componentName));
+                sb.append(ClassUtils.getShortName(componentName));
                 if (acceptor.isArray()) {
                     sb.append(SUFFIX_ARRAY);
                 }
@@ -707,12 +709,9 @@ public class DescUtils {
     public static void removeStandardClassNames(Set<String> classNameSet) {
         for (Iterator<String> itr = classNameSet.iterator(); itr.hasNext();) {
             String className = itr.next();
-            if (Void.TYPE.getName().equals(className)
-                    || ClassUtils.isPrimitive(className)
-                    || className.startsWith(PACKAGEPREFIX_JAVA_LANG)) {
+            if (ClassUtils.isStandard(className)) {
                 itr.remove();
             }
         }
     }
-
 }

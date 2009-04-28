@@ -23,6 +23,7 @@ import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -1157,6 +1158,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
         case DTO:
             baseImportClassNameSet.add(Serializable.class.getName());
+            baseImportClassNameSet.add(Array.class.getName());
             break;
 
         case DAO:

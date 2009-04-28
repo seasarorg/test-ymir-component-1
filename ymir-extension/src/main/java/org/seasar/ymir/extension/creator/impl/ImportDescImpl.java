@@ -10,8 +10,6 @@ import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.util.ClassUtils;
 
 public class ImportDescImpl implements ImportDesc {
-    private static final String PREFIX_JAVA_LANG = "java.lang.";
-
     private static final String PREFIX_JAVA = "java.";
 
     private static final String PREFIX_JAVAX = "javax.";
@@ -61,9 +59,7 @@ public class ImportDescImpl implements ImportDesc {
     protected void add0(String className) {
         if (className == null) {
             return;
-        } else if (className.equals(Void.TYPE.getName())
-                || ClassUtils.isPrimitive(className)
-                || className.startsWith(PREFIX_JAVA_LANG)) {
+        } else if (ClassUtils.isStandard(className)) {
             return;
         } else if (className.startsWith(classDesc_.getPackageName() + ".")) {
             return;
