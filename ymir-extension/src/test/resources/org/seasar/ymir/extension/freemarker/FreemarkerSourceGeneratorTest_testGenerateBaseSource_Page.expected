@@ -1,6 +1,8 @@
 package com.example.page;
 
+import org.seasar.ymir.Response;
 import org.seasar.ymir.annotation.Meta;
+import org.seasar.ymir.response.PassthroughResponse;
 
 public class TestPageBase extends TestPageBaseBase {
     public static final String PACKAGE = "com.example.page";
@@ -49,8 +51,8 @@ public class TestPageBase extends TestPageBaseBase {
         param3_ = param3;
     }
 
-    @Meta(name = "source", value = "return \"redirect:/path/to/redirect.html\";")
-    public String _get() {
-        return "redirect:/path/to/redirect.html";
+    @Meta(name = "source", value = "return new PassthroughResponse();", classValue = PassthroughResponse.class)
+    public Response _get() {
+        return new PassthroughResponse();
     }
 }

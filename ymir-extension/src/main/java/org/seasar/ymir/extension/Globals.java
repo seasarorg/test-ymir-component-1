@@ -19,6 +19,8 @@ public interface Globals extends org.seasar.ymir.Globals {
 
     String ATTR_FORMDTO = "formDto";
 
+    String ATTR_EVALUATEDBODY = "evaluatedBody";
+
     String PARAMETER_IMPORTCLASSSET = "importClassSet";
 
     String PARAMETER_BASEIMPORTCLASSSET = "baseImportClassSet";

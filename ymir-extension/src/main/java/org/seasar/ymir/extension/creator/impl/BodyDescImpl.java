@@ -10,16 +10,21 @@ public class BodyDescImpl implements BodyDesc {
 
     private Map<String, Object> root_;
 
-    public BodyDescImpl(String key, Map<String, Object> root) {
+    private String[] dependingClassNames_ = new String[0];
+
+    public BodyDescImpl(String key, Map<String, Object> root,
+            String[] dependingClassNames) {
         key_ = key;
         root_ = root;
+        dependingClassNames_ = dependingClassNames;
     }
 
-    public BodyDescImpl(String body) {
+    public BodyDescImpl(String body, String[] dependingClassNames) {
         key_ = KEY_ASIS;
         Map<String, Object> root = new HashMap<String, Object>();
         root.put(PROP_BODY, body);
         root_ = root;
+        dependingClassNames_ = dependingClassNames;
     }
 
     public String getKey() {
@@ -36,5 +41,13 @@ public class BodyDescImpl implements BodyDesc {
 
     public void setRoot(Map<String, Object> root) {
         root_ = root;
+    }
+
+    public String[] getDependingClassNames() {
+        return dependingClassNames_;
+    }
+
+    public void setDependingClassNames(String[] classNames) {
+        dependingClassNames_ = classNames;
     }
 }

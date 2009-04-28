@@ -3,6 +3,7 @@ package org.seasar.ymir.extension.freemarker;
 import java.util.HashMap;
 
 import org.seasar.ymir.Application;
+import org.seasar.ymir.Response;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.constraint.ConstraintInterceptor;
 import org.seasar.ymir.constraint.PermissionDeniedException;
@@ -25,6 +26,7 @@ import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.extension.creator.impl.ThrowsDescImpl;
 import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.mock.MockYmir;
+import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.testing.TestCaseBase;
 
 import com.example.dao.Hoe;
@@ -177,9 +179,10 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         MethodDesc methodDesc = new MethodDescImpl(pool_, "_get");
         classDesc.setAttribute(Globals.ATTR_ACTION,
                 new MethodDesc[] { methodDesc });
-        methodDesc.setReturnTypeDesc(String.class.getName());
+        methodDesc.setReturnTypeDesc(Response.class.getName());
         methodDesc.setBodyDesc(new BodyDescImpl(
-                "return \"redirect:/path/to/redirect.html\";"));
+                "return new PassthroughResponse();",
+                new String[] { PassthroughResponse.class.getName() }));
         classDesc.setMethodDesc(methodDesc);
 
         sourceCreator_.prepareForMethodDescs(classDesc);
@@ -247,7 +250,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                         pool_, PermissionDeniedException.class, "ex") });
         methodDesc.setBodyDesc(new BodyDescImpl(
                 ConstraintInterceptor.ACTION_PERMISSIONDENIED,
-                new HashMap<String, Object>()));
+                new HashMap<String, Object>(), new String[0]));
         classDesc.setMethodDesc(methodDesc);
 
         sourceCreator_.prepareForMethodDescs(classDesc);
@@ -281,7 +284,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                         pool_, PermissionDeniedException.class, "ex") });
         methodDesc.setBodyDesc(new BodyDescImpl(
                 ConstraintInterceptor.ACTION_PERMISSIONDENIED,
-                new HashMap<String, Object>()));
+                new HashMap<String, Object>(), new String[0]));
         generated.setMethodDesc(methodDesc);
 
         classDesc.merge(generated, true);
@@ -318,7 +321,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 "_get");
         methodDesc.setReturnTypeDesc(String.class.getName());
         methodDesc.setBodyDesc(new BodyDescImpl(
-                "return \"redirect:/path/to/redirect.html\";"));
+                "return \"redirect:/path/to/redirect.html\";", new String[0]));
         classDesc.setMethodDesc(methodDesc);
 
         sourceCreator_.prepareForMethodDescs(classDesc);
@@ -331,7 +334,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateSource_BodyDesc() throws Exception {
-        String actual = target_.generateBodySource(new BodyDescImpl("test"));
+        String actual = target_.generateBodySource(new BodyDescImpl("test",
+                new String[0]));
 
         assertEquals("test", actual);
     }

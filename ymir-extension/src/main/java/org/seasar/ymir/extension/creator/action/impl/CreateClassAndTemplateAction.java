@@ -100,7 +100,7 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
         methodDesc.setReturnTypeDesc(String.class);
         methodDesc.getReturnTypeDesc().setExplicit(true);
         methodDesc.setBodyDesc(new BodyDescImpl("return "
-                + quote("redirect:" + redirectPath) + ";"));
+                + quote("redirect:" + redirectPath) + ";", new String[0]));
         classDesc.setMethodDesc(methodDesc);
 
         String[] lackingClassNames = null;

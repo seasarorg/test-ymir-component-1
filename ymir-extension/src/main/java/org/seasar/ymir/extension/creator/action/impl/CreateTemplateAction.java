@@ -125,7 +125,7 @@ public class CreateTemplateAction extends AbstractAction implements
                 transition = "redirect:" + transition;
             }
             actionMethodDesc.setBodyDesc(new BodyDescImpl("return "
-                    + quote(transition.trim()) + ";"));
+                    + quote(transition.trim()) + ";", new String[0]));
             classDesc.setMethodDesc(actionMethodDesc);
             getSourceCreator().adjustByExistentClass(classDesc);
             try {

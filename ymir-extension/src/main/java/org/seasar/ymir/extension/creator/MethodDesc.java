@@ -21,10 +21,6 @@ public interface MethodDesc extends AnnotatedDesc<MethodDesc> {
 
     void setBodyDesc(BodyDesc bodyDesc);
 
-    String getEvaluatedBody();
-
-    void setEvaluatedBody(String evaluatedBody);
-
     ThrowsDesc getThrowsDesc();
 
     void setThrowsDesc(ThrowsDesc throwsDesc);

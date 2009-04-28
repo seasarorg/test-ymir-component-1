@@ -31,8 +31,6 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
 
     private BodyDesc bodyDesc_;
 
-    private String evaluatedBody_;
-
     private Desc<?> parent_;
 
     public MethodDescImpl(DescPool pool, String name) {
@@ -131,14 +129,6 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
         bodyDesc_ = bodyDesc;
     }
 
-    public String getEvaluatedBody() {
-        return evaluatedBody_;
-    }
-
-    public void setEvaluatedBody(String evaluatedBody) {
-        evaluatedBody_ = evaluatedBody;
-    }
-
     public ThrowsDesc getThrowsDesc() {
         return throwsDesc_;
     }
@@ -166,10 +156,8 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
 
         if (bodyDesc_ != null) {
             desc.setBodyDesc(new BodyDescImpl(bodyDesc_.getKey(), bodyDesc_
-                    .getRoot()));
+                    .getRoot(), bodyDesc_.getDependingClassNames()));
         }
-
-        desc.setEvaluatedBody(evaluatedBody_);
 
         return desc;
     }

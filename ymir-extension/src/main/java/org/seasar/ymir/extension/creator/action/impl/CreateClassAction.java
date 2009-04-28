@@ -82,7 +82,7 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
                 transition = "redirect:" + transition;
             }
             actionMethodDesc.setBodyDesc(new BodyDescImpl("return "
-                    + quote(transition.trim()) + ";"));
+                    + quote(transition.trim()) + ";", new String[0]));
         }
         classDesc.setMethodDesc(actionMethodDesc);
 

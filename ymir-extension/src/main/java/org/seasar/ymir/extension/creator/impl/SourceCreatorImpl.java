@@ -138,6 +138,7 @@ import org.seasar.ymir.message.MessageNotFoundRuntimeException;
 import org.seasar.ymir.message.Messages;
 import org.seasar.ymir.message.MessagesNotFoundRuntimeException;
 import org.seasar.ymir.message.Notes;
+import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.scope.annotation.Inject;
 import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.HTMLUtils;
@@ -632,7 +633,7 @@ public class SourceCreatorImpl implements SourceCreator {
                         PermissionDeniedException.class));
                 methodDesc.setBodyDesc(new BodyDescImpl(
                         BodyDesc.KEY_PERMISSIONDENIED,
-                        new HashMap<String, Object>()));
+                        new HashMap<String, Object>(), new String[0]));
                 pageClassDesc.setMethodDesc(methodDesc);
             }
         } finally {
@@ -719,8 +720,14 @@ public class SourceCreatorImpl implements SourceCreator {
             classDesc.setMethodDesc(md);
             String[] source = md.getMetaValue(Globals.META_NAME_SOURCE);
             if (source != null) {
+                List<String> classNameList = new ArrayList<String>();
+                for (Class<?> cl : md
+                        .getMetaClassValue(Globals.META_NAME_SOURCE)) {
+                    classNameList.add(cl.getName());
+                }
                 int idx = 0;
-                md.setBodyDesc(new BodyDescImpl(source[idx++]));
+                md.setBodyDesc(new BodyDescImpl(source[idx++], classNameList
+                        .toArray(new String[0])));
                 ParameterDesc[] parameterDescs = md.getParameterDescs();
                 for (int i = 0; idx < source.length
                         && i < parameterDescs.length; idx++, i++) {
@@ -1112,7 +1119,7 @@ public class SourceCreatorImpl implements SourceCreator {
         for (int i = 0; i < mds.length; i++) {
             String evaluatedBody = sourceGenerator_.generateBodySource(mds[i]
                     .getBodyDesc());
-            mds[i].setEvaluatedBody(evaluatedBody);
+            mds[i].setAttribute(Globals.ATTR_EVALUATEDBODY, evaluatedBody);
 
             boolean shouldRemainSourceMeta = false;
             if (evaluatedBody != null && evaluatedBody.length() > 0) {
@@ -1154,6 +1161,13 @@ public class SourceCreatorImpl implements SourceCreator {
             break;
 
         case PAGE:
+            for (MethodDesc md : classDesc.getMethodDescs()) {
+                BodyDesc bodyDesc = md.getBodyDesc();
+                if (bodyDesc != null) {
+                    baseImportClassNameSet.addAll(Arrays.asList(bodyDesc
+                            .getDependingClassNames()));
+                }
+            }
             break;
 
         case DTO:
@@ -2110,12 +2124,12 @@ public class SourceCreatorImpl implements SourceCreator {
     void setActionMethodDescBodyTo(MethodDesc methodDesc) {
         String returnType = methodDesc.getReturnTypeDesc().getCompleteName();
         if (returnType.equals(String.class.getName())) {
-            methodDesc
-                    .setBodyDesc(new BodyDescImpl("return \"passthrough:\";"));
+            methodDesc.setBodyDesc(new BodyDescImpl("return \"passthrough:\";",
+                    new String[0]));
         } else if (returnType.equals(Response.class.getName())) {
-            methodDesc
-                    .setBodyDesc(new BodyDescImpl(
-                            "return new org.seasar.ymir.response.PassthroughResponse();"));
+            methodDesc.setBodyDesc(new BodyDescImpl(
+                    "return new PassthroughResponse();",
+                    new String[] { PassthroughResponse.class.getName() }));
         }
     }
 

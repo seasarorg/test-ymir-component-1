@@ -18,4 +18,8 @@ public interface BodyDesc {
     Map<String, Object> getRoot();
 
     void setRoot(Map<String, Object> root);
+
+    String[] getDependingClassNames();
+
+    void setDependingClassNames(String[] classNames);
 }
