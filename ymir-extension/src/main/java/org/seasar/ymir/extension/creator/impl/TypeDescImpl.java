@@ -254,7 +254,8 @@ public class TypeDescImpl implements TypeDesc {
         StringBuilder sb = new StringBuilder();
         if (collection_) {
             if (collectionClassName_ != null) {
-                sb.append(getNormalizedTypeName(collectionClassName_)).append("<");
+                sb.append(getNormalizedTypeName(collectionClassName_)).append(
+                        "<");
             }
         }
         sb.append(getNormalizedTypeName(componentTypeName_));
@@ -301,10 +302,11 @@ public class TypeDescImpl implements TypeDesc {
 
     public String getShortClassName() {
         if (collection_ && collectionClassName_ != null) {
+            touchedClassNameSet_.add(collectionClassName_);
             return ClassUtils.getShortName(collectionClassName_);
         } else {
             StringBuilder sb = new StringBuilder();
-            sb.append(componentClassDesc_.getShortName());
+            sb.append(ClassUtils.getShortName(componentClassDesc_.getName()));
             if (collection_) {
                 sb.append(ARRAY_SUFFIX);
             }
@@ -422,6 +424,8 @@ public class TypeDescImpl implements TypeDesc {
 
     public void setTouchedClassNameSet(Set<String> set) {
         touchedClassNameSet_ = set;
-        componentClassDesc_.setTouchedClassNameSet(set);
+        // componentClassDescのshortName系メソッドを呼び出すことはないため、
+        // componentClassDescにsetする必要はない。
+        // また、setしてしまうと循環参照している場合にStackOverflowが発生してしまう。
     }
 }

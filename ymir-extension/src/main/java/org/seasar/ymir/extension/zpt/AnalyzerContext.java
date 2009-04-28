@@ -170,10 +170,10 @@ public class AnalyzerContext extends ZptTemplateContext {
      * @param probability 確からしさ。既存の型情報の確からしさがこの値よりも小さい場合はプロパティ型が再推論されます。
      * @return PropertyDescオブジェクト。nullが返されることはありません。
      */
-    public PropertyDesc addProperty(ClassDesc classDesc, String propertyName,
+    public PropertyDesc addPropertyDesc(ClassDesc classDesc, String propertyName,
             int mode, String propertyTypeAlias, boolean asCollection,
             String collectionClassName, int probability) {
-        PropertyDesc propertyDesc = classDesc.addProperty(propertyName, mode);
+        PropertyDesc propertyDesc = classDesc.addPropertyDesc(propertyName, mode);
         if (log_.isDebugEnabled()) {
             log_.debug("Adding property '" + propertyName
                     + "' (object path is '" + getPathExpression(propertyDesc)
@@ -342,9 +342,9 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
     }
 
-    public PropertyDesc addProperty(ClassDesc classDesc, String propertyName,
+    public PropertyDesc addPropertyDesc(ClassDesc classDesc, String propertyName,
             int mode) {
-        return addProperty(classDesc, propertyName, mode, null, false, null,
+        return addPropertyDesc(classDesc, propertyName, mode, null, false, null,
                 PROBABILITY_DEFAULT);
     }
 
@@ -684,7 +684,7 @@ public class AnalyzerContext extends ZptTemplateContext {
             collectionImplementationClassName = FlexibleList.class.getName();
             requestParameterName = requestParameterName.substring(0, lparen);
         }
-        PropertyDesc propertyDesc = addProperty(classDesc,
+        PropertyDesc propertyDesc = addPropertyDesc(classDesc,
                 requestParameterName, mode, null, collection,
                 collectionClassName, PROBABILITY_COLLECTION);
         if (collection) {

@@ -1,13 +1,16 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
 
-import org.seasar.ymir.Application;
-import org.seasar.ymir.extension.creator.DescPool;
-import org.seasar.ymir.mock.MockApplication;
-
 import junit.framework.TestCase;
+
+import org.seasar.ymir.Application;
+import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.DescPool;
+import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.mock.MockApplication;
 
 public class TypeDescImplTest extends TestCase {
     private DescPool pool_;
@@ -146,5 +149,20 @@ public class TypeDescImplTest extends TestCase {
         int idx = 0;
         assertEquals(List.class.getName(), actual[idx++]);
         assertEquals(ParameterDescImplTest.class.getName(), actual[idx++]);
+    }
+
+    public void test_setTouchedClassNameSet_StackOverflowが発生しないこと()
+            throws Exception {
+        ClassDesc classDesc = pool_.getClassDesc("com.example.dto.HoeDto");
+        TypeDescImpl target = new TypeDescImpl(pool_, classDesc);
+        PropertyDesc propertyDesc = classDesc.addPropertyDesc("hoe",
+                PropertyDesc.READ);
+        propertyDesc.setTypeDesc(target);
+
+        try {
+            target.setTouchedClassNameSet(new HashSet<String>());
+        } catch (StackOverflowError e) {
+            fail();
+        }
     }
 }

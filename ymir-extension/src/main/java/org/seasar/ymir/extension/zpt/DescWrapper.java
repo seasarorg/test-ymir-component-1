@@ -58,7 +58,7 @@ public class DescWrapper {
                 // 自動生成対象クラスではないのでプロパティを増やせない。プロパティがないためnullを返す。
                 return null;
             }
-            pd = analyzerContext_.addProperty(cd, name, mode);
+            pd = analyzerContext_.addPropertyDesc(cd, name, mode);
         } else {
             pd.addMode(mode);
         }
@@ -148,7 +148,7 @@ public class DescWrapper {
     public void setVariableName(String variableName, boolean asCollection,
             String collectionClassName, int probability) {
         if (propertyDesc_ != null && !propertyDesc_.getTypeDesc().isExplicit()) {
-            propertyDesc_ = analyzerContext_.addProperty(
+            propertyDesc_ = analyzerContext_.addPropertyDesc(
                     parent_.getValueClassDescToModifyProeprty(propertyDesc_
                             .getName()), propertyDesc_.getName(), propertyDesc_
                             .getMode(), variableName, asCollection,

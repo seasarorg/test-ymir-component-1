@@ -510,14 +510,19 @@ public class SourceCreatorImpl implements SourceCreator {
     void addConverterSetterToPageClassDesc(ClassDesc pageClassDesc,
             ClassDescSet classDescSet) {
         addConverterSetterToPageClassDesc(pageClassDesc, pageClassDesc,
-                classDescSet);
+                classDescSet, new HashSet<String>());
     }
 
     void addConverterSetterToPageClassDesc(ClassDesc pageClassDesc,
-            ClassDesc dtoClassDesc, ClassDescSet classDescSet) {
+            ClassDesc dtoClassDesc, ClassDescSet classDescSet,
+            Set<String> processedClassNameSet) {
         for (PropertyDesc pd : dtoClassDesc.getPropertyDescs()) {
             TypeDesc td = pd.getTypeDesc();
             ClassDesc dtoCd = td.getComponentClassDesc();
+            if (!processedClassNameSet.add(dtoCd.getName())) {
+                continue;
+            }
+
             if (!DescValidator.validate(td, classDescSet).isValid()
                     || dtoCd.getType() != ClassType.DTO) {
                 continue;
@@ -525,13 +530,22 @@ public class SourceCreatorImpl implements SourceCreator {
 
             EntityMetaData metaData = new EntityMetaData(pageClassDesc
                     .getDescPool(), dtoCd.getName());
-            addComponentSetterToPageIfValid(pageClassDesc, pageClassDesc
-                    .getDescPool()
-                    .newTypeDesc(metaData.getConverterClassDesc()),
+            TypeDesc typeDesc = pageClassDesc.getDescPool().newTypeDesc(
+                    metaData.getConverterClassDesc());
+
+            PropertyDesc propertyDesc = pageClassDesc.getPropertyDesc(typeDesc
+                    .getInstanceName());
+            if (propertyDesc != null && propertyDesc.isWritable()) {
+                // 既にSetterを追加済みなのでスキップする。
+                // また、こうしないと循環参照している場合に無限ループに陥ってしまう。
+                continue;
+            }
+
+            addComponentSetterToPageIfValid(pageClassDesc, typeDesc,
                     classDescSet);
 
             addConverterSetterToPageClassDesc(pageClassDesc, dtoCd,
-                    classDescSet);
+                    classDescSet, processedClassNameSet);
         }
     }
 
@@ -750,7 +764,8 @@ public class SourceCreatorImpl implements SourceCreator {
             if (propertyName != null) {
                 PropertyDesc pd = classDesc.getPropertyDesc(propertyName);
                 if (pd == null) {
-                    pd = classDesc.addProperty(propertyName, PropertyDesc.NONE);
+                    pd = classDesc.addPropertyDesc(propertyName,
+                            PropertyDesc.NONE);
                 }
                 pd.setTypeDesc(fields[i].getGenericType());
                 for (Annotation annotation : fields[i].getAnnotations()) {
@@ -1015,7 +1030,7 @@ public class SourceCreatorImpl implements SourceCreator {
                         PropertyDesc idPd = beanClassDesc
                                 .getPropertyDesc(PROPERTY_ID);
                         if (idPd == null) {
-                            idPd = beanClassDesc.addProperty(PROPERTY_ID,
+                            idPd = beanClassDesc.addPropertyDesc(PROPERTY_ID,
                                     PropertyDesc.READ | PropertyDesc.WRITE);
                             idPd.setTypeDesc(ID_TYPE);
                         }
@@ -1066,15 +1081,11 @@ public class SourceCreatorImpl implements SourceCreator {
     boolean addComponentSetterToPageIfValid(ClassDesc pageClassDesc,
             TypeDesc typeDesc, ClassDescSet classDescSet) {
         if (DescValidator.validate(typeDesc, classDescSet).isValid()) {
-            PropertyDesc propertyDesc = pageClassDesc.addProperty(typeDesc
+            PropertyDesc propertyDesc = pageClassDesc.addPropertyDesc(typeDesc
                     .getInstanceName(), PropertyDesc.WRITE);
             propertyDesc.setTypeDesc(typeDesc);
-            AnnotationDesc ad = propertyDesc.getAnnotationDesc(Inject.class
-                    .getName());
-            if (ad == null) {
-                propertyDesc.setAnnotationDescOnSetter(new AnnotationDescImpl(
-                        Inject.class.getName()));
-            }
+            propertyDesc.setAnnotationDescOnSetter(new AnnotationDescImpl(
+                    Inject.class.getName()));
             return true;
         } else {
             return false;

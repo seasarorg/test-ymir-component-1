@@ -160,7 +160,7 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         }
     }
 
-    public PropertyDesc addProperty(String name, int mode) {
+    public PropertyDesc addPropertyDesc(String name, int mode) {
         PropertyDesc propertyDesc = getPropertyDesc(name);
         if (propertyDesc == null) {
             propertyDesc = pool_.newPropertyDesc(name);

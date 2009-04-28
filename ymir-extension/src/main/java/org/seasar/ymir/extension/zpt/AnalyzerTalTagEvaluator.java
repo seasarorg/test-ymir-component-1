@@ -395,7 +395,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         classDesc, name);
                 switch (role) {
                 case PARAMETER:
-                    PropertyDesc propertyDesc = analyzerContext.addProperty(
+                    PropertyDesc propertyDesc = analyzerContext.addPropertyDesc(
                             classDesc, name, PropertyDesc.WRITE
                                     | PropertyDesc.READ);
                     propertyDesc
@@ -429,7 +429,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     throw new RuntimeException("Logic error");
                 }
             } else {
-                PropertyDesc propertyDesc = analyzerContext.addProperty(
+                PropertyDesc propertyDesc = analyzerContext.addPropertyDesc(
                         classDesc, BeanUtils.getFirstSimpleSegment(name),
                         PropertyDesc.READ);
                 propertyDesc.setAnnotationDescOnGetter(new AnnotationDescImpl(
@@ -446,7 +446,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 String name = getAttributeValue(attrMap, "name", null);
                 if (AnalyzerUtils.isValidVariableName(name)) {
                     formName = name;
-                    PropertyDesc propertyDesc = analyzerContext.addProperty(
+                    PropertyDesc propertyDesc = analyzerContext.addPropertyDesc(
                             classDesc, name, PropertyDesc.NONE);
                     propertyDesc
                             .setAnnotationDesc(new MetaAnnotationDescImpl(

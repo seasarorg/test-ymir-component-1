@@ -540,7 +540,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
             throws Exception {
         ClassDesc classDesc = pool_.getClassDesc(Adjust2Page.class);
         classDesc.setBornOf("/adjust2.html");
-        classDesc.addProperty("param4", PropertyDesc.READ | PropertyDesc.WRITE);
+        classDesc.addPropertyDesc("param4", PropertyDesc.READ
+                | PropertyDesc.WRITE);
 
         target_.adjustByExistentClass(classDesc);
 
@@ -593,7 +594,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
             throws Exception {
         ClassDesc classDesc = pool_.getClassDesc(Adjust2Page.class);
         classDesc.setBornOf("/adjust2.html");
-        classDesc.addProperty("param6", PropertyDesc.READ);
+        classDesc.addPropertyDesc("param6", PropertyDesc.READ);
 
         target_.adjustByExistentClass(classDesc);
 
@@ -629,7 +630,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
             throws Exception {
         pool_.setBornOf("/adjust20.html");
         ClassDesc classDesc = pool_.getClassDesc(Adjust20Page.class);
-        classDesc.addProperty("name", PropertyDesc.READ | PropertyDesc.WRITE);
+        classDesc.addPropertyDesc("name", PropertyDesc.READ
+                | PropertyDesc.WRITE);
 
         target_.adjustByExistentClass(classDesc);
 
@@ -659,7 +661,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
             throws Exception {
         pool_.setBornOf("/adjust21.html");
         ClassDesc classDesc = pool_.getClassDesc(Adjust21Page.class);
-        classDesc.addProperty("name", PropertyDesc.READ | PropertyDesc.WRITE);
+        classDesc.addPropertyDesc("name", PropertyDesc.READ
+                | PropertyDesc.WRITE);
 
         target_.adjustByExistentClass(classDesc);
 
@@ -836,6 +839,55 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
         assertNotNull(pageCd.getPropertyDesc("hoeConverter"));
         assertNotNull(pageCd.getPropertyDesc("fugaConverter"));
+    }
+
+    public void testAddConverterSetterToPageClassDesc_循環参照時にStackOverflowがでないこと()
+            throws Exception {
+        ClassDescSet set = new ClassDescSet();
+        ClassDesc pageCd = pool_.getClassDesc("com.example.web.IndexPage");
+        set.add(pageCd);
+        ClassDesc hoeDtoCd = pool_.getClassDesc("com.example.dto.HoeDto");
+        set.add(hoeDtoCd);
+        ClassDesc hoeConverterCd = pool_
+                .getClassDesc("com.example.converter.HoeConverter");
+        set.add(hoeConverterCd);
+
+        PropertyDesc pd = new PropertyDescImpl(pool_, "hoe");
+        pageCd.setPropertyDesc(pd);
+        pd.setTypeDesc(pool_.newTypeDesc("com.example.dto.HoeDto"));
+
+        pd = new PropertyDescImpl(pool_, "hoe");
+        hoeDtoCd.setPropertyDesc(pd);
+        pd.setTypeDesc(pool_.newTypeDesc("com.example.dto.HoeDto"));
+
+        try {
+            target_.addConverterSetterToPageClassDesc(pageCd, set);
+        } catch (StackOverflowError e) {
+            fail();
+        }
+    }
+
+    public void testAddConverterSetterToPageClassDesc_循環参照時にStackOverflowがでないこと2()
+            throws Exception {
+        ClassDescSet set = new ClassDescSet();
+        ClassDesc pageCd = pool_.getClassDesc("com.example.web.IndexPage");
+        set.add(pageCd);
+        ClassDesc hoeDtoCd = pool_.getClassDesc("com.example.dto.HoeDto");
+        set.add(hoeDtoCd);
+
+        PropertyDesc pd = new PropertyDescImpl(pool_, "hoe");
+        pageCd.setPropertyDesc(pd);
+        pd.setTypeDesc(pool_.newTypeDesc("com.example.dto.HoeDto"));
+
+        pd = new PropertyDescImpl(pool_, "hoe");
+        hoeDtoCd.setPropertyDesc(pd);
+        pd.setTypeDesc(pool_.newTypeDesc("com.example.dto.HoeDto"));
+
+        try {
+            target_.addConverterSetterToPageClassDesc(pageCd, set);
+        } catch (StackOverflowError e) {
+            fail();
+        }
     }
 
     public void test_isDtoClass() throws Exception {

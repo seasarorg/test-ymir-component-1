@@ -41,7 +41,7 @@ public interface ClassDesc extends AnnotatedDesc<ClassDesc> {
 
     void removePropertyDesc(String name);
 
-    PropertyDesc addProperty(String name, int mode);
+    PropertyDesc addPropertyDesc(String name, int mode);
 
     /**
      * 指定されたClassDescの内容をこのClassDescにマージします。
