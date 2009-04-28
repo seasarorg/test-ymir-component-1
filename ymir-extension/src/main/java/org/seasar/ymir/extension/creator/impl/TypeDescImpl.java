@@ -1,7 +1,7 @@
 package org.seasar.ymir.extension.creator.impl;
 
-import static org.seasar.ymir.extension.creator.util.DescUtils.complementPackage;
-import static org.seasar.ymir.extension.creator.util.DescUtils.normalizePackage;
+import static org.seasar.ymir.extension.creator.util.DescUtils.getFullyQualifiedTypeName;
+import static org.seasar.ymir.extension.creator.util.DescUtils.getNormalizedTypeName;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -36,7 +36,7 @@ public class TypeDescImpl implements TypeDesc {
 
     private Desc<?> parent_;
 
-    private Set<String> touchedClassNamsSet_ = new HashSet<String>();
+    private Set<String> touchedClassNameSet_ = new HashSet<String>();
 
     public TypeDescImpl(DescPool pool, Type type) {
         this(pool, type, null);
@@ -54,7 +54,7 @@ public class TypeDescImpl implements TypeDesc {
             String componentClassQualifier) {
         pool_ = pool;
 
-        typeName = complementPackage(typeName.replace('$', '.'));
+        typeName = getFullyQualifiedTypeName(typeName.replace('$', '.'));
         TypeToken token = new TypeToken(typeName);
         boolean collection = token.isArray();
 
@@ -254,10 +254,10 @@ public class TypeDescImpl implements TypeDesc {
         StringBuilder sb = new StringBuilder();
         if (collection_) {
             if (collectionClassName_ != null) {
-                sb.append(normalizePackage(collectionClassName_)).append("<");
+                sb.append(getNormalizedTypeName(collectionClassName_)).append("<");
             }
         }
-        sb.append(normalizePackage(componentTypeName_));
+        sb.append(getNormalizedTypeName(componentTypeName_));
         if (collection_) {
             if (collectionClassName_ != null) {
                 sb.append(">");
@@ -272,7 +272,7 @@ public class TypeDescImpl implements TypeDesc {
         StringBuilder sb = new StringBuilder();
         if (collection_) {
             if (collectionClassName_ != null) {
-                touchedClassNamsSet_.add(collectionClassName_);
+                touchedClassNameSet_.add(collectionClassName_);
                 sb.append(ClassUtils.getShortName(collectionClassName_))
                         .append("<");
             }
@@ -281,7 +281,7 @@ public class TypeDescImpl implements TypeDesc {
         TypeToken token = new TypeToken(componentTypeName_);
         token.accept(new TokenVisitor<Object>() {
             public Object visit(Token acceptor) {
-                touchedClassNamsSet_.add(acceptor.getComponentName());
+                touchedClassNameSet_.add(acceptor.getComponentName());
                 acceptor.setBaseName(ClassUtils.getShorterName(acceptor
                         .getBaseName()));
                 return null;
@@ -421,7 +421,7 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public void setTouchedClassNameSet(Set<String> set) {
-        touchedClassNamsSet_ = set;
+        touchedClassNameSet_ = set;
         componentClassDesc_.setTouchedClassNameSet(set);
     }
 }

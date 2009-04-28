@@ -30,7 +30,7 @@ public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#
 <#list propertyDesc.annotationDescs as annotationDesc>
     ${annotationDesc.asShortString}
 </#list>
-    protected ${propertyDesc.typeDesc.shortName} ${fieldPrefix}${propertyDesc.name}${fieldSuffix}<#if propertyDesc.initialValue??> = ${propertyDesc.initialValue}</#if>;
+    protected ${propertyDesc.typeDesc.shortName} ${fieldPrefix}${propertyDesc.name}${fieldSuffix}<#if propertyDesc.initialShortValue??> = ${propertyDesc.initialShortValue}</#if>;
 </#if>
 </#list>
 <#list classDesc.propertyDescs as propertyDesc>

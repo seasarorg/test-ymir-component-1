@@ -515,7 +515,7 @@ public class DescUtils {
         return dummyCd.getAnnotationDescs();
     }
 
-    public static String normalizePackage(String typeName) {
+    public static String getNormalizedTypeName(String typeName) {
         if (typeName == null) {
             return null;
         }
@@ -524,12 +524,29 @@ public class DescUtils {
         typeToken.accept(new TokenVisitor<Object>() {
             public Object visit(Token acceptor) {
                 String baseName = acceptor.getBaseName();
-                StringBuilder sb = new StringBuilder();
                 if (baseName.startsWith(PACKAGEPREFIX_JAVA_LANG)) {
-                    sb.append(baseName.substring(PACKAGEPREFIX_JAVA_LANG
-                            .length()));
-                } else {
-                    sb.append(baseName);
+                    acceptor.setBaseName(baseName
+                            .substring(PACKAGEPREFIX_JAVA_LANG.length()));
+                }
+                return null;
+            }
+        });
+        return typeToken.getAsString();
+    }
+
+    public static String getShortTypeName(String typeName) {
+        if (typeName == null) {
+            return null;
+        }
+
+        TypeToken typeToken = new TypeToken(typeName);
+        typeToken.accept(new TokenVisitor<Object>() {
+            public Object visit(Token acceptor) {
+                String componentName = acceptor.getComponentName();
+                StringBuilder sb = new StringBuilder();
+                sb.append(ClassUtils.getShorterName(componentName));
+                if (acceptor.isArray()) {
+                    sb.append(SUFFIX_ARRAY);
                 }
                 acceptor.setBaseName(sb.toString());
                 return null;
@@ -538,7 +555,7 @@ public class DescUtils {
         return typeToken.getAsString();
     }
 
-    public static String complementPackage(String typeName) {
+    public static String getFullyQualifiedTypeName(String typeName) {
         if (typeName == null) {
             return null;
         }

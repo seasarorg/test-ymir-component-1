@@ -4,6 +4,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.seasar.ymir.extension.Globals;
@@ -215,5 +216,59 @@ public class PropertyDescImplTest extends SourceCreatorImplTestBase {
                 Globals.META_NAME_BORNOF, new String[] { "a" }));
 
         assertTrue(target.removeBornOf("a"));
+    }
+
+    public void test_getInitialShortValue() throws Exception {
+        PropertyDescImpl pd = new PropertyDescImpl(pool_, "name");
+        Set<String> set = new TreeSet<String>();
+        pd.setTouchedClassNameSet(set);
+
+        pd.setTypeDesc(new TypeDescImpl(pool_, "com.example.dto.TestDto[]"));
+        String actual = pd.getInitialShortValue();
+        assertEquals("new TestDto[0]", actual);
+        assertTrue(set.contains("com.example.dto.TestDto"));
+
+        set.clear();
+        pd.setTypeDesc(new TypeDescImpl(pool_, "java.lang.Integer[]"));
+        actual = pd.getInitialShortValue();
+        assertEquals("new Integer[0]", actual);
+        assertTrue(set.contains("java.lang.Integer"));
+
+        set.clear();
+        pd.setTypeDesc(new TypeDescImpl(pool_, "int[]"));
+        actual = pd.getInitialShortValue();
+        assertEquals("new int[0]", actual);
+
+        set.clear();
+        pd.setTypeDesc(new TypeDescImpl(pool_, "com.example.dto.TestDto"));
+        actual = pd.getInitialShortValue();
+        assertEquals("Dtoが存在しない場合はnew記述になること", "new TestDto()", actual);
+        assertTrue(set.contains("com.example.dto.TestDto"));
+
+        set.clear();
+        pd.setTypeDesc(new TypeDescImpl(pool_, "com.example.dto.Test1Dto"));
+        actual = pd.getInitialShortValue();
+        assertEquals("デフォルトコンストラクタでインスタンスを生成できる場合はnew記述になること",
+                "new Test1Dto()", actual);
+        assertTrue(set.contains("com.example.dto.Test1Dto"));
+
+        set.clear();
+        pd.setTypeDesc(new TypeDescImpl(pool_, "com.example.dto.Test2Dto"));
+        actual = pd.getInitialShortValue();
+        assertNull("デフォルトコンストラクタがないばあいはnullになること", actual);
+        assertFalse(set.contains("com.example.dto.Test2Dto"));
+
+        set.clear();
+        pd.setTypeDesc(new TypeDescImpl(pool_, Option.class.getName()));
+        actual = pd.getInitialShortValue();
+        assertEquals("new Option()", actual);
+        assertTrue(set.contains(Option.class.getName()));
+
+        set.clear();
+        pd.setTypeDesc(new TypeDescImpl(pool_,
+                "com.example.converter.HoeConverter"));
+        actual = pd.getInitialShortValue();
+        assertNull(actual);
+        assertFalse(set.contains("com.example.converter.HoeConverter"));
     }
 }

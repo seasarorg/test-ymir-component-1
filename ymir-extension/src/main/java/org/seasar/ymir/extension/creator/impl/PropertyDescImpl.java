@@ -1,6 +1,7 @@
 package org.seasar.ymir.extension.creator.impl;
 
-import static org.seasar.ymir.extension.creator.util.DescUtils.normalizePackage;
+import static org.seasar.ymir.extension.creator.util.DescUtils.getNormalizedTypeName;
+import static org.seasar.ymir.extension.creator.util.DescUtils.getShortTypeName;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -15,7 +16,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
-import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.Desc;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
@@ -23,6 +23,9 @@ import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.MetaUtils;
+import org.seasar.ymir.extension.creator.util.type.Token;
+import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
+import org.seasar.ymir.extension.creator.util.type.TypeToken;
 import org.seasar.ymir.util.ClassUtils;
 
 public class PropertyDescImpl extends AbstractAnnotatedDesc implements
@@ -352,8 +355,7 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
 
         String initialValue = null;
 
-        ClassDesc componentClassDesc = typeDesc_.getComponentClassDesc();
-        String componentClassName = componentClassDesc.getName();
+        String componentTypeName = typeDesc_.getComponentTypeName();
         if (typeDesc_.isCollection()) {
             String collectionClassName = typeDesc_.getCollectionClassName();
             if (collectionClassName != null) {
@@ -361,26 +363,26 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
                         .getCollectionImplementationClassName();
                 if (collectionImplementationClassName != null) {
                     initialValue = "new "
-                            + normalizePackage(collectionImplementationClassName
-                                    + "<" + componentClassName + ">") + "()";
+                            + getNormalizedTypeName(collectionImplementationClassName
+                                    + "<" + componentTypeName + ">") + "()";
                 } else {
                     // 実装クラスが指定されていない場合は、可能であればインタフェースごとに空の実装クラスをぶら下げておく。
                     if (List.class.getName().equals(collectionClassName)) {
                         initialValue = "new "
-                                + normalizePackage(ArrayList.class.getName()
-                                        + "<" + componentClassName + ">")
-                                + "()";
+                                + getNormalizedTypeName(ArrayList.class
+                                        .getName()
+                                        + "<" + componentTypeName + ">") + "()";
                     }
                 }
             } else {
                 // 配列の場合は（何を生成すればいいかも分かるし）空の配列をぶら下げておく。
-                initialValue = "new " + normalizePackage(componentClassName)
-                        + "[0]";
+                initialValue = "new "
+                        + getNormalizedTypeName(componentTypeName) + "[0]";
             }
         } else {
             boolean generateInitialValue = false;
-            if (pool_.getSourceCreator().isDtoClass(componentClassName)) {
-                Class<?> clazz = DescUtils.getClass(componentClassName);
+            if (pool_.getSourceCreator().isDtoClass(componentTypeName)) {
+                Class<?> clazz = DescUtils.getClass(componentTypeName);
                 if (clazz != null) {
                     try {
                         clazz.newInstance();
@@ -394,11 +396,84 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
                 }
             }
             if (generateInitialValue) {
-                initialValue = "new " + typeDesc_.getName() + "()";
+                initialValue = "new " + componentTypeName + "()";
             }
         }
 
         return initialValue;
+    }
+
+    public String getInitialShortValue() {
+        if (typeDesc_ == null) {
+            return null;
+        }
+
+        String initialValue = null;
+
+        String componentTypeName = typeDesc_.getComponentTypeName();
+        Set<String> touchedClassNameSet = getTouchedClassNameSet();
+        if (typeDesc_.isCollection()) {
+            String collectionClassName = typeDesc_.getCollectionClassName();
+            if (collectionClassName != null) {
+                String collectionImplementationClassName = typeDesc_
+                        .getCollectionImplementationClassName();
+                if (collectionImplementationClassName != null) {
+                    initialValue = "new "
+                            + getShortTypeName(collectionImplementationClassName
+                                    + "<" + componentTypeName + ">") + "()";
+                    addTypeName(touchedClassNameSet, componentTypeName);
+                    touchedClassNameSet.add(collectionImplementationClassName);
+                } else {
+                    // 実装クラスが指定されていない場合は、可能であればインタフェースごとに空の実装クラスをぶら下げておく。
+                    if (List.class.getName().equals(collectionClassName)) {
+                        initialValue = "new "
+                                + getShortTypeName(ArrayList.class.getName()
+                                        + "<" + componentTypeName + ">") + "()";
+                        addTypeName(touchedClassNameSet, componentTypeName);
+                        touchedClassNameSet.add(ArrayList.class.getName());
+                    }
+                }
+            } else {
+                // 配列の場合は（何を生成すればいいかも分かるし）空の配列をぶら下げておく。
+                initialValue = "new " + getShortTypeName(componentTypeName)
+                        + "[0]";
+                addTypeName(touchedClassNameSet, componentTypeName);
+            }
+        } else {
+            boolean generateInitialValue = false;
+            if (pool_.getSourceCreator().isDtoClass(componentTypeName)) {
+                Class<?> clazz = DescUtils.getClass(componentTypeName);
+                if (clazz != null) {
+                    try {
+                        clazz.newInstance();
+                        generateInitialValue = true;
+                    } catch (InstantiationException ignore) {
+                    } catch (IllegalAccessException ignore) {
+                    }
+                } else {
+                    // まだ生成されていないDTO。自動生成対象のDTOはデフォルトコンストラクタを持つので非nullを返すようにする。
+                    generateInitialValue = true;
+                }
+            }
+            if (generateInitialValue) {
+                initialValue = "new " + getShortTypeName(componentTypeName)
+                        + "()";
+                addTypeName(touchedClassNameSet, componentTypeName);
+                touchedClassNameSet.add(componentTypeName);
+            }
+        }
+
+        return initialValue;
+    }
+
+    private void addTypeName(final Set<String> set, String typeName) {
+        TypeToken token = new TypeToken(typeName);
+        token.accept(new TokenVisitor<Object>() {
+            public Object visit(Token acceptor) {
+                set.add(acceptor.getComponentName());
+                return null;
+            }
+        });
     }
 
     public PropertyDesc transcriptTo(PropertyDesc desc) {

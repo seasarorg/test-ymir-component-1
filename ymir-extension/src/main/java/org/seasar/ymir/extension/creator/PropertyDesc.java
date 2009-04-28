@@ -100,6 +100,8 @@ public interface PropertyDesc extends AnnotatedDesc<PropertyDesc> {
 
     String getInitialValue();
 
+    String getInitialShortValue();
+
     boolean isMayBoolean();
 
     void setMayBoolean(boolean mayBoolean);

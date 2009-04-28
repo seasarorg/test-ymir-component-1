@@ -14,7 +14,7 @@ public class Hoe6PageBase {
     public static final String P_form = "form";
 
     @Meta(name = "property", value = "form")
-    protected FormDto form_ = new com.example.dto.FormDto();
+    protected FormDto form_ = new FormDto();
 
     @Meta(name = "formProperty", value = "form")
     public String getName() {
