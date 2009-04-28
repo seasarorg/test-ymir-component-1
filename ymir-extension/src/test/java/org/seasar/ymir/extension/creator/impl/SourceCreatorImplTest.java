@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Map;
 
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.kvasir.util.io.IOUtils;
@@ -32,6 +33,7 @@ import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
+import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.scope.annotation.In;
 import org.seasar.ymir.scope.annotation.Out;
 
@@ -215,6 +217,20 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 "com.example.web.IndexPage",
                 new ClassCreationHintBag(null, new ClassHint[] { classHint }))
                 .getSuperclassName());
+    }
+
+    public void testNewClassDesc_メソッドのボディが正しく復元されること() throws Exception {
+        ClassDesc actual = target_.newClassDesc(pool_, Hoe5.class, true);
+        BodyDesc bodyDesc = actual.getMethodDescs("_get")[0].getBodyDesc();
+        assertNotNull(bodyDesc);
+        assertEquals(BodyDesc.KEY_ASIS, bodyDesc.getKey());
+        Map<String, Object> root = bodyDesc.getRoot();
+        assertNotNull(root);
+        assertEquals("return new PassthroughResponse();", root
+                .get(BodyDesc.PROP_BODY));
+        assertEquals(1, bodyDesc.getDependingClassNames().length);
+        assertEquals(PassthroughResponse.class.getName(), bodyDesc
+                .getDependingClassNames()[0]);
     }
 
     public void testAdjustByExistentClass() throws Exception {

@@ -1117,8 +1117,9 @@ public class SourceCreatorImpl implements SourceCreator {
     public void prepareForMethodDescs(ClassDesc classDesc) {
         MethodDesc[] mds = classDesc.getMethodDescs();
         for (int i = 0; i < mds.length; i++) {
-            String evaluatedBody = sourceGenerator_.generateBodySource(mds[i]
-                    .getBodyDesc());
+            BodyDesc bodyDesc = mds[i].getBodyDesc();
+            String evaluatedBody = sourceGenerator_
+                    .generateBodySource(bodyDesc);
             mds[i].setAttribute(Globals.ATTR_EVALUATEDBODY, evaluatedBody);
 
             boolean shouldRemainSourceMeta = false;
@@ -1138,11 +1139,29 @@ public class SourceCreatorImpl implements SourceCreator {
                 for (ParameterDesc pd : mds[i].getParameterDescs()) {
                     list.add(pd.getName());
                 }
+                Class<?>[] dependingClasses;
+                if (bodyDesc != null) {
+                    dependingClasses = toClasses(bodyDesc
+                            .getDependingClassNames());
+                } else {
+                    dependingClasses = new Class<?>[0];
+                }
                 mds[i].setAnnotationDesc(new MetaAnnotationDescImpl(
                         Globals.META_NAME_SOURCE, list.toArray(new String[0]),
-                        new Class[0]));
+                        dependingClasses));
             }
         }
+    }
+
+    private Class<?>[] toClasses(String[] classNames) {
+        List<Class<?>> list = new ArrayList<Class<?>>();
+        for (String className : classNames) {
+            Class<?> clazz = getClass(className);
+            if (clazz != null) {
+                list.add(clazz);
+            }
+        }
+        return list.toArray(new Class<?>[0]);
     }
 
     public void prepareForSourceGeneratorParameter(ClassDesc classDesc) {
