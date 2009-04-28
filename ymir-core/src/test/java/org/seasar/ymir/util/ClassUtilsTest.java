@@ -1,6 +1,8 @@
 package org.seasar.ymir.util;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -49,5 +51,13 @@ public class ClassUtilsTest extends TestCase {
         assertFalse(methodObjectStringExists);
         assertTrue(methodStringObjectExists);
         assertTrue(methodStringStringExists);
+    }
+
+    public void test_isJavaLang_Class() throws Exception {
+        assertTrue(ClassUtils.isJavaLang(Object.class));
+
+        assertFalse(ClassUtils.isJavaLang(Map.class));
+
+        assertFalse(ClassUtils.isJavaLang(Array.class));
     }
 }

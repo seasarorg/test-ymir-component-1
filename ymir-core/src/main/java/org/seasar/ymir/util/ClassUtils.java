@@ -26,6 +26,8 @@ public class ClassUtils {
 
     private static final String DASH = "...";
 
+    private static final String PACKAGEPREFIX_JAVA_LANG = "java.lang.";
+
     private static ClassPool cp_;
 
     private static Map<String, Class<?>> primitiveClassByNameMap_;
@@ -429,5 +431,63 @@ public class ClassUtils {
         } else {
             return className.substring(0, dot);
         }
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static boolean isJavaLang(Class<?> clazz) {
+        if (clazz == null) {
+            return false;
+        }
+
+        return isJavaLang(clazz.getName());
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static boolean isJavaLang(String className) {
+        if (className == null) {
+            return false;
+        }
+
+        return className.startsWith(PACKAGEPREFIX_JAVA_LANG)
+                && className.indexOf('.', PACKAGEPREFIX_JAVA_LANG.length()) < 0;
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static String getNormalizedName(String className) {
+        if (isJavaLang(className)) {
+            return className.substring(PACKAGEPREFIX_JAVA_LANG.length());
+        } else {
+            return className;
+        }
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static boolean isStandard(Class<?> clazz) {
+        if (clazz == null) {
+            return false;
+        }
+
+        return isStandard(clazz.getName());
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static boolean isStandard(String className) {
+        if (className == null) {
+            return false;
+        }
+
+        return className.equals(Void.TYPE.getName())
+                || ClassUtils.isPrimitive(className)
+                || ClassUtils.isJavaLang(className);
     }
 }
