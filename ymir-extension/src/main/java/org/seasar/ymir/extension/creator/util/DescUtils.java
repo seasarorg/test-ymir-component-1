@@ -497,50 +497,22 @@ public class DescUtils {
     public static AnnotationDesc[] merge(AnnotationDesc[] ad1s,
             AnnotationDesc[] ad2s, boolean force) {
         ClassDesc dummyCd = new ClassDescImpl(null, "");
-        Map<String, AnnotationDesc> adMap = new LinkedHashMap<String, AnnotationDesc>();
-        for (AnnotationDesc ad : ad1s) {
-            if (isMetaAnnotation(ad)) {
-                dummyCd.setAnnotationDesc(ad);
-            } else {
-                adMap.put(ad.getName(), ad);
+        if (force) {
+            for (AnnotationDesc ad1 : ad1s) {
+                dummyCd.setAnnotationDesc(ad1);
             }
-        }
-        for (AnnotationDesc ad : ad2s) {
-            if (isMetaAnnotation(ad)) {
-                if (force) {
-                    dummyCd.setAnnotationDesc(ad);
-                } else {
-                    ClassDesc dummyCd2 = new ClassDescImpl(null, "");
-                    dummyCd2.setAnnotationDesc(ad);
-                    for (MetaAnnotationDesc mad : dummyCd2
-                            .getMetaAnnotationDescs()) {
-                        if (!dummyCd.hasMeta(mad.getMetaName())) {
-                            dummyCd.setAnnotationDesc(mad);
-                        }
-                    }
-                }
-            } else {
-                AnnotationDesc a = adMap.get(ad.getName());
-                if (force || a == null) {
-                    adMap.put(ad.getName(), new AnnotationDescImpl(
-                            ad.getName(), ad.getBody()));
-                }
+            for (AnnotationDesc ad2 : ad2s) {
+                dummyCd.setAnnotationDesc(ad2);
             }
-        }
-
-        AnnotationDesc metasAd = dummyCd.getAnnotationDesc(Metas.class
-                .getName());
-        if (metasAd != null) {
-            adMap.put(metasAd.getName(), metasAd);
         } else {
-            AnnotationDesc metaAd = dummyCd.getAnnotationDesc(Meta.class
-                    .getName());
-            if (metaAd != null) {
-                adMap.put(metaAd.getName(), metaAd);
+            for (AnnotationDesc ad2 : ad2s) {
+                dummyCd.setAnnotationDesc(ad2);
+            }
+            for (AnnotationDesc ad1 : ad1s) {
+                dummyCd.setAnnotationDesc(ad1);
             }
         }
-
-        return adMap.values().toArray(new AnnotationDesc[0]);
+        return dummyCd.getAnnotationDescs();
     }
 
     public static String normalizePackage(String typeName) {

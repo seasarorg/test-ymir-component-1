@@ -1300,50 +1300,17 @@ public class SourceCreatorImpl implements SourceCreator {
 
                     // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
                     // GeneratedにあるアノテーションのうちBaseにもあるものについてはBaseのものをGeneratedに上書きする。
-
-                    List<AnnotationDesc> list = new ArrayList<AnnotationDesc>();
-                    for (AnnotationDesc baseAd : basePd.getAnnotationDescs()) {
-                        AnnotationDesc generatedAd = generatedPd
-                                .getAnnotationDesc(baseAd.getName());
-                        if (DescUtils.isMetaAnnotation(generatedAd)
-                                || baseAd == null) {
-                            list.add(generatedAd);
-                        } else {
-                            list.add(baseAd);
-                        }
-                    }
-                    generatedPd.setAnnotationDescs(list
-                            .toArray(new AnnotationDesc[0]));
-
-                    list = new ArrayList<AnnotationDesc>();
-                    for (AnnotationDesc baseAd : basePd
-                            .getAnnotationDescsOnGetter()) {
-                        AnnotationDesc generatedAd = generatedPd
-                                .getAnnotationDescOnGetter(baseAd.getName());
-                        if (DescUtils.isMetaAnnotation(generatedAd)
-                                || baseAd == null) {
-                            list.add(generatedAd);
-                        } else {
-                            list.add(baseAd);
-                        }
-                    }
-                    generatedPd.setAnnotationDescsOnGetter(list
-                            .toArray(new AnnotationDesc[0]));
-
-                    list = new ArrayList<AnnotationDesc>();
-                    for (AnnotationDesc baseAd : basePd
-                            .getAnnotationDescsOnSetter()) {
-                        AnnotationDesc generatedAd = generatedPd
-                                .getAnnotationDescOnSetter(baseAd.getName());
-                        if (DescUtils.isMetaAnnotation(generatedAd)
-                                || baseAd == null) {
-                            list.add(generatedAd);
-                        } else {
-                            list.add(baseAd);
-                        }
-                    }
-                    generatedPd.setAnnotationDescsOnSetter(list
-                            .toArray(new AnnotationDesc[0]));
+                    generatedPd.setAnnotationDescs(mergeAnnotationDescs(basePd
+                            .getAnnotationDescs(), generatedPd
+                            .getAnnotationDescs()));
+                    generatedPd
+                            .setAnnotationDescsOnGetter(mergeAnnotationDescs(
+                                    basePd.getAnnotationDescsOnGetter(),
+                                    generatedPd.getAnnotationDescsOnGetter()));
+                    generatedPd
+                            .setAnnotationDescsOnSetter(mergeAnnotationDescs(
+                                    basePd.getAnnotationDescsOnSetter(),
+                                    generatedPd.getAnnotationDescsOnSetter()));
                 }
             }
 
@@ -1369,28 +1336,26 @@ public class SourceCreatorImpl implements SourceCreator {
                             .transcriptTo(
                                     desc.getDescPool().newTypeDesc(
                                             superMd.getReturnTypeDesc())));
-                } else if (isAction(generatedMd)
-                        && gapDesc.getMethodDescs(generatedMd.getName()).length > 0) {
-                    // アクションについては、メソッドシグネチャが一致しなくとも名前が一致するメソッドがあった場合は
-                    // 生成しない。
-                    generated.removeMethodDesc(generatedMd);
+                } else if (isAction(generatedMd)) {
+                    MethodDescKey key = new MethodDescKey(generatedMd);
+                    for (MethodDesc md : gapDesc.getMethodDescs(generatedMd
+                            .getName())) {
+                        if (!key.equals(new MethodDescKey(md))) {
+                            // アクションについては、メソッドシグネチャが一致しなくとも名前が一致するメソッドがあった場合は
+                            // 生成しない。ただし、メソッドシグネチャまで一致するメソッドは残す。そうでないとオーバライドされ
+                            // ている時に困るので。
+                            generated.removeMethodDesc(generatedMd);
+                            break;
+                        }
+                    }
                 }
 
                 // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
                 // GeneratedにあるアノテーションのうちBaseにもあるものについてはBaseのものをGeneratedに上書きする。
                 if (baseMd != null) {
-                    List<AnnotationDesc> list = new ArrayList<AnnotationDesc>();
-                    for (AnnotationDesc ad : generatedMd.getAnnotationDescs()) {
-                        AnnotationDesc baseAd = baseMd.getAnnotationDesc(ad
-                                .getName());
-                        if (DescUtils.isMetaAnnotation(ad) || baseAd == null) {
-                            list.add(ad);
-                        } else {
-                            list.add(baseAd);
-                        }
-                    }
-                    generatedMd.setAnnotationDescs(list
-                            .toArray(new AnnotationDesc[0]));
+                    generatedMd.setAnnotationDescs(mergeAnnotationDescs(baseMd
+                            .getAnnotationDescs(), generatedMd
+                            .getAnnotationDescs()));
                 }
             }
 
@@ -1438,6 +1403,49 @@ public class SourceCreatorImpl implements SourceCreator {
         } finally {
             pool.setBornOf(oldBornOf);
         }
+    }
+
+    // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
+    // GeneratedにあるアノテーションのうちBaseにもあるものについてはBaseのものをGeneratedに上書きする。
+    private AnnotationDesc[] mergeAnnotationDescs(
+            AnnotationDesc[] baseAnnotationDescs,
+            AnnotationDesc[] generatedAnnotationDescs) {
+        Map<String, AnnotationDesc> baseNonMetaAdMap = new HashMap<String, AnnotationDesc>();
+        Map<String, AnnotationDesc> baseMetaAdMap = new HashMap<String, AnnotationDesc>();
+        Map<String, AnnotationDesc> generatedNonMetaAdMap = new HashMap<String, AnnotationDesc>();
+        Map<String, AnnotationDesc> generatedMetaAdMap = new HashMap<String, AnnotationDesc>();
+
+        for (AnnotationDesc ad : baseAnnotationDescs) {
+            if (DescUtils.isMetaAnnotation(ad)) {
+                baseMetaAdMap.put(ad.getName(), ad);
+            } else {
+                baseNonMetaAdMap.put(ad.getName(), ad);
+            }
+        }
+        for (AnnotationDesc ad : generatedAnnotationDescs) {
+            if (DescUtils.isMetaAnnotation(ad)) {
+                generatedMetaAdMap.put(ad.getName(), ad);
+            } else {
+                generatedNonMetaAdMap.put(ad.getName(), ad);
+            }
+        }
+
+        // 非MetaはBaseが優先。
+        ClassDesc dummyCd = new ClassDescImpl(null, "");
+        for (AnnotationDesc ad : DescUtils.merge(baseNonMetaAdMap.values()
+                .toArray(new AnnotationDesc[0]), generatedNonMetaAdMap.values()
+                .toArray(new AnnotationDesc[0]), false)) {
+            dummyCd.setAnnotationDesc(ad);
+        }
+
+        // MetaはGeneratedが優先。
+        for (AnnotationDesc ad : DescUtils.merge(baseMetaAdMap.values()
+                .toArray(new AnnotationDesc[0]), generatedMetaAdMap.values()
+                .toArray(new AnnotationDesc[0]), true)) {
+            dummyCd.setAnnotationDesc(ad);
+        }
+
+        return dummyCd.getAnnotationDescs();
     }
 
     private boolean isAction(MethodDesc methodDesc) {

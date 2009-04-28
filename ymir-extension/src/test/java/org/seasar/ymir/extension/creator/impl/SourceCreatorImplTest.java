@@ -275,8 +275,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
     }
 
     public void testAdjustByExistentClass2() throws Exception {
-        ClassDesc cd = new ClassDescImpl(pool_,
-                "org.seasar.ymir.extension.creator.impl.Merge2Page");
+        ClassDesc cd = pool_
+                .getClassDesc("org.seasar.ymir.extension.creator.impl.Merge2Page");
         cd.setSuperclassName(Merge2PageBaseBase.class.getName());
         MethodDesc md = new MethodDescImpl(pool_, "_render");
         md.setReturnTypeDesc(new TypeDescImpl(pool_, Void.TYPE));
@@ -353,8 +353,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         getConfiguration().removeProperty(
                 SourceCreatorSetting.APPKEY_SOURCECREATOR_SUPERCLASS);
 
-        ClassDesc cd = new ClassDescImpl(pool_,
-                "org.seasar.ymir.extension.creator.impl.Merge5Page");
+        ClassDesc cd = pool_
+                .getClassDesc("org.seasar.ymir.extension.creator.impl.Merge5Page");
 
         target_.adjustByExistentClass(cd);
 
@@ -363,8 +363,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass2_validationFailedなどがスーパークラスにある時は自動生成されないこと()
             throws Exception {
-        ClassDesc cd = new ClassDescImpl(pool_,
-                "com.example.page.SourceCreatorImplTestPage");
+        ClassDesc cd = pool_
+                .getClassDesc("com.example.page.SourceCreatorImplTestPage");
         cd.setSuperclassName(SourceCreatorImplTestPageBaseBase.class.getName());
         MethodDescImpl md = new MethodDescImpl(pool_,
                 ConstraintInterceptor.ACTION_VALIDATIONFAILED);
@@ -379,8 +379,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass3_Baseクラスの親クラス情報は維持されること()
             throws Exception {
-        ClassDesc cd = new ClassDescImpl(pool_,
-                "org.seasar.ymir.extension.creator.impl.Merge3Page");
+        ClassDesc cd = pool_
+                .getClassDesc("org.seasar.ymir.extension.creator.impl.Merge3Page");
         cd.setSuperclassName(TestPageBase.class.getName());
 
         target_.adjustByExistentClass(cd);
@@ -391,8 +391,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass5_Baseクラスのabstract状態が維持されること()
             throws Exception {
-        ClassDesc cd = new ClassDescImpl(pool_,
-                "org.seasar.ymir.extension.creator.impl.Merge7Page");
+        ClassDesc cd = pool_
+                .getClassDesc("org.seasar.ymir.extension.creator.impl.Merge7Page");
         cd.setSuperclassName(TestPageBase.class.getName());
 
         target_.adjustByExistentClass(cd);
@@ -402,8 +402,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass6_プロパティのGetterやSetterがスーパークラスにある時は自動生成されないこと()
             throws Exception {
-        ClassDesc cd = new ClassDescImpl(pool_,
-                "org.seasar.ymir.extension.creator.impl.Merge8Page");
+        ClassDesc cd = pool_
+                .getClassDesc("org.seasar.ymir.extension.creator.impl.Merge8Page");
         PropertyDescImpl pd = new PropertyDescImpl(pool_, "value");
         pd.setMode(PropertyDesc.READ);
         cd.setPropertyDesc(pd);
@@ -415,8 +415,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass9_BaseクラスのAnnotationが上書きされること()
             throws Exception {
-        ClassDesc cd = new ClassDescImpl(pool_,
-                "org.seasar.ymir.extension.creator.impl.Merge9Page");
+        ClassDesc cd = pool_
+                .getClassDesc("org.seasar.ymir.extension.creator.impl.Merge9Page");
         cd.setAnnotationDesc(new MetaAnnotationDescImpl("meta",
                 new String[] { "newValue" }, new Class[0]));
 
@@ -430,8 +430,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass10_Baseクラスのメソッドの返り値型()
             throws Exception {
-        ClassDesc cd = new ClassDescImpl(pool_,
-                "org.seasar.ymir.extension.creator.impl.Merge10Page");
+        ClassDesc cd = pool_
+                .getClassDesc("org.seasar.ymir.extension.creator.impl.Merge10Page");
         MethodDesc getMd = new MethodDescImpl(pool_, "_get");
         getMd.setReturnTypeDesc(new TypeDescImpl(pool_, Void.TYPE));
         getMd.setParameterDescs(new ParameterDesc[0]);
@@ -451,8 +451,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass11_FormDtoフィールドがsuperクラスにある場合はプロパティが除去されれること()
             throws Exception {
-        ClassDesc cd = new ClassDescImpl(pool_,
-                "org.seasar.ymir.extension.creator.impl.Merge11Page");
+        ClassDesc cd = pool_
+                .getClassDesc("org.seasar.ymir.extension.creator.impl.Merge11Page");
         PropertyDesc pd = new PropertyDescImpl(pool_, "hoehoe");
         cd.setPropertyDesc(pd);
         pd.setAnnotationDesc(new MetaAnnotationDescImpl("property",
@@ -465,9 +465,9 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertNull(cd.getPropertyDesc("hoehoe"));
     }
 
-    public void test_adjustByExistentClass11_Gapクラスに同名のアクションメソッドがある場合はBaseクラスにアクションメソッドが生成されないこと()
+    public void testAdjustByExistentClass12_Gapクラスに同名のシグネチャが異なるアクションメソッドがある場合はBaseクラスにアクションメソッドが生成されないこと()
             throws Exception {
-        ClassDesc cd = new ClassDescImpl(pool_, Merge12Page.class.getName());
+        ClassDesc cd = pool_.getClassDesc(Merge12Page.class);
         MethodDesc md = new MethodDescImpl(pool_, "_get");
         md.setAttribute(Globals.ATTR_ACTION, Boolean.TRUE);
         cd.setMethodDesc(md);
@@ -475,6 +475,201 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         target_.adjustByExistentClass(cd);
 
         assertNull(cd.getMethodDesc(md));
+    }
+
+    public void testAdjustByExistentClass13_Baseにあるメソッドのアノテーションとボディが保持されること()
+            throws Exception {
+        ClassDesc classDesc = target_.newClassDesc(pool_, AdjustPage.class,
+                true);
+        target_.adjustByExistentClass(classDesc);
+
+        MethodDesc actual = classDesc.getMethodDesc(new MethodDescImpl(pool_,
+                "_get"));
+        assertNotNull(actual);
+        assertNotNull(actual.getMetaFirstValue(Globals.META_NAME_SOURCE));
+        assertNotNull(actual.getBodyDesc());
+    }
+
+    public void testAdjustByExistentClass14_Baseにあるプロパティの初期値情報が正しくマージされること()
+            throws Exception {
+        ClassDesc classDesc = target_.newClassDesc(pool_, Adjust4Page.class,
+                false);
+        classDesc.getPropertyDesc("list").getTypeDesc()
+                .setCollectionImplementationClassName(null);
+        target_.adjustByExistentClass(classDesc);
+
+        PropertyDesc actual = classDesc.getPropertyDesc("list");
+        assertNotNull(actual);
+        assertEquals("new org.seasar.ymir.util.FlexibleList<String>()", actual
+                .getInitialValue());
+    }
+
+    public void testAdjustByExistentClass15_Baseにあるプロパティの初期値情報よりもClassDescのプロパティの型情報が優先されること()
+            throws Exception {
+        ClassDesc classDesc = target_.newClassDesc(pool_, Adjust5Page.class,
+                false);
+        classDesc.getPropertyDesc("list").getTypeDesc().setComponentClassDesc(
+                pool_.getClassDesc(String.class));
+        classDesc.getPropertyDesc("list").getTypeDesc()
+                .setCollectionImplementationClassName(null);
+        target_.adjustByExistentClass(classDesc);
+
+        PropertyDesc actual = classDesc.getPropertyDesc("list");
+        assertNotNull(actual);
+        assertEquals("new org.seasar.ymir.util.FlexibleList<String>()", actual
+                .getInitialValue());
+    }
+
+    public void testAdjustByExistentClass16_由来が同じプロパティのうち生成されたClassDescに含まれていないものが削除されること()
+            throws Exception {
+        ClassDesc classDesc = pool_.getClassDesc(Adjust2Page.class);
+        classDesc.setBornOf("/adjust2.html");
+        classDesc.addProperty("param4", PropertyDesc.READ | PropertyDesc.WRITE);
+
+        target_.adjustByExistentClass(classDesc);
+
+        PropertyDesc pd = classDesc.getPropertyDesc("param1");
+        assertNotNull(pd);
+        assertFalse(pd.isReadable());
+        assertTrue(pd.isWritable());
+
+        pd = classDesc.getPropertyDesc("param2");
+        assertNotNull(pd);
+        assertFalse(pd.isReadable());
+        assertFalse(pd.isWritable());
+
+        pd = classDesc.getPropertyDesc("param3");
+        assertNotNull(pd);
+        assertTrue(pd.isReadable());
+        assertTrue(pd.isWritable());
+
+        pd = classDesc.getPropertyDesc("param4");
+        assertNotNull(pd);
+        assertTrue(pd.isReadable());
+        assertTrue(pd.isWritable());
+
+        assertNull(classDesc.getPropertyDesc("param5"));
+    }
+
+    public void testAdjustByExistentClass17_由来が同じメソッドのうち生成されたClassDescに含まれていないものが削除されること()
+            throws Exception {
+        ClassDesc classDesc = pool_.getClassDesc(Adjust3Page.class);
+        classDesc.setBornOf("/adjust3.html");
+        classDesc.setMethodDesc(new MethodDescImpl(pool_, "_get_write"));
+
+        target_.adjustByExistentClass(classDesc);
+
+        MethodDesc md = classDesc.getMethodDesc(new MethodDescImpl(pool_,
+                "_get"));
+        assertNotNull(md);
+
+        assertNull(classDesc.getMethodDesc(new MethodDescImpl(pool_,
+                "_get_output")));
+
+        md = classDesc.getMethodDesc(new MethodDescImpl(pool_, "_get_list"));
+        assertNotNull(md);
+
+        md = classDesc.getMethodDesc(new MethodDescImpl(pool_, "_get_write"));
+        assertNotNull(md);
+    }
+
+    public void testAdjustByExistentClass18_由来が同じプロパティのうち生成されたClassDescにも含まれているものが正しく残ること()
+            throws Exception {
+        ClassDesc classDesc = pool_.getClassDesc(Adjust2Page.class);
+        classDesc.setBornOf("/adjust2.html");
+        classDesc.addProperty("param6", PropertyDesc.READ);
+
+        target_.adjustByExistentClass(classDesc);
+
+        PropertyDesc pd = classDesc.getPropertyDesc("param6");
+        assertNotNull(pd);
+        assertTrue(pd.isReadable());
+        assertFalse(pd.isWritable());
+
+        String[] value = pd.getMetaValueOnGetter(Globals.META_NAME_BORNOF);
+        assertNotNull(value);
+        assertEquals(2, value.length);
+    }
+
+    public void testAdjustByExistentClass19_オーバライドされたメソッドが消えないこと()
+            throws Exception {
+        pool_.setBornOf("/adjust6.html");
+        ClassDesc classDesc = pool_.getClassDesc(Adjust6Page.class);
+        MethodDesc methodDesc = new MethodDescImpl(pool_, "_get");
+        methodDesc.setAttribute(Globals.ATTR_ACTION, Boolean.TRUE);
+        classDesc.setMethodDesc(methodDesc);
+
+        target_.adjustByExistentClass(classDesc);
+
+        MethodDesc actual = classDesc.getMethodDesc(methodDesc);
+        assertNotNull(actual);
+
+        String[] value = actual.getMetaValue(Globals.META_NAME_BORNOF);
+        assertNotNull(value);
+        assertEquals(1, value.length);
+    }
+
+    public void testAdjustByExistentClass20_BaseクラスのプロパティにbornOfがついていない場合に正しく残ること()
+            throws Exception {
+        pool_.setBornOf("/adjust20.html");
+        ClassDesc classDesc = pool_.getClassDesc(Adjust20Page.class);
+        classDesc.addProperty("name", PropertyDesc.READ | PropertyDesc.WRITE);
+
+        target_.adjustByExistentClass(classDesc);
+
+        PropertyDesc actual = classDesc.getPropertyDesc("name");
+        assertNotNull(actual);
+
+        String[] value = actual.getMetaValue(Globals.META_NAME_BORNOF);
+        assertNotNull(value);
+        assertEquals(1, value.length);
+        int idx = 0;
+        assertEquals("/adjust20.html", value[idx++]);
+
+        value = actual.getMetaValueOnGetter(Globals.META_NAME_BORNOF);
+        assertNotNull(value);
+        assertEquals(1, value.length);
+        idx = 0;
+        assertEquals("/adjust20.html", value[idx++]);
+
+        value = actual.getMetaValueOnSetter(Globals.META_NAME_BORNOF);
+        assertNotNull(value);
+        assertEquals(1, value.length);
+        idx = 0;
+        assertEquals("/adjust20.html", value[idx++]);
+    }
+
+    public void testAdjustByExistentClass21_BaseクラスのプロパティにbornOfがついている場合に正しく残ること()
+            throws Exception {
+        pool_.setBornOf("/adjust21.html");
+        ClassDesc classDesc = pool_.getClassDesc(Adjust21Page.class);
+        classDesc.addProperty("name", PropertyDesc.READ | PropertyDesc.WRITE);
+
+        target_.adjustByExistentClass(classDesc);
+
+        PropertyDesc actual = classDesc.getPropertyDesc("name");
+        assertNotNull(actual);
+
+        String[] value = actual.getMetaValue(Globals.META_NAME_BORNOF);
+        assertNotNull(value);
+        assertEquals(2, value.length);
+        int idx = 0;
+        assertEquals("/adjust.html", value[idx++]);
+        assertEquals("/adjust21.html", value[idx++]);
+
+        value = actual.getMetaValueOnGetter(Globals.META_NAME_BORNOF);
+        assertNotNull(value);
+        assertEquals(2, value.length);
+        idx = 0;
+        assertEquals("/adjust.html", value[idx++]);
+        assertEquals("/adjust21.html", value[idx++]);
+
+        value = actual.getMetaValueOnSetter(Globals.META_NAME_BORNOF);
+        assertNotNull(value);
+        assertEquals(2, value.length);
+        idx = 0;
+        assertEquals("/adjust.html", value[idx++]);
+        assertEquals("/adjust21.html", value[idx++]);
     }
 
     public void testGetBeginAnnotation() throws Exception {
@@ -501,14 +696,14 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
     }
 
     public void testIsFormDtoFieldPresent() throws Exception {
-        assertFalse(target_.isFormDtoFieldPresent(new ClassDescImpl(pool_,
-                Object.class.getName()), "hoehoe"));
+        assertFalse(target_.isFormDtoFieldPresent(pool_
+                .getClassDesc(Object.class), "hoehoe"));
 
-        assertFalse(target_.isFormDtoFieldPresent(new ClassDescImpl(pool_,
-                Merge10Page.class.getName()), "hoehoe"));
+        assertFalse(target_.isFormDtoFieldPresent(pool_
+                .getClassDesc(Merge10Page.class), "hoehoe"));
 
-        assertTrue(target_.isFormDtoFieldPresent(new ClassDescImpl(pool_,
-                Merge11Page.class.getName()), "hoehoe"));
+        assertTrue(target_.isFormDtoFieldPresent(pool_
+                .getClassDesc(Merge11Page.class), "hoehoe"));
     }
 
     public void testGetClassDesc_YMIR_226_aNameのようなプロパティを正しく検出できること1()
@@ -572,140 +767,6 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertEquals("com.example.web.TraversePageBase", target_.newClassDesc(
                 null, "com.example.web.aaa2.bbb.TraversePage", null)
                 .getSuperclassName());
-    }
-
-    public void testAdjustByExistentClass_Baseにあるメソッドのアノテーションとボディが保持されること()
-            throws Exception {
-        ClassDesc classDesc = target_.newClassDesc(pool_, AdjustPage.class,
-                true);
-        target_.adjustByExistentClass(classDesc);
-
-        MethodDesc actual = classDesc.getMethodDesc(new MethodDescImpl(pool_,
-                "_get"));
-        assertNotNull(actual);
-        assertNotNull(actual.getMetaFirstValue(Globals.META_NAME_SOURCE));
-        assertNotNull(actual.getBodyDesc());
-    }
-
-    public void testAdjustByExistentClass_Baseにあるプロパティの初期値情報が正しくマージされること()
-            throws Exception {
-        ClassDesc classDesc = target_.newClassDesc(pool_, Adjust4Page.class,
-                false);
-        classDesc.getPropertyDesc("list").getTypeDesc()
-                .setCollectionImplementationClassName(null);
-        target_.adjustByExistentClass(classDesc);
-
-        PropertyDesc actual = classDesc.getPropertyDesc("list");
-        assertNotNull(actual);
-        assertEquals("new org.seasar.ymir.util.FlexibleList<String>()", actual
-                .getInitialValue());
-    }
-
-    public void testAdjustByExistentClass_Baseにあるプロパティの初期値情報よりもClassDescのプロパティの型情報が優先されること()
-            throws Exception {
-        ClassDesc classDesc = target_.newClassDesc(pool_, Adjust5Page.class,
-                false);
-        classDesc.getPropertyDesc("list").getTypeDesc().setComponentClassDesc(
-                new ClassDescImpl(pool_, String.class.getName()));
-        classDesc.getPropertyDesc("list").getTypeDesc()
-                .setCollectionImplementationClassName(null);
-        target_.adjustByExistentClass(classDesc);
-
-        PropertyDesc actual = classDesc.getPropertyDesc("list");
-        assertNotNull(actual);
-        assertEquals("new org.seasar.ymir.util.FlexibleList<String>()", actual
-                .getInitialValue());
-    }
-
-    public void testAdjustByExistentClass2_由来が同じプロパティのうち生成されたClassDescに含まれていないものが削除されること()
-            throws Exception {
-        ClassDesc classDesc = new ClassDescImpl(pool_, Adjust2Page.class
-                .getName());
-        classDesc.setBornOf("/adjust2.html");
-        classDesc.addProperty("param4", PropertyDesc.READ | PropertyDesc.WRITE);
-
-        target_.adjustByExistentClass(classDesc);
-
-        PropertyDesc pd = classDesc.getPropertyDesc("param1");
-        assertNotNull(pd);
-        assertFalse(pd.isReadable());
-        assertTrue(pd.isWritable());
-
-        pd = classDesc.getPropertyDesc("param2");
-        assertNotNull(pd);
-        assertFalse(pd.isReadable());
-        assertFalse(pd.isWritable());
-
-        pd = classDesc.getPropertyDesc("param3");
-        assertNotNull(pd);
-        assertTrue(pd.isReadable());
-        assertTrue(pd.isWritable());
-
-        pd = classDesc.getPropertyDesc("param4");
-        assertNotNull(pd);
-        assertTrue(pd.isReadable());
-        assertTrue(pd.isWritable());
-
-        assertNull(classDesc.getPropertyDesc("param5"));
-    }
-
-    public void testAdjustByExistentClass3_由来が同じメソッドのうち生成されたClassDescに含まれていないものが削除されること()
-            throws Exception {
-        ClassDesc classDesc = new ClassDescImpl(pool_, Adjust3Page.class
-                .getName());
-        classDesc.setBornOf("/adjust3.html");
-        classDesc.setMethodDesc(new MethodDescImpl(pool_, "_get_write"));
-
-        target_.adjustByExistentClass(classDesc);
-
-        MethodDesc md = classDesc.getMethodDesc(new MethodDescImpl(pool_,
-                "_get"));
-        assertNotNull(md);
-
-        assertNull(classDesc.getMethodDesc(new MethodDescImpl(pool_,
-                "_get_output")));
-
-        md = classDesc.getMethodDesc(new MethodDescImpl(pool_, "_get_list"));
-        assertNotNull(md);
-
-        md = classDesc.getMethodDesc(new MethodDescImpl(pool_, "_get_write"));
-        assertNotNull(md);
-    }
-
-    public void testAdjustByExistentClass4_由来が同じプロパティのうち生成されたClassDescにも含まれているものが正しく残ること()
-            throws Exception {
-        ClassDesc classDesc = pool_.getClassDesc(Adjust2Page.class);
-        classDesc.setBornOf("/adjust2.html");
-        classDesc.addProperty("param6", PropertyDesc.READ);
-
-        target_.adjustByExistentClass(classDesc);
-
-        PropertyDesc pd = classDesc.getPropertyDesc("param6");
-        assertNotNull(pd);
-        assertTrue(pd.isReadable());
-        assertFalse(pd.isWritable());
-
-        String[] value = pd.getMetaValueOnGetter(Globals.META_NAME_BORNOF);
-        assertNotNull(value);
-        assertEquals(2, value.length);
-    }
-
-    public void testAdjustByExistentClass5_オーバライドされたメソッドが消えないこと()
-            throws Exception {
-        pool_.setBornOf("/adjust6.html");
-        ClassDesc classDesc = pool_.getClassDesc(Adjust6Page.class);
-        MethodDesc methodDesc = new MethodDescImpl(pool_, "_get");
-        methodDesc.setAttribute(Globals.ATTR_ACTION, Boolean.TRUE);
-        classDesc.setMethodDesc(methodDesc);
-
-        target_.adjustByExistentClass(classDesc);
-
-        MethodDesc actual = classDesc.getMethodDesc(methodDesc);
-        assertNotNull(actual);
-
-        String[] value = actual.getMetaValue(Globals.META_NAME_BORNOF);
-        assertNotNull(value);
-        assertEquals(1, value.length);
     }
 
     public void testUpdateClass_Page() throws Exception {
