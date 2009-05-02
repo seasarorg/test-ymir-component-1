@@ -5,7 +5,7 @@ ${importDesc.asString}</#if>
 <#list classDesc.annotationDescs as annotationDesc>
 ${annotationDesc.asShortString}
 </#list>
-public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#if classDesc.superclassShortName?exists && classDesc.superclassShortName != "Object"> extends ${classDesc.superclassShortName}</#if><#list classDesc.interfaceTypeDescs as interfaceTypeDesc><#if interfaceTypeDesc_index == 0>
+public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#if classDesc.superclassShortName??> extends ${classDesc.superclassShortName}</#if><#list classDesc.interfaceTypeDescs as interfaceTypeDesc><#if interfaceTypeDesc_index == 0>
     implements </#if>${interfaceTypeDesc.shortName}<#if interfaceTypeDesc_has_next>, </#if></#list> {
     public static final String PACKAGE = "${classDesc.packageName}";
 

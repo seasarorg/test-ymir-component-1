@@ -1547,6 +1547,12 @@ public class SourceCreatorImpl implements SourceCreator {
         // 自動生成に必要な付加情報を設定する。
         prepareForSourceGeneratorParameter(classDesc);
 
+        if (classDesc.isTypeOf(ClassType.DTO)) {
+            MethodDesc methodDesc = new MethodDescImpl(classDesc
+                    .getDescPool(), "toString");
+            classDesc.removeMethodDesc(methodDesc);
+        }
+
         writeString(sourceGenerator_.generateBaseSource(classDesc),
                 getSourceFile(classDesc.getName() + "Base"));
 

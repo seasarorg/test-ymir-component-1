@@ -5,7 +5,7 @@ ${importDesc.asString}</#if>
 <#list classDesc.annotationDescs as annotationDesc>
 ${annotationDesc.asShortString}
 </#list>
-public class ${classDesc.shortName}Base
+public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#if classDesc.superclassShortName??> extends ${classDesc.superclassShortName}</#if>
     implements Serializable<#list classDesc.interfaceTypeDescs as interfaceTypeDesc>, ${interfaceTypeDesc.shortName}</#list> {
     private static final long serialVersionUID = 1L;
 
