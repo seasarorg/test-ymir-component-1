@@ -1285,8 +1285,8 @@ public class SourceCreatorImpl implements SourceCreator {
                 }
             }
 
-            // abstractかどうかを保持するようにする。
             if (baseClass != null) {
+                // abstractかどうかを保持するようにする。
                 desc.setAbstract(Modifier.isAbstract(baseClass.getModifiers()));
             }
 
@@ -1947,7 +1947,7 @@ public class SourceCreatorImpl implements SourceCreator {
             if (clazz != null) {
                 Class<?> superclass = clazz.getSuperclass();
                 if (superclass != null && superclass != Object.class) {
-                    if (superclass.getName().endsWith("Base")) {
+                    if (superclass.getName().equals(className + "Base")) {
                         superclass = superclass.getSuperclass();
                     }
                     superclassName = superclass.getName();

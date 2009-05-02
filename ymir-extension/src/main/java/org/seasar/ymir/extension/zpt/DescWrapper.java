@@ -42,14 +42,6 @@ public class DescWrapper {
 
         ClassDesc cd = getValueClassDescToModifyProeprty(name);
         PropertyDesc pd = cd.getPropertyDesc(name);
-        if (pd == null) {
-            if (hasPresentSuperclassReadableProperty(cd, name)) {
-                // 親クラスがプロパティを持っていてかつGetterが存在するので
-                // プロパティを新規に作らないようにする。
-                return null;
-            }
-        }
-
         int mode = (cd.isTypeOf(ClassType.DTO) ? (PropertyDesc.READ | PropertyDesc.WRITE)
                 : PropertyDesc.READ);
         if (pd == null) {

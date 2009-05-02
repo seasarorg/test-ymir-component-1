@@ -128,9 +128,9 @@ public class MockApplication implements Application {
     public void setSourceDirectory(String sourceDirectory) {
     }
 
+    @SuppressWarnings("unchecked")
     public Enumeration<String> propertyNames() {
-        List<String> emptyList = Collections.emptyList();
-        return Collections.enumeration(emptyList);
+        return (Enumeration<String>) prop_.propertyNames();
     }
 
     @SuppressWarnings("unchecked")

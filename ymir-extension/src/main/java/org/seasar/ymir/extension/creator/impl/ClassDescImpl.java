@@ -244,6 +244,9 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
     }
 
     public void setSuperclassName(String superclassName) {
+        if (Object.class.getName().equals(superclassName)) {
+            superclassName = null;
+        }
         superclassName_ = superclassName;
     }
 
@@ -266,8 +269,6 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         }
 
         if (classDesc.getSuperclassName() != null
-                && !classDesc.getSuperclassName()
-                        .equals(Object.class.getName())
                 && (force || superclassName_ == null)) {
             setSuperclassName(classDesc.getSuperclassName());
         }

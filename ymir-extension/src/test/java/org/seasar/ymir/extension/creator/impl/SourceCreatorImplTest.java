@@ -393,7 +393,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertNull(cd.getMethodDesc(md));
     }
 
-    public void testAdjustByExistentClass3_Baseクラスの親クラス情報は維持されること()
+    public void testAdjustByExistentClass3_親クラスが明示的に指定されていればBaseクラスの現在の親クラス情報よりも優先されること()
             throws Exception {
         ClassDesc cd = pool_
                 .getClassDesc("org.seasar.ymir.extension.creator.impl.Merge3Page");
@@ -401,7 +401,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
         target_.adjustByExistentClass(cd);
 
-        assertEquals("もともとの親クラスが維持されること", TestPageBase.class.getName(), cd
+        assertEquals("明示的な指定が優先されること", TestPageBase.class.getName(), cd
                 .getSuperclassName());
     }
 

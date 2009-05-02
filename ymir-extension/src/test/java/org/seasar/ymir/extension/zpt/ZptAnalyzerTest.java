@@ -5,9 +5,7 @@ import static org.seasar.ymir.extension.Globals.ATTR_UNDECIDEDPARAMETERNAMES;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Vector;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -55,6 +53,7 @@ import org.seasar.ymir.message.Note;
 import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
+import org.seasar.ymir.render.AbstractCandidate;
 import org.seasar.ymir.render.Candidate;
 import org.seasar.ymir.render.Selector;
 import org.seasar.ymir.scope.annotation.RequestParameter;
@@ -202,12 +201,8 @@ public class ZptAnalyzerTest extends TestCase {
                 .create("org/seasar/ymir/extension/zpt/ZptAnalyzerTest.dicon");
         ApplicationManagerImpl applicationManager = (ApplicationManagerImpl) container
                 .getComponent(ApplicationManagerImpl.class);
-        MockApplication mockApplication = new MockApplication() {
-            @Override
-            public Enumeration<String> propertyNames() {
-                return new Vector<String>().elements();
-            }
-        }.setS2Container(container);
+        MockApplication mockApplication = new MockApplication()
+                .setS2Container(container);
         applicationManager.setHotdeployManager(new HotdeployManagerImpl());
         applicationManager.setBaseApplication(mockApplication);
         sourceCreator_.setApplicationManager(applicationManager);
@@ -1531,6 +1526,8 @@ public class ZptAnalyzerTest extends TestCase {
         TypeDesc[] tds = actual.getInterfaceTypeDescs();
         assertEquals(1, tds.length);
         assertEquals(Candidate.class.getName(), tds[0].getName());
+        assertEquals("インタフェースの抽象実装クラスがあればそれが設定されていること", AbstractCandidate.class
+                .getName(), actual.getSuperclassName());
     }
 
     public void testAnalyze83_インタフェースを返す既存DTOクラスのプロパティをrepeat変数で受けている場合にはグループ名がrepeat変数名よりも優先されること()
@@ -1626,5 +1623,35 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals("com.example.dto.FormDto", getClassDesc(CLASSNAME)
                 .getPropertyDesc("form").getTypeDesc().getComponentClassDesc()
                 .getName());
+    }
+
+    public void testAnalyze89_インタフェース型の実装型である自動生成DTOの親クラスはプロパティファイルで指定されていれば指定されたものになること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEYPREFIX_SOURCECREATOR_SUPERCLASS
+                        + "com\\.example\\.dto\\.EntryDto",
+                "com.example.dto.Saru");
+
+        act("testAnalyze89");
+
+        assertEquals("com.example.dto.Saru", getClassDesc(
+                "com.example.dto.EntryDto").getSuperclassName());
+    }
+
+    public void testAnalyze90_インタフェース型の実装型である自動生成DTOの親クラスはもともとの指定が維持されること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+
+        act("testAnalyze90");
+
+        assertEquals("com.example.dto.Entry90DtoBaseBase", getClassDesc(
+                "com.example.dto.Entry90Dto").getSuperclassName());
     }
 }

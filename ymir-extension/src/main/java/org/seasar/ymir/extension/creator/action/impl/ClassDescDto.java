@@ -31,11 +31,7 @@ public class ClassDescDto {
         page_ = classDesc.isTypeOf(ClassType.PAGE);
         pairTypeName_ = PropertyUtils
                 .join(classDesc.getMetaValue("conversion"));
-        String superclassName = classDesc.getSuperclassName();
-        if (Object.class.getName().equals(superclassName)) {
-            superclassName = null;
-        }
-        superclassName_ = superclassName;
+        superclassName_ = classDesc.getSuperclassName();
         undecidedParameterNames_ = (String[]) classDesc
                 .getAttribute(Globals.ATTR_UNDECIDEDPARAMETERNAMES);
 

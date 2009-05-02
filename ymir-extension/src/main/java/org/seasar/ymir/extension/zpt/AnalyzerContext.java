@@ -3,6 +3,7 @@ package org.seasar.ymir.extension.zpt;
 import static java.beans.Introspector.decapitalize;
 import static org.seasar.ymir.extension.creator.PropertyDesc.PROBABILITY_DEFAULT;
 import static org.seasar.ymir.extension.creator.PropertyDesc.PROBABILITY_MAXIMUM;
+import static org.seasar.ymir.util.ClassUtils.getShortName;
 import static org.seasar.ymir.util.ClassUtils.getShorterName;
 
 import java.beans.PropertyDescriptor;
@@ -95,6 +96,8 @@ public class AnalyzerContext extends ZptTemplateContext {
 
     private static final Log log_ = LogFactory.getLog(AnalyzerContext.class);
 
+    private static final String PREFIX_ABSTRACT = "Abstract";
+
     @Override
     public VariableResolver getVariableResolver() {
         if (variableResolver_ == null) {
@@ -170,10 +173,11 @@ public class AnalyzerContext extends ZptTemplateContext {
      * @param probability 確からしさ。既存の型情報の確からしさがこの値よりも小さい場合はプロパティ型が再推論されます。
      * @return PropertyDescオブジェクト。nullが返されることはありません。
      */
-    public PropertyDesc addPropertyDesc(ClassDesc classDesc, String propertyName,
-            int mode, String propertyTypeAlias, boolean asCollection,
-            String collectionClassName, int probability) {
-        PropertyDesc propertyDesc = classDesc.addPropertyDesc(propertyName, mode);
+    public PropertyDesc addPropertyDesc(ClassDesc classDesc,
+            String propertyName, int mode, String propertyTypeAlias,
+            boolean asCollection, String collectionClassName, int probability) {
+        PropertyDesc propertyDesc = classDesc.addPropertyDesc(propertyName,
+                mode);
         if (log_.isDebugEnabled()) {
             log_.debug("Adding property '" + propertyName
                     + "' (object path is '" + getPathExpression(propertyDesc)
@@ -198,7 +202,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         TypeDesc typeDesc;
 
         // プロパティ型のヒント情報を見る。
-        // ヒントがなければ、実際の親クラスからプロパティ型を取得する。
+        // ヒントがなければ、実際のクラスからプロパティ型を取得する。
         String className = classDesc.getName();
         PropertyTypeHint hint = getPropertyTypeHint(className, propertyName);
         if (hint != null) {
@@ -211,8 +215,8 @@ public class AnalyzerContext extends ZptTemplateContext {
             typeDesc.setExplicit(true);
             probability = PROBABILITY_MAXIMUM;
         } else {
-            PropertyDescriptor descriptor = sourceCreator_
-                    .getPropertyDescriptor(className, propertyName);
+            PropertyDescriptor descriptor = findPropertyDescriptor(classDesc,
+                    propertyName);
             if (descriptor != null) {
                 Method readMethod = descriptor.getReadMethod();
                 if (readMethod != null) {
@@ -270,9 +274,26 @@ public class AnalyzerContext extends ZptTemplateContext {
                 }
 
                 if (interfaceClassName != null) {
-                    typeDesc.getComponentClassDesc().setInterfaceTypeDescs(
-                            new TypeDesc[] { classDesc.getDescPool()
-                                    .newTypeDesc(interfaceClassName) });
+                    ClassDesc componentClassDesc = typeDesc
+                            .getComponentClassDesc();
+                    componentClassDesc
+                            .setInterfaceTypeDescs(new TypeDesc[] { classDesc
+                                    .getDescPool().newTypeDesc(
+                                            interfaceClassName) });
+
+                    // スーパークラスが未設定の場合は、インタフェースの抽象実装クラスがあれば
+                    // それをスーパークラスとする。
+                    if (componentClassDesc.getSuperclassName() == null) {
+                        String abstractClassName = getSourceCreator()
+                                .getSourceCreatorSetting()
+                                .findDtoClassName(
+                                        PREFIX_ABSTRACT
+                                                + getShortName(interfaceClassName));
+                        if (abstractClassName != null) {
+                            componentClassDesc
+                                    .setSuperclassName(abstractClassName);
+                        }
+                    }
                 }
             } else {
                 // 推論できなかった場合は名前から推論を行なう。
@@ -306,6 +327,18 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
 
         return propertyDesc;
+    }
+
+    private PropertyDescriptor findPropertyDescriptor(ClassDesc classDesc,
+            String propertyName) {
+        String className = classDesc.getName();
+        PropertyDescriptor descriptor = sourceCreator_.getPropertyDescriptor(
+                className, propertyName);
+        if (descriptor == null) {
+            descriptor = sourceCreator_.getPropertyDescriptor(classDesc
+                    .getSuperclassName(), propertyName);
+        }
+        return descriptor;
     }
 
     private String findQualifier(PropertyDesc propertyDesc) {
@@ -342,10 +375,10 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
     }
 
-    public PropertyDesc addPropertyDesc(ClassDesc classDesc, String propertyName,
-            int mode) {
-        return addPropertyDesc(classDesc, propertyName, mode, null, false, null,
-                PROBABILITY_DEFAULT);
+    public PropertyDesc addPropertyDesc(ClassDesc classDesc,
+            String propertyName, int mode) {
+        return addPropertyDesc(classDesc, propertyName, mode, null, false,
+                null, PROBABILITY_DEFAULT);
     }
 
     /**
