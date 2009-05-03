@@ -1,10 +1,5 @@
 package org.seasar.ymir.extension.zpt;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.PropertyDesc;
@@ -63,48 +58,6 @@ public class DescWrapper {
         } else {
             return returned;
         }
-    }
-
-    boolean hasPresentSuperclassReadableProperty(ClassDesc classDesc,
-            String name) {
-        Class<?> superclass = findPresentSuperclass(classDesc);
-        if (superclass != null) {
-            try {
-                BeanInfo beanInfo = Introspector.getBeanInfo(superclass);
-                for (PropertyDescriptor propertyDescriptor : beanInfo
-                        .getPropertyDescriptors()) {
-                    if (name.equals(propertyDescriptor.getName())
-                            && propertyDescriptor.getReadMethod() != null) {
-                        return true;
-                    }
-                }
-            } catch (IntrospectionException ignore) {
-            }
-        }
-        return false;
-    }
-
-    Class<?> findPresentSuperclass(ClassDesc classDesc) {
-        ClassDesc cd = classDesc;
-        String superclassName = null;
-        Class<?> superclass = null;
-        do {
-            superclassName = cd.getSuperclassName();
-            if (superclassName == null) {
-                break;
-            }
-
-            superclass = analyzerContext_.getSourceCreator().getClass(
-                    superclassName);
-            if (superclass != null) {
-                break;
-            }
-
-            cd = analyzerContext_.getSourceCreator().newClassDesc(null,
-                    superclassName, null);
-        } while (true);
-
-        return superclass;
     }
 
     public AnalyzerContext getAnalizerContext() {

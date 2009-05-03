@@ -714,11 +714,6 @@ public class SourceCreatorImpl implements SourceCreator {
         ClassDesc classDesc = newClassDesc(pool, clazz.getName(), qualifier,
                 null);
 
-        Class<?> superclass = clazz.getSuperclass();
-        if (superclass != null && superclass != Object.class) {
-            classDesc.setSuperclassName(clazz.getSuperclass().getName());
-        }
-
         AnnotationDesc[] ads = DescUtils.newAnnotationDescs(clazz);
         for (int i = 0; i < ads.length; i++) {
             classDesc.setAnnotationDesc(ads[i]);
@@ -1548,8 +1543,8 @@ public class SourceCreatorImpl implements SourceCreator {
         prepareForSourceGeneratorParameter(classDesc);
 
         if (classDesc.isTypeOf(ClassType.DTO)) {
-            MethodDesc methodDesc = new MethodDescImpl(classDesc
-                    .getDescPool(), "toString");
+            MethodDesc methodDesc = new MethodDescImpl(classDesc.getDescPool(),
+                    "toString");
             classDesc.removeMethodDesc(methodDesc);
         }
 
