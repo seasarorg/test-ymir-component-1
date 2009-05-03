@@ -1,12 +1,19 @@
 package org.seasar.ymir.render;
 
-public abstract class AbstractCandidate implements Candidate {
-    protected String value_;
+import java.lang.reflect.Array;
 
+public abstract class AbstractCandidate implements Candidate {
     protected boolean selected_;
 
-    public String getValue() {
-        return value_;
+    protected String value_;
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder().append('(');
+        sb.append("selected=").append(selected_).append(", ");
+        sb.append("value=").append(value_);
+        sb.append(')');
+        return sb.toString();
     }
 
     public boolean isSelected() {
@@ -15,6 +22,10 @@ public abstract class AbstractCandidate implements Candidate {
 
     public void setSelected(boolean selected) {
         selected_ = selected;
+    }
+
+    public String getValue() {
+        return value_;
     }
 
     public void setValue(String value) {
