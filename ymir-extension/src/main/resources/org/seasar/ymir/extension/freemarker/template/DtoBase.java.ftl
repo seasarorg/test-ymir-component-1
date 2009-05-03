@@ -28,7 +28,8 @@ public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder().append('(');<#list classDesc.propertyDescs as propertyDesc>
+        StringBuilder sb = new StringBuilder().append('(');<#if classDesc.superclassName??>
+        sb.append(super.toString()).append(", ");</#if><#list classDesc.propertyDescs as propertyDesc>
         append(sb.append("${propertyDesc.name}="), ${fieldPrefix}${propertyDesc.name}${fieldSuffix})<#if propertyDesc_has_next>.append(", ")</#if>;</#list>
         sb.append(')');
         return toString(sb);
