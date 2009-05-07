@@ -200,6 +200,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
 
         TypeDesc typeDesc;
+        boolean fixed = false;
 
         // プロパティ型のヒント情報を見る。
         // ヒントがなければ、実際のクラスからプロパティ型を取得する。
@@ -250,11 +251,11 @@ public class AnalyzerContext extends ZptTemplateContext {
                     // そうでない場合は実際の型をそのまま使う。
                     componentClassName = componentClass.getName();
                     probability = PROBABILITY_TYPE;
-
                     qualifier = getQualifier(
                             propertyTypeAlias != null ? propertyTypeAlias
                                     : asCollection ? toSingular(propertyName)
                                             : propertyName, componentClassName);
+                    fixed = isOuter(descriptor);
                 }
 
                 String typeName = DescUtils
@@ -318,6 +319,10 @@ public class AnalyzerContext extends ZptTemplateContext {
                     .getTypeDesc().getCollectionImplementationClassName());
         }
 
+        if (fixed) {
+            typeDesc.setExplicit(true);
+        }
+
         propertyDesc.setTypeDesc(typeDesc);
         propertyDesc.notifyTypeUpdated(probability);
 
@@ -327,6 +332,14 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
 
         return propertyDesc;
+    }
+
+    private boolean isOuter(PropertyDescriptor descriptor) {
+        Method method = descriptor.getReadMethod();
+        if (method == null) {
+            method = descriptor.getWriteMethod();
+        }
+        return isOuter(method.getDeclaringClass().getName());
     }
 
     private PropertyDescriptor findPropertyDescriptor(ClassDesc classDesc,

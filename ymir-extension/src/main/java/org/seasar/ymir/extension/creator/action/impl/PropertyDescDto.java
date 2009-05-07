@@ -9,12 +9,31 @@ public class PropertyDescDto {
 
     private String typeName_;
 
+    private boolean modifiable_;
+
     private boolean subordinate_;
+
+    private boolean fixed_;
 
     public PropertyDescDto(PropertyDesc pd, boolean subordinate) {
         name_ = pd.getName();
         typeName_ = pd.getTypeDesc().getName();
-        subordinate_ = subordinate;
+
+        if (pd.getTypeDesc().isExplicit()) {
+            modifiable_ = false;
+            subordinate_ = false;
+            fixed_ = true;
+        } else {
+            if (subordinate) {
+                modifiable_ = false;
+                subordinate_ = true;
+                fixed_ = false;
+            } else {
+                modifiable_ = true;
+                subordinate_ = false;
+                fixed_ = false;
+            }
+        }
     }
 
     public String getName() {
@@ -33,7 +52,15 @@ public class PropertyDescDto {
         return BeanUtils.normalizePropertyName(name_);
     }
 
+    public boolean isModifiable() {
+        return modifiable_;
+    }
+
     public boolean isSubordinate() {
         return subordinate_;
+    }
+
+    public boolean isFixed() {
+        return fixed_;
     }
 }
