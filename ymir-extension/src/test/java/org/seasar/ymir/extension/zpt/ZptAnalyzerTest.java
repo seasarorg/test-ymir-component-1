@@ -64,7 +64,6 @@ import com.example.dto.SaruDto;
 import com.example.web.Test47Page;
 
 import net.skirnir.freyja.TemplateContext;
-import net.skirnir.freyja.render.html.Checkbox;
 import net.skirnir.freyja.render.html.Option;
 
 public class ZptAnalyzerTest extends TestCase {
@@ -1385,43 +1384,45 @@ public class ZptAnalyzerTest extends TestCase {
 
         sourceCreator_.getApplication().setProperty(
                 SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
-                "net.skirnir.freyja.render.*");
+                "org.seasar.ymir.render.*");
 
         act("testAnalyze74");
 
         PropertyDesc onePd = getClassDesc("com.example.dto.FormDto")
-                .getPropertyDesc("oneCheckbox");
+                .getPropertyDesc("oneSelector");
         assertNotNull(onePd);
         assertEquals(
-                "[inputタグのname属性] 名前からCheckboxクラスと推論。またvalueプロパティを持つのでそのまま確定。",
-                Checkbox.class.getName(), onePd.getTypeDesc().getName());
+                "[inputタグのname属性] 名前からSelectorクラスと推論。またselectedValueプロパティを持つのでそのまま確定。",
+                Selector.class.getName(), onePd.getTypeDesc().getName());
 
         PropertyDesc twoPd = getClassDesc("com.example.dto.FormDto")
-                .getPropertyDesc("twoCheckbox");
+                .getPropertyDesc("twoSelector");
         assertNotNull(twoPd);
-        assertEquals("[Path式] 名前からCheckboxクラスと推論。またvalueプロパティを持つのでそのまま確定。",
-                Checkbox.class.getName(), twoPd.getTypeDesc().getName());
+        assertEquals(
+                "[Path式] 名前からSelectorクラスと推論。またselectedValueプロパティを持つのでそのまま確定。",
+                Selector.class.getName(), twoPd.getTypeDesc().getName());
 
         PropertyDesc threePd = getClassDesc("com.example.dto.FormDto")
-                .getPropertyDesc("threeCheckbox");
+                .getPropertyDesc("threeSelector");
         assertNotNull(threePd);
         assertEquals(
-                "[inputタグのname属性] 名前からCheckboxクラスと推論するが、hogeプロパティを持たないのでDtoと推論",
-                "com.example.dto.ThreeCheckboxDto", threePd.getTypeDesc()
+                "[inputタグのname属性] 名前からSelectorクラスと推論するが、hogeプロパティを持たないのでDtoと推論",
+                "com.example.dto.ThreeSelectorDto", threePd.getTypeDesc()
                         .getName());
 
         PropertyDesc fourPd = getClassDesc("com.example.dto.FormDto")
-                .getPropertyDesc("fourCheckbox");
+                .getPropertyDesc("fourSelector");
         assertNotNull(fourPd);
-        assertEquals("[Path式] 名前からCheckboxクラスと推論するが、hogeプロパティを持たないのでDtoと推論",
-                "com.example.dto.FourCheckboxDto", fourPd.getTypeDesc()
+        assertEquals("[Path式] 名前からSelectorクラスと推論するが、hogeプロパティを持たないのでDtoと推論",
+                "com.example.dto.FourSelectorDto", fourPd.getTypeDesc()
                         .getName());
 
         PropertyDesc fivePd = getClassDesc("com.example.dto.FormDto")
-                .getPropertyDesc("fiveCheckbox");
+                .getPropertyDesc("fiveSelector");
         assertNotNull(fivePd);
-        assertEquals("名前からCheckboxクラスと推論。またvalueプロパティを持つが、Dtoが既に存在するのでDtoと推論。",
-                "com.example.dto.FiveCheckboxDto", fivePd.getTypeDesc()
+        assertEquals(
+                "名前からSelectorクラスと推論。またselectedValueプロパティを持つが、Dtoが既に存在するのでDtoと推論。",
+                "com.example.dto.FiveSelectorDto", fivePd.getTypeDesc()
                         .getName());
     }
 

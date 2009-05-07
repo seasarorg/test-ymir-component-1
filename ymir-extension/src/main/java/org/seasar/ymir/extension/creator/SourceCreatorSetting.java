@@ -342,7 +342,7 @@ public class SourceCreatorSetting {
             if (entry.endsWith(".*")) {
                 traverser.addClassPattern(entry
                         .substring(0, entry.length() - 2/*=".*".length() */),
-                        ".+");
+                        "[^\\.]+");
             } else {
                 String shortClassName;
                 int dot = entry.lastIndexOf(".");
