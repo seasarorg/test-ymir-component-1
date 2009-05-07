@@ -20,14 +20,10 @@ public interface HotdeployFitter<T> {
     Class<T> getTargetClass();
 
     /**
-     * HOT Deploy後の新しいクラスのオブジェクトを作成し、
-     * 指定されたオブジェクトの内容をコピーして返します。
-     * <p>コピーの必要がない場合は指定されたオブジェクトがそのまま返されることがありますが、
-     * オブジェクトの中身は指し変わっていることがあります。
-     * </p>
+     * 指定されたオブジェクトに含まれる全てのオブジェクトについて、
+     * HOT Deploy後の新しいクラスのオブジェクトに置き換えます。
      * 
-     * @param value コピー元のオブジェクト。
-     * @return コピーされたオブジェクト。
+     * @param value オブジェクト。
      */
-    T copy(T value);
+    void fitContent(T value);
 }

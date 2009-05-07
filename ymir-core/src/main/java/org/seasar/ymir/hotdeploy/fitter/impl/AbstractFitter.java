@@ -16,17 +16,4 @@ abstract public class AbstractFitter<T> implements HotdeployFitter<T> {
     final public HotdeployManager getHotdeployManager() {
         return hotdeployManager_;
     }
-
-    @SuppressWarnings("unchecked")
-    final protected T newInstance(Class<?> clazz) {
-        try {
-            return (T) clazz.newInstance();
-        } catch (InstantiationException ex) {
-            throw new RuntimeException("Can't instanciate an object of class: "
-                    + clazz, ex);
-        } catch (IllegalAccessException ex) {
-            throw new RuntimeException("Can't instanciate an object of class: "
-                    + clazz, ex);
-        }
-    }
 }

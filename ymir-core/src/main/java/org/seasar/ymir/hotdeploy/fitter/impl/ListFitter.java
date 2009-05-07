@@ -9,10 +9,9 @@ public class ListFitter extends AbstractFitter<List> {
         return List.class;
     }
 
-    public List copy(List value) {
+    public void fitContent(List value) {
         for (ListIterator itr = value.listIterator(); itr.hasNext();) {
             itr.set(getHotdeployManager().fit(itr.next()));
         }
-        return value;
     }
 }

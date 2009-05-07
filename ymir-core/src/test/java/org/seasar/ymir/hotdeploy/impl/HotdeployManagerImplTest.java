@@ -106,11 +106,10 @@ public class HotdeployManagerImplTest extends TestCase {
                 return ArrayList.class;
             }
 
-            public ArrayList copy(ArrayList value) {
+            public void fitContent(ArrayList value) {
                 for (ListIterator itr = value.listIterator(); itr.hasNext();) {
                     itr.set(hotdeployManager.fit(itr.next()));
                 }
-                return value;
             }
         };
         return new HotdeployFitter<?>[] { listFitter, mapFitter,
@@ -200,7 +199,18 @@ public class HotdeployManagerImplTest extends TestCase {
         }
     }
 
-    public void testFit7_Selector() throws Exception {
+    public void testFit7_ListがループしていてもStackOverflowにならないこと() throws Exception {
+        List<Object> list = new ArrayList<Object>();
+        list.add(list);
+
+        try {
+            target_.fit(list);
+        } catch (StackOverflowError ex) {
+            fail();
+        }
+    }
+
+    public void testFit8_Selector() throws Exception {
         Selector selector = new Selector();
         selector.setCandidates(candidate_);
         selector.setSelectedValue("1");

@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -82,7 +83,7 @@ public class HotdeployManagerImpl implements HotdeployManager {
     public Object fit(Object value) {
         enterFit();
         try {
-            return fit0(value);
+            return fit0(value, false);
         } finally {
             leaveFit();
         }
@@ -114,7 +115,7 @@ public class HotdeployManagerImpl implements HotdeployManager {
     }
 
     @SuppressWarnings("unchecked")
-    private Object fit0(Object value) {
+    private Object fit0(Object value, boolean replace) {
         if (value == null) {
             return value;
         }
@@ -129,36 +130,59 @@ public class HotdeployManagerImpl implements HotdeployManager {
             return fittedMap.get(value);
         }
 
-        // TODO fitterではオブジェクトグラフがループしている場合に正しく処理ができない。
-        HotdeployFitter<?> fitter = getHotdeployFitterBag().findFitter(
-                sourceClass);
-        if (fitter != null) {
-            return ((HotdeployFitter<Object>) fitter).copy(value);
-        }
-
         Class<?> destinationClass = getContextClass(sourceClass);
+        if (sourceClass != destinationClass) {
+            Object destination;
 
-        Object destination;
-        try {
-            if (destinationClass.isArray()) {
+            if (sourceClass.isArray()) {
                 destination = Array.newInstance(destinationClass
                         .getComponentType(), Array.getLength(value));
             } else {
-                destination = destinationClass.newInstance();
+                try {
+                    destination = destinationClass.newInstance();
+                } catch (InstantiationException ex) {
+                    throw new RuntimeException(
+                            "Can't instanciate an object of class: "
+                                    + destinationClass, ex);
+                } catch (IllegalAccessException ex) {
+                    throw new RuntimeException(
+                            "Can't instanciate an object of class: "
+                                    + destinationClass, ex);
+                }
             }
-        } catch (InstantiationException ex) {
-            throw new RuntimeException("Can't instanciate an object of class: "
-                    + destinationClass, ex);
-        } catch (IllegalAccessException ex) {
-            throw new RuntimeException("Can't instanciate an object of class: "
-                    + destinationClass, ex);
+            fittedMap.put(value, destination);
+
+            if (sourceClass.isArray()) {
+                int length = Array.getLength(value);
+                for (int i = 0; i < length; i++) {
+                    Array.set(destination, i, fit(Array.get(value, i)));
+                }
+            } else {
+                fitContent(value, destination);
+            }
+
+            return destination;
+        } else {
+            fittedMap.put(value, value);
+
+            if (sourceClass.isArray()) {
+                int length = Array.getLength(value);
+                for (int i = 0; i < length; i++) {
+                    Array.set(value, i, fit(Array.get(value, i)));
+                }
+                return value;
+            } else {
+                HotdeployFitter<?> fitter = getHotdeployFitterBag().findFitter(
+                        destinationClass);
+                if (fitter != null) {
+                    ((HotdeployFitter<Object>) fitter).fitContent(value);
+                } else {
+                    fitContent(value);
+                }
+
+                return value;
+            }
         }
-
-        fittedMap.put(value, destination);
-
-        copy(value, destination);
-
-        return destination;
     }
 
     private boolean isImmutable(Class<?> clazz) {
@@ -182,51 +206,63 @@ public class HotdeployManagerImpl implements HotdeployManager {
         return fitterBag;
     }
 
-    void copy(Object source, Object destination) {
+    void fitContent(Object source, Object destination) {
         if (source == null || destination == null) {
             return;
         }
 
         Class<?> destinationClass = destination.getClass();
-        if (destinationClass.isArray()) {
-            copyArray(source, destination);
-        } else {
-            Field[] sourceFields = getFields(source.getClass());
-            Map<String, Field> sourceFieldMap = new HashMap<String, Field>();
-            for (int i = 0; i < sourceFields.length; i++) {
-                sourceFieldMap.put(sourceFields[i].getName(), sourceFields[i]);
-            }
+        Map<String, Field> sourceFieldMap = new HashMap<String, Field>();
+        for (Field field : getFields(source.getClass())) {
+            sourceFieldMap.put(field.getName(), field);
+        }
 
-            Field[] destinationFields = getFields(destinationClass);
-            for (int i = 0; i < destinationFields.length; i++) {
-                if (Modifier.isStatic(destinationFields[i].getModifiers())) {
-                    continue;
-                }
-                Field sourceField = sourceFieldMap.get(destinationFields[i]
-                        .getName());
-                if (sourceField != null) {
-                    if (Modifier.isStatic(sourceField.getModifiers())) {
-                        continue;
+        for (Field destinationField : getFields(destinationClass)) {
+            Field sourceField = sourceFieldMap.get(destinationField.getName());
+            if (sourceField != null) {
+                sourceField.setAccessible(true);
+                destinationField.setAccessible(true);
+                try {
+                    if (Modifier.isFinal(destinationField.getModifiers())) {
+                        fitContent(sourceField.get(source), destinationField
+                                .get(destination));
+                    } else {
+                        Object fitted = fit(sourceField.get(source));
+                        if (fitted == null
+                                || destinationField.getType().isAssignableFrom(
+                                        fitted.getClass())) {
+                            destinationField.set(destination, fitted);
+                        }
                     }
-                    sourceField.setAccessible(true);
-                    destinationFields[i].setAccessible(true);
-                    try {
-                        destinationFields[i].set(destination, fit(sourceField
-                                .get(source)));
-                    } catch (IllegalArgumentException ex) {
-                        throw new RuntimeException("May logic error", ex);
-                    } catch (IllegalAccessException ex) {
-                        throw new RuntimeException("Can't happen!", ex);
-                    }
+                } catch (IllegalArgumentException ex) {
+                    throw new RuntimeException("May logic error", ex);
+                } catch (IllegalAccessException ex) {
+                    throw new RuntimeException("Can't happen!", ex);
                 }
             }
         }
     }
 
-    void copyArray(Object source, Object destination) {
-        int length = Array.getLength(destination);
-        for (int i = 0; i < length; i++) {
-            Array.set(destination, i, fit(Array.get(source, i)));
+    void fitContent(Object object) {
+        for (Field field : getFields(object.getClass())) {
+            field.setAccessible(true);
+            try {
+                if (Modifier.isFinal(field.getModifiers())) {
+                    fitContent(field.get(object));
+                } else {
+                    Object fitted = fit(field.get(object));
+                    if (fitted == null
+                            || field.getType().isAssignableFrom(
+                                    fitted.getClass())) {
+                        // フィールドの型がHotdeploy対象型の場合はassignableであることがある。
+                        field.set(object, fitted);
+                    }
+                }
+            } catch (IllegalArgumentException ex) {
+                throw new RuntimeException("May logic error", ex);
+            } catch (IllegalAccessException ex) {
+                throw new RuntimeException("Can't happen!", ex);
+            }
         }
     }
 
@@ -243,13 +279,7 @@ public class HotdeployManagerImpl implements HotdeployManager {
         ClassLoader contextClassLoader = Thread.currentThread()
                 .getContextClassLoader();
         try {
-            if (!clazz.isArray()) {
-                return contextClassLoader.loadClass(clazz.getName());
-            } else {
-                return Array.newInstance(
-                        contextClassLoader.loadClass(clazz.getComponentType()
-                                .getName()), 0).getClass();
-            }
+            return contextClassLoader.loadClass(clazz.getName());
         } catch (ClassNotFoundException ex) {
             return clazz;
         }

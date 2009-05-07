@@ -1,7 +1,9 @@
 package org.seasar.ymir.hotdeploy.fitter.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 @SuppressWarnings("unchecked")
 public class CollectionFitter extends AbstractFitter<Collection> {
@@ -9,11 +11,14 @@ public class CollectionFitter extends AbstractFitter<Collection> {
         return Collection.class;
     }
 
-    public Collection copy(Collection value) {
-        Collection destination = newInstance(value.getClass());
+    public void fitContent(Collection value) {
+        List list = new ArrayList();
         for (Iterator itr = value.iterator(); itr.hasNext();) {
-            destination.add(getHotdeployManager().fit(itr.next()));
+            list.add(getHotdeployManager().fit(itr.next()));
         }
-        return destination;
+        value.clear();
+        for (Iterator itr = list.iterator(); itr.hasNext();) {
+            value.add(itr.next());
+        }
     }
 }
