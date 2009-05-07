@@ -159,8 +159,6 @@ public class SourceCreatorImpl implements SourceCreator {
 
     private static final String PACKAGEPREFIX_JAVA_UTIL = "java.util.";
 
-    private static final String PACKAGEPREFIX_FREYJA_RENDER_HTML = "net.skirnir.freyja.render.html.";
-
     private static final String RESOURCE_PREAMBLE_JAVA = "org/seasar/ymir/extension/Preamble.java.txt";
 
     private static final String PREFIX_ACTION = "A";
@@ -1671,17 +1669,15 @@ public class SourceCreatorImpl implements SourceCreator {
                                 + className, true, cl);
                     } catch (ClassNotFoundException ex3) {
                         try {
-                            return Class.forName(
-                                    PACKAGEPREFIX_FREYJA_RENDER_HTML
-                                            + className, true, cl);
+                            String dtoClassName = setting_
+                                    .findDtoClassName(className);
+                            if (dtoClassName != null) {
+                                return Class.forName(dtoClassName, true, cl);
+                            }
                         } catch (ClassNotFoundException ex4) {
                             ClassTraverser traverser = new ClassTraverser();
-                            try {
-                                traverser.addReferenceClass(Class.forName(
-                                        "org.seasar.ymir.landmark.Landmark",
-                                        true, getClassLoader()));
-                            } catch (ClassNotFoundException ex5) {
-                                return null;
+                            for (Class<?> landmark : getLandmarks()) {
+                                traverser.addReferenceClass(landmark);
                             }
                             for (String rootPackageName : getRootPackageNames()) {
                                 traverser.addClassPattern(rootPackageName,
@@ -1712,6 +1708,22 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         return null;
+    }
+
+    private Class<?>[] getLandmarks() {
+        ClassLoader classLoader = getClassLoader();
+        List<Class<?>> landmarkList = new ArrayList<Class<?>>();
+        for (String landmarkClassName : PropertyUtils
+                .toLines(applicationManager_.findContextApplication()
+                        .getProperty(Globals.APPKEY_LANDMARK,
+                                Globals.LANDMARK_CLASSNAME))) {
+            try {
+                landmarkList.add(Class.forName(landmarkClassName, true,
+                        classLoader));
+            } catch (ClassNotFoundException ignore) {
+            }
+        }
+        return landmarkList.toArray(new Class<?>[0]);
     }
 
     protected ClassLoader getClassLoader() {
