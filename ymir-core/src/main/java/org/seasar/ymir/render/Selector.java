@@ -2,8 +2,9 @@ package org.seasar.ymir.render;
 
 import static org.seasar.ymir.util.StringUtils.asString;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,8 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.seasar.ymir.util.StringUtils;
 
 /**
  * 複数の候補からいくつかのものを選択するようなフォームのモデルとなるクラスです。
@@ -32,7 +31,16 @@ public class Selector implements Serializable {
 
     private Candidate[] candidates_;
 
-    private Map<String, Candidate> candidateMap_ = new HashMap<String, Candidate>();
+    private transient Map<String, Candidate> candidateMap_ = new HashMap<String, Candidate>();
+
+    private void readObject(ObjectInputStream in) throws IOException,
+            ClassNotFoundException {
+        in.defaultReadObject();
+
+        candidateMap_ = new HashMap<String, Candidate>();
+        initializeCandidateMap();
+        updateCandidates();
+    }
 
     /**
      * 選択されている値を返します。
@@ -240,14 +248,18 @@ public class Selector implements Serializable {
     public Selector setCandidates(Candidate... candidates) {
         candidates_ = candidates;
 
-        candidateMap_.clear();
-        for (Candidate candidate : candidates_) {
-            candidateMap_.put(candidate.getValue(), candidate);
-        }
+        initializeCandidateMap();
 
         updateCandidates();
 
         return this;
+    }
+
+    private void initializeCandidateMap() {
+        candidateMap_.clear();
+        for (Candidate candidate : candidates_) {
+            candidateMap_.put(candidate.getValue(), candidate);
+        }
     }
 
     /**

@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @author YOKOTA Takehiko
  * @since 1.0.3
  */
-public interface Candidate {
+public interface Candidate extends Serializable {
     /**
      * この候補を識別する値を返します。
      * 

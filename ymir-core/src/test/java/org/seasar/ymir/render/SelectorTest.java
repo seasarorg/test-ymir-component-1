@@ -1,8 +1,9 @@
 package org.seasar.ymir.render;
 
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import junit.framework.TestCase;
 
@@ -55,5 +56,26 @@ public class SelectorTest extends TestCase {
         assertEquals(1, actual.length);
         int idx = 0;
         assertEquals("candidatesに最初設定されていたフラグは無視されること", "1", actual[idx++]);
+    }
+
+    public void test_シリアライズできること() throws Exception {
+        Selector selector = new Selector();
+        CandidateImpl candidate = new CandidateImpl();
+        candidate.setValue("1");
+        selector.setCandidates(candidate);
+        selector.setSelectedValue("1");
+
+        assertTrue(selector.getSelectedCandidate().isSelected());
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(selector);
+        oos.flush();
+        byte[] bytes = baos.toByteArray();
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(
+                bytes));
+        Selector actual = (Selector) ois.readObject();
+
+        assertTrue(actual.getSelectedCandidate().isSelected());
     }
 }
