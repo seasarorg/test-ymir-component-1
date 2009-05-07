@@ -33,7 +33,7 @@ import org.seasar.ymir.util.YmirUtils;
  * @author YOKOTA Takehiko
  */
 public class YmirBootstrap {
-    private static final String SP = System.getProperty("line.separator");
+    private static final String LS = System.getProperty("line.separator");
 
     private static final String PATHPREFIX_POM_PROPERTIES = "/META-INF/maven/";
 
@@ -161,7 +161,7 @@ public class YmirBootstrap {
             } catch (ClassNotFoundException ex) {
                 throw new IllegalClientCodeRuntimeException("Landmark class ("
                         + landmarkClassName + ") not found. Can't boot Ymir."
-                        + SP + "You MUST put the landmark class"
+                        + LS + "You MUST put the landmark class"
                         + " in the jar" + " or in WEB-INF/classes.");
             }
         }

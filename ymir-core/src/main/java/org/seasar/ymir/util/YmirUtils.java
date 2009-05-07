@@ -3,8 +3,6 @@ package org.seasar.ymir.util;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.DispatchWrapper;
 import org.seasar.ymir.FrameworkDispatch;
