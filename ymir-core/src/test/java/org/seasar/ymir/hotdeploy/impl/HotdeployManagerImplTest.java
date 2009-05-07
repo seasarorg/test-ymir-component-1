@@ -9,6 +9,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.seasar.cms.pluggable.hotdeploy.PluggableHotdeployClassLoader;
 import org.seasar.framework.convention.impl.NamingConventionImpl;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
@@ -18,9 +19,14 @@ import org.seasar.ymir.hotdeploy.fitter.impl.ListFitter;
 import org.seasar.ymir.hotdeploy.fitter.impl.MapFitter;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl.HotdeployFitterBag;
 import org.seasar.ymir.mock.MockApplicationManager;
+import org.seasar.ymir.render.Candidate;
+import org.seasar.ymir.render.Selector;
 
+import com.example.HoeHolder;
+import com.example.HoeHolder2;
 import com.example.IHoe;
 import com.example.IHoe2;
+import com.example.hotdeploy.CandidateImpl;
 
 public class HotdeployManagerImplTest extends TestCase {
     private HotdeployManagerImpl target_;
@@ -30,6 +36,8 @@ public class HotdeployManagerImplTest extends TestCase {
     private Object fuga_;
 
     private IHoe2 hoe2_;
+
+    private Candidate candidate_;
 
     @Override
     protected void setUp() throws Exception {
@@ -78,6 +86,10 @@ public class HotdeployManagerImplTest extends TestCase {
 
         hoe2_ = (IHoe2) cl.loadClass("com.example.hotdeploy.Hoe2")
                 .newInstance();
+
+        candidate_ = (Candidate) cl.loadClass(
+                "com.example.hotdeploy.CandidateImpl").newInstance();
+        BeanUtils.setProperty(candidate_, "selectedValue", "1");
     }
 
     @SuppressWarnings("unchecked")
@@ -164,5 +176,38 @@ public class HotdeployManagerImplTest extends TestCase {
 
         assertEquals(hoe2_.getId(), hoe2.getId());
         assertEquals(hoe2_.getStaticId(), hoe2.getStaticId());
+    }
+
+    public void testFit5_インタフェース型のプロパティで実装型がHotdeploy型の場合に置き換えられること()
+            throws Exception {
+        HoeHolder hoeHolder = new HoeHolder();
+        hoeHolder.setHoe(hoe_);
+
+        HoeHolder actual = (HoeHolder) target_.fit(hoeHolder);
+
+        assertNotSame(hoe_, actual.getHoe());
+    }
+
+    public void testFit6_オブジェクトグラフがループしていてもStackOverflowにならないこと()
+            throws Exception {
+        HoeHolder2 hoeHolder2 = new HoeHolder2();
+        hoeHolder2.setHoe(hoeHolder2);
+
+        try {
+            target_.fit(hoeHolder2);
+        } catch (StackOverflowError ex) {
+            fail();
+        }
+    }
+
+    public void testFit7_Selector() throws Exception {
+        Selector selector = new Selector();
+        selector.setCandidates(candidate_);
+        selector.setSelectedValue("1");
+
+        Selector actual = (Selector) target_.fit(selector);
+
+        assertNotSame(selector, actual);
+        assertTrue(actual.getSelectedCandidate().isSelected());
     }
 }

@@ -242,7 +242,8 @@ public class Selector implements Serializable {
      * 設定済みでない場合は候補オブジェクトの選択状態がそのまま残ります。
      * </p>
      * 
-     * @param candidates 候補オブジェクト。nullを指定してはいけません。
+     * @param candidates 候補オブジェクト。
+     * candidates自身はnullを指定してもかまいませんが、candidatesの1つ1つの要素としてnullを指定してはいけません。
      * @return このオブジェクト自身。
      */
     public Selector setCandidates(Candidate... candidates) {
@@ -257,8 +258,10 @@ public class Selector implements Serializable {
 
     private void initializeCandidateMap() {
         candidateMap_.clear();
-        for (Candidate candidate : candidates_) {
-            candidateMap_.put(candidate.getValue(), candidate);
+        if (candidates_ != null) {
+            for (Candidate candidate : candidates_) {
+                candidateMap_.put(candidate.getValue(), candidate);
+            }
         }
     }
 

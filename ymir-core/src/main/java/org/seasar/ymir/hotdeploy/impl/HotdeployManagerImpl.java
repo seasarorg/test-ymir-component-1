@@ -2,11 +2,15 @@ package org.seasar.ymir.hotdeploy.impl;
 
 import java.beans.Introspector;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,18 +25,19 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.hotdeploy.HotdeployEventListener;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.hotdeploy.fitter.HotdeployFitter;
+import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.ContainerUtils;
 
 public class HotdeployManagerImpl implements HotdeployManager {
-    private static final String CLASS_HOTDEPLOYCLASSLOADER = "org.seasar.framework.container.hotdeploy.HotdeployClassLoader";
-
-    private static final String CLASS_PLUGGABLEHOTDEPLOYCLASSLOADER = "org.seasar.cms.pluggable.hotdeploy.PluggableHotdeployClassLoader";
-
     private ApplicationManager applicationManager_;
 
     private HotdeployFitter<?>[] hotdeployFitters_ = new HotdeployFitter<?>[0];
 
     private HotdeployEventListener[] hotdeployEventListeners_ = new HotdeployEventListener[0];
+
+    private ThreadLocal<Integer> fitDepth_ = new ThreadLocal<Integer>();
+
+    private ThreadLocal<Map<Object, Object>> fittedMap_ = new ThreadLocal<Map<Object, Object>>();
 
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
@@ -74,13 +79,57 @@ public class HotdeployManagerImpl implements HotdeployManager {
      * デフォルトコンストラクタを持つ必要があります。
      * @return 変換結果のオブジェクト。
      */
-    @SuppressWarnings("unchecked")
     public Object fit(Object value) {
+        enterFit();
+        try {
+            return fit0(value);
+        } finally {
+            leaveFit();
+        }
+    }
+
+    private void enterFit() {
+        int depth;
+        Integer depthObj = fitDepth_.get();
+        if (depthObj == null) {
+            depth = 0;
+        } else {
+            depth = depthObj.intValue();
+        }
+
+        if (depth == 0) {
+            fittedMap_.set(new IdentityHashMap<Object, Object>());
+        }
+        fitDepth_.set(++depth);
+    }
+
+    private void leaveFit() {
+        int depth = fitDepth_.get().intValue() - 1;
+        if (depth == 0) {
+            fittedMap_.set(null);
+            fitDepth_.set(null);
+        } else {
+            fitDepth_.set(depth);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object fit0(Object value) {
         if (value == null) {
             return value;
         }
 
         Class<?> sourceClass = value.getClass();
+        if (isImmutable(sourceClass)) {
+            return value;
+        }
+
+        Map<Object, Object> fittedMap = fittedMap_.get();
+        if (fittedMap.containsKey(value)) {
+            return fittedMap.get(value);
+        }
+
+        // TODO fitterではオブジェクトグラフがループしている場合に正しく処理ができない。
         HotdeployFitter<?> fitter = getHotdeployFitterBag().findFitter(
                 sourceClass);
         if (fitter != null) {
@@ -88,13 +137,6 @@ public class HotdeployManagerImpl implements HotdeployManager {
         }
 
         Class<?> destinationClass = getContextClass(sourceClass);
-        if (!isHotdeployClass(sourceClass)) {
-            return value;
-        }
-
-        if (destinationClass == sourceClass) {
-            return value;
-        }
 
         Object destination;
         try {
@@ -112,9 +154,16 @@ public class HotdeployManagerImpl implements HotdeployManager {
                     + destinationClass, ex);
         }
 
+        fittedMap.put(value, destination);
+
         copy(value, destination);
 
         return destination;
+    }
+
+    private boolean isImmutable(Class<?> clazz) {
+        return (clazz.isPrimitive() || ClassUtils.isWrapper(clazz)
+                || clazz == String.class || clazz == BigInteger.class || clazz == BigDecimal.class);
     }
 
     HotdeployFitterBag getHotdeployFitterBag() {
@@ -204,16 +253,6 @@ public class HotdeployManagerImpl implements HotdeployManager {
         } catch (ClassNotFoundException ex) {
             return clazz;
         }
-    }
-
-    boolean isHotdeployClass(Class<?> clazz) {
-        ClassLoader classLoader = clazz.getClassLoader();
-        if (classLoader == null) {
-            return false;
-        }
-        String name = classLoader.getClass().getName();
-        return name.equals(CLASS_PLUGGABLEHOTDEPLOYCLASSLOADER)
-                || name.equals(CLASS_HOTDEPLOYCLASSLOADER);
     }
 
     static class HotdeployFitterBag {
