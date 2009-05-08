@@ -56,6 +56,7 @@ import org.seasar.ymir.mock.MockRequest;
 import org.seasar.ymir.render.AbstractCandidate;
 import org.seasar.ymir.render.Candidate;
 import org.seasar.ymir.render.Selector;
+import org.seasar.ymir.render.html.Option;
 import org.seasar.ymir.scope.annotation.RequestParameter;
 import org.seasar.ymir.util.FlexibleList;
 import org.seasar.ymir.util.ServletUtils;
@@ -64,7 +65,6 @@ import com.example.dto.SaruDto;
 import com.example.web.Test47Page;
 
 import net.skirnir.freyja.TemplateContext;
-import net.skirnir.freyja.render.html.Option;
 
 public class ZptAnalyzerTest extends TestCase {
     private static final String CLASSNAME = "com.example.web.IndexPage";
@@ -703,12 +703,12 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals("com.example.dto.sub.EntryDto", pd.getTypeDesc().getName());
     }
 
-    public void testAnalyze33_optionタグがrepeat指定されている場合でFreyjaのRenderClassを利用する設定の場合は対象プロパティの型がOptionの配列になること()
+    public void testAnalyze33_optionタグがrepeat指定されている場合でYmirのRenderClassを利用する設定の場合は対象プロパティの型がOptionの配列になること()
             throws Exception {
 
         sourceCreator_.getApplication().setProperty(
                 SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
-                "net.skirnir.freyja.render.*");
+                "org.seasar.ymir.render.*");
 
         act("testAnalyze33", "com.example.web.sub.TestPage");
 
@@ -1172,7 +1172,7 @@ public class ZptAnalyzerTest extends TestCase {
 
         sourceCreator_.getApplication().setProperty(
                 SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
-                "net.skirnir.freyja.render.*");
+                "org.seasar.ymir.render.*");
 
         act("testAnalyze63");
 

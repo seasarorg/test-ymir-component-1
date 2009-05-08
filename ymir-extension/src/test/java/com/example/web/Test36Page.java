@@ -1,6 +1,6 @@
 package com.example.web;
 
-import net.skirnir.freyja.render.html.Option;
+import org.seasar.ymir.render.html.Option;
 
 public class Test36Page extends Test36PageBase {
     private Option[] options_;

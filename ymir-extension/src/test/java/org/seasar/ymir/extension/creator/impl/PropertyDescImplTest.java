@@ -10,8 +10,7 @@ import java.util.TreeSet;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.PropertyDesc;
-
-import net.skirnir.freyja.render.html.Option;
+import org.seasar.ymir.render.html.Option;
 
 public class PropertyDescImplTest extends SourceCreatorImplTestBase {
     private DescPool pool_;

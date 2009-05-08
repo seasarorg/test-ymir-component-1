@@ -1,6 +1,7 @@
 package org.seasar.ymir.extension.zpt;
 
 import static org.seasar.ymir.extension.zpt.AnalyzerContext.PROBABILITY_BOOLEAN_ATTRIBUTE;
+import static org.seasar.ymir.extension.zpt.AnalyzerContext.PROBABILITY_TYPE;
 import static org.seasar.ymir.util.BeanUtils.getFirstSimpleSegment;
 
 import java.lang.reflect.Method;
@@ -79,6 +80,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         return new AnalyzerContext();
     }
 
+    @SuppressWarnings("deprecation")
     public String evaluate(TemplateContext context, String name,
             Attribute[] attrs, Element[] body) {
         AnalyzerContext analyzerContext = toAnalyzerContext(context);
@@ -238,7 +240,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                             PropertyDesc pd = ((DescWrapper[]) evaluated)[0]
                                     .getPropertyDesc();
                             TypeDesc td = pd.getTypeDesc();
-                            if (pd != null && !td.isExplicit()) {
+                            if (pd != null && !td.isExplicit()
+                                    && !pd.isTypeAlreadySet(PROBABILITY_TYPE)) {
                                 td.setComponentClassDesc(optionClass);
                                 td.setCollection(true);
                                 if (analyzerContext
@@ -247,6 +250,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                                 } else {
                                     td.setCollectionClass(null);
                                 }
+                                pd.notifyTypeUpdated(PROBABILITY_TYPE);
                             }
                         }
                     }
@@ -395,9 +399,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         classDesc, name);
                 switch (role) {
                 case PARAMETER:
-                    PropertyDesc propertyDesc = analyzerContext.addPropertyDesc(
-                            classDesc, name, PropertyDesc.WRITE
-                                    | PropertyDesc.READ);
+                    PropertyDesc propertyDesc = analyzerContext
+                            .addPropertyDesc(classDesc, name,
+                                    PropertyDesc.WRITE | PropertyDesc.READ);
                     propertyDesc
                             .setAnnotationDescOnSetter(new AnnotationDescImpl(
                                     RequestParameter.class.getName()));
@@ -446,8 +450,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 String name = getAttributeValue(attrMap, "name", null);
                 if (AnalyzerUtils.isValidVariableName(name)) {
                     formName = name;
-                    PropertyDesc propertyDesc = analyzerContext.addPropertyDesc(
-                            classDesc, name, PropertyDesc.NONE);
+                    PropertyDesc propertyDesc = analyzerContext
+                            .addPropertyDesc(classDesc, name, PropertyDesc.NONE);
                     propertyDesc
                             .setAnnotationDesc(new MetaAnnotationDescImpl(
                                     org.seasar.ymir.extension.Globals.META_NAME_PROPERTY,
