@@ -2,8 +2,13 @@ package org.seasar.ymir.zpt;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletResponse;
+
+import org.seasar.kvasir.util.PropertyUtils;
+import org.seasar.ymir.Globals;
+import org.seasar.ymir.YmirContext;
 
 import net.skirnir.freyja.Attribute;
 import net.skirnir.freyja.TagEvaluatorUtils;
@@ -26,6 +31,11 @@ public class SessionIdEmbeddingInterceptor implements TagRenderingInterceptor {
     private static final String[] SPECIALATTRIBUTEPATTERNSTRINGS = new String[] {
         ATTR_ACTION, ATTR_HREF, ATTR_SRC };
 
+    private static final Pattern PATTERN_OMIT_SESSIONID = Pattern
+            .compile(";jsessionid=[^#?]+");
+
+    private static final String REPLACEMENT_OMIT_SESSIONID = "";
+
     public String[] getSpecialAttributePatternStrings() {
         return SPECIALATTRIBUTEPATTERNSTRINGS;
     }
@@ -44,16 +54,37 @@ public class SessionIdEmbeddingInterceptor implements TagRenderingInterceptor {
                     || ATTR_SRC.equals(attrName)) {
                 String attrValue = TagEvaluatorUtils.defilter(attribute
                         .getValue());
-                if (shouldAddSessionId(attrValue)) {
+                String processed = attrValue;
+                if (shouldOmitSessionId()) {
+                    // セッションIDを除去する。
+                    processed = omitSessionId(attrValue);
+                } else {
+                    // 必要に応じてHttpServletResponse#encodeURL()を使って
+                    // URLをエンコードする。
+                    if (shouldAddSessionId(attrValue)) {
+                        processed = addSessionId(context, attrValue);
+                    }
+                }
+                if (!processed.equals(attrValue)) {
                     attribute = new Attribute(attrName, TagEvaluatorUtils
-                            .filter(addSessionId(context, attrValue)),
-                            attribute.getQuote());
+                            .filter(processed), attribute.getQuote());
                 }
             }
             list.add(attribute);
         }
         return chain
                 .render(context, name, list.toArray(new Attribute[0]), body);
+    }
+
+    private boolean shouldOmitSessionId() {
+        return PropertyUtils.valueOf(YmirContext.getYmir().getApplication()
+                .getProperty(Globals.APPKEY_CORE_SESSION_OMITSESSIONID),
+                Globals.DEFAULT_CORE_SESSION_OMITSESSIONID);
+    }
+
+    protected String omitSessionId(String url) {
+        return PATTERN_OMIT_SESSIONID.matcher(url).replaceFirst(
+                REPLACEMENT_OMIT_SESSIONID);
     }
 
     protected boolean shouldAddSessionId(String url) {
