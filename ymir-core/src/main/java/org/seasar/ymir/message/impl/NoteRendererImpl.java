@@ -34,13 +34,23 @@ public class NoteRendererImpl implements NoteRenderer {
 
     private static final String DIRECTION_DEFAULT = "r";
 
+    private static final String PARAMETER_DELIMITER = "+";
+
     public String render(Note note, Messages messages) {
         return render(note.getValue(), note.getParameters(), messages);
     }
 
     public String render(String templateKey, Object[] parameters,
             Messages messages) {
-        String v = messages.getMessage(templateKey);
+        // パラメータ固有のテンプレートがあればそれを使う。
+        String v = null;
+        if (parameters.length > 0 && parameters[0] != null) {
+            v = messages.getMessage(templateKey + PARAMETER_DELIMITER
+                    + stripIndex(parameters[0].toString()));
+        }
+        if (v == null) {
+            v = messages.getMessage(templateKey);
+        }
         if (v == null) {
             return null;
         }
@@ -98,19 +108,23 @@ public class NoteRendererImpl implements NoteRenderer {
         while ((idx = parameter.indexOf(DELIMITER, pre)) >= 0) {
             String localized = localizeSegment(parameter.substring(pre, idx),
                     messages, segmentTemplate);
-            if (left) {
-                localizedSegmentList.addFirst(localized);
-            } else {
-                localizedSegmentList.addLast(localized);
+            if (localized.length() > 0) {
+                if (left) {
+                    localizedSegmentList.addFirst(localized);
+                } else {
+                    localizedSegmentList.addLast(localized);
+                }
             }
             pre = idx + 1;
         }
         String localized = localizeSegment(parameter.substring(pre), messages,
                 segmentTemplate);
-        if (left) {
-            localizedSegmentList.addFirst(localized);
-        } else {
-            localizedSegmentList.addLast(localized);
+        if (localized.length() > 0) {
+            if (left) {
+                localizedSegmentList.addFirst(localized);
+            } else {
+                localizedSegmentList.addLast(localized);
+            }
         }
 
         String delim = "";
@@ -177,9 +191,14 @@ public class NoteRendererImpl implements NoteRenderer {
                 } catch (NumberFormatException ex) {
                     oneOriginIndex = index;
                 }
-                return MessageFormat.format(template, new Object[] {
-                    localizeSingle(segment.substring(0, lparen), messages),
-                    index, oneOriginIndex });
+                String localized = localizeSingle(segment.substring(0, lparen),
+                        messages);
+                if (localized.length() > 0) {
+                    return MessageFormat.format(template, new Object[] {
+                        localized, index, oneOriginIndex });
+                } else {
+                    return "";
+                }
             }
         }
 

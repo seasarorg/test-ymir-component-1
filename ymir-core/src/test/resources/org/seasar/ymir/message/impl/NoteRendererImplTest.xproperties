@@ -8,3 +8,5 @@ template=Error: {0} is illegal.
 label.a=A
 label.b=B
 label.c=C
+
+label.value=

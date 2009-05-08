@@ -68,6 +68,16 @@ public class NoteRendererImplTest extends TestCase {
                 new Object[] { "a.b" }), japaneseMessages_));
     }
 
+    public void test_複合プロパティでセグメントが空文字列_en() throws Exception {
+        assertEquals("Error: A is illegal.", target_.render(new Note(
+                "template", new Object[] { "a.value" }), englishMessages_));
+    }
+
+    public void test_複合プロパティでセグメントが空文字列_ja() throws Exception {
+        assertEquals("エラー：エーが不正です。", target_.render(new Note("template",
+                new Object[] { "a.value" }), japaneseMessages_));
+    }
+
     public void test_インデックスつき単一プロパティ_en() throws Exception {
         assertEquals("Error: 1th A is illegal.", target_.render(new Note(
                 "template", new Object[] { "a[0]" }), englishMessages_));
@@ -87,6 +97,11 @@ public class NoteRendererImplTest extends TestCase {
     public void test_インデックスつき複合プロパティ_ja() throws Exception {
         assertEquals("エラー：1番目のエーの2番目のビーのシーが不正です。", target_.render(new Note(
                 "template", new Object[] { "a[0].b[1].c" }), japaneseMessages_));
+    }
+
+    public void test_パラメータ固有テンプレート_ja() throws Exception {
+        assertEquals("エラー：1番目のエーの2番目のシーが間違っています。", target_.render(new Note(
+                "template", new Object[] { "a[0].c[1]" }), japaneseMessages_));
     }
 
     public void testStripIndex() throws Exception {
