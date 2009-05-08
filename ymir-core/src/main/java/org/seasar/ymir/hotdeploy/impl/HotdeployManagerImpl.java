@@ -2,20 +2,20 @@ package org.seasar.ymir.hotdeploy.impl;
 
 import java.beans.Introspector;
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.cms.pluggable.util.HotdeployEventUtils;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
@@ -39,6 +39,9 @@ public class HotdeployManagerImpl implements HotdeployManager {
     private ThreadLocal<Integer> fitDepth_ = new ThreadLocal<Integer>();
 
     private ThreadLocal<Map<Object, Object>> fittedMap_ = new ThreadLocal<Map<Object, Object>>();
+
+    private static final Log log_ = LogFactory
+            .getLog(HotdeployManagerImpl.class);
 
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
@@ -81,6 +84,10 @@ public class HotdeployManagerImpl implements HotdeployManager {
      * @return 変換結果のオブジェクト。
      */
     public Object fit(Object value) {
+        if (log_.isDebugEnabled()) {
+            log_.debug("fit: value's class = "
+                    + (value != null ? value.getClass().getName() : null));
+        }
         enterFit();
         try {
             return fit0(value);
@@ -155,7 +162,10 @@ public class HotdeployManagerImpl implements HotdeployManager {
                 if (fitter != null) {
                     ((HotdeployFitter<Object>) fitter).fitContent(value);
                 } else {
-                    fitContent(value);
+                    // fitterがない場合は何もしない。
+                    // どんなオブジェクトでも変換対象にしたければここでfitContent(value)すればよいが、
+                    // それだといろいろなものを際限なく変換しようとしてしまう。
+                    // それは無駄な気がするので。
                 }
             }
 

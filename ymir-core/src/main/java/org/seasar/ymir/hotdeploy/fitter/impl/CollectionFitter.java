@@ -12,13 +12,18 @@ public class CollectionFitter extends AbstractFitter<Collection> {
     }
 
     public void fitContent(Collection value) {
-        List list = new ArrayList();
-        for (Iterator itr = value.iterator(); itr.hasNext();) {
-            list.add(getHotdeployManager().fit(itr.next()));
-        }
-        value.clear();
-        for (Iterator itr = list.iterator(); itr.hasNext();) {
-            value.add(itr.next());
+        try {
+            List list = new ArrayList();
+            for (Iterator itr = value.iterator(); itr.hasNext();) {
+                list.add(getHotdeployManager().fit(itr.next()));
+            }
+            value.clear();
+            for (Iterator itr = list.iterator(); itr.hasNext();) {
+                value.add(itr.next());
+            }
+        } catch (UnsupportedOperationException ignore) {
+            // 変更不能なObjectである可能性がある。
+            // その場合は何もしない。
         }
     }
 }

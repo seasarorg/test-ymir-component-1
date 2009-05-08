@@ -22,17 +22,24 @@ public class StringCandidate implements Candidate, Serializable {
 
     private String value_;
 
+    private String label_;
+
     private boolean selected_;
 
     public StringCandidate() {
     }
 
     public StringCandidate(Object value) {
-        this(value, false);
+        this(value, asString(value), false);
     }
 
     public StringCandidate(Object value, boolean selected) {
+        this(value, asString(value), selected);
+    }
+
+    public StringCandidate(Object value, String label, boolean selected) {
         value_ = asString(value);
+        label_ = label;
         selected_ = selected;
     }
 
@@ -46,6 +53,14 @@ public class StringCandidate implements Candidate, Serializable {
 
     public void setValueObject(Object value) {
         setValue(asString(value));
+    }
+
+    public String getLabel() {
+        return label_;
+    }
+
+    public void setLabel(String label) {
+        label_ = label;
     }
 
     public boolean isSelected() {

@@ -17,13 +17,14 @@ import org.seasar.ymir.hotdeploy.fitter.HotdeployFitter;
 import org.seasar.ymir.hotdeploy.fitter.impl.CollectionFitter;
 import org.seasar.ymir.hotdeploy.fitter.impl.ListFitter;
 import org.seasar.ymir.hotdeploy.fitter.impl.MapFitter;
+import org.seasar.ymir.hotdeploy.fitter.impl.SelectorFitter;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl.HotdeployFitterBag;
 import org.seasar.ymir.mock.MockApplicationManager;
 import org.seasar.ymir.render.Candidate;
 import org.seasar.ymir.render.Selector;
 
-import com.example.HoeHolder;
-import com.example.HoeHolder2;
+import com.example.IHoeHolder;
+import com.example.IHoeHolder2;
 import com.example.IHoe;
 import com.example.IHoe2;
 import com.example.hotdeploy.CandidateImpl;
@@ -38,6 +39,10 @@ public class HotdeployManagerImplTest extends TestCase {
     private IHoe2 hoe2_;
 
     private Candidate candidate_;
+
+    private IHoeHolder hoeHolder_;
+
+    private IHoeHolder2 hoeHolder2_;
 
     @Override
     protected void setUp() throws Exception {
@@ -87,6 +92,14 @@ public class HotdeployManagerImplTest extends TestCase {
         hoe2_ = (IHoe2) cl.loadClass("com.example.hotdeploy.Hoe2")
                 .newInstance();
 
+        hoeHolder_ = (IHoeHolder) cl.loadClass(
+                "com.example.hotdeploy.HoeHolder").newInstance();
+        hoeHolder_.setHoe(hoe_);
+
+        hoeHolder2_ = (IHoeHolder2) cl.loadClass(
+                "com.example.hotdeploy.HoeHolder2").newInstance();
+        hoeHolder2_.setHoe(hoe_);
+
         candidate_ = (Candidate) cl.loadClass(
                 "com.example.hotdeploy.CandidateImpl").newInstance();
         BeanUtils.setProperty(candidate_, "value", "1");
@@ -112,8 +125,11 @@ public class HotdeployManagerImplTest extends TestCase {
                 }
             }
         };
+        SelectorFitter selectorFitter = new SelectorFitter();
+        selectorFitter.setHotdeployManager(hotdeployManager);
+
         return new HotdeployFitter<?>[] { listFitter, mapFitter,
-            collectionFitter, arrayListFitter };
+            collectionFitter, arrayListFitter, selectorFitter };
     }
 
     @Override
@@ -179,21 +195,15 @@ public class HotdeployManagerImplTest extends TestCase {
 
     public void testFit5_インタフェース型のプロパティで実装型がHotdeploy型の場合に置き換えられること()
             throws Exception {
-        HoeHolder hoeHolder = new HoeHolder();
-        hoeHolder.setHoe(hoe_);
-
-        HoeHolder actual = (HoeHolder) target_.fit(hoeHolder);
+        IHoeHolder actual = (IHoeHolder) target_.fit(hoeHolder_);
 
         assertNotSame(hoe_, actual.getHoe());
     }
 
     public void testFit6_オブジェクトグラフがループしていてもStackOverflowにならないこと()
             throws Exception {
-        HoeHolder2 hoeHolder2 = new HoeHolder2();
-        hoeHolder2.setHoe(hoeHolder2);
-
         try {
-            target_.fit(hoeHolder2);
+            target_.fit(hoeHolder2_);
         } catch (StackOverflowError ex) {
             fail();
         }
@@ -217,6 +227,7 @@ public class HotdeployManagerImplTest extends TestCase {
 
         Selector actual = (Selector) target_.fit(selector);
 
+        assertNotSame(candidate_, actual.getSelectedCandidate());
         Candidate selectedCandidate = actual.getSelectedCandidate();
         assertTrue(selectedCandidate.isSelected());
     }

@@ -1,6 +1,9 @@
-package com.example;
+package com.example.hotdeploy;
 
-public class HoeHolder {
+import com.example.IHoe;
+import com.example.IHoeHolder;
+
+public class HoeHolder implements IHoeHolder {
     private IHoe hoe_;
 
     public IHoe getHoe() {

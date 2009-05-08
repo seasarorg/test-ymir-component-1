@@ -1,9 +1,12 @@
-package com.example;
+package com.example.hotdeploy;
 
 import java.util.List;
 import java.util.Map;
 
-public class HoeHolder2 implements IHoe {
+import com.example.IHoe;
+import com.example.IHoeHolder2;
+
+public class HoeHolder2 implements IHoeHolder2 {
     private IHoe hoe_;
 
     public IHoe getHoe() {

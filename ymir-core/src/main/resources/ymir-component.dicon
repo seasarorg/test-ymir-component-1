@@ -82,4 +82,6 @@
     class="org.seasar.ymir.hotdeploy.fitter.impl.MapFitter" />
   <component name="collectionFitter"
     class="org.seasar.ymir.hotdeploy.fitter.impl.CollectionFitter" />
+  <component name="selectorFitter"
+    class="org.seasar.ymir.hotdeploy.fitter.impl.SelectorFitter" />
 </components>
