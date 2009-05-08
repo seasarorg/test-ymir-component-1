@@ -90,6 +90,7 @@ import org.seasar.ymir.extension.creator.ClassDescModifier;
 import org.seasar.ymir.extension.creator.ClassDescSet;
 import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.ClassType;
+import org.seasar.ymir.extension.creator.Desc;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.DescValidator;
 import org.seasar.ymir.extension.creator.EntityMetaData;
@@ -568,6 +569,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     this, null).getClassDesc(dtoCd.getName()));
             mergeWithExistentClass(clonedDtoCd);
             parameter.put(Globals.PARAMETER_TARGETCLASSDESC, clonedDtoCd);
+            addToAuxDescList(converterCd, clonedDtoCd);
             List<TypeDesc> pairTdList = new ArrayList<TypeDesc>();
             for (int i = 0; i < pairTypeNames.length; i++) {
                 Class<?> pairClass = getClass(DescUtils
@@ -578,13 +580,26 @@ public class SourceCreatorImpl implements SourceCreator {
                 pool.registerClassDesc(newClassDesc(pool, pairClass, false));
                 pairTdList.add(pool.newTypeDesc(pairTypeNames[i]));
             }
-            parameter.put(Globals.PARAMETER_PAIRTYPEDESCS, pairTdList
-                    .toArray(new TypeDesc[0]));
+            TypeDesc[] pairTds = pairTdList.toArray(new TypeDesc[0]);
+            parameter.put(Globals.PARAMETER_PAIRTYPEDESCS, pairTds);
+            addToAuxDescList(converterCd, pairTds);
 
             return converterCd;
         } finally {
             pool.setBornOf(oldBornOf);
         }
+    }
+
+    private void addToAuxDescList(ClassDesc classDesc, Desc<?>... descs) {
+        Map<String, Object> parameter = classDesc.getSourceGeneratorParameter();
+        @SuppressWarnings("unchecked")
+        List<Desc<?>> list = (List<Desc<?>>) parameter
+                .get(Globals.PARAMETER_AUXDESCLIST);
+        if (list == null) {
+            list = new ArrayList<Desc<?>>();
+            parameter.put(Globals.PARAMETER_AUXDESCLIST, list);
+        }
+        list.addAll(Arrays.asList(descs));
     }
 
     public void gatherClassDescs(DescPool pool, PathMetaData pathMetaData,
@@ -1214,18 +1229,9 @@ public class SourceCreatorImpl implements SourceCreator {
             baseImportClassNameSet.add(BindingType.class.getName());
             baseImportClassNameSet.add(Messages.class.getName());
             baseImportClassNameSet.add(TypeConversionManager.class.getName());
-            ClassDesc targetClassDesc = (ClassDesc) parameter
-                    .get(Globals.PARAMETER_TARGETCLASSDESC);
-            TypeDesc[] pairTypeDescs = (TypeDesc[]) parameter
-                    .get(Globals.PARAMETER_PAIRTYPEDESCS);
-            if (pairTypeDescs.length > 0) {
+            if (((TypeDesc[]) parameter.get(Globals.PARAMETER_PAIRTYPEDESCS)).length > 0) {
                 baseImportClassNameSet.add(ArrayList.class.getName());
                 baseImportClassNameSet.add(List.class.getName());
-                baseImportClassNameSet.add(targetClassDesc.getName());
-                for (TypeDesc pairTypeDesc : pairTypeDescs) {
-                    baseImportClassNameSet.addAll(Arrays.asList(pairTypeDesc
-                            .getImportClassNames()));
-                }
             }
             break;
 

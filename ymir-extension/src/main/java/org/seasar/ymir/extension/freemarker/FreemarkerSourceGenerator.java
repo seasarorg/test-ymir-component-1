@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +16,7 @@ import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.Desc;
 import org.seasar.ymir.extension.creator.ImportDesc;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceGenerator;
@@ -63,14 +65,20 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
             return null;
         }
 
+        Map<String, Object> parameter = classDesc.getSourceGeneratorParameter();
         ImportDesc importDesc = new ImportDescImpl(sourceCreator_, classDesc);
-        classDesc.getSourceGeneratorParameter().put(
-                Globals.PARAMETER_IMPORTDESC, importDesc);
+        parameter.put(Globals.PARAMETER_IMPORTDESC, importDesc);
 
-        HashSet<String> set = new HashSet<String>(((Set<String>) classDesc
-                .getSourceGeneratorParameter().get(
-                        Globals.PARAMETER_BASEIMPORTCLASSSET)));
+        HashSet<String> set = new HashSet<String>(((Set<String>) parameter
+                .get(Globals.PARAMETER_BASEIMPORTCLASSSET)));
         classDesc.setTouchedClassNameSet(set);
+        List<Desc<?>> list = (List<Desc<?>>) parameter
+                .get(Globals.PARAMETER_AUXDESCLIST);
+        if (list != null) {
+            for (Desc<?> desc : list) {
+                desc.setTouchedClassNameSet(set);
+            }
+        }
 
         String templateName = classDesc.getType().getSuffix() + "Base.java";
 

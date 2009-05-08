@@ -31,6 +31,8 @@ public interface Globals extends org.seasar.ymir.Globals {
 
     String PARAMETER_PAIRTYPEDESCS = "pairTypeDescs";
 
+    String PARAMETER_AUXDESCLIST = "auxDescList";
+
     String PARAMETER_PREAMBLE = "preamble";
 
     String PARAMETER_CLASSDESC = "classDesc";
