@@ -89,7 +89,7 @@ public class HotdeployManagerImplTest extends TestCase {
 
         candidate_ = (Candidate) cl.loadClass(
                 "com.example.hotdeploy.CandidateImpl").newInstance();
-        BeanUtils.setProperty(candidate_, "selectedValue", "1");
+        BeanUtils.setProperty(candidate_, "value", "1");
     }
 
     @SuppressWarnings("unchecked")
@@ -147,11 +147,11 @@ public class HotdeployManagerImplTest extends TestCase {
         assertNotSame(hoe_.getList().get(0), fuga_);
         assertNotNull(hoe.getMap());
         assertNotNull(hoe.getMap().get("key"));
-        assertNotSame(hoe_.getMap().get("key"), hoe.getMap().get("key"));
+        assertNotSame(fuga_, hoe.getMap().get("key"));
         assertNotNull(hoe.getFuga());
         assertNotSame(hoe_.getFuga(), hoe.getFuga());
         assertEquals(1, hoe.getFugas().length);
-        assertNotSame(hoe_.getFugas()[0], hoe.getFugas()[0]);
+        assertNotSame(fuga_, hoe.getFugas()[0]);
     }
 
     public void testFindFitter() throws Exception {
@@ -217,7 +217,7 @@ public class HotdeployManagerImplTest extends TestCase {
 
         Selector actual = (Selector) target_.fit(selector);
 
-        assertNotSame(selector, actual);
-        assertTrue(actual.getSelectedCandidate().isSelected());
+        Candidate selectedCandidate = actual.getSelectedCandidate();
+        assertTrue(selectedCandidate.isSelected());
     }
 }

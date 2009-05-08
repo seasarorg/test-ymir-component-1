@@ -65,7 +65,8 @@ public class SelectorTest extends TestCase {
         selector.setCandidates(candidate);
         selector.setSelectedValue("1");
 
-        assertTrue(selector.getSelectedCandidate().isSelected());
+        Candidate selectedCandidate = selector.getSelectedCandidate();
+        assertTrue(selectedCandidate.isSelected());
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -76,6 +77,7 @@ public class SelectorTest extends TestCase {
                 bytes));
         Selector actual = (Selector) ois.readObject();
 
-        assertTrue(actual.getSelectedCandidate().isSelected());
+        selectedCandidate = actual.getSelectedCandidate();
+        assertTrue(selectedCandidate.isSelected());
     }
 }

@@ -34,8 +34,6 @@ public class ClassUtils {
 
     private static final Map<Class<?>, Class<?>> primitiveByWrapperMap_;
 
-    private static Map<String, Class<?>> wrapperClassByNameMap_;
-
     private static final Map<Class<?>, Class<?>> wrapperByPrimitiveMap_;
 
     private static final Map<String, Object> defaultValueMap_;
@@ -68,29 +66,17 @@ public class ClassUtils {
         primitiveByWrapperMap_ = Collections
                 .unmodifiableMap(primitiveByWrapperMap);
 
-        HashMap<String, Class<?>> wrapperClassByNameMap = new HashMap<String, Class<?>>();
-        wrapperClassByNameMap.put("boolean", Boolean.class);
-        wrapperClassByNameMap.put("byte", Byte.class);
-        wrapperClassByNameMap.put("char", Character.class);
-        wrapperClassByNameMap.put("double", Double.class);
-        wrapperClassByNameMap.put("float", Float.class);
-        wrapperClassByNameMap.put("int", Integer.class);
-        wrapperClassByNameMap.put("long", Long.class);
-        wrapperClassByNameMap.put("short", Short.class);
-        wrapperClassByNameMap_ = Collections
-                .unmodifiableMap(wrapperClassByNameMap);
-
-        Map<Class<?>, Class<?>> wrapperBPrimitiveMap = new HashMap<Class<?>, Class<?>>();
-        wrapperBPrimitiveMap.put(Boolean.TYPE, Boolean.class);
-        wrapperBPrimitiveMap.put(Byte.TYPE, Byte.class);
-        wrapperBPrimitiveMap.put(Character.TYPE, Character.class);
-        wrapperBPrimitiveMap.put(Double.TYPE, Double.class);
-        wrapperBPrimitiveMap.put(Float.TYPE, Float.class);
-        wrapperBPrimitiveMap.put(Integer.TYPE, Integer.class);
-        wrapperBPrimitiveMap.put(Long.TYPE, Long.class);
-        wrapperBPrimitiveMap.put(Short.TYPE, Short.class);
+        Map<Class<?>, Class<?>> wrapperByPrimitiveMap = new HashMap<Class<?>, Class<?>>();
+        wrapperByPrimitiveMap.put(Boolean.TYPE, Boolean.class);
+        wrapperByPrimitiveMap.put(Byte.TYPE, Byte.class);
+        wrapperByPrimitiveMap.put(Character.TYPE, Character.class);
+        wrapperByPrimitiveMap.put(Double.TYPE, Double.class);
+        wrapperByPrimitiveMap.put(Float.TYPE, Float.class);
+        wrapperByPrimitiveMap.put(Integer.TYPE, Integer.class);
+        wrapperByPrimitiveMap.put(Long.TYPE, Long.class);
+        wrapperByPrimitiveMap.put(Short.TYPE, Short.class);
         wrapperByPrimitiveMap_ = Collections
-                .unmodifiableMap(wrapperBPrimitiveMap);
+                .unmodifiableMap(wrapperByPrimitiveMap);
 
         HashMap<String, Object> defaultValueMap = new HashMap<String, Object>();
         defaultValueMap.put("boolean", Boolean.valueOf(false));
@@ -370,14 +356,14 @@ public class ClassUtils {
      * @since 1.0.3
      */
     public static boolean isPrimitive(String className) {
-        return wrapperByPrimitiveMap_.containsKey(getPrimitiveClass(className));
+        return wrapperByPrimitiveMap_.containsKey(getPrimitive(className));
     }
 
     /**
      * @since 1.0.3
      */
-    public static Class<?> getPrimitiveClass(String className) {
-        return primitiveClassByNameMap_.get(className);
+    public static Class<?> getPrimitive(String primitiveName) {
+        return primitiveClassByNameMap_.get(primitiveName);
     }
 
     /**
@@ -395,14 +381,12 @@ public class ClassUtils {
      * @since 1.0.3
      */
     public static boolean isWrapper(String className) {
-        return primitiveByWrapperMap_.containsKey(getWrapperClass(className));
-    }
-
-    /**
-     * @since 1.0.3
-     */
-    public static Class<?> getWrapperClass(String wrapperClassName) {
-        return wrapperClassByNameMap_.get(wrapperClassName);
+        try {
+            return primitiveByWrapperMap_.containsKey(className != null ? Class
+                    .forName(className) : null);
+        } catch (ClassNotFoundException ex) {
+            return false;
+        }
     }
 
     public static Class<?> toPrimitive(Class<?> wrapperClass) {
@@ -489,5 +473,46 @@ public class ClassUtils {
         return className.equals(Void.TYPE.getName())
                 || ClassUtils.isPrimitive(className)
                 || ClassUtils.isJavaLang(className);
+    }
+
+    /**
+     * 指定された値が指定された型の変数に代入可能かどうかを返します。
+     * 
+     * @param value 値。nullを指定することもできます。
+     * @param type 型。nullを指定してはいけません。
+     * @return 指定された値が指定された型の変数に代入可能かどうか。
+     * @since 1.0.3
+     */
+    public static boolean isCapable(Object value, Class<?> type) {
+        if (type == Void.TYPE) {
+            return false;
+        } else if (value == null) {
+            return !type.isPrimitive();
+        } else if (type.isPrimitive()) {
+            Class<?> clazz = value.getClass();
+            if (type == Short.TYPE) {
+                return clazz == Short.class || clazz == Byte.class;
+            } else if (type == Integer.TYPE) {
+                return clazz == Integer.class || clazz == Short.class
+                        || clazz == Byte.class || clazz == Character.class;
+            } else if (type == Long.TYPE) {
+                return clazz == Long.class || clazz == Integer.class
+                        || clazz == Short.class || clazz == Byte.class
+                        || clazz == Character.class;
+            } else if (type == Float.TYPE) {
+                return clazz == Float.class || clazz == Long.class
+                        || clazz == Integer.class || clazz == Short.class
+                        || clazz == Byte.class || clazz == Character.class;
+            } else if (type == Double.TYPE) {
+                return clazz == Double.class || clazz == Float.class
+                        || clazz == Long.class || clazz == Integer.class
+                        || clazz == Short.class || clazz == Byte.class
+                        || clazz == Character.class;
+            } else {
+                return clazz == toWrapper(type);
+            }
+        } else {
+            return type.isAssignableFrom(value.getClass());
+        }
     }
 }

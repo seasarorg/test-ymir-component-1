@@ -83,7 +83,7 @@ public class HotdeployManagerImpl implements HotdeployManager {
     public Object fit(Object value) {
         enterFit();
         try {
-            return fit0(value, false);
+            return fit0(value);
         } finally {
             leaveFit();
         }
@@ -115,7 +115,7 @@ public class HotdeployManagerImpl implements HotdeployManager {
     }
 
     @SuppressWarnings("unchecked")
-    private Object fit0(Object value, boolean replace) {
+    private Object fit0(Object value) {
         if (value == null) {
             return value;
         }
@@ -131,7 +131,39 @@ public class HotdeployManagerImpl implements HotdeployManager {
         }
 
         Class<?> destinationClass = getContextClass(sourceClass);
-        if (sourceClass != destinationClass) {
+        if (sourceClass == destinationClass) {
+            // クラスが変わっていない場合。
+            // この場合はオブジェクトそのものは作り直さず、内容だけfitさせる。
+
+            fittedMap.put(value, value);
+
+            if (sourceClass.isArray()) {
+                // 配列型が変わっていないならコンポーネント型も変わっていないが、
+                // 実際の要素の型はHotdeploy型であることがある。
+                // そのため各要素をfitさせて代入し直す。
+                int length = Array.getLength(value);
+                for (int i = 0; i < length; i++) {
+                    Object fitted = fit0(Array.get(value, i));
+                    if (ClassUtils.isCapable(fitted, sourceClass
+                            .getComponentType())) {
+                        Array.set(value, i, fitted);
+                    }
+                }
+            } else {
+                HotdeployFitter<?> fitter = getHotdeployFitterBag().findFitter(
+                        destinationClass);
+                if (fitter != null) {
+                    ((HotdeployFitter<Object>) fitter).fitContent(value);
+                } else {
+                    fitContent(value);
+                }
+            }
+
+            return value;
+        } else {
+            // クラスが変わっている場合。
+            // この場合はオブジェクトそのものも作り直す。
+
             Object destination;
 
             if (sourceClass.isArray()) {
@@ -153,35 +185,21 @@ public class HotdeployManagerImpl implements HotdeployManager {
             fittedMap.put(value, destination);
 
             if (sourceClass.isArray()) {
+                // 配列型が変わっているためコンポーネント型も変わっている。
+                // そのため各要素について、要素自体も作り直す必要がある。
                 int length = Array.getLength(value);
                 for (int i = 0; i < length; i++) {
-                    Array.set(destination, i, fit(Array.get(value, i)));
+                    Object fitted = fit0(Array.get(value, i));
+                    if (ClassUtils.isCapable(fitted, destinationClass
+                            .getComponentType())) {
+                        Array.set(destination, i, fitted);
+                    }
                 }
             } else {
                 fitContent(value, destination);
             }
 
             return destination;
-        } else {
-            fittedMap.put(value, value);
-
-            if (sourceClass.isArray()) {
-                int length = Array.getLength(value);
-                for (int i = 0; i < length; i++) {
-                    Array.set(value, i, fit(Array.get(value, i)));
-                }
-                return value;
-            } else {
-                HotdeployFitter<?> fitter = getHotdeployFitterBag().findFitter(
-                        destinationClass);
-                if (fitter != null) {
-                    ((HotdeployFitter<Object>) fitter).fitContent(value);
-                } else {
-                    fitContent(value);
-                }
-
-                return value;
-            }
         }
     }
 
@@ -207,10 +225,6 @@ public class HotdeployManagerImpl implements HotdeployManager {
     }
 
     void fitContent(Object source, Object destination) {
-        if (source == null || destination == null) {
-            return;
-        }
-
         Class<?> destinationClass = destination.getClass();
         Map<String, Field> sourceFieldMap = new HashMap<String, Field>();
         for (Field field : getFields(source.getClass())) {
@@ -218,21 +232,21 @@ public class HotdeployManagerImpl implements HotdeployManager {
         }
 
         for (Field destinationField : getFields(destinationClass)) {
+            if (Modifier.isFinal(destinationField.getModifiers())) {
+                continue;
+            }
+
             Field sourceField = sourceFieldMap.get(destinationField.getName());
             if (sourceField != null) {
                 sourceField.setAccessible(true);
                 destinationField.setAccessible(true);
                 try {
-                    if (Modifier.isFinal(destinationField.getModifiers())) {
-                        fitContent(sourceField.get(source), destinationField
-                                .get(destination));
-                    } else {
-                        Object fitted = fit(sourceField.get(source));
-                        if (fitted == null
-                                || destinationField.getType().isAssignableFrom(
-                                        fitted.getClass())) {
-                            destinationField.set(destination, fitted);
-                        }
+                    Object fitted = fit0(sourceField.get(source));
+                    if (ClassUtils
+                            .isCapable(fitted, destinationField.getType())) {
+                        // フィールドの型がHotdeploy対象型の場合はassignableであることがあるため、
+                        // 代入可能な場合だけ代入するようにしている。
+                        destinationField.set(destination, fitted);
                     }
                 } catch (IllegalArgumentException ex) {
                     throw new RuntimeException("May logic error", ex);
@@ -248,13 +262,13 @@ public class HotdeployManagerImpl implements HotdeployManager {
             field.setAccessible(true);
             try {
                 if (Modifier.isFinal(field.getModifiers())) {
-                    fitContent(field.get(object));
+                    // finalの場合はオブジェクトの内容だけfitするためこのようにしている。
+                    fit0(field.get(object));
                 } else {
-                    Object fitted = fit(field.get(object));
-                    if (fitted == null
-                            || field.getType().isAssignableFrom(
-                                    fitted.getClass())) {
-                        // フィールドの型がHotdeploy対象型の場合はassignableであることがある。
+                    Object fitted = fit0(field.get(object));
+                    if (ClassUtils.isCapable(fitted, field.getType())) {
+                        // フィールドの型がHotdeploy対象型の場合はassignableであることがあるため、
+                        // 代入可能な場合だけ代入するようにしている。
                         field.set(object, fitted);
                     }
                 }
@@ -279,7 +293,13 @@ public class HotdeployManagerImpl implements HotdeployManager {
         ClassLoader contextClassLoader = Thread.currentThread()
                 .getContextClassLoader();
         try {
-            return contextClassLoader.loadClass(clazz.getName());
+            if (clazz.isArray()) {
+                return Array.newInstance(
+                        contextClassLoader.loadClass(clazz.getComponentType()
+                                .getName()), 0).getClass();
+            } else {
+                return contextClassLoader.loadClass(clazz.getName());
+            }
         } catch (ClassNotFoundException ex) {
             return clazz;
         }
