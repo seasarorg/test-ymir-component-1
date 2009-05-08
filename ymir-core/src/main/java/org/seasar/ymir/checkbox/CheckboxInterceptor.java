@@ -27,8 +27,8 @@ public class CheckboxInterceptor extends AbstractYmirProcessInterceptor {
             Dispatcher dispatcher, Map<String, String[]> parameterMap) {
         String key = getKey();
         String[] checkboxes = parameterMap.get(key);
-        parameterMap.remove(key);
         if (checkboxes != null) {
+            parameterMap.remove(key);
             for (String checkbox : new HashSet<String>(Arrays
                     .asList(checkboxes))) {
                 if (!parameterMap.containsKey(checkbox)) {
