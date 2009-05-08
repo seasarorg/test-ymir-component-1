@@ -13,7 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Dispatcher;
+import org.seasar.ymir.Globals;
 import org.seasar.ymir.HttpServletResponseFilter;
 import org.seasar.ymir.PathResolver;
 import org.seasar.ymir.RedirectionPathResolver;
@@ -24,12 +26,12 @@ import org.seasar.ymir.ResponseProcessor;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.Ymir;
+import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.util.ResponseUtils;
 import org.seasar.ymir.util.YmirUtils;
 
 public class ResponseProcessorImpl implements ResponseProcessor {
-
     private static final int BUF_SIZE = 4096;
 
     private Ymir ymir_;
@@ -185,10 +187,18 @@ public class ResponseProcessorImpl implements ResponseProcessor {
                     "Redirection path is null: may logic is wrong");
         }
         if (resolved.indexOf(":") < 0) {
-            // 内部パスの場合はエンコードする。
-            resolved = httpResponse.encodeRedirectURL(resolved);
+            // 内部パスの場合は必要に応じてエンコードする。
+            if (!shouldOmitSessionId()) {
+                resolved = httpResponse.encodeRedirectURL(resolved);
+            }
         }
         return resolved;
+    }
+
+    private boolean shouldOmitSessionId() {
+        return PropertyUtils.valueOf(ymir_.getApplication().getProperty(
+                Globals.APPKEY_CORE_SESSION_OMITSESSIONID),
+                Globals.DEFAULT_CORE_SESSION_OMITSESSIONID);
     }
 
     protected void populateHeaders(Response response,

@@ -52,4 +52,17 @@ public interface Globals {
             + "handler.exceptionHandlerInterface.enable";
 
     String APPKEY_LANDMARK = "landmark";
+
+    /**
+     * URLにセッションIDを付与しないようにするかどうかを指定するためのプロパティのキーです。
+     * 
+     * @since 1.0.3
+     */
+    String APPKEY_CORE_SESSION_OMITSESSIONID = APPKEYPREFIX_CORE
+            + "session.omitSessionId";
+
+    /**
+     * @since 1.0.3
+     */
+    boolean DEFAULT_CORE_SESSION_OMITSESSIONID = false;
 }
