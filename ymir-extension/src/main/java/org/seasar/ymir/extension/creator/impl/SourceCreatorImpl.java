@@ -1650,7 +1650,7 @@ public class SourceCreatorImpl implements SourceCreator {
             return null;
         }
 
-        Class<?> clazz = ClassUtils.getPrimitiveClass(className);
+        Class<?> clazz = ClassUtils.getPrimitive(className);
         if (clazz != null) {
             return clazz;
         }
