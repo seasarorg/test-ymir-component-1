@@ -17,6 +17,6 @@ public class HotdeployManagerImplITest extends PageTestCase<Object> {
             fail();
         }
 
-        assertEquals(4, actual.getHotdeployFitterBag().getFitters().length);
+        assertEquals(5, actual.getHotdeployFitterBag().getFitters().length);
     }
 }
