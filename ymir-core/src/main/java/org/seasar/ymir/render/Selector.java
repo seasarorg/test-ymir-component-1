@@ -60,6 +60,25 @@ public class Selector implements Serializable {
     }
 
     /**
+     * 選択されている値を数値として返します。
+     * <p>複数選択されている場合は最初の1つだけを返します。
+     * 1つも選択されていない場合はnullを返します。
+     * </p>
+     * <p>数値に変換できない場合は{@link NumberFormatException}をスローします。
+     * </p>
+     * 
+     * @return 選択されている値。
+     */
+    public Integer getSelectedValueAsInteger() {
+        String value = getSelectedValue();
+        if (value == null) {
+            return null;
+        } else {
+            return Integer.valueOf(value);
+        }
+    }
+
+    /**
      * 選択されている値を返します。
      * <p>1つも選択されていない場合は空の配列を返します。
      * </p>
@@ -92,6 +111,24 @@ public class Selector implements Serializable {
                 return list.toArray(EMPTY_STRINGS);
             }
         }
+    }
+
+    /**
+     * 選択されている値を数値として返します。
+     * <p>1つも選択されていない場合は空の配列を返します。
+     * </p>
+     * <p>数値に変換できない場合は{@link NumberFormatException}をスローします。
+     * </p>
+     * 
+     * @return 選択されている値。
+     */
+    public Integer[] getSelectedValuesAsInteger() {
+        String[] values = getSelectedValues();
+        Integer[] integers = new Integer[values.length];
+        for (int i = 0; i < values.length; i++) {
+            integers[i] = Integer.valueOf(values[i]);
+        }
+        return integers;
     }
 
     /**

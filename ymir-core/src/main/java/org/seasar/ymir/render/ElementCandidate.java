@@ -17,12 +17,8 @@ import org.seasar.ymir.util.StringUtils;
  * @see Candidate
  * @see Selector
  */
-public class ElementCandidate<E> implements Candidate, Serializable {
+public class ElementCandidate<E> extends AbstractCandidate {
     private static final long serialVersionUID = 1L;
-
-    private String value_;
-
-    private boolean selected_;
 
     private E element_;
 
@@ -35,28 +31,8 @@ public class ElementCandidate<E> implements Candidate, Serializable {
 
     public ElementCandidate(E element, Object value, boolean selected) {
         element_ = element;
-        value_ = asString(value);
-        selected_ = selected;
-    }
-
-    public String getValue() {
-        return value_;
-    }
-
-    public void setValue(String value) {
-        value_ = value;
-    }
-
-    public void setValueObject(Object value) {
-        setValue(asString(value));
-    }
-
-    public boolean isSelected() {
-        return selected_;
-    }
-
-    public void setSelected(boolean selected) {
-        selected_ = selected;
+        setValueObject(value);
+        setSelected(selected);
     }
 
     /**

@@ -61,6 +61,14 @@ public class Option extends Tag {
         return value_;
     }
 
+    public Integer getValueAsInteger() {
+        if (value_ == null) {
+            return null;
+        } else {
+            return Integer.valueOf(value_);
+        }
+    }
+
     public Option setValue(Object value) {
         value_ = value != null ? value.toString() : null;
         return this;

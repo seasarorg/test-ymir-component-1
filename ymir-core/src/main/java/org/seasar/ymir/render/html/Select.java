@@ -1,5 +1,7 @@
 package org.seasar.ymir.render.html;
 
+import static org.seasar.ymir.util.StringUtils.asString;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.seasar.ymir.util.HTMLUtils;
+import org.seasar.ymir.util.StringUtils;
 
 /**
  * HTMLのselectタグを扱うためのクラスです。
@@ -309,6 +312,26 @@ public class Select extends Tag {
     }
 
     /**
+     * 選択されたOptionの値を数値として返します。
+     * <p>複数選択されている場合は1つだけを返します。
+     * </p>
+     * <p>数値に変換できない場合は{@link NumberFormatException}をスローします。
+     * </p>
+     * 
+     * @return 選択されたOptionの値。
+     * 選択されたOptionが存在しない場合はnullを返します。
+     * @throws IllegalStateException このオブジェクトが内部にOptionを持っていない場合。
+     */
+    public Integer getSelectedValueAsInteger() {
+        String value = getSelectedValue();
+        if (value == null) {
+            return null;
+        } else {
+            return Integer.valueOf(value);
+        }
+    }
+
+    /**
      * 選択されたOptionの値を返します。
      * 
      * @return 選択されたOptionの値。
@@ -327,6 +350,24 @@ public class Select extends Tag {
             }
         }
         return list.toArray(new String[0]);
+    }
+
+    /**
+     * 選択されたOptionの値を数値として返します。
+     * <p>数値に変換できない場合は{@link NumberFormatException}をスローします。
+     * </p>
+     * 
+     * @return 選択されたOptionの値。
+     * 選択されたOptionが存在しない場合は空の配列を返します。
+     * @throws IllegalStateException このオブジェクトが内部にOptionを持っていない場合。
+     */
+    public Integer[] getSelectedValuesAsInteger() {
+        String[] values = getSelectedValues();
+        Integer[] integers = new Integer[values.length];
+        for (int i = 0; i < values.length; i++) {
+            integers[i] = Integer.valueOf(values[i]);
+        }
+        return integers;
     }
 
     /**
@@ -385,6 +426,19 @@ public class Select extends Tag {
 
     /**
      * 選択された値を設定します。
+     * <p>指定された値の文字列表現を選択された値として設定します。
+     * </p>
+     * 
+     * @param values 値。nullを指定することもできます。
+     * @return このオブジェクト。
+     * @see #setSelectedValue(String)
+     */
+    public Select setSelectedValueObject(Object value) {
+        return setSelectedValue(asString(value));
+    }
+
+    /**
+     * 選択された値を設定します。
      * <p>このオブジェクトが内部にOptionを持っていない場合は値だけを内部で保持します。
      * </p>
      * <p>内部に持っているどのOptionも持たない値が指定された場合でも除外されません。
@@ -398,6 +452,32 @@ public class Select extends Tag {
 
         updateState();
 
+        return this;
+    }
+
+    /**
+     * 選択された値を設定します。
+     * <p>指定された値の文字列表現を選択された値として設定します。
+     * </p>
+     * <p>このオブジェクトが内部にOptionを持っていない場合は値だけを内部で保持します。
+     * </p>
+     * <p>内部に持っているどのOptionも持たない値が指定された場合でも除外されません。
+     * </p>
+     * 
+     * @param values 値。nullを指定することもできます。
+     * @return このオブジェクト。
+     */
+    public Select setSelectedValueObjects(Object... values) {
+        String[] valueStrings;
+        if (values == null) {
+            valueStrings = new String[0];
+        } else {
+            valueStrings = new String[values.length];
+            for (int i = 0; i < values.length; i++) {
+                valueStrings[i] = asString(values[i]);
+            }
+        }
+        setSelectedValues(valueStrings);
         return this;
     }
 

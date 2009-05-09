@@ -2,10 +2,6 @@ package org.seasar.ymir.render;
 
 import static org.seasar.ymir.util.StringUtils.asString;
 
-import java.io.Serializable;
-
-import org.seasar.ymir.util.StringUtils;
-
 /**
  * シンプルなCandidateインタフェースの実装クラスです。
  * <p>候補に付加情報を関連付ける必要がなく文字列値だけを関連付ければ良いケースに
@@ -17,14 +13,10 @@ import org.seasar.ymir.util.StringUtils;
  * @see Candidate
  * @see Selector
  */
-public class StringCandidate implements Candidate, Serializable {
+public class StringCandidate extends AbstractCandidate {
     private static final long serialVersionUID = 1L;
 
-    private String value_;
-
     private String label_;
-
-    private boolean selected_;
 
     public StringCandidate() {
     }
@@ -38,21 +30,9 @@ public class StringCandidate implements Candidate, Serializable {
     }
 
     public StringCandidate(Object value, String label, boolean selected) {
-        value_ = asString(value);
+        setValueObject(value);
+        setSelected(selected);
         label_ = label;
-        selected_ = selected;
-    }
-
-    public String getValue() {
-        return value_;
-    }
-
-    public void setValue(String value) {
-        value_ = value;
-    }
-
-    public void setValueObject(Object value) {
-        setValue(asString(value));
     }
 
     public String getLabel() {
@@ -61,13 +41,5 @@ public class StringCandidate implements Candidate, Serializable {
 
     public void setLabel(String label) {
         label_ = label;
-    }
-
-    public boolean isSelected() {
-        return selected_;
-    }
-
-    public void setSelected(boolean selected) {
-        selected_ = selected;
     }
 }

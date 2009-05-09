@@ -17,11 +17,29 @@ public interface Candidate extends Serializable {
     String getValue();
 
     /**
+     * この候補を識別する値を数値として返します。
+     * <p>数値に変換できない場合は{@link NumberFormatException}をスローして下さい。
+     * </p>
+     * 
+     * @return この候補を識別する値。nullを返してはいけません。
+     */
+    Integer getValueAsInteger();
+
+    /**
      * この候補を識別する値を設定します。
      * 
      * @value この候補を識別する値。nullを設定してはいけません。
      */
     void setValue(String value);
+
+    /**
+     * この候補を識別する値を設定します。
+     * <p>指定された値の文字列表現がこの候補を識別する値として設定されます。
+     * </p>
+     * 
+     * @value この候補を識別する値。nullを設定してはいけません。
+     */
+    void setValueObject(Object value);
 
     /**
      * この候補が選択されているかどうかを返します。

@@ -1,6 +1,10 @@
 package org.seasar.ymir.render;
 
+import static org.seasar.ymir.util.StringUtils.asString;
+
 import java.lang.reflect.Array;
+
+import org.seasar.ymir.util.StringUtils;
 
 public abstract class AbstractCandidate implements Candidate {
     protected boolean selected_;
@@ -28,7 +32,19 @@ public abstract class AbstractCandidate implements Candidate {
         return value_;
     }
 
+    public Integer getValueAsInteger() {
+        if (value_ == null) {
+            return null;
+        } else {
+            return Integer.valueOf(value_);
+        }
+    }
+
     public void setValue(String value) {
         value_ = value;
+    }
+
+    public void setValueObject(Object value) {
+        value_ = asString(value);
     }
 }
