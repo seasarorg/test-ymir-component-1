@@ -8,8 +8,10 @@ ${importDesc.asString}</#if>
  * and add methods to gain conversion ability.
  * </p>
  */
-<#list classDesc.annotationDescs as annotationDesc>${annotationDesc.asShortString}
-</#list>public class ${classDesc.shortName}Base {
+<#list classDesc.annotationDescs as annotationDesc>
+${annotationDesc.asShortString}
+</#list>
+public class ${classDesc.shortName}Base {
     protected TypeConversionManager ${fieldPrefix}typeConversionManager${fieldSuffix};
 
     protected Messages ${fieldPrefix}messages${fieldSuffix};
@@ -126,9 +128,29 @@ ${importDesc.asString}</#if>
      * Copies ${pairTypeDesc.shortName} entity to ${targetClassDesc.shortName} instance.
      * <p>This methods copies the following properties automatically:</p>
      * <ul>
-<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
-     *   <li>${propertyDesc.name}</li>
-</#if></#if></#list>
+<#list targetClassDesc.propertyDescs as propertyDesc>
+  <#if propertyDesc.typeDesc.name == "org.seasar.ymir.render.Selector"
+       && propertyDesc.name?ends_with("Selector")>
+    <#assign name = propertyDesc.name?substring(0, propertyDesc.name?length - 8)>
+    <#assign typeShortName = "String">
+    <#assign writable = propertyDesc.readable>
+  <#elseif propertyDesc.typeDesc.name == "org.seasar.ymir.render.html.Select"
+       && propertyDesc.name?ends_with("Select")>
+    <#assign name = propertyDesc.name?substring(0, propertyDesc.name?length - 6)>
+    <#assign typeShortName = "String">
+    <#assign writable = propertyDesc.readable>
+  <#else>
+    <#assign name = propertyDesc.name>
+    <#assign typeShortName = propertyDesc.typeDesc.shortName>
+    <#assign writable = propertyDesc.writable>
+  </#if>
+  <#if pairTypeDesc.componentClassDesc.getPropertyDesc(name)??>
+    <#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(name)>
+    <#if writable && pd.readable>
+     *   <li>${name}</li>
+    </#if>
+  </#if>
+</#list>
      * </ul>
      * 
      * @param entity Source object.
@@ -136,9 +158,29 @@ ${importDesc.asString}</#if>
      * @return The first argument of this method.
      */
     public ${targetClassDesc.shortName} copyEntityToDto(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto) {
-<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
-        reflect${propertyDesc.name?cap_first}ToDto(entity, dto);
-</#if></#if></#list>
+<#list targetClassDesc.propertyDescs as propertyDesc>
+  <#if propertyDesc.typeDesc.name == "org.seasar.ymir.render.Selector"
+       && propertyDesc.name?ends_with("Selector")>
+    <#assign name = propertyDesc.name?substring(0, propertyDesc.name?length - 8)>
+    <#assign typeShortName = "String">
+    <#assign writable = propertyDesc.readable>
+  <#elseif propertyDesc.typeDesc.name == "org.seasar.ymir.render.html.Select"
+       && propertyDesc.name?ends_with("Select")>
+    <#assign name = propertyDesc.name?substring(0, propertyDesc.name?length - 6)>
+    <#assign typeShortName = "String">
+    <#assign writable = propertyDesc.readable>
+  <#else>
+    <#assign name = propertyDesc.name>
+    <#assign typeShortName = propertyDesc.typeDesc.shortName>
+    <#assign writable = propertyDesc.writable>
+  </#if>
+  <#if pairTypeDesc.componentClassDesc.getPropertyDesc(name)??>
+    <#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(name)>
+    <#if writable && pd.readable>
+        reflect${name?cap_first}ToDto(entity, dto);
+    </#if>
+  </#if>
+</#list>
 
         return dto;
     }
@@ -147,9 +189,29 @@ ${importDesc.asString}</#if>
      * Copies a List of ${pairTypeDesc.shortName} entity to a List of ${targetClassDesc.shortName}.
      * <p>This methods copies the following properties automatically:</p>
      * <ul>
-<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
-     *   <li>${propertyDesc.name}</li>
-</#if></#if></#list>
+<#list targetClassDesc.propertyDescs as propertyDesc>
+  <#if propertyDesc.typeDesc.name == "org.seasar.ymir.render.Selector"
+       && propertyDesc.name?ends_with("Selector")>
+    <#assign name = propertyDesc.name?substring(0, propertyDesc.name?length - 8)>
+    <#assign typeShortName = "String">
+    <#assign writable = propertyDesc.readable>
+  <#elseif propertyDesc.typeDesc.name == "org.seasar.ymir.render.html.Select"
+       && propertyDesc.name?ends_with("Select")>
+    <#assign name = propertyDesc.name?substring(0, propertyDesc.name?length - 6)>
+    <#assign typeShortName = "String">
+    <#assign writable = propertyDesc.readable>
+  <#else>
+    <#assign name = propertyDesc.name>
+    <#assign typeShortName = propertyDesc.typeDesc.shortName>
+    <#assign writable = propertyDesc.writable>
+  </#if>
+  <#if pairTypeDesc.componentClassDesc.getPropertyDesc(name)??>
+    <#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(name)>
+    <#if writable && pd.readable>
+     *   <li>${name}</li>
+    </#if>
+  </#if>
+</#list>
      * </ul>
      * 
      * @param entityList Source List.
@@ -162,36 +224,78 @@ ${importDesc.asString}</#if>
         }
         return dtoList;
     }
-<#list targetClassDesc.propertyDescs as propertyDesc><#if pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
+<#list targetClassDesc.propertyDescs as propertyDesc>
+  <#if propertyDesc.typeDesc.name == "org.seasar.ymir.render.Selector"
+       && propertyDesc.name?ends_with("Selector")>
+    <#assign name = propertyDesc.name?substring(0, propertyDesc.name?length - 8)>
+    <#assign typeShortName = "String">
+    <#assign writable = propertyDesc.readable>
+  <#elseif propertyDesc.typeDesc.name == "org.seasar.ymir.render.html.Select"
+       && propertyDesc.name?ends_with("Select")>
+    <#assign name = propertyDesc.name?substring(0, propertyDesc.name?length - 6)>
+    <#assign typeShortName = "String">
+    <#assign writable = propertyDesc.readable>
+  <#else>
+    <#assign name = propertyDesc.name>
+    <#assign typeShortName = propertyDesc.typeDesc.shortName>
+    <#assign writable = propertyDesc.writable>
+  </#if>
+  <#if pairTypeDesc.componentClassDesc.getPropertyDesc(name)??>
+    <#assign pd = pairTypeDesc.componentClassDesc.getPropertyDesc(name)>
+    <#if writable && pd.readable>
 
     /**
-     * Copies '${propertyDesc.name}' property of ${pairTypeDesc.shortName} entity to ${targetClassDesc.shortName} instance's '${propertyDesc.name}' property.
+     * Copies '${name}' property of ${pairTypeDesc.shortName} entity to ${targetClassDesc.shortName} instance's '${propertyDesc.name}' property.
      * 
      * @param entity Source object.
      * @param dto Destination object.
      */
-    protected void reflect${propertyDesc.name?cap_first}ToDto(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto) {
-        dto.set${propertyDesc.name?cap_first}(extract${propertyDesc.name?cap_first}FromEntity(entity));
+    protected void reflect${name?cap_first}ToDto(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto) {
+      <#if propertyDesc.name == name + "Selector">
+        dto.get${propertyDesc.name?cap_first}().setSelectedValue(extract${name?cap_first}FromEntity(entity));
+      <#elseif propertyDesc.name == name + "Select">
+        dto.get${propertyDesc.name?cap_first}().setSelectedValue(extract${name?cap_first}FromEntity(entity));
+      <#else>
+        dto.set${name?cap_first}(extract${name?cap_first}FromEntity(entity));
+      </#if>
     }
 
     /**
-     * Extracts '${propertyDesc.name}' property of ${pairTypeDesc.shortName} entity in order to copy to ${targetClassDesc.shortName} instance's '${propertyDesc.name}' property.
+     * Extracts '${name}' property of ${pairTypeDesc.shortName} entity in order to copy to ${targetClassDesc.shortName} instance's '${propertyDesc.name}' property.
      * 
      * @param entity Source object.
      * @return Extracted value.
      */
-    protected ${propertyDesc.typeDesc.shortName} extract${propertyDesc.name?cap_first}FromEntity(${pairTypeDesc.shortName} entity) {
-        return convert(entity.${pd.getterName}(), ${propertyDesc.typeDesc.shortName}.class);
+    protected ${typeShortName} extract${name?cap_first}FromEntity(${pairTypeDesc.shortName} entity) {
+        return convert(entity.${pd.getterName}(), ${typeShortName}.class);
     }
-</#if></#if></#list>
+    </#if>
+  </#if>
+</#list>
 
     /**
      * Copies ${targetClassDesc.shortName} entity to ${pairTypeDesc.shortName} instance.
      * <p>This methods copies the following properties automatically:</p>
      * <ul>
-<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
+<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc>
+  <#if targetClassDesc.getPropertyDesc(propertyDesc.name)??>
+    <#assign name = propertyDesc.name>
+  <#elseif targetClassDesc.getPropertyDesc(propertyDesc.name + "Selector")??
+           && targetClassDesc.getPropertyDesc(propertyDesc.name + "Selector").typeDesc.name == "org.seasar.ymir.render.Selector">
+    <#assign name = propertyDesc.name + "Selector">
+  <#elseif targetClassDesc.getPropertyDesc(propertyDesc.name + "Select")??
+           && targetClassDesc.getPropertyDesc(propertyDesc.name + "Select").typeDesc.name == "org.seasar.ymir.render.html.Select">
+    <#assign name = propertyDesc.name + "Select">
+  <#else>
+    <#assign name = "">
+  </#if>
+  <#if name != "">
+    <#assign pd = targetClassDesc.getPropertyDesc(name)>
+    <#if propertyDesc.writable && pd.readable>
      *   <li>${propertyDesc.name}</li>
-</#if></#if></#list>
+    </#if>
+  </#if>
+</#list>
      * </ul>
      * 
      * @param dto Source object.
@@ -199,9 +303,25 @@ ${importDesc.asString}</#if>
      * @return The first argument of this method.
      */
     public ${pairTypeDesc.shortName} copyDtoToEntity(${targetClassDesc.shortName} dto, ${pairTypeDesc.shortName} entity) {
-<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
+<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc>
+  <#if targetClassDesc.getPropertyDesc(propertyDesc.name)??>
+    <#assign name = propertyDesc.name>
+  <#elseif targetClassDesc.getPropertyDesc(propertyDesc.name + "Selector")??
+           && targetClassDesc.getPropertyDesc(propertyDesc.name + "Selector").typeDesc.name == "org.seasar.ymir.render.Selector">
+    <#assign name = propertyDesc.name + "Selector">
+  <#elseif targetClassDesc.getPropertyDesc(propertyDesc.name + "Select")??
+           && targetClassDesc.getPropertyDesc(propertyDesc.name + "Select").typeDesc.name == "org.seasar.ymir.render.html.Select">
+    <#assign name = propertyDesc.name + "Select">
+  <#else>
+    <#assign name = "">
+  </#if>
+  <#if name != "">
+    <#assign pd = targetClassDesc.getPropertyDesc(name)>
+    <#if propertyDesc.writable && pd.readable>
         reflect${propertyDesc.name?cap_first}ToEntity(dto, entity);
-</#if></#if></#list>
+    </#if>
+  </#if>
+</#list>
 
         return entity;
     }
@@ -210,9 +330,25 @@ ${importDesc.asString}</#if>
      * Copies a List of ${targetClassDesc.shortName} entity to a List of ${pairTypeDesc.shortName}.
      * <p>This methods copies the following properties automatically:</p>
      * <ul>
-<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
+<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc>
+  <#if targetClassDesc.getPropertyDesc(propertyDesc.name)??>
+    <#assign name = propertyDesc.name>
+  <#elseif targetClassDesc.getPropertyDesc(propertyDesc.name + "Selector")??
+           && targetClassDesc.getPropertyDesc(propertyDesc.name + "Selector").typeDesc.name == "org.seasar.ymir.render.Selector">
+    <#assign name = propertyDesc.name + "Selector">
+  <#elseif targetClassDesc.getPropertyDesc(propertyDesc.name + "Select")??
+           && targetClassDesc.getPropertyDesc(propertyDesc.name + "Select").typeDesc.name == "org.seasar.ymir.render.html.Select">
+    <#assign name = propertyDesc.name + "Select">
+  <#else>
+    <#assign name = "">
+  </#if>
+  <#if name != "">
+    <#assign pd = targetClassDesc.getPropertyDesc(name)>
+    <#if propertyDesc.writable && pd.readable>
      *   <li>${propertyDesc.name}</li>
-</#if></#if></#list>
+    </#if>
+  </#if>
+</#list>
      * </ul>
      * 
      * @param dtoList Source List.
@@ -225,10 +361,24 @@ ${importDesc.asString}</#if>
         }
         return entityList;
     }
-<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc><#if targetClassDesc.getPropertyDesc(propertyDesc.name)??><#assign pd = targetClassDesc.getPropertyDesc(propertyDesc.name)><#if propertyDesc.writable && pd.readable>
+<#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc>
+  <#if targetClassDesc.getPropertyDesc(propertyDesc.name)??>
+    <#assign name = propertyDesc.name>
+  <#elseif targetClassDesc.getPropertyDesc(propertyDesc.name + "Selector")??
+           && targetClassDesc.getPropertyDesc(propertyDesc.name + "Selector").typeDesc.name == "org.seasar.ymir.render.Selector">
+    <#assign name = propertyDesc.name + "Selector">
+  <#elseif targetClassDesc.getPropertyDesc(propertyDesc.name + "Select")??
+           && targetClassDesc.getPropertyDesc(propertyDesc.name + "Select").typeDesc.name == "org.seasar.ymir.render.html.Select">
+    <#assign name = propertyDesc.name + "Select">
+  <#else>
+    <#assign name = "">
+  </#if>
+  <#if name != "">
+    <#assign pd = targetClassDesc.getPropertyDesc(name)>
+    <#if propertyDesc.writable && pd.readable>
 
     /**
-     * Copies '${propertyDesc.name}' property of ${targetClassDesc.shortName} entity to ${pairTypeDesc.shortName} instance's '${propertyDesc.name}' property.
+     * Copies '${name}' property of ${targetClassDesc.shortName} entity to ${pairTypeDesc.shortName} instance's '${propertyDesc.name}' property.
      * 
      * @param dto Source object.
      * @param entity Destination object.
@@ -238,15 +388,23 @@ ${importDesc.asString}</#if>
     }
 
     /**
-     * Extracts '${propertyDesc.name}' property of ${targetClassDesc.shortName} entity in order to copy to ${pairTypeDesc.shortName} instance's '${propertyDesc.name}' property.
+     * Extracts '${name}' property of ${targetClassDesc.shortName} entity in order to copy to ${pairTypeDesc.shortName} instance's '${propertyDesc.name}' property.
      * 
      * @param dto Source object.
      * @return Extracted value.
      */
     protected ${propertyDesc.typeDesc.shortName} extract${propertyDesc.name?cap_first}FromDto(${targetClassDesc.shortName} dto) {
+      <#if name == propertyDesc.name + "Selector">
+        return convertForEntity(dto.${pd.getterName}().getSelectedValue(), ${propertyDesc.typeDesc.shortName}.class);
+      <#elseif name == propertyDesc.name + "Select">
+        return convertForEntity(dto.${pd.getterName}().getSelectedValue(), ${propertyDesc.typeDesc.shortName}.class);
+      <#else>
         return convertForEntity(dto.${pd.getterName}(), ${propertyDesc.typeDesc.shortName}.class);
+      </#if>
     }
-</#if></#if></#list>
+    </#if>
+  </#if>
+</#list>
 
 </#list>
 }

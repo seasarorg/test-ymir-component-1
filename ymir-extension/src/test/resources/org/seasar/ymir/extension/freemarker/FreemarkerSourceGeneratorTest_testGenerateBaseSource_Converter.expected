@@ -136,6 +136,8 @@ public class HoeConverterBase {
      *   <li>aaa</li>
      *   <li>ccc</li>
      *   <li>eee</li>
+     *   <li>fff</li>
+     *   <li>ggg</li>
      * </ul>
      * 
      * @param entity Source object.
@@ -146,6 +148,8 @@ public class HoeConverterBase {
         reflectAaaToDto(entity, dto);
         reflectCccToDto(entity, dto);
         reflectEeeToDto(entity, dto);
+        reflectFffToDto(entity, dto);
+        reflectGggToDto(entity, dto);
 
         return dto;
     }
@@ -157,6 +161,8 @@ public class HoeConverterBase {
      *   <li>aaa</li>
      *   <li>ccc</li>
      *   <li>eee</li>
+     *   <li>fff</li>
+     *   <li>ggg</li>
      * </ul>
      * 
      * @param entityList Source List.
@@ -231,12 +237,54 @@ public class HoeConverterBase {
     }
 
     /**
+     * Copies 'fff' property of Hoe<List> entity to HoeDto instance's 'fffSelector' property.
+     * 
+     * @param entity Source object.
+     * @param dto Destination object.
+     */
+    protected void reflectFffToDto(Hoe<List> entity, HoeDto dto) {
+        dto.getFffSelector().setSelectedValue(extractFffFromEntity(entity));
+    }
+
+    /**
+     * Extracts 'fff' property of Hoe<List> entity in order to copy to HoeDto instance's 'fffSelector' property.
+     * 
+     * @param entity Source object.
+     * @return Extracted value.
+     */
+    protected String extractFffFromEntity(Hoe<List> entity) {
+        return convert(entity.getFff(), String.class);
+    }
+
+    /**
+     * Copies 'ggg' property of Hoe<List> entity to HoeDto instance's 'gggSelect' property.
+     * 
+     * @param entity Source object.
+     * @param dto Destination object.
+     */
+    protected void reflectGggToDto(Hoe<List> entity, HoeDto dto) {
+        dto.getGggSelect().setSelectedValue(extractGggFromEntity(entity));
+    }
+
+    /**
+     * Extracts 'ggg' property of Hoe<List> entity in order to copy to HoeDto instance's 'gggSelect' property.
+     * 
+     * @param entity Source object.
+     * @return Extracted value.
+     */
+    protected String extractGggFromEntity(Hoe<List> entity) {
+        return convert(entity.getGgg(), String.class);
+    }
+
+    /**
      * Copies HoeDto entity to Hoe<List> instance.
      * <p>This methods copies the following properties automatically:</p>
      * <ul>
      *   <li>aaa</li>
      *   <li>bbb</li>
      *   <li>ddd</li>
+     *   <li>fff</li>
+     *   <li>ggg</li>
      * </ul>
      * 
      * @param dto Source object.
@@ -247,6 +295,8 @@ public class HoeConverterBase {
         reflectAaaToEntity(dto, entity);
         reflectBbbToEntity(dto, entity);
         reflectDddToEntity(dto, entity);
+        reflectFffToEntity(dto, entity);
+        reflectGggToEntity(dto, entity);
 
         return entity;
     }
@@ -258,6 +308,8 @@ public class HoeConverterBase {
      *   <li>aaa</li>
      *   <li>bbb</li>
      *   <li>ddd</li>
+     *   <li>fff</li>
+     *   <li>ggg</li>
      * </ul>
      * 
      * @param dtoList Source List.
@@ -329,6 +381,46 @@ public class HoeConverterBase {
      */
     protected String extractDddFromDto(HoeDto dto) {
         return convertForEntity(dto.getDdd(), String.class);
+    }
+
+    /**
+     * Copies 'fffSelector' property of HoeDto entity to Hoe<List> instance's 'fff' property.
+     * 
+     * @param dto Source object.
+     * @param entity Destination object.
+     */
+    protected void reflectFffToEntity(HoeDto dto, Hoe<List> entity) {
+        entity.setFff(extractFffFromDto(dto));
+    }
+
+    /**
+     * Extracts 'fffSelector' property of HoeDto entity in order to copy to Hoe<List> instance's 'fff' property.
+     * 
+     * @param dto Source object.
+     * @return Extracted value.
+     */
+    protected String extractFffFromDto(HoeDto dto) {
+        return convertForEntity(dto.getFffSelector().getSelectedValue(), String.class);
+    }
+
+    /**
+     * Copies 'gggSelect' property of HoeDto entity to Hoe<List> instance's 'ggg' property.
+     * 
+     * @param dto Source object.
+     * @param entity Destination object.
+     */
+    protected void reflectGggToEntity(HoeDto dto, Hoe<List> entity) {
+        entity.setGgg(extractGggFromDto(dto));
+    }
+
+    /**
+     * Extracts 'gggSelect' property of HoeDto entity in order to copy to Hoe<List> instance's 'ggg' property.
+     * 
+     * @param dto Source object.
+     * @return Extracted value.
+     */
+    protected String extractGggFromDto(HoeDto dto) {
+        return convertForEntity(dto.getGggSelect().getSelectedValue(), String.class);
     }
 
 }

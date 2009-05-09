@@ -1,5 +1,8 @@
 package com.example.dto;
 
+import org.seasar.ymir.render.Selector;
+import org.seasar.ymir.render.html.Select;
+
 public class HoeDto {
     public String getAaa() {
         return null;
@@ -20,5 +23,13 @@ public class HoeDto {
     }
 
     public void setEee(String eee) {
+    }
+
+    public Selector getFffSelector() {
+        return null;
+    }
+
+    public Select getGggSelect() {
+        return null;
     }
 }
