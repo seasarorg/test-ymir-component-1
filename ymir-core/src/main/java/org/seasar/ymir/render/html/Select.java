@@ -372,6 +372,19 @@ public class Select extends Tag {
 
     /**
      * 選択された値を設定します。
+     * <p>このメソッドは<code>setSelectedValue(value)と同じです。
+     * </p>
+     * 
+     * @param values 選択された値。nullを指定することもできます。
+     * @return このオブジェクト。
+     * @see #setSelectedValues(String...)
+     */
+    public Select setSelectedValue(String value) {
+        return setSelectedValues(value);
+    }
+
+    /**
+     * 選択された値を設定します。
      * <p>このオブジェクトが内部にOptionを持っていない場合は値だけを内部で保持します。
      * </p>
      * <p>内部に持っているどのOptionも持たない値が指定された場合でも除外されません。
@@ -380,7 +393,7 @@ public class Select extends Tag {
      * @param values 選択された値。nullを指定することもできます。
      * @return このオブジェクト。
      */
-    public Select setSelectedValues(String[] values) {
+    public Select setSelectedValues(String... values) {
         values_ = values;
 
         updateState();
