@@ -130,7 +130,7 @@ public class YmirImpl implements Ymir {
 
         initializeListeners();
 
-        log_.info("Ymir has beena initialized");
+        log_.info("Ymir has been initialized");
     }
 
     void initializeListeners() {
