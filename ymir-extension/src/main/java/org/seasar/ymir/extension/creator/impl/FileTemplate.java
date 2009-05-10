@@ -63,4 +63,8 @@ public class FileTemplate implements Template {
     public boolean isDirectory() {
         return file_.isDirectory();
     }
+
+    public boolean mkdirs() {
+        return file_.mkdirs();
+    }
 }

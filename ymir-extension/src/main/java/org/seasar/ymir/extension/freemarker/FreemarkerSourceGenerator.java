@@ -126,7 +126,8 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
         } catch (TemplateException ex) {
             throw new RuntimeException(ex);
         } catch (FileNotFoundException ex) {
-            throw new IORuntimeException(ex);
+            // テンプレートがない場合は空の結果を返す。
+            return "";
         } catch (IOException ex) {
             throw new IORuntimeException(ex);
         }

@@ -44,4 +44,8 @@ public class NullTemplate implements Template {
     public boolean isDirectory() {
         return false;
     }
+
+    public boolean mkdirs() {
+        return false;
+    }
 }

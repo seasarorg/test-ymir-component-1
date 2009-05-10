@@ -294,6 +294,10 @@ public class ZptAnalyzerTest extends TestCase {
                     public boolean isDirectory() {
                         return false;
                     }
+
+                    public boolean mkdirs() {
+                        return false;
+                    }
                 }, pageClassName, pool_, ignoreVariables);
     }
 

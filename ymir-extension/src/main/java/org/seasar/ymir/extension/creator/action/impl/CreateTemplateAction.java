@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.HttpMethod;
@@ -111,6 +112,10 @@ public class CreateTemplateAction extends AbstractAction implements
             pause(1000L);
             openResourceInEclipseEditor(getPath(template));
         } else if (transition != null) {
+            if (PropertyUtils.valueOf(request.getParameter("mkdir"), false)) {
+                pathMetaData.getTemplate().mkdirs();
+            }
+
             DescPool pool = newDescPool();
             String path = pathMetaData.getPath();
             pool.setBornOf(path);

@@ -74,4 +74,11 @@ public interface Template {
      * @return このテンプレートがディレクトリパスに紐づいているかどうか。
      */
     boolean isDirectory();
+
+    /**
+     * このテンプレートのパスにディレクトリを作成します。
+     * 
+     * @return ディレクトリが作成されたかどうか。
+     */
+    boolean mkdirs();
 }
