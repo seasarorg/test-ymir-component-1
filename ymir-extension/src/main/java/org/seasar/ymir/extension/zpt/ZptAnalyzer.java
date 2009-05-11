@@ -21,6 +21,7 @@ import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateAnalyzer;
+import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.util.ServletUtils;
 import org.seasar.ymir.zpt.YmirTalesExpressionEvaluator;
 import org.seasar.ymir.zpt.YmirVariableResolver;
@@ -103,8 +104,8 @@ public class ZptAnalyzer implements TemplateAnalyzer {
     public void analyze(ServletContext servletContext,
             HttpServletRequest request, HttpServletResponse response,
             Request ymirRequest, String path, HttpMethod method,
-            Template template, String className, DescPool pool,
-            String[] ignoreVariables) {
+            Template template, String className, String[] ignoreVariables,
+            DescPool pool, Notes warnings) {
         try {
             DescPool.setDefault(pool);
             Zpt zpt = getZpt();
@@ -129,6 +130,9 @@ public class ZptAnalyzer implements TemplateAnalyzer {
             context.setRepeatedPropertyGeneratedAsList(sourceCreator_
                     .getSourceCreatorSetting()
                     .isRepeatedPropertyGeneratedAsList());
+            if (warnings != null) {
+                context.setWarnings(warnings);
+            }
 
             InputStream inputStream = null;
             try {

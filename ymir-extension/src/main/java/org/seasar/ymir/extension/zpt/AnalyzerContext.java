@@ -35,6 +35,8 @@ import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
+import org.seasar.ymir.message.Note;
+import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.FlexibleList;
@@ -93,6 +95,8 @@ public class AnalyzerContext extends ZptTemplateContext {
     private Map<String, String> globalVariableExpression_ = new HashMap<String, String>();
 
     private int repeatDepth_;
+
+    private Notes warnings_ = new Notes();
 
     private static final Log log_ = LogFactory.getLog(AnalyzerContext.class);
 
@@ -873,5 +877,18 @@ public class AnalyzerContext extends ZptTemplateContext {
             delim = "/";
         }
         return sb.toString();
+    }
+
+    public void addWarning(String expression, int columnNumber) {
+        warnings_.add(new Note("warning", getElement().getLineNumber(),
+                getElement().getColumnNumber(), expression, columnNumber));
+    }
+
+    public Notes getWarnings() {
+        return warnings_;
+    }
+
+    public void setWarnings(Notes warnings) {
+        warnings_ = warnings;
     }
 }

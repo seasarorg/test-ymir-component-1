@@ -42,7 +42,7 @@ public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
                 new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
                         "testPage", "com.example.web.TestPage", null, null,
                         null, getSourceCreator().getTemplate("/test.html")),
-                null);
+                null, null);
         ClassDesc[] classDescs = pool.getGeneratedClassDescs().toArray(
                 new ClassDesc[0]);
         ClassDescSet classDescSet = new ClassDescSet(classDescs);

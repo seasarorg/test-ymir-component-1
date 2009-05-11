@@ -37,6 +37,7 @@ import org.seasar.ymir.extension.creator.util.type.Token;
 import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
 import org.seasar.ymir.extension.zpt.ParameterRole;
+import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ClassUtils;
 
@@ -86,8 +87,9 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             return null;
         }
 
+        Notes warnings = new Notes();
         ClassDescBag classDescBag = getSourceCreator().gatherClassDescs(
-                new PathMetaData[] { pathMetaData });
+                new PathMetaData[] { pathMetaData }, warnings);
         if (classDescBag.isEmpty()) {
             return null;
         }
@@ -119,6 +121,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 .isConverterCreationFeatureEnabled());
         variableMap.put("ambiguousClasses", ambiguousClassSet
                 .toArray(new ClassDto[0]));
+        variableMap.put("warnings", warnings);
         return getSourceCreator().getResponseCreator().createResponse(
                 "updateClasses", variableMap);
     }
@@ -233,8 +236,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 propertyTypeHintList.toArray(new PropertyTypeHint[0]),
                 classHintMap.values().toArray(new ClassHint[0]));
         ClassDescBag classDescBag = getSourceCreator().gatherClassDescs(
-                new PathMetaData[] { pathMetaData }, hintBag,
-                null);
+                new PathMetaData[] { pathMetaData }, hintBag, null, null);
 
         String[] appliedOriginalClassNames = request
                 .getParameterValues(PARAM_APPLY);

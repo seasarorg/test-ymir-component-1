@@ -6,10 +6,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.message.Notes;
 
 public interface TemplateAnalyzer {
     void analyze(ServletContext servletContext, HttpServletRequest request,
             HttpServletResponse response, Request ymirRequest, String path,
             HttpMethod method, Template template, String className,
-            DescPool pool, String[] ignoreVariables);
+            String[] ignoreVariables, DescPool pool, Notes warnings);
 }

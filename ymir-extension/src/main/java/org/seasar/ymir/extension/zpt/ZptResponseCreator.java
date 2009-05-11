@@ -12,6 +12,7 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.response.SelfContainedResponse;
+import org.seasar.ymir.zpt.YmirPathResolver;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.TemplateEvaluator;
@@ -29,7 +30,9 @@ public class ZptResponseCreator implements ResponseCreator {
     private ApplicationManager applicationManager_;
 
     private final TemplateEvaluator evaluator_ = new TemplateEvaluatorImpl(
-            new MetalTagEvaluator(), new TalesExpressionEvaluator());
+            new MetalTagEvaluator(), new TalesExpressionEvaluator()
+                    .addPathResolver(new YmirPathResolver()
+                            .setNoteLocalizer(new NoteLocalizerImpl())));
 
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {

@@ -50,6 +50,7 @@ import org.seasar.ymir.impl.MatchedPathMappingImpl;
 import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.impl.YmirPathMapping;
 import org.seasar.ymir.message.Note;
+import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
@@ -85,6 +86,8 @@ public class ZptAnalyzerTest extends TestCase {
     private String path_ = "/hoe.html";
 
     private AnalyzerContext context_;
+
+    private Notes warnings_ = new Notes();
 
     protected void setUp() throws Exception {
         target_ = new ZptAnalyzer() {
@@ -298,7 +301,7 @@ public class ZptAnalyzerTest extends TestCase {
                     public boolean mkdirs() {
                         return false;
                     }
-                }, pageClassName, pool_, ignoreVariables);
+                }, pageClassName, ignoreVariables, pool_, warnings_);
     }
 
     private ClassDesc getClassDesc(String name) {

@@ -126,7 +126,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
                         "testPage", "com.example.web.TestPage", null, null,
                         null, getSourceCreator().getTemplate("/test.html")),
-                null);
+                null, null);
         ClassDesc[] actual = pool.getGeneratedClassDescs().toArray(
                 new ClassDesc[0]);
         Arrays.sort(actual, new Comparator<ClassDesc>() {
@@ -169,7 +169,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
                         "testPage", "com.example.web.TestPage", null, null,
                         null, getSourceCreator().getTemplate("/test.html")),
-                null);
+                null, null);
 
         assertTrue(pool.contains("com.example.web.TestPage"));
         assertEquals("com.outer.dto.EntryDto", pool.getClassDesc(
@@ -188,7 +188,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                 new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
                         "testPage", "com.example.web.TestPage", null, null,
                         null, getSourceCreator().getTemplate("/test.html")),
-                null);
+                null, null);
 
         assertFalse(pool.contains("com.outer.dto.EntryDto"));
     }

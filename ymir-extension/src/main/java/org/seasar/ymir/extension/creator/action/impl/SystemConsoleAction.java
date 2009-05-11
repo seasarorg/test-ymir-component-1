@@ -89,7 +89,8 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
             return null;
         }
 
-        ClassDescBag classDescBag = getSourceCreator().gatherClassDescs(gatherPathMetaDatas());
+        ClassDescBag classDescBag = getSourceCreator().gatherClassDescs(
+                gatherPathMetaDatas(), null);
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
@@ -106,7 +107,8 @@ public class SystemConsoleAction extends AbstractAction implements UpdateAction 
             return null;
         }
 
-        ClassDescBag classDescBag = getSourceCreator().gatherClassDescs(gatherPathMetaDatas());
+        ClassDescBag classDescBag = getSourceCreator().gatherClassDescs(
+                gatherPathMetaDatas(), null);
 
         String[] appliedClassNames = request.getParameterValues(PARAM_APPLY);
         Set<String> appliedClassNameSet = new HashSet<String>();

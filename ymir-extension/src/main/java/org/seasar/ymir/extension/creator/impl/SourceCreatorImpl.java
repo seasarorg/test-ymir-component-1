@@ -449,15 +449,17 @@ public class SourceCreatorImpl implements SourceCreator {
                 .getFirstRootPackageName() != null);
     }
 
-    public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas) {
-        return gatherClassDescs(pathMetaDatas, null, null);
+    public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
+            Notes warnings) {
+        return gatherClassDescs(pathMetaDatas, null, null, warnings);
     }
 
     public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
-            ClassCreationHintBag hintBag, String[] ignoreVariables) {
+            ClassCreationHintBag hintBag, String[] ignoreVariables,
+            Notes warnings) {
         DescPool pool = DescPool.newInstance(this, hintBag);
         for (int i = 0; i < pathMetaDatas.length; i++) {
-            gatherClassDescs(pool, pathMetaDatas[i], ignoreVariables);
+            gatherClassDescs(pool, pathMetaDatas[i], ignoreVariables, warnings);
         }
         ClassDesc[] classDescs = addRelativeClassDescs(pool
                 .getGeneratedClassDescs().toArray(new ClassDesc[0]), hintBag);
@@ -604,7 +606,7 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public void gatherClassDescs(DescPool pool, PathMetaData pathMetaData,
-            String[] ignoreVariables) {
+            String[] ignoreVariables, Notes warnings) {
         String path = pathMetaData.getPath();
         String oldBornOf = pool.getBornOf();
         try {
@@ -614,8 +616,8 @@ public class SourceCreatorImpl implements SourceCreator {
             String pageClassName = pathMetaData.getClassName();
             analyzer_.analyze(getServletContext(), getHttpServletRequest(),
                     getHttpServletResponse(), getRequest(), path, method,
-                    pathMetaData.getTemplate(), pageClassName, pool,
-                    ignoreVariables);
+                    pathMetaData.getTemplate(), pageClassName, ignoreVariables,
+                    pool, warnings);
 
             for (int i = 0; i < classDescModifiers_.length; i++) {
                 classDescModifiers_[i].modify(pool, pathMetaData);

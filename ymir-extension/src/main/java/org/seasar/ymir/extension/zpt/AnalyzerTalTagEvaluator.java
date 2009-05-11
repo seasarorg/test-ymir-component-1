@@ -284,7 +284,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     String name = statement.substring(0, delim).trim();
                     String expression = statement.substring(delim).trim();
                     // 添え字の中だけは実行時パラメータを含んでいて良い。
-                    if (isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(expression)
+                    if (isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
+                            analyzerContext, expression)
                             || isDefinedAndStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
                                     analyzerContext, expression)) {
                         continue;
@@ -302,12 +303,13 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         if (!AnalyzerUtils.isValidVariableName(expression)) {
             return false;
         }
-        return isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(analyzerContext
-                .getDefinedVariableExpression(expression));
+        return isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
+                analyzerContext, analyzerContext
+                        .getDefinedVariableExpression(expression));
     }
 
     boolean isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
-            String expression) {
+            AnalyzerContext analyzerContext, String expression) {
         if (expression == null) {
             return false;
         }
@@ -329,6 +331,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 int rightParen = findEndEdge(expression, idx + 1);
                 if (rightParen + 1 >= expression.length()
                         || expression.charAt(rightParen + 1) != ']') {
+                    analyzerContext.addWarning(expression, rightParen + 2);
                     return false;
                 }
                 pre = rightParen + 2;
@@ -338,6 +341,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 if (rightEdge < 0
                         || !AnalyzerUtils.isValidVariableName(expression
                                 .substring(idx + 1, rightEdge))) {
+                    analyzerContext.addWarning(expression, idx + 2);
                     return false;
                 }
                 pre = rightEdge + 1;

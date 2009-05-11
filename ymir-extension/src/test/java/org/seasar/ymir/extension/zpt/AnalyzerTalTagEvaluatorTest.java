@@ -5,7 +5,9 @@ import junit.framework.TestCase;
 import org.seasar.ymir.extension.zpt.AnalyzerTalTagEvaluator.AnnotationResult;
 
 import net.skirnir.freyja.Attribute;
+import net.skirnir.freyja.Element;
 import net.skirnir.freyja.EvaluationRuntimeException;
+import net.skirnir.freyja.TagElement;
 
 public class AnalyzerTalTagEvaluatorTest extends TestCase {
 
@@ -65,22 +67,33 @@ public class AnalyzerTalTagEvaluatorTest extends TestCase {
     public void testIsStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex()
             throws Exception {
         AnalyzerTalTagEvaluator target = new AnalyzerTalTagEvaluator();
+        AnalyzerContext context = new AnalyzerContext();
+        context.setElement(new TagElement("name", new Attribute[0],
+                new Element[0]));
 
         assertTrue(target
-                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("string:entries"));
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
+                        context, "string:entries"));
         assertTrue(target
-                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("string:entries[$idx].value"));
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
+                        context, "string:entries[$idx].value"));
         assertTrue(target
-                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("string:entries[${idx/hoehoe}].value"));
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
+                        context, "string:entries[${idx/hoehoe}].value"));
         assertFalse(target
-                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("string:entries[${idx/hoehoe}$fuga].value"));
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
+                        context, "string:entries[${idx/hoehoe}$fuga].value"));
         assertFalse(target
-                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("entries"));
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
+                        context, "entries"));
         assertFalse(target
-                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("string:entries[$idx.value"));
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
+                        context, "string:entries[$idx.value"));
         assertFalse(target
-                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("string:entries$idx.value"));
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
+                        context, "string:entries$idx.value"));
         assertFalse(target
-                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex("string:ent${hoe}ries[$idx].value"));
+                .isStringTypeExpressionAndContainsRuntimeParameterOnlyAsIndex(
+                        context, "string:ent${hoe}ries[$idx].value"));
     }
 }

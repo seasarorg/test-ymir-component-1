@@ -33,6 +33,7 @@ import org.seasar.ymir.extension.creator.TemplateProvider;
 import org.seasar.ymir.extension.creator.mapping.ActionSelectorSeed;
 import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
 import org.seasar.ymir.extension.creator.util.PersistentProperties;
+import org.seasar.ymir.message.Notes;
 
 public class MockSourceCreator implements SourceCreator {
     private ServletContext servletContext_;
@@ -132,12 +133,14 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas) {
+    public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
+            Notes warnings) {
         return null;
     }
 
     public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
-            ClassCreationHintBag hintBag, String[] ignoreVariables) {
+            ClassCreationHintBag hintBag, String[] ignoreVariables,
+            Notes warnings) {
         return null;
     }
 

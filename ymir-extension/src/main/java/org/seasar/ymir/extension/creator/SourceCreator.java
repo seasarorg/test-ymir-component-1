@@ -18,6 +18,7 @@ import org.seasar.ymir.Updater;
 import org.seasar.ymir.extension.creator.mapping.ActionSelectorSeed;
 import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
 import org.seasar.ymir.extension.creator.util.PersistentProperties;
+import org.seasar.ymir.message.Notes;
 
 public interface SourceCreator extends Updater {
     String PARAM_PREFIX = "__ymir__";
@@ -88,10 +89,11 @@ public interface SourceCreator extends Updater {
 
     ServletContext getServletContext();
 
-    ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas);
+    ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas, Notes warnings);
 
     ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
-            ClassCreationHintBag hintBag, String[] ignoreVariables);
+            ClassCreationHintBag hintBag, String[] ignoreVariables,
+            Notes warnings);
 
     void updateClasses(ClassDescBag classDescBag);
 
