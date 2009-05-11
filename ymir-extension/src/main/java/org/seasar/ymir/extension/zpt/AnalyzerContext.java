@@ -331,8 +331,8 @@ public class AnalyzerContext extends ZptTemplateContext {
         propertyDesc.notifyTypeUpdated(probability);
 
         if (log_.isDebugEnabled()) {
-            log_.debug("This' property's type has been inferred as '"
-                    + typeDesc + "'");
+            log_.debug("This property's type has been inferred as '" + typeDesc
+                    + "'");
         }
 
         return propertyDesc;
