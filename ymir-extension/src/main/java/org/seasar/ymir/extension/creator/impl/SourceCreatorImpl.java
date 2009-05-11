@@ -623,8 +623,13 @@ public class SourceCreatorImpl implements SourceCreator {
             ClassDesc pageClassDesc = pool.getClassDesc(pageClassName);
 
             // アクションメソッドがなければ追加する。
+            // postするようなフォームを持つ画面で、postの後バリデーションエラーで自画面に戻ってきた
+            // ところで自動生成を行なうと、methodがPOSTになっているため、(1)_get()が消えて
+            // しまう、(2)ボタンに名前をつけていても、デフォルトの_post()が生成されてしまう、という
+            // 問題が発生する。これを避けるため、methodに依らずGETでアクションメソッドを生成するように
+            // している。
             MethodDesc actionMethodDesc = newActionMethodDesc(pageClassDesc,
-                    path, method);
+                    path, HttpMethod.GET);
             if (pageClassDesc.getMethodDesc(actionMethodDesc) == null) {
                 pageClassDesc.setMethodDesc(actionMethodDesc);
             }
