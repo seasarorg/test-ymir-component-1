@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 
 import org.seasar.kvasir.util.io.InputStreamFactory;
 import org.seasar.ymir.ResponseType;
+import org.seasar.ymir.impl.AsIsInputStreamFactory;
 
 /**
  * レスポンスヘッダやレスポンスボディの情報を内包するResponseオブジェクトです。
@@ -88,6 +89,15 @@ public class SelfContainedResponse extends ResponseBase {
             inputStream = null;
         }
         return inputStream;
+    }
+
+    @Override
+    public void setInputStream(InputStream is) {
+        if (is == null) {
+            setInputStreamFactory(null);
+        } else {
+            setInputStreamFactory(new AsIsInputStreamFactory(is));
+        }
     }
 
     public InputStreamFactory getInputStreamFactory() {
