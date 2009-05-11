@@ -129,12 +129,27 @@ public class ScopeAttributePopulatorImpl implements ScopeAttributePopulator {
         }
 
         public void populateTo(Object component, String name) {
+            if (log_.isDebugEnabled()) {
+                log_.debug("Try to populate: "
+                        + ClassUtils.getPrettyName(scope_) + " -> "
+                        + ClassUtils.getPrettyName(component) + ": property="
+                        + name);
+            }
             PropertyHandler handler = null;
-            if (passive_) {
-                handler = typeConversionManager_.getPropertyHandler(component,
-                        name);
-            } else {
-                handler = new SetterPropertyHandler(component, method_);
+            try {
+                if (passive_) {
+                    handler = typeConversionManager_.getPropertyHandler(
+                            component, name);
+                } else {
+                    handler = new SetterPropertyHandler(component, method_);
+                }
+            } catch (Throwable t) {
+                // PropertyHandlerの取得時に例外が発生した場合は何もしないようにする。
+                if (log_.isDebugEnabled()) {
+                    log_.debug(
+                            "Can't get PropertyHandler for scope attribute: scope="
+                                    + scope_ + ", attribute name=" + name, t);
+                }
             }
             if (handler == null) {
                 return;
