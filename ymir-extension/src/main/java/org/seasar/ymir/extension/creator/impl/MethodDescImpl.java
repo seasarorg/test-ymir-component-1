@@ -150,9 +150,11 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
         desc.setReturnTypeDesc(returnTypeDesc_.transcriptTo(pool
                 .newTypeDesc(returnTypeDesc_)));
 
+        ThrowsDesc throwsDesc = new ThrowsDescImpl();
         for (String className : throwsDesc_.getThrowableClassNames()) {
-            desc.getThrowsDesc().addThrowable(className);
+            throwsDesc.addThrowable(className);
         }
+        desc.setThrowsDesc(throwsDesc);
 
         if (bodyDesc_ != null) {
             desc.setBodyDesc(new BodyDescImpl(bodyDesc_.getKey(), bodyDesc_

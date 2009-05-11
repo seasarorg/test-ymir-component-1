@@ -3,6 +3,7 @@ package org.seasar.ymir.extension.creator.impl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -30,6 +31,7 @@ import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
+import org.seasar.ymir.extension.creator.ThrowsDesc;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
@@ -689,6 +691,27 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         idx = 0;
         assertEquals("/adjust.html", value[idx++]);
         assertEquals("/adjust21.html", value[idx++]);
+    }
+
+    public void testAdjustByExistentClass22_GapクラスとBaseクラスのメソッドにthrowsがついているが生成されたClassDescのメソッドにはthrowsがついていない場合にthrowsが残ること()
+            throws Exception {
+        pool_.setBornOf("/adjust22.html");
+        ClassDesc classDesc = pool_.getClassDesc(Adjust22Page.class);
+        classDesc.setMethodDesc(new MethodDescImpl(pool_, "_get"));
+
+        target_.adjustByExistentClass(classDesc);
+
+        MethodDesc actual = classDesc.getMethodDesc(new MethodDescImpl(pool_,
+                "_get"));
+        assertNotNull(actual);
+
+        ThrowsDesc throwsDesc = actual.getThrowsDesc();
+        assertNotNull(throwsDesc);
+
+        String[] throwableClassNames = throwsDesc.getThrowableClassNames();
+        assertEquals(1, throwableClassNames.length);
+        int idx = 0;
+        assertEquals(IOException.class.getName(), throwableClassNames[idx++]);
     }
 
     public void testGetBeginAnnotation() throws Exception {

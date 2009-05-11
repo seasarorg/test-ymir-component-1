@@ -106,6 +106,7 @@ import org.seasar.ymir.extension.creator.SourceGenerator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateAnalyzer;
 import org.seasar.ymir.extension.creator.TemplateProvider;
+import org.seasar.ymir.extension.creator.ThrowsDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.DescValidator.Result;
 import org.seasar.ymir.extension.creator.action.ActionSelector;
@@ -1392,12 +1393,25 @@ public class SourceCreatorImpl implements SourceCreator {
                             .getName())) {
                         if (!key.equals(new MethodDescKey(md))) {
                             // アクションについては、メソッドシグネチャが一致しなくとも名前が一致するメソッドがあった場合は
-                            // 生成しない。ただし、メソッドシグネチャまで一致するメソッドは残す。そうでないとオーバライドされ
+                            // （Ymirはアクション名が同一なメソッドが複数存在することを許さないので）生成しない。
+                            // ただし、メソッドシグネチャまで一致するメソッドは残す。そうでないとオーバライドされ
                             // ている時に困るので。
                             generated.removeMethodDesc(generatedMd);
                             break;
                         }
                     }
+                }
+
+                // メソッドシグネチャが一致するメソッドがgapまたはbaseにある場合は、throwsDescを既存クラスから構築する。
+                // そうしないとオーバライドしている場合に困るので。
+                MethodDesc existentMd = gapMd != null ? gapMd : baseMd;
+                if (existentMd != null) {
+                    ThrowsDesc throwsDesc = new ThrowsDescImpl();
+                    for (String throwableClassName : existentMd.getThrowsDesc()
+                            .getThrowableClassNames()) {
+                        throwsDesc.addThrowable(throwableClassName);
+                    }
+                    generatedMd.setThrowsDesc(throwsDesc);
                 }
 
                 // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
