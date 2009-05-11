@@ -1662,4 +1662,17 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals("com.example.dto.Entry90DtoBaseBase", getClassDesc(
                 "com.example.dto.Entry90Dto").getSuperclassName());
     }
+
+    public void testAnalyze91_インタフェース型の実装型のコレクションをrepeatする場合_repeatが指定されているタグでattributesでrepeat変数が参照されている時_repeat変数と同名のプロパティの型がStringと推論されること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+
+        act("testAnalyze91");
+
+        assertEquals("String", getClassDesc(CLASSNAME).getPropertyDesc(
+                "entry91").getTypeDesc().getName());
+    }
 }

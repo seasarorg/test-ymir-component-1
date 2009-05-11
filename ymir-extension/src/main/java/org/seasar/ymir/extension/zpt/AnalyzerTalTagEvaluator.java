@@ -86,13 +86,17 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         AnalyzerContext analyzerContext = toAnalyzerContext(context);
 
         Attribute defineAttr = null;
+        Attribute repeatAttr = null;
         for (int i = 0; i < attrs.length; i++) {
             if ("tal:define".equals(attrs[i].getName())) {
                 defineAttr = attrs[i];
-                break;
+            } else if ("tal:repeat".equals(attrs[i].getName())) {
+                repeatAttr = attrs[i];
             }
         }
         boolean variableScopePushed = false;
+        boolean repeatInfoPushed = false;
+        String repeatVarname = null;
         try {
             if (defineAttr != null) {
                 analyzerContext.pushVariableScope();
@@ -100,6 +104,53 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 processDefine(analyzerContext,
                         context.getExpressionEvaluator(), context
                                 .getVariableResolver(), defineAttr);
+            }
+
+            if (repeatAttr != null) {
+                ZptTemplateContext.RepeatInfo repeatInfo = null;
+                Object[] repeatObjs = null;
+
+                if (!variableScopePushed) {
+                    analyzerContext.pushVariableScope();
+                    variableScopePushed = true;
+                }
+
+                String statement = TagEvaluatorUtils.defilter(repeatAttr
+                        .getValue());
+                int sp = statement.indexOf(' ');
+                if (sp < 0) {
+                    throw new EvaluationRuntimeException("Syntax error: "
+                            + statement).setLineNumber(
+                            repeatAttr.getLineNumber()).setColumnNumber(
+                            repeatAttr.getColumnNumber());
+                }
+                repeatVarname = statement.substring(0, sp).trim();
+                String value = statement.substring(sp + 1).trim();
+
+                try {
+                    repeatObjs = toArray(context.getExpressionEvaluator()
+                            .evaluate(context, context.getVariableResolver(),
+                                    value));
+                } catch (FreyjaRuntimeException ex) {
+                    throw ex.setLineNumber(repeatAttr.getLineNumber())
+                            .setColumnNumber(repeatAttr.getColumnNumber());
+                } catch (RuntimeException ex) {
+                    throw new EvaluationRuntimeException(
+                            "Can't evaluate tal:repeat expression", ex)
+                            .setLineNumber(repeatAttr.getLineNumber())
+                            .setColumnNumber(repeatAttr.getColumnNumber());
+                }
+
+                repeatInfo = analyzerContext.pushRepeatInfo(repeatVarname,
+                        repeatObjs);
+                repeatInfoPushed = true;
+
+                if (repeatObjs.length > 0) {
+                    analyzerContext.defineVariable(
+                            ZptTemplateContext.SCOPE_LOCAL, repeatVarname,
+                            repeatObjs[0]);
+                    repeatInfo.update();
+                }
             }
 
             AnnotationResult result = findAnnotation(context, name, attrs);
@@ -267,6 +318,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         } finally {
             if (variableScopePushed) {
                 analyzerContext.popVariableScope();
+            }
+            if (repeatInfoPushed) {
+                analyzerContext.popRepeatInfo(repeatVarname);
             }
         }
     }

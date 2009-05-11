@@ -1,0 +1,10 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <div tal:repeat="entry91 self/entrySelector/candidates" tal:attributes="id entry91/value">
+      <span tal:content="self/entry91">CONTENT</span>
+    </div>
+  </body>
+</html>
