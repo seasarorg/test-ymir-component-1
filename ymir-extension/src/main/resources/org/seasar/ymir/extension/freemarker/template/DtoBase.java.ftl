@@ -17,8 +17,10 @@ public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#
 
 </#list>
 
+<#if classDesc.propertyDescs?size &gt; 0>
     public ${classDesc.shortName}Base() {
     }
+</#if>
 
     public ${classDesc.shortName}Base(<#list classDesc.propertyDescsOrderByName as propertyDesc>${propertyDesc.typeDesc.shortName} ${propertyDesc.name}<#if propertyDesc_has_next>, </#if></#list>) {
 <#list classDesc.propertyDescsOrderByName as propertyDesc>
