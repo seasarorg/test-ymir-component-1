@@ -638,9 +638,8 @@ public class SourceCreatorImpl implements SourceCreator {
             }
 
             // _prerender()を追加する。
-            MethodDesc prerenderMethodDesc = getExtraPathMapping(path, method)
-                    .newPrerenderActionMethodDesc(pageClassDesc,
-                            new ActionSelectorSeedImpl());
+            MethodDesc prerenderMethodDesc = newPrerenderActionMethodDesc(
+                    pageClassDesc, path, method, new ActionSelectorSeedImpl());
             pageClassDesc.setMethodDesc(prerenderMethodDesc);
 
             if (isValidationFailedMethodEnabled()) {
@@ -2189,6 +2188,12 @@ public class SourceCreatorImpl implements SourceCreator {
         methodDesc.setReturnTypeDesc(returnType);
         setActionMethodDescBodyTo(methodDesc);
         return methodDesc;
+    }
+
+    public MethodDesc newPrerenderActionMethodDesc(ClassDesc classDesc,
+            String path, HttpMethod method, ActionSelectorSeed seed) {
+        return getExtraPathMapping(path, method).newPrerenderActionMethodDesc(
+                classDesc, seed);
     }
 
     void setActionMethodDescBodyTo(MethodDesc methodDesc) {

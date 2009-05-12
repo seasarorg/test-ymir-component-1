@@ -437,6 +437,8 @@ public class ZptAnalyzerTest extends TestCase {
         assertNotNull(md);
         PropertyDesc pd = actual.getPropertyDesc("id");
         assertNotNull(pd);
+        assertNotNull(actual.getMethodDesc(new MethodDescImpl(pool_,
+                "_prerender")));
     }
 
     public void testAnalyze8_src属性からプロパティが自動生成されること() throws Exception {

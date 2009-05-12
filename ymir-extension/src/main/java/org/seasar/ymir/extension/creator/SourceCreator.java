@@ -172,6 +172,9 @@ public interface SourceCreator extends Updater {
     MethodDesc newActionMethodDesc(ClassDesc classDesc, String path,
             HttpMethod method, ActionSelectorSeed seed);
 
+    MethodDesc newPrerenderActionMethodDesc(ClassDesc classDesc, String path,
+            HttpMethod method, ActionSelectorSeed seed);
+
     boolean isGeneratedClass(String className);
 
     /**

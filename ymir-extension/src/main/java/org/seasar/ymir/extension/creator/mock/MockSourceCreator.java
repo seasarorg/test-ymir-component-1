@@ -292,6 +292,11 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
+    public MethodDesc newPrerenderActionMethodDesc(ClassDesc classDesc,
+            String path, HttpMethod method, ActionSelectorSeed seed) {
+        return null;
+    }
+
     public boolean isGeneratedClass(String className) {
         return false;
     }

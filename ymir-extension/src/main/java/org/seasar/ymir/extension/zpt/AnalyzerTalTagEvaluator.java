@@ -530,6 +530,12 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     .getTrunk(), method, new ActionSelectorSeedImpl());
             classDesc.setMethodDesc(methodDesc);
 
+            // _prerender()を追加する。
+            MethodDesc prerenderMethodDesc = creator
+                    .newPrerenderActionMethodDesc(classDesc, path.getTrunk(),
+                            method, new ActionSelectorSeedImpl());
+            classDesc.setMethodDesc(prerenderMethodDesc);
+
             return null;
         }
     }
