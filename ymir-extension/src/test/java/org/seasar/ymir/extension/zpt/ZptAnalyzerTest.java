@@ -1677,4 +1677,18 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals("String", getClassDesc(CLASSNAME).getPropertyDesc(
                 "entry91").getTypeDesc().getName());
     }
+
+    public void testAnalyze92_パーセントvalueをつけたプロパティはNote型と推論されること()
+            throws Exception {
+
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+
+        act("testAnalyze92");
+
+        assertEquals(Note.class.getName(), getClassDesc(
+                "com.example.dto.EntryCandidateDto").getPropertyDesc("label")
+                .getTypeDesc().getName());
+    }
 }

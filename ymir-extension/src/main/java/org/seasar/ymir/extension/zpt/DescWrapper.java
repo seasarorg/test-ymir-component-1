@@ -3,6 +3,7 @@ package org.seasar.ymir.extension.zpt;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.message.Note;
 import org.seasar.ymir.zpt.annotation.IgnoreException;
 
 @IgnoreException(NoSuchMethodException.class)
@@ -31,6 +32,18 @@ public class DescWrapper {
     }
 
     public Object get(String name) {
+        if ("%value".equals(name)) {
+            // %valueがついたプロパティはNoteとみなす。
+            if (propertyDesc_ != null
+                    && !propertyDesc_.getTypeDesc().isExplicit()
+                    && !propertyDesc_
+                            .isTypeAlreadySet(AnalyzerContext.PROBABILITY_TYPE)) {
+                propertyDesc_.setTypeDesc(Note.class);
+                propertyDesc_
+                        .notifyTypeUpdated(AnalyzerContext.PROBABILITY_TYPE);
+            }
+            return null;
+        }
         if (!AnalyzerUtils.isValidVariableName(name)) {
             return null;
         }

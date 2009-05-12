@@ -1,0 +1,10 @@
+<html>
+  <head>
+    <title>TEST</title>
+  </head>
+  <body>
+    <div tal:content="self/entrySelector/selectedCandidate/label/%value">
+    </div>
+  </body>
+</html>
+
