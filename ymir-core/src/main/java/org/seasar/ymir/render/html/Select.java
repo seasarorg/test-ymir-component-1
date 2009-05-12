@@ -42,14 +42,6 @@ public class Select extends Tag {
 
     /**
      * このクラスのインスタンスを構築します。
-     * <p>このコンストラクタで構築したインスタンスに対しては、
-     * {@link #setOptgroups(Optgroup[])}、{@link #setOptgroupsAndOptions(List)}、
-     * {@link #setOptgroupsAndOptions(List, List)}、{@link #setOptgroupsAndOptions(Optgroup[], Option[])}または
-     * {@link #setOptions(Option[])}を使ってOptionオブジェクトをセットしないうちは、
-     * 値を取り出したり設定したりすることはできますが
-     * Optionを操作するようなメソッド呼び出しを行なうことができません。
-     * 呼び出した場合は{@link IllegalStateException}がスローされます。
-     * </p>
      */
     public Select() {
     }
@@ -144,13 +136,6 @@ public class Select extends Tag {
             writeName(sb);
         } else {
             sb.append(" /");
-        }
-    }
-
-    protected void checkState() {
-        if (optgroups_ == null || options_ == null) {
-            throw new IllegalStateException(
-                    "Option(s) and Optgroup(s) are not set.");
         }
     }
 
@@ -296,11 +281,8 @@ public class Select extends Tag {
      * 
      * @return 選択されたOptionの値。
      * 選択されたOptionが存在しない場合はnullを返します。
-     * @throws IllegalStateException このオブジェクトが内部にOptionを持っていない場合。
      */
     public String getSelectedValue() {
-        checkState();
-
         for (Iterator<Option> itr = optionMap_.values().iterator(); itr
                 .hasNext();) {
             Option option = itr.next();
@@ -336,11 +318,8 @@ public class Select extends Tag {
      * 
      * @return 選択されたOptionの値。
      * 選択されたOptionが存在しない場合は空の配列を返します。
-     * @throws IllegalStateException このオブジェクトが内部にOptionを持っていない場合。
      */
     public String[] getSelectedValues() {
-        checkState();
-
         List<String> list = new ArrayList<String>();
         for (Iterator<Option> itr = optionMap_.values().iterator(); itr
                 .hasNext();) {
@@ -484,12 +463,9 @@ public class Select extends Tag {
     /**
      * このオブジェクトが内部に持っている全てのOptgroupの配列を返します。
      * 
-     * @return Optgroupの配列。nullが返されることはありません。
-     * @throws IllegalStateException このオブジェクトが内部にOptgroupを持っていない場合。
+     * @return Optgroupの配列。nullが返されることもあります。
      */
     public Optgroup[] getOptgroups() {
-        checkState();
-
         return optgroups_;
     }
 
@@ -526,12 +502,9 @@ public class Select extends Tag {
     /**
      * このオブジェクトが内部に持っている全てのOptionの配列を返します。
      * 
-     * @return Optionの配列。nullが返されることはありません。
-     * @throws IllegalStateException このオブジェクトが内部にOptionを持っていない場合。
+     * @return Optionの配列。nullが返されることもあります。
      */
     public Option[] getOptions() {
-        checkState();
-
         return options_;
     }
 
@@ -673,11 +646,8 @@ public class Select extends Tag {
      * 
      * @return 選択されたOptionのボディ。
      * 選択されたOptionが存在しない場合はnullを返します。
-     * @throws IllegalStateException このオブジェクトが内部にOptionを持っていない場合。
      */
     public String getSelectedContent() {
-        checkState();
-
         for (Iterator<Option> itr = optionMap_.values().iterator(); itr
                 .hasNext();) {
             Option option = itr.next();
@@ -693,11 +663,8 @@ public class Select extends Tag {
      * 
      * @return 選択されたOptionのボディの配列。
      * 選択されたOptionが存在しない場合は空の配列を返します。
-     * @throws IllegalStateException このオブジェクトが内部にOptionを持っていない場合。
      */
     public String[] getSelectedContents() {
-        checkState();
-
         List<String> list = new ArrayList<String>();
         for (Iterator<Option> itr = optionMap_.values().iterator(); itr
                 .hasNext();) {
@@ -716,11 +683,8 @@ public class Select extends Tag {
      * 
      * @return 選択されたOption。
      * 選択されたOptionが存在しない場合はnullを返します。
-     * @throws IllegalStateException このオブジェクトが内部にOptionを持っていない場合。
      */
     public Option getSelectedOption() {
-        checkState();
-
         for (Iterator<Option> itr = optionMap_.values().iterator(); itr
                 .hasNext();) {
             Option option = itr.next();
@@ -736,11 +700,8 @@ public class Select extends Tag {
      * 
      * @return 選択されたOptionの配列。
      * 選択されたOptionが存在しない場合は空の配列を返します。
-     * @throws IllegalStateException このオブジェクトが内部にOptionを持っていない場合。
      */
     public Option[] getSelectedOptions() {
-        checkState();
-
         List<Option> list = new ArrayList<Option>();
         for (Iterator<Option> itr = optionMap_.values().iterator(); itr
                 .hasNext();) {
@@ -758,11 +719,8 @@ public class Select extends Tag {
      * @param label ラベル。
      * @return 指定されたラベルを持つOption。
      * 見つからなかった場合はnullを返します。
-     * @throws IllegalStateException このオブジェクトが内部にOptgroupを持っていない場合。
      */
     public Optgroup getOptgroup(String label) {
-        checkState();
-
         for (int i = 0; i < optgroups_.length; i++) {
             if (label.equals(optgroups_[i].getLabel())) {
                 return optgroups_[i];
@@ -777,11 +735,8 @@ public class Select extends Tag {
      * @param value 値。
      * @return 指定された値を持つOption。
      * 見つからなかった場合はnullを返します。
-     * @throws IllegalStateException このオブジェクトが内部にOptionを持っていない場合。
      */
     public Option getOption(String value) {
-        checkState();
-
         return optionMap_.get(value);
     }
 
@@ -791,7 +746,6 @@ public class Select extends Tag {
      * @param value 値。
      * @return 指定された値を持つOptionのボディ。
      * 見つからなかった場合はnullを返します。
-     * @throws IllegalStateException このオブジェクトが内部にOptionを持っていない場合。
      */
     public String getOptionContent(String value) {
         Option option = getOption(value);
