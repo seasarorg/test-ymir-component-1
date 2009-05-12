@@ -446,7 +446,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             return null;
         }
         ClassDesc classDesc = DescPool.getDefault().getClassDesc(className);
-        for (Iterator<String> itr = path.getParameterMap().keySet().iterator(); itr
+        Map<String, String[]> parameterMap = path.getParameterMap();
+        for (Iterator<String> itr = parameterMap.keySet().iterator(); itr
                 .hasNext();) {
             String name = itr.next();
             if (!shouldGeneratePropertyForParameter(name)) {
@@ -902,7 +903,6 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 && !propertyDesc
                         .isTypeAlreadySet(PROBABILITY_BOOLEAN_ATTRIBUTE)) {
             propertyDesc.setTypeDesc(Boolean.TYPE);
-            propertyDesc.getTypeDesc().setExplicit(true);
             propertyDesc.notifyTypeUpdated(PROBABILITY_BOOLEAN_ATTRIBUTE);
         }
     }
