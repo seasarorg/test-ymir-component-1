@@ -423,9 +423,12 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public void setTouchedClassNameSet(Set<String> set) {
+        if (set == touchedClassNameSet_) {
+            return;
+        }
+
         touchedClassNameSet_ = set;
-        // componentClassDescのshortName系メソッドを呼び出すことはないため、
-        // componentClassDescにsetする必要はない。
-        // また、setしてしまうと循環参照している場合にStackOverflowが発生してしまう。
+
+        componentClassDesc_.setTouchedClassNameSet(set);
     }
 }

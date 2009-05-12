@@ -188,7 +188,9 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
 
     @Override
     public void setTouchedClassNameSet(Set<String> set) {
-        setTouchedClassNameSet0(set);
+        if (setTouchedClassNameSet0(set)) {
+            return;
+        }
 
         for (ParameterDesc parameterDesc : parameterDescs_) {
             parameterDesc.setTouchedClassNameSet(set);

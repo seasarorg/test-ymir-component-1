@@ -880,8 +880,9 @@ public class AnalyzerContext extends ZptTemplateContext {
     }
 
     public void addWarning(String expression, int columnNumber) {
-        warnings_.add(new Note("warning", getElement().getLineNumber(),
-                getElement().getColumnNumber(), expression, columnNumber));
+        warnings_.add(new Note("warning.zpt.syntaxError", getElement()
+                .getLineNumber(), getElement().getColumnNumber(), expression,
+                columnNumber));
     }
 
     public Notes getWarnings() {

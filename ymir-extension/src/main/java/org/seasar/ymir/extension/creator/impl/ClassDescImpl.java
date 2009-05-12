@@ -483,7 +483,9 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
 
     @Override
     public void setTouchedClassNameSet(Set<String> set) {
-        setTouchedClassNameSet0(set);
+        if (setTouchedClassNameSet0(set)) {
+            return;
+        }
 
         for (TypeDesc interfaceTypeDesc : interfaceTypeDescs_) {
             interfaceTypeDesc.setTouchedClassNameSet(set);

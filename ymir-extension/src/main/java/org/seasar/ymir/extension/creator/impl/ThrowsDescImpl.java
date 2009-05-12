@@ -58,6 +58,10 @@ public class ThrowsDescImpl implements ThrowsDesc {
     }
 
     public void setTouchedClassNameSet(Set<String> set) {
+        if (set == touchedClassNameSet_) {
+            return;
+        }
+
         touchedClassNameSet_ = set;
     }
 }

@@ -9,6 +9,7 @@ import org.seasar.ymir.extension.creator.ClassDescSet;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.impl.PathMetaDataImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImplTestBase;
+import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.MockRequest;
 
 public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
@@ -65,43 +66,48 @@ public class UpdateClassesActionTest extends SourceCreatorImplTestBase {
     }
 
     public void testResolveTypeName() throws Exception {
+        Notes warnings = new Notes();
+
         assertNull(target_.resolveTypeName(null,
-                "com.example.dto.aaa.bbb.CccDto"));
+                "com.example.dto.aaa.bbb.CccDto", warnings));
         assertEquals("boolean", target_.resolveTypeName("boolean",
-                "com.example.dto.aaa.bbb.CccDto"));
+                "com.example.dto.aaa.bbb.CccDto", warnings));
         assertEquals("byte", target_.resolveTypeName("byte",
-                "com.example.dto.aaa.bbb.CccDto"));
+                "com.example.dto.aaa.bbb.CccDto", warnings));
         assertEquals("char", target_.resolveTypeName("char",
-                "com.example.dto.aaa.bbb.CccDto"));
+                "com.example.dto.aaa.bbb.CccDto", warnings));
         assertEquals("short", target_.resolveTypeName("short",
-                "com.example.dto.aaa.bbb.CccDto"));
+                "com.example.dto.aaa.bbb.CccDto", warnings));
         assertEquals("int", target_.resolveTypeName("int",
-                "com.example.dto.aaa.bbb.CccDto"));
+                "com.example.dto.aaa.bbb.CccDto", warnings));
         assertEquals("long", target_.resolveTypeName("long",
-                "com.example.dto.aaa.bbb.CccDto"));
+                "com.example.dto.aaa.bbb.CccDto", warnings));
         assertEquals("float", target_.resolveTypeName("float",
-                "com.example.dto.aaa.bbb.CccDto"));
+                "com.example.dto.aaa.bbb.CccDto", warnings));
         assertEquals("double", target_.resolveTypeName("double",
-                "com.example.dto.aaa.bbb.CccDto"));
+                "com.example.dto.aaa.bbb.CccDto", warnings));
 
         assertEquals("java.lang.Integer", target_.resolveTypeName("Integer",
-                "com.example.dto.aaa.bbb.CccDto"));
+                "com.example.dto.aaa.bbb.CccDto", warnings));
 
         assertEquals("com.example.dto.aaa.bbb.DtoBase", target_
-                .resolveTypeName("DtoBase", "com.example.dto.aaa.bbb.CccDto"));
+                .resolveTypeName("DtoBase", "com.example.dto.aaa.bbb.CccDto",
+                        warnings));
         assertEquals("com.example.dto.aaa.DtoBase2", target_.resolveTypeName(
-                "DtoBase2", "com.example.dto.aaa.bbb.CccDto"));
+                "DtoBase2", "com.example.dto.aaa.bbb.CccDto", warnings));
 
         assertEquals("com.example.dto.HoeDto", target_.resolveTypeName(
-                "HoeDto", "com.example.dto.aaa.bbb.CccDto"));
+                "HoeDto", "com.example.dto.aaa.bbb.CccDto", warnings));
 
         assertEquals("com.example.dto.HoeDto[]", target_.resolveTypeName(
-                "HoeDto[]", "com.example.dto.aaa.bbb.CccDto"));
+                "HoeDto[]", "com.example.dto.aaa.bbb.CccDto", warnings));
     }
 
     public void testResolveTypeNames() throws Exception {
+        Notes warnings = new Notes();
+
         String[] actual = target_.resolveTypeNames("",
-                "com.example.dto.aaa.bbb.CccDto");
+                "com.example.dto.aaa.bbb.CccDto", warnings);
 
         assertEquals("空文字列を指定した場合は空の配列を返すこと", 0, actual.length);
     }

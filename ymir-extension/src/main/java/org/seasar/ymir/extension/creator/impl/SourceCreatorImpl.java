@@ -1694,38 +1694,38 @@ public class SourceCreatorImpl implements SourceCreator {
                         return Class.forName(PACKAGEPREFIX_JAVA_UTIL
                                 + className, true, cl);
                     } catch (ClassNotFoundException ex3) {
-                        try {
-                            String dtoClassName = setting_
-                                    .findDtoClassName(className);
-                            if (dtoClassName != null) {
+                        String dtoClassName = setting_
+                                .findDtoClassName(className);
+                        if (dtoClassName != null) {
+                            try {
                                 return Class.forName(dtoClassName, true, cl);
+                            } catch (ClassNotFoundException ignore) {
                             }
-                        } catch (ClassNotFoundException ex4) {
-                            ClassTraverser traverser = new ClassTraverser();
-                            for (Class<?> landmark : getLandmarks()) {
-                                traverser.addReferenceClass(landmark);
-                            }
-                            for (String rootPackageName : getRootPackageNames()) {
-                                traverser.addClassPattern(rootPackageName,
-                                        className);
-                            }
+                        }
+                        ClassTraverser traverser = new ClassTraverser();
+                        for (Class<?> landmark : getLandmarks()) {
+                            traverser.addReferenceClass(landmark);
+                        }
+                        for (String rootPackageName : getRootPackageNames()) {
+                            traverser.addClassPattern(rootPackageName,
+                                    className);
+                        }
 
-                            final String[] found = new String[1];
-                            traverser
-                                    .setClassHandler(new ClassTraversal.ClassHandler() {
-                                        public void processClass(
-                                                String packageName,
-                                                String shortClassName) {
-                                            found[0] = packageName + "."
-                                                    + shortClassName;
-                                        }
-                                    });
-                            traverser.traverse();
-                            if (found[0] != null) {
-                                try {
-                                    return Class.forName(found[0], true, cl);
-                                } catch (ClassNotFoundException ignore) {
-                                }
+                        final String[] found = new String[1];
+                        traverser
+                                .setClassHandler(new ClassTraversal.ClassHandler() {
+                                    public void processClass(
+                                            String packageName,
+                                            String shortClassName) {
+                                        found[0] = packageName + "."
+                                                + shortClassName;
+                                    }
+                                });
+                        traverser.traverse();
+                        if (found[0] != null) {
+                            try {
+                                return Class.forName(found[0], true, cl);
+                            } catch (ClassNotFoundException ignore) {
                             }
                         }
                     }
@@ -1739,10 +1739,9 @@ public class SourceCreatorImpl implements SourceCreator {
     private Class<?>[] getLandmarks() {
         ClassLoader classLoader = getClassLoader();
         List<Class<?>> landmarkList = new ArrayList<Class<?>>();
-        for (String landmarkClassName : PropertyUtils
-                .toLines(applicationManager_.findContextApplication()
-                        .getProperty(Globals.APPKEY_LANDMARK,
-                                Globals.LANDMARK_CLASSNAME))) {
+        for (String landmarkClassName : PropertyUtils.toLines(getApplication()
+                .getProperty(Globals.APPKEY_LANDMARK,
+                        Globals.LANDMARK_CLASSNAME))) {
             try {
                 landmarkList.add(Class.forName(landmarkClassName, true,
                         classLoader));
@@ -2209,15 +2208,13 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     boolean isValidationFailedMethodEnabled() {
-        return PropertyUtils.valueOf(applicationManager_
-                .findContextApplication().getProperty(
+        return PropertyUtils.valueOf(getApplication().getProperty(
                         APPKEY_CORE_CONSTRAINT_VALIDATIONFAILEDMETHOD_ENABLE),
                 true);
     }
 
     boolean isPermissionDeniedMethodEnabled() {
-        return PropertyUtils.valueOf(applicationManager_
-                .findContextApplication().getProperty(
+        return PropertyUtils.valueOf(getApplication().getProperty(
                         APPKEY_CORE_CONSTRAINT_PERMISSIONDENIEDMETHOD_ENABLE),
                 true);
     }

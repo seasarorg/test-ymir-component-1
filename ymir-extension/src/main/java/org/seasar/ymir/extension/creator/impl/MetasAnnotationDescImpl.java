@@ -149,6 +149,10 @@ public class MetasAnnotationDescImpl implements MetasAnnotationDesc {
     }
 
     public void setTouchedClassNameSet(Set<String> set) {
+        if (set == touchedClassNameSet_) {
+            return;
+        }
+
         touchedClassNameSet_ = set;
 
         for (MetaAnnotationDesc metaAnnotationDesc : metaAnnotationDescs_) {

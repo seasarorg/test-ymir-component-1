@@ -37,6 +37,7 @@ import org.seasar.ymir.extension.creator.util.type.Token;
 import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
 import org.seasar.ymir.extension.zpt.ParameterRole;
+import org.seasar.ymir.message.Note;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ClassUtils;
@@ -177,6 +178,8 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         ClassNameMapping classNameMapping = new ClassNameMapping(request
                 .getParameterMap());
 
+        Notes warnings = new Notes();
+
         List<PropertyTypeHint> propertyTypeHintList = new ArrayList<PropertyTypeHint>();
         Map<String, ClassHint> classHintMap = new HashMap<String, ClassHint>();
         for (Iterator<String> itr = request.getParameterNames(); itr.hasNext();) {
@@ -193,7 +196,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 String propertyName = classAndPropertyName.substring(slash + 1);
                 String typeName = request.getParameter(name);
 
-                typeName = resolveTypeName(typeName, actualClassName);
+                typeName = resolveTypeName(typeName, actualClassName, warnings);
                 propertyTypeHintList.add(new PropertyTypeHint(actualClassName,
                         propertyName, typeName));
             } else if (name.startsWith(PARAMPREFIX_SUPERCLASSNAME)) {
@@ -201,7 +204,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                         .length());
                 String actualClassName = classNameMapping.toActual(className);
                 String superclassName = resolveTypeName(request
-                        .getParameter(name), actualClassName);
+                        .getParameter(name), actualClassName, warnings);
 
                 ClassHint classHint = classHintMap.get(actualClassName);
                 if (classHint == null) {
@@ -256,7 +259,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 String[] pairTypeNames = resolveTypeNames(request
                         .getParameter(PARAMPREFIX_CONVERTER_PAIRTYPENAME
                                 + classNameMapping.toOriginal(actualName)),
-                        actualName);
+                        actualName, warnings);
                 if (pairTypeNames.length > 0) {
                     classDescs[i].setAnnotationDesc(new MetaAnnotationDescImpl(
                             "conversion", pairTypeNames, new Class[0]));
@@ -306,20 +309,23 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         variableMap.put("createdBeanClassDescs", classDescBag
                 .getCreatedClassDescs(ClassType.BEAN));
         variableMap.put("successfullySynchronized", successfullySynchronized);
+        variableMap.put("warnings", warnings);
         return getSourceCreator().getResponseCreator().createResponse(
                 "updateClasses_update", variableMap);
     }
 
-    String[] resolveTypeNames(String typeNameString, String baseClassName) {
+    String[] resolveTypeNames(String typeNameString, String baseClassName,
+            Notes warnings) {
         String[] typeNames = PropertyUtils.toLines(typeNameString, ",");
         List<String> list = new ArrayList<String>(typeNames.length);
         for (String typeName : typeNames) {
-            list.add(resolveTypeName(typeName, baseClassName));
+            list.add(resolveTypeName(typeName, baseClassName, warnings));
         }
         return list.toArray(new String[0]);
     }
 
-    String resolveTypeName(String typeName, final String baseClassName) {
+    String resolveTypeName(String typeName, final String baseClassName,
+            final Notes warnings) {
         if (typeName == null) {
             return null;
         } else if (typeName.length() == 0) {
@@ -343,6 +349,8 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                     } else {
                         className = DescUtils.getPackageName(baseClassName)
                                 + "." + name;
+                        warnings.add(new Note("warning.cannotResolveTypeName",
+                                name));
                     }
                     acceptor.setBaseName(DescUtils.getClassName(className,
                             DescUtils.isArray(acceptor.getBaseName())));

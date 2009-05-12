@@ -558,7 +558,9 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
 
     @Override
     public void setTouchedClassNameSet(Set<String> set) {
-        setTouchedClassNameSet0(set);
+        if (setTouchedClassNameSet0(set)) {
+            return;
+        }
 
         typeDesc_.setTouchedClassNameSet(set);
 

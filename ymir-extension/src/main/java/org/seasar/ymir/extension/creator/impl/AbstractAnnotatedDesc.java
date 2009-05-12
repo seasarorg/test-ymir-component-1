@@ -122,15 +122,18 @@ abstract public class AbstractAnnotatedDesc {
 
     abstract public void setTouchedClassNameSet(Set<String> set);
 
-    protected void setTouchedClassNameSet0(Set<String> set) {
+    protected boolean setTouchedClassNameSet0(Set<String> set) {
         if (set == touchedClassNameSet_) {
             // ループを避けるため。
-            return;
+            return true;
         }
+
         touchedClassNameSet_ = set;
         for (AnnotationDesc annotationDesc : getAnnotationDescs()) {
             annotationDesc.setTouchedClassNameSet(touchedClassNameSet_);
         }
+
+        return false;
     }
 
     protected Set<String> getTouchedClassNameSet() {
