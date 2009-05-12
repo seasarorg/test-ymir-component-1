@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.example.IHoe;
 
+@HoeAnnotation
 public class Hoe implements IHoe {
     private int int_;
 

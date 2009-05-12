@@ -23,11 +23,12 @@ import org.seasar.ymir.mock.MockApplicationManager;
 import org.seasar.ymir.render.Candidate;
 import org.seasar.ymir.render.Selector;
 
-import com.example.IHoeHolder;
-import com.example.IHoeHolder2;
 import com.example.IHoe;
 import com.example.IHoe2;
-import com.example.hotdeploy.CandidateImpl;
+import com.example.IHoeHolder;
+import com.example.IHoeHolder2;
+import com.example.hotdeploy.HoeAnnotation;
+import com.example.hotdeploy.HoeEnum;
 
 public class HotdeployManagerImplTest extends TestCase {
     private HotdeployManagerImpl target_;
@@ -43,6 +44,10 @@ public class HotdeployManagerImplTest extends TestCase {
     private IHoeHolder hoeHolder_;
 
     private IHoeHolder2 hoeHolder2_;
+
+    private Object hoeEnum_;
+
+    private Object hoeAnnotation_;
 
     @Override
     protected void setUp() throws Exception {
@@ -103,6 +108,11 @@ public class HotdeployManagerImplTest extends TestCase {
         candidate_ = (Candidate) cl.loadClass(
                 "com.example.hotdeploy.CandidateImpl").newInstance();
         BeanUtils.setProperty(candidate_, "value", "1");
+
+        hoeEnum_ = cl.loadClass("com.example.hotdeploy.HoeEnum").getField(
+                "VALUE").get(null);
+
+        hoeAnnotation_ = hoe_.getClass().getAnnotations()[0];
     }
 
     @SuppressWarnings("unchecked")
@@ -230,5 +240,30 @@ public class HotdeployManagerImplTest extends TestCase {
         assertNotSame(candidate_, actual.getSelectedCandidate());
         Candidate selectedCandidate = actual.getSelectedCandidate();
         assertTrue(selectedCandidate.isSelected());
+    }
+
+    public void testFit9_Hotdeploy対象のenumをfitしてもエラーにならないこと() throws Exception {
+        Object actual;
+        try {
+            actual = target_.fit(hoeEnum_);
+        } catch (Throwable t) {
+            fail();
+            return;
+        }
+        assertTrue(actual instanceof HoeEnum);
+    }
+
+    public void testFit10_Hotdeploy対象のannotationをfitしてもエラーにならないこと()
+            throws Exception {
+        //        Object actual;
+        try {
+            //            actual = target_.fit(hoeAnnotation_);
+            target_.fit(hoeAnnotation_);
+        } catch (Throwable t) {
+            fail();
+            return;
+        }
+        // TODO 通るようにしよう。
+        //        assertTrue(actual instanceof HoeAnnotation);
     }
 }

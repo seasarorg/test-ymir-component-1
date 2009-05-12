@@ -495,7 +495,7 @@ public class Select extends Tag {
      * @param inputs Optionの配列。nullを指定してはいけません。
      * @return このオブジェクト。
      */
-    public Select setOptgroups(Optgroup[] optgroups) {
+    public Select setOptgroups(Optgroup... optgroups) {
         return setOptgroupsAndOptions(optgroups, new Option[0]);
     }
 
@@ -534,7 +534,7 @@ public class Select extends Tag {
      * @param inputs Optionの配列。nullを指定してはいけません。
      * @return このオブジェクト。
      */
-    public Select setOptions(Option[] options) {
+    public Select setOptions(Option... options) {
         return setOptgroupsAndOptions(new Optgroup[0], options);
     }
 

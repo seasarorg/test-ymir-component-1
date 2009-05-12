@@ -181,15 +181,16 @@ public class HotdeployManagerImpl implements HotdeployManager {
                         .getComponentType(), Array.getLength(value));
             } else {
                 try {
-                    destination = destinationClass.newInstance();
-                } catch (InstantiationException ex) {
+                    if (Enum.class.isAssignableFrom(destinationClass)) {
+                        return destinationClass.getField(((Enum) value).name())
+                                .get(null);
+                    } else {
+                        destination = destinationClass.newInstance();
+                    }
+                } catch (Throwable t) {
                     throw new RuntimeException(
                             "Can't instanciate an object of class: "
-                                    + destinationClass, ex);
-                } catch (IllegalAccessException ex) {
-                    throw new RuntimeException(
-                            "Can't instanciate an object of class: "
-                                    + destinationClass, ex);
+                                    + destinationClass, t);
                 }
             }
             fittedMap.put(value, destination);
