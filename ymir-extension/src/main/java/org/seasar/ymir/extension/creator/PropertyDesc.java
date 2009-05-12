@@ -39,10 +39,6 @@ public interface PropertyDesc extends AnnotatedDesc<PropertyDesc> {
 
     /**
      * 型が設定済みであることを通知します。
-     * <p>型は、{@link TypeDesc#isExplicit()}がtrueである場合は「確定」、
-     * そうでない場合は{@link #isTypeAlreadySet()}がtrueである場合は「確定でないが推論結果として妥当な結果が設定済み」、
-     * そうでない場合は「未設定または推論結果として弱い結果が設定済み」となります。
-     * </p>
      * 
      * @param probability 確からしさ。数字が大きいほど妥当であることを表します。
      */

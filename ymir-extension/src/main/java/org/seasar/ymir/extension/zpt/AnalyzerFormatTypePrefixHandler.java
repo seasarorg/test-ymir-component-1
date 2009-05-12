@@ -22,7 +22,6 @@ public class AnalyzerFormatTypePrefixHandler extends FormatTypePrefixHandler {
             PropertyDesc propertyDesc = ((DescWrapper) parameters[index])
                     .getPropertyDesc();
             if (propertyDesc != null
-                    && !propertyDesc.getTypeDesc().isExplicit()
                     && !propertyDesc
                             .isTypeAlreadySet(PROBABILITY_COMPONENT_TYPE)) {
                 Class<?> clazz = ((AnalyzerContext) context).getSourceCreator()

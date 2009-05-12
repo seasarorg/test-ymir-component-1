@@ -208,7 +208,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     formDesc.addParameter(parameterName, isRadio);
 
                     TypeDesc typeDesc = propertyDesc.getTypeDesc();
-                    if (!typeDesc.isExplicit()) {
+                    if (!propertyDesc
+                            .isTypeAlreadySet(PropertyDesc.PROBABILITY_MAXIMUM)) {
                         if (analyzerContext.isInRepeat()) {
                             // repeatタグの中であれば同一名のinputタグが複数あることになるため、プロパティの型をコレクションにする。
                             // ただし添え字つきパラメータの場合は、同一名のinputタグが複数存在するわけではないため、
@@ -291,7 +292,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                             PropertyDesc pd = ((DescWrapper[]) evaluated)[0]
                                     .getPropertyDesc();
                             TypeDesc td = pd.getTypeDesc();
-                            if (pd != null && !td.isExplicit()
+                            if (pd != null
                                     && !pd.isTypeAlreadySet(PROBABILITY_TYPE)) {
                                 td.setComponentClassDesc(optionClass);
                                 td.setCollection(true);
@@ -751,7 +752,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         if (evaluated instanceof DescWrapper) {
             DescWrapper wrapper = (DescWrapper) evaluated;
             PropertyDesc pd = wrapper.getPropertyDesc();
-            if (pd != null && !pd.getTypeDesc().isExplicit()) {
+            if (pd != null
+                    && !pd.isTypeAlreadySet(PropertyDesc.PROBABILITY_MAXIMUM)) {
                 pd.decrementReferCount();
                 pd.setMayBoolean(true);
             }
@@ -898,10 +900,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         if (propertyDesc == null) {
             return;
         }
-        TypeDesc typeDesc = propertyDesc.getTypeDesc();
-        if (!typeDesc.isExplicit()
-                && !propertyDesc
-                        .isTypeAlreadySet(PROBABILITY_BOOLEAN_ATTRIBUTE)) {
+        if (!propertyDesc.isTypeAlreadySet(PROBABILITY_BOOLEAN_ATTRIBUTE)) {
             propertyDesc.setTypeDesc(Boolean.TYPE);
             propertyDesc.notifyTypeUpdated(PROBABILITY_BOOLEAN_ATTRIBUTE);
         }

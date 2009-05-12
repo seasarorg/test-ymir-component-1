@@ -2,6 +2,7 @@ package org.seasar.ymir.extension.creator.util;
 
 import static org.seasar.ymir.extension.creator.AnnotatedDesc.ANNOTATION_NAME_META;
 import static org.seasar.ymir.extension.creator.AnnotatedDesc.ANNOTATION_NAME_METAS;
+import static org.seasar.ymir.extension.creator.PropertyDesc.PROBABILITY_MAXIMUM;
 
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
@@ -420,7 +421,16 @@ public class DescUtils {
     }
 
     public static void merge(PropertyDesc pd1, PropertyDesc pd2, boolean force) {
-        DescUtils.merge(pd1.getTypeDesc(), pd2.getTypeDesc(), force);
+        if (!force
+                && !pd1.isTypeAlreadySet(PROBABILITY_MAXIMUM)
+                && pd2.isTypeAlreadySet(PROBABILITY_MAXIMUM)
+                || force
+                && (!pd1.isTypeAlreadySet(PROBABILITY_MAXIMUM) || pd2
+                        .isTypeAlreadySet(PROBABILITY_MAXIMUM))) {
+            transcript(pd1.getTypeDesc(), pd2.getTypeDesc());
+        } else {
+            DescUtils.merge(pd1.getTypeDesc(), pd2.getTypeDesc(), force);
+        }
         pd1.addMode(pd2.getMode());
         pd1.setAnnotationDescs(DescUtils.merge(pd1.getAnnotationDescs(), pd2
                 .getAnnotationDescs(), force));

@@ -151,7 +151,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         // 生成されることを検証するため。（Dtoではコンストラクタのみアルファベット順）
         propertyDesc = new PropertyDescImpl(pool_, "param4");
         propertyDesc.setMode(PropertyDesc.READ | PropertyDesc.WRITE);
-        propertyDesc.setTypeDesc(Integer[].class).setExplicit(true);
+        propertyDesc.setTypeDesc(Integer[].class);
+        propertyDesc.notifyTypeUpdated(PropertyDesc.PROBABILITY_MAXIMUM);
         classDesc.setPropertyDesc(propertyDesc);
         propertyDesc = new PropertyDescImpl(pool_, "param3");
         propertyDesc.setMode(PropertyDesc.READ | PropertyDesc.WRITE);

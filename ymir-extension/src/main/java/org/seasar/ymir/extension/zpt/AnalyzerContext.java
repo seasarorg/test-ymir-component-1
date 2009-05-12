@@ -187,13 +187,6 @@ public class AnalyzerContext extends ZptTemplateContext {
                     + "' (object path is '" + getPathExpression(propertyDesc)
                     + "' ...");
         }
-        if (propertyDesc.getTypeDesc().isExplicit()) {
-            if (log_.isDebugEnabled()) {
-                log_
-                        .debug("Nothing has been done because type of this property had been explicitly set.");
-            }
-            return propertyDesc;
-        }
         if (propertyDesc.isTypeAlreadySet(probability)) {
             // 差し替えない。
             if (log_.isDebugEnabled()) {
@@ -204,7 +197,6 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
 
         TypeDesc typeDesc;
-        boolean fixed = false;
 
         // プロパティ型のヒント情報を見る。
         // ヒントがなければ、実際のクラスからプロパティ型を取得する。
@@ -217,7 +209,6 @@ public class AnalyzerContext extends ZptTemplateContext {
                             : asCollection ? toSingular(propertyName)
                                     : propertyName, DescUtils
                             .getComponentClassName(hint.getTypeName())));
-            typeDesc.setExplicit(true);
             probability = PROBABILITY_MAXIMUM;
         } else {
             PropertyDescriptor descriptor = findPropertyDescriptor(classDesc,
@@ -254,12 +245,15 @@ public class AnalyzerContext extends ZptTemplateContext {
                 } else {
                     // そうでない場合は実際の型をそのまま使う。
                     componentClassName = componentClass.getName();
-                    probability = PROBABILITY_TYPE;
                     qualifier = getQualifier(
                             propertyTypeAlias != null ? propertyTypeAlias
                                     : asCollection ? toSingular(propertyName)
                                             : propertyName, componentClassName);
-                    fixed = isOuter(descriptor);
+                    if (isOuter(descriptor)) {
+                        probability = PROBABILITY_MAXIMUM;
+                    } else {
+                        probability = PROBABILITY_TYPE;
+                    }
                 }
 
                 String typeName = DescUtils
@@ -321,10 +315,6 @@ public class AnalyzerContext extends ZptTemplateContext {
                         typeDesc.getCollectionClassName())) {
             typeDesc.setCollectionImplementationClassName(propertyDesc
                     .getTypeDesc().getCollectionImplementationClassName());
-        }
-
-        if (fixed) {
-            typeDesc.setExplicit(true);
         }
 
         propertyDesc.setTypeDesc(typeDesc);
@@ -590,7 +580,7 @@ public class AnalyzerContext extends ZptTemplateContext {
             // 型をデフォルトクラスに差し替える。
             // [#YMIR-198] ただし明示的に型を指定されている場合は差し替えない。
             for (PropertyDesc pd : classDesc.getPropertyDescs()) {
-                if (!pd.getTypeDesc().isExplicit()) {
+                if (!pd.isTypeAlreadySet(PropertyDesc.PROBABILITY_MAXIMUM)) {
                     replaceSimpleDtoTypeToDefaultType(pd);
                 }
             }
@@ -702,7 +692,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         // なんらかのプロパティを追加できるように再度型推論を行なう。
         // cf. ZptAnalyzerTest#testAnalyze36()
         // ただし指定されたプロパティを持つ場合は追加の必要がないため型推論は行なわない。
-        if (!propertyDesc.getTypeDesc().isExplicit()
+        if (!propertyDesc.isTypeAlreadySet(PropertyDesc.PROBABILITY_MAXIMUM)
                 && isOuter(propertyDesc.getTypeDesc().getComponentClassDesc())
                 && !hasProperty(propertyDesc.getTypeDesc()
                         .getComponentClassDesc().getName(), propertyName)) {

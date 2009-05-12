@@ -35,7 +35,6 @@ public class DescWrapper {
         if ("%value".equals(name)) {
             // %valueがついたプロパティはNoteとみなす。
             if (propertyDesc_ != null
-                    && !propertyDesc_.getTypeDesc().isExplicit()
                     && !propertyDesc_
                             .isTypeAlreadySet(AnalyzerContext.PROBABILITY_TYPE)) {
                 propertyDesc_.setTypeDesc(Note.class);
@@ -105,7 +104,9 @@ public class DescWrapper {
 
     public void setVariableName(String variableName, boolean asCollection,
             String collectionClassName, int probability) {
-        if (propertyDesc_ != null && !propertyDesc_.getTypeDesc().isExplicit()) {
+        if (propertyDesc_ != null
+                && !propertyDesc_
+                        .isTypeAlreadySet(PropertyDesc.PROBABILITY_MAXIMUM)) {
             propertyDesc_ = analyzerContext_.addPropertyDesc(
                     parent_.getValueClassDescToModifyProeprty(propertyDesc_
                             .getName()), propertyDesc_.getName(), propertyDesc_

@@ -41,7 +41,7 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         actual.setPropertyDesc(pd);
         pd = new PropertyDescImpl(pool_, "param3");
         pd.setTypeDesc(String.class);
-        pd.getTypeDesc().setExplicit(true);
+        pd.notifyTypeUpdated(PropertyDesc.PROBABILITY_MAXIMUM);
         actual.setPropertyDesc(pd);
         pd = new PropertyDescImpl(pool_, "param4");
         pd.setTypeDesc(String[].class);
@@ -77,21 +77,21 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         cd2.setSuperclassName(TestPageBase.class.getName());
         pd = new PropertyDescImpl(pool_, "param1");
         pd.setTypeDesc(Integer.class);
-        pd.getTypeDesc().setExplicit(true);
+        pd.notifyTypeUpdated(PropertyDesc.PROBABILITY_MAXIMUM);
         pd.setMode(PropertyDesc.WRITE);
         cd2.setPropertyDesc(pd);
         pd = new PropertyDescImpl(pool_, "param2");
         pd.setTypeDesc(Integer.class);
-        pd.getTypeDesc().setExplicit(true);
+        pd.notifyTypeUpdated(PropertyDesc.PROBABILITY_MAXIMUM);
         pd.setMode(PropertyDesc.READ);
         cd2.setPropertyDesc(pd);
         pd = new PropertyDescImpl(pool_, "param3");
         pd.setTypeDesc(Integer.class);
-        pd.getTypeDesc().setExplicit(true);
+        pd.notifyTypeUpdated(PropertyDesc.PROBABILITY_MAXIMUM);
         cd2.setPropertyDesc(pd);
         pd = new PropertyDescImpl(pool_, "param5");
         pd.setTypeDesc(Integer[].class);
-        pd.getTypeDesc().setExplicit(true);
+        pd.notifyTypeUpdated(PropertyDesc.PROBABILITY_MAXIMUM);
         cd2.setPropertyDesc(pd);
         pd = new PropertyDescImpl(pool_, "param7");
         pd.setTypeDesc(Integer.class);
@@ -188,7 +188,7 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         actual.setPropertyDesc(pd);
         pd = new PropertyDescImpl(pool_, "param3");
         pd.setTypeDesc(String.class);
-        pd.getTypeDesc().setExplicit(true);
+        pd.notifyTypeUpdated(PropertyDesc.PROBABILITY_MAXIMUM);
         actual.setPropertyDesc(pd);
         pd = new PropertyDescImpl(pool_, "param4");
         pd.setTypeDesc(String[].class);
@@ -224,21 +224,21 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         cd2.setSuperclassName(TestPageBase.class.getName());
         pd = new PropertyDescImpl(pool_, "param1");
         pd.setTypeDesc(Integer.class);
-        pd.getTypeDesc().setExplicit(true);
+        pd.notifyTypeUpdated(PropertyDesc.PROBABILITY_MAXIMUM);
         pd.setMode(PropertyDesc.WRITE);
         cd2.setPropertyDesc(pd);
         pd = new PropertyDescImpl(pool_, "param2");
         pd.setTypeDesc(Integer.class);
-        pd.getTypeDesc().setExplicit(true);
+        pd.notifyTypeUpdated(PropertyDesc.PROBABILITY_MAXIMUM);
         pd.setMode(PropertyDesc.READ);
         cd2.setPropertyDesc(pd);
         pd = new PropertyDescImpl(pool_, "param3");
         pd.setTypeDesc(Integer.class);
-        pd.getTypeDesc().setExplicit(true);
+        pd.notifyTypeUpdated(PropertyDesc.PROBABILITY_MAXIMUM);
         cd2.setPropertyDesc(pd);
         pd = new PropertyDescImpl(pool_, "param5");
         pd.setTypeDesc(Integer[].class);
-        pd.getTypeDesc().setExplicit(true);
+        pd.notifyTypeUpdated(PropertyDesc.PROBABILITY_MAXIMUM);
         cd2.setPropertyDesc(pd);
         pd = new PropertyDescImpl(pool_, "param7");
         pd.setTypeDesc(Integer.class);
@@ -345,7 +345,7 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         cd2.setSuperclassName(TestPageBase.class.getName());
         pd = new PropertyDescImpl(pool_, "param1");
         pd.setTypeDesc(Integer.class);
-        pd.getTypeDesc().setExplicit(true);
+        pd.notifyTypeUpdated(PropertyDesc.PROBABILITY_MAXIMUM);
         pd.setMode(PropertyDesc.WRITE);
         pd.setAnnotationDesc(new MetaAnnotationDescImpl("b", new String[0],
                 new Class[0]));
@@ -412,7 +412,7 @@ public class ClassDescImplTest extends SourceCreatorImplTestBase {
         cd2.setSuperclassName(TestPageBase.class.getName());
         pd = new PropertyDescImpl(pool_, "param1");
         pd.setTypeDesc(Integer.class);
-        pd.getTypeDesc().setExplicit(true);
+        pd.notifyTypeUpdated(PropertyDesc.PROBABILITY_MAXIMUM);
         pd.setMode(PropertyDesc.WRITE);
         pd.setAnnotationDesc(new MetaAnnotationDescImpl("b", new String[0],
                 new Class[0]));

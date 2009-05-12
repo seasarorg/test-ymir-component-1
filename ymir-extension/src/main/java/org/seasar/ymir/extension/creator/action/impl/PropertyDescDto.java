@@ -19,7 +19,7 @@ public class PropertyDescDto {
         name_ = pd.getName();
         typeName_ = pd.getTypeDesc().getName();
 
-        if (pd.getTypeDesc().isExplicit()) {
+        if (pd.isTypeAlreadySet(PropertyDesc.PROBABILITY_MAXIMUM)) {
             modifiable_ = false;
             subordinate_ = false;
             fixed_ = true;

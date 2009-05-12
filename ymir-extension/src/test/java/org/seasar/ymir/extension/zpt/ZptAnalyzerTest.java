@@ -349,7 +349,7 @@ public class ZptAnalyzerTest extends TestCase {
         PropertyDesc pd = cd.getPropertyDesc("entities");
         assertNotNull(pd);
         assertTrue(pd.isReadable());
-        assertFalse(pd.getTypeDesc().isExplicit());
+        assertFalse(pd.isTypeAlreadySet(PropertyDesc.PROBABILITY_MAXIMUM));
         assertEquals("com.example.dto.EntityDto[]", pd.getTypeDesc().getName());
         ClassDesc cd2 = getClassDesc("com.example.dto.EntityDto");
         assertNotNull(cd2);
@@ -368,7 +368,7 @@ public class ZptAnalyzerTest extends TestCase {
         PropertyDesc pd = cd.getPropertyDesc("strings");
         assertNotNull(pd);
         assertTrue(pd.isReadable());
-        assertFalse(pd.getTypeDesc().isExplicit());
+        assertFalse(pd.isTypeAlreadySet(PropertyDesc.PROBABILITY_MAXIMUM));
         assertEquals("プロパティを持たないリピート対象変数はStringの配列になること", "String[]", pd
                 .getTypeDesc().getName());
 
@@ -1160,7 +1160,7 @@ public class ZptAnalyzerTest extends TestCase {
         PropertyDesc pd = cd.getPropertyDesc("strings");
         assertNotNull(pd);
         assertTrue(pd.isReadable());
-        assertFalse(pd.getTypeDesc().isExplicit());
+        assertFalse(pd.isTypeAlreadySet(PropertyDesc.PROBABILITY_MAXIMUM));
         assertEquals("プロパティを持たないリピート対象変数はStringのListになること",
                 "java.util.List<String>", pd.getTypeDesc().getName());
 
@@ -1190,7 +1190,7 @@ public class ZptAnalyzerTest extends TestCase {
         PropertyDesc pd = cd.getPropertyDesc("options");
         assertNotNull(pd);
         assertTrue(pd.isReadable());
-        assertFalse(pd.getTypeDesc().isExplicit());
+        assertFalse(pd.isTypeAlreadySet(PropertyDesc.PROBABILITY_MAXIMUM));
         assertEquals("デフォルトではリピート対象変数がOptionの配列になること", Option.class.getName()
                 + "[]", pd.getTypeDesc().getName());
 
@@ -1212,7 +1212,7 @@ public class ZptAnalyzerTest extends TestCase {
         pd = cd.getPropertyDesc("options");
         assertNotNull(pd);
         assertTrue(pd.isReadable());
-        assertFalse(pd.getTypeDesc().isExplicit());
+        assertFalse(pd.isTypeAlreadySet(PropertyDesc.PROBABILITY_MAXIMUM));
         assertEquals("リピート対象変数がOptionのListになること", "java.util.List<"
                 + Option.class.getName() + ">", pd.getTypeDesc().getName());
     }
