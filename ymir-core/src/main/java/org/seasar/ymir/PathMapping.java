@@ -129,4 +129,9 @@ public interface PathMapping {
      * @since 1.0.2
      */
     String getPath(VariableResolver resolver);
+
+    /**
+     * @since 1.0.3
+     */
+    String getActionKeyFromParameterName(String parameterName);
 }

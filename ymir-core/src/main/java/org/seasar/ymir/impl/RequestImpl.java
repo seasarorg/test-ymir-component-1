@@ -93,8 +93,14 @@ public class RequestImpl implements FrameworkRequest {
 
     public String getParameter(String name, String defaultValue) {
         String[] values = parameterMap_.get(name);
-        if (values != null && values.length > 0) {
-            return values[0];
+        if (values != null) {
+            if (values.length > 0) {
+                return values[0];
+            } else {
+                // チェックボックスのための補正によって、valuesがこうなることがある。
+                // その場合といえどもnullを返すのはNPEの元なので、空文字列を返すようにする。
+                return "";
+            }
         } else {
             return defaultValue;
         }

@@ -662,4 +662,17 @@ public class YmirPathMapping implements PathMapping {
 
         return evaluate(template_, resolver);
     }
+
+    public String getActionKeyFromParameterName(String parameterName) {
+        if (parameterName == null) {
+            return null;
+        }
+
+        Button button = new Button(parameterName);
+        if (!button.isValid()) {
+            return null;
+        }
+
+        return button.getName();
+    }
 }
