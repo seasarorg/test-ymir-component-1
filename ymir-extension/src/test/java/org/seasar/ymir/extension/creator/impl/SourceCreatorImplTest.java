@@ -32,6 +32,7 @@ import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.ThrowsDesc;
+import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
@@ -122,11 +123,10 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         "com.example.web.TestPage", "result",
                         "java.lang.Integer") }, null);
         DescPool pool = DescPool.newInstance(target_, hintBag);
-        target_.gatherClassDescs(pool,
-                new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
-                        "testPage", "com.example.web.TestPage", null, null,
-                        null, getSourceCreator().getTemplate("/test.html")),
-                null, null);
+        target_.gatherClassDescs(pool, null, true, null, new PathMetaDataImpl(
+                "/test.html", HttpMethod.GET, false, "testPage",
+                "com.example.web.TestPage", null, null, null,
+                getSourceCreator().getTemplate("/test.html")));
         ClassDesc[] actual = pool.getGeneratedClassDescs().toArray(
                 new ClassDesc[0]);
         Arrays.sort(actual, new Comparator<ClassDesc>() {
@@ -165,11 +165,10 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         "com.example.web.TestPage", "result",
                         "com.outer.dto.EntryDto") }, null);
         DescPool pool = DescPool.newInstance(target_, hintBag);
-        target_.gatherClassDescs(pool,
-                new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
-                        "testPage", "com.example.web.TestPage", null, null,
-                        null, getSourceCreator().getTemplate("/test.html")),
-                null, null);
+        target_.gatherClassDescs(pool, null, true, null, new PathMetaDataImpl(
+                "/test.html", HttpMethod.GET, false, "testPage",
+                "com.example.web.TestPage", null, null, null,
+                getSourceCreator().getTemplate("/test.html")));
 
         assertTrue(pool.contains("com.example.web.TestPage"));
         assertEquals("com.outer.dto.EntryDto", pool.getClassDesc(
@@ -184,11 +183,10 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         "com.example.web.TestPage", "result",
                         "com.outer.dto.EntryDto") }, null);
         DescPool pool = DescPool.newInstance(target_, hintBag);
-        target_.gatherClassDescs(pool,
-                new PathMetaDataImpl("/test.html", HttpMethod.GET, false,
-                        "testPage", "com.example.web.TestPage", null, null,
-                        null, getSourceCreator().getTemplate("/test.html")),
-                null, null);
+        target_.gatherClassDescs(pool, null, true, null, new PathMetaDataImpl(
+                "/test.html", HttpMethod.GET, false, "testPage",
+                "com.example.web.TestPage", null, null, null,
+                getSourceCreator().getTemplate("/test.html")));
 
         assertFalse(pool.contains("com.outer.dto.EntryDto"));
     }
@@ -965,5 +963,52 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertEquals("[#YMIR-202]既存クラスが上位にあればそれを返すこと",
                 "com.example.dto.sub.Name2Dto", target_.inferPropertyClassName(
                         "name2", "com.example.web.sub.sub.SubPage"));
+    }
+
+    public void testReplaceSimpleDtoTypeToDefaultType1() throws Exception {
+        PropertyDesc propertyDesc = new PropertyDescImpl(pool_, "name");
+        TypeDesc typeDesc = new TypeDescImpl(pool_, "com.example.dto.HoeDto");
+        propertyDesc.setTypeDesc(typeDesc);
+        pool_.unregisterClassDesc("com.example.dto.HoeDto");
+
+        target_.replaceSimpleDtoTypeToDefaultType(propertyDesc);
+
+        assertEquals("String", typeDesc.getName());
+    }
+
+    public void testReplaceSimpleDtoTypeToDefaultType2() throws Exception {
+        PropertyDesc propertyDesc = new PropertyDescImpl(pool_, "name");
+        TypeDesc typeDesc = new TypeDescImpl(pool_,
+                "java.util.List<com.example.dto.HoeDto>");
+        propertyDesc.setTypeDesc(typeDesc);
+        pool_.unregisterClassDesc("com.example.dto.HoeDto");
+
+        target_.replaceSimpleDtoTypeToDefaultType(propertyDesc);
+
+        assertEquals("java.util.List<String>", typeDesc.getName());
+    }
+
+    public void testReplaceSimpleDtoTypeToDefaultType3() throws Exception {
+        PropertyDesc propertyDesc = new PropertyDescImpl(pool_, "name");
+        TypeDesc typeDesc = new TypeDescImpl(pool_, "com.example.dto.HoeDto[]");
+        propertyDesc.setTypeDesc(typeDesc);
+        pool_.unregisterClassDesc("com.example.dto.HoeDto");
+
+        target_.replaceSimpleDtoTypeToDefaultType(propertyDesc);
+
+        assertEquals("String[]", typeDesc.getName());
+    }
+
+    public void testReplaceSimpleDtoTypeToDefaultType4() throws Exception {
+        PropertyDesc propertyDesc = new PropertyDescImpl(pool_, "name");
+        TypeDesc typeDesc = new TypeDescImpl(pool_,
+                "java.util.List<com.example.dto.HoeDto[]>[]");
+        propertyDesc.setTypeDesc(typeDesc);
+        pool_.unregisterClassDesc("com.example.dto.HoeDto");
+
+        target_.replaceSimpleDtoTypeToDefaultType(propertyDesc);
+
+        assertEquals("java.util.List<com.example.dto.HoeDto[]>[]", typeDesc
+                .getName());
     }
 }

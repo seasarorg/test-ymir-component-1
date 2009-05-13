@@ -213,7 +213,7 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
     }
 
     public boolean removeBornOf(String bornOf) {
-        if (bornOf == null) {
+        if (bornOf == null || bornOf.startsWith(Globals.BORNOFPREFIX_REQUEST)) {
             return false;
         }
 

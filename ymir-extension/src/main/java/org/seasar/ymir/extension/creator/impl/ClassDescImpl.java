@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.Desc;
@@ -308,7 +309,7 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
     }
 
     public void removeBornOf(String bornOf) {
-        if (bornOf == null) {
+        if (bornOf == null || bornOf.startsWith(Globals.BORNOFPREFIX_REQUEST)) {
             return;
         }
 

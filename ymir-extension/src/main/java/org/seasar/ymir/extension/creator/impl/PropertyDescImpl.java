@@ -599,7 +599,7 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
     }
 
     public boolean removeBornOf(String bornOf) {
-        if (bornOf == null) {
+        if (bornOf == null || bornOf.startsWith(Globals.BORNOFPREFIX_REQUEST)) {
             return false;
         }
 

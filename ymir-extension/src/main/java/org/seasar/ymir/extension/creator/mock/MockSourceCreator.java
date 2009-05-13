@@ -138,14 +138,15 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
-            Notes warnings) {
-        return null;
+    public ClassDescBag gatherClassDescs(DescPool pool, Notes warnings,
+            boolean analyzeTemplate, PathMetaData... pathMetaDatas) {
+        return gatherClassDescs(pool, warnings, analyzeTemplate, null,
+                pathMetaDatas);
     }
 
-    public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
-            ClassCreationHintBag hintBag, String[] ignoreVariables,
-            Notes warnings) {
+    public ClassDescBag gatherClassDescs(DescPool pool, Notes warnings,
+            boolean analyzeTemplate, String[] ignoreVariables,
+            PathMetaData... pathMetaDatas) {
         return null;
     }
 
@@ -370,5 +371,8 @@ public class MockSourceCreator implements SourceCreator {
     public String getGeneratedClassName(String className,
             String generatedClassName) {
         return null;
+    }
+
+    public void finishAnalyzing(DescPool pool) {
     }
 }

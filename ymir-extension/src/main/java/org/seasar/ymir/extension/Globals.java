@@ -39,5 +39,5 @@ public interface Globals extends org.seasar.ymir.Globals {
 
     String PARAMETER_IMPORTDESC = "importDesc";
 
-    String BORNOF_REQUEST = "request";
+    String BORNOFPREFIX_REQUEST = "request:";
 }

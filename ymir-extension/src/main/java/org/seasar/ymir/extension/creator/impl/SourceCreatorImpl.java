@@ -477,20 +477,22 @@ public class SourceCreatorImpl implements SourceCreator {
                 .getFirstRootPackageName() != null);
     }
 
-    public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
-            Notes warnings) {
-        return gatherClassDescs(pathMetaDatas, null, null, warnings);
+    public ClassDescBag gatherClassDescs(DescPool pool, Notes warnings,
+            boolean analyzeTemplate, PathMetaData... pathMetaDatas) {
+        return gatherClassDescs(pool, warnings, analyzeTemplate, null,
+                pathMetaDatas);
     }
 
-    public ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
-            ClassCreationHintBag hintBag, String[] ignoreVariables,
-            Notes warnings) {
-        DescPool pool = DescPool.newInstance(this, hintBag);
+    public ClassDescBag gatherClassDescs(DescPool pool, Notes warnings,
+            boolean analyzeTemplate, String[] ignoreVariables,
+            PathMetaData... pathMetaDatas) {
         for (int i = 0; i < pathMetaDatas.length; i++) {
-            gatherClassDescs(pool, pathMetaDatas[i], ignoreVariables, warnings);
+            gatherClassDescs(pool, warnings, analyzeTemplate, ignoreVariables,
+                    pathMetaDatas[i]);
         }
         ClassDesc[] classDescs = addRelativeClassDescs(pool
-                .getGeneratedClassDescs().toArray(new ClassDesc[0]), hintBag);
+                .getGeneratedClassDescs().toArray(new ClassDesc[0]), pool
+                .getHintBag());
 
         return classifyClassDescs(classDescs);
     }
@@ -628,19 +630,31 @@ public class SourceCreatorImpl implements SourceCreator {
         list.addAll(Arrays.asList(descs));
     }
 
-    public void gatherClassDescs(DescPool pool, PathMetaData pathMetaData,
-            String[] ignoreVariables, Notes warnings) {
+    public void gatherClassDescs(DescPool pool, Notes warnings,
+            boolean analyzeTemplate, String[] ignoreVariables,
+            PathMetaData pathMetaData) {
         String path = pathMetaData.getPath();
         String oldBornOf = pool.getBornOf();
         try {
-            pool.setBornOf(path);
+            if (analyzeTemplate) {
+                // analyzeTemplateがfalseの場合は予めpoolにbornOfが設定されている、かつそれを使うべき
+                // なので、ここではpathに置き換えない。
+                pool.setBornOf(path);
+            }
 
             HttpMethod method = pathMetaData.getMethod();
             String pageClassName = pathMetaData.getClassName();
-            analyzer_.analyze(getServletContext(), getHttpServletRequest(),
-                    getHttpServletResponse(), getRequest(), path, method,
-                    pathMetaData.getTemplate(), pageClassName, ignoreVariables,
-                    pool, warnings);
+            if (analyzeTemplate) {
+                analyzer_.analyze(getServletContext(), getHttpServletRequest(),
+                        getHttpServletResponse(), getRequest(), path, method,
+                        pathMetaData.getTemplate(), pageClassName,
+                        ignoreVariables, pool, warnings);
+            } else {
+                // テンプレートを解析する場合は必要に応じてTemplateAnalyzer#analyze()の中で
+                // finishAnalyzing()は呼び出されるので明示的に呼び出す必要はない。
+                // テンプレートを解析しない場合は明示的に呼び出すようにする。
+                finishAnalyzing(pool);
+            }
 
             for (int i = 0; i < classDescModifiers_.length; i++) {
                 classDescModifiers_[i].modify(pool, pathMetaData);
@@ -648,22 +662,24 @@ public class SourceCreatorImpl implements SourceCreator {
 
             ClassDesc pageClassDesc = pool.getClassDesc(pageClassName);
 
-            // アクションメソッドがなければ追加する。
-            // postするようなフォームを持つ画面で、postの後バリデーションエラーで自画面に戻ってきた
-            // ところで自動生成を行なうと、methodがPOSTになっているため、(1)_get()が消えて
-            // しまう、(2)ボタンに名前をつけていても、デフォルトの_post()が生成されてしまう、という
-            // 問題が発生する。これを避けるため、methodに依らずGETでアクションメソッドを生成するように
-            // している。
-            MethodDesc actionMethodDesc = newActionMethodDesc(pool, path,
-                    HttpMethod.GET, pageClassName);
-            if (pageClassDesc.getMethodDesc(actionMethodDesc) == null) {
-                pageClassDesc.setMethodDesc(actionMethodDesc);
-            }
+            if (analyzeTemplate) {
+                // アクションメソッドがなければ追加する。
+                // postするようなフォームを持つ画面で、postの後バリデーションエラーで自画面に戻ってきた
+                // ところで自動生成を行なうと、methodがPOSTになっているため、(1)_get()が消えて
+                // しまう、(2)ボタンに名前をつけていても、デフォルトの_post()が生成されてしまう、という
+                // 問題が発生する。これを避けるため、methodに依らずGETでアクションメソッドを生成するように
+                // している。
+                MethodDesc actionMethodDesc = newActionMethodDesc(pool, path,
+                        HttpMethod.GET, pageClassName);
+                if (pageClassDesc.getMethodDesc(actionMethodDesc) == null) {
+                    pageClassDesc.setMethodDesc(actionMethodDesc);
+                }
 
-            // _prerender()を追加する。
-            MethodDesc prerenderMethodDesc = newPrerenderActionMethodDesc(pool,
-                    path, method, new ActionSelectorSeedImpl());
-            pageClassDesc.setMethodDesc(prerenderMethodDesc);
+                // _prerender()を追加する。
+                MethodDesc prerenderMethodDesc = newPrerenderActionMethodDesc(
+                        pool, path, method, new ActionSelectorSeedImpl());
+                pageClassDesc.setMethodDesc(prerenderMethodDesc);
+            }
 
             if (isValidationFailedMethodEnabled()) {
                 // _validationFailed(Notes)を追加する。
@@ -695,6 +711,70 @@ public class SourceCreatorImpl implements SourceCreator {
             }
         } finally {
             pool.setBornOf(oldBornOf);
+        }
+    }
+
+    public void finishAnalyzing(DescPool pool) {
+        for (Iterator<ClassDesc> itr = pool.iterator(); itr.hasNext();) {
+            ClassDesc classDesc = itr.next();
+
+            // 中身のないDTOは除外しておく。
+            // ただしFormDtoは残す。
+            if (isEmptyDto(classDesc) && !isFormDto(classDesc)) {
+                itr.remove();
+                continue;
+            }
+
+            // スーパークラスを設定する。
+            ClassCreationHintBag hintBag = pool.getHintBag();
+            if (hintBag != null) {
+                ClassHint hint = hintBag.getClassHint(classDesc.getName());
+                if (hint != null) {
+                    classDesc.setSuperclassName(hint.getSuperclassName());
+                }
+            }
+        }
+
+        for (ClassDesc classDesc : pool.getGeneratedClassDescs()) {
+            // プロパティの型に対応するDTOがDescPoolに存在しない場合は、
+            // そのDTOは上のフェーズで除外された、すなわちDTOかもしれないと考えて
+            // 解析を進めたが結局DTOであることが確定しなかったので、
+            // 型をデフォルトクラスに差し替える。
+            // [#YMIR-198] ただし明示的に型を指定されている場合は差し替えない。
+            for (PropertyDesc pd : classDesc.getPropertyDescs()) {
+                if (!pd.isTypeAlreadySet(PropertyDesc.PROBABILITY_MAXIMUM)) {
+                    replaceSimpleDtoTypeToDefaultType(pd);
+                }
+            }
+        }
+    }
+
+    private boolean isEmptyDto(ClassDesc classDesc) {
+        return isTypeOf(classDesc, ClassType.DTO) && classDesc.isEmpty();
+    }
+
+    private boolean isTypeOf(ClassDesc classDesc, ClassType type) {
+        return classDesc.isTypeOf(type) && !isOuter(classDesc);
+    }
+
+    private boolean isFormDto(ClassDesc classDesc) {
+        Boolean formDto = (Boolean) classDesc
+                .getAttribute(Globals.ATTR_FORMDTO);
+        return formDto != null && formDto.booleanValue();
+    }
+
+    private boolean isDto(ClassDesc classDesc) {
+        return isTypeOf(classDesc, ClassType.DTO);
+    }
+
+    void replaceSimpleDtoTypeToDefaultType(final PropertyDesc propertyDesc) {
+        final TypeDesc typeDesc = propertyDesc.getTypeDesc();
+        if (isDto(typeDesc.getComponentClassDesc())
+                && !propertyDesc.getDescPool().contains(
+                        typeDesc.getComponentClassDesc())) {
+            typeDesc.setComponentClassDesc(propertyDesc.isMayBoolean()
+                    && propertyDesc.getReferCount() == 0 ? Boolean.TYPE
+                    : String.class);
         }
     }
 
@@ -2565,8 +2645,8 @@ public class SourceCreatorImpl implements SourceCreator {
     private PropertyTypeHint getPropertyTypeHint(DescPool pool,
             String className, String propertyName) {
         if (pool.getHintBag() != null) {
-            return DescPool.getDefault().getHintBag().getPropertyTypeHint(
-                    className, propertyName);
+            return pool.getHintBag().getPropertyTypeHint(className,
+                    propertyName);
         } else {
             return null;
         }
@@ -2574,7 +2654,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
     private ClassHint getClassHint(DescPool pool, String className) {
         if (pool.getHintBag() != null) {
-            return DescPool.getDefault().getHintBag().getClassHint(className);
+            return pool.getHintBag().getClassHint(className);
         } else {
             return null;
         }

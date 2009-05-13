@@ -2,11 +2,11 @@ package org.seasar.ymir.extension.creator.action.impl;
 
 import static org.seasar.ymir.extension.creator.SourceCreator.PARAM_TASK;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -80,7 +80,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         String subTask = request.getParameter(PARAM_SUBTASK);
         if ("update".equals(subTask)) {
             return actUpdate(request, pathMetaData);
-        } else if ("createActionsCreate".equals(subTask)) {
+        } else if ("createActions_create".equals(subTask)) {
             return actCreateActionsCreate(request, pathMetaData);
         } else {
             return actDefault(request, pathMetaData);
@@ -102,7 +102,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
 
         Notes warnings = new Notes();
         ClassDescBag classDescBag = getSourceCreator().gatherClassDescs(
-                new PathMetaData[] { pathMetaData }, warnings);
+                newDescPool(), warnings, true, pathMetaData);
         if (classDescBag.isEmpty()) {
             return null;
         }
@@ -256,7 +256,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 propertyTypeHintList.toArray(new PropertyTypeHint[0]),
                 classHintMap.values().toArray(new ClassHint[0]));
         ClassDescBag classDescBag = getSourceCreator().gatherClassDescs(
-                new PathMetaData[] { pathMetaData }, hintBag, null, null);
+                newDescPool(hintBag), warnings, true, pathMetaData);
 
         String[] appliedOriginalClassNames = request
                 .getParameterValues(PARAM_APPLY);
@@ -432,7 +432,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
     Response actCreateActionsDefault(Request request,
             PathMetaData pathMetaData, String[] undecidedParameterNames) {
         DescPool pool = newDescPool();
-        pool.setBornOf(Globals.BORNOF_REQUEST);
+        pool.setBornOf(Globals.BORNOFPREFIX_REQUEST + pathMetaData.getPath());
         ClassDesc classDesc = getSourceCreator().newClassDesc(pool,
                 pathMetaData.getClassName(), null);
         classDesc.setAttribute(Globals.ATTR_UNDECIDEDPARAMETERNAMES,
@@ -454,7 +454,76 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             return null;
         }
 
-        return null;
+        updateMapping(pathMetaData);
+
+        Map<String, ClassHint> classHintMap = new HashMap<String, ClassHint>();
+        for (Iterator<String> itr = request.getParameterNames(); itr.hasNext();) {
+            String name = itr.next();
+            if (name.startsWith(PARAMPREFIX_PARAMETERROLE)) {
+                String classAndParameterName = name
+                        .substring(PARAMPREFIX_PARAMETERROLE.length());
+                int slash = classAndParameterName.indexOf('/');
+                if (slash < 0) {
+                    continue;
+                }
+                String className = classAndParameterName.substring(0, slash);
+                String parameterName = classAndParameterName
+                        .substring(slash + 1);
+                ParameterRole role = ParameterRole.valueOf(request
+                        .getParameter(name));
+
+                ClassHint classHint = classHintMap.get(className);
+                if (classHint == null) {
+                    classHint = new ClassHint(className);
+                    classHintMap.put(className, classHint);
+                }
+                classHint.setParameterRole(parameterName, role);
+            }
+        }
+
+        ClassCreationHintBag hintBag = new ClassCreationHintBag(
+                new PropertyTypeHint[0], classHintMap.values().toArray(
+                        new ClassHint[0]));
+
+        DescPool pool = newDescPool(hintBag);
+        pool.setBornOf(Globals.BORNOFPREFIX_REQUEST + pathMetaData.getPath());
+        getSourceCreator().buildTransitionClassDesc(pool,
+                pathMetaData.getPath(), method,
+                filterSystemParamers(request.getParameterMap()));
+
+        ClassDescBag classDescBag = getSourceCreator().gatherClassDescs(pool,
+                null, false, pathMetaData);
+
+        getSourceCreator().updateClasses(classDescBag);
+
+        boolean successfullySynchronized = synchronizeResources(new String[] { getRootPackagePath() });
+        pause(1000L);
+        openJavaCodeInEclipseEditor(pathMetaData.getClassName());
+
+        Map<String, Object> variableMap = newVariableMap();
+        variableMap.put("request", request);
+        variableMap.put("method", method);
+        variableMap.put("parameters", getParameters(request));
+        variableMap.put("pathMetaData", pathMetaData);
+        variableMap.put("classDescBag", classDescBag);
+        variableMap.put("successfullySynchronized", successfullySynchronized);
+        return getSourceCreator().getResponseCreator().createResponse(
+                "updateClasses_update", variableMap);
+    }
+
+    private Map<String, String[]> filterSystemParamers(
+            Map<String, String[]> parameterMap) {
+        if (parameterMap == null) {
+            return null;
+        }
+        Map<String, String[]> map = new LinkedHashMap<String, String[]>();
+        for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+            String key = entry.getKey();
+            if (!key.startsWith(SourceCreator.PARAM_PREFIX)) {
+                map.put(key, entry.getValue());
+            }
+        }
+        return map;
     }
 
     protected static class ClassNameMapping {
@@ -508,12 +577,5 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 toOriginalClassNameMap_.put(actualClassName, originalClassName);
             }
         }
-    }
-
-    //    @SuppressWarnings({"serial","unchecked","finally","fallthrough","all"})
-    @SuppressWarnings("all")
-    public static class Hoe implements Serializable {
-        @SuppressWarnings("serial")
-        private List list;
     }
 }

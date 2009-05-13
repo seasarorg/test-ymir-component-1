@@ -27,6 +27,7 @@ import org.seasar.ymir.Application;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.extension.Globals;
+import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
@@ -446,6 +447,10 @@ abstract public class AbstractAction {
     }
 
     protected DescPool newDescPool() {
-        return DescPool.newInstance(sourceCreator_, null);
+        return newDescPool(null);
+    }
+
+    protected DescPool newDescPool(ClassCreationHintBag hintBag) {
+        return DescPool.newInstance(sourceCreator_, hintBag);
     }
 }

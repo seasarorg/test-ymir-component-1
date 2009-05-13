@@ -103,11 +103,12 @@ public interface SourceCreator extends Updater {
 
     ServletContext getServletContext();
 
-    ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas, Notes warnings);
+    ClassDescBag gatherClassDescs(DescPool pool, Notes warnings,
+            boolean analyzeTemplate, PathMetaData... pathMetaDatas);
 
-    ClassDescBag gatherClassDescs(PathMetaData[] pathMetaDatas,
-            ClassCreationHintBag hintBag, String[] ignoreVariables,
-            Notes warnings);
+    ClassDescBag gatherClassDescs(DescPool pool, Notes warnings,
+            boolean analyzeTemplate, String[] ignoreVariables,
+            PathMetaData... pathMetaDatas);
 
     void updateClasses(ClassDescBag classDescBag);
 
@@ -309,4 +310,9 @@ public interface SourceCreator extends Updater {
      * @since 1.0.3
      */
     String getGeneratedClassName(String className, String generatedClassName);
+
+    /**
+     * @since 1.0.3
+     */
+    void finishAnalyzing(DescPool pool);
 }

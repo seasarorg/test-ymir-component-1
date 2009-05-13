@@ -12,10 +12,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.seasar.ymir.HttpMethod;
-import org.seasar.ymir.extension.Globals;
-import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
-import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.FormDesc;
@@ -174,40 +171,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         // 空のPageを自動生成する方が便利なので、空のPageを自動生成するためにこうしている。
         getPageClassDesc();
 
-        for (Iterator<ClassDesc> itr = DescPool.getDefault().iterator(); itr
-                .hasNext();) {
-            ClassDesc classDesc = itr.next();
-
-            // 中身のないDTOは除外しておく。
-            // ただしFormDtoは残す。
-            if (isEmptyDto(classDesc) && !isFormDto(classDesc)) {
-                itr.remove();
-                continue;
-            }
-
-            // スーパークラスを設定する。
-            ClassCreationHintBag hintBag = DescPool.getDefault().getHintBag();
-            if (hintBag != null) {
-                ClassHint hint = hintBag.getClassHint(classDesc.getName());
-                if (hint != null) {
-                    classDesc.setSuperclassName(hint.getSuperclassName());
-                }
-            }
-        }
-
-        for (ClassDesc classDesc : DescPool.getDefault()
-                .getGeneratedClassDescs()) {
-            // プロパティの型に対応するDTOがDescPoolに存在しない場合は、
-            // そのDTOは上のフェーズで除外された、すなわちDTOかもしれないと考えて
-            // 解析を進めたが結局DTOであることが確定しなかったので、
-            // 型をデフォルトクラスに差し替える。
-            // [#YMIR-198] ただし明示的に型を指定されている場合は差し替えない。
-            for (PropertyDesc pd : classDesc.getPropertyDescs()) {
-                if (!pd.isTypeAlreadySet(PropertyDesc.PROBABILITY_MAXIMUM)) {
-                    replaceSimpleDtoTypeToDefaultType(pd);
-                }
-            }
-        }
+        sourceCreator_.finishAnalyzing(DescPool.getDefault());
 
         Set<ClassDesc> usedClassDescSet = new HashSet<ClassDesc>();
         for (ClassDesc classDesc : DescPool.getDefault()
@@ -228,24 +192,7 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
     }
 
-    private boolean isFormDto(ClassDesc classDesc) {
-        Boolean formDto = (Boolean) classDesc
-                .getAttribute(Globals.ATTR_FORMDTO);
-        return formDto != null && formDto.booleanValue();
-    }
-
-    void replaceSimpleDtoTypeToDefaultType(final PropertyDesc propertyDesc) {
-        final TypeDesc typeDesc = propertyDesc.getTypeDesc();
-        if (isDto(typeDesc.getComponentClassDesc())
-                && !propertyDesc.getDescPool().contains(
-                        typeDesc.getComponentClassDesc())) {
-            typeDesc.setComponentClassDesc(propertyDesc.isMayBoolean()
-                    && propertyDesc.getReferCount() == 0 ? Boolean.TYPE
-                    : String.class);
-        }
-    }
-
-    void registerDependingClassDescs(ClassDesc classDesc,
+    private void registerDependingClassDescs(ClassDesc classDesc,
             Set<ClassDesc> usedClassDescSet) {
         if (!usedClassDescSet.add(classDesc)) {
             return;
@@ -258,20 +205,12 @@ public class AnalyzerContext extends ZptTemplateContext {
         }
     }
 
-    private boolean isPage(ClassDesc classDesc) {
-        return isTypeOf(classDesc, ClassType.PAGE);
-    }
-
-    private boolean isDto(ClassDesc classDesc) {
-        return isTypeOf(classDesc, ClassType.DTO);
-    }
-
     private boolean isTypeOf(ClassDesc classDesc, ClassType type) {
         return classDesc.isTypeOf(type) && !sourceCreator_.isOuter(classDesc);
     }
 
-    private boolean isEmptyDto(ClassDesc classDesc) {
-        return isTypeOf(classDesc, ClassType.DTO) && classDesc.isEmpty();
+    private boolean isPage(ClassDesc classDesc) {
+        return isTypeOf(classDesc, ClassType.PAGE);
     }
 
     public PropertyDesc getRequestParameterPropertyDesc(ClassDesc classDesc,
