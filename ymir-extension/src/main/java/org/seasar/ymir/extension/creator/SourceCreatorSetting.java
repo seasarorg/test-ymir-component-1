@@ -477,7 +477,7 @@ public class SourceCreatorSetting {
         return getFieldPrefix() + propertyName + getFieldSuffix();
     }
 
-    public boolean isSortElementsByName() {
+    public boolean shouldSortElementsByName() {
         return PropertyUtils.valueOf(
                 getProperty(APPKEY_SOURCECREATOR_SORTELEMENTSBYNAME), false);
     }

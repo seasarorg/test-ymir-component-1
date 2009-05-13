@@ -194,6 +194,18 @@ public class SourceCreatorImpl implements SourceCreator {
 
     private static final String PROP_SIZE = "size";
 
+    private static final Comparator<PropertyDesc> COMPARATOR_PROPERTYDESC_BY_NAME = new Comparator<PropertyDesc>() {
+        public int compare(PropertyDesc o1, PropertyDesc o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+    };
+
+    private static final Comparator<MethodDesc> COMPARATOR_METHODDESC_BY_NAME = new Comparator<MethodDesc>() {
+        public int compare(MethodDesc o1, MethodDesc o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+    };
+
     private YmirImpl ymir_;
 
     private NamingConvention namingConvention_;
@@ -1240,6 +1252,11 @@ public class SourceCreatorImpl implements SourceCreator {
         // 既存のクラスの情報を使って調整する。
         adjustByExistentClass(classDesc);
 
+        // 必要に応じて要素を並べ替えておく。
+        if (setting_.shouldSortElementsByName()) {
+            sortElementsByName(classDesc);
+        }
+
         // 自動生成後に自動生成処理の呼び出し元に返すべき付加情報を設定する。
         prepareForAttribute(classDesc);
 
@@ -1250,6 +1267,16 @@ public class SourceCreatorImpl implements SourceCreator {
         prepareForImportDesc(classDesc);
 
         writeSourceFile(classDesc, classDescSet);
+    }
+
+    private void sortElementsByName(ClassDesc classDesc) {
+        PropertyDesc[] propertyDescs = classDesc.getPropertyDescs();
+        Arrays.sort(propertyDescs, COMPARATOR_PROPERTYDESC_BY_NAME);
+        classDesc.setPropertyDescs(propertyDescs);
+
+        MethodDesc[] methodDescs = classDesc.getMethodDescs();
+        Arrays.sort(methodDescs, COMPARATOR_METHODDESC_BY_NAME);
+        classDesc.setMethodDescs(methodDescs);
     }
 
     public void prepareForMethodBody(ClassDesc classDesc) {
