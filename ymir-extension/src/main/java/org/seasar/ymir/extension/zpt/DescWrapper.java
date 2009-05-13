@@ -3,6 +3,7 @@ package org.seasar.ymir.extension.zpt;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassType;
 import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.message.Note;
 import org.seasar.ymir.zpt.annotation.IgnoreException;
 
@@ -36,10 +37,9 @@ public class DescWrapper {
             // %valueがついたプロパティはNoteとみなす。
             if (propertyDesc_ != null
                     && !propertyDesc_
-                            .isTypeAlreadySet(AnalyzerContext.PROBABILITY_TYPE)) {
+                            .isTypeAlreadySet(SourceCreator.PROBABILITY_TYPE)) {
                 propertyDesc_.setTypeDesc(Note.class);
-                propertyDesc_
-                        .notifyTypeUpdated(AnalyzerContext.PROBABILITY_TYPE);
+                propertyDesc_.notifyTypeUpdated(SourceCreator.PROBABILITY_TYPE);
             }
             return null;
         }
@@ -52,12 +52,13 @@ public class DescWrapper {
         int mode = (cd.isTypeOf(ClassType.DTO) ? (PropertyDesc.READ | PropertyDesc.WRITE)
                 : PropertyDesc.READ);
         if (pd == null) {
-            if (analyzerContext_.isOuter(cd)
+            if (analyzerContext_.getSourceCreator().isOuter(cd)
                     && !analyzerContext_.hasProperty(cd.getName(), name)) {
                 // 自動生成対象クラスではないのでプロパティを増やせない。プロパティがないためnullを返す。
                 return null;
             }
-            pd = analyzerContext_.addPropertyDesc(cd, name, mode);
+            pd = analyzerContext_.getSourceCreator().addPropertyDesc(cd, name,
+                    mode, analyzerContext_.getPageClassName());
         } else {
             pd.addMode(mode);
         }
@@ -107,11 +108,15 @@ public class DescWrapper {
         if (propertyDesc_ != null
                 && !propertyDesc_
                         .isTypeAlreadySet(PropertyDesc.PROBABILITY_MAXIMUM)) {
-            propertyDesc_ = analyzerContext_.addPropertyDesc(
-                    parent_.getValueClassDescToModifyProeprty(propertyDesc_
-                            .getName()), propertyDesc_.getName(), propertyDesc_
-                            .getMode(), variableName, asCollection,
-                    collectionClassName, probability);
+            propertyDesc_ = analyzerContext_
+                    .getSourceCreator()
+                    .addPropertyDesc(
+                            parent_
+                                    .getValueClassDescToModifyProeprty(propertyDesc_
+                                            .getName()),
+                            propertyDesc_.getName(), propertyDesc_.getMode(),
+                            variableName, asCollection, collectionClassName,
+                            probability, analyzerContext_.getPageClassName());
         }
     }
 }

@@ -38,4 +38,6 @@ public interface Globals extends org.seasar.ymir.Globals {
     String PARAMETER_CLASSDESC = "classDesc";
 
     String PARAMETER_IMPORTDESC = "importDesc";
+
+    String BORNOF_REQUEST = "request";
 }

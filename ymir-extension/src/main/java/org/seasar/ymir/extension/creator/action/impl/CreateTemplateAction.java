@@ -122,7 +122,7 @@ public class CreateTemplateAction extends AbstractAction implements
             ClassDesc classDesc = getSourceCreator().newClassDesc(pool,
                     pathMetaData.getClassName(), null);
             MethodDesc actionMethodDesc = getSourceCreator()
-                    .newActionMethodDesc(classDesc, path, method,
+                    .newActionMethodDesc(pool, path, method,
                             new ActionSelectorSeedImpl());
             actionMethodDesc.setReturnTypeDesc(String.class);
             actionMethodDesc.getReturnTypeDesc().setExplicit(true);

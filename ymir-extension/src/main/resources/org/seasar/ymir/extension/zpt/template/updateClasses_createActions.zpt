@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <meta tal:attributes="content string:text/html;; charset=${templateEncoding}" http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>SYSTEM NOTIFICATION</title>
+  </head>
+  <body onload="document.getElementById('skipButton').focus()">
+<h1>SYSTEM NOTIFICATION</h1>
+<form tal:attributes="action request/absolutePath" method="post">
+<p>パス<span tal:replace="pathMetaData/path">PATH</span>へのリクエストで通常のパラメータかボタン名か判別できないパラメータを検出しました。
+以下のものについて、通常のパラメータかボタン名かを指定して下さい。</p>
+<table>
+  <tr tal:repeat="name classDesc/undecidedParameterNames">
+    <th align="right" nowrap="nowrap">
+      <span tal:replace="name">NAME</span>パラメータ
+    </th>
+    <td align="left" nowrap="nowrap">
+      <input type="radio" tal:attributes="name string:__ymir__parameterRole_${classDesc/name}/${name}" name="parameterRole" value="PARAMETER" /> 通常のパラメータ&nbsp;&nbsp;
+      <input type="radio" checked="checked" tal:attributes="name string:__ymir__parameterRole_${classDesc/name}/${name}" name="parameterRole" value="BUTTON" /> ボタン名
+    </td>
+  </tr>
+</table>
+  <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
+  <input type="hidden" name="__ymir__task" value="updateClasses" />
+  <input type="hidden" name="__ymir__subTask" value="createActions_create" />
+  <input type="hidden" name="__ymir__method" tal:attributes="value request/method" />
+  <input type="submit" value=" OK " />
+  <input type="submit" name="__ymir__button_skip" value="スキップ" />
+</form>
+  </body>
+</html>

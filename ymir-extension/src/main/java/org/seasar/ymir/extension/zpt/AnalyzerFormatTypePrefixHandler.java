@@ -1,6 +1,6 @@
 package org.seasar.ymir.extension.zpt;
 
-import static org.seasar.ymir.extension.zpt.AnalyzerContext.PROBABILITY_COMPONENT_TYPE;
+import static org.seasar.ymir.extension.creator.SourceCreator.PROBABILITY_COMPONENT_TYPE;
 
 import java.text.DateFormat;
 import java.text.Format;

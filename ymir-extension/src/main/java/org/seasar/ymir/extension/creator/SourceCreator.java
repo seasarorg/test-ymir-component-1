@@ -1,9 +1,12 @@
 package org.seasar.ymir.extension.creator;
 
+import static org.seasar.ymir.extension.creator.PropertyDesc.PROBABILITY_DEFAULT;
+
 import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -18,6 +21,7 @@ import org.seasar.ymir.Updater;
 import org.seasar.ymir.extension.creator.mapping.ActionSelectorSeed;
 import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
 import org.seasar.ymir.extension.creator.util.PersistentProperties;
+import org.seasar.ymir.extension.zpt.ParameterRole;
 import org.seasar.ymir.message.Notes;
 
 public interface SourceCreator extends Updater {
@@ -32,6 +36,16 @@ public interface SourceCreator extends Updater {
     String SOURCECREATOR_PREFS = "org.seasar.ymir.extension.sourceCreator.prefs";
 
     String MAPPING_PREFS = "org.seasar.ymir.extension.mapping.prefs";
+
+    int PROBABILITY_BOOLEAN_ATTRIBUTE = PROBABILITY_DEFAULT * 2;
+
+    int PROBABILITY_NAME = PROBABILITY_DEFAULT * 3;
+
+    int PROBABILITY_COMPONENT_TYPE = PROBABILITY_DEFAULT * 3;
+
+    int PROBABILITY_COLLECTION = PROBABILITY_DEFAULT * 4;
+
+    int PROBABILITY_TYPE = PROBABILITY_DEFAULT * 5;
 
     String getFirstRootPackageName();
 
@@ -169,10 +183,10 @@ public interface SourceCreator extends Updater {
 
     Class<?> findClass(String name, String baseClassName);
 
-    MethodDesc newActionMethodDesc(ClassDesc classDesc, String path,
+    MethodDesc newActionMethodDesc(DescPool pool, String path,
             HttpMethod method, ActionSelectorSeed seed);
 
-    MethodDesc newPrerenderActionMethodDesc(ClassDesc classDesc, String path,
+    MethodDesc newPrerenderActionMethodDesc(DescPool pool, String path,
             HttpMethod method, ActionSelectorSeed seed);
 
     boolean isGeneratedClass(String className);
@@ -187,4 +201,112 @@ public interface SourceCreator extends Updater {
     boolean isDtoClass(String className);
 
     Field findField(Method accessorMethod, String propertyName);
+
+    /**
+     * @since 1.0.3
+     */
+    String getActionKeyFromParameterName(String path, HttpMethod method,
+            String parameterName);
+
+    /**
+     * @since 1.0.3
+     */
+    ParameterRole inferParameterRole(String path, HttpMethod method,
+            String className, String parameterName, ClassHint classHint);
+
+    /**
+     * @since 1.0.3
+     */
+    boolean isOuter(ClassDesc classDesc);
+
+    /**
+     * @since 1.0.3
+     */
+    boolean isOuter(String typeName);
+
+    /**
+     * 指定されたクラスの指定されたプロパティ名に対応するPropertyDescオブジェクトを返します。
+     * <p>プロパティの型情報なども適切に設定されたPropertyDescオブジェクトが返されます。
+     * </p>
+     * 
+     * @param classDesc プロパティが属するクラスの情報を表すClassDescオブジェクト。nullを指定してはいけません。
+     * @param propertyName プロパティ名。
+     * @param mode プロパティのモード。
+     * @param propertyTypeAlias クラス名を生成する際の元になる名前。
+     * 通常クラス名はプロパティ名から生成されますが、この値としてnullでない値を指定した場合、
+     * プロパティ名よりもこちらが優先されます。
+     * @param asCollection trueの場合、プロパティがコレクション型であることを表します。
+     * falseの場合、プロパティがコレクション型かどうか判断できていないことを表します。
+     * @param collectionClassName コレクション型のクラス名です。nullの場合は配列型であることを表します。
+     * この引数はasCollectionがtrueの時のみ有効です。
+     * @param probability 確からしさ。既存の型情報の確からしさがこの値よりも小さい場合はプロパティ型が再推論されます。
+     * @param pageClassName 現在自動生成の対象としている画面に対応するページクラス名。
+     * nullを指定してはいけません。
+     * @return PropertyDescオブジェクト。nullが返されることはありません。
+     * @since 1.0.3
+     */
+    PropertyDesc addPropertyDesc(ClassDesc classDesc, String propertyName,
+            int mode, String propertyTypeAlias, boolean asCollection,
+            String collectionClassName, int probability, String pageClassName);
+
+    PropertyDesc addPropertyDesc(ClassDesc classDesc, String propertyName,
+            int mode, String pageClassName);
+
+    /**
+     * @since 1.0.3
+     */
+    ClassDesc buildTransitionClassDesc(DescPool pool, String path,
+            HttpMethod method, Map<String, String[]> parameterMap);
+
+    /**
+     * @since 1.0.3
+     */
+    void setToCollection(TypeDesc typeDesc, String collectionClassName);
+
+    /**
+     * 指定された名前のプロパティの型を推論して返します。
+     * <p>型推論はまず基準となるクラス名を使ってDTO型名を生成し、
+     * そのクラスが存在するかを確認します。
+     * 存在する場合はそれが推論結果となります。
+     * 存在しない場合はDTOサーチパス上のクラスから名前に基づいて推論します。
+     * DTOサーチパス上のクラスから対応するクラスが見つかった場合はそれが推論結果となります。
+     * 見つからなかった場合は最初に生成したDTO型名が推論結果となります。
+     * </p>
+     * 
+     * @param propertyName プロパティ名。nullを指定してはいけません。
+     * @param baseClassName 基準となるクラス名。
+     * 基準となるクラス名は「ルートパッケージ＋"."+種別パッケージ」配下である必要があります
+     * （種別パッケージ：web、dtoなど）。
+     * そうでない場合はIllegalArgumentExceptionがスローされます。
+     * また、nullを指定してはいけません。
+     * @return 推論結果の型。nullが返されることはありません。
+     * またGenerics型が返されることはありません。
+     * @since 1.0.3
+     */
+    String inferPropertyClassName(String propertyName, String baseClassName);
+
+    /**
+     * 指定された名前のプロパティの型を推論して返します。
+     * <p>型推論は基準となるクラス名を使って行なわれます。
+     * クラスがサブパッケージ階層に配置されている場合、
+     * 同一のサブパッケージ階層に配置されるようなDTO型名が返されますが、
+     * 上位階層に同一名のDTO型が存在する場合はそれが返されます。
+     * </p>
+     * 
+     * @param propertyName プロパティ名。nullを指定してはいけません。
+     * @param baseClassName 基準となるクラス名。
+     * 基準となるクラス名は「ルートパッケージ＋"."+種別パッケージ」配下である必要があります
+     * （種別パッケージ：web、dtoなど）。
+     * そうでない場合はIllegalArgumentExceptionがスローされます。
+     * また、nullを指定してはいけません。
+     * @return 推論結果の型。nullが返されることはありません。
+     * またGenerics型が返されることはありません。
+     * @since 1.0.3
+     */
+    String findPropertyClassName(String propertyName, String baseClassName);
+
+    /**
+     * @since 1.0.3
+     */
+    String getGeneratedClassName(String className, String generatedClassName);
 }

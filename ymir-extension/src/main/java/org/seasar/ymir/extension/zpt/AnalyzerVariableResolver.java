@@ -89,7 +89,8 @@ public class AnalyzerVariableResolver implements VariableResolver {
                             .getClass(className);
                     if (clazz != null && value != null) {
                         if (!clazz.isAssignableFrom(value.getClass())
-                                || !analyzerContext.isOuter(className)) {
+                                || !analyzerContext.getSourceCreator().isOuter(
+                                        className)) {
                             value = null;
                         }
                     }
@@ -97,8 +98,9 @@ public class AnalyzerVariableResolver implements VariableResolver {
                     if (value != null) {
                         className = value.getClass().getName();
                     } else {
-                        className = analyzerContext.inferPropertyClassName(
-                                name, null);
+                        className = analyzerContext.getSourceCreator()
+                                .inferPropertyClassName(name,
+                                        analyzerContext.getPageClassName());
                     }
                 }
                 if (value == null) {

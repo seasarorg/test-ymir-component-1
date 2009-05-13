@@ -25,8 +25,9 @@ public class FormDescImpl implements FormDesc {
 
     private Map<String, ParameterMetaData> parameterMap_ = new HashMap<String, ParameterMetaData>();
 
-    public FormDescImpl(SourceCreator sourceCreator, ClassDesc actionPageClassDesc,
-            ClassDesc dtoClassDesc, String name, String path, HttpMethod method) {
+    public FormDescImpl(SourceCreator sourceCreator,
+            ClassDesc actionPageClassDesc, ClassDesc dtoClassDesc, String name,
+            String path, HttpMethod method) {
         sourceCreator_ = sourceCreator;
         actionPageClassDesc_ = actionPageClassDesc;
         dtoClassDesc_ = dtoClassDesc;
@@ -43,8 +44,9 @@ public class FormDescImpl implements FormDesc {
     }
 
     public void setActionMethodDesc(String parameterName) {
-        MethodDesc methodDesc = sourceCreator_.newActionMethodDesc(actionPageClassDesc_,
-                path_, method_, new ActionSelectorSeedImpl(parameterName));
+        MethodDesc methodDesc = sourceCreator_.newActionMethodDesc(
+                actionPageClassDesc_.getDescPool(), path_, method_,
+                new ActionSelectorSeedImpl(parameterName));
         actionPageClassDesc_.setMethodDesc(methodDesc);
     }
 

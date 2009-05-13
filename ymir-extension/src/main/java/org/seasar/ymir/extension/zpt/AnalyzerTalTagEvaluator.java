@@ -1,10 +1,10 @@
 package org.seasar.ymir.extension.zpt;
 
-import static org.seasar.ymir.extension.zpt.AnalyzerContext.PROBABILITY_BOOLEAN_ATTRIBUTE;
-import static org.seasar.ymir.extension.zpt.AnalyzerContext.PROBABILITY_TYPE;
+import static org.seasar.ymir.extension.creator.SourceCreator.PROBABILITY_BOOLEAN_ATTRIBUTE;
+import static org.seasar.ymir.extension.creator.SourceCreator.PROBABILITY_TYPE;
+import static org.seasar.ymir.extension.zpt.AnalyzerUtils.shouldGeneratePropertyForParameter;
 import static org.seasar.ymir.util.BeanUtils.getFirstSimpleSegment;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,11 +18,9 @@ import java.util.Set;
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.HttpMethod;
-import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Path;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.ClassDesc;
-import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.FormDesc;
 import org.seasar.ymir.extension.creator.MethodDesc;
@@ -218,11 +216,13 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                             if (parameterName
                                     .indexOf(AnalyzerContext.CHAR_ARRAY_LPAREN) < 0
                                     && !isRadio) {
-                                analyzerContext.setToCollection(typeDesc, null);
+                                analyzerContext.getSourceCreator()
+                                        .setToCollection(typeDesc, null);
                             }
                         } else {
                             if (formDesc.isMultipleParameter(parameterName)) {
-                                analyzerContext.setToCollection(typeDesc, null);
+                                analyzerContext.getSourceCreator()
+                                        .setToCollection(typeDesc, null);
                             }
                         }
                         if ("input".equals(name)) {
@@ -269,10 +269,13 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 } while (false);
             } else if ("option".equals(name)) {
                 Class<?> optionClass = Option.class;
-                if (!analyzerContext.isOnDtoSearchPath(optionClass.getName())) {
+                if (!analyzerContext.getSourceCreator()
+                        .getSourceCreatorSetting().isOnDtoSearchPath(
+                                optionClass.getName())) {
                     optionClass = net.skirnir.freyja.render.html.Option.class;
-                    if (!analyzerContext.isOnDtoSearchPath(optionClass
-                            .getName())) {
+                    if (!analyzerContext.getSourceCreator()
+                            .getSourceCreatorSetting().isOnDtoSearchPath(
+                                    optionClass.getName())) {
                         optionClass = null;
                     }
                 }
@@ -437,68 +440,11 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             return null;
         }
         HttpMethod method = HttpMethod.enumOf(methodName);
-        MatchedPathMapping matched = creator.findMatchedPathMapping(path
-                .getTrunk(), method);
-        if (matched == null || matched.isDenied()) {
+
+        ClassDesc classDesc = creator.buildTransitionClassDesc(DescPool
+                .getDefault(), path.getTrunk(), method, path.getParameterMap());
+        if (classDesc == null) {
             return null;
-        }
-        String className = creator.getClassName(matched.getPageComponentName());
-        if (className == null) {
-            return null;
-        }
-        ClassDesc classDesc = DescPool.getDefault().getClassDesc(className);
-        Map<String, String[]> parameterMap = path.getParameterMap();
-        for (Iterator<String> itr = parameterMap.keySet().iterator(); itr
-                .hasNext();) {
-            String name = itr.next();
-            if (!shouldGeneratePropertyForParameter(name)) {
-                continue;
-            }
-            if (BeanUtils.isSingleSegment(name)) {
-                ParameterRole role = inferParameterRole(analyzerContext, path,
-                        classDesc, name);
-                switch (role) {
-                case PARAMETER:
-                    PropertyDesc propertyDesc = analyzerContext
-                            .addPropertyDesc(classDesc, name,
-                                    PropertyDesc.WRITE | PropertyDesc.READ);
-                    propertyDesc
-                            .setAnnotationDescOnSetter(new AnnotationDescImpl(
-                                    RequestParameter.class.getName()));
-                    break;
-
-                case BUTTON:
-                    MethodDesc methodDesc = analyzerContext.getSourceCreator()
-                            .newActionMethodDesc(classDesc, path.getTrunk(),
-                                    HttpMethod.GET,
-                                    new ActionSelectorSeedImpl(name));
-                    if (classDesc.getMethodDesc(methodDesc) == null) {
-                        classDesc.setMethodDesc(methodDesc);
-                    }
-                    break;
-
-                case UNDECIDED:
-                    String[] parameters = (String[]) classDesc
-                            .getAttribute(Globals.ATTR_UNDECIDEDPARAMETERNAMES);
-                    if (parameters == null) {
-                        parameters = new String[] { name };
-                    } else {
-                        parameters = (String[]) ArrayUtil.add(parameters, name);
-                    }
-                    classDesc.setAttribute(
-                            Globals.ATTR_UNDECIDEDPARAMETERNAMES, parameters);
-                    break;
-
-                default:
-                    throw new RuntimeException("Logic error");
-                }
-            } else {
-                PropertyDesc propertyDesc = analyzerContext.addPropertyDesc(
-                        classDesc, BeanUtils.getFirstSimpleSegment(name),
-                        PropertyDesc.READ);
-                propertyDesc.setAnnotationDescOnGetter(new AnnotationDescImpl(
-                        RequestParameter.class.getName()));
-            }
         }
 
         if (form) {
@@ -511,7 +457,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 if (AnalyzerUtils.isValidVariableName(name)) {
                     formName = name;
                     PropertyDesc propertyDesc = analyzerContext
-                            .addPropertyDesc(classDesc, name, PropertyDesc.NONE);
+                            .getSourceCreator().addPropertyDesc(classDesc,
+                                    name, PropertyDesc.NONE,
+                                    analyzerContext.getPageClassName());
                     propertyDesc
                             .setAnnotationDesc(new MetaAnnotationDescImpl(
                                     org.seasar.ymir.extension.Globals.META_NAME_PROPERTY,
@@ -528,56 +476,19 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             return new FormDescImpl(creator, classDesc, dtoClassDesc, formName,
                     path.getTrunk(), method);
         } else {
-            MethodDesc methodDesc = creator.newActionMethodDesc(classDesc, path
-                    .getTrunk(), method, new ActionSelectorSeedImpl());
+            MethodDesc methodDesc = creator.newActionMethodDesc(classDesc
+                    .getDescPool(), path.getTrunk(), method,
+                    new ActionSelectorSeedImpl());
             classDesc.setMethodDesc(methodDesc);
 
             // _prerender()を追加する。
             MethodDesc prerenderMethodDesc = creator
-                    .newPrerenderActionMethodDesc(classDesc, path.getTrunk(),
-                            method, new ActionSelectorSeedImpl());
+                    .newPrerenderActionMethodDesc(classDesc.getDescPool(), path
+                            .getTrunk(), method, new ActionSelectorSeedImpl());
             classDesc.setMethodDesc(prerenderMethodDesc);
 
             return null;
         }
-    }
-
-    ParameterRole inferParameterRole(AnalyzerContext context, Path path,
-            ClassDesc classDesc, String parameterName) {
-        String[] parameterValue = path.getParameterMap().get(parameterName);
-        if (parameterValue == null || parameterValue.length != 1
-                || !"".equals(parameterValue[0])) {
-            return ParameterRole.PARAMETER;
-        }
-
-        SourceCreator sourceCreator = context.getSourceCreator();
-
-        ClassHint classHint = context.getClassHint(classDesc.getName());
-        if (classHint != null) {
-            ParameterRole role = classHint.getParameterRole(parameterName);
-            if (role != ParameterRole.UNDECIDED) {
-                return role;
-            }
-        }
-
-        if (sourceCreator.getPropertyDescriptor(classDesc.getName(),
-                parameterName) != null) {
-            return ParameterRole.PARAMETER;
-        }
-
-        String methodName = sourceCreator.newActionMethodDesc(classDesc,
-                path.getTrunk(), HttpMethod.GET,
-                new ActionSelectorSeedImpl(parameterName)).getName();
-        Class<?> clazz = sourceCreator.getClass(classDesc.getName());
-        if (clazz != null) {
-            for (Method method : clazz.getMethods()) {
-                if (method.getName().equals(methodName)) {
-                    return ParameterRole.BUTTON;
-                }
-            }
-        }
-
-        return ParameterRole.UNDECIDED;
     }
 
     Path constructPath(String basePath, String pathWithParameters) {
@@ -628,40 +539,6 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         }
 
         return null;
-    }
-
-    boolean shouldGeneratePropertyForParameter(String name) {
-        if (name == null || name.startsWith(Globals.IDPREFIX)) {
-            return false;
-        }
-
-        int pre = 0;
-        int idx;
-        while ((idx = name.indexOf('.', pre)) >= 0) {
-            if (!shouldGeneratePropertyForParameterSegment(name.substring(pre,
-                    idx))) {
-                return false;
-            }
-            pre = idx + 1;
-        }
-        if (!shouldGeneratePropertyForParameterSegment(name.substring(pre))) {
-            return false;
-        }
-        return true;
-    }
-
-    boolean shouldGeneratePropertyForParameterSegment(String name) {
-        if (name == null) {
-            return false;
-        }
-        if (name.endsWith("]")) {
-            int lbracket = name.indexOf('[');
-            if (lbracket < 0) {
-                return false;
-            }
-            name = name.substring(0, lbracket);
-        }
-        return AnalyzerUtils.isValidVariableName(name);
     }
 
     @SuppressWarnings("unchecked")

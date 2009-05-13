@@ -4,6 +4,7 @@ import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -21,18 +22,22 @@ import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
 import org.seasar.ymir.extension.creator.ClassDescSet;
+import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.PathMetaData;
+import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.SourceGenerator;
 import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.TemplateProvider;
+import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.mapping.ActionSelectorSeed;
 import org.seasar.ymir.extension.creator.mapping.ExtraPathMapping;
 import org.seasar.ymir.extension.creator.util.PersistentProperties;
+import org.seasar.ymir.extension.zpt.ParameterRole;
 import org.seasar.ymir.message.Notes;
 
 public class MockSourceCreator implements SourceCreator {
@@ -287,13 +292,13 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public MethodDesc newActionMethodDesc(ClassDesc classDesc, String path,
+    public MethodDesc newActionMethodDesc(DescPool pool, String path,
             HttpMethod method, ActionSelectorSeed seed) {
         return null;
     }
 
-    public MethodDesc newPrerenderActionMethodDesc(ClassDesc classDesc,
-            String path, HttpMethod method, ActionSelectorSeed seed) {
+    public MethodDesc newPrerenderActionMethodDesc(DescPool pool, String path,
+            HttpMethod method, ActionSelectorSeed seed) {
         return null;
     }
 
@@ -306,6 +311,64 @@ public class MockSourceCreator implements SourceCreator {
     }
 
     public Field findField(Method accessorMethod, String propertyName) {
+        return null;
+    }
+
+    public String getActionKeyFromParameterName(String path, HttpMethod method,
+            String parameterName) {
+        return null;
+    }
+
+    public ParameterRole inferParameterRole(String path, HttpMethod method,
+            String className, String parameterName) {
+        return null;
+    }
+
+    public PropertyDesc addPropertyDesc(ClassDesc classDesc,
+            String propertyName, int mode, String propertyTypeAlias,
+            boolean asCollection, String collectionClassName, int probability,
+            String pageClassName) {
+        return null;
+    }
+
+    public PropertyDesc addPropertyDesc(ClassDesc classDesc,
+            String propertyName, int mode, String pageClassName) {
+        return null;
+    }
+
+    public ClassDesc buildTransitionClassDesc(DescPool pool, String path,
+            HttpMethod method, Map<String, String[]> parameterMap) {
+        return null;
+    }
+
+    public String findPropertyClassName(String propertyName,
+            String baseClassName) {
+        return null;
+    }
+
+    public ParameterRole inferParameterRole(String path, HttpMethod method,
+            String className, String parameterName, ClassHint classHint) {
+        return null;
+    }
+
+    public String inferPropertyClassName(String propertyName,
+            String baseClassName) {
+        return null;
+    }
+
+    public boolean isOuter(ClassDesc classDesc) {
+        return false;
+    }
+
+    public boolean isOuter(String typeName) {
+        return false;
+    }
+
+    public void setToCollection(TypeDesc typeDesc, String collectionClassName) {
+    }
+
+    public String getGeneratedClassName(String className,
+            String generatedClassName) {
         return null;
     }
 }

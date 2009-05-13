@@ -40,12 +40,11 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
     }
 
     Response actDefault(Request request, PathMetaData pathMetaData) {
-        ClassDesc classDesc = getSourceCreator().newClassDesc(newDescPool(),
-                pathMetaData.getClassName(), null);
         String path = pathMetaData.getPath();
         HttpMethod method = request.getMethod();
-        String actionName = getSourceCreator().newActionMethodDesc(classDesc,
-                path, method, new ActionSelectorSeedImpl()).getName();
+        String actionName = getSourceCreator().newActionMethodDesc(
+                newDescPool(), path, method, new ActionSelectorSeedImpl())
+                .getName();
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
@@ -74,7 +73,7 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
         ClassDesc classDesc = getSourceCreator().newClassDesc(pool,
                 pathMetaData.getClassName(), null);
         MethodDesc actionMethodDesc = getSourceCreator().newActionMethodDesc(
-                classDesc, path, method, new ActionSelectorSeedImpl());
+                pool, path, method, new ActionSelectorSeedImpl());
         actionMethodDesc.setReturnTypeDesc(String.class);
         actionMethodDesc.getReturnTypeDesc().setExplicit(true);
         if (transition != null && transition.trim().length() > 0) {

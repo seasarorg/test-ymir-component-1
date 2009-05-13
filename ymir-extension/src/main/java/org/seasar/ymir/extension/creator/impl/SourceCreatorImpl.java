@@ -1,10 +1,15 @@
 package org.seasar.ymir.extension.creator.impl;
 
+import static java.beans.Introspector.decapitalize;
 import static org.seasar.ymir.constraint.Globals.APPKEY_CORE_CONSTRAINT_PERMISSIONDENIEDMETHOD_ENABLE;
 import static org.seasar.ymir.constraint.Globals.APPKEY_CORE_CONSTRAINT_VALIDATIONFAILEDMETHOD_ENABLE;
+import static org.seasar.ymir.extension.creator.PropertyDesc.PROBABILITY_DEFAULT;
+import static org.seasar.ymir.extension.creator.PropertyDesc.PROBABILITY_MAXIMUM;
 import static org.seasar.ymir.extension.creator.util.SourceCreatorUtils.newPageComponent;
 import static org.seasar.ymir.extension.creator.util.SourceCreatorUtils.newRequest;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
+import static org.seasar.ymir.util.ClassUtils.getShortName;
+import static org.seasar.ymir.util.ClassUtils.getShorterName;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -31,12 +36,14 @@ import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -59,6 +66,7 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.convention.NamingConvention;
+import org.seasar.framework.util.ArrayUtil;
 import org.seasar.framework.util.ClassTraversal;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.StringUtils;
@@ -100,6 +108,7 @@ import org.seasar.ymir.extension.creator.MethodDescKey;
 import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.PropertyDesc;
+import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.SourceGenerator;
@@ -135,6 +144,9 @@ import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.extension.creator.util.MetaUtils;
 import org.seasar.ymir.extension.creator.util.PersistentProperties;
 import org.seasar.ymir.extension.creator.util.SourceCreatorUtils;
+import org.seasar.ymir.extension.creator.util.type.TypeToken;
+import org.seasar.ymir.extension.zpt.AnalyzerUtils;
+import org.seasar.ymir.extension.zpt.ParameterRole;
 import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.message.MessageNotFoundRuntimeException;
 import org.seasar.ymir.message.Messages;
@@ -142,6 +154,8 @@ import org.seasar.ymir.message.MessagesNotFoundRuntimeException;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.scope.annotation.Inject;
+import org.seasar.ymir.scope.annotation.RequestParameter;
+import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.HTMLUtils;
 import org.seasar.ymir.util.ServletUtils;
@@ -149,6 +163,16 @@ import org.seasar.ymir.util.ServletUtils;
 import net.skirnir.freyja.EvaluationRuntimeException;
 
 public class SourceCreatorImpl implements SourceCreator {
+    private static final String PREFIX_ABSTRACT = "Abstract";
+
+    private static final String MULTIPLE_SUFFIX = "ies";
+
+    private static final String SINGULAR_SUFFIX = "y";
+
+    private static final String MULTIPLE_SUFFIX2 = "s";
+
+    private static final String SINGULAR_SUFFIX2 = "";
+
     private static final String PROPERTY_ID = "id";
 
     private static final String ID_ANNOTATIONNAME = "org.seasar.dao.annotation.tiger.Id";
@@ -164,6 +188,10 @@ public class SourceCreatorImpl implements SourceCreator {
     private static final String RESOURCE_PREAMBLE_JAVA = "org/seasar/ymir/extension/Preamble.java.txt";
 
     private static final String PREFIX_ACTION = "A";
+
+    private static final String PROP_LENGTH = "length";
+
+    private static final String PROP_SIZE = "size";
 
     private YmirImpl ymir_;
 
@@ -551,11 +579,6 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    boolean isOuter(ClassDesc classDesc) {
-        return !classDesc.getPackageName().startsWith(
-                getFirstRootPackageName() + ".");
-    }
-
     protected ClassDesc createConverterClassDesc(ClassDesc dtoCd,
             String[] pairTypeNames) {
         DescPool pool = dtoCd.getDescPool();
@@ -631,15 +654,15 @@ public class SourceCreatorImpl implements SourceCreator {
             // しまう、(2)ボタンに名前をつけていても、デフォルトの_post()が生成されてしまう、という
             // 問題が発生する。これを避けるため、methodに依らずGETでアクションメソッドを生成するように
             // している。
-            MethodDesc actionMethodDesc = newActionMethodDesc(pageClassDesc,
-                    path, HttpMethod.GET);
+            MethodDesc actionMethodDesc = newActionMethodDesc(pool, path,
+                    HttpMethod.GET, pageClassName);
             if (pageClassDesc.getMethodDesc(actionMethodDesc) == null) {
                 pageClassDesc.setMethodDesc(actionMethodDesc);
             }
 
             // _prerender()を追加する。
-            MethodDesc prerenderMethodDesc = newPrerenderActionMethodDesc(
-                    pageClassDesc, path, method, new ActionSelectorSeedImpl());
+            MethodDesc prerenderMethodDesc = newPrerenderActionMethodDesc(pool,
+                    path, method, new ActionSelectorSeedImpl());
             pageClassDesc.setMethodDesc(prerenderMethodDesc);
 
             if (isValidationFailedMethodEnabled()) {
@@ -675,22 +698,24 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    MethodDesc newActionMethodDesc(ClassDesc classDesc, String path,
-            HttpMethod method) {
-        Class<?> pageClass = getClass(classDesc.getName());
+    MethodDesc newActionMethodDesc(DescPool pool, String path,
+            HttpMethod method, String className) {
+        Class<?> pageClass = getClass(className);
         if (pageClass != null) {
-            Action action = ymir_.findMatchedPathMapping(path, method)
-                    .getAction(newPageComponent(pageClass),
-                            newRequest(path, method, null));
-            if (action != null) {
-                MethodDesc methodDesc = new MethodDescImpl(classDesc
-                        .getDescPool(), action.getMethodInvoker().getMethod());
-                setActionMethodDescBodyTo(methodDesc);
-                methodDesc.setAttribute(Globals.ATTR_ACTION, Boolean.TRUE);
-                return methodDesc;
+            MatchedPathMapping matched = findMatchedPathMapping(path, method);
+            if (matched != null) {
+                Action action = matched.getAction(newPageComponent(pageClass),
+                        newRequest(path, method, null));
+                if (action != null) {
+                    MethodDesc methodDesc = new MethodDescImpl(pool, action
+                            .getMethodInvoker().getMethod());
+                    setActionMethodDescBodyTo(methodDesc);
+                    methodDesc.setAttribute(Globals.ATTR_ACTION, Boolean.TRUE);
+                    return methodDesc;
+                }
             }
         }
-        return newActionMethodDesc(classDesc, path, method,
+        return newActionMethodDesc(pool, path, method,
                 new ActionSelectorSeedImpl());
     }
 
@@ -2178,10 +2203,10 @@ public class SourceCreatorImpl implements SourceCreator {
         return null;
     }
 
-    public MethodDesc newActionMethodDesc(ClassDesc classDesc, String path,
+    public MethodDesc newActionMethodDesc(DescPool pool, String path,
             HttpMethod method, ActionSelectorSeed seed) {
         MethodDesc methodDesc = getExtraPathMapping(path, method)
-                .newActionMethodDesc(classDesc, seed);
+                .newActionMethodDesc(pool, seed);
         methodDesc.setAttribute(Globals.ATTR_ACTION, Boolean.TRUE);
         String returnType = setting_.getActionReturnType(method);
         methodDesc.setReturnTypeDesc(returnType);
@@ -2189,10 +2214,10 @@ public class SourceCreatorImpl implements SourceCreator {
         return methodDesc;
     }
 
-    public MethodDesc newPrerenderActionMethodDesc(ClassDesc classDesc,
-            String path, HttpMethod method, ActionSelectorSeed seed) {
+    public MethodDesc newPrerenderActionMethodDesc(DescPool pool, String path,
+            HttpMethod method, ActionSelectorSeed seed) {
         return getExtraPathMapping(path, method).newPrerenderActionMethodDesc(
-                classDesc, seed);
+                pool, seed);
     }
 
     void setActionMethodDescBodyTo(MethodDesc methodDesc) {
@@ -2209,17 +2234,19 @@ public class SourceCreatorImpl implements SourceCreator {
 
     boolean isValidationFailedMethodEnabled() {
         return PropertyUtils.valueOf(getApplication().getProperty(
-                        APPKEY_CORE_CONSTRAINT_VALIDATIONFAILEDMETHOD_ENABLE),
-                true);
+                APPKEY_CORE_CONSTRAINT_VALIDATIONFAILEDMETHOD_ENABLE), true);
     }
 
     boolean isPermissionDeniedMethodEnabled() {
         return PropertyUtils.valueOf(getApplication().getProperty(
-                        APPKEY_CORE_CONSTRAINT_PERMISSIONDENIEDMETHOD_ENABLE),
-                true);
+                APPKEY_CORE_CONSTRAINT_PERMISSIONDENIEDMETHOD_ENABLE), true);
     }
 
     public boolean isGeneratedClass(String className) {
+        if (className == null) {
+            return false;
+        }
+
         return className.startsWith(getFirstRootPackageName() + ".");
     }
 
@@ -2229,5 +2256,498 @@ public class SourceCreatorImpl implements SourceCreator {
         }
         return setting_.isOnDtoSearchPath(className)
                 || new ClassDescImpl(null, className).isTypeOf(ClassType.DTO);
+    }
+
+    public String getActionKeyFromParameterName(String path, HttpMethod method,
+            String parameterName) {
+        if (parameterName == null) {
+            return null;
+        }
+
+        MatchedPathMapping matched = findMatchedPathMapping(path, method);
+        if (matched == null) {
+            return null;
+        }
+
+        return matched.getPathMapping().getActionKeyFromParameterName(
+                parameterName);
+    }
+
+    public ParameterRole inferParameterRole(String path, HttpMethod method,
+            String className, String parameterName, ClassHint classHint) {
+        if (classHint != null) {
+            ParameterRole role = classHint.getParameterRole(parameterName);
+            if (role != ParameterRole.UNDECIDED) {
+                return role;
+            }
+        }
+
+        String actionKey = getActionKeyFromParameterName(path, method,
+                parameterName);
+        if (actionKey == null) {
+            return ParameterRole.PARAMETER;
+        }
+
+        if (getPropertyDescriptor(className, actionKey) != null) {
+            return ParameterRole.PARAMETER;
+        }
+
+        String methodName = newActionMethodDesc(
+                DescPool.newInstance(this, null), path, method,
+                new ActionSelectorSeedImpl(actionKey)).getName();
+        Class<?> clazz = getClass(className);
+        if (clazz != null) {
+            for (Method m : ClassUtils.getMethods(clazz)) {
+                if (m.getName().equals(methodName)) {
+                    return ParameterRole.BUTTON;
+                }
+            }
+        }
+
+        return ParameterRole.UNDECIDED;
+    }
+
+    public ClassDesc buildTransitionClassDesc(DescPool pool, String path,
+            HttpMethod method, Map<String, String[]> parameterMap) {
+        MatchedPathMapping matched = findMatchedPathMapping(path, method);
+        if (matched == null || matched.isDenied()) {
+            return null;
+        }
+        String pageClassName = getClassName(matched.getPageComponentName());
+        if (pageClassName == null) {
+            return null;
+        }
+        ClassDesc classDesc = pool.getClassDesc(pageClassName);
+        for (Iterator<String> itr = parameterMap.keySet().iterator(); itr
+                .hasNext();) {
+            String name = itr.next();
+            if (!AnalyzerUtils.shouldGeneratePropertyForParameter(name)) {
+                continue;
+            }
+            if (BeanUtils.isSingleSegment(name)) {
+                ParameterRole role;
+                String[] values = parameterMap.get(name);
+                if (!(values == null || values.length == 0 || values.length == 1
+                        && "".equals(values[0]))) {
+                    role = ParameterRole.PARAMETER;
+                } else {
+                    role = inferParameterRole(path, method, pageClassName,
+                            name, getClassHint(pool, pageClassName));
+                }
+
+                switch (role) {
+                case PARAMETER:
+                    PropertyDesc propertyDesc = addPropertyDesc(classDesc,
+                            name, PropertyDesc.WRITE | PropertyDesc.READ,
+                            pageClassName);
+                    propertyDesc
+                            .setAnnotationDescOnSetter(new AnnotationDescImpl(
+                                    RequestParameter.class.getName()));
+                    break;
+
+                case BUTTON:
+                    MethodDesc methodDesc = newActionMethodDesc(classDesc
+                            .getDescPool(), path, method,
+                            new ActionSelectorSeedImpl(name));
+                    if (classDesc.getMethodDesc(methodDesc) == null) {
+                        classDesc.setMethodDesc(methodDesc);
+                    }
+                    break;
+
+                case UNDECIDED:
+                    String[] parameters = (String[]) classDesc
+                            .getAttribute(Globals.ATTR_UNDECIDEDPARAMETERNAMES);
+                    if (parameters == null) {
+                        parameters = new String[] { name };
+                    } else {
+                        parameters = (String[]) ArrayUtil.add(parameters, name);
+                    }
+                    classDesc.setAttribute(
+                            Globals.ATTR_UNDECIDEDPARAMETERNAMES, parameters);
+                    break;
+
+                default:
+                    throw new RuntimeException("Logic error");
+                }
+            } else {
+                PropertyDesc propertyDesc = addPropertyDesc(classDesc,
+                        BeanUtils.getFirstSimpleSegment(name),
+                        PropertyDesc.READ, pageClassName);
+                propertyDesc.setAnnotationDescOnGetter(new AnnotationDescImpl(
+                        RequestParameter.class.getName()));
+            }
+        }
+
+        return classDesc;
+    }
+
+    public PropertyDesc addPropertyDesc(ClassDesc classDesc,
+            String propertyName, int mode, String propertyTypeAlias,
+            boolean asCollection, String collectionClassName, int probability,
+            String pageClassName) {
+        PropertyDesc propertyDesc = classDesc.addPropertyDesc(propertyName,
+                mode);
+        if (log_.isDebugEnabled()) {
+            log_.debug("Adding property '" + propertyName
+                    + "' (object path is '" + getPathExpression(propertyDesc)
+                    + "' ...");
+        }
+        if (propertyDesc.isTypeAlreadySet(probability)) {
+            // 差し替えない。
+            if (log_.isDebugEnabled()) {
+                log_
+                        .debug("Nothing has been done because type of this property had been set.");
+            }
+            return propertyDesc;
+        }
+
+        TypeDesc typeDesc;
+
+        // プロパティ型のヒント情報を見る。
+        // ヒントがなければ、実際のクラスからプロパティ型を取得する。
+        String className = classDesc.getName();
+        String baseClassName = getGeneratedClassName(className, pageClassName);
+        PropertyTypeHint hint = getPropertyTypeHint(classDesc.getDescPool(),
+                className, propertyName);
+        if (hint != null) {
+            typeDesc = classDesc.getDescPool().newTypeDesc(
+                    hint.getTypeName(),
+                    getQualifier(propertyTypeAlias != null ? propertyTypeAlias
+                            : asCollection ? toSingular(propertyName)
+                                    : propertyName, DescUtils
+                            .getComponentClassName(hint.getTypeName())));
+            probability = PROBABILITY_MAXIMUM;
+        } else {
+            PropertyDescriptor descriptor = findPropertyDescriptor(classDesc,
+                    propertyName);
+            if (descriptor != null) {
+                Method readMethod = descriptor.getReadMethod();
+                if (readMethod != null) {
+                    propertyDesc.setGetterName(readMethod.getName());
+                }
+
+                String componentClassName;
+                Class<?> componentClass = getClass(DescUtils
+                        .getComponentPropertyTypeName(descriptor));
+                String qualifier = null;
+                String interfaceClassName = null;
+
+                if (componentClass.isInterface()) {
+                    // インタフェースの場合は実装クラス型を推論する。
+                    String qfr = findQualifier(propertyDesc);
+                    componentClassName = findPropertyClassName(
+                            propertyTypeAlias != null ? propertyTypeAlias
+                                    : qfr != null ? qfr
+                                            + getShorterName(componentClass)
+                                            : decapitalize(ClassUtils
+                                                    .getShorterName(componentClass)),
+                            baseClassName);
+
+                    if (qfr != null) {
+                        // qualifierはrepeat変数以上に強い。
+                        probability = PROBABILITY_TYPE;
+                    }
+
+                    interfaceClassName = componentClass.getName();
+                } else {
+                    // そうでない場合は実際の型をそのまま使う。
+                    componentClassName = componentClass.getName();
+                    qualifier = getQualifier(
+                            propertyTypeAlias != null ? propertyTypeAlias
+                                    : asCollection ? toSingular(propertyName)
+                                            : propertyName, componentClassName);
+                    if (isOuter(descriptor)) {
+                        probability = PROBABILITY_MAXIMUM;
+                    } else {
+                        probability = PROBABILITY_TYPE;
+                    }
+                }
+
+                String typeName = DescUtils
+                        .getGenericPropertyTypeName(descriptor);
+                if (Collection.class.isAssignableFrom(descriptor
+                        .getPropertyType())) {
+                    TypeToken typeToken = new TypeToken(typeName);
+                    typeToken.getTypes()[0].setBaseName(componentClassName);
+                    typeDesc = classDesc.getDescPool().newTypeDesc(
+                            typeToken.getAsString(), qualifier);
+                } else if (descriptor.getPropertyType().isArray()) {
+                    typeDesc = classDesc.getDescPool().newTypeDesc(
+                            componentClassName + "[]", qualifier);
+                } else {
+                    typeDesc = classDesc.getDescPool().newTypeDesc(
+                            componentClassName, qualifier);
+                }
+
+                if (interfaceClassName != null) {
+                    ClassDesc componentClassDesc = typeDesc
+                            .getComponentClassDesc();
+                    componentClassDesc
+                            .setInterfaceTypeDescs(new TypeDesc[] { classDesc
+                                    .getDescPool().newTypeDesc(
+                                            interfaceClassName) });
+
+                    // スーパークラスが未設定の場合は、インタフェースの抽象実装クラスがあれば
+                    // それをスーパークラスとする。
+                    if (componentClassDesc.getSuperclassName() == null) {
+                        String abstractClassName = getSourceCreatorSetting()
+                                .findDtoClassName(
+                                        PREFIX_ABSTRACT
+                                                + getShortName(interfaceClassName));
+                        if (abstractClassName != null) {
+                            componentClassDesc
+                                    .setSuperclassName(abstractClassName);
+                        }
+                    }
+                }
+            } else {
+                // 推論できなかった場合は名前から推論を行なう。
+                String seed = propertyTypeAlias != null ? propertyTypeAlias
+                        : asCollection ? toSingular(propertyName)
+                                : propertyName;
+                String propertyClassName = inferPropertyClassName(seed,
+                        baseClassName);
+                typeDesc = classDesc.getDescPool().newTypeDesc(
+                        propertyClassName,
+                        getQualifier(seed, propertyClassName));
+                if (asCollection) {
+                    setToCollection(typeDesc, collectionClassName);
+                }
+            }
+        }
+
+        if (typeDesc.isCollection()
+                && List.class.getName().equals(
+                        typeDesc.getCollectionClassName())) {
+            typeDesc.setCollectionImplementationClassName(propertyDesc
+                    .getTypeDesc().getCollectionImplementationClassName());
+        }
+
+        propertyDesc.setTypeDesc(typeDesc);
+        propertyDesc.notifyTypeUpdated(probability);
+
+        if (log_.isDebugEnabled()) {
+            log_.debug("This property's type has been inferred as '" + typeDesc
+                    + "'");
+        }
+
+        return propertyDesc;
+    }
+
+    public PropertyDesc addPropertyDesc(ClassDesc classDesc,
+            String propertyName, int mode, String pageClassName) {
+        return addPropertyDesc(classDesc, propertyName, mode, null, false,
+                null, PROBABILITY_DEFAULT, pageClassName);
+    }
+
+    private String getPathExpression(PropertyDesc propertyDesc) {
+        LinkedList<String> list = new LinkedList<String>();
+        int count = 10;
+        Desc<?> desc = propertyDesc;
+        do {
+            if (desc instanceof PropertyDesc) {
+                list.addFirst(((PropertyDesc) desc).getName());
+            } else if (desc instanceof ClassDesc) {
+                list.addFirst("[" + ((ClassDesc) desc).getShortName() + "]");
+            }
+            count--;
+        } while ((desc = desc.getParent()) != null && count >= 0);
+
+        StringBuilder sb = new StringBuilder();
+        String delim = "";
+        for (String segment : list) {
+            sb.append(delim).append(segment);
+            delim = "/";
+        }
+        return sb.toString();
+    }
+
+    private PropertyTypeHint getPropertyTypeHint(DescPool pool,
+            String className, String propertyName) {
+        if (pool.getHintBag() != null) {
+            return DescPool.getDefault().getHintBag().getPropertyTypeHint(
+                    className, propertyName);
+        } else {
+            return null;
+        }
+    }
+
+    private ClassHint getClassHint(DescPool pool, String className) {
+        if (pool.getHintBag() != null) {
+            return DescPool.getDefault().getHintBag().getClassHint(className);
+        } else {
+            return null;
+        }
+    }
+
+    private String toSingular(String name) {
+        if (name == null) {
+            return null;
+        }
+        if (name.endsWith(MULTIPLE_SUFFIX)) {
+            return name.substring(0, name.length() - MULTIPLE_SUFFIX.length())
+                    + SINGULAR_SUFFIX;
+        } else if (name.endsWith(MULTIPLE_SUFFIX2)) {
+            return name.substring(0, name.length() - MULTIPLE_SUFFIX2.length())
+                    + SINGULAR_SUFFIX2;
+        }
+        return name;
+    }
+
+    private String getQualifier(String seed, String className) {
+        if (!getSourceCreatorSetting().isOnDtoSearchPath(className)) {
+            return null;
+        }
+
+        String suffix = ClassUtils.getShorterName(className);
+        if (seed.endsWith(suffix)) {
+            return seed.substring(0, seed.length() - suffix.length());
+        } else {
+            return null;
+        }
+    }
+
+    private boolean isOuter(PropertyDescriptor descriptor) {
+        Method method = descriptor.getReadMethod();
+        if (method == null) {
+            method = descriptor.getWriteMethod();
+        }
+        return isOuter(method.getDeclaringClass().getName());
+    }
+
+    private PropertyDescriptor findPropertyDescriptor(ClassDesc classDesc,
+            String propertyName) {
+        String className = classDesc.getName();
+        PropertyDescriptor descriptor = getPropertyDescriptor(className,
+                propertyName);
+        if (descriptor == null) {
+            descriptor = getPropertyDescriptor(classDesc.getSuperclassName(),
+                    propertyName);
+        }
+        return descriptor;
+    }
+
+    private String findQualifier(PropertyDesc propertyDesc) {
+        // TODO ClassDesc が親を複数持つことがありうるが、再帰的にqualifierを辿るとその場合に正しくないqualifierを返す場合がある。
+        // この問題に対処できるまでは、直上の親しか見ないようにしている。
+        Desc<?> parent = propertyDesc.getParent();
+        if (parent instanceof ClassDesc) {
+            return ((ClassDesc) parent).getQualifier();
+        } else {
+            return null;
+        }
+        //        for (Desc<?> desc = propertyDesc; desc != null; desc = desc.getParent()) {
+        //            if (!(desc instanceof ClassDesc)) {
+        //                continue;
+        //            }
+        //            String qualifier = ((ClassDesc) desc).getQualifier();
+        //            if (qualifier != null) {
+        //                return qualifier;
+        //            }
+        //        }
+        //        return null;
+    }
+
+    public String findPropertyClassName(String propertyName,
+            String baseClassName) {
+        String rootPackageName = getFirstRootPackageName();
+        if (!baseClassName.startsWith(rootPackageName + ".")) {
+            // 実際にこういうケースがあったら、このメソッドを以前の形（AnalyzerContextにあった時の形）に戻すこと。
+            throw new IllegalArgumentException();
+        }
+        String subPackageName = baseClassName.substring(rootPackageName
+                .length(), baseClassName.lastIndexOf('.'));
+        int dot = subPackageName.indexOf('.', 1);
+        if (dot >= 0) {
+            subPackageName = subPackageName.substring(dot);
+        } else {
+            subPackageName = "";
+        }
+        return findClassName(getDtoPackageName(), subPackageName,
+                getDtoShortClassName(propertyName));
+    }
+
+    public String inferPropertyClassName(String propertyName,
+            String baseClassName) {
+        String className = findPropertyClassName(propertyName, baseClassName);
+        if (getClass(className) != null) {
+            return className;
+        }
+
+        // DTO型名に対応するクラスが存在しない場合はDTOサーチパス上のクラスから推論する。
+
+        String classNameFromSearchPath = getSourceCreatorSetting()
+                .findDtoClassName(propertyName);
+        if (classNameFromSearchPath != null) {
+            className = classNameFromSearchPath;
+        }
+
+        return className;
+    }
+
+    private String findClassName(String packageName, String subPackageName,
+            String shortClassName) {
+        String fullClassName = packageName + subPackageName + "."
+                + shortClassName;
+        if (getClass(fullClassName) != null) {
+            return fullClassName;
+        }
+
+        String className;
+        int pre = subPackageName.length();
+        int idx;
+        while ((idx = subPackageName.lastIndexOf('.', pre)) >= 0) {
+            className = packageName + subPackageName.substring(0, idx) + "."
+                    + shortClassName;
+            if (getClass(className) != null) {
+                return className;
+            }
+            pre = idx - 1;
+        }
+
+        return fullClassName;
+    }
+
+    public void setToCollection(TypeDesc typeDesc, String collectionClassName) {
+        if (collectionClassName == null) {
+            removePropertyIfNotExistActually(typeDesc.getComponentClassDesc(),
+                    PROP_LENGTH);
+        } else {
+            removePropertyIfNotExistActually(typeDesc.getComponentClassDesc(),
+                    PROP_SIZE);
+        }
+        typeDesc.setCollectionClassName(collectionClassName);
+        typeDesc.setCollection(true);
+    }
+
+    public boolean isOuter(ClassDesc classDesc) {
+        return isOuter(classDesc.getName());
+    }
+
+    public boolean isOuter(String typeName) {
+        return !isGeneratedClass(DescUtils.getNonGenericClassName(typeName));
+    }
+
+    String getDtoShortClassName(String propertyName) {
+        if (propertyName == null) {
+            return null;
+        }
+        return DescUtils.capFirst(propertyName) + ClassType.DTO.getSuffix();
+    }
+
+    private void removePropertyIfNotExistActually(ClassDesc classDesc,
+            String propertyName) {
+        if (getPropertyDescriptor(classDesc.getName(), propertyName) == null) {
+            classDesc.removePropertyDesc(propertyName);
+        }
+    }
+
+    public String getGeneratedClassName(String className,
+            String generatedClassName) {
+        if (isGeneratedClass(className)) {
+            return className;
+        } else {
+            return generatedClassName;
+        }
     }
 }

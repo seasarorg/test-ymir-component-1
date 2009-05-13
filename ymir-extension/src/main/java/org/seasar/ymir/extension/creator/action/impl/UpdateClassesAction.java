@@ -17,6 +17,7 @@ import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotatedDesc;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
@@ -24,6 +25,7 @@ import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
 import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.ClassType;
+import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
@@ -78,6 +80,8 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         String subTask = request.getParameter(PARAM_SUBTASK);
         if ("update".equals(subTask)) {
             return actUpdate(request, pathMetaData);
+        } else if ("createActionsCreate".equals(subTask)) {
+            return actCreateActionsCreate(request, pathMetaData);
         } else {
             return actDefault(request, pathMetaData);
         }
@@ -86,6 +90,14 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
     Response actDefault(Request request, PathMetaData pathMetaData) {
         if (!shouldUpdate(request, pathMetaData)) {
             return null;
+        }
+
+        // ボタンかもしれないパラメータつきリクエストに対応するアクションがなければ作成するようにする。
+        String[] undecidedParameterNames = getUndecidedParameterNames(request,
+                pathMetaData, null);
+        if (undecidedParameterNames.length > 0) {
+            return actCreateActionsDefault(request, pathMetaData,
+                    undecidedParameterNames);
         }
 
         Notes warnings = new Notes();
@@ -128,37 +140,42 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
     }
 
     protected ClassDescDto[] createClassDescDtos(ClassDesc[] classDescs) {
-        Properties prop = getSourceCreator().getSourceCreatorProperties();
-
         ClassDescDto[] dtos = new ClassDescDto[classDescs.length];
         for (int i = 0; i < classDescs.length; i++) {
-            String name = classDescs[i].getName();
-            ClassType type = classDescs[i].getType();
-            if (type == ClassType.DAO || type == ClassType.BEAN
-                    || type == ClassType.DXO) {
-                dtos[i] = new ClassDescDto(classDescs[i], false);
-            } else {
-                if (type == ClassType.DTO) {
-                    AnnotationDesc[] ads = DescUtils
-                            .newAnnotationDescs(getSourceCreator().getClass(
-                                    classDescs[i].getName() + "Base"));
-                    for (AnnotationDesc ad : ads) {
-                        if (AnnotatedDesc.ANNOTATION_NAME_META.equals(ad
-                                .getName())
-                                || AnnotatedDesc.ANNOTATION_NAME_METAS
-                                        .equals(ad.getName())) {
-                            classDescs[i].setAnnotationDesc(ad);
-                        }
-                    }
-                }
-
-                dtos[i] = new ClassDescDto(classDescs[i], PropertyUtils
-                        .valueOf(prop.getProperty(PREFIX_CLASSCHECKED + name),
-                                true));
-            }
+            dtos[i] = createClassDescDto(classDescs[i]);
         }
 
         return dtos;
+    }
+
+    protected ClassDescDto createClassDescDto(ClassDesc classDesc) {
+        Properties prop = getSourceCreator().getSourceCreatorProperties();
+
+        ClassDescDto dto;
+        String name = classDesc.getName();
+        ClassType type = classDesc.getType();
+        if (type == ClassType.DAO || type == ClassType.BEAN
+                || type == ClassType.DXO) {
+            dto = new ClassDescDto(classDesc, false);
+        } else {
+            if (type == ClassType.DTO) {
+                AnnotationDesc[] ads = DescUtils
+                        .newAnnotationDescs(getSourceCreator().getClass(
+                                classDesc.getName() + "Base"));
+                for (AnnotationDesc ad : ads) {
+                    if (AnnotatedDesc.ANNOTATION_NAME_META.equals(ad.getName())
+                            || AnnotatedDesc.ANNOTATION_NAME_METAS.equals(ad
+                                    .getName())) {
+                        classDesc.setAnnotationDesc(ad);
+                    }
+                }
+            }
+
+            dto = new ClassDescDto(classDesc, PropertyUtils.valueOf(prop
+                    .getProperty(PREFIX_CLASSCHECKED + name), true));
+        }
+
+        return dto;
     }
 
     Response actUpdate(Request request, PathMetaData pathMetaData) {
@@ -284,8 +301,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         pause(1000L);
         openJavaCodeInEclipseEditor(pathMetaData.getClassName());
 
-        ClassDesc classDesc = getSourceCreator().newClassDesc(newDescPool(),
-                pathMetaData.getClassName(), null);
+        DescPool pool = newDescPool();
         String path = pathMetaData.getPath();
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
@@ -294,8 +310,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         variableMap.put("pathMetaData", pathMetaData);
         variableMap.put("classDescBag", classDescBag);
         variableMap.put("actionName", getSourceCreator().newActionMethodDesc(
-                classDesc, path, method, new ActionSelectorSeedImpl())
-                .getName());
+                pool, path, method, new ActionSelectorSeedImpl()).getName());
         variableMap.put("suggestionExists", Boolean
                 .valueOf(classDescBag.getClassDescMap(ClassType.PAGE).size()
                         + classDescBag.getCreatedClassDescMap(ClassType.BEAN)
@@ -304,7 +319,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                 .getClassDescs(ClassType.PAGE));
         variableMap.put("renderActionName", getSourceCreator()
                 .getExtraPathMapping(path, method)
-                .newPrerenderActionMethodDesc(classDesc,
+                .newPrerenderActionMethodDesc(pool,
                         new ActionSelectorSeedImpl()).getName());
         variableMap.put("createdBeanClassDescs", classDescBag
                 .getCreatedClassDescs(ClassType.BEAN));
@@ -373,6 +388,11 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
             return true;
         }
 
+        // ボタンかもしれないパラメータつきリクエストに対応するアクションがなければ作成するようにする。
+        if (getUndecidedParameterNames(request, pathMetaData, null).length > 0) {
+            return true;
+        }
+
         if (getSourceCreatorSetting()
                 .isTryingToUpdateClassesWhenTemplateModified()) {
             boolean shouldUpdate = (template.lastModified() > getSourceCreator()
@@ -384,6 +404,57 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         } else {
             return false;
         }
+    }
+
+    protected String[] getUndecidedParameterNames(Request request,
+            PathMetaData pathMetaData, ClassCreationHintBag hintBag) {
+        String path = pathMetaData.getPath();
+        HttpMethod method = request.getMethod();
+        String className = pathMetaData.getClassName();
+        ClassHint classHint = null;
+        if (hintBag != null) {
+            classHint = hintBag.getClassHint(className);
+        }
+
+        List<String> list = new ArrayList<String>();
+        for (Iterator<String> itr = request.getParameterNames(); itr.hasNext();) {
+            String name = itr.next();
+            if ("".equals(request.getParameter(name))
+                    && getSourceCreator().inferParameterRole(path, method,
+                            className, name, classHint) == ParameterRole.UNDECIDED) {
+                list.add(getSourceCreator().getActionKeyFromParameterName(path,
+                        method, name));
+            }
+        }
+        return list.toArray(new String[0]);
+    }
+
+    Response actCreateActionsDefault(Request request,
+            PathMetaData pathMetaData, String[] undecidedParameterNames) {
+        DescPool pool = newDescPool();
+        pool.setBornOf(Globals.BORNOF_REQUEST);
+        ClassDesc classDesc = getSourceCreator().newClassDesc(pool,
+                pathMetaData.getClassName(), null);
+        classDesc.setAttribute(Globals.ATTR_UNDECIDEDPARAMETERNAMES,
+                undecidedParameterNames);
+
+        Map<String, Object> variableMap = newVariableMap();
+        variableMap.put("request", request);
+        variableMap.put("template", pathMetaData.getTemplate());
+        variableMap.put("parameters", getParameters(request));
+        variableMap.put("pathMetaData", pathMetaData);
+        variableMap.put("classDesc", createClassDescDto(classDesc));
+        return getSourceCreator().getResponseCreator().createResponse(
+                "updateClasses_createActions", variableMap);
+    }
+
+    Response actCreateActionsCreate(Request request, PathMetaData pathMetaData) {
+        HttpMethod method = getHttpMethod(request);
+        if (method == null) {
+            return null;
+        }
+
+        return null;
     }
 
     protected static class ClassNameMapping {

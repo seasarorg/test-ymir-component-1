@@ -95,8 +95,8 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
         pool.setBornOf(path);
         ClassDesc classDesc = getSourceCreator().newClassDesc(pool,
                 pathMetaData.getClassName(), null);
-        MethodDesc methodDesc = getSourceCreator().newActionMethodDesc(
-                classDesc, path, method, new ActionSelectorSeedImpl());
+        MethodDesc methodDesc = getSourceCreator().newActionMethodDesc(pool,
+                path, method, new ActionSelectorSeedImpl());
         methodDesc.setReturnTypeDesc(String.class);
         methodDesc.getReturnTypeDesc().setExplicit(true);
         methodDesc.setBodyDesc(new BodyDescImpl("return "

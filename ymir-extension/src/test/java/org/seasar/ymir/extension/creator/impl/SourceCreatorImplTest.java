@@ -815,8 +815,9 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         pool_.setBornOf("/sourceCreatorImplTest2.html");
         ClassDesc classDesc = pool_
                 .getClassDesc(SourceCreatorImplTest2Page.class);
-        MethodDesc methodDesc = target_.newActionMethodDesc(classDesc,
-                "/sourceCreatorImplTest2.html", HttpMethod.GET);
+        MethodDesc methodDesc = target_.newActionMethodDesc(pool_,
+                "/sourceCreatorImplTest2.html", HttpMethod.GET, classDesc
+                        .getName());
         classDesc.setMethodDesc(methodDesc);
 
         File testPageBase = new File(getSourceDir(), classDesc.getName()
@@ -924,5 +925,45 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
             throws Exception {
         assertEquals(0, target_.getMethods(Hoe3Base.class, true).length);
         assertEquals(0, target_.getMethods(Hoe3.class, false).length);
+    }
+
+    public void test_findPropertyClassName() throws Exception {
+        assertEquals("com.example.dto.EntryDto", target_.findPropertyClassName(
+                "entry", "com.example.web.IndexPage"));
+
+        assertEquals("com.example.dto.sub.EntryDto",
+                target_.findPropertyClassName("entry",
+                        "com.example.web.sub.IndexPage"));
+
+        try {
+            target_.findPropertyClassName("entry", null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            assertEquals("com.example.dto.sub.EntryDto", target_
+                    .findPropertyClassName("entry",
+                            "org.seasar.ymir.render.Selector"));
+            fail();
+        } catch (IllegalArgumentException excepted) {
+        }
+    }
+
+    public void test_inferPropertyClassName() throws Exception {
+        assertEquals("com.example.dto.sub.NameDto", target_
+                .inferPropertyClassName("name", "com.example.web.sub.SubPage"));
+
+        try {
+            assertEquals("com.example.dto.NameDto", target_
+                    .inferPropertyClassName("name",
+                            "net.kankeinai.package.SubPage"));
+            fail();
+        } catch (IllegalArgumentException excepted) {
+        }
+
+        assertEquals("[#YMIR-202]既存クラスが上位にあればそれを返すこと",
+                "com.example.dto.sub.Name2Dto", target_.inferPropertyClassName(
+                        "name2", "com.example.web.sub.sub.SubPage"));
     }
 }

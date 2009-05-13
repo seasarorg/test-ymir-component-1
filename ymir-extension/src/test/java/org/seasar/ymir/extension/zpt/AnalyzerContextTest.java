@@ -69,20 +69,6 @@ public class AnalyzerContextTest extends TestCase {
         pool_ = DescPool.newInstance(target_.getSourceCreator(), null);
     }
 
-    public void test_inferPropertyClassName() throws Exception {
-        target_.setPageClassName("com.example.web.IndexPage");
-
-        assertEquals("com.example.dto.sub.NameDto", target_
-                .inferPropertyClassName("name", "com.example.web.sub.SubPage"));
-
-        assertEquals("com.example.dto.NameDto", target_.inferPropertyClassName(
-                "name", "net.kankeinai.package.SubPage"));
-
-        assertEquals("[#YMIR-202]既存クラスが上位にあればそれを返すこと",
-                "com.example.dto.sub.Name2Dto", target_.inferPropertyClassName(
-                        "name2", "com.example.web.sub.sub.SubPage"));
-    }
-
     public void testReplaceSimpleDtoTypeToDefaultType1() throws Exception {
         PropertyDesc propertyDesc = new PropertyDescImpl(pool_, "name");
         TypeDesc typeDesc = new TypeDescImpl(pool_, "com.example.dto.HoeDto");
@@ -128,23 +114,5 @@ public class AnalyzerContextTest extends TestCase {
 
         assertEquals("java.util.List<com.example.dto.HoeDto[]>[]", typeDesc
                 .getName());
-    }
-
-    public void test_findPropertyClassName() throws Exception {
-        target_.setPageClassName("com.example.web.sub.IndexPage");
-
-        assertEquals("com.example.dto.EntryDto", target_.findPropertyClassName(
-                "entry", "com.example.web.IndexPage"));
-
-        assertEquals("com.example.dto.sub.EntryDto",
-                target_.findPropertyClassName("entry",
-                        "com.example.web.sub.IndexPage"));
-
-        assertEquals("com.example.dto.sub.EntryDto", target_
-                .findPropertyClassName("entry", null));
-
-        assertEquals("com.example.dto.sub.EntryDto", target_
-                .findPropertyClassName("entry",
-                        "org.seasar.ymir.render.Selector"));
     }
 }
