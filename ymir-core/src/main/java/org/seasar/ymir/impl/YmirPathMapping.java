@@ -61,7 +61,10 @@ public class YmirPathMapping implements PathMapping {
 
     public static final String ACTION_DEFAULT = "_default";
 
-    public static final String BUTTONNAMEPATTERNSTRINGFORDISPATCHING = "_([a-zA-Z_][a-zA-Z0-9_]*)$";
+    public static final String BUTTONNAME_BASE = "[a-zA-Z_][a-zA-Z_0-9]*";
+
+    public static final String BUTTONNAMEPATTERNSTRINGFORDISPATCHING = "_("
+            + BUTTONNAME_BASE + ")$";
 
     public static final String DEFAULT_ACTIONNAMETEMPLATE = "_${method}";
 
@@ -565,8 +568,8 @@ public class YmirPathMapping implements PathMapping {
     }
 
     public static class Button {
-        private static final Pattern PATTERN = Pattern
-                .compile("([a-zA-Z_][a-zA-Z_0-9]*)((\\[[^]]*\\])*)");
+        private static final Pattern PATTERN = Pattern.compile("("
+                + BUTTONNAME_BASE + ")((\\[[^]]*\\])*)");
 
         private static final char PARAM_PREFIX_CHAR = '[';
 
