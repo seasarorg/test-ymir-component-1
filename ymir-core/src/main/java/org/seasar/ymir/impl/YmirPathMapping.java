@@ -61,7 +61,7 @@ public class YmirPathMapping implements PathMapping {
 
     public static final String ACTION_DEFAULT = "_default";
 
-    public static final String BUTTONNAMEPATTERNSTRINGFORDISPATCHING = "_([a-zA-Z][a-zA-Z0-9]*)";
+    public static final String BUTTONNAMEPATTERNSTRINGFORDISPATCHING = "_([a-zA-Z_][a-zA-Z0-9_]*)$";
 
     public static final String DEFAULT_ACTIONNAMETEMPLATE = "_${method}";
 
@@ -457,7 +457,7 @@ public class YmirPathMapping implements PathMapping {
             String actionName, Request request) {
         Method[] methods = ClassUtils.getMethods(pageClass);
         if (log_.isDebugEnabled()) {
-            log_.debug("getActionByParameter: search " + pageClass + " for "
+            log_.debug("getActionForButton: search " + pageClass + " for "
                     + actionName + " method...");
         }
         for (int i = 0; i < methods.length; i++) {
@@ -465,7 +465,7 @@ public class YmirPathMapping implements PathMapping {
                     actionName, request);
             if (action != null) {
                 if (log_.isDebugEnabled()) {
-                    log_.debug("getActionByParameter: Found: " + methods[i]);
+                    log_.debug("getActionForButton: Found: " + methods[i]);
                 }
                 return action;
             }

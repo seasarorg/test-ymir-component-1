@@ -46,6 +46,22 @@ public class YmirPathMappingTest extends ComponentClientTestCase {
         assertEquals("_post_search", action.getName());
     }
 
+    public void testGetAction_ボタン名にアンダースコアが入っていてもメソッドが正しく見つかること()
+            throws Exception {
+        Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+        parameterMap.put("aaa_bbb", new String[] { "" });
+        Request request = new MockRequest().setParameterMap(parameterMap);
+        VariableResolver resolver = target_
+                .match("/index.html", HttpMethod.GET);
+        PageComponent pageComponent = new PageComponentImpl(
+                new YmirPathMappingTest2Page(), YmirPathMappingTest2Page.class);
+
+        Action action = target_.getAction(pageComponent, request, resolver);
+
+        assertNotNull(action);
+        assertEquals("_get_aaa_bbb", action.getName());
+    }
+
     public void test_複数パラメータつきアクションのためのActionオブジェクトを生成できること() throws Exception {
         Map<String, String[]> parameterMap = new HashMap<String, String[]>();
         parameterMap.put("search[1][test][hoe]", new String[] { "" });
