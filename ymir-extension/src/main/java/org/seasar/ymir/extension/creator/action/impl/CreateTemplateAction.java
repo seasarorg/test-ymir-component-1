@@ -134,7 +134,7 @@ public class CreateTemplateAction extends AbstractAction implements
             classDesc.setMethodDesc(actionMethodDesc);
             getSourceCreator().adjustByExistentClass(classDesc);
             try {
-                getSourceCreator().writeSourceFile(classDesc, null);
+                getSourceCreator().updateClass(classDesc);
             } catch (InvalidClassDescException ex) {
                 throw new RuntimeException("Can't happen!", ex);
             }

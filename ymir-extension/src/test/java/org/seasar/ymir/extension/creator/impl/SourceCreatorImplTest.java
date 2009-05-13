@@ -82,6 +82,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
         testPage.delete();
 
+        target_.prepareForMethodBody(classDesc);
+        target_.prepareForImportDesc(classDesc);
         target_.writeSourceFile(classDesc, null);
 
         assertTrue(testPage.exists());
@@ -107,6 +109,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         os.write(32);
         os.close();
 
+        target_.prepareForMethodBody(classDesc);
+        target_.prepareForImportDesc(classDesc);
         target_.writeSourceFile(classDesc, null);
 
         String actual = IOUtils.readString(new FileInputStream(testPage),

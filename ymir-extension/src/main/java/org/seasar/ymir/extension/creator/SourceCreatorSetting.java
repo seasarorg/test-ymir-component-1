@@ -77,6 +77,8 @@ public class SourceCreatorSetting {
 
     public static final String APPKEY_SOURCECREATOR_ECLIPSE_RESOURCESYNCHRONIZERURL = "extension.sourceCreator.eclipse.resourceSynchronizerURL";
 
+    public static final String APPKEY_SOURCECREATOR_SORTELEMENTSBYNAME = "extension.sourceCreator.sortElementsByName";
+
     private static final String DEFAULT_RESOURCESYNCHRONIZERURL = "http://localhost:8386/";
 
     private static final String DEFAULT_SOURCECREATOR_FIELDPREFIX = "";
@@ -473,5 +475,10 @@ public class SourceCreatorSetting {
             return null;
         }
         return getFieldPrefix() + propertyName + getFieldSuffix();
+    }
+
+    public boolean isSortElementsByName() {
+        return PropertyUtils.valueOf(
+                getProperty(APPKEY_SOURCECREATOR_SORTELEMENTSBYNAME), false);
     }
 }

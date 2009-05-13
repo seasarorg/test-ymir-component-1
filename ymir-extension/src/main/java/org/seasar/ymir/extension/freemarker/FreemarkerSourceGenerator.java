@@ -4,23 +4,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.io.IORuntimeException;
-import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.ClassDesc;
-import org.seasar.ymir.extension.creator.Desc;
-import org.seasar.ymir.extension.creator.ImportDesc;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceGenerator;
-import org.seasar.ymir.extension.creator.impl.ImportDescImpl;
 
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
@@ -35,26 +28,12 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
         sourceCreator_ = sourceCreator;
     }
 
-    @SuppressWarnings("unchecked")
     public String generateGapSource(ClassDesc classDesc) {
         if (classDesc == null) {
             return null;
         }
 
-        ImportDesc importDesc = new ImportDescImpl(sourceCreator_, classDesc);
-        classDesc.getSourceGeneratorParameter().put(
-                Globals.PARAMETER_IMPORTDESC, importDesc);
-
-        HashSet<String> set = new HashSet<String>(((Set<String>) classDesc
-                .getSourceGeneratorParameter().get(
-                        Globals.PARAMETER_IMPORTCLASSSET)));
-        classDesc.setTouchedClassNameSet(set);
-
         String templateName = classDesc.getType().getSuffix() + ".java";
-
-        // importを正しく生成するために2パスにしている。
-        generateClassSource(templateName, classDesc);
-        importDesc.add(set);
 
         return generateClassSource(templateName, classDesc);
     }
@@ -65,26 +44,7 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
             return null;
         }
 
-        Map<String, Object> parameter = classDesc.getSourceGeneratorParameter();
-        ImportDesc importDesc = new ImportDescImpl(sourceCreator_, classDesc);
-        parameter.put(Globals.PARAMETER_IMPORTDESC, importDesc);
-
-        HashSet<String> set = new HashSet<String>(((Set<String>) parameter
-                .get(Globals.PARAMETER_BASEIMPORTCLASSSET)));
-        classDesc.setTouchedClassNameSet(set);
-        List<Desc<?>> list = (List<Desc<?>>) parameter
-                .get(Globals.PARAMETER_AUXDESCLIST);
-        if (list != null) {
-            for (Desc<?> desc : list) {
-                desc.setTouchedClassNameSet(set);
-            }
-        }
-
         String templateName = classDesc.getType().getSuffix() + "Base.java";
-
-        // importを正しく生成するために2パスにしている。
-        generateClassSource(templateName, classDesc);
-        importDesc.add(set);
 
         return generateClassSource(templateName, classDesc);
     }

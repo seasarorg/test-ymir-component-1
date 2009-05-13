@@ -87,9 +87,6 @@ public interface SourceCreator extends Updater {
 
     ResponseCreator getResponseCreator();
 
-    void writeSourceFile(ClassDesc classDesc, ClassDescSet classDescSet)
-            throws InvalidClassDescException;
-
     void writeSourceFile(String templateName, ClassDesc classDesc, boolean force);
 
     SourceGenerator getSourceGenerator();

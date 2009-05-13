@@ -105,7 +105,7 @@ public class CreateClassAndTemplateAction extends AbstractAction implements
 
         String[] lackingClassNames = null;
         try {
-            getSourceCreator().writeSourceFile(classDesc, null);
+            getSourceCreator().updateClass(classDesc);
         } catch (InvalidClassDescException ex) {
             lackingClassNames = ex.getLackingClassNames();
         }

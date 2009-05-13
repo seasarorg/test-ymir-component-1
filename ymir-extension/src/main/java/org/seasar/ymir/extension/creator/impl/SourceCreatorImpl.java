@@ -102,6 +102,7 @@ import org.seasar.ymir.extension.creator.Desc;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.DescValidator;
 import org.seasar.ymir.extension.creator.EntityMetaData;
+import org.seasar.ymir.extension.creator.ImportDesc;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.MethodDescKey;
@@ -1242,10 +1243,16 @@ public class SourceCreatorImpl implements SourceCreator {
         // 自動生成後に自動生成処理の呼び出し元に返すべき付加情報を設定する。
         prepareForAttribute(classDesc);
 
+        // メソッドのボディの準備をする。
+        prepareForMethodBody(classDesc);
+
+        // import文生成のための準備をする。
+        prepareForImportDesc(classDesc);
+
         writeSourceFile(classDesc, classDescSet);
     }
 
-    public void prepareForMethodDescs(ClassDesc classDesc) {
+    public void prepareForMethodBody(ClassDesc classDesc) {
         MethodDesc[] mds = classDesc.getMethodDescs();
         for (int i = 0; i < mds.length; i++) {
             BodyDesc bodyDesc = mds[i].getBodyDesc();
@@ -1295,7 +1302,7 @@ public class SourceCreatorImpl implements SourceCreator {
         return list.toArray(new Class<?>[0]);
     }
 
-    public void prepareForSourceGeneratorParameter(ClassDesc classDesc) {
+    public void prepareForImportDesc(ClassDesc classDesc) {
         Map<String, Object> parameter = classDesc.getSourceGeneratorParameter();
 
         EntityMetaData entityMetaData = new EntityMetaData(classDesc
@@ -1570,6 +1577,13 @@ public class SourceCreatorImpl implements SourceCreator {
                     .toArray(new MethodDesc[0]));
 
             desc.merge(generated, true);
+
+            // 最終調整。
+
+            if (desc.isTypeOf(ClassType.DTO)) {
+                MethodDesc methodDesc = new MethodDescImpl(pool, "toString");
+                desc.removeMethodDesc(methodDesc);
+            }
         } finally {
             pool.setBornOf(oldBornOf);
         }
@@ -1660,32 +1674,72 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public void writeSourceFile(ClassDesc classDesc, ClassDescSet classDescSet)
             throws InvalidClassDescException {
+        // ClassDescからソースファイルを出力可能かのチェックを行なう。
         Result result = DescValidator.validate(classDesc, classDescSet);
         if (!result.isValid()) {
             throw new InvalidClassDescException(result.getClassNames());
         }
 
-        // メソッドのボディの準備をする。
-        prepareForMethodDescs(classDesc);
-
-        // 自動生成に必要な付加情報を設定する。
-        prepareForSourceGeneratorParameter(classDesc);
-
-        if (classDesc.isTypeOf(ClassType.DTO)) {
-            MethodDesc methodDesc = new MethodDescImpl(classDesc.getDescPool(),
-                    "toString");
-            classDesc.removeMethodDesc(methodDesc);
-        }
-
-        writeString(sourceGenerator_.generateBaseSource(classDesc),
-                getSourceFile(classDesc.getName() + "Base"));
+        writeString(generateBaseSource(classDesc), getSourceFile(classDesc
+                .getName()
+                + "Base"));
 
         // gap側のクラスは存在しない場合のみ生成する。
         File sourceFile = getSourceFile(classDesc.getName());
         if (!sourceFile.exists()) {
-            writeString(sourceGenerator_.generateGapSource(classDesc),
-                    sourceFile);
+
+            writeString(generateGapSource(classDesc), sourceFile);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public String generateGapSource(ClassDesc classDesc) {
+        if (classDesc == null) {
+            return null;
+        }
+
+        ImportDesc importDesc = new ImportDescImpl(this, classDesc);
+        classDesc.getSourceGeneratorParameter().put(
+                Globals.PARAMETER_IMPORTDESC, importDesc);
+
+        HashSet<String> set = new HashSet<String>(((Set<String>) classDesc
+                .getSourceGeneratorParameter().get(
+                        Globals.PARAMETER_IMPORTCLASSSET)));
+        classDesc.setTouchedClassNameSet(set);
+
+        // importを正しく生成するために2パスにしている。
+        sourceGenerator_.generateGapSource(classDesc);
+        importDesc.add(set);
+
+        return sourceGenerator_.generateGapSource(classDesc);
+    }
+
+    @SuppressWarnings("unchecked")
+    public String generateBaseSource(ClassDesc classDesc) {
+        if (classDesc == null) {
+            return null;
+        }
+
+        Map<String, Object> parameter = classDesc.getSourceGeneratorParameter();
+        ImportDesc importDesc = new ImportDescImpl(this, classDesc);
+        parameter.put(Globals.PARAMETER_IMPORTDESC, importDesc);
+
+        HashSet<String> set = new HashSet<String>(((Set<String>) parameter
+                .get(Globals.PARAMETER_BASEIMPORTCLASSSET)));
+        classDesc.setTouchedClassNameSet(set);
+        List<Desc<?>> list = (List<Desc<?>>) parameter
+                .get(Globals.PARAMETER_AUXDESCLIST);
+        if (list != null) {
+            for (Desc<?> desc : list) {
+                desc.setTouchedClassNameSet(set);
+            }
+        }
+
+        // importを正しく生成するために2パスにしている。
+        sourceGenerator_.generateBaseSource(classDesc);
+        importDesc.add(set);
+
+        return sourceGenerator_.generateBaseSource(classDesc);
     }
 
     public void writeSourceFile(String templateName, ClassDesc classDesc,

@@ -87,7 +87,7 @@ public class CreateClassAction extends AbstractAction implements UpdateAction {
 
         String[] lackingClassNames = null;
         try {
-            getSourceCreator().writeSourceFile(classDesc, null);
+            getSourceCreator().updateClass(classDesc);
         } catch (InvalidClassDescException ex) {
             lackingClassNames = ex.getLackingClassNames();
         }
