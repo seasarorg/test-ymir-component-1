@@ -33,6 +33,7 @@ import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.ThrowsDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
+import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
@@ -818,8 +819,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         ClassDesc classDesc = pool_
                 .getClassDesc(SourceCreatorImplTest2Page.class);
         MethodDesc methodDesc = target_.newActionMethodDesc(pool_,
-                "/sourceCreatorImplTest2.html", HttpMethod.GET, classDesc
-                        .getName());
+                "/sourceCreatorImplTest2.html", HttpMethod.GET,
+                new ActionSelectorSeedImpl());
         classDesc.setMethodDesc(methodDesc);
 
         File testPageBase = new File(getSourceDir(), classDesc.getName()

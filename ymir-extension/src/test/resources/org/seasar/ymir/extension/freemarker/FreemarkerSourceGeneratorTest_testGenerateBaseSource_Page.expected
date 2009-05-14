@@ -2,14 +2,13 @@ package com.example.page;
 
 import org.seasar.ymir.Response;
 import org.seasar.ymir.annotation.Meta;
+import org.seasar.ymir.id.action.GetAction;
 import org.seasar.ymir.response.PassthroughResponse;
 
 public class TestPageBase extends TestPageBaseBase {
     public static final String PACKAGE = "com.example.page";
 
     public static final String NAME = "test";
-
-    public static final String A_get = "_get";
 
     public static final String P_param1 = "param1";
 
@@ -49,6 +48,14 @@ public class TestPageBase extends TestPageBaseBase {
 
     public void setParam3(String param3) {
         param3_ = param3;
+    }
+
+    public static interface _get extends GetAction {
+        public static final String NAME = "_get";
+
+        public static final String KEY = "";
+
+        public static final Class<? extends GetAction> method = _get.class;
     }
 
     @Meta(name = "source", value = "return new PassthroughResponse();", classValue = PassthroughResponse.class)

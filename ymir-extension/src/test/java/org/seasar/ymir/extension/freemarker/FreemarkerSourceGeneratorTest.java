@@ -24,6 +24,7 @@ import org.seasar.ymir.extension.creator.impl.ParameterDescImpl;
 import org.seasar.ymir.extension.creator.impl.PropertyDescImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.extension.creator.impl.ThrowsDescImpl;
+import org.seasar.ymir.id.action.GetAction;
 import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.mock.MockYmir;
 import org.seasar.ymir.response.PassthroughResponse;
@@ -178,12 +179,12 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         ClassDesc classDesc = prepareClassDesc("com.example.page.TestPage");
         classDesc.setSuperclassName(TestPageBaseBase.class.getName());
         MethodDesc methodDesc = new MethodDescImpl(pool_, "_get");
-        classDesc.setAttribute(Globals.ATTR_ACTION,
-                new MethodDesc[] { methodDesc });
         methodDesc.setReturnTypeDesc(Response.class.getName());
         methodDesc.setBodyDesc(new BodyDescImpl(
                 "return new PassthroughResponse();",
                 new String[] { PassthroughResponse.class.getName() }));
+        sourceCreator_.setActionInfo(methodDesc, GetAction.class,
+                Globals.ACTIONKEY_DEFAULT);
         classDesc.setMethodDesc(methodDesc);
 
         sourceCreator_.prepareForMethodBody(classDesc);
@@ -206,9 +207,9 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 return new ClassDescImpl(pool, className, qualifier);
             }
         }.newClassDesc(pool_, HoePageBase.class, true);
-        classDesc.setAttribute(Globals.ATTR_ACTION,
-                new MethodDesc[] { classDesc.getMethodDesc(new MethodDescImpl(
-                        pool_, "_get")) });
+        sourceCreator_.setActionInfo(classDesc
+                .getMethodDesc(new MethodDescImpl(pool_, "_get")),
+                GetAction.class, Globals.ACTIONKEY_DEFAULT);
 
         sourceCreator_.prepareForMethodBody(classDesc);
         sourceCreator_.prepareForImportDesc(classDesc);
@@ -411,12 +412,12 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         ClassDesc classDesc = new ClassDescImpl(pool_,
                 "com.example.page.TestPage");
         MethodDesc methodDesc = new MethodDescImpl(pool_, "_get");
-        classDesc.setAttribute(Globals.ATTR_ACTION,
-                new MethodDesc[] { methodDesc });
         methodDesc.setReturnTypeDesc("void");
         methodDesc
                 .setParameterDescs(new ParameterDesc[] { new ParameterDescImpl(
                         pool_, Integer.TYPE) });
+        sourceCreator_.setActionInfo(methodDesc, GetAction.class,
+                Globals.ACTIONKEY_DEFAULT);
         classDesc.setMethodDesc(methodDesc);
 
         sourceCreator_.prepareForMethodBody(classDesc);
@@ -433,12 +434,12 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         ClassDesc classDesc = new ClassDescImpl(pool_,
                 "com.example.page.TestPage");
         MethodDesc methodDesc = new MethodDescImpl(pool_, "_get");
-        classDesc.setAttribute(Globals.ATTR_ACTION,
-                new MethodDesc[] { methodDesc });
         methodDesc.setReturnTypeDesc("void");
         methodDesc.setParameterDescs(new ParameterDesc[] {
             new ParameterDescImpl(pool_, String.class),
             new ParameterDescImpl(pool_, String.class) });
+        sourceCreator_.setActionInfo(methodDesc, GetAction.class,
+                Globals.ACTIONKEY_DEFAULT);
         classDesc.setMethodDesc(methodDesc);
 
         sourceCreator_.prepareForMethodBody(classDesc);

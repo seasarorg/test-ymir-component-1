@@ -5,8 +5,6 @@ import static org.seasar.ymir.constraint.Globals.APPKEY_CORE_CONSTRAINT_PERMISSI
 import static org.seasar.ymir.constraint.Globals.APPKEY_CORE_CONSTRAINT_VALIDATIONFAILEDMETHOD_ENABLE;
 import static org.seasar.ymir.extension.creator.PropertyDesc.PROBABILITY_DEFAULT;
 import static org.seasar.ymir.extension.creator.PropertyDesc.PROBABILITY_MAXIMUM;
-import static org.seasar.ymir.extension.creator.util.SourceCreatorUtils.newPageComponent;
-import static org.seasar.ymir.extension.creator.util.SourceCreatorUtils.newRequest;
 import static org.seasar.ymir.impl.YmirImpl.PARAM_METHOD;
 import static org.seasar.ymir.util.ClassUtils.getShortName;
 import static org.seasar.ymir.util.ClassUtils.getShorterName;
@@ -72,7 +70,6 @@ import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.StringUtils;
 import org.seasar.kvasir.util.collection.MapProperties;
 import org.seasar.kvasir.util.io.IOUtils;
-import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionNotFoundRuntimeException;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
@@ -148,6 +145,7 @@ import org.seasar.ymir.extension.creator.util.SourceCreatorUtils;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
 import org.seasar.ymir.extension.zpt.AnalyzerUtils;
 import org.seasar.ymir.extension.zpt.ParameterRole;
+import org.seasar.ymir.id.action.Action;
 import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.message.MessageNotFoundRuntimeException;
 import org.seasar.ymir.message.Messages;
@@ -189,8 +187,6 @@ public class SourceCreatorImpl implements SourceCreator {
 
     private static final String RESOURCE_PREAMBLE_JAVA = "org/seasar/ymir/extension/Preamble.java.txt";
 
-    private static final String PREFIX_ACTIONMETHOD = "M";
-
     private static final String PROP_LENGTH = "length";
 
     private static final String PROP_SIZE = "size";
@@ -206,6 +202,10 @@ public class SourceCreatorImpl implements SourceCreator {
             return o1.getName().compareTo(o2.getName());
         }
     };
+
+    private static final String ACTIONMETHOD_FIELD_KEY = "KEY";
+
+    private static final Map<HttpMethod, Class<? extends Action>> ACTIONINTERFACE_BY_HTTPMETHOD_MAP;
 
     private YmirImpl ymir_;
 
@@ -273,6 +273,27 @@ public class SourceCreatorImpl implements SourceCreator {
     private boolean initialized_;
 
     private Log log_ = LogFactory.getLog(SourceCreatorImpl.class);
+
+    static {
+        Map<HttpMethod, Class<? extends Action>> map = new HashMap<HttpMethod, Class<? extends Action>>();
+        for (HttpMethod method : HttpMethod.values()) {
+            String name = method.name();
+            try {
+                @SuppressWarnings("unchecked")
+                Class<? extends Action> actionInterface = (Class<? extends Action>) Class
+                        .forName("org.seasar.ymir.id.action."
+                                + name.substring(0, 1)
+                                + name.substring(1, name.length())
+                                        .toLowerCase() + "Action");
+                map.put(method, actionInterface);
+            } catch (ClassNotFoundException ex) {
+                throw new RuntimeException(
+                        "Cannot find Action interface. Please add Action interface for HTTP method '"
+                                + name + "'");
+            }
+        }
+        ACTIONINTERFACE_BY_HTTPMETHOD_MAP = Collections.unmodifiableMap(map);
+    }
 
     @Binding(bindingType = BindingType.MUST)
     public void setTemplateAnalyzer(TemplateAnalyzer analyzer) {
@@ -684,7 +705,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 // 問題が発生する。これを避けるため、methodに依らずGETでアクションメソッドを生成するように
                 // している。
                 MethodDesc actionMethodDesc = newActionMethodDesc(pool, path,
-                        HttpMethod.GET, pageClassName);
+                        HttpMethod.GET, new ActionSelectorSeedImpl());
                 if (pageClassDesc.getMethodDesc(actionMethodDesc) == null) {
                     pageClassDesc.setMethodDesc(actionMethodDesc);
                 }
@@ -792,27 +813,6 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    MethodDesc newActionMethodDesc(DescPool pool, String path,
-            HttpMethod method, String className) {
-        Class<?> pageClass = getClass(className);
-        if (pageClass != null) {
-            MatchedPathMapping matched = findMatchedPathMapping(path, method);
-            if (matched != null) {
-                Action action = matched.getAction(newPageComponent(pageClass),
-                        newRequest(path, method, null));
-                if (action != null) {
-                    MethodDesc methodDesc = new MethodDescImpl(pool, action
-                            .getMethodInvoker().getMethod());
-                    setActionMethodDescBodyTo(methodDesc);
-                    methodDesc.setAttribute(Globals.ATTR_ACTION, Boolean.TRUE);
-                    return methodDesc;
-                }
-            }
-        }
-        return newActionMethodDesc(pool, path, method,
-                new ActionSelectorSeedImpl());
-    }
-
     @Begin
     Begin getBeginAnnotation() {
         try {
@@ -882,6 +882,31 @@ public class SourceCreatorImpl implements SourceCreator {
                     parameterDescs[i].setName(source[idx]);
                 }
             }
+
+            // メソッドがアクションである場合はアクションに関する情報を埋め込んでおく。
+            Class<?> actionMethodClass = getClass(clazz.getName() + "$"
+                    + method.getName());
+            if (actionMethodClass != null) {
+                boolean action = true;
+                String actionKey = null;
+                try {
+                    actionKey = (String) actionMethodClass.getField(
+                            ACTIONMETHOD_FIELD_KEY).get(null);
+                } catch (Throwable t) {
+                    if (log_.isDebugEnabled()) {
+                        log_.debug("Cannot get field '"
+                                + ACTIONMETHOD_FIELD_KEY + "' value of class '"
+                                + actionMethodClass + "'", t);
+                    }
+                    action = false;
+                }
+                if (action) {
+                    @SuppressWarnings("unchecked")
+                    Class<? extends Action> actionInterface = actionMethodClass
+                            .getInterfaces()[0];
+                    setActionInfo(md, actionInterface, actionKey);
+                }
+            }
         }
 
         // 特別な処理を行なう。
@@ -907,56 +932,18 @@ public class SourceCreatorImpl implements SourceCreator {
                             .newAnnotationDesc(annotation));
                 }
             }
-
-            int modifiers = fields[i].getModifiers();
-            if (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers)
-                    && Modifier.isFinal(modifiers)) {
-                String name = fields[i].getName();
-                if (name.startsWith(PREFIX_ACTIONMETHOD)) {
-                    Class<?> actionMethodClass;
-                    try {
-                        actionMethodClass = (Class<?>) fields[i].get(null);
-                    } catch (Throwable t) {
-                        throw new RuntimeException("Can't happen!", t);
-                    }
-
-                    for (Method actionMethod : ClassUtils.getMethods(fields[i]
-                            .getDeclaringClass(), name
-                            .substring(PREFIX_ACTIONMETHOD.length()))) {
-                        MethodDesc actionMd = classDesc
-                                .getMethodDesc(new MethodDescImpl(pool,
-                                        actionMethod));
-                        if (actionMd != null) {
-                            actionMd.setAttribute(Globals.ATTR_ACTION,
-                                    Boolean.TRUE);
-                            actionMd.setAttribute(Globals.ATTR_ACTION_KEY,
-                                    MetaUtils.getFirstValue(actionMethodClass,
-                                            Globals.META_NAME_ACTIONKEY));
-                            actionMd.setAttribute(
-                                    Globals.ATTR_ACTION_HTTPMETHOD,
-                                    GenericsUtils.getUpperBoundType(fields[i]
-                                            .getGenericType()));
-                        }
-                    }
-                }
-            }
         }
 
         return classDesc;
     }
 
-    // TODO
-    //    @Meta(name = "actionKey", value = "")
-    //    public static class M_get implements Get {
-    //    }
-    //
-    //    public static final Class<? extends Get> M_get = M_get.class;
-    //
-    //    @Meta(name = "bornOf", value = { "/index.html", "/upload/index.html" })
-    //    public void _get() {
-    //
-    //    }
-    //
+    public void setActionInfo(MethodDesc methodDesc,
+            Class<? extends Action> actionInterface, String actionKey) {
+        methodDesc.setAttribute(Globals.ATTR_ACTION, Boolean.TRUE);
+        methodDesc.setAttribute(Globals.ATTR_ACTION_INTERFACE, actionInterface);
+        methodDesc.setAttribute(Globals.ATTR_ACTION_KEY, actionKey);
+    }
+
     Method[] getMethods(Class<?> clazz, boolean onlyDeclared) {
         Set<Method> excludeMethodSet = new HashSet<Method>();
         for (PropertyDescriptor descriptor : getPropertyDescriptors(clazz,
@@ -1373,6 +1360,15 @@ public class SourceCreatorImpl implements SourceCreator {
 
         case PAGE:
             for (MethodDesc md : classDesc.getMethodDescs()) {
+                if (isAction(md)) {
+                    @SuppressWarnings("unchecked")
+                    Class<? extends Action> actionInterface = (Class<? extends Action>) md
+                            .getAttribute(Globals.ATTR_ACTION_INTERFACE);
+                    baseImportClassNameSet.add(actionInterface.getName());
+                    md.setAttribute(Globals.ATTR_ACTION_INTERFACE_SHORTNAME,
+                            ClassUtils.getShortName(actionInterface));
+                }
+
                 BodyDesc bodyDesc = md.getBodyDesc();
                 if (bodyDesc != null) {
                     baseImportClassNameSet.addAll(Arrays.asList(bodyDesc
@@ -1423,7 +1419,7 @@ public class SourceCreatorImpl implements SourceCreator {
         if (classDesc.isTypeOf(ClassType.PAGE)) {
             List<MethodDesc> list = new ArrayList<MethodDesc>();
             for (MethodDesc methodDesc : classDesc.getMethodDescs()) {
-                if (methodDesc.getAttribute(Globals.ATTR_ACTION) != null) {
+                if (isAction(methodDesc)) {
                     list.add(methodDesc);
                 }
             }
@@ -2395,11 +2391,17 @@ public class SourceCreatorImpl implements SourceCreator {
             HttpMethod method, ActionSelectorSeed seed) {
         MethodDesc methodDesc = getExtraPathMapping(path, method)
                 .newActionMethodDesc(pool, seed);
-        methodDesc.setAttribute(Globals.ATTR_ACTION, Boolean.TRUE);
         String returnType = setting_.getActionReturnType(method);
         methodDesc.setReturnTypeDesc(returnType);
         setActionMethodDescBodyTo(methodDesc);
+        setActionInfo(methodDesc, getActionInterface(method), seed
+                .getActionKey());
+
         return methodDesc;
+    }
+
+    private Class<? extends Action> getActionInterface(HttpMethod method) {
+        return ACTIONINTERFACE_BY_HTTPMETHOD_MAP.get(method);
     }
 
     public MethodDesc newPrerenderActionMethodDesc(DescPool pool, String path,
@@ -2938,56 +2940,4 @@ public class SourceCreatorImpl implements SourceCreator {
             return generatedClassName;
         }
     }
-
-    // TODO
-    //    public class Redirect {
-    //        private static final String META_NAME_ACTIONKEY = "actionKey";
-    //
-    //        protected Redirect() {
-    //        }
-    //
-    //        public static Response to(String path, Object... params) {
-    //            return new RedirectResponse(PageUtils
-    //                    .constructPath(path, false, params));
-    //        }
-    //
-    //        public static Response to(Class<?> pageClass) {
-    //            return to(pageClass, (String) null);
-    //        }
-    //
-    //        public static Response to(Class<?> pageClass, String param,
-    //                Object... params) {
-    //            Object[] pms;
-    //            if (param != null) {
-    //                pms = new Object[1 + params.length];
-    //                pms[0] = param;
-    //                System.arraycopy(params, 0, pms, 1, params.length);
-    //            } else {
-    //                pms = params;
-    //            }
-    //
-    //            return new RedirectResponse(PageUtils.constructPath(pageClass, false,
-    //                    pms));
-    //        }
-    //
-    //        public static Response to(Class<?> pageClass,
-    //                Class<? extends Get> actionClass) {
-    //            return to(pageClass, MetaUtils.getFirstValue(actionClass,
-    //                    META_NAME_ACTIONKEY));
-    //        }
-    //
-    //        public static Response to(Class<?> pageClass,
-    //                Class<? extends Get> actionClass, Object... params) {
-    //            return null;
-    //        }
-    //
-    //        public static Response toNonCached(String path, Object... params) {
-    //            return new RedirectResponse(PageUtils.constructPath(path, true, params));
-    //        }
-    //
-    //        public static Response toNonCached(Class<?> pageClass, Object... params) {
-    //            return new RedirectResponse(PageUtils.constructPath(pageClass, true,
-    //                    params));
-    //        }
-    //    }
 }

@@ -2,14 +2,13 @@ package org.seasar.ymir.extension.freemarker;
 
 import org.seasar.ymir.constraint.annotation.Required;
 import org.seasar.ymir.constraint.annotation.SuppressConstraints;
+import org.seasar.ymir.id.action.GetAction;
 
 @Required("test")
 public class HoePageBase {
     public static final String PACKAGE = "org.seasar.ymir.extension.freemarker";
 
     public static final String NAME = "hoe";
-
-    public static final String A_get = "_get";
 
     public static final String P_hoe = "hoe";
 
@@ -24,6 +23,14 @@ public class HoePageBase {
     @Required("set")
     public void setHoe(String hoe) {
         hoe_ = hoe;
+    }
+
+    public static interface _get extends GetAction {
+        public static final String NAME = "_get";
+
+        public static final String KEY = "";
+
+        public static final Class<? extends GetAction> method = _get.class;
     }
 
     @Required("method")

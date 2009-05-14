@@ -14,12 +14,6 @@ public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#
 
     public static final String PATH = "${classDesc.pathOfClass}";
 </#if>
-<#if classDesc.getAttribute("action")??>
-<#list classDesc.getAttribute("action") as methodDesc>
-
-    public static final String A${methodDesc.name} = "${methodDesc.name}";
-</#list>
-</#if>
 <#list classDesc.propertyDescs as propertyDesc>
 
     public static final String P_${propertyDesc.name} = "${propertyDesc.name}";
@@ -54,6 +48,18 @@ public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#
 </#if>
 </#list>
 <#list classDesc.methodDescs as methodDesc>
+  <#if methodDesc.getAttribute("action")??>
+    <#assign actionInterface = methodDesc.getAttribute("action.interface.shortName")>
+    <#assign actionKey = methodDesc.getAttribute("action.key")>
+
+    public static interface ${methodDesc.name} extends ${actionInterface} {
+        public static final String NAME = "${methodDesc.name}";
+
+        public static final String KEY = "${actionKey}";
+
+        public static final Class<? extends ${actionInterface}> method = ${methodDesc.name}.class;
+    }
+</#if>
 
 <#list methodDesc.annotationDescs as annotationDesc>
     ${annotationDesc.asShortString}

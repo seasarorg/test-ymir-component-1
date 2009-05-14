@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.seasar.kvasir.util.el.VariableResolver;
 import org.seasar.ymir.HttpMethod;
+import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.MethodDesc;
 import org.seasar.ymir.extension.creator.ParameterDesc;
@@ -29,11 +30,12 @@ public class YmirPathMappingExtraData implements
         StringBuilder sb = new StringBuilder();
         sb.append(pathMapping.getActionName(resolver));
 
-        String buttonName = seed.getButtonName();
+        String actionKey = seed.getActionKey();
         String patternString = YmirPathMapping.BUTTONNAMEPATTERNSTRINGFORDISPATCHING;
         List<ParameterDesc> pdList = new ArrayList<ParameterDesc>();
-        if (buttonName != null && patternString != null) {
-            Button button = new Button(buttonName);
+        if (!Globals.ACTIONKEY_DEFAULT.equals(actionKey)
+                && patternString != null) {
+            Button button = new Button(actionKey);
             if (button.isValid()) {
                 sb.append(createActionSuffix(button.getName(), patternString));
                 String[] parameters = button.getParameters();

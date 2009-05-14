@@ -9,17 +9,17 @@ public interface Globals extends org.seasar.ymir.Globals {
 
     String META_NAME_BORNOF = "bornOf";
 
-    String META_NAME_ACTIONKEY = "actionKey";
-
     String PATH_PREFERENCES_DIRECTORY = ".settings";
 
     String ATTR_UNDECIDEDPARAMETERNAMES = "undecidedParameterNames";
 
     String ATTR_ACTION = "action";
 
-    String ATTR_ACTION_KEY = "action.key";
+    String ATTR_ACTION_INTERFACE = "action.interface";
 
-    String ATTR_ACTION_HTTPMETHOD = "action.httpMethod";
+    String ATTR_ACTION_INTERFACE_SHORTNAME = "action.interface.shortName";
+
+    String ATTR_ACTION_KEY = "action.key";
 
     String ATTR_OWNERPAGE = "ownerPage";
 
@@ -46,4 +46,6 @@ public interface Globals extends org.seasar.ymir.Globals {
     String PARAMETER_IMPORTDESC = "importDesc";
 
     String BORNOFPREFIX_REQUEST = "request:";
+
+    String ACTIONKEY_DEFAULT = "";
 }
