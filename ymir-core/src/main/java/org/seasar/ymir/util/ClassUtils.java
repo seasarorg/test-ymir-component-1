@@ -14,10 +14,8 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
 
-import org.apache.poi.hssf.record.formula.functions.Ispmt;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.ymir.Application;
-import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.convention.YmirNamingConvention;
 
@@ -27,6 +25,8 @@ public class ClassUtils {
     private static final String DASH = "...";
 
     private static final String PACKAGEPREFIX_JAVA_LANG = "java.lang.";
+
+    private static final String SUFFIX_ARRAY = "[]";
 
     private static ClassPool cp_;
 
@@ -408,7 +408,16 @@ public class ClassUtils {
             return null;
         }
 
-        String className = clazz.getName();
+        return getPackageName(clazz.getName());
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static String getPackageName(String className) {
+        if (className == null) {
+            return null;
+        }
         int dot = className.lastIndexOf('.');
         if (dot < 0) {
             return "";
@@ -513,6 +522,24 @@ public class ClassUtils {
             }
         } else {
             return type.isAssignableFrom(value.getClass());
+        }
+    }
+
+    public static boolean isArray(String className) {
+        if (className == null) {
+            return false;
+        }
+        return className.endsWith(SUFFIX_ARRAY);
+    }
+
+    public static String getClassName(String componentName, boolean array) {
+        if (componentName == null) {
+            return null;
+        }
+        if (array) {
+            return componentName + SUFFIX_ARRAY;
+        } else {
+            return componentName;
         }
     }
 }

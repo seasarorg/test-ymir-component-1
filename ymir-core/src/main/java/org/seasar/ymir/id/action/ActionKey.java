@@ -1,4 +1,4 @@
-package org.seasar.ymir.id;
+package org.seasar.ymir.id.action;
 
 /**
  * @since 1.0.3
