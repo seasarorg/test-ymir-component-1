@@ -16,7 +16,7 @@ import org.seasar.ymir.extension.creator.ParameterDesc;
 import org.seasar.ymir.extension.creator.ThrowsDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
-import org.seasar.ymir.extension.creator.util.MetaUtils;
+import org.seasar.ymir.extension.creator.util.GenericsUtils;
 
 public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc {
     private DescPool pool_;
@@ -52,7 +52,7 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
         }
         types = method.getGenericExceptionTypes();
         for (int i = 0; i < types.length; i++) {
-            throwsDesc_.addThrowable(DescUtils.toString(types[i]));
+            throwsDesc_.addThrowable(GenericsUtils.toString(types[i]));
         }
         AnnotationDesc[] ads = DescUtils.newAnnotationDescs(method);
         for (int i = 0; i < ads.length; i++) {
@@ -206,7 +206,7 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
             return;
         }
 
-        AnnotationDesc annotationDesc = MetaUtils.newBornOfMetaAnnotationDesc(
+        AnnotationDesc annotationDesc = DescUtils.newBornOfMetaAnnotationDesc(
                 getMetaValue(Globals.META_NAME_BORNOF), bornOf);
         removeMetaAnnotationDesc(Globals.META_NAME_BORNOF);
         setAnnotationDesc(annotationDesc);

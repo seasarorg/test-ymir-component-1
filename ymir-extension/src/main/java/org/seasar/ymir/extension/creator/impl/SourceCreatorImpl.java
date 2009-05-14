@@ -142,7 +142,7 @@ import org.seasar.ymir.extension.creator.mapping.PathMappingExtraData;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 import org.seasar.ymir.extension.creator.mapping.impl.ExtraPathMappingImpl;
 import org.seasar.ymir.extension.creator.util.DescUtils;
-import org.seasar.ymir.extension.creator.util.MetaUtils;
+import org.seasar.ymir.extension.creator.util.GenericsUtils;
 import org.seasar.ymir.extension.creator.util.PersistentProperties;
 import org.seasar.ymir.extension.creator.util.SourceCreatorUtils;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
@@ -159,6 +159,7 @@ import org.seasar.ymir.scope.annotation.RequestParameter;
 import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.HTMLUtils;
+import org.seasar.ymir.util.MetaUtils;
 import org.seasar.ymir.util.ServletUtils;
 
 import net.skirnir.freyja.EvaluationRuntimeException;
@@ -188,7 +189,7 @@ public class SourceCreatorImpl implements SourceCreator {
 
     private static final String RESOURCE_PREAMBLE_JAVA = "org/seasar/ymir/extension/Preamble.java.txt";
 
-    private static final String PREFIX_ACTION = "A";
+    private static final String PREFIX_ACTIONMETHOD = "M";
 
     private static final String PROP_LENGTH = "length";
 
@@ -613,7 +614,7 @@ public class SourceCreatorImpl implements SourceCreator {
             addToAuxDescList(converterCd, clonedDtoCd);
             List<TypeDesc> pairTdList = new ArrayList<TypeDesc>();
             for (int i = 0; i < pairTypeNames.length; i++) {
-                Class<?> pairClass = getClass(DescUtils
+                Class<?> pairClass = getClass(GenericsUtils
                         .getNonGenericClassName(pairTypeNames[i]));
                 if (pairClass == null || pairClass == Object.class) {
                     continue;
@@ -911,16 +912,30 @@ public class SourceCreatorImpl implements SourceCreator {
             if (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers)
                     && Modifier.isFinal(modifiers)) {
                 String name = fields[i].getName();
-                if (name.startsWith(PREFIX_ACTION)) {
+                if (name.startsWith(PREFIX_ACTIONMETHOD)) {
+                    Class<?> actionMethodClass;
+                    try {
+                        actionMethodClass = (Class<?>) fields[i].get(null);
+                    } catch (Throwable t) {
+                        throw new RuntimeException("Can't happen!", t);
+                    }
+
                     for (Method actionMethod : ClassUtils.getMethods(fields[i]
-                            .getDeclaringClass(), name.substring(PREFIX_ACTION
-                            .length()))) {
+                            .getDeclaringClass(), name
+                            .substring(PREFIX_ACTIONMETHOD.length()))) {
                         MethodDesc actionMd = classDesc
                                 .getMethodDesc(new MethodDescImpl(pool,
                                         actionMethod));
                         if (actionMd != null) {
                             actionMd.setAttribute(Globals.ATTR_ACTION,
                                     Boolean.TRUE);
+                            actionMd.setAttribute(Globals.ATTR_ACTION_KEY,
+                                    MetaUtils.getFirstValue(actionMethodClass,
+                                            Globals.META_NAME_ACTIONKEY));
+                            actionMd.setAttribute(
+                                    Globals.ATTR_ACTION_HTTPMETHOD,
+                                    GenericsUtils.getUpperBoundType(fields[i]
+                                            .getGenericType()));
                         }
                     }
                 }
@@ -930,6 +945,18 @@ public class SourceCreatorImpl implements SourceCreator {
         return classDesc;
     }
 
+    // TODO
+    //    @Meta(name = "actionKey", value = "")
+    //    public static class M_get implements Get {
+    //    }
+    //
+    //    public static final Class<? extends Get> M_get = M_get.class;
+    //
+    //    @Meta(name = "bornOf", value = { "/index.html", "/upload/index.html" })
+    //    public void _get() {
+    //
+    //    }
+    //
     Method[] getMethods(Class<?> clazz, boolean onlyDeclared) {
         Set<Method> excludeMethodSet = new HashSet<Method>();
         for (PropertyDescriptor descriptor : getPropertyDescriptors(clazz,
@@ -2575,7 +2602,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     hint.getTypeName(),
                     getQualifier(propertyTypeAlias != null ? propertyTypeAlias
                             : asCollection ? toSingular(propertyName)
-                                    : propertyName, DescUtils
+                                    : propertyName, GenericsUtils
                             .getComponentClassName(hint.getTypeName())));
             probability = PROBABILITY_MAXIMUM;
         } else {
@@ -2588,7 +2615,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 }
 
                 String componentClassName;
-                Class<?> componentClass = getClass(DescUtils
+                Class<?> componentClass = getClass(GenericsUtils
                         .getComponentPropertyTypeName(descriptor));
                 String qualifier = null;
                 String interfaceClassName = null;
@@ -2624,7 +2651,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     }
                 }
 
-                String typeName = DescUtils
+                String typeName = GenericsUtils
                         .getGenericPropertyTypeName(descriptor);
                 if (Collection.class.isAssignableFrom(descriptor
                         .getPropertyType())) {
@@ -2886,7 +2913,7 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public boolean isOuter(String typeName) {
-        return !isGeneratedClass(DescUtils.getNonGenericClassName(typeName));
+        return !isGeneratedClass(GenericsUtils.getNonGenericClassName(typeName));
     }
 
     String getDtoShortClassName(String propertyName) {
@@ -2911,4 +2938,56 @@ public class SourceCreatorImpl implements SourceCreator {
             return generatedClassName;
         }
     }
+
+    // TODO
+    //    public class Redirect {
+    //        private static final String META_NAME_ACTIONKEY = "actionKey";
+    //
+    //        protected Redirect() {
+    //        }
+    //
+    //        public static Response to(String path, Object... params) {
+    //            return new RedirectResponse(PageUtils
+    //                    .constructPath(path, false, params));
+    //        }
+    //
+    //        public static Response to(Class<?> pageClass) {
+    //            return to(pageClass, (String) null);
+    //        }
+    //
+    //        public static Response to(Class<?> pageClass, String param,
+    //                Object... params) {
+    //            Object[] pms;
+    //            if (param != null) {
+    //                pms = new Object[1 + params.length];
+    //                pms[0] = param;
+    //                System.arraycopy(params, 0, pms, 1, params.length);
+    //            } else {
+    //                pms = params;
+    //            }
+    //
+    //            return new RedirectResponse(PageUtils.constructPath(pageClass, false,
+    //                    pms));
+    //        }
+    //
+    //        public static Response to(Class<?> pageClass,
+    //                Class<? extends Get> actionClass) {
+    //            return to(pageClass, MetaUtils.getFirstValue(actionClass,
+    //                    META_NAME_ACTIONKEY));
+    //        }
+    //
+    //        public static Response to(Class<?> pageClass,
+    //                Class<? extends Get> actionClass, Object... params) {
+    //            return null;
+    //        }
+    //
+    //        public static Response toNonCached(String path, Object... params) {
+    //            return new RedirectResponse(PageUtils.constructPath(path, true, params));
+    //        }
+    //
+    //        public static Response toNonCached(Class<?> pageClass, Object... params) {
+    //            return new RedirectResponse(PageUtils.constructPath(pageClass, true,
+    //                    params));
+    //        }
+    //    }
 }

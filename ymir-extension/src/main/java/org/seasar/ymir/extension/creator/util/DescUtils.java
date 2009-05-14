@@ -4,18 +4,12 @@ import static org.seasar.ymir.extension.creator.AnnotatedDesc.ANNOTATION_NAME_ME
 import static org.seasar.ymir.extension.creator.AnnotatedDesc.ANNOTATION_NAME_METAS;
 import static org.seasar.ymir.extension.creator.PropertyDesc.PROBABILITY_MAXIMUM;
 
-import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,100 +32,13 @@ import org.seasar.ymir.extension.creator.impl.AnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.ClassDescImpl;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.MetasAnnotationDescImpl;
-import org.seasar.ymir.extension.creator.util.type.Token;
-import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
-import org.seasar.ymir.extension.creator.util.type.TypeToken;
 import org.seasar.ymir.extension.zpt.DescWrapper;
 import org.seasar.ymir.util.ClassUtils;
 
 public class DescUtils {
-    private static final String SUFFIX_ARRAY = "[]";
-
     private static final String PACKAGEPREFIX_JAVA_LANG = "java.lang.";
 
     private DescUtils() {
-    }
-
-    public static String getNonGenericClassName(String typeName) {
-        if (typeName == null) {
-            return null;
-        }
-
-        return new TypeToken(typeName).getBaseName();
-    }
-
-    public static String getGenericPropertyTypeName(PropertyDescriptor pd) {
-        if (pd == null) {
-            return null;
-        }
-
-        Method method = pd.getReadMethod();
-        if (method != null) {
-            return DescUtils.getTypeName(method.getGenericReturnType());
-        }
-        method = pd.getWriteMethod();
-        if (method != null) {
-            return DescUtils.getTypeName(method.getGenericParameterTypes()[0]);
-        }
-        return pd.getPropertyType().getName();
-    }
-
-    public static String getComponentPropertyTypeName(PropertyDescriptor pd) {
-        if (Collection.class.isAssignableFrom(pd.getPropertyType())) {
-            return new TypeToken(getGenericPropertyTypeName(pd)).getTypes()[0]
-                    .getBaseName();
-        } else {
-            return getComponentName(getNonGenericClassName(getGenericPropertyTypeName(pd)));
-        }
-    }
-
-    public static String getComponentName(String typeName) {
-        if (typeName == null) {
-            return null;
-        }
-        if (typeName.endsWith(SUFFIX_ARRAY)) {
-            return typeName.substring(0, typeName.length()
-                    - SUFFIX_ARRAY.length());
-        } else {
-            return typeName;
-        }
-    }
-
-    public static String getComponentClassName(String typeName) {
-        if (typeName == null) {
-            return null;
-        }
-        TypeToken token = new TypeToken(typeName);
-        if (token.isArray()) {
-            return token.getComponentName();
-        } else {
-            try {
-                if (Collection.class.isAssignableFrom(Class.forName(token
-                        .getComponentName()))) {
-                    return token.getTypes()[0].getBaseName();
-                }
-            } catch (ClassNotFoundException ignore) {
-            }
-            return token.getBaseName();
-        }
-    }
-
-    public static boolean isArray(String className) {
-        if (className == null) {
-            return false;
-        }
-        return className.endsWith(SUFFIX_ARRAY);
-    }
-
-    public static String getClassName(String componentName, boolean array) {
-        if (componentName == null) {
-            return null;
-        }
-        if (array) {
-            return componentName + SUFFIX_ARRAY;
-        } else {
-            return componentName;
-        }
     }
 
     public static AnnotationDesc[] newAnnotationDescs(AnnotatedElement element) {
@@ -153,76 +60,6 @@ public class DescUtils {
             return new MetaAnnotationDescImpl((Meta) annotation);
         } else {
             return new AnnotationDescImpl(annotation);
-        }
-    }
-
-    public static String toString(Type type) {
-        if (type == null) {
-            return null;
-        }
-        if (type instanceof Class<?>) {
-            Class<?> clazz = (Class<?>) type;
-            StringBuffer sb = new StringBuffer();
-            while (clazz.isArray()) {
-                clazz = clazz.getComponentType();
-                sb.append(SUFFIX_ARRAY);
-            }
-            return clazz.getName() + sb.toString();
-        } else {
-            return type.toString();
-        }
-    }
-
-    public static String getTypeName(Type type) {
-        if (type == null) {
-            return null;
-        }
-        if (type instanceof Class<?>) {
-            Class<?> clazz = (Class<?>) type;
-            StringBuffer sb = new StringBuffer();
-            while (clazz.isArray()) {
-                clazz = clazz.getComponentType();
-                sb.append(SUFFIX_ARRAY);
-            }
-            return clazz.getName() + sb.toString();
-        } else if (type instanceof TypeVariable) {
-            TypeVariable<?> typeVariable = (TypeVariable<?>) type;
-            Type[] bounds = typeVariable.getBounds();
-            if (bounds.length > 0) {
-                return getTypeName(bounds[0]);
-            } else {
-                return Object.class.getName();
-            }
-        } else if (type instanceof GenericArrayType) {
-            return getTypeName(((GenericArrayType) type)
-                    .getGenericComponentType())
-                    + SUFFIX_ARRAY;
-        } else {
-            return type.toString();
-        }
-    }
-
-    public static String getShortName(String className) {
-        if (className == null) {
-            return null;
-        }
-        int dot = className.lastIndexOf('.');
-        if (dot < 0) {
-            return className;
-        } else {
-            return className.substring(dot + 1);
-        }
-    }
-
-    public static String getPackageName(String className) {
-        if (className == null) {
-            return null;
-        }
-        int dot = className.lastIndexOf('.');
-        if (dot < 0) {
-            return "";
-        } else {
-            return className.substring(0, dot);
         }
     }
 
@@ -525,67 +362,6 @@ public class DescUtils {
         return dummyCd.getAnnotationDescs();
     }
 
-    public static String getNormalizedTypeName(String typeName) {
-        if (typeName == null) {
-            return null;
-        }
-
-        TypeToken typeToken = new TypeToken(typeName);
-        typeToken.accept(new TokenVisitor<Object>() {
-            public Object visit(Token acceptor) {
-                String componentName = acceptor.getComponentName();
-                StringBuilder sb = new StringBuilder();
-                sb.append(ClassUtils.getNormalizedName(componentName));
-                if (acceptor.isArray()) {
-                    sb.append(SUFFIX_ARRAY);
-                }
-                acceptor.setBaseName(sb.toString());
-                return null;
-            }
-        });
-        return typeToken.getAsString();
-    }
-
-    public static String getShortTypeName(String typeName) {
-        if (typeName == null) {
-            return null;
-        }
-
-        TypeToken typeToken = new TypeToken(typeName);
-        typeToken.accept(new TokenVisitor<Object>() {
-            public Object visit(Token acceptor) {
-                String componentName = acceptor.getComponentName();
-                StringBuilder sb = new StringBuilder();
-                sb.append(ClassUtils.getShortName(componentName));
-                if (acceptor.isArray()) {
-                    sb.append(SUFFIX_ARRAY);
-                }
-                acceptor.setBaseName(sb.toString());
-                return null;
-            }
-        });
-        return typeToken.getAsString();
-    }
-
-    public static String getFullyQualifiedTypeName(String typeName) {
-        if (typeName == null) {
-            return null;
-        }
-
-        TypeToken typeToken = new TypeToken(typeName);
-        typeToken.accept(new TokenVisitor<Object>() {
-            public Object visit(Token acceptor) {
-                Class<?> componentClass = findClass(acceptor.getComponentName());
-                if (componentClass != null) {
-                    acceptor.setBaseName(componentClass.getName()
-                            + (acceptor.isArray() ? SUFFIX_ARRAY : ""));
-                }
-                return null;
-            }
-        });
-        return typeToken.getAsString();
-    }
-
     public static Class<?> getClass(String className) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl == null) {
@@ -723,5 +499,17 @@ public class DescUtils {
                 itr.remove();
             }
         }
+    }
+
+    public static AnnotationDesc newBornOfMetaAnnotationDesc(String[] values,
+            String bornOf) {
+        if (values == null) {
+            values = new String[] { bornOf };
+        } else {
+            Set<String> set = new TreeSet<String>(Arrays.asList(values));
+            set.add(bornOf);
+            values = set.toArray(new String[0]);
+        }
+        return new MetaAnnotationDescImpl(Globals.META_NAME_BORNOF, values);
     }
 }

@@ -35,6 +35,7 @@ import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 import org.seasar.ymir.extension.creator.util.DescUtils;
+import org.seasar.ymir.extension.creator.util.GenericsUtils;
 import org.seasar.ymir.extension.creator.util.type.Token;
 import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
@@ -350,8 +351,8 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         TypeToken type = new TypeToken(typeName);
         type.accept(new TokenVisitor<Object>() {
             public Object visit(Token acceptor) {
-                String name = DescUtils
-                        .getComponentName(acceptor.getBaseName());
+                String name = GenericsUtils.getComponentName(acceptor
+                        .getBaseName());
                 if (name.indexOf('.') < 0 && !ClassUtils.isPrimitive(name)) {
                     String className;
                     Class<?> clazz = getSourceCreator().findClass(name,
@@ -362,13 +363,13 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
                     if (clazz != null) {
                         className = clazz.getName();
                     } else {
-                        className = DescUtils.getPackageName(baseClassName)
+                        className = ClassUtils.getPackageName(baseClassName)
                                 + "." + name;
                         warnings.add(new Note("warning.cannotResolveTypeName",
                                 name));
                     }
-                    acceptor.setBaseName(DescUtils.getClassName(className,
-                            DescUtils.isArray(acceptor.getBaseName())));
+                    acceptor.setBaseName(ClassUtils.getClassName(className,
+                            ClassUtils.isArray(acceptor.getBaseName())));
                 }
                 return null;
             }

@@ -4,7 +4,7 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.extension.creator.DescPool;
-import org.seasar.ymir.extension.creator.util.DescUtils;
+import org.seasar.ymir.extension.creator.util.GenericsUtils;
 import org.seasar.ymir.message.Messages;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.token.Token;
@@ -81,7 +81,7 @@ public class AnalyzerVariableResolver implements VariableResolver {
             if (value instanceof DescWrapper) {
                 className = ((DescWrapper) value).getValueClassDesc().getName();
             } else {
-                className = DescUtils
+                className = GenericsUtils
                         .getNonGenericClassName(inferTypeOfVariable(
                                 analyzerContext, name));
                 if (className != null) {

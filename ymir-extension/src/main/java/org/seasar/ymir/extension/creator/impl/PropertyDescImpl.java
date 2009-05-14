@@ -1,7 +1,7 @@
 package org.seasar.ymir.extension.creator.impl;
 
-import static org.seasar.ymir.extension.creator.util.DescUtils.getNormalizedTypeName;
-import static org.seasar.ymir.extension.creator.util.DescUtils.getShortTypeName;
+import static org.seasar.ymir.extension.creator.util.GenericsUtils.getNormalizedTypeName;
+import static org.seasar.ymir.extension.creator.util.GenericsUtils.getShortTypeName;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -22,7 +22,6 @@ import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.PropertyDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
-import org.seasar.ymir.extension.creator.util.MetaUtils;
 import org.seasar.ymir.extension.creator.util.type.Token;
 import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
@@ -578,21 +577,21 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         }
 
         // Getter。
-        AnnotationDesc annotationDescOnGetter = MetaUtils
+        AnnotationDesc annotationDescOnGetter = DescUtils
                 .newBornOfMetaAnnotationDesc(
                         getMetaValueOnGetter(Globals.META_NAME_BORNOF), bornOf);
         removeMetaAnnotationDescOnGetter(Globals.META_NAME_BORNOF);
         setAnnotationDescOnGetter(annotationDescOnGetter);
 
         // Setter。
-        AnnotationDesc annotationDescOnSetter = MetaUtils
+        AnnotationDesc annotationDescOnSetter = DescUtils
                 .newBornOfMetaAnnotationDesc(
                         getMetaValueOnSetter(Globals.META_NAME_BORNOF), bornOf);
         removeMetaAnnotationDescOnSetter(Globals.META_NAME_BORNOF);
         setAnnotationDescOnSetter(annotationDescOnSetter);
 
         // フィールド。
-        AnnotationDesc annotationDesc = MetaUtils.newBornOfMetaAnnotationDesc(
+        AnnotationDesc annotationDesc = DescUtils.newBornOfMetaAnnotationDesc(
                 getMetaValue(Globals.META_NAME_BORNOF), bornOf);
         removeMetaAnnotationDesc(Globals.META_NAME_BORNOF);
         setAnnotationDesc(annotationDesc);

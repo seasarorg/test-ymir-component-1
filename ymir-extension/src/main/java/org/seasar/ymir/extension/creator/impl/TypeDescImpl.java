@@ -1,7 +1,7 @@
 package org.seasar.ymir.extension.creator.impl;
 
-import static org.seasar.ymir.extension.creator.util.DescUtils.getFullyQualifiedTypeName;
-import static org.seasar.ymir.extension.creator.util.DescUtils.getNormalizedTypeName;
+import static org.seasar.ymir.extension.creator.util.GenericsUtils.getFullyQualifiedTypeName;
+import static org.seasar.ymir.extension.creator.util.GenericsUtils.getNormalizedTypeName;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -14,6 +14,7 @@ import org.seasar.ymir.extension.creator.Desc;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.util.DescUtils;
+import org.seasar.ymir.extension.creator.util.GenericsUtils;
 import org.seasar.ymir.extension.creator.util.type.Token;
 import org.seasar.ymir.extension.creator.util.type.TokenVisitor;
 import org.seasar.ymir.extension.creator.util.type.TypeToken;
@@ -43,7 +44,7 @@ public class TypeDescImpl implements TypeDesc {
     }
 
     public TypeDescImpl(DescPool pool, Type type, String qualifier) {
-        this(pool, DescUtils.toString(type), qualifier);
+        this(pool, GenericsUtils.toString(type), qualifier);
     }
 
     public TypeDescImpl(DescPool pool, String typeName) {
@@ -61,8 +62,8 @@ public class TypeDescImpl implements TypeDesc {
         String componentTypeName;
         String componentClassName;
         if (collection) {
-            componentTypeName = DescUtils.getComponentName(typeName);
-            componentClassName = DescUtils
+            componentTypeName = GenericsUtils.getComponentName(typeName);
+            componentClassName = GenericsUtils
                     .getNonGenericClassName(componentTypeName);
         } else {
             componentTypeName = typeName;

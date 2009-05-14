@@ -3,7 +3,8 @@ package org.seasar.ymir.extension.creator.util.type;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.seasar.ymir.extension.creator.util.DescUtils;
+import org.seasar.ymir.extension.creator.util.GenericsUtils;
+import org.seasar.ymir.util.ClassUtils;
 
 public class TypeToken implements Token {
     private BaseToken name_;
@@ -98,7 +99,7 @@ public class TypeToken implements Token {
 
     public String getAsString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(DescUtils.getComponentName(name_.getBaseName()));
+        sb.append(GenericsUtils.getComponentName(name_.getBaseName()));
         if (types_.length > 0) {
             String delim = String.valueOf(BEGIN_TYPESPEC);
             for (TypeToken type : types_) {
@@ -107,7 +108,7 @@ public class TypeToken implements Token {
             }
             sb.append(END_TYPESPEC);
         }
-        if (DescUtils.isArray(name_.getBaseName())) {
+        if (ClassUtils.isArray(name_.getBaseName())) {
             sb.append(SUFFIX_ARRAY);
         }
 
