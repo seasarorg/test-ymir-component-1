@@ -382,11 +382,24 @@ public class ClassUtils {
      */
     public static boolean isWrapper(String className) {
         try {
-            return primitiveByWrapperMap_.containsKey(className != null ? Class
-                    .forName(className) : null);
+            return primitiveByWrapperMap_
+                    .containsKey(className != null ? ClassUtils
+                            .forName(className) : null);
         } catch (ClassNotFoundException ex) {
             return false;
         }
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    public static Class<?> forName(String className)
+            throws ClassNotFoundException {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if (cl == null) {
+            cl = ClassUtils.class.getClassLoader();
+        }
+        return cl.loadClass(className);
     }
 
     public static Class<?> toPrimitive(Class<?> wrapperClass) {

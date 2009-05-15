@@ -157,7 +157,7 @@ public class YmirBootstrap {
                 .getProperty(Globals.APPKEY_LANDMARK,
                         Globals.LANDMARK_CLASSNAME))) {
             try {
-                landmarkList.add(Class.forName(landmarkClassName));
+                landmarkList.add(ClassUtils.forName(landmarkClassName));
             } catch (ClassNotFoundException ex) {
                 throw new IllegalClientCodeRuntimeException("Landmark class ("
                         + landmarkClassName + ") not found. Can't boot Ymir."

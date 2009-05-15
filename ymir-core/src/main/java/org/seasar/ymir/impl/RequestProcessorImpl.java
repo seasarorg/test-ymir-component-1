@@ -180,6 +180,17 @@ public class RequestProcessorImpl implements RequestProcessor {
             throw new PageNotFoundRuntimeException(dispatch.getPath());
         }
 
+        // 自動生成はrequestの時だけ行なう。（forwardの自動生成はどのみちここでキャッチされて
+        // 処理されてしまうので…。）
+        if (ymir_.isUnderDevelopment()) {
+            for (int i = 0; i < updaters_.length; i++) {
+                Response response = updaters_[i].updateByRequesting(request);
+                if (response != null) {
+                    return response;
+                }
+            }
+        }
+
         Response response = processRequestAndForward(request);
 
         // 自動生成はrequestの時だけ行なう。（forwardの自動生成はどのみちここでキャッチされて
