@@ -70,25 +70,32 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
         if (inherited_) {
             if (element instanceof Method) {
                 Method method = (Method) element;
+                String name = method.getName();
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                Class<?> clazz = method.getDeclaringClass();
                 Map<Class<?>, Annotation> map = new LinkedHashMap<Class<?>, Annotation>();
-                do {
-                    for (Annotation annotation : method.getAnnotations()) {
-                        if (!map.containsKey(annotation.annotationType())) {
-                            map.put(annotation.annotationType(), annotation);
+                while (true) {
+                    if (method != null) {
+                        for (Annotation annotation : method.getAnnotations()) {
+                            if (!map.containsKey(annotation.annotationType())) {
+                                map
+                                        .put(annotation.annotationType(),
+                                                annotation);
+                            }
                         }
                     }
-                    Class<?> clazz = method.getDeclaringClass().getSuperclass();
-                    if (clazz != null) {
-                        try {
-                            method = clazz.getDeclaredMethod(method.getName(),
-                                    method.getParameterTypes());
-                        } catch (NoSuchMethodException ex) {
-                            method = null;
-                        }
-                    } else {
+
+                    clazz = clazz.getSuperclass();
+                    if (clazz == Object.class || clazz == null) {
+                        break;
+                    }
+
+                    try {
+                        method = clazz.getDeclaredMethod(name, parameterTypes);
+                    } catch (NoSuchMethodException ex) {
                         method = null;
                     }
-                } while (method != null);
+                }
                 return map.values().toArray(new Annotation[0]);
             } else if (element instanceof Class) {
                 Class<?> clazz = (Class<?>) element;
