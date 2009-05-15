@@ -277,6 +277,8 @@ public class DescUtils {
         pd1.setAnnotationDescsOnSetter(DescUtils.merge(pd1
                 .getAnnotationDescsOnSetter(),
                 pd2.getAnnotationDescsOnSetter(), force));
+
+        mergeAttributes(pd1.getAttributeMap(), pd2.getAttributeMap(), force);
     }
 
     public static void merge(MethodDesc md1, MethodDesc md2, boolean force) {
@@ -295,6 +297,8 @@ public class DescUtils {
         }
         md1.setAnnotationDescs(DescUtils.merge(md1.getAnnotationDescs(), md2
                 .getAnnotationDescs(), force));
+
+        mergeAttributes(md1.getAttributeMap(), md2.getAttributeMap(), force);
     }
 
     public static boolean merge(TypeDesc td1, TypeDesc td2, boolean force) {
@@ -511,5 +515,15 @@ public class DescUtils {
             values = set.toArray(new String[0]);
         }
         return new MetaAnnotationDescImpl(Globals.META_NAME_BORNOF, values);
+    }
+
+    public static void mergeAttributes(Map<String, Object> attributeMap,
+            Map<String, Object> attributeMap2, boolean force) {
+        for (Map.Entry<String, Object> entry : attributeMap2.entrySet()) {
+            String key = entry.getKey();
+            if (!attributeMap.containsKey(key) || force) {
+                attributeMap.put(key, entry.getValue());
+            }
+        }
     }
 }

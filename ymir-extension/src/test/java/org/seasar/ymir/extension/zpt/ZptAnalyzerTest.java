@@ -59,6 +59,7 @@ import org.seasar.ymir.render.Candidate;
 import org.seasar.ymir.render.Selector;
 import org.seasar.ymir.render.html.Option;
 import org.seasar.ymir.scope.annotation.RequestParameter;
+import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.FlexibleList;
 import org.seasar.ymir.util.ServletUtils;
 
@@ -192,7 +193,7 @@ public class ZptAnalyzerTest extends TestCase {
                     return Boolean.TYPE;
                 }
                 try {
-                    return Class.forName(className);
+                    return ClassUtils.forName(className);
                 } catch (ClassNotFoundException ex) {
                     return null;
                 }
@@ -245,7 +246,7 @@ public class ZptAnalyzerTest extends TestCase {
                 servletContext, "/index.html");
         Class<?> pageClass;
         try {
-            pageClass = Class.forName(pageClassName);
+            pageClass = ClassUtils.forName(pageClassName);
         } catch (ClassNotFoundException ex) {
             pageClass = null;
         }

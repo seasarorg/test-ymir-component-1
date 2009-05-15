@@ -34,6 +34,7 @@ import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.ThrowsDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
+import org.seasar.ymir.id.action.GetAction;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.MockDispatch;
 import org.seasar.ymir.mock.MockRequest;
@@ -715,6 +716,25 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertEquals(1, throwableClassNames.length);
         int idx = 0;
         assertEquals(IOException.class.getName(), throwableClassNames[idx++]);
+    }
+
+    public void testAdjustByExistentClass23_Baseクラスに由来パスが異なりかつアクションインタフェースがないアクションクラスがある場合に生成されたアクションインタフェースの情報が消えないこと()
+            throws Exception {
+        pool_.setBornOf("/adjust23.html");
+        ClassDesc classDesc = pool_.getClassDesc(Adjust23Page.class);
+        MethodDescImpl methodDesc = new MethodDescImpl(pool_, "_get");
+        target_.setActionInfo(methodDesc, GetAction.class, "");
+        classDesc.setMethodDesc(methodDesc);
+
+        target_.adjustByExistentClass(classDesc);
+
+        MethodDesc actual = classDesc.getMethodDesc(methodDesc);
+        assertNotNull(actual);
+
+        assertEquals(Boolean.TRUE, actual.getAttribute(Globals.ATTR_ACTION));
+        assertEquals(GetAction.class, actual
+                .getAttribute(Globals.ATTR_ACTION_INTERFACE));
+        assertEquals("", actual.getAttribute(Globals.ATTR_ACTION_KEY));
     }
 
     public void testGetBeginAnnotation() throws Exception {

@@ -121,6 +121,7 @@ import org.seasar.ymir.extension.creator.action.Condition;
 import org.seasar.ymir.extension.creator.action.State;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.extension.creator.action.UpdateByExceptionAction;
+import org.seasar.ymir.extension.creator.action.impl.ClassifyParametersAction;
 import org.seasar.ymir.extension.creator.action.impl.CreateActionAction;
 import org.seasar.ymir.extension.creator.action.impl.CreateClassAction;
 import org.seasar.ymir.extension.creator.action.impl.CreateClassAndTemplateAction;
@@ -232,6 +233,22 @@ public class SourceCreatorImpl implements SourceCreator {
 
     private Map<Class<? extends PathMapping>, PathMappingExtraData<?>> pathMappingExtraDataMap_ = new HashMap<Class<? extends PathMapping>, PathMappingExtraData<?>>();
 
+    private ActionSelector<UpdateAction> byRequestingActionSelector_ = new ActionSelector<UpdateAction>()
+            .register(
+                    new Condition(State.TRUE, State.ANY, State.ANY,
+                            HttpMethod.GET), new ClassifyParametersAction(this))
+            .register(
+                    new Condition(State.TRUE, State.ANY, State.ANY,
+                            HttpMethod.POST),
+                    new ClassifyParametersAction(this)).register(
+                    "classifyParameters", new ClassifyParametersAction(this))
+            .register("createConfiguration",
+                    new CreateConfigurationAction(this)).register(
+                    "systemConsole", new SystemConsoleAction(this)).register(
+                    "resource", new ResourceAction(this)).register(
+                    "editTemplate.do", new DoEditTemplateAction(this))
+            .register("updateTemplate.do", new DoUpdateTemplateAction(this));
+
     private ActionSelector<UpdateAction> actionSelector_ = new ActionSelector<UpdateAction>()
             .register(
                     new Condition(State.ANY, State.ANY, State.FALSE,
@@ -252,12 +269,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     "createTemplate", new CreateTemplateAction(this)).register(
                     "createClassAndTemplate",
                     new CreateClassAndTemplateAction(this)).register(
-                    "updateClasses", new UpdateClassesAction(this)).register(
-                    "createConfiguration", new CreateConfigurationAction(this))
-            .register("systemConsole", new SystemConsoleAction(this)).register(
-                    "resource", new ResourceAction(this)).register(
-                    "editTemplate.do", new DoEditTemplateAction(this))
-            .register("updateTemplate.do", new DoUpdateTemplateAction(this));
+                    "updateClasses", new UpdateClassesAction(this));
 
     private ActionSelector<UpdateByExceptionAction> byExceptionActionSelector_ = new ActionSelector<UpdateByExceptionAction>()
             .register(MessagesNotFoundRuntimeException.class,
@@ -280,7 +292,7 @@ public class SourceCreatorImpl implements SourceCreator {
             String name = method.name();
             try {
                 @SuppressWarnings("unchecked")
-                Class<? extends Action> actionInterface = (Class<? extends Action>) Class
+                Class<? extends Action> actionInterface = (Class<? extends Action>) ClassUtils
                         .forName("org.seasar.ymir.id.action."
                                 + name.substring(0, 1)
                                 + name.substring(1, name.length())
@@ -348,7 +360,16 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
+    public Response updateByRequesting(Request request) {
+        return update(request, null, byRequestingActionSelector_);
+    }
+
     public Response update(Request request, Response response) {
+        return update(request, response, actionSelector_);
+    }
+
+    Response update(Request request, Response response,
+            ActionSelector<UpdateAction> actionSelector) {
         synchronized (this) {
             if (!initialized_) {
                 setProjectRootIfNotDetecetd(getApplication());
@@ -386,7 +407,8 @@ public class SourceCreatorImpl implements SourceCreator {
                 return response;
             }
 
-            if (response.getType() != ResponseType.PASSTHROUGH
+            if (response != null
+                    && response.getType() != ResponseType.PASSTHROUGH
                     && response.getType() != ResponseType.FORWARD) {
                 return response;
             }
@@ -408,12 +430,13 @@ public class SourceCreatorImpl implements SourceCreator {
                 } else {
                     condition = new Condition(State.valueOf(className != null),
                             State.valueOf(sourceFile.exists()), State
-                                    .valueOf(template.exists()), method);
+                                    .valueOf(template != null
+                                            && template.exists()), method);
                 }
             }
         }
 
-        UpdateAction action = actionSelector_.getAction(condition);
+        UpdateAction action = actionSelector.getAction(condition);
         if (action != null) {
             Response newResponse = action.act(request, pathMetaData);
             if (newResponse != null) {
@@ -1892,22 +1915,21 @@ public class SourceCreatorImpl implements SourceCreator {
 
         ClassLoader cl = getClassLoader();
         try {
-            return Class.forName(className, true, cl);
+            return cl.loadClass(className);
         } catch (ClassNotFoundException ex) {
             if (className.indexOf('.') < 0) {
                 try {
-                    return Class.forName(PACKAGEPREFIX_JAVA_LANG + className,
-                            true, cl);
+                    return cl.loadClass(PACKAGEPREFIX_JAVA_LANG + className);
                 } catch (ClassNotFoundException ex2) {
                     try {
-                        return Class.forName(PACKAGEPREFIX_JAVA_UTIL
-                                + className, true, cl);
+                        return cl
+                                .loadClass(PACKAGEPREFIX_JAVA_UTIL + className);
                     } catch (ClassNotFoundException ex3) {
                         String dtoClassName = setting_
                                 .findDtoClassName(className);
                         if (dtoClassName != null) {
                             try {
-                                return Class.forName(dtoClassName, true, cl);
+                                return cl.loadClass(dtoClassName);
                             } catch (ClassNotFoundException ignore) {
                             }
                         }
@@ -1933,7 +1955,7 @@ public class SourceCreatorImpl implements SourceCreator {
                         traverser.traverse();
                         if (found[0] != null) {
                             try {
-                                return Class.forName(found[0], true, cl);
+                                return cl.loadClass(found[0]);
                             } catch (ClassNotFoundException ignore) {
                             }
                         }
@@ -1952,8 +1974,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 .getProperty(Globals.APPKEY_LANDMARK,
                         Globals.LANDMARK_CLASSNAME))) {
             try {
-                landmarkList.add(Class.forName(landmarkClassName, true,
-                        classLoader));
+                landmarkList.add(classLoader.loadClass(landmarkClassName));
             } catch (ClassNotFoundException ignore) {
             }
         }
@@ -2378,8 +2399,8 @@ public class SourceCreatorImpl implements SourceCreator {
         int dot;
         while ((dot = baseClassName.lastIndexOf('.', pre)) >= 0) {
             try {
-                return Class
-                        .forName(baseClassName.substring(0, dot + 1) + name);
+                return ClassUtils.forName(baseClassName.substring(0, dot + 1)
+                        + name);
             } catch (ClassNotFoundException ignore) {
             }
             pre = dot - 1;

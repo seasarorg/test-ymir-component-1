@@ -97,6 +97,10 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
+    public Response updateByRequesting(Request request) {
+        return null;
+    }
+
     public Response update(Request request, Response response) {
         return null;
     }

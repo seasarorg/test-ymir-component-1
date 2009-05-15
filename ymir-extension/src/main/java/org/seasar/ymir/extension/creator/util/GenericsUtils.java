@@ -80,7 +80,7 @@ public class GenericsUtils {
             return token.getComponentName();
         } else {
             try {
-                if (Collection.class.isAssignableFrom(Class.forName(token
+                if (Collection.class.isAssignableFrom(ClassUtils.forName(token
                         .getComponentName()))) {
                     return token.getTypes()[0].getBaseName();
                 }

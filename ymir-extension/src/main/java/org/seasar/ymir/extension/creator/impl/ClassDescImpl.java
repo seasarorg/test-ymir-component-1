@@ -306,6 +306,9 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
 
         setAnnotationDescs(DescUtils.merge(getAnnotationDescs(), classDesc
                 .getAnnotationDescs(), force));
+
+        DescUtils.mergeAttributes(getAttributeMap(), classDesc
+                .getAttributeMap(), force);
     }
 
     public void removeBornOf(String bornOf) {

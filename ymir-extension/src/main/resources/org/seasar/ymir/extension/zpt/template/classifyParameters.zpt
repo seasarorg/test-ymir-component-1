@@ -20,8 +20,8 @@
   </tr>
 </table>
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
-  <input type="hidden" name="__ymir__task" value="updateClasses" />
-  <input type="hidden" name="__ymir__subTask" value="createActions_create" />
+  <input type="hidden" name="__ymir__task" value="classifyParameters" />
+  <input type="hidden" name="__ymir__subTask" value="classify" />
   <input type="hidden" name="__ymir__method" tal:attributes="value request/method" />
   <input type="submit" value=" OK " />
   <input type="submit" name="__ymir__button_skip" value="スキップ" />
