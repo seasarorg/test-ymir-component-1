@@ -1556,23 +1556,11 @@ public class SourceCreatorImpl implements SourceCreator {
                 MethodDesc generatedMd = mds[i];
                 MethodDesc gapMd = gapDesc.getMethodDesc(generatedMd);
                 MethodDesc baseMd = baseDesc.getMethodDesc(generatedMd);
+                MethodDesc otherBornOfMd = desc.getMethodDesc(generatedMd);
                 MethodDesc superMd = superDesc.getMethodDesc(generatedMd);
                 if (baseMd == null && (gapMd != null || superMd != null)) {
                     generated.removeMethodDesc(generatedMd);
-                } else if (gapMd != null
-                        && !generatedMd.getReturnTypeDesc().equals(
-                                gapMd.getReturnTypeDesc())) {
-                    generatedMd.setReturnTypeDesc(gapMd.getReturnTypeDesc()
-                            .transcriptTo(
-                                    desc.getDescPool().newTypeDesc(
-                                            gapMd.getReturnTypeDesc())));
-                } else if (superMd != null
-                        && !generatedMd.getReturnTypeDesc().equals(
-                                superMd.getReturnTypeDesc())) {
-                    generatedMd.setReturnTypeDesc(superMd.getReturnTypeDesc()
-                            .transcriptTo(
-                                    desc.getDescPool().newTypeDesc(
-                                            superMd.getReturnTypeDesc())));
+                    continue;
                 } else if (isAction(generatedMd)) {
                     MethodDescKey key = new MethodDescKey(generatedMd);
                     for (MethodDesc md : gapDesc.getMethodDescs(generatedMd
@@ -1583,9 +1571,27 @@ public class SourceCreatorImpl implements SourceCreator {
                             // ただし、メソッドシグネチャまで一致するメソッドは残す。そうでないとオーバライドされ
                             // ている時に困るので。
                             generated.removeMethodDesc(generatedMd);
-                            break;
+                            continue;
                         }
                     }
+                }
+
+                TypeDesc returnTd = generatedMd.getReturnTypeDesc();
+                if (gapMd != null
+                        && !returnTd.equals(gapMd.getReturnTypeDesc())) {
+                    TypeDesc td = gapMd.getReturnTypeDesc();
+                    generatedMd.setReturnTypeDesc(td.transcriptTo(desc
+                            .getDescPool().newTypeDesc(td)));
+                } else if (superMd != null
+                        && !returnTd.equals(superMd.getReturnTypeDesc())) {
+                    TypeDesc td = superMd.getReturnTypeDesc();
+                    generatedMd.setReturnTypeDesc(td.transcriptTo(desc
+                            .getDescPool().newTypeDesc(td)));
+                } else if (otherBornOfMd != null
+                        && Void.TYPE.getName().equals(returnTd.getName())) {
+                    TypeDesc td = otherBornOfMd.getReturnTypeDesc();
+                    generatedMd.setReturnTypeDesc(td.transcriptTo(desc
+                            .getDescPool().newTypeDesc(td)));
                 }
 
                 // メソッドシグネチャが一致するメソッドがgapまたはbaseにある場合は、throwsDescを既存クラスから構築する。

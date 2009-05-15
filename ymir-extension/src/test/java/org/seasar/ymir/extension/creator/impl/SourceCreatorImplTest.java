@@ -737,6 +737,60 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertEquals("", actual.getAttribute(Globals.ATTR_ACTION_KEY));
     }
 
+    public void testAdjustByExistentClass24_ある画面から生成した結果Baseクラスのメソッドの返り値がvoidでない場合に別の画面から生成しても返り値がvoidにならないこと()
+            throws Exception {
+        DescPool pool = DescPool.newInstance(target_, null);
+        pool.setBornOf("/index.html");
+        ClassDesc classDesc = pool.getClassDesc(Adjust24Page.class);
+        classDesc.setMethodDesc(new MethodDescImpl(pool, "_get"));
+
+        target_.adjustByExistentClass(classDesc);
+
+        MethodDesc actual = classDesc.getMethodDesc(new MethodDescImpl(pool,
+                "_get"));
+        assertNotNull(actual);
+        assertEquals("由来が違うならvoidでない方が優先されること", "String", actual
+                .getReturnTypeDesc().getName());
+
+        pool = DescPool.newInstance(target_, null);
+        pool.setBornOf("/index.html");
+        classDesc = pool.getClassDesc(Adjust24Page.class);
+        MethodDesc methodDesc = new MethodDescImpl(pool, "_get_two");
+        methodDesc.setReturnTypeDesc(String.class);
+        classDesc.setMethodDesc(methodDesc);
+
+        target_.adjustByExistentClass(classDesc);
+
+        actual = classDesc.getMethodDesc(new MethodDescImpl(pool, "_get_two"));
+        assertNotNull(actual);
+        assertEquals("由来が違うならvoidでない方が優先されること2", "String", actual
+                .getReturnTypeDesc().getName());
+
+        pool = DescPool.newInstance(target_, null);
+        pool.setBornOf("/adjust24.html");
+        classDesc = pool.getClassDesc(Adjust24Page.class);
+        classDesc.setMethodDesc(new MethodDescImpl(pool, "_get"));
+
+        target_.adjustByExistentClass(classDesc);
+
+        actual = classDesc.getMethodDesc(new MethodDescImpl(pool, "_get"));
+        assertNotNull(actual);
+        assertEquals("由来が同じなら置き換わること", "void", actual.getReturnTypeDesc()
+                .getName());
+
+        pool = DescPool.newInstance(target_, null);
+        pool.setBornOf("/adjust24.html");
+        classDesc = pool.getClassDesc(Adjust24Page.class);
+        classDesc.setMethodDesc(new MethodDescImpl(pool, "_post"));
+
+        target_.adjustByExistentClass(classDesc);
+
+        actual = classDesc.getMethodDesc(new MethodDescImpl(pool, "_post"));
+        assertNotNull(actual);
+        assertEquals("由来が同じでもGapでオーバライドしている場合は置き換わらないこと", "String", actual
+                .getReturnTypeDesc().getName());
+    }
+
     public void testGetBeginAnnotation() throws Exception {
         Begin actual = target_.getBeginAnnotation();
 

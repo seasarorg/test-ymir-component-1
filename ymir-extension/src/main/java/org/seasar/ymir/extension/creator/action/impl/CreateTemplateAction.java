@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.kvasir.util.io.IOUtils;
-import org.seasar.ymir.Action;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -22,7 +21,6 @@ import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.extension.creator.impl.BodyDescImpl;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
-import org.seasar.ymir.extension.creator.util.SourceCreatorUtils;
 
 public class CreateTemplateAction extends AbstractAction implements
         UpdateAction {
@@ -54,22 +52,6 @@ public class CreateTemplateAction extends AbstractAction implements
 
     Response actDefault(Request request, PathMetaData pathMetaData) {
 
-        boolean actionMethodNotFound = false;
-        Class<?> pageClass = getSourceCreator().getClass(
-                pathMetaData.getClassName());
-        if (pageClass != null) {
-            String path = pathMetaData.getPath();
-            HttpMethod method = pathMetaData.getMethod();
-            Request newRequest = SourceCreatorUtils.newRequest(path, method,
-                    null);
-            Action action = getSourceCreator().findMatchedPathMapping(path,
-                    method).getAction(
-                    SourceCreatorUtils.newPageComponent(pageClass), newRequest);
-            if (action == null) {
-                actionMethodNotFound = true;
-            }
-        }
-
         Template template = pathMetaData.getTemplate();
         String templateSource = "";
         if (!template.isDirectory()) {
@@ -83,7 +65,7 @@ public class CreateTemplateAction extends AbstractAction implements
         variableMap.put("parameters", getParameters(request));
         variableMap.put("pathMetaData", pathMetaData);
         variableMap.put("templateSource", templateSource);
-        variableMap.put("actionMethodNotFound", actionMethodNotFound);
+        variableMap.put("mkdirChecked", template.getName().indexOf(".") < 0);
         return getSourceCreator().getResponseCreator().createResponse(
                 "createTemplate", variableMap);
     }
