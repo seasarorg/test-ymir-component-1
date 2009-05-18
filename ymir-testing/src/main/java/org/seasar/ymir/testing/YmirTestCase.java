@@ -41,6 +41,8 @@ import org.seasar.ymir.RequestProcessor;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.id.action.Action;
+import org.seasar.ymir.id.action.GetAction;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.servlet.MockFilterChain;
 import org.seasar.ymir.mock.servlet.MockFilterChainImpl;
@@ -452,7 +454,7 @@ abstract public class YmirTestCase extends TestCase {
     public FilterChain process(String path) throws IOException,
             ServletException {
         return process(path, HttpMethod.GET, (RequestInitializer) null, null,
-                null, EMPTY_PARAMS);
+                (String) null, EMPTY_PARAMS);
     }
 
     public FilterChain process(String path, String param, Object... params)
@@ -461,10 +463,17 @@ abstract public class YmirTestCase extends TestCase {
                 param, params);
     }
 
+    public FilterChain process(String path,
+            Class<? extends GetAction> actionInterface, Object... params)
+            throws IOException, ServletException {
+        return process(path, HttpMethod.GET, (RequestInitializer) null, null,
+                actionInterface, params);
+    }
+
     public FilterChain process(String path, HttpMethod method)
             throws IOException, ServletException {
-        return process(path, method, (RequestInitializer) null, null, null,
-                EMPTY_PARAMS);
+        return process(path, method, (RequestInitializer) null, null,
+                (String) null, EMPTY_PARAMS);
     }
 
     public FilterChain process(String path, HttpMethod method, String param,
@@ -473,9 +482,16 @@ abstract public class YmirTestCase extends TestCase {
                 params);
     }
 
+    public FilterChain process(String path, HttpMethod method,
+            Class<? extends GetAction> actionInterface, Object... params)
+            throws IOException, ServletException {
+        return process(path, method, (RequestInitializer) null, null,
+                actionInterface, params);
+    }
+
     public FilterChain process(String path, RequestInitializer initializer)
             throws IOException, ServletException {
-        return process(path, HttpMethod.GET, initializer, null, null,
+        return process(path, HttpMethod.GET, initializer, null, (String) null,
                 EMPTY_PARAMS);
     }
 
@@ -485,10 +501,17 @@ abstract public class YmirTestCase extends TestCase {
         return process(path, HttpMethod.GET, initializer, null, param, params);
     }
 
+    public FilterChain process(String path, RequestInitializer initializer,
+            Class<? extends GetAction> actionInterface, Object... params)
+            throws IOException, ServletException {
+        return process(path, HttpMethod.GET, initializer, null,
+                actionInterface, params);
+    }
+
     public FilterChain process(String path, MockFilterChain chain)
             throws IOException, ServletException {
         return process(path, HttpMethod.GET, (RequestInitializer) null, chain,
-                null, EMPTY_PARAMS);
+                (String) null, EMPTY_PARAMS);
     }
 
     public FilterChain process(String path, MockFilterChain chain,
@@ -498,10 +521,18 @@ abstract public class YmirTestCase extends TestCase {
                 param, params);
     }
 
+    public FilterChain process(String path, MockFilterChain chain,
+            Class<? extends GetAction> actionInterface, Object... params)
+            throws IOException, ServletException {
+        return process(path, HttpMethod.GET, (RequestInitializer) null, chain,
+                actionInterface, params);
+    }
+
     public FilterChain process(String path, HttpMethod method,
             RequestInitializer initializer, MockFilterChain chain)
             throws IOException, ServletException {
-        return process(path, method, initializer, chain, null, EMPTY_PARAMS);
+        return process(path, method, initializer, chain, (String) null,
+                EMPTY_PARAMS);
     }
 
     public FilterChain process(String path, HttpMethod method,
@@ -555,6 +586,26 @@ abstract public class YmirTestCase extends TestCase {
         }
     }
 
+    public FilterChain process(String path, HttpMethod method,
+            RequestInitializer initializer, MockFilterChain chain,
+            Class<? extends GetAction> actionInterface, Object... params)
+            throws IOException, ServletException {
+        Object[] pms = new Object[1 + params.length];
+        pms[0] = "";
+        System.arraycopy(params, 0, pms, 1, params.length);
+
+        try {
+            return process(path, method, initializer, chain,
+                    (String) actionInterface.getField(Action.FIELD_KEY).get(
+                            null), pms);
+        } catch (Throwable t) {
+            throw new RuntimeException(
+                    "Cannot get action key from action method '"
+                            + actionInterface
+                            + "'. Try to re-generate Page class.", t);
+        }
+    }
+
     public FilterChain toTheEndOf(FilterChain chain) throws IOException,
             ServletException {
         if (chain != null) {
@@ -584,6 +635,12 @@ abstract public class YmirTestCase extends TestCase {
     public FilterChain process(Class<?> pageClass, String param,
             Object... params) throws IOException, ServletException {
         return process(getPathOfPageClass(pageClass), param, params);
+    }
+
+    public FilterChain process(Class<?> pageClass,
+            Class<? extends GetAction> actionInterface, Object... params)
+            throws IOException, ServletException {
+        return process(getPathOfPageClass(pageClass), actionInterface, params);
     }
 
     public FilterChain process(Class<?> pageClass, HttpMethod method)
