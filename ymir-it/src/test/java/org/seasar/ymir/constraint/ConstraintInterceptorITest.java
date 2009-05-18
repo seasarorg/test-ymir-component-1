@@ -6,6 +6,7 @@ import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.servlet.MockHttpServletRequest;
 import org.seasar.ymir.testing.PageTestCase;
 
+import com.example.web.ConstraintInterceptorTest2Page;
 import com.example.web.ConstraintInterceptorTestPage;
 
 public class ConstraintInterceptorITest extends
@@ -137,5 +138,33 @@ public class ConstraintInterceptorITest extends
         assertSame(getHttpServletRequest(), request.getAttribute("request"));
         assertEquals(Integer.valueOf(1), request.getAttribute("param12"));
         assertEquals("hoe", request.getAttribute("param22"));
+    }
+
+    public void test_ConstraintHolderアノテーションが付与されたメソッドが持つ制約も含むこと()
+            throws Exception {
+        process(ConstraintInterceptorTest2Page.class);
+
+        Notes actual = getNotes();
+        assertNotNull(actual);
+        assertEquals(2, actual.getNotes().length);
+        assertNotNull(actual.get("saru"));
+        assertNotNull(actual.get("tora"));
+
+        process(ConstraintInterceptorTest2Page.class, "button1");
+
+        actual = getNotes();
+        assertNotNull(actual);
+        assertEquals("アクションにつけたSuppressConstraintsにマッチするものは除外されること", 1, actual
+                .getNotes().length);
+
+        process(ConstraintInterceptorTest2Page.class, "button2");
+
+        actual = getNotes();
+        assertNotNull(actual);
+        assertEquals("ConstraintHolderメソッドの返り値がtrueの場合だけ制約が有効になること", 3, actual
+                .getNotes().length);
+        assertNotNull(actual.get("saru"));
+        assertNotNull(actual.get("tora"));
+        assertNotNull(actual.get("fufu"));
     }
 }
