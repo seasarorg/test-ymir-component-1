@@ -1,5 +1,7 @@
 package org.seasar.ymir.constraint;
 
+import org.seasar.ymir.constraint.annotation.ConstraintHolder;
+
 /**
  * 複数のPageに対して一括して制約を指定するためのインタフェースです。
  * <p>このインタフェースの実装クラスをコンポーネントとして登録しておくと、
@@ -12,6 +14,8 @@ package org.seasar.ymir.constraint;
  * </p>
  * 
  * @author YOKOTA Takehiko
+ * @deprecated この仕組みは分かりにくいために将来のバージョンで削除される予定です。
+ * 複数のPageクラスにまとめて制約を付与したい場合は、代わりに{@link ConstraintHolder}の仕組みを使って下さい。
  */
 public interface ConstraintBundle extends ConfirmationDecider {
 }

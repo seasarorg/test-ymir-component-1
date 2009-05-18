@@ -45,22 +45,14 @@ public class ActionManagerImpl implements ActionManager {
         scopeManager_ = scopeManager;
     }
 
-    public Action newAction(Object page, Class<?> pageClass, Method method) {
-        return newAction(page, pageClass, method, new Object[0]);
-    }
-
     public Action newAction(Object page, Class<?> pageClass, Method method,
-            Object[] extendedParams) {
+            Object... extendedParams) {
         return new ActionImpl(page, newMethodInvoker(pageClass, method,
                 extendedParams));
     }
 
-    public MethodInvoker newMethodInvoker(Class<?> pageClass, Method method) {
-        return newMethodInvoker(pageClass, method, new Object[0]);
-    }
-
     public MethodInvoker newMethodInvoker(Class<?> pageClass, Method method,
-            Object[] extendedParams) {
+            Object... extendedParams) {
         return new MethodInvokerImpl(method, scopeManager_.resolveParameters(
                 pageClass, method, extendedParams));
     }

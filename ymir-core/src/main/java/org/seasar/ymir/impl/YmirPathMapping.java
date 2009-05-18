@@ -507,8 +507,8 @@ public class YmirPathMapping implements PathMapping {
                 continue;
             }
 
-            return actionManager_.newAction(page, pageClass, method, button
-                    .getParameters());
+            return actionManager_.newAction(page, pageClass, method,
+                    (Object[]) button.getParameters());
         }
         return null;
     }

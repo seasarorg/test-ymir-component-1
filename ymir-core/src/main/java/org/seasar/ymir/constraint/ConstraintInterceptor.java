@@ -36,9 +36,11 @@ import org.seasar.ymir.WrappingRuntimeException;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.cache.CacheManager;
 import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
+import org.seasar.ymir.constraint.annotation.ConstraintHolder;
 import org.seasar.ymir.constraint.annotation.SuppressConstraints;
 import org.seasar.ymir.constraint.annotation.Validator;
 import org.seasar.ymir.constraint.impl.ConstraintBag;
+import org.seasar.ymir.constraint.impl.SuppressTypeAndMethodConfirmationDecider;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.util.ClassUtils;
@@ -181,10 +183,10 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
                 pageComponent.getPage(), request, suppressTypeSet, notes);
 
         // アクションに関連付けられている制約をチェックする。
-        confirmConstraint(getConstraintBagsForActionMethod(actionMethod),
+        confirmConstraint(getConstraintBagsFromActionMethod(actionMethod),
                 pageComponent.getPage(), request, suppressTypeSet, notes);
 
-        // それ以外の制約をチェックする。
+        // Page固有の制約をチェックする。
         try {
             VisitorForConfirmingConstraint visitor = new VisitorForConfirmingConstraint(
                     request, suppressTypeSet, notes);
@@ -247,6 +249,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         }
     }
 
+    @SuppressWarnings("deprecation")
     ConstraintBag<?>[] getConstraintBagsFromConstraintBundles() {
         Application application = applicationManager_.findContextApplication();
         ConstraintBag<?>[] bags = application
@@ -265,7 +268,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         return bags;
     }
 
-    ConstraintBag<?>[] getConstraintBagsForActionMethod(Method actionMethod) {
+    ConstraintBag<?>[] getConstraintBagsFromActionMethod(Method actionMethod) {
         if (actionMethod == null) {
             return new ConstraintBag[0];
         }
@@ -304,6 +307,15 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
                         DECIDER_DEPENDS_ON_SUPPRESSTYPE, list);
             }
 
+            for (Method method : ClassUtils.getMethods(pageClass)) {
+                if (annotationHandler_.getAnnotation(method,
+                        ConstraintHolder.class) != null) {
+                    createConstraintBags(method,
+                            new SuppressTypeAndMethodConfirmationDecider(
+                                    actionManager_, pageClass, method), list);
+                }
+            }
+
             bags = list.toArray(new ConstraintBag[0]);
             bagsForPageClassMap_.put(pageClass, bags);
         }
@@ -330,7 +342,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
     void confirmConstraint(Object page, Class<?> pageClass, Request request,
             Set<ConstraintType> suppressTypeSet, Notes notes)
             throws PermissionDeniedException {
-        // クラスとプロパティに関連付けられている制約をチェックする。
+        // クラスとプロパティとConstraintHolderが付与されたメソッドに関連付けられている制約をチェックする。
         confirmConstraint(getConstraintBagsForPageClass(pageClass), page,
                 request, suppressTypeSet, notes);
 
