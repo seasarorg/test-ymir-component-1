@@ -3,7 +3,7 @@
     <relativePath>../ymir-project/pom.xml</relativePath>
     <groupId>org.seasar.ymir</groupId>
     <artifactId>ymir-project</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.seasar.ymir</groupId>
