@@ -8,6 +8,9 @@
 <form tal:attributes="action request/absolutePath" method="post">
 <p>パス<span tal:replace="pathMetaData/path">PATH</span>へのリクエストで通常のパラメータかボタン名か判別できないパラメータを検出しました。
 以下のものについて、通常のパラメータかボタン名かを指定して下さい。</p>
+<p><strong>[注意]</strong> フォームを持つページでsubmitボタンを押した場合にもこの自動生成画面が表示されることがありますが、
+フォームを持つページについては「UPDATE CLASSES」ボタンを押して明示的に自動生成処理を行なった方が精度の高い自動生成を行なうことができます。
+明示的に自動生成処理を行なうためにここで自動生成を行なわない場合は「スキップ」を押して下さい。</p>
 <table>
   <tr tal:repeat="name classDesc/undecidedParameterNames">
     <th align="right" nowrap="nowrap">

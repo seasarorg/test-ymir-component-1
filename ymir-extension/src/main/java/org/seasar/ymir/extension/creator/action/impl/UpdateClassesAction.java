@@ -124,6 +124,8 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
         variableMap.put("ambiguousClasses", ambiguousClassSet
                 .toArray(new ClassDto[0]));
         variableMap.put("warnings", warnings);
+        variableMap.put("auto", getSourceCreatorSetting()
+                .isTryingToUpdateClassesWhenTemplateModified());
         return getSourceCreator().getResponseCreator().createResponse(
                 "updateClasses", variableMap);
     }

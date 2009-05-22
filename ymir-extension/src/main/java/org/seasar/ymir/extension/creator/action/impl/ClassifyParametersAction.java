@@ -19,6 +19,7 @@ import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.PropertyTypeHint;
 import org.seasar.ymir.extension.creator.SourceCreator;
+import org.seasar.ymir.extension.creator.Template;
 import org.seasar.ymir.extension.creator.action.UpdateAction;
 import org.seasar.ymir.extension.zpt.ParameterRole;
 
@@ -45,8 +46,33 @@ public class ClassifyParametersAction extends AbstractAction implements
     }
 
     boolean shouldUpdate(Request request, PathMetaData pathMetaData) {
+        // テンプレートの変更を検出して自動的に自動生成処理（updateClasses）を行なうような設定で、かつ
+        // テンプレートが変更されている場合は、ここでは処理せずにupdateClassesに処理を任せた方が
+        // 精度の高い自動生成が行なえるため、falseを返すようにする。
+        if (isTryingToUpdateClassesWhenTemplateModifiedAndModified(request,
+                pathMetaData)) {
+            return false;
+        }
+
         // ボタンかもしれないパラメータつきリクエストに対応するアクションがなければ作成するようにする。
         return getUndecidedParameterNames(request, pathMetaData, null).length > 0;
+    }
+
+    boolean isTryingToUpdateClassesWhenTemplateModifiedAndModified(
+            Request request, PathMetaData pathMetaData) {
+        Template template = getSourceCreator().getTemplate(
+                pathMetaData.getPath());
+        if (!template.exists()) {
+            return false;
+        }
+
+        if (getSourceCreatorSetting()
+                .isTryingToUpdateClassesWhenTemplateModified()) {
+            return (template.lastModified() > getSourceCreator()
+                    .getCheckedTime(template));
+        } else {
+            return false;
+        }
     }
 
     protected String[] getUndecidedParameterNames(Request request,
@@ -74,6 +100,15 @@ public class ClassifyParametersAction extends AbstractAction implements
 
     Response actDefault(Request request, PathMetaData pathMetaData) {
         if (!shouldUpdate(request, pathMetaData)) {
+            return null;
+        }
+
+        // この自動生成ロジックはPRGのgetに関して行なうべきものであるため、
+        // 空のパラメータを持つformでsubmitを押された場合はこの処理を行ないたくない。
+        // そのため、HTTP methodがpostなら何もしないようにする。
+        // HTTP methodがgetの場合はリクエストがformのsubmitなのかPRGのgetなのか
+        // 区別がつかないため、画面の注釈を見てもらってユーザに判断してもらうようにする。
+        if (request.getMethod() != HttpMethod.GET) {
             return null;
         }
 
