@@ -2,16 +2,20 @@ package org.seasar.ymir.render.html;
 
 import static org.seasar.ymir.util.StringUtils.asString;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.seasar.ymir.render.Candidate;
 import org.seasar.ymir.util.HTMLUtils;
-import org.seasar.ymir.util.StringUtils;
 
 /**
  * HTMLのselectタグを扱うためのクラスです。
@@ -36,9 +40,18 @@ public class Select extends Tag {
 
     private Option[] options_;
 
-    private Map<String, Option> optionMap_ = new LinkedHashMap<String, Option>();
+    private transient Map<String, Option> optionMap_ = new LinkedHashMap<String, Option>();
 
     private String[] values_;
+
+    private void readObject(ObjectInputStream in) throws IOException,
+            ClassNotFoundException {
+        in.defaultReadObject();
+
+        optionMap_ = new HashMap<String, Option>();
+        initializeOptionMap();
+        updateState();
+    }
 
     /**
      * このクラスのインスタンスを構築します。
@@ -462,11 +475,28 @@ public class Select extends Tag {
 
     /**
      * このオブジェクトが内部に持っている全てのOptgroupの配列を返します。
+     * <p>Optgroupが設定されていない場合はnullを返します。
+     * </p>
      * 
-     * @return Optgroupの配列。nullが返されることもあります。
+     * @return Optgroupの配列。
      */
     public Optgroup[] getOptgroups() {
         return optgroups_;
+    }
+
+    /**
+     * このオブジェクトが内部に持っている全てのOptgroupのListを返します。
+     * <p>Optgroupが設定されていない場合はnullを返します。
+     * </p>
+     * 
+     * @return OptgroupのList。
+     */
+    public List<Optgroup> getOptgroupList() {
+        if (optgroups_ == null) {
+            return null;
+        } else {
+            return new ArrayList<Optgroup>(Arrays.asList(optgroups_));
+        }
     }
 
     /**
@@ -501,11 +531,28 @@ public class Select extends Tag {
 
     /**
      * このオブジェクトが内部に持っている全てのOptionの配列を返します。
+     * <p>Optionが設定されていない場合はnullを返します。
+     * </p>
      * 
-     * @return Optionの配列。nullが返されることもあります。
+     * @return Optionの配列。
      */
     public Option[] getOptions() {
         return options_;
+    }
+
+    /**
+     * このオブジェクトが内部に持っている全てのOptionのListを返します。
+     * <p>Optionが設定されていない場合はnullを返します。
+     * </p>
+     * 
+     * @return OptionのList。
+     */
+    public List<Option> getOptionList() {
+        if (options_ == null) {
+            return null;
+        } else {
+            return new ArrayList<Option>(Arrays.asList(options_));
+        }
     }
 
     /**
@@ -594,6 +641,15 @@ public class Select extends Tag {
     public Select setOptgroupsAndOptions(Optgroup[] optgroups, Option[] options) {
         optgroups_ = optgroups;
         options_ = options;
+
+        initializeOptionMap();
+
+        updateState();
+
+        return this;
+    }
+
+    private void initializeOptionMap() {
         optionMap_.clear();
 
         List<String> valueList = new ArrayList<String>();
@@ -633,10 +689,6 @@ public class Select extends Tag {
         if (values_ == null) {
             values_ = valueList.toArray(new String[0]);
         }
-
-        updateState();
-
-        return this;
     }
 
     /**
@@ -711,6 +763,16 @@ public class Select extends Tag {
             }
         }
         return list.toArray(new Option[0]);
+    }
+
+    /**
+     * 選択されたOptionを返します。
+     * 
+     * @return 選択されたOptionのList。
+     * 選択されたOptionが存在しない場合は空のListを返します。
+     */
+    public List<Option> getSelectedOptionList() {
+        return new ArrayList<Option>(Arrays.asList(getSelectedOptions()));
     }
 
     /**
