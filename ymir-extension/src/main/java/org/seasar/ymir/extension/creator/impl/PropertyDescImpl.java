@@ -381,6 +381,8 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         } else {
             boolean generateInitialValue = false;
             if (pool_.getSourceCreator().isDtoClass(componentTypeName)) {
+                // DTOクラスだけに限定しているのは、そうしないと例えばStringやDateなどについても初期値が生成されてしまうため。
+                // cf. [#YMIR-336]
                 Class<?> clazz = DescUtils.getClass(componentTypeName);
                 if (clazz != null) {
                     try {
@@ -441,6 +443,8 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         } else {
             boolean generateInitialValue = false;
             if (pool_.getSourceCreator().isDtoClass(componentTypeName)) {
+                // DTOクラスだけに限定しているのは、そうしないと例えばStringやDateなどについても初期値が生成されてしまうため。
+                // cf. [#YMIR-336]
                 Class<?> clazz = DescUtils.getClass(componentTypeName);
                 if (clazz != null) {
                     try {
