@@ -42,6 +42,7 @@
   <input type="hidden" tal:repeat="parameter parameters" tal:attributes="name parameter/name; value parameter/value" />
   <input id="okButton" type="submit" value=" OK " />
 </form>
+<p><strong>[注意]</strong> 自動生成の結果ソースコードにビルドエラーが発生することがあります。その場合は、ソースコードを修正してから「OKボタン」を押すことをお勧めします。</p>
 <div tal:condition="suggestionExists">
 <p><strong>次にあなたがすべき事の例：</strong></p>
 <ul>
