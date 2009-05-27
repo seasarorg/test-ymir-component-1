@@ -450,4 +450,48 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         assertEquals(readResource(getClass(),
                 "testGenerateBaseSource_Page8.expected"), actual);
     }
+
+    public void test_generateBaseSource_Page9_SelectorやSelectについてはvalueのための定数が生成されること()
+            throws Exception {
+        ClassDesc classDesc = new FSourceCreatorImpl() {
+            @Override
+            public ClassDesc newClassDesc(DescPool pool, String className,
+                    String qualifier, ClassCreationHintBag bag) {
+                if (className.equals(Hoe9PageBase.class.getName())) {
+                    className = "org.seasar.ymir.extension.freemarker.Hoe9Page";
+                }
+                return new ClassDescImpl(pool, className, qualifier);
+            }
+        }.newClassDesc(pool_, Hoe9PageBase.class, true);
+
+        sourceCreator_.prepareForMethodBody(classDesc);
+        sourceCreator_.prepareForImportDesc(classDesc);
+
+        String actual = sourceCreator_.generateBaseSource(classDesc);
+
+        assertEquals(readResource(getClass(),
+                "testGenerateBaseSource_Page9.expected"), actual);
+    }
+
+    public void test_generateBaseSource_Page10_再生成時にFormDtoが持つプロパティに対応する無駄なフィールドが生成されてしまわないこと()
+            throws Exception {
+        ClassDesc classDesc = new FSourceCreatorImpl() {
+            @Override
+            public ClassDesc newClassDesc(DescPool pool, String className,
+                    String qualifier, ClassCreationHintBag bag) {
+                if (className.equals(Hoe10PageBase.class.getName())) {
+                    className = "org.seasar.ymir.extension.freemarker.Hoe10Page";
+                }
+                return new ClassDescImpl(pool, className, qualifier);
+            }
+        }.newClassDesc(pool_, Hoe10PageBase.class, true);
+
+        sourceCreator_.prepareForMethodBody(classDesc);
+        sourceCreator_.prepareForImportDesc(classDesc);
+
+        String actual = sourceCreator_.generateBaseSource(classDesc);
+
+        assertEquals(readResource(getClass(),
+                "testGenerateBaseSource_Page10.expected"), actual);
+    }
 }

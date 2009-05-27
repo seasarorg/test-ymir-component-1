@@ -17,6 +17,15 @@ public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#
 <#list classDesc.propertyDescs as propertyDesc>
 
     public static final String P_${propertyDesc.name} = "${propertyDesc.name}";
+  <#if propertyDesc.typeDesc.name == "org.seasar.ymir.render.Selector"
+       && propertyDesc.name?ends_with("Selector")>
+
+    public static final String P_${propertyDesc.name}_selectedValues = "${propertyDesc.name}.selectedValues";
+  <#elseif propertyDesc.typeDesc.name == "org.seasar.ymir.render.html.Select"
+       && propertyDesc.name?ends_with("Select")>
+
+    public static final String P_${propertyDesc.name}_value = "${propertyDesc.name}.value";
+  </#if>
 </#list>
 <#list classDesc.propertyDescs as propertyDesc>
 <#if !propertyDesc.hasMetaOnSetter("formProperty")>

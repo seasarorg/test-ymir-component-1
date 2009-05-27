@@ -1,0 +1,71 @@
+package org.seasar.ymir.extension.freemarker;
+
+import org.seasar.ymir.Response;
+import org.seasar.ymir.annotation.Meta;
+import org.seasar.ymir.annotation.Metas;
+import org.seasar.ymir.id.action.GetAction;
+import org.seasar.ymir.id.action.PostAction;
+import org.seasar.ymir.render.Selector;
+import org.seasar.ymir.response.PassthroughResponse;
+import org.seasar.ymir.scope.annotation.RequestParameter;
+
+public class Hoe10PageBase {
+    public static final String PACKAGE = "org.seasar.ymir.extension.freemarker";
+
+    public static final String NAME = "hoe10";
+
+    public static final String P_form = "form";
+
+    public static final String P_fruitSelector = "fruitSelector";
+
+    public static final String P_fruitSelector_selectedValues = "fruitSelector.selectedValues";
+
+    @Metas( { @Meta(name = "property", value = "form"),
+        @Meta(name = "bornOf", value = "/list4/index.html") })
+    protected Form10Dto form_ = new Form10Dto();
+
+    @Meta(name = "bornOf", value = "/list4/index.html")
+    public Form10Dto getForm() {
+        return form_;
+    }
+
+    @Metas( { @Meta(name = "formProperty", value = "form"),
+        @Meta(name = "bornOf", value = "/list4/index.html") })
+    @RequestParameter
+    public Selector getFruitSelector() {
+        return form_.getFruitSelector();
+    }
+
+    public static interface _get extends GetAction {
+        public static final String NAME = "_get";
+
+        public static final String KEY = "";
+
+        public static final Class<? extends GetAction> method = _get.class;
+    }
+
+    @Meta(name = "bornOf", value = "/index.html")
+    public void _get() {
+
+    }
+
+    public static interface _post extends PostAction {
+        public static final String NAME = "_post";
+
+        public static final String KEY = "";
+
+        public static final Class<? extends PostAction> method = _post.class;
+    }
+
+    @Metas( {
+        @Meta(name = "bornOf", value = "/list4/index.html"),
+        @Meta(name = "source", value = "return new PassthroughResponse();", classValue = PassthroughResponse.class) })
+    public Response _post() {
+        return new PassthroughResponse();
+    }
+
+    @Meta(name = "bornOf", value = "/list4/index.html")
+    public void _prerender() {
+
+    }
+}
