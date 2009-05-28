@@ -9,6 +9,10 @@ public class MetaUtils {
     private MetaUtils() {
     }
 
+    public static boolean hasMeta(AnnotatedElement element, String name) {
+        return getValue(element, name) != null;
+    }
+
     public static String[] getValue(AnnotatedElement element, String name) {
         if (element == null) {
             return null;

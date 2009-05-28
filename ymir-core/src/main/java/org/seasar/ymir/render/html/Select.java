@@ -490,6 +490,7 @@ public class Select extends Tag {
      * </p>
      * 
      * @return OptgroupのList。
+     * @since 1.0.4
      */
     public List<Optgroup> getOptgroupList() {
         if (optgroups_ == null) {
@@ -546,6 +547,7 @@ public class Select extends Tag {
      * </p>
      * 
      * @return OptionのList。
+     * @since 1.0.4
      */
     public List<Option> getOptionList() {
         if (options_ == null) {
@@ -770,6 +772,7 @@ public class Select extends Tag {
      * 
      * @return 選択されたOptionのList。
      * 選択されたOptionが存在しない場合は空のListを返します。
+     * @since 1.0.4
      */
     public List<Option> getSelectedOptionList() {
         return new ArrayList<Option>(Arrays.asList(getSelectedOptions()));
