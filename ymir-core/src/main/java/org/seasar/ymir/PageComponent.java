@@ -34,8 +34,10 @@ public interface PageComponent extends Acceptor<PageComponentVisitor<?>> {
 
     /**
      * このオブジェクトの全ての子孫PageComponentを返します。
+     * <p>このオブジェクト自身も含まれます。
+     * </p>
      * 
-     * @return このオブジェクトの全ての子孫PageComponent。子孫PageComponentが存在しない場合は空の配列を返します。
+     * @return このオブジェクトの全ての子孫PageComponent。
      */
     PageComponent[] getDescendants();
 }

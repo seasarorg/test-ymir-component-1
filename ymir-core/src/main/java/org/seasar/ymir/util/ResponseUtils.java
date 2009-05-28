@@ -114,7 +114,7 @@ public class ResponseUtils {
      * <p>responseにnullが指定された場合はfalseを返します。
      * </p>
      * 
-     * @param response レスポンス。
+     * @param response レスポンス。nullを指定することもできます。
      * @return レスポンスがリダイレクト系レスポンスかどうか。
      * @since 1.0.3
      */
@@ -125,13 +125,30 @@ public class ResponseUtils {
 
     /**
      * 指定されたレスポンスがパスの遷移を表すレスポンスかどうかを返します。
+     * <p>responseにnullが指定された場合はfalseを返します。
+     * </p>
      * 
-     * @param response レスポンス。nullを指定してはいけません。
+     * @param response レスポンス。nullを指定することもできます。
      * @return レスポンスがパスの遷移を表すレスポンスかどうか。
      * @since 1.0.2
      */
     public static boolean isTransitionResponse(Response response) {
-        return (response.getType() == ResponseType.FORWARD || response
-                .getType() == ResponseType.REDIRECT);
+        return response != null
+                && (response.getType() == ResponseType.FORWARD || response
+                        .getType() == ResponseType.REDIRECT);
+    }
+
+    /**
+     * 指定されたレスポンスがパススルーレスポンスかどうかを返します。
+     * <p>responseにnullが指定された場合はfalseを返します。
+     * </p>
+     * 
+     * @param response レスポンス。nullを指定することもできます。
+     * @return レスポンスがパススルーレスポンスかどうか。
+     * @since 1.0.4
+     */
+    public static boolean isPassthroughResponse(Response response) {
+        return response != null
+                && response.getType() == ResponseType.PASSTHROUGH;
     }
 }

@@ -11,6 +11,7 @@ import org.seasar.ymir.Phase;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.response.PassthroughResponse;
+import org.seasar.ymir.util.ResponseUtils;
 
 public class VisitorForInvoking extends PageComponentVisitor<Response> {
     private ActionManager actionManager_;
@@ -41,5 +42,15 @@ public class VisitorForInvoking extends PageComponentVisitor<Response> {
             }
         }
         return response;
+    }
+
+    @Override
+    public boolean isFinalResult(Response result) {
+        return !ResponseUtils.isPassthroughResponse(result);
+    }
+
+    @Override
+    public Response getFinalResult() {
+        return new PassthroughResponse();
     }
 }
