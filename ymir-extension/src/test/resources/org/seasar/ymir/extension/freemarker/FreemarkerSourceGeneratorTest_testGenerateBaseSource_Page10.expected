@@ -16,7 +16,7 @@ public class Hoe10PageBase {
 
     public static final String P_fruitSelector$selectedValues = "fruitSelector.selectedValues";
 
-    @Metas({@Meta(name = "property", value = "form"), @Meta(name = "bornOf", value = "/list4/index.html")})
+    @Metas({@Meta(name = "bornOf", value = "/list4/index.html"), @Meta(name = "property", value = "form")})
     protected Form10Dto form_ = new Form10Dto();
 
     @Meta(name = "bornOf", value = "/list4/index.html")
@@ -24,7 +24,7 @@ public class Hoe10PageBase {
         return form_;
     }
 
-    @Metas({@Meta(name = "formProperty", value = "form"), @Meta(name = "bornOf", value = "/list4/index.html")})
+    @Metas({@Meta(name = "bornOf", value = "/list4/index.html"), @Meta(name = "formProperty", value = "form")})
     @RequestParameter
     public Selector getFruitSelector() {
         return form_.getFruitSelector();
