@@ -5,6 +5,7 @@ import org.seasar.ymir.testing.RequestInitializer;
 import org.seasar.ymir.testing.YmirTestCase;
 
 import com.example.web.PageITest2Page;
+import com.example.web.PageITest3Page;
 import com.example.web.PageITestPage;
 
 public class PageITest extends YmirTestCase {
@@ -46,5 +47,12 @@ public class PageITest extends YmirTestCase {
                     }
                 }, null);
         assertNull(getPage(PageITest2Page.class).getMessage());
+    }
+
+    public void test3_YMIR_340_IncludeされているPageについてPageComponentCreatedのInvokeメソッドが呼び出されること()
+            throws Exception {
+        process(PageITest3Page.class);
+
+        assertNotNull(getHttpServletRequest().getAttribute("initialized"));
     }
 }
