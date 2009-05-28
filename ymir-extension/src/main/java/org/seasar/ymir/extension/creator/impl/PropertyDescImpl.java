@@ -315,12 +315,28 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         return DescUtils.getMetaFirstValue(annotationDescForSetterMap_, name);
     }
 
+    public String getMetaFirstValueOnGetterOrSetter(String name) {
+        String value = getMetaFirstValueOnGetter(name);
+        if (value == null) {
+            value = getMetaFirstValueOnSetter(name);
+        }
+        return value;
+    }
+
     public String[] getMetaValueOnGetter(String name) {
         return DescUtils.getMetaValue(annotationDescForGetterMap_, name);
     }
 
     public String[] getMetaValueOnSetter(String name) {
         return DescUtils.getMetaValue(annotationDescForSetterMap_, name);
+    }
+
+    public String[] getMetaValueOnGetterOrSetter(String name) {
+        String[] value = getMetaValueOnGetter(name);
+        if (value == null) {
+            value = getMetaValueOnSetter(name);
+        }
+        return value;
     }
 
     public Class<?>[] getMetaClassValueOnGetter(String name) {
@@ -331,12 +347,24 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
         return DescUtils.getMetaClassValue(annotationDescForSetterMap_, name);
     }
 
+    public Class<?>[] getMetaClassValueOnGetterOrSetter(String name) {
+        Class<?>[] classValue = getMetaClassValueOnGetter(name);
+        if (classValue == null) {
+            classValue = getMetaClassValueOnSetter(name);
+        }
+        return classValue;
+    }
+
     public boolean hasMetaOnGetter(String name) {
         return DescUtils.hasMeta(annotationDescForGetterMap_, name);
     }
 
     public boolean hasMetaOnSetter(String name) {
         return DescUtils.hasMeta(annotationDescForSetterMap_, name);
+    }
+
+    public boolean hasMetaOnGetterOrSetter(String name) {
+        return hasMetaOnGetter(name) || hasMetaOnSetter(name);
     }
 
     public MetaAnnotationDesc[] getMetaAnnotationDescsOnGetter() {

@@ -28,7 +28,7 @@ public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#
   </#if>
 </#list>
 <#list classDesc.propertyDescs as propertyDesc>
-<#if !propertyDesc.hasMetaOnSetter("formProperty")>
+<#if !propertyDesc.hasMetaOnGetterOrSetter("formProperty")>
 
 <#list propertyDesc.annotationDescs as annotationDesc>
     ${annotationDesc.asShortString}
@@ -43,7 +43,7 @@ public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#
     ${annotationDesc.asShortString}
 </#list>
     public ${propertyDesc.typeDesc.shortName} <#if propertyDesc.typeDesc.shortName == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}() {
-        return <#if propertyDesc.hasMetaOnGetter("formProperty")>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.getMetaFirstValueOnGetter("formProperty")}${fieldSuffix}.<#if propertyDesc.typeDesc.shortName == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}();<#else>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix};</#if>
+        return <#if propertyDesc.hasMetaOnGetterOrSetter("formProperty")>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.getMetaFirstValueOnGetterOrSetter("formProperty")}${fieldSuffix}.<#if propertyDesc.typeDesc.shortName == "boolean">is<#else>get</#if>${propertyDesc.name?cap_first}();<#else>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix};</#if>
     }
 </#if>
 <#if propertyDesc.writable>
@@ -52,7 +52,7 @@ public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#
     ${annotationDesc.asShortString}
 </#list>
     public void set${propertyDesc.name?cap_first}(${propertyDesc.typeDesc.shortName} ${propertyDesc.name}) {
-        <#if propertyDesc.hasMetaOnSetter("formProperty")>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.getMetaFirstValueOnSetter("formProperty")}${fieldSuffix}.set${propertyDesc.name?cap_first}(${propertyDesc.name});<#else>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix} = ${propertyDesc.name};</#if>
+        <#if propertyDesc.hasMetaOnGetterOrSetter("formProperty")>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.getMetaFirstValueOnGetterOrSetter("formProperty")}${fieldSuffix}.set${propertyDesc.name?cap_first}(${propertyDesc.name});<#else>${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.name}${fieldSuffix} = ${propertyDesc.name};</#if>
     }
 </#if>
 </#list>

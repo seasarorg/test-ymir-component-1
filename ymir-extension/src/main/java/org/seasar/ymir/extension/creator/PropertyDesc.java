@@ -78,17 +78,49 @@ public interface PropertyDesc extends AnnotatedDesc<PropertyDesc> {
 
     String getMetaFirstValueOnGetter(String name);
 
+    /**
+     * 指定された名前のメタデータの最初の文字列値をGetterまたはSetterから取得して返します。
+     * <p>GetterにもSetterにも同名のメタデータが存在する場合はGetterのメタデータが返されます。
+     * </p>
+     * 
+     * @param name メタデータの名前。nullを指定してはいけません。
+     * @return メタデータの最初の文字列値。メタデータが存在しない場合やメタデータが文字列値を持たない場合はnullを返します。
+     */
+    String getMetaFirstValueOnGetterOrSetter(String name);
+
     boolean hasMetaOnGetter(String name);
 
     boolean hasMetaOnSetter(String name);
+
+    boolean hasMetaOnGetterOrSetter(String name);
 
     String[] getMetaValueOnGetter(String name);
 
     String[] getMetaValueOnSetter(String name);
 
+    /**
+     * 指定された名前のメタデータの文字列値をGetterまたはSetterから取得して返します。
+     * <p>GetterにもSetterにも同名のメタデータが存在する場合はGetterのメタデータが返されます。
+     * </p>
+     * 
+     * @param name メタデータの名前。nullを指定してはいけません。
+     * @return メタデータの文字列値。メタデータが存在しない場合はnullを返します。
+     */
+    String[] getMetaValueOnGetterOrSetter(String name);
+
     Class<?>[] getMetaClassValueOnGetter(String name);
 
     Class<?>[] getMetaClassValueOnSetter(String name);
+
+    /**
+     * 指定された名前のメタデータのクラス値をGetterまたはSetterから取得して返します。
+     * <p>GetterにもSetterにも同名のメタデータが存在する場合はGetterのメタデータが返されます。
+     * </p>
+     * 
+     * @param name メタデータの名前。nullを指定してはいけません。
+     * @return メタデータのクラス値。メタデータが存在しない場合はnullを返します。
+     */
+    Class<?>[] getMetaClassValueOnGetterOrSetter(String name);
 
     MetaAnnotationDesc[] getMetaAnnotationDescsOnGetter();
 
