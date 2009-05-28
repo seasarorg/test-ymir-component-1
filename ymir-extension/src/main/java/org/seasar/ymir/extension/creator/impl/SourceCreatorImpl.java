@@ -75,12 +75,15 @@ import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.MatchedPathMapping;
+import org.seasar.ymir.PageComponent;
+import org.seasar.ymir.PageComponentVisitor;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.Ymir;
+import org.seasar.ymir.annotation.Include;
 import org.seasar.ymir.constraint.ConstraintInterceptor;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.conversation.annotation.Begin;
@@ -148,6 +151,7 @@ import org.seasar.ymir.extension.creator.util.type.TypeToken;
 import org.seasar.ymir.extension.zpt.AnalyzerUtils;
 import org.seasar.ymir.extension.zpt.ParameterRole;
 import org.seasar.ymir.id.action.Action;
+import org.seasar.ymir.impl.PageComponentImpl;
 import org.seasar.ymir.impl.YmirImpl;
 import org.seasar.ymir.message.MessageNotFoundRuntimeException;
 import org.seasar.ymir.message.Messages;
@@ -2039,7 +2043,11 @@ public class SourceCreatorImpl implements SourceCreator {
         if (clazz == null || propertyName == null) {
             return null;
         }
+        return getPropertyDescriptor(clazz, propertyName);
+    }
 
+    private PropertyDescriptor getPropertyDescriptor(Class<?> clazz,
+            String propertyName) {
         BeanInfo beanInfo;
         try {
             beanInfo = Introspector.getBeanInfo(clazz);
@@ -2531,8 +2539,9 @@ public class SourceCreatorImpl implements SourceCreator {
                 parameterName);
     }
 
-    public ParameterRole inferParameterRole(String path, HttpMethod method,
-            String className, String parameterName, ClassHint classHint) {
+    public ParameterRole inferParameterRole(final String path,
+            final HttpMethod method, String pageClassName,
+            String parameterName, ClassHint classHint) {
         if (classHint != null) {
             ParameterRole role = classHint.getParameterRole(parameterName);
             if (role != ParameterRole.UNDECIDED) {
@@ -2540,29 +2549,79 @@ public class SourceCreatorImpl implements SourceCreator {
             }
         }
 
-        String actionKey = getActionKeyFromParameterName(path, method,
+        final String actionKey = getActionKeyFromParameterName(path, method,
                 parameterName);
         if (actionKey == null) {
             return ParameterRole.PARAMETER;
         }
 
-        if (getPropertyDescriptor(className, actionKey) != null) {
-            return ParameterRole.PARAMETER;
+        Class<?> pageClass = getClass(pageClassName);
+        if (pageClass == null) {
+            return ParameterRole.UNDECIDED;
+        }
+        PageComponent pageComponent = createPageComponent(pageClass);
+        if (pageComponent == null) {
+            return ParameterRole.UNDECIDED;
         }
 
-        String methodName = newActionMethodDesc(
-                DescPool.newInstance(this, null), path, method,
-                new ActionSelectorSeedImpl(actionKey)).getName();
-        Class<?> clazz = getClass(className);
-        if (clazz != null) {
-            for (Method m : ClassUtils.getMethods(clazz)) {
-                if (m.getName().equals(methodName)) {
-                    return ParameterRole.BUTTON;
+        ParameterRole role = new PageComponentVisitor<ParameterRole>() {
+            @Override
+            public ParameterRole process(PageComponent pageComponent) {
+                if (getPropertyDescriptor(pageComponent.getPageClass(),
+                        actionKey) != null) {
+                    return ParameterRole.PARAMETER;
+                }
+
+                String methodName = newActionMethodDesc(
+                        DescPool.newInstance(SourceCreatorImpl.this, null),
+                        path, method, new ActionSelectorSeedImpl(actionKey))
+                        .getName();
+                for (Method m : ClassUtils.getMethods(pageComponent
+                        .getPageClass())) {
+                    if (m.getName().equals(methodName)) {
+                        return ParameterRole.BUTTON;
+                    }
+                }
+
+                return null;
+            }
+        }.visit(pageComponent);
+
+        if (role == null) {
+            role = ParameterRole.UNDECIDED;
+        }
+
+        return role;
+    }
+
+    private PageComponent createPageComponent(Class<?> pageClass) {
+        PageComponent pageComponent;
+        Object page;
+        try {
+            page = pageClass.newInstance();
+        } catch (Throwable t) {
+            log_.warn("Can't instantiate Page object: " + pageClass.getName(),
+                    t);
+            return null;
+        }
+
+        Include children = pageClass.getAnnotation(Include.class);
+        if (children != null) {
+            Class<?>[] childrenClasses = children.value();
+            List<PageComponent> childPageList = new ArrayList<PageComponent>();
+            for (int i = 0; i < childrenClasses.length; i++) {
+                PageComponent pc = createPageComponent(childrenClasses[i]);
+                if (pc != null) {
+                    childPageList.add(pc);
                 }
             }
+            pageComponent = new PageComponentImpl(page, pageClass,
+                    childPageList.toArray(new PageComponent[0]));
+        } else {
+            pageComponent = new PageComponentImpl(page, pageClass);
         }
 
-        return ParameterRole.UNDECIDED;
+        return pageComponent;
     }
 
     public ClassDesc buildTransitionClassDesc(DescPool pool, String path,

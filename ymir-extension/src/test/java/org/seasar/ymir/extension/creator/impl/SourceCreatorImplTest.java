@@ -36,6 +36,7 @@ import org.seasar.ymir.extension.creator.ThrowsDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
 import org.seasar.ymir.extension.creator.util.DescUtils;
+import org.seasar.ymir.extension.zpt.ParameterRole;
 import org.seasar.ymir.id.action.GetAction;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.MockDispatch;
@@ -1116,5 +1117,15 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
         assertEquals("java.util.List<com.example.dto.HoeDto[]>[]", typeDesc
                 .getName());
+    }
+
+    public void test_inferParameterRole_インクルードされているクラスも見ること() throws Exception {
+        assertEquals(ParameterRole.PARAMETER, target_.inferParameterRole(
+                "/index.html", HttpMethod.GET, Hoe6Page.class.getName(),
+                "param", null));
+
+        assertEquals(ParameterRole.BUTTON, target_.inferParameterRole(
+                "/index.html", HttpMethod.GET, Hoe6Page.class.getName(), "go",
+                null));
     }
 }

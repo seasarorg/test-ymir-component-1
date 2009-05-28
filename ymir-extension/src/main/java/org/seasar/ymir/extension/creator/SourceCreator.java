@@ -210,7 +210,7 @@ public interface SourceCreator extends Updater {
      * @since 1.0.3
      */
     ParameterRole inferParameterRole(String path, HttpMethod method,
-            String className, String parameterName, ClassHint classHint);
+            String pageClassName, String parameterName, ClassHint classHint);
 
     /**
      * @since 1.0.3
