@@ -2564,28 +2564,30 @@ public class SourceCreatorImpl implements SourceCreator {
             return ParameterRole.UNDECIDED;
         }
 
-        ParameterRole role = new PageComponentVisitor<ParameterRole>() {
-            @Override
-            public ParameterRole process(PageComponent pageComponent) {
-                if (getPropertyDescriptor(pageComponent.getPageClass(),
-                        actionKey) != null) {
-                    return ParameterRole.PARAMETER;
-                }
+        ParameterRole role = pageComponent
+                .accept(new PageComponentVisitor<ParameterRole>() {
+                    @Override
+                    public ParameterRole process(PageComponent pageComponent) {
+                        if (getPropertyDescriptor(pageComponent.getPageClass(),
+                                actionKey) != null) {
+                            return ParameterRole.PARAMETER;
+                        }
 
-                String methodName = newActionMethodDesc(
-                        DescPool.newInstance(SourceCreatorImpl.this, null),
-                        path, method, new ActionSelectorSeedImpl(actionKey))
-                        .getName();
-                for (Method m : ClassUtils.getMethods(pageComponent
-                        .getPageClass())) {
-                    if (m.getName().equals(methodName)) {
-                        return ParameterRole.BUTTON;
+                        String methodName = newActionMethodDesc(
+                                DescPool.newInstance(SourceCreatorImpl.this,
+                                        null), path, method,
+                                new ActionSelectorSeedImpl(actionKey))
+                                .getName();
+                        for (Method m : ClassUtils.getMethods(pageComponent
+                                .getPageClass())) {
+                            if (m.getName().equals(methodName)) {
+                                return ParameterRole.BUTTON;
+                            }
+                        }
+
+                        return null;
                     }
-                }
-
-                return null;
-            }
-        }.visit(pageComponent);
+                });
 
         if (role == null) {
             role = ParameterRole.UNDECIDED;
