@@ -15,16 +15,17 @@ public <#if classDesc.abstract>abstract </#if>class ${classDesc.shortName}Base<#
     public static final String PATH = "${classDesc.pathOfClass}";
 </#if>
 <#list classDesc.propertyDescs as propertyDesc>
+  <#if propertyDesc.getAttribute("parameters")??>
+    <#list propertyDesc.getAttribute("parameters") as parameter>
 
-    public static final String P_${propertyDesc.name} = "${propertyDesc.name}";
-  <#if propertyDesc.typeDesc.name == "org.seasar.ymir.render.Selector"
-       && propertyDesc.name?ends_with("Selector")>
-
-    public static final String P_${propertyDesc.name}_selectedValues = "${propertyDesc.name}.selectedValues";
-  <#elseif propertyDesc.typeDesc.name == "org.seasar.ymir.render.html.Select"
-       && propertyDesc.name?ends_with("Select")>
-
-    public static final String P_${propertyDesc.name}_value = "${propertyDesc.name}.value";
+      <#if parameter.bornOf?size &gt; 0>
+        <#assign annotationDesc = parameter.bornOfAnnotationDesc>
+        <#if classDesc.toShortName("org.seasar.ymir.annotation.Meta")??>
+    ${annotationDesc.asShortString}
+        </#if>
+      </#if>
+    public static final String P_${parameter.element?replace(".", "$")} = "${parameter.element}";
+    </#list>
   </#if>
 </#list>
 <#list classDesc.propertyDescs as propertyDesc>

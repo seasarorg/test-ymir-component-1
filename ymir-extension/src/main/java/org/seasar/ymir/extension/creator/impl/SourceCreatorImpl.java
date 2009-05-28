@@ -88,6 +88,7 @@ import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
+import org.seasar.ymir.extension.creator.Born;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
@@ -207,6 +208,12 @@ public class SourceCreatorImpl implements SourceCreator {
     private static final String ACTIONMETHOD_FIELD_KEY = "KEY";
 
     private static final Map<HttpMethod, Class<? extends Action>> ACTIONINTERFACE_BY_HTTPMETHOD_MAP;
+
+    private static final Comparator<? super Field> COMPARATOR_FIELD_BY_NAME = new Comparator<Field>() {
+        public int compare(Field o1, Field o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+    };
 
     private YmirImpl ymir_;
 
@@ -935,24 +942,50 @@ public class SourceCreatorImpl implements SourceCreator {
         // 特別な処理を行なう。
 
         Field[] fields = clazz.getDeclaredFields();
-        Arrays.sort(fields, new Comparator<Field>() {
-            public int compare(Field o1, Field o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
-        for (int i = 0; i < fields.length; i++) {
-            String propertyName = MetaUtils.getFirstValue(fields[i],
-                    Globals.META_NAME_PROPERTY);
-            if (propertyName != null) {
+        Arrays.sort(fields, COMPARATOR_FIELD_BY_NAME);
+        for (Field field : fields) {
+            // フォームDTOのためのフィールドである場合の処理を行なう。
+            if (MetaUtils.hasMeta(field, Globals.META_NAME_PROPERTY)) {
+                String propertyName = MetaUtils.getFirstValue(field,
+                        Globals.META_NAME_PROPERTY);
                 PropertyDesc pd = classDesc.getPropertyDesc(propertyName);
                 if (pd == null) {
                     pd = classDesc.addPropertyDesc(propertyName,
                             PropertyDesc.NONE);
                 }
-                pd.setTypeDesc(fields[i].getGenericType());
-                for (Annotation annotation : fields[i].getAnnotations()) {
+                pd.setTypeDesc(field.getGenericType());
+                for (Annotation annotation : field.getAnnotations()) {
                     pd.setAnnotationDesc(DescUtils
                             .newAnnotationDesc(annotation));
+                }
+            }
+
+            // パラメータ情報をPropertyDescに設定する。
+            String name = field.getName();
+            if (name.startsWith(Globals.CONSTANT_PREFIX_PARAMETER)) {
+                String propertyName = name
+                        .substring(Globals.CONSTANT_PREFIX_PARAMETER.length());
+                int delim = propertyName.indexOf("$");
+                if (delim >= 0) {
+                    propertyName = propertyName.substring(0, delim);
+                }
+                PropertyDesc propertyDesc = classDesc
+                        .getPropertyDesc(propertyName);
+                if (propertyDesc != null
+                        && (propertyDesc
+                                .getAnnotationDescOnGetter(RequestParameter.class
+                                        .getName()) != null || propertyDesc
+                                .getAnnotationDescOnSetter(RequestParameter.class
+                                        .getName()) != null)) {
+                    try {
+                        DescUtils.addParameter(propertyDesc, (String) field
+                                .get(null), MetaUtils.getValue(field,
+                                Globals.META_NAME_BORNOF));
+                    } catch (IllegalArgumentException ex) {
+                        throw new RuntimeException("May logic error", ex);
+                    } catch (IllegalAccessException ignore) {
+                    } catch (ClassCastException ignore) {
+                    }
                 }
             }
         }
@@ -1309,6 +1342,14 @@ public class SourceCreatorImpl implements SourceCreator {
     private void sortElementsByName(ClassDesc classDesc) {
         PropertyDesc[] propertyDescs = classDesc.getPropertyDescs();
         Arrays.sort(propertyDescs, COMPARATOR_PROPERTYDESC_BY_NAME);
+        for (PropertyDesc propertyDesc : propertyDescs) {
+            @SuppressWarnings("unchecked")
+            Born<String>[] parameters = (Born<String>[]) propertyDesc
+                    .getAttribute(Globals.ATTR_PARAMETERS);
+            if (parameters != null) {
+                Arrays.sort(parameters);
+            }
+        }
         classDesc.setPropertyDescs(propertyDescs);
 
         MethodDesc[] methodDescs = classDesc.getMethodDescs();
@@ -2560,6 +2601,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     propertyDesc
                             .setAnnotationDescOnSetter(new AnnotationDescImpl(
                                     RequestParameter.class.getName()));
+                    DescUtils.addParameter(propertyDesc, name);
                     break;
 
                 case BUTTON:
@@ -2592,6 +2634,7 @@ public class SourceCreatorImpl implements SourceCreator {
                         PropertyDesc.READ, pageClassName);
                 propertyDesc.setAnnotationDescOnGetter(new AnnotationDescImpl(
                         RequestParameter.class.getName()));
+                DescUtils.addParameter(propertyDesc, name);
             }
         }
 

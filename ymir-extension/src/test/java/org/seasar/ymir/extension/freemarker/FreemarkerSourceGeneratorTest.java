@@ -24,6 +24,7 @@ import org.seasar.ymir.extension.creator.impl.ParameterDescImpl;
 import org.seasar.ymir.extension.creator.impl.PropertyDescImpl;
 import org.seasar.ymir.extension.creator.impl.SourceCreatorImpl;
 import org.seasar.ymir.extension.creator.impl.ThrowsDescImpl;
+import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.id.action.GetAction;
 import org.seasar.ymir.mock.MockApplication;
 import org.seasar.ymir.mock.MockYmir;
@@ -139,14 +140,19 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         YmirContext.setYmir(new MockYmir());
     }
 
-    private ClassDesc prepareClassDesc(String className) {
+    private ClassDesc prepareClassDesc(String className, String bornOf) {
+        if (bornOf != null) {
+            pool_.setBornOf(bornOf);
+        }
         ClassDesc classDesc = new ClassDescImpl(pool_, className);
         PropertyDesc propertyDesc = new PropertyDescImpl(pool_, "param1");
         propertyDesc.setTypeDesc(Boolean.TYPE);
         propertyDesc.setMode(PropertyDesc.READ);
+        DescUtils.addParameter(propertyDesc, "param1");
         classDesc.setPropertyDesc(propertyDesc);
         propertyDesc = new PropertyDescImpl(pool_, "param2");
         propertyDesc.setMode(PropertyDesc.WRITE);
+        DescUtils.addParameter(propertyDesc, "param2");
         classDesc.setPropertyDesc(propertyDesc);
         // 順番をアルファベット順でないようにしているのは、プロパティやメソッドがアルファベット順に
         // 生成されることを検証するため。（Dtoではコンストラクタのみアルファベット順）
@@ -154,16 +160,18 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         propertyDesc.setMode(PropertyDesc.READ | PropertyDesc.WRITE);
         propertyDesc.setTypeDesc(Integer[].class);
         propertyDesc.notifyTypeUpdated(PropertyDesc.PROBABILITY_MAXIMUM);
+        DescUtils.addParameter(propertyDesc, "param4");
         classDesc.setPropertyDesc(propertyDesc);
         propertyDesc = new PropertyDescImpl(pool_, "param3");
         propertyDesc.setMode(PropertyDesc.READ | PropertyDesc.WRITE);
+        DescUtils.addParameter(propertyDesc, "param3");
         classDesc.setPropertyDesc(propertyDesc);
 
         return classDesc;
     }
 
     public void testGenerateGapSource() throws Exception {
-        ClassDesc classDesc = prepareClassDesc("com.example.dto.TestDto");
+        ClassDesc classDesc = prepareClassDesc("com.example.dto.TestDto", null);
 
         sourceCreator_.prepareForMethodBody(classDesc);
         sourceCreator_.prepareForImportDesc(classDesc);
@@ -176,7 +184,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Page() throws Exception {
-        ClassDesc classDesc = prepareClassDesc("com.example.page.TestPage");
+        ClassDesc classDesc = prepareClassDesc("com.example.page.TestPage",
+                null);
         classDesc.setSuperclassName(TestPageBaseBase.class.getName());
         MethodDesc methodDesc = new MethodDescImpl(pool_, "_get");
         methodDesc.setReturnTypeDesc(Response.class.getName());
@@ -301,7 +310,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     }
 
     public void testGenerateBaseSource_Dto() throws Exception {
-        ClassDesc classDesc = prepareClassDesc("com.example.dto.TestDto");
+        ClassDesc classDesc = prepareClassDesc("com.example.dto.TestDto", null);
         classDesc
                 .setInterfaceTypeDescs(new TypeDesc[] { classDesc.getDescPool()
                         .newTypeDesc("java.util.List<java.lang.String>") });
@@ -317,7 +326,8 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
 
     public void testGenerateGapSource_Page() throws Exception {
 
-        ClassDesc classDesc = prepareClassDesc("com.example.page.TestPage");
+        ClassDesc classDesc = prepareClassDesc("com.example.page.TestPage",
+                null);
         classDesc.setSuperclassName(TestPageBaseBase.class.getName());
         MethodDesc methodDesc = new MethodDescImpl(classDesc.getDescPool(),
                 "_get");
@@ -451,28 +461,6 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 "testGenerateBaseSource_Page8.expected"), actual);
     }
 
-    public void test_generateBaseSource_Page9_SelectorやSelectについてはvalueのための定数が生成されること()
-            throws Exception {
-        ClassDesc classDesc = new FSourceCreatorImpl() {
-            @Override
-            public ClassDesc newClassDesc(DescPool pool, String className,
-                    String qualifier, ClassCreationHintBag bag) {
-                if (className.equals(Hoe9PageBase.class.getName())) {
-                    className = "org.seasar.ymir.extension.freemarker.Hoe9Page";
-                }
-                return new ClassDescImpl(pool, className, qualifier);
-            }
-        }.newClassDesc(pool_, Hoe9PageBase.class, true);
-
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
-
-        String actual = sourceCreator_.generateBaseSource(classDesc);
-
-        assertEquals(readResource(getClass(),
-                "testGenerateBaseSource_Page9.expected"), actual);
-    }
-
     public void test_generateBaseSource_Page10_再生成時にFormDtoが持つプロパティに対応する無駄なフィールドが生成されてしまわないこと()
             throws Exception {
         ClassDesc classDesc = new FSourceCreatorImpl() {
@@ -493,5 +481,31 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
 
         assertEquals(readResource(getClass(),
                 "testGenerateBaseSource_Page10.expected"), actual);
+    }
+
+    public void test_generateBaseSource_Page11_パラメータ定数が正しく生成されること()
+            throws Exception {
+        ClassDesc classDesc = new FSourceCreatorImpl() {
+            @Override
+            public ClassDesc newClassDesc(DescPool pool, String className,
+                    String qualifier, ClassCreationHintBag bag) {
+                if (className.equals(Hoe11PageBase.class.getName())) {
+                    className = "org.seasar.ymir.extension.freemarker.Hoe11Page";
+                }
+                return new ClassDescImpl(pool, className, qualifier);
+            }
+        }.newClassDesc(pool_, Hoe11PageBase.class, true);
+        DescUtils.addParameter(classDesc.addPropertyDesc("param1",
+                PropertyDesc.WRITE), "param1.value1");
+        DescUtils.addParameter(classDesc.addPropertyDesc("param1",
+                PropertyDesc.WRITE), "param1.value2");
+
+        sourceCreator_.prepareForMethodBody(classDesc);
+        sourceCreator_.prepareForImportDesc(classDesc);
+
+        String actual = sourceCreator_.generateBaseSource(classDesc);
+
+        assertEquals(readResource(getClass(),
+                "testGenerateBaseSource_Page11.expected"), actual);
     }
 }

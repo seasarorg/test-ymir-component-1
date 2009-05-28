@@ -19,6 +19,7 @@ import org.seasar.ymir.conversation.annotation.Begin;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
+import org.seasar.ymir.extension.creator.Born;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescSet;
@@ -34,6 +35,7 @@ import org.seasar.ymir.extension.creator.SourceCreatorSetting;
 import org.seasar.ymir.extension.creator.ThrowsDesc;
 import org.seasar.ymir.extension.creator.TypeDesc;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
+import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.id.action.GetAction;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.MockDispatch;
@@ -789,6 +791,31 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertNotNull(actual);
         assertEquals("由来が同じでもGapでオーバライドしている場合は置き換わらないこと", "String", actual
                 .getReturnTypeDesc().getName());
+    }
+
+    @SuppressWarnings("unchecked")
+    public void testAdjustByExistentClass25_パラメータ定数が正しくマージされること()
+            throws Exception {
+        DescPool pool = DescPool.newInstance(target_, null);
+        pool.setBornOf("/adjust25.html");
+        ClassDesc classDesc = pool.getClassDesc(Adjust25Page.class);
+        DescUtils.addParameter(classDesc.addPropertyDesc("param1",
+                PropertyDesc.WRITE), "param1.value2");
+
+        target_.adjustByExistentClass(classDesc);
+
+        Born<String>[] parameters = (Born<String>[]) classDesc.getPropertyDesc(
+                "param1").getAttribute(Globals.ATTR_PARAMETERS);
+        assertNotNull(parameters);
+        assertEquals(2, parameters.length);
+        int idx = 0;
+        assertEquals("param1.value2", parameters[idx].getElement());
+        assertEquals("/adjust25.html", parameters[idx].getBornOf()[0]);
+        assertEquals("/fuga.html", parameters[idx].getBornOf()[1]);
+        idx++;
+        assertEquals("param1.value3", parameters[idx].getElement());
+        assertEquals("/fuga.html", parameters[idx].getBornOf()[0]);
+        idx++;
     }
 
     public void testGetBeginAnnotation() throws Exception {

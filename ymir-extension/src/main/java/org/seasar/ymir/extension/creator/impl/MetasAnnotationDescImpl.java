@@ -1,6 +1,8 @@
 package org.seasar.ymir.extension.creator.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +14,12 @@ import org.seasar.ymir.extension.creator.MetasAnnotationDesc;
 import org.seasar.ymir.util.ClassUtils;
 
 public class MetasAnnotationDescImpl implements MetasAnnotationDesc {
+    private static final Comparator<? super MetaAnnotationDesc> COMPARATOR_METAANNOTATIONDESC = new Comparator<MetaAnnotationDesc>() {
+        public int compare(MetaAnnotationDesc o1, MetaAnnotationDesc o2) {
+            return o1.getMetaName().compareTo(o2.getMetaName());
+        }
+    };
+
     private MetaAnnotationDesc[] metaAnnotationDescs_;
 
     private Set<String> touchedClassNameSet_ = new HashSet<String>();
@@ -25,8 +33,9 @@ public class MetasAnnotationDescImpl implements MetasAnnotationDesc {
         metaAnnotationDescs_ = list.toArray(new MetaAnnotationDesc[0]);
     }
 
-    public MetasAnnotationDescImpl(MetaAnnotationDesc[] mads) {
+    public MetasAnnotationDescImpl(MetaAnnotationDesc... mads) {
         metaAnnotationDescs_ = mads;
+        Arrays.sort(metaAnnotationDescs_, COMPARATOR_METAANNOTATIONDESC);
     }
 
     public Object clone() {

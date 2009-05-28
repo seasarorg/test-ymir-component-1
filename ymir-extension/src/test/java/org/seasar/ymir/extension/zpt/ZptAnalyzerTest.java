@@ -28,6 +28,7 @@ import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
+import org.seasar.ymir.extension.creator.Born;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassHint;
@@ -1691,5 +1692,41 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals(Note.class.getName(), getClassDesc(
                 "com.example.dto.EntryCandidateDto").getPropertyDesc("label")
                 .getTypeDesc().getName());
+    }
+
+    @SuppressWarnings("unchecked")
+    public void testAnalyze93_リクエストパラメータ情報が対応するプロパティに設定されること() throws Exception {
+
+        act("testAnalyze93");
+
+        ClassDesc classDesc = getClassDesc(CLASSNAME);
+
+        Born<String>[] parameters = (Born<String>[]) classDesc.getPropertyDesc(
+                "param1").getAttribute(Globals.ATTR_PARAMETERS);
+        assertNotNull(parameters);
+        assertEquals(1, parameters.length);
+        int idx = 0;
+        assertEquals("param1", parameters[idx++].getElement());
+
+        parameters = (Born<String>[]) classDesc.getPropertyDesc("param2")
+                .getAttribute(Globals.ATTR_PARAMETERS);
+        assertNotNull(parameters);
+        assertEquals(1, parameters.length);
+        idx = 0;
+        assertEquals("param2.value", parameters[idx++].getElement());
+
+        parameters = (Born<String>[]) classDesc.getPropertyDesc("param3")
+                .getAttribute(Globals.ATTR_PARAMETERS);
+        assertNotNull(parameters);
+        assertEquals(1, parameters.length);
+        idx = 0;
+        assertEquals("param3", parameters[idx++].getElement());
+
+        parameters = (Born<String>[]) classDesc.getPropertyDesc("param4")
+                .getAttribute(Globals.ATTR_PARAMETERS);
+        assertNotNull(parameters);
+        assertEquals(1, parameters.length);
+        idx = 0;
+        assertEquals("param4.value", parameters[idx++].getElement());
     }
 }

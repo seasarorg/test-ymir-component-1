@@ -31,6 +31,7 @@ import org.seasar.ymir.extension.creator.impl.AnnotationDescImpl;
 import org.seasar.ymir.extension.creator.impl.FormDescImpl;
 import org.seasar.ymir.extension.creator.impl.MetaAnnotationDescImpl;
 import org.seasar.ymir.extension.creator.mapping.impl.ActionSelectorSeedImpl;
+import org.seasar.ymir.extension.creator.util.DescUtils;
 import org.seasar.ymir.render.html.Option;
 import org.seasar.ymir.scope.annotation.RequestParameter;
 import org.seasar.ymir.util.BeanUtils;
@@ -261,10 +262,13 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         propertyDesc
                                 .setAnnotationDescOnSetter(new AnnotationDescImpl(
                                         RequestParameter.class.getName()));
+                        DescUtils.addParameter(propertyDesc, parameterName);
                     } else {
                         firstPropertyDesc
                                 .setAnnotationDescOnGetter(new AnnotationDescImpl(
                                         RequestParameter.class.getName()));
+                        DescUtils
+                                .addParameter(firstPropertyDesc, parameterName);
                     }
                 } while (false);
             } else if ("option".equals(name)) {

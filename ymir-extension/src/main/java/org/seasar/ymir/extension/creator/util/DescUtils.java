@@ -16,12 +16,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Metas;
 import org.seasar.ymir.extension.Globals;
 import org.seasar.ymir.extension.creator.AnnotationDesc;
 import org.seasar.ymir.extension.creator.BodyDesc;
+import org.seasar.ymir.extension.creator.Born;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.MetaAnnotationDesc;
 import org.seasar.ymir.extension.creator.MetasAnnotationDesc;
@@ -37,6 +40,9 @@ import org.seasar.ymir.util.ClassUtils;
 
 public class DescUtils {
     private static final String PACKAGEPREFIX_JAVA_LANG = "java.lang.";
+
+    private static final Pattern PATTERN_CAPABLE_PARAMETER = Pattern
+            .compile("[a-zA-Z_0-9\\.]+");
 
     private DescUtils() {
     }
@@ -128,6 +134,7 @@ public class DescUtils {
             } else if (meta != null) {
                 // MetasがなくてMetaがあればMetasに統合する。
                 madMap.put(meta.getMetaName(), meta);
+                annotationDescMap.remove(Meta.class.getName());
             }
             for (MetaAnnotationDesc mad : metasAd.getMetaAnnotationDescs()) {
                 String metaName = mad.getMetaName();
@@ -505,14 +512,20 @@ public class DescUtils {
         }
     }
 
+    public static AnnotationDesc newBornOfMetaAnnotationDesc(String[] values) {
+        return newBornOfMetaAnnotationDesc(values, null);
+    }
+
     public static AnnotationDesc newBornOfMetaAnnotationDesc(String[] values,
             String bornOf) {
-        if (values == null) {
-            values = new String[] { bornOf };
-        } else {
-            Set<String> set = new TreeSet<String>(Arrays.asList(values));
-            set.add(bornOf);
-            values = set.toArray(new String[0]);
+        if (bornOf != null) {
+            if (values == null) {
+                values = new String[] { bornOf };
+            } else {
+                Set<String> set = new TreeSet<String>(Arrays.asList(values));
+                set.add(bornOf);
+                values = set.toArray(new String[0]);
+            }
         }
         return new MetaAnnotationDescImpl(Globals.META_NAME_BORNOF, values);
     }
@@ -521,8 +534,94 @@ public class DescUtils {
             Map<String, Object> attributeMap2, boolean force) {
         for (Map.Entry<String, Object> entry : attributeMap2.entrySet()) {
             String key = entry.getKey();
-            if (!attributeMap.containsKey(key) || force) {
-                attributeMap.put(key, entry.getValue());
+            Object value;
+            if (attributeMap.containsKey(key)) {
+                // 同じ名前の属性が両方のMapに存在する場合。
+                if (Globals.ATTR_PARAMETERS.equals(key)) {
+                    value = mergeParametersAttribute(attributeMap.get(key),
+                            entry.getValue(), force);
+                } else {
+                    value = force ? entry.getValue() : attributeMap.get(key);
+                }
+            } else {
+                value = entry.getValue();
+            }
+            attributeMap.put(key, value);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Born<String>[] mergeParametersAttribute(Object parameters,
+            Object parameters2, boolean force) {
+        Map<String, Born<String>> map = new LinkedHashMap<String, Born<String>>();
+        for (Born<String> parameter : (Born<String>[]) parameters) {
+            map.put(parameter.getElement(), parameter);
+        }
+        for (Born<String> parameter2 : (Born<String>[]) parameters2) {
+            Born<String> born;
+            born = new Born<String>(parameter2.getElement(), parameter2
+                    .getBornOf());
+            Born<String> parameter = map.get(parameter2.getElement());
+            if (parameter != null) {
+                born.addBornOf(parameter.getBornOf());
+            }
+            map.put(parameter2.getElement(), born);
+        }
+        return map.values().toArray(new Born[0]);
+    }
+
+    public static void addParameter(PropertyDesc propertyDesc, String parameter) {
+        String bornOf = propertyDesc.getDescPool().getBornOf();
+        addParameter(propertyDesc, parameter,
+                bornOf != null ? new String[] { bornOf } : null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void addParameter(PropertyDesc propertyDesc,
+            String parameter, String[] bornOf) {
+        if (!isCapableParameter(parameter)) {
+            return;
+        }
+
+        Born<String>[] parameterBorns = (Born<String>[]) propertyDesc
+                .getAttribute(Globals.ATTR_PARAMETERS);
+        Born<String> newBorn = new Born<String>(parameter, bornOf);
+        if (parameterBorns == null) {
+            parameterBorns = new Born[] { newBorn };
+        } else {
+            for (Born<String> born : parameterBorns) {
+                if (parameter.equals(born.getElement())) {
+                    return;
+                }
+            }
+            Born<String>[] newParameterBorns = new Born[parameterBorns.length + 1];
+            System.arraycopy(parameterBorns, 0, newParameterBorns, 0,
+                    parameterBorns.length);
+            newParameterBorns[parameterBorns.length] = newBorn;
+            parameterBorns = newParameterBorns;
+        }
+        propertyDesc.setAttribute(Globals.ATTR_PARAMETERS, parameterBorns);
+    }
+
+    static boolean isCapableParameter(String parameter) {
+        return PATTERN_CAPABLE_PARAMETER.matcher(parameter).matches();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void removeBornOfFromAttributes(String bornOf,
+            Map<String, Object> attributeMap) {
+        for (Iterator<Map.Entry<String, Object>> itr = attributeMap.entrySet()
+                .iterator(); itr.hasNext();) {
+            Entry<String, Object> entry = itr.next();
+            if (Globals.ATTR_PARAMETERS.equals(entry.getKey())) {
+                List<Born<String>> list = new ArrayList<Born<String>>();
+                for (Born<String> parameter : (Born<String>[]) entry.getValue()) {
+                    if (!parameter.removeBornOf(bornOf)) {
+                        // bornOfがもともとあったところからbornOfを除去した結果なんらかのbornOfが残っているのでこのパラメータを残す。
+                        list.add(parameter);
+                    }
+                }
+                entry.setValue(list.toArray(new Born[0]));
             }
         }
     }

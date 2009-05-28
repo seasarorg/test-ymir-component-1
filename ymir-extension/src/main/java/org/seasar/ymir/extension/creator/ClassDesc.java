@@ -89,4 +89,6 @@ public interface ClassDesc extends AnnotatedDesc<ClassDesc> {
     void removeBornOf(String bornOf);
 
     String getPathOfClass();
+
+    String toShortName(String className);
 }

@@ -10,8 +10,6 @@ public class HoePageBase {
 
     public static final String NAME = "hoe";
 
-    public static final String P_hoe = "hoe";
-
     protected String hoe_;
 
     @Required("get")

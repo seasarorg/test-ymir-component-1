@@ -27,6 +27,8 @@ public interface Globals extends org.seasar.ymir.Globals {
 
     String ATTR_EVALUATEDBODY = "evaluatedBody";
 
+    String ATTR_PARAMETERS = "parameters";
+
     String PARAMETER_IMPORTCLASSSET = "importClassSet";
 
     String PARAMETER_BASEIMPORTCLASSSET = "baseImportClassSet";
@@ -48,4 +50,8 @@ public interface Globals extends org.seasar.ymir.Globals {
     String BORNOFPREFIX_REQUEST = "request:";
 
     String ACTIONKEY_DEFAULT = "";
+
+    String CONSTANT_PREFIX_ACTION = "A";
+
+    String CONSTANT_PREFIX_PARAMETER = "P_";
 }

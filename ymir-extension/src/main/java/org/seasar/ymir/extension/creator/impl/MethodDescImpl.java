@@ -237,6 +237,9 @@ public class MethodDescImpl extends AbstractAnnotatedDesc implements MethodDesc 
             }
         }
 
+        // 属性。
+        DescUtils.removeBornOfFromAttributes(bornOf, getAttributeMap());
+
         return removeThis;
     }
 }

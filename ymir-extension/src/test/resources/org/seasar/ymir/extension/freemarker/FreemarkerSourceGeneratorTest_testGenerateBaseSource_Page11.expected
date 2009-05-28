@@ -1,0 +1,17 @@
+package org.seasar.ymir.extension.freemarker;
+
+public class Hoe11PageBase {
+    public static final String PACKAGE = "org.seasar.ymir.extension.freemarker";
+
+    public static final String NAME = "hoe11";
+
+    public static final String P_param1$value1 = "param1.value1";
+
+    public static final String P_param1$value2 = "param1.value2";
+
+    protected String param1_;
+
+    public void setParam1(String param1) {
+        param1_ = param1;
+    }
+}

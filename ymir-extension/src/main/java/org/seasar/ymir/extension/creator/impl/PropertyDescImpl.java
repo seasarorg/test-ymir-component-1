@@ -699,6 +699,9 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
             }
         }
 
+        // 属性。
+        DescUtils.removeBornOfFromAttributes(bornOf, getAttributeMap());
+
         if (mode_ == PropertyDesc.NONE && mayFieldBeRemoved) {
             return true;
         } else {

@@ -327,6 +327,8 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
                 removeMethodDesc(methodDesc);
             }
         }
+
+        DescUtils.removeBornOfFromAttributes(bornOf, getAttributeMap());
     }
 
     public boolean isEmpty() {
@@ -502,5 +504,10 @@ public class ClassDescImpl extends AbstractAnnotatedDesc implements ClassDesc {
         for (MethodDesc methodDesc : methodDescMap_.values()) {
             methodDesc.setTouchedClassNameSet(set);
         }
+    }
+
+    public String toShortName(String className) {
+        getTouchedClassNameSet().add(className);
+        return ClassUtils.getShortName(className);
     }
 }
