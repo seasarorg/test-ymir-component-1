@@ -605,7 +605,7 @@ public class SourceCreatorImpl implements SourceCreator {
             }
         }
 
-        writeSourceFiles(classDescBag);
+        updateClasses0(classDescBag);
     }
 
     void addConverterSetterToPageClassDesc(ClassDesc pageClassDesc,
@@ -1299,7 +1299,7 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    void writeSourceFiles(ClassDescBag classDescBag) {
+    private void updateClasses0(ClassDescBag classDescBag) {
         for (ClassType type : ClassType.values()) {
             ClassDesc[] classDescs = classDescBag.getClassDescs(type);
             ClassDescSet classDescSet = classDescBag.getClassDescSet();
@@ -1766,19 +1766,16 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    boolean isFormDtoFieldPresent(ClassDesc cd, String name) {
+    boolean isFormDtoFieldPresent(ClassDesc cd, String formName) {
         Class<?> clazz = getClass(cd.getName());
         if (clazz == null || clazz == Object.class) {
             return false;
         }
-        do {
-            for (Field field : clazz.getDeclaredFields()) {
-                if (name.equals(MetaUtils.getFirstValue(field, "property"))) {
-                    return true;
-                }
-            }
-        } while ((clazz = clazz.getSuperclass()) != Object.class);
-        return false;
+
+        // PageBase.ftlの中で、formのフィールド名を
+        // ${fieldSpecialPrefix}${fieldPrefix}${propertyDesc.getMetaFirstValueOnGetterOrSetter("formProperty")}${fieldSuffix}
+        // としているため、propertyメタのついたフィールドではなく、このフィールド名にマッチするフィールドを検索するようにしている。
+        return DescUtils.findField(setting_.getFieldName(formName), clazz) != null;
     }
 
     void removeModeFrom(PropertyDesc pd, int mode, ClassDesc cd) {

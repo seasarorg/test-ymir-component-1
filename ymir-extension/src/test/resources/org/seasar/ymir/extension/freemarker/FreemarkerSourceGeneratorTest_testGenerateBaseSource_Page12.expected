@@ -8,13 +8,13 @@ public class Hoe12PageBase extends AbstractHoe12Page {
 
     public static final String NAME = "hoe12";
 
+    public String getMessage() {
+        return hoe12Form_.getMessage();
+    }
+
     @Meta(name = "formProperty", value = "hoe12Form")
     @RequestParameter
     public void setMessage(String message) {
-        hoe12Form.setMessage(message);
-    }
-
-    public String getMessage() {
-        return hoe12Form.getMessage();
+        hoe12Form_.setMessage(message);
     }
 }
