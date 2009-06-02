@@ -44,6 +44,7 @@ import org.seasar.ymir.mock.MockRequest;
 import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.scope.annotation.In;
 import org.seasar.ymir.scope.annotation.Out;
+import org.seasar.ymir.scope.annotation.RequestParameter;
 
 import com.example.page.SourceCreatorImplTestPageBaseBase;
 import com.example.page.TestPageBase;
@@ -817,6 +818,30 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertEquals("param1.value3", parameters[idx].getElement());
         assertEquals("/fuga.html", parameters[idx].getBornOf()[0]);
         idx++;
+    }
+
+    public void testAdjustByExistentClass26_formのアクセッサがsuperクラスにある場合に除去されること()
+            throws Exception {
+        DescPool pool = DescPool.newInstance(target_, null);
+        pool.setBornOf("/adjust26.html");
+        ClassDesc classDesc = pool.getClassDesc(Adjust26Page.class);
+        PropertyDesc propertyDesc = classDesc.addPropertyDesc("message",
+                PropertyDesc.READ | PropertyDesc.WRITE);
+        propertyDesc.setAnnotationDescOnGetter(new MetaAnnotationDescImpl(
+                "formProperty", new String[] { "adjust26Form" }));
+        propertyDesc.setAnnotationDescOnSetter(new MetaAnnotationDescImpl(
+                "formProperty", new String[] { "adjust26Form" }));
+        propertyDesc.setAnnotationDescOnSetter(new AnnotationDescImpl(
+                RequestParameter.class.getName()));
+        propertyDesc = classDesc.addPropertyDesc("adjust26Form",
+                PropertyDesc.NONE);
+        propertyDesc.setTypeDesc(Adjust26FormDto.class);
+        propertyDesc.setAnnotationDesc(new MetaAnnotationDescImpl("property",
+                new String[] { "adjust26Form" }));
+
+        target_.adjustByExistentClass(classDesc);
+
+        assertNull(classDesc.getPropertyDesc("adjust26Form"));
     }
 
     public void testGetBeginAnnotation() throws Exception {

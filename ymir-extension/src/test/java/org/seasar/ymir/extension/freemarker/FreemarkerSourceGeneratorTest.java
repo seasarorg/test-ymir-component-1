@@ -508,4 +508,19 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         assertEquals(readResource(getClass(),
                 "testGenerateBaseSource_Page11.expected"), actual);
     }
+
+    public void test_generateBaseSource_Page12_formのアクセッサがsuperクラスにある場合に正しく生成されること()
+            throws Exception {
+        ClassDesc classDesc = sourceCreator_.newClassDesc(pool_,
+                Hoe12Page.class.getName(), null);
+        sourceCreator_.adjustByExistentClass(classDesc);
+
+        sourceCreator_.prepareForMethodBody(classDesc);
+        sourceCreator_.prepareForImportDesc(classDesc);
+
+        String actual = sourceCreator_.generateBaseSource(classDesc);
+
+        assertEquals(readResource(getClass(),
+                "testGenerateBaseSource_Page12.expected"), actual);
+    }
 }
