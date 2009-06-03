@@ -29,6 +29,13 @@ public class ScopeInterceptorITest extends YmirTestCase {
         assertEquals("aaa", getServletContext().getAttribute("value"));
     }
 
+    public void test_RequestParameterアノテーションで指定された名前のリクエストパラメータがインジェクトされること()
+            throws Exception {
+        process(ScopeInterceptorITestPage.class, "Value2", "bbb", "setValue2");
+
+        assertEquals("bbb", getServletContext().getAttribute("value2"));
+    }
+
     public void test_Inアノテーションを使ってPageのアクションメソッドの引数へのインジェクションが行なわれること()
             throws Exception {
         process(ScopeInterceptorITestPage.class, "value", "aaa", "resolve");
