@@ -37,7 +37,11 @@ public class CookieScope extends AbstractServletScope {
         if (cookies != null) {
             for (int i = 0; i < cookies.length; i++) {
                 if (name.equals(cookies[i].getName())) {
-                    return cookies[i].getValue();
+                    if (type.isAssignableFrom(Cookie.class)) {
+                        return cookies[i];
+                    } else {
+                        return cookies[i].getValue();
+                    }
                 }
             }
         }
