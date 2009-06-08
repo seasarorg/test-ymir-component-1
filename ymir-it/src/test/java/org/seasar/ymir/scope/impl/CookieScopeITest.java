@@ -25,6 +25,7 @@ public class CookieScopeITest extends YmirTestCase {
         int idx = 0;
         assertEquals("hoge", actual[idx].getName());
         assertEquals("fuga", actual[idx].getValue());
+        assertEquals(100, actual[idx].getMaxAge());
         idx++;
         assertEquals("value", actual[idx].getName());
         assertEquals("VALUE", actual[idx].getValue());
@@ -45,7 +46,9 @@ public class CookieScopeITest extends YmirTestCase {
             throws Exception {
         process(CookieScopeITestPage.class, new RequestInitializer() {
             public void initialize() {
-                getHttpServletRequest().addCookie(new Cookie("hoge", "fuga"));
+                Cookie cookie = new Cookie("hoge", "fuga");
+                cookie.setMaxAge(100);
+                getHttpServletRequest().addCookie(cookie);
             }
         });
 
@@ -53,5 +56,6 @@ public class CookieScopeITest extends YmirTestCase {
         assertNotNull(actual);
         assertEquals("hoge", actual.getName());
         assertEquals("fuga", actual.getValue());
+        assertEquals(100, actual.getMaxAge());
     }
 }

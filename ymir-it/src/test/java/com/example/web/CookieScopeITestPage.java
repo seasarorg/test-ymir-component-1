@@ -23,6 +23,7 @@ public class CookieScopeITestPage {
 
     public void _post_login() {
         hoge_ = new Cookie("hoge", "fuga");
+        hoge_.setMaxAge(100);
         value_ = "VALUE";
     }
 
