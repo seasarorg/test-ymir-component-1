@@ -58,6 +58,37 @@ public interface WindowManager {
     Iterator<String> getScopeAttributeNames(String windowId);
 
     /**
+     * 現在のWindowスコープにバインドされている属性のうち、
+     * 指定されている名前の属性の値を返します。
+     * <p>{@link #getScopeAttribute(String)}とは異なり、
+     * Hotdeployモードの時でも補正せずにそのままオブジェクトを返します。
+     * 従って、HotdeployモードではClassCastExceptionがスローされることがあります。
+     * 通常は{@link #getScopeAttribute(String)}を使って下さい。
+     * </p>
+     * 
+     * @param name 属性の名前。
+     * @return 属性の値。存在しない場合はnullを返します。
+     * @since 1.0.5
+     */
+    <T> T getRawScopeAttribute(String name);
+
+    /**
+     * 指定されたWindowスコープにバインドされている属性のうち、
+     * 指定されている名前の属性の値を返します。
+     * <p>{@link #getScopeAttribute(String, String)}とは異なり、
+     * Hotdeployモードの時でも補正せずにそのままオブジェクトを返します。
+     * 従って、HotdeployモードではClassCastExceptionがスローされることがあります。
+     * 通常は{@link #getScopeAttribute(String, String)}を使って下さい。
+     * </p>
+     * 
+     * @param windowId WindowスコープのID。
+     * @param name 属性の名前。
+     * @return 属性の値。存在しない場合はnullを返します。
+     * @since 1.0.5
+     */
+    <T> T getRawScopeAttribute(String windowId, String name);
+
+    /**
      * @since 1.0.3
      */
     boolean existsWindowScope();

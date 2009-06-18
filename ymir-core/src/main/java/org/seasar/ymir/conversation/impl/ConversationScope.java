@@ -68,14 +68,14 @@ public class ConversationScope implements Scope {
         }
 
         if (isUseSessionScopeAsConversationScope()) {
-            return sessionManager_.getAttribute(name);
+            return sessionManager_.getRawAttribute(name);
         } else {
             Conversations conversations = conversationManager_
                     .getConversations();
             if (conversations != null
                     && conversationNameEquals(getPageConversationName(),
                             conversations.getCurrentConversationName())) {
-                return conversations.getAttribute(name);
+                return conversations.getRawAttribute(name);
             } else {
                 return null;
             }
@@ -123,9 +123,13 @@ public class ConversationScope implements Scope {
     }
 
     boolean isUseSessionScopeAsConversationScope() {
-        return PropertyUtils.valueOf(applicationManager_
-                .findContextApplication().getProperty(
-                        APPKEY_CORE_CONVERSATION_USESESSIONSCOPEASCONVERSATIONSCOPE), false);
+        return PropertyUtils
+                .valueOf(
+                        applicationManager_
+                                .findContextApplication()
+                                .getProperty(
+                                        APPKEY_CORE_CONVERSATION_USESESSIONSCOPEASCONVERSATIONSCOPE),
+                        false);
     }
 
     public Iterator<String> getAttributeNames() {

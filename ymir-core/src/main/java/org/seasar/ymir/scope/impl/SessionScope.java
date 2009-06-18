@@ -28,7 +28,7 @@ public class SessionScope implements Scope {
             return null;
         }
 
-        return sessionManager_.getAttribute(name);
+        return sessionManager_.getRawAttribute(name);
     }
 
     public void setAttribute(String name, Object value) {

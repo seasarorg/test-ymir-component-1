@@ -129,4 +129,19 @@ public interface SessionManager {
      * @param name 属性の名前。
      */
     void refreshAttribute(String name);
+
+    /**
+     * 現在のセッションにバインドされている属性のうち、
+     * 指定されている名前の属性の値を返します。
+     * <p>{@link #getAttribute(String)}とは異なり、
+     * Hotdeployモードの時でも補正せずにそのままオブジェクトを返します。
+     * 従って、HotdeployモードではClassCastExceptionがスローされることがあります。
+     * 通常は{@link #getAttribute(String)}を使って下さい。
+     * </p>
+     * 
+     * @param name 属性の名前。
+     * @return 属性の値。存在しない場合はnullを返します。
+     * @since 1.0.5
+     */
+    Object getRawAttribute(String name);
 }

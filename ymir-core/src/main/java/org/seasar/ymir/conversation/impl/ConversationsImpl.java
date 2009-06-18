@@ -103,6 +103,14 @@ public class ConversationsImpl implements Conversations {
     }
 
     public synchronized Object getAttribute(String name) {
+        Object value = getRawAttribute(name);
+        if (value != null && YmirContext.isUnderDevelopment()) {
+            value = hotdeployManager_.fit(value);
+        }
+        return value;
+    }
+
+    public synchronized Object getRawAttribute(String name) {
         if (currentConversation_ != null) {
             return currentConversation_.getAttribute(name);
         } else {

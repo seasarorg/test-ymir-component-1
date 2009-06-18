@@ -32,7 +32,7 @@ public class WindowScope implements Scope {
             return null;
         }
 
-        return windowManager_.getScopeAttribute(name);
+        return windowManager_.getRawScopeAttribute(name);
     }
 
     public void setAttribute(String name, Object value) {

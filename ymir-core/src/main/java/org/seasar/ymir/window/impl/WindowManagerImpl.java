@@ -14,6 +14,8 @@ import org.seasar.ymir.Path;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
+import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.session.SessionManager;
 import org.seasar.ymir.util.ResponseUtils;
 import org.seasar.ymir.window.WindowManager;
@@ -28,6 +30,8 @@ public class WindowManagerImpl implements WindowManager {
 
     private ApplicationManager applicationManager_;
 
+    private HotdeployManager hotdeployManager_;
+
     private SessionManager sessionManager_;
 
     private String windowIdKey_;
@@ -35,6 +39,11 @@ public class WindowManagerImpl implements WindowManager {
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
         applicationManager_ = applicationManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setHotdeployManager(HotdeployManager hotdeployManager) {
+        hotdeployManager_ = hotdeployManager;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -96,6 +105,22 @@ public class WindowManagerImpl implements WindowManager {
 
     @SuppressWarnings("unchecked")
     public <T> T getScopeAttribute(String windowId, String name) {
+        Object value = getRawScopeAttribute(windowId, name);
+        if (value != null && YmirContext.isUnderDevelopment()) {
+            value = hotdeployManager_.fit(value);
+        }
+        return (T) value;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getRawScopeAttribute(String name) {
+        // Sun JDKでエラーになるのを回避するため。
+        Object value = getRawScopeAttribute(findWindowId(), name);
+        return (T) value;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getRawScopeAttribute(String windowId, String name) {
         synchronized (windowId.intern()) {
             Map<String, Object> scopeMap = getScopeMap(windowId, false);
             if (scopeMap == null) {

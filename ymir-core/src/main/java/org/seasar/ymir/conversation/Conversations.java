@@ -67,6 +67,21 @@ public interface Conversations extends Serializable {
     void setAttribute(String name, Object value);
 
     /**
+     * 現在のconversationにバインドされている属性のうち、
+     * 指定されている名前の属性の値を返します。
+     * <p>{@link #getAttribute(String)}とは異なり、
+     * Hotdeployモードの時でも補正せずにそのままオブジェクトを返します。
+     * 従って、HotdeployモードではClassCastExceptionがスローされることがあります。
+     * 通常は{@link #getScopeAttribute(String)}を使って下さい。
+     * </p>
+     * 
+     * @param name 属性の名前。
+     * @return 属性の値。存在しない場合はnullを返します。
+     * @since 1.0.5
+     */
+    Object getRawAttribute(String name);
+
+    /**
      * conversationを開始します。
      * <p>現在のconversationの名前が指定された名前と一致しない場合は、
      * conversationを新規に開始します。

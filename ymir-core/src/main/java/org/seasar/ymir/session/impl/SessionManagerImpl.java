@@ -14,10 +14,14 @@ import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.collection.EnumerationIterator;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Attribute;
+import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.session.SessionManager;
 
 public class SessionManagerImpl implements SessionManager {
     private ApplicationManager applicationManager_;
+
+    private HotdeployManager hotdeployManager_;
 
     private String straddlingAttributeNamePatternString_;
 
@@ -28,6 +32,11 @@ public class SessionManagerImpl implements SessionManager {
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
         applicationManager_ = applicationManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setHotdeployManager(HotdeployManager hotdeployManager) {
+        hotdeployManager_ = hotdeployManager;
     }
 
     public HttpSession getSession() {
@@ -112,6 +121,14 @@ public class SessionManagerImpl implements SessionManager {
     }
 
     public Object getAttribute(String name) {
+        Object value = getRawAttribute(name);
+        if (value != null && YmirContext.isUnderDevelopment()) {
+            value = hotdeployManager_.fit(value);
+        }
+        return value;
+    }
+
+    public Object getRawAttribute(String name) {
         HttpSession session = getSession(false);
         if (session == null) {
             return null;
