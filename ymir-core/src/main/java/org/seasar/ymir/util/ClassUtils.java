@@ -90,7 +90,7 @@ public class ClassUtils {
         defaultValueMap_ = Collections.unmodifiableMap(defaultValueMap);
     }
 
-    private ClassUtils() {
+    protected ClassUtils() {
     }
 
     /**

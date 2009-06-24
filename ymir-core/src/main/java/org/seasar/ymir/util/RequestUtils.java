@@ -13,7 +13,7 @@ import org.seasar.ymir.Ymir;
  * @since 1.0.3
  */
 public class RequestUtils {
-    private RequestUtils() {
+    protected RequestUtils() {
     }
 
     /**

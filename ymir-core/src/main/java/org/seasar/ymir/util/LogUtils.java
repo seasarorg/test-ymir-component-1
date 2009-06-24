@@ -23,6 +23,9 @@ public class LogUtils {
 
     public static final String LS = System.getProperty("line.separator");
 
+    protected LogUtils() {
+    }
+
     public static String addIndent(Object obj) {
         return addIndent(obj, INDENT);
     }

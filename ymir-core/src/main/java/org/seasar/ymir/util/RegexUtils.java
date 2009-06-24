@@ -3,7 +3,7 @@ package org.seasar.ymir.util;
 public class RegexUtils {
     public static final String SPECIAL_LETTERS = "\\.^?*+|(){}[]:!<>=$";
 
-    private RegexUtils() {
+    protected RegexUtils() {
     }
 
     public static String toRegexPattern(String string) {

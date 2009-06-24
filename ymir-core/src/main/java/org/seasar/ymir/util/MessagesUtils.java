@@ -3,7 +3,7 @@ package org.seasar.ymir.util;
 import org.seasar.ymir.Request;
 
 public class MessagesUtils {
-    private MessagesUtils() {
+    protected MessagesUtils() {
     }
 
     public static String getPageName(Request request) {

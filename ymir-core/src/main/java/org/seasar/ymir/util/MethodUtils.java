@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
  * @since 1.0.2
  */
 public class MethodUtils {
-    private MethodUtils() {
+    protected MethodUtils() {
     }
 
     public static Object invoke(Method method, Object obj, Object... args) {

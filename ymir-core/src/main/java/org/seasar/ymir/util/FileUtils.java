@@ -3,7 +3,7 @@ package org.seasar.ymir.util;
 import java.io.File;
 
 public class FileUtils {
-    private FileUtils() {
+    protected FileUtils() {
     }
 
     public static boolean isRelativePath(String path) {

@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 
 public class StringUtils {
-    private StringUtils() {
+    protected StringUtils() {
     }
 
     public static String getScopeKey(Object scope) {

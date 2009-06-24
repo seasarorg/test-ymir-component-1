@@ -19,7 +19,7 @@ public class ResponseUtils {
      */
     public static final String SUFFIX_EXCEPTION_TEMPLATE = ".html";
 
-    private ResponseUtils() {
+    protected ResponseUtils() {
     }
 
     /**

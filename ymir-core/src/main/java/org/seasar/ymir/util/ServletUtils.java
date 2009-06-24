@@ -62,7 +62,7 @@ public class ServletUtils {
 
     public static final String SEGMENT_CURRENT = ".";
 
-    private ServletUtils() {
+    protected ServletUtils() {
     }
 
     /**

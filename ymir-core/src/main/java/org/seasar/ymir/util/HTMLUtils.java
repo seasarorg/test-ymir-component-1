@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 
 public class HTMLUtils {
 
-    private HTMLUtils() {
+    protected HTMLUtils() {
     }
 
     public static String filterLines(String text) {
@@ -148,7 +148,7 @@ public class HTMLUtils {
                 }
                 try {
                     decode = String.valueOf((char) Integer
-                        .parseInt(code, radix));
+                            .parseInt(code, radix));
                 } catch (Throwable t) {
                     decode = html.substring(idx, semi + 1);
                 }

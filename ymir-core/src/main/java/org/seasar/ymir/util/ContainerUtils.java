@@ -14,6 +14,9 @@ public class ContainerUtils extends
         org.seasar.cms.pluggable.util.ContainerUtils {
     private static S2Container container_;
 
+    protected ContainerUtils() {
+    }
+
     // for test
     static void setS2Container(S2Container container) {
         container_ = container;

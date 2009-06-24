@@ -6,7 +6,7 @@ import org.seasar.ymir.annotation.Meta;
 import org.seasar.ymir.annotation.Metas;
 
 public class MetaUtils {
-    private MetaUtils() {
+    protected MetaUtils() {
     }
 
     public static boolean hasMeta(AnnotatedElement element, String name) {
