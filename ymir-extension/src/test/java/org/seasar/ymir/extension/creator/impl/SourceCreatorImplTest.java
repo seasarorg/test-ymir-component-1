@@ -22,6 +22,7 @@ import org.seasar.ymir.extension.creator.BodyDesc;
 import org.seasar.ymir.extension.creator.Born;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
+import org.seasar.ymir.extension.creator.ClassDescBag;
 import org.seasar.ymir.extension.creator.ClassDescSet;
 import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.DescPool;
@@ -49,6 +50,7 @@ import org.seasar.ymir.scope.annotation.RequestParameter;
 import com.example.page.SourceCreatorImplTestPageBaseBase;
 import com.example.page.TestPageBase;
 import com.example.web.SourceCreatorImplTest2Page;
+import com.example.web.SourceCreatorImplTest3Page;
 
 public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
     public void testGetComponentName() throws Exception {
@@ -88,8 +90,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
         testPage.delete();
 
-        target_.prepareForMethodBody(classDesc);
-        target_.prepareForImportDesc(classDesc);
+        target_.prepareForUpdating(classDesc);
         target_.writeSourceFile(classDesc, null);
 
         assertTrue(testPage.exists());
@@ -115,8 +116,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         os.write(32);
         os.close();
 
-        target_.prepareForMethodBody(classDesc);
-        target_.prepareForImportDesc(classDesc);
+        target_.prepareForUpdating(classDesc);
         target_.writeSourceFile(classDesc, null);
 
         String actual = IOUtils.readString(new FileInputStream(testPage),
@@ -1152,5 +1152,30 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertEquals(ParameterRole.BUTTON, target_.inferParameterRole(
                 "/index.html", HttpMethod.GET, Hoe6Page.class.getName(), "go",
                 null));
+    }
+
+    public void test_updateClasses_YMIR_342_存在しない親クラスを指定してもエラーにならないこと()
+            throws Exception {
+        pool_.setBornOf("/sourceCreatorImplTest3.html");
+        ClassDesc classDesc = pool_
+                .getClassDesc(SourceCreatorImplTest3Page.class);
+        String superclassName = classDesc.getName() + "Super";
+        classDesc.setSuperclassName(superclassName);
+
+        ClassDescBag bag = new ClassDescBag();
+        bag.addAsCreated(classDesc);
+
+        File actualFile = new File(getSourceDir(), superclassName.replace('.',
+                '/')
+                + ".java");
+        actualFile.delete();
+
+        target_.updateClasses(bag);
+
+        String actual = IOUtils.readString(new FileInputStream(actualFile),
+                "UTF-8", false);
+
+        assertEquals(readResource(getClass(),
+                "test_updateClasses_YMIR_342.expected"), actual);
     }
 }

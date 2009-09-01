@@ -111,6 +111,8 @@ public interface SourceCreator extends Updater {
 
     void updateClass(ClassDesc classDesc) throws InvalidClassDescException;
 
+    void prepareForUpdating(ClassDesc classDesc);
+
     Properties getSourceCreatorProperties();
 
     File getSourceCreatorPropertiesFile();

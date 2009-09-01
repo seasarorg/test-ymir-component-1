@@ -161,6 +161,9 @@ public class MockSourceCreator implements SourceCreator {
             throws InvalidClassDescException {
     }
 
+    public void prepareForUpdating(ClassDesc classDesc) {
+    }
+
     public File getClassesDirectory() {
         return null;
     }

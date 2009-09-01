@@ -598,6 +598,7 @@ public class SourceCreatorImpl implements SourceCreator {
                     ClassDesc classDesc = newClassDesc(pageClassDescs[i]
                             .getDescPool(), superclassName, null);
                     if (!isOuter(classDesc)) {
+                        prepareForUpdating(classDesc);
                         writeSourceFile("PageSuperclass.java", classDesc, false);
                         classDescBag.addAsCreated(classDesc, true);
                     }
@@ -1334,13 +1335,20 @@ public class SourceCreatorImpl implements SourceCreator {
         // 自動生成後に自動生成処理の呼び出し元に返すべき付加情報を設定する。
         prepareForAttribute(classDesc);
 
+        prepareForUpdating(classDesc);
+
+        writeSourceFile(classDesc, classDescSet);
+    }
+
+    public void prepareForUpdating(ClassDesc classDesc) {
+        // ファイル出力のための共通の準備をする。
+        prepareForWriting(classDesc);
+
         // メソッドのボディの準備をする。
         prepareForMethodBody(classDesc);
 
         // import文生成のための準備をする。
         prepareForImportDesc(classDesc);
-
-        writeSourceFile(classDesc, classDescSet);
     }
 
     private void sortElementsByName(ClassDesc classDesc) {
@@ -1361,7 +1369,7 @@ public class SourceCreatorImpl implements SourceCreator {
         classDesc.setMethodDescs(methodDescs);
     }
 
-    public void prepareForMethodBody(ClassDesc classDesc) {
+    private void prepareForMethodBody(ClassDesc classDesc) {
         MethodDesc[] mds = classDesc.getMethodDescs();
         for (int i = 0; i < mds.length; i++) {
             BodyDesc bodyDesc = mds[i].getBodyDesc();
@@ -1411,7 +1419,7 @@ public class SourceCreatorImpl implements SourceCreator {
         return list.toArray(new Class<?>[0]);
     }
 
-    public void prepareForImportDesc(ClassDesc classDesc) {
+    private void prepareForImportDesc(ClassDesc classDesc) {
         Map<String, Object> parameter = classDesc.getSourceGeneratorParameter();
 
         EntityMetaData entityMetaData = new EntityMetaData(classDesc
@@ -1476,11 +1484,16 @@ public class SourceCreatorImpl implements SourceCreator {
             throw new IllegalArgumentException("Logic error");
         }
 
-        parameter.put(Globals.PARAMETER_PREAMBLE, getJavaPreamble());
         parameter.put(Globals.PARAMETER_CLASSDESC, classDesc);
         parameter.put(Globals.PARAMETER_IMPORTCLASSSET, importClassNameSet);
         parameter.put(Globals.PARAMETER_BASEIMPORTCLASSSET,
                 baseImportClassNameSet);
+    }
+
+    private void prepareForWriting(ClassDesc classDesc) {
+        Map<String, Object> parameter = classDesc.getSourceGeneratorParameter();
+
+        parameter.put(Globals.PARAMETER_PREAMBLE, getJavaPreamble());
     }
 
     public void prepareForAttribute(ClassDesc classDesc) {

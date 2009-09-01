@@ -14,6 +14,7 @@ import org.seasar.kvasir.util.collection.MapProperties;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.PathMetaData;
 import org.seasar.ymir.extension.creator.SourceCreator;
 import org.seasar.ymir.extension.creator.SourceCreatorSetting;
@@ -108,10 +109,11 @@ public class CreateConfigurationAction extends AbstractAction implements
                     .equals(key)) {
                 if (!StringUtils.isEmpty(value)) {
                     application.setProperty(key, value);
-                    getSourceCreator().writeSourceFile(
-                            "PageSuperclass.java",
-                            getSourceCreator().newClassDesc(newDescPool(),
-                                    value, null), false);
+                    ClassDesc classDesc = getSourceCreator().newClassDesc(
+                            newDescPool(), value, null);
+                    getSourceCreator().prepareForUpdating(classDesc);
+                    getSourceCreator().writeSourceFile("PageSuperclass.java",
+                            classDesc, false);
                 } else {
                     application.removeProperty(key);
                     remove = true;

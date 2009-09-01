@@ -173,8 +173,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
     public void testGenerateGapSource() throws Exception {
         ClassDesc classDesc = prepareClassDesc("com.example.dto.TestDto", null);
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateGapSource(classDesc);
 
@@ -196,8 +195,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 Globals.ACTIONKEY_DEFAULT);
         classDesc.setMethodDesc(methodDesc);
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateBaseSource(classDesc);
 
@@ -220,8 +218,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 .getMethodDesc(new MethodDescImpl(pool_, "_get")),
                 GetAction.class, Globals.ACTIONKEY_DEFAULT);
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateBaseSource(classDesc);
 
@@ -241,8 +238,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
             }
         }.newClassDesc(pool_, Hoe3PageBase.class, true);
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateBaseSource(classDesc);
 
@@ -264,8 +260,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 new HashMap<String, Object>(), new String[0]));
         classDesc.setMethodDesc(methodDesc);
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateBaseSource(classDesc);
 
@@ -300,8 +295,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
 
         classDesc.merge(generated, true);
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateBaseSource(classDesc);
 
@@ -315,8 +309,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 .setInterfaceTypeDescs(new TypeDesc[] { classDesc.getDescPool()
                         .newTypeDesc("java.util.List<java.lang.String>") });
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateBaseSource(classDesc);
 
@@ -336,8 +329,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 "return \"redirect:/path/to/redirect.html\";", new String[0]));
         classDesc.setMethodDesc(methodDesc);
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateGapSource(classDesc);
 
@@ -364,8 +356,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
             }
         }.newClassDesc(pool_, Hoe6PageBase.class, true);
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateBaseSource(classDesc);
 
@@ -379,8 +370,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                     Hoe.class.getName() + "<java.util.List>",
                     "java.lang.Object" });
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateBaseSource(classDesc);
 
@@ -394,8 +384,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                     Hoe.class.getName() + "<java.util.List>",
                     "java.lang.Object" });
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateGapSource(classDesc);
 
@@ -408,8 +397,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 new ClassDescImpl(pool_, HoeDto.class.getName()),
                 new String[] { "java.lang.Object" });
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateBaseSource(classDesc);
 
@@ -430,8 +418,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 Globals.ACTIONKEY_DEFAULT);
         classDesc.setMethodDesc(methodDesc);
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateBaseSource(classDesc);
 
@@ -452,8 +439,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 Globals.ACTIONKEY_DEFAULT);
         classDesc.setMethodDesc(methodDesc);
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateBaseSource(classDesc);
 
@@ -474,8 +460,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
             }
         }.newClassDesc(pool_, Hoe10PageBase.class, true);
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateBaseSource(classDesc);
 
@@ -500,8 +485,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
         DescUtils.addParameter(classDesc.addPropertyDesc("param1",
                 PropertyDesc.WRITE), "param1.value2");
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateBaseSource(classDesc);
 
@@ -515,8 +499,7 @@ public class FreemarkerSourceGeneratorTest extends TestCaseBase {
                 Hoe12Page.class.getName(), null);
         sourceCreator_.adjustByExistentClass(classDesc);
 
-        sourceCreator_.prepareForMethodBody(classDesc);
-        sourceCreator_.prepareForImportDesc(classDesc);
+        sourceCreator_.prepareForUpdating(classDesc);
 
         String actual = sourceCreator_.generateBaseSource(classDesc);
 
