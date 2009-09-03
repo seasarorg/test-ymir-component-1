@@ -45,6 +45,14 @@ public class RequiredConstraintTest extends
     public void setValue6(String value) {
     }
 
+    @Required(allowFullWidthWhitespace = false)
+    public void setValue7(String value) {
+    }
+
+    @Required(allowWhitespace = false, allowFullWidthWhitespace = false)
+    public void setValue8(String value) {
+    }
+
     @Required("file")
     public void setFile(FormFile file) {
     }
@@ -135,7 +143,7 @@ public class RequiredConstraintTest extends
         }
     }
 
-    public void testValidate_パラメータが空白文字である場合() throws Exception {
+    public void testValidate_パラメータが半角空白文字である場合() throws Exception {
         getRequest().getParameterMap().put("value", new String[] { " \t\n\r" });
 
         try {
@@ -145,14 +153,15 @@ public class RequiredConstraintTest extends
         }
     }
 
-    public void testValidate_パラメータが空白文字である場合でもallowWhitespaceがfalseの時はバリデーションエラーになること()
+    public void testValidate_パラメータが半角空白文字である場合でもallowWhitespaceがfalseの時はバリデーションエラーになること()
             throws Exception {
-        getRequest().getParameterMap().put("value", new String[] { " \t\n\r" });
+        getRequest().getParameterMap()
+                .put("value4", new String[] { " \t\n\r" });
 
         try {
             confirm(getSetterMethod("value4"));
             fail();
-        } catch (ValidationFailedException ex) {
+        } catch (ValidationFailedException expected) {
         }
     }
 
@@ -179,8 +188,38 @@ public class RequiredConstraintTest extends
 
         try {
             confirm(getSetterMethod("value6"));
+        } catch (ValidationFailedException expected) {
+            fail();
+        }
+    }
+
+    public void testValidate_パラメータが全角空白文字である場合でもallowFullWidthWhitespaceがfalseの時はバリデーションエラーになること()
+            throws Exception {
+        getRequest().getParameterMap().put("value7", new String[] { "　" });
+
+        try {
+            confirm(getSetterMethod("value7"));
+            fail();
+        } catch (ValidationFailedException expected) {
+        }
+
+        getRequest().getParameterMap().put("value7", new String[] { "　 " });
+
+        try {
+            confirm(getSetterMethod("value7"));
         } catch (ValidationFailedException ex) {
             fail();
+        }
+    }
+
+    public void testValidate_パラメータが半角空白文字と全角空白文字からなる文字列である場合でもallowWhitespaceとallowFullWidthWhitespaceがfalseの時はバリデーションエラーになること()
+            throws Exception {
+        getRequest().getParameterMap().put("value8", new String[] { "　 " });
+
+        try {
+            confirm(getSetterMethod("value8"));
+            fail();
+        } catch (ValidationFailedException expected) {
         }
     }
 }
