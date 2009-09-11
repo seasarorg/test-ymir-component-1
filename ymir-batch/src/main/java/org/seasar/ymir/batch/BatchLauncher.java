@@ -6,7 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
-import org.seasar.kvasir.util.ClassUtils;
+import org.seasar.framework.util.ResourceUtil;
 import org.seasar.kvasir.util.io.impl.FileResource;
 import org.seasar.ymir.mock.servlet.MockServletContext;
 import org.seasar.ymir.mock.servlet.MockServletContextImpl;
@@ -32,7 +32,7 @@ public class BatchLauncher implements Batch {
 
     public final boolean init(String[] args) throws Exception {
         servletContext = new MockServletContextImpl("/");
-        servletContext.setRoot(new FileResource(ClassUtils.getBaseDirectory(Bootstrap.class).getParentFile()
+        servletContext.setRoot(new FileResource(ResourceUtil.getBuildDir(Bootstrap.class).getParentFile()
                 .getParentFile()));
         servletContext.setInitParameter(YmirListener.CONFIG_PATH_KEY, "ymir.dicon");
 
