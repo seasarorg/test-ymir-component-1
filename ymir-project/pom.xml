@@ -233,5 +233,6 @@
     <module>../ymir-extension</module>
     <module>../ymir-json</module>
     <module>../ymir-amf</module>
+    <module>../ymir-batch</module>
   </modules>
 </project>
