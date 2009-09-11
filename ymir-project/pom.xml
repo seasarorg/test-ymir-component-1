@@ -3,7 +3,7 @@
   <groupId>org.seasar.ymir</groupId>
   <artifactId>ymir-project</artifactId>
   <packaging>pom</packaging>
-  <version>1.0.5-SNAPSHOT</version>
+  <version>1.0.5</version>
   <name>Ymir Project</name>
   <description>
     Ymir Project is a project to develop Ymir, which is a simple Web
@@ -157,9 +157,9 @@
     </pluginManagement>
   </build>
   <scm>
-    <connection>scm:svn:https://www.seasar.org/svn/ymir/component/trunk/ymir-project</connection>
-    <developerConnection>scm:svn:https://www.seasar.org/svn/ymir/component/trunk/ymir-project</developerConnection>
-    <url>http://svn.seasar.org/browse/component/trunk/ymir-project?root=ymir</url>
+    <connection>scm:svn:https://www.seasar.org/svn/ymir/component/tags/ymir-1.0.5ymir-project</connection>
+    <developerConnection>scm:svn:https://www.seasar.org/svn/ymir/component/tags/ymir-1.0.5ymir-project</developerConnection>
+    <url>http://svn.seasar.org/browse/component/tags/ymir-1.0.5ymir-project?root=ymir</url>
   </scm>
   <repositories>
     <repository>
