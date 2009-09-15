@@ -465,9 +465,11 @@ public class SourceCreatorImpl implements SourceCreator {
 
         String projectRoot = SourceCreatorUtils
                 .findProjectRootDirectory(application);
-        application.setProjectRoot(projectRoot);
-        log_.info("Project root has been detected and set automatically: "
-                + projectRoot);
+        if (projectRoot != null) {
+            application.setProjectRoot(projectRoot);
+            log_.info("Project root has been detected and set automatically: "
+                    + projectRoot);
+        }
     }
 
     LazyPathMetaData createLazyPathMetaData(Request request, Response response) {
