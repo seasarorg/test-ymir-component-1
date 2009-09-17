@@ -124,7 +124,7 @@ public class SourceCreatorSetting {
 
         Application application = sourceCreator_.getApplication();
         MapProperties orderedProp = SourceCreatorUtils
-                .readAppPropertiesInOrder(application);
+                .readPropertiesInOrder(application);
         for (String key : keys) {
             String value = application.getProperty(key);
             if (value == null) {

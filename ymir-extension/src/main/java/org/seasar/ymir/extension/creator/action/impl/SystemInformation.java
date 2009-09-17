@@ -52,6 +52,9 @@ public class SystemInformation {
     }
 
     public boolean isProjectRootDetectedAutomatically() {
-        return SourceCreatorUtils.getOriginalProjectRoot(application_) == null;
+        return SourceCreatorUtils
+                .getProjectRootFromLocalProperties(application_) == null
+                && SourceCreatorUtils
+                        .getProjectRootFromProperties(application_) == null;
     }
 }

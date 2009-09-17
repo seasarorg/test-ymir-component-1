@@ -30,7 +30,7 @@
           <strong>現在指定されているプロジェクトのパスに対応するディレクトリは存在しません。必ず正しく書き換えて下さい。</strong>
           <span tal:condition="canBeEmptyProjectRoot">なおパスを空にすると毎回起動時にシステムがプロジェクトパスを自動検出するようになります。</span>
         </p>
-          <p><input type="text" name="__ymir__key_projectRoot" size="64" tal:attributes="value originalProjectRoot" /></p>
+          <p><input type="text" name="__ymir__key_projectRoot" size="64" tal:attributes="value projectRootFromProperties" /></p>
         </dd>
         </div>
         <div tal:condition="not:reconfigured" tal:omit-tag="">

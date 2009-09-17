@@ -1,9 +1,9 @@
 package org.seasar.ymir.extension.creator.util;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -30,17 +30,24 @@ public class SourceCreatorUtils {
     private SourceCreatorUtils() {
     }
 
-    public static MapProperties readAppPropertiesInOrder(Application application) {
+    public static MapProperties readPropertiesInOrder(Application application) {
+        return readPropertiesInOrder(application
+                .getDefaultPropertiesResourceURL());
+    }
+
+    public static MapProperties readLocalPropertiesInOrder(
+            Application application) {
+        return readPropertiesInOrder(application
+                .getDefaultLocalPropertiesResourceURL());
+    }
+
+    static MapProperties readPropertiesInOrder(URL resourceURL) {
         MapProperties prop = new MapProperties(
                 new LinkedHashMap<String, String>());
-        String filePath = application.getDefaultPropertiesFilePath();
-        if (filePath != null) {
-            File file = new File(filePath);
-            if (file.exists()) {
-                try {
-                    prop.load(new FileInputStream(file));
-                } catch (IOException ignore) {
-                }
+        if (resourceURL != null) {
+            try {
+                prop.load(resourceURL.openStream());
+            } catch (IOException ignore) {
             }
         }
         return prop;
@@ -59,8 +66,14 @@ public class SourceCreatorUtils {
                 .getBytes("ISO-8859-1"));
     }
 
-    public static String getOriginalProjectRoot(Application application) {
-        return readAppPropertiesInOrder(application).getProperty(
+    public static String getProjectRootFromProperties(Application application) {
+        return readPropertiesInOrder(application).getProperty(
+                SingleApplication.KEY_PROJECTROOT);
+    }
+
+    public static String getProjectRootFromLocalProperties(
+            Application application) {
+        return readLocalPropertiesInOrder(application).getProperty(
                 SingleApplication.KEY_PROJECTROOT);
     }
 

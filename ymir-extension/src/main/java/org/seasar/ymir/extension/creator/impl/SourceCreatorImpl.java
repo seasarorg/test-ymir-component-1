@@ -539,11 +539,15 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     boolean isAlreadyConfigured(Application application) {
-        String originalProjectRoot = SourceCreatorUtils
-                .getOriginalProjectRoot(application);
+        String projectRootFromProperties = SourceCreatorUtils
+                .getProjectRootFromLocalProperties(application);
+        if (projectRootFromProperties == null) {
+            projectRootFromProperties = SourceCreatorUtils
+                    .getProjectRootFromProperties(application);
+        }
         String projectRoot = application.getProjectRoot();
         return (projectRoot != null
-                && (originalProjectRoot == null || originalProjectRoot
+                && (projectRootFromProperties == null || projectRootFromProperties
                         .equals(projectRoot)) && application
                 .getFirstRootPackageName() != null);
     }
