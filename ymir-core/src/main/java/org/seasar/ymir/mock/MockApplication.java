@@ -2,6 +2,7 @@ package org.seasar.ymir.mock;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -27,6 +28,18 @@ public class MockApplication implements Application {
     }
 
     public String getDefaultPropertiesFilePath() {
+        return null;
+    }
+
+    public URL getDefaultPropertiesResourceURL() {
+        return null;
+    }
+
+    public String getDefaultLocalPropertiesFilePath() {
+        return null;
+    }
+
+    public URL getDefaultLocalPropertiesResourceURL() {
         return null;
     }
 

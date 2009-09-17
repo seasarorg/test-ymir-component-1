@@ -1,5 +1,7 @@
 package org.seasar.ymir.impl;
 
+import java.net.URL;
+
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
 import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Application;
@@ -19,7 +21,9 @@ abstract public class AbstractApplication implements Application {
 
     public static final String KEY_TEMPLATEENCODING = "templateEncoding";
 
-    private static final String PROPERTIESFILEPATH = "app.properties";
+    private static final String PROPERTIESPATH = "app.properties";
+
+    private static final String LOCALPROPERTIESPATH = "app-local.properties";
 
     private String id_;
 
@@ -138,8 +142,25 @@ abstract public class AbstractApplication implements Application {
         if (resourcesDirectory == null) {
             return null;
         } else {
-            return resourcesDirectory + "/" + PROPERTIESFILEPATH;
+            return resourcesDirectory + "/" + PROPERTIESPATH;
         }
+    }
+
+    public URL getDefaultPropertiesResourceURL() {
+        return getClass().getClassLoader().getResource(PROPERTIESPATH);
+    }
+
+    public String getDefaultLocalPropertiesFilePath() {
+        String resourcesDirectory = getResourcesDirectory();
+        if (resourcesDirectory == null) {
+            return null;
+        } else {
+            return resourcesDirectory + "/" + LOCALPROPERTIESPATH;
+        }
+    }
+
+    public URL getDefaultLocalPropertiesResourceURL() {
+        return getClass().getClassLoader().getResource(LOCALPROPERTIESPATH);
     }
 
     public String getTemplateEncoding() {
@@ -159,6 +180,9 @@ abstract public class AbstractApplication implements Application {
     }
 
     public boolean isCapable(Class<?> clazz) {
-        return clazz.getName().startsWith(getRootPackageName() + ".");
+        for (String rootPackageName : getRootPackageNames()) {
+            return clazz.getName().startsWith(rootPackageName + ".");
+        }
+        return false;
     }
 }

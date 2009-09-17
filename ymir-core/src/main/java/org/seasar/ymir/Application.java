@@ -2,6 +2,7 @@ package org.seasar.ymir;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.Enumeration;
 
 import org.seasar.cms.pluggable.hotdeploy.LocalHotdeployS2Container;
@@ -224,10 +225,48 @@ public interface Application {
      * デフォルトのプロパティファイルのパスを返します。
      * <p>通常は<code>app.properties</code>を指すパスを返します。
      * </p>
+     * <p>プロジェクトルートが設定されていない場合はnullを返します。
+     * </p>
      * 
      * @return デフォルトのプロパティファイルのパス。
      */
     String getDefaultPropertiesFilePath();
+
+    /**
+     * デフォルトのプロパティファイルのリソースパスを返します。
+     * <p>通常は<code>app.properties</code>を指すパスを返します。
+     * </p>
+     * <p>リソースが存在しない場合はnullを返します。
+     * </p>
+     * 
+     * @return デフォルトのプロパティファイルのリソースパス。
+     * @since 1.0.6
+     */
+    URL getDefaultPropertiesResourceURL();
+
+    /**
+     * デフォルトのローカルプロパティファイルのパスを返します。
+     * <p>通常は<code>app-local.properties</code>を指すパスを返します。
+     * </p>
+     * <p>プロジェクトルートが設定されていない場合はnullを返します。
+     * </p>
+     * 
+     * @return デフォルトのプロパティファイルのパス。
+     * @since 1.0.6
+     */
+    String getDefaultLocalPropertiesFilePath();
+
+    /**
+     * デフォルトのローカルプロパティファイルのリソースパスを返します。
+     * <p>通常は<code>app-local.properties</code>を指すパスを返します。
+     * </p>
+     * <p>リソースが存在しない場合はnullを返します。
+     * </p>
+     * 
+     * @return デフォルトのローカルプロパティファイルのリソースパス。
+     * @since 1.0.6
+     */
+    URL getDefaultLocalPropertiesResourceURL();
 
     /**
      * このアプリケーションに対応するLocalHotdeployS2Containerオブジェクトを返します。
