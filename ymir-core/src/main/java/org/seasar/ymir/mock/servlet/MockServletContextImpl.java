@@ -41,6 +41,10 @@ public class MockServletContextImpl extends
     @Override
     public String getRealPath(String path) {
         if (root_ != null) {
+            if ("".equals(path) || "/".equals(path)) {
+                return root_.toFile().getAbsolutePath();
+            }
+
             Resource resource = root_.getChildResource(path);
             if (resource.exists()) {
                 return resource.toFile().getAbsolutePath();
@@ -73,6 +77,10 @@ public class MockServletContextImpl extends
     @Override
     public URL getResource(String path) throws MalformedURLException {
         if (root_ != null) {
+            if ("".equals(path) || "/".equals(path)) {
+                return root_.getURL();
+            }
+
             Resource resource = root_.getChildResource(path);
             if (resource.exists()) {
                 return resource.getURL();
