@@ -28,10 +28,16 @@ public class BatchLauncher implements Batch {
 
     private Class<? extends Batch> batchClass;
 
+    private String batchComponentName;
+
     private Batch batch;
 
     public BatchLauncher(Class<? extends Batch> batchClass) {
         this.batchClass = batchClass;
+    }
+
+    public BatchLauncher(String batchComponentName) {
+        this.batchComponentName = batchComponentName;
     }
 
     public final boolean init(String[] args) throws Exception {
@@ -44,7 +50,11 @@ public class BatchLauncher implements Batch {
 
         container = SingletonS2ContainerFactory.getContainer();
 
-        batch = (Batch) container.getComponent(batchClass);
+        if (batchClass != null) {
+            batch = (Batch) container.getComponent(batchClass);
+        } else {
+            batch = (Batch) container.getComponent(batchComponentName);
+        }
 
         return batch.init(args);
     }
