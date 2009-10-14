@@ -177,6 +177,11 @@ public class YmirNamingConvention extends PluggableNamingConventionImpl {
         return false;
     }
 
+    // https://www.seasar.org/issues/browse/CONTAINER-353 への対処。
+    public boolean isHotdeployTargetClassName(String className) {
+        return isTargetClassName(className);
+    }
+
     public String[] getTargetPackageNames() {
         return targetPackageNames_;
     }
