@@ -234,5 +234,6 @@
     <module>../ymir-json</module>
     <module>../ymir-amf</module>
     <module>../ymir-batch</module>
+    <module>../ymir-zpt-mobylet</module>
   </modules>
 </project>
