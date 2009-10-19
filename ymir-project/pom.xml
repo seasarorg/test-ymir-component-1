@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.seasar.ymir</groupId>
   <artifactId>ymir-project</artifactId>
@@ -141,7 +143,9 @@
             <docencoding>UTF-8</docencoding>
             <charset>UTF-8</charset>
             <links>
-              <link>http://java.sun.com/j2se/1.5.0/ja/docs/ja/api/</link>
+              <link>
+                http://java.sun.com/j2se/1.5.0/ja/docs/ja/api/
+              </link>
               <link>http://java.sun.com/j2ee/1.4/docs/api/</link>
               <link>http://aopalliance.sourceforge.net/doc/</link>
             </links>
@@ -157,9 +161,15 @@
     </pluginManagement>
   </build>
   <scm>
-    <connection>scm:svn:https://www.seasar.org/svn/ymir/component/trunk/ymir-project</connection>
-    <developerConnection>scm:svn:https://www.seasar.org/svn/ymir/component/trunk/ymir-project</developerConnection>
-    <url>http://svn.seasar.org/browse/component/trunk/ymir-project?root=ymir</url>
+    <connection>
+      scm:svn:https://www.seasar.org/svn/ymir/component/trunk/ymir-project
+    </connection>
+    <developerConnection>
+      scm:svn:https://www.seasar.org/svn/ymir/component/trunk/ymir-project
+    </developerConnection>
+    <url>
+      http://svn.seasar.org/browse/component/trunk/ymir-project?root=ymir
+    </url>
   </scm>
   <repositories>
     <repository>
@@ -234,6 +244,11 @@
     <module>../ymir-json</module>
     <module>../ymir-amf</module>
     <module>../ymir-batch</module>
-    <module>../ymir-zpt-mobylet</module>
+    <!--
+      ymir-zpt-mobyletはMobyletがJDK1.6以上のためJDK1.6以上でビルドする必要があるが、
+      ymir-coreがJDK1.6でコンパイルできないため、ymir-zpt-mobyletはモジュールとして含めないようにしている。
+      そのため、ymir-zpt-mobyletだけは別途ビルド＆リリースする必要がある。
+      <module>../ymir-zpt-mobylet</module>
+    -->
   </modules>
 </project>
