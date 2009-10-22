@@ -145,11 +145,14 @@ public class YmirImpl implements Ymir {
             Dispatcher dispatcher, String path, HttpMethod method,
             Map<String, FormFile[]> fileParameterMap, FilterChain chain)
             throws IOException, ServletException {
-        // この時点ではmethodは仮のものである（開発モードではHTTPメソッドが差し替えられることが
+        // 開発モードでは、例えばymir-extensionで /__ymir__/resource/js/prototype/prototype.js などのパスに対して
+        // レスポンスを生成する必要があるため、マッチしないパスでも処理を継続するようにしている。
+        // また、この時点ではmethodは仮のものである（開発モードではHTTPメソッドが差し替えられることが
         // ある。proceedの場合はモードに依らずHTTPメソッドが差し替えられる）ため、ここで作成した
         // MatchedPathMappingはこの場で破棄して、HTTPメソッド差し替え後にMatchedPathMapping
         // を作成する必要がある。
-        if (findMatchedPathMapping(path, method) == null) {
+        MatchedPathMapping matched = findMatchedPathMapping(path, method);
+        if (matched == null && !isUnderDevelopment() || matched.isIgnored()) {
             // マッチしないのでYmirでは処理しない。
             chain.doFilter(httpRequest, httpResponse);
             return;
