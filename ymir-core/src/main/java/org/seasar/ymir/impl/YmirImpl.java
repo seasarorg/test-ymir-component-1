@@ -145,17 +145,14 @@ public class YmirImpl implements Ymir {
             Dispatcher dispatcher, String path, HttpMethod method,
             Map<String, FormFile[]> fileParameterMap, FilterChain chain)
             throws IOException, ServletException {
-        // 開発モードではResponseを加工できるように、マッチするかに関わらずYmirで処理するようにする。
-        // また、この時点ではmethodは仮のものである（開発モードではHTTPメソッドが差し替えられることが
+        // この時点ではmethodは仮のものである（開発モードではHTTPメソッドが差し替えられることが
         // ある。proceedの場合はモードに依らずHTTPメソッドが差し替えられる）ため、ここで作成した
         // MatchedPathMappingはこの場で破棄して、HTTPメソッド差し替え後にMatchedPathMapping
         // を作成する必要がある。
-        if (!isUnderDevelopment()) {
-            if (findMatchedPathMapping(path, method) == null) {
-                // マッチしないのでYmirでは処理しない。
-                chain.doFilter(httpRequest, httpResponse);
-                return;
-            }
+        if (findMatchedPathMapping(path, method) == null) {
+            // マッチしないのでYmirでは処理しない。
+            chain.doFilter(httpRequest, httpResponse);
+            return;
         }
 
         ThreadContext context = getThreadContext();
