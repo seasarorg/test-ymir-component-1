@@ -152,7 +152,8 @@ public class YmirImpl implements Ymir {
         // MatchedPathMappingはこの場で破棄して、HTTPメソッド差し替え後にMatchedPathMapping
         // を作成する必要がある。
         MatchedPathMapping matched = findMatchedPathMapping(path, method);
-        if (matched == null && !isUnderDevelopment() || matched.isIgnored()) {
+        if (matched == null && !isUnderDevelopment() || matched != null
+                && matched.isIgnored()) {
             // マッチしないのでYmirでは処理しない。
             chain.doFilter(httpRequest, httpResponse);
             return;
