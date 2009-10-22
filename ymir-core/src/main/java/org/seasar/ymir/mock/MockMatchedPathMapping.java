@@ -28,6 +28,8 @@ public class MockMatchedPathMapping implements MatchedPathMapping {
 
     private boolean denied_;
 
+    private boolean ignored_;
+
     private String renderActionName_;
 
     private Action renderAction_;
@@ -114,6 +116,15 @@ public class MockMatchedPathMapping implements MatchedPathMapping {
 
     public MockMatchedPathMapping setDenied(boolean denied) {
         denied_ = denied;
+        return this;
+    }
+
+    public boolean isIgnored() {
+        return ignored_;
+    }
+
+    public MockMatchedPathMapping setIgnored(boolean ignored) {
+        ignored_ = ignored;
         return this;
     }
 

@@ -38,6 +38,8 @@ import org.seasar.ymir.util.ClassUtils;
 public class YmirPathMapping implements PathMapping {
     public static final String KEY_DENIED = "denied";
 
+    public static final String KEY_IGNORED = "ignored";
+
     public static final String KEY_PATTERN = "pattern";
 
     public static final String KEY_TEMPLATE = "template";
@@ -88,6 +90,8 @@ public class YmirPathMapping implements PathMapping {
             .compile(BUTTONNAMEPATTERNSTRINGFORDISPATCHING);
 
     private boolean denied_;
+
+    private boolean ignored_;
 
     private Pattern pageComponentNameTemplatePattern_;
 
@@ -173,6 +177,11 @@ public class YmirPathMapping implements PathMapping {
         defaultReturnValueTemplate_ = defaultReturnValueTemplate;
     }
 
+    public YmirPathMapping(boolean ignored, String patternString) {
+        ignored_ = ignored;
+        pattern_ = Pattern.compile(patternString);
+    }
+
     void setPageComponentNameTemplate(String pageComponentNameTemplate) {
         pageComponentNameTemplate_ = pageComponentNameTemplate;
         pageComponentNameTemplatePattern_ = pageComponentNameTemplate_ != null ? Pattern
@@ -196,6 +205,8 @@ public class YmirPathMapping implements PathMapping {
     public YmirPathMapping(Map<String, Object> map) {
         denied_ = PropertyUtils.valueOf(map.get(KEY_DENIED), false);
         map.remove(KEY_DENIED);
+        ignored_ = PropertyUtils.valueOf(map.get(KEY_IGNORED), false);
+        map.remove(KEY_IGNORED);
         pattern_ = Pattern.compile(PropertyUtils.valueOf(map.get(KEY_PATTERN),
                 (String) null));
         map.remove(KEY_PATTERN);
@@ -385,6 +396,10 @@ public class YmirPathMapping implements PathMapping {
 
     public boolean isDenied() {
         return denied_;
+    }
+
+    public boolean isIgnored() {
+        return ignored_;
     }
 
     protected String extractButtonName(String name) {

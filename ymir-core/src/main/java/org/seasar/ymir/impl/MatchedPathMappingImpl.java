@@ -60,6 +60,10 @@ public class MatchedPathMappingImpl implements MatchedPathMapping {
         return pathMapping_.isDenied();
     }
 
+    public boolean isIgnored() {
+        return pathMapping_.isIgnored();
+    }
+
     public Action getAction(PageComponent pageComponent, Request request) {
         return pathMapping_
                 .getAction(pageComponent, request, variableResolver_);

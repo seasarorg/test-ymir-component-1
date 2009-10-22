@@ -167,6 +167,8 @@ public interface Dispatch {
      * パスがパスマッピングにマッチしたかどうかを返します。
      *
      * @return パスがパスマッピングにマッチしたかどうか。
+     * @deprecated Ymirが処理すべきディスパッチかどうかを判定するにはこのメソッドの代わりに{@link #isIgnored()}を使って判定して下さい。
+     * またパスマッピングにマッチしたかどうかを判定したい場合は{@link #getMatchedPathMapping()}の返り値がnullかどうかで判定して下さい。
      */
     boolean isMatched();
 
@@ -176,6 +178,14 @@ public interface Dispatch {
      * @return パスへのリクエストを拒否すべきかどうか。
      */
     boolean isDenied();
+
+    /**
+     * パスへのアクセスを無視すべきかどうかを返します。
+     * 
+     * @return パスへのアクセスを無視すべきかどうか。
+     * @since 1.0.7
+     */
+    boolean isIgnored();
 
     /**
      * パスにマッチしたPathMappingオブジェクトを返します。

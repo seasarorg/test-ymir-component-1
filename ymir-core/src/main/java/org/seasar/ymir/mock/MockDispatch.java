@@ -135,6 +135,10 @@ public class MockDispatch implements Dispatch {
         return (matched_ != null && matched_.isDenied());
     }
 
+    public boolean isIgnored() {
+        return (matched_ != null && matched_.isIgnored());
+    }
+
     public Action getOriginalAction() {
         return originalAction_;
     }

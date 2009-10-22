@@ -150,10 +150,14 @@ public class DispatchImpl implements FrameworkDispatch {
     }
 
     public boolean isMatched() {
-        return (matched_ != null);
+        return !isIgnored();
     }
 
     public boolean isDenied() {
         return (matched_ != null && matched_.isDenied());
+    }
+
+    public boolean isIgnored() {
+        return matched_ == null || matched_.isIgnored();
     }
 }

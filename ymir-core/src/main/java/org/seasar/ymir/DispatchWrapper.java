@@ -75,11 +75,16 @@ public class DispatchWrapper implements Dispatch {
         return dispatch_.getQueryString();
     }
 
+    @Deprecated
+    public boolean isMatched() {
+        return dispatch_.isMatched();
+    }
+
     public boolean isDenied() {
         return dispatch_.isDenied();
     }
 
-    public boolean isMatched() {
-        return dispatch_.isMatched();
+    public boolean isIgnored() {
+        return dispatch_.isIgnored();
     }
 }

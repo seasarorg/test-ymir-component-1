@@ -218,7 +218,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         Response response = new PassthroughResponse();
         Object page = null;
 
-        if (dispatch.isMatched()) {
+        if (!dispatch.isIgnored()) {
             PageComponent pageComponent = createPageComponent(dispatch
                     .getPageComponentName());
 
@@ -337,7 +337,7 @@ public class RequestProcessorImpl implements RequestProcessor {
 
     protected Response processInclude(final Request request) {
         Dispatch dispatch = request.getCurrentDispatch();
-        if (dispatch.isMatched()) {
+        if (!dispatch.isIgnored()) {
             // includeの場合はselfを設定するだけ。
             Object page = getPage(request.getCurrentDispatch()
                     .getPageComponentName());

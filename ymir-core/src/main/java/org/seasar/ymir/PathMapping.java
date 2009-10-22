@@ -75,6 +75,14 @@ public interface PathMapping {
     boolean isDenied();
 
     /**
+     * このオブジェクトが持つパターンとマッチするパスへのアクセスを無視するかどうかを返します。
+     * 
+     * @return パスへのアクセスを無視するかどうか。
+     * @since 1.0.7
+     */
+    boolean isIgnored();
+
+    /**
      * 実行すべきアクションを表すActionオブジェクトを構築して返します。
      * 実行すべきアクションメソッドが見つからなかった場合はnullを返します。
      * 
