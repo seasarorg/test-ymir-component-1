@@ -57,7 +57,8 @@ public class UpdaterResponseFilter extends HttpServletResponseWrapper implements
     }
 
     boolean shouldBuffering() {
-        return (type_ != null && type_.startsWith("text/"));
+        return (type_ != null && type_.startsWith("text/") && type_
+                .indexOf("html") >= 0);
     }
 
     public PrintWriter getWriter() throws IOException {
