@@ -56,6 +56,8 @@
       </meta>
     </property>
   </component>
+  <component name="httpServletResponseFilterFactory"
+    class="org.seasar.ymir.impl.HttpServletResponseFilterFactoryImpl" />
   <component name="exceptionProcessor"
     class="org.seasar.ymir.impl.ExceptionProcessorImpl">
     <property name="updaters" bindingType="none">

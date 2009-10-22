@@ -18,7 +18,6 @@ import org.seasar.kvasir.util.io.IOUtils;
 
 public class UpdaterResponseFilter extends HttpServletResponseWrapper implements
         HttpServletResponseFilter {
-
     private Updater[] updaters_;
 
     private String type_;
@@ -30,6 +29,10 @@ public class UpdaterResponseFilter extends HttpServletResponseWrapper implements
     private StringWriter writer_;
 
     private PrintWriter printWriter_;
+
+    private boolean propagateContentType_ = true;
+
+    private String charset_;
 
     public UpdaterResponseFilter(HttpServletRequest request,
             HttpServletResponse response, Updater[] updaters) {
@@ -71,7 +74,29 @@ public class UpdaterResponseFilter extends HttpServletResponseWrapper implements
 
     public void setContentType(String type) {
         type_ = type;
-        getResponse().setContentType(type);
+        if (propagateContentType_) {
+            getResponse().setContentType(type);
+        }
+    }
+
+    @Override
+    public void setCharacterEncoding(String charset) {
+        charset_ = charset;
+        if (propagateContentType_) {
+            super.setCharacterEncoding(charset);
+        }
+    }
+
+    @Override
+    public String getCharacterEncoding() {
+        String charset = charset_;
+        if (charset == null) {
+            charset = MimeUtils.getCharset(type_);
+            if (charset == null) {
+                charset = super.getCharacterEncoding();
+            }
+        }
+        return charset;
     }
 
     public void commit() throws IOException {
@@ -109,18 +134,14 @@ public class UpdaterResponseFilter extends HttpServletResponseWrapper implements
 
     void commit(String response) throws IOException {
         IOUtils.writeString(getResponse().getOutputStream(), response,
-                getResponseCharset(), false, false);
-    }
-
-    String getResponseCharset() {
-        String charset = MimeUtils.getCharset(type_);
-        if (charset == null) {
-            charset = "ISO-8859-1";
-        }
-        return charset;
+                getCharacterEncoding(), false, false);
     }
 
     void commit(byte[] response) throws IOException {
         IOUtils.writeBytes(getResponse().getOutputStream(), response, false);
+    }
+
+    public void setPropagateContentType(boolean propagateContentType) {
+        this.propagateContentType_ = propagateContentType;
     }
 }

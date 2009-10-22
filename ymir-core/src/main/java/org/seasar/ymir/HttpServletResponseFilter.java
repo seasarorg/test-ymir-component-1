@@ -24,4 +24,14 @@ public interface HttpServletResponseFilter extends HttpServletResponse {
      * @throws IOException エラーが発生した場合。
      */
     void commit() throws IOException;
+
+    /**
+     * 設定されたコンテントタイプの情報を内包するHttpServletResponseに伝播させるかどうかを設定します。
+     * <p>デフォルトでは伝播するようになっています。伝播させたくない場合にfalseを指定して下さい。
+     * </p>
+     * 
+     * @param propagateContentType コンテントタイプの情報を内包するHttpServletResponseに伝播させるかどうか。
+     * @since 1.0.7
+     */
+    void setPropagateContentType(boolean propagateContentType);
 }

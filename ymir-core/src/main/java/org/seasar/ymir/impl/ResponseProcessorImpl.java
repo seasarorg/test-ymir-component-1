@@ -17,6 +17,7 @@ import org.seasar.kvasir.util.PropertyUtils;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.HttpServletResponseFilter;
+import org.seasar.ymir.HttpServletResponseFilterFactory;
 import org.seasar.ymir.PathResolver;
 import org.seasar.ymir.RedirectionPathResolver;
 import org.seasar.ymir.Request;
@@ -44,6 +45,8 @@ public class ResponseProcessorImpl implements ResponseProcessor {
 
     private RedirectionPathResolver redirectionPathResolver_ = new RedirectionPathResolverImpl();
 
+    private HttpServletResponseFilterFactory httpServletResponseFilterFactory_ = new HttpServletResponseFilterFactoryImpl();
+
     @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
         ymir_ = ymir;
@@ -69,6 +72,12 @@ public class ResponseProcessorImpl implements ResponseProcessor {
     public void setRedirectionPathResolver(
             RedirectionPathResolver redirectionPathResolver) {
         redirectionPathResolver_ = redirectionPathResolver;
+    }
+
+    @Binding(bindingType = BindingType.MAY)
+    public void setHttpServletResponseFilterFactory(
+            HttpServletResponseFilterFactory httpServletResponseFilterFactory) {
+        httpServletResponseFilterFactory_ = httpServletResponseFilterFactory;
     }
 
     public HttpServletResponseFilter process(ServletContext context,
@@ -239,10 +248,11 @@ public class ResponseProcessorImpl implements ResponseProcessor {
             Request request) {
         if (request.getCurrentDispatch().getDispatcher() == Dispatcher.REQUEST
                 && ymir_.isUnderDevelopment()) {
-            return new UpdaterResponseFilter(httpRequest, httpResponse,
-                    updaters_);
+            return httpServletResponseFilterFactory_.newUpdaterResponseFilter(
+                    httpRequest, httpResponse, updaters_);
         } else {
-            return new AsIsResponseFilter(httpResponse);
+            return httpServletResponseFilterFactory_
+                    .newAsIsResponseFilter(httpResponse);
         }
     }
 }
