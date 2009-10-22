@@ -414,7 +414,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 condition = path.substring(PATH_PREFIX.length());
             }
         } else {
-            if (!request.getCurrentDispatch().isMatched()) {
+            if (request.getCurrentDispatch().isIgnored()) {
                 return response;
             }
 
