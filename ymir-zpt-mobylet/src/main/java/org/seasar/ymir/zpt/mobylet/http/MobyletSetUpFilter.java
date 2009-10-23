@@ -12,6 +12,8 @@ import org.mobylet.core.http.ForceWrapMobyletFilter;
 
 /**
  * ForceWrapMobyletFilterの前処理、後処理だけを行なうフィルタです。
+ * <p>Mobyletを適用したい全てのパスにこのフィルタを適用するようにして下さい。
+ * </p>
  * 
  * @author yokota
  * @since 1.0.7
