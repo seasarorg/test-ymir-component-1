@@ -7,6 +7,7 @@ import org.seasar.ymir.zpt.TagRenderingInterceptor;
 import org.seasar.ymir.zpt.TagRenderingInterceptorChain;
 
 import net.skirnir.freyja.Attribute;
+import net.skirnir.freyja.TagEvaluatorUtils;
 import net.skirnir.freyja.TemplateContext;
 
 /**
@@ -16,7 +17,7 @@ import net.skirnir.freyja.TemplateContext;
  * <p>&lt;m:emoji&gt;タグに指定可能な属性は以下の通りです。</p>
  * <dl>
  *   <dt>name</dt>
- *   <dd>絵文字の名前。</dd>
+ *   <dd><strong>[必須]</strong> 絵文字の名前。</dd>
  *   <dt>carrier</dt>
  *   <dd>キャリア名。デフォルト値は「DOCOMO」です。</dd>
  * </dl>
@@ -51,13 +52,15 @@ public class EmojiInterceptor implements TagRenderingInterceptor {
             for (Attribute attr : attributes) {
                 String attrName = attr.getName();
                 if (ATTRNAME_NAME.equals(attrName)) {
-                    emojiName = attr.getValue();
+                    emojiName = TagEvaluatorUtils.defilter(attr.getValue());
                 } else if (ATTRNAME_CARRIER.equals(attrName)) {
-                    carrier = Carrier.valueOf(attr.getValue());
+                    carrier = Carrier.valueOf(TagEvaluatorUtils.defilter(attr
+                            .getValue()));
                 }
             }
             if (emojiName == null || emojiName.length() == 0) {
-                return "";
+                throw new IllegalArgumentException("tag '" + TAGNAME
+                        + "' must have attribute '" + ATTRNAME_NAME + "'");
             }
 
             return SingletonDesigner.getDesigner(EmojiDesigner.class).get(

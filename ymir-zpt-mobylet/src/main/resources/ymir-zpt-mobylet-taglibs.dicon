@@ -4,4 +4,6 @@
 <components>
   <component name="emojiInterceptor"
     class="org.seasar.ymir.zpt.mobylet.interceptor.EmojiInterceptor" />
+  <component name="imgInterceptor"
+    class="org.seasar.ymir.zpt.mobylet.interceptor.ImgInterceptor" />
 </components>
