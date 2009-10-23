@@ -85,7 +85,8 @@ public class ImgInterceptor implements TagRenderingInterceptor {
                     .getValue()), StringUtils.isEmpty(magniWidth) ? null
                     : Double.parseDouble(magniWidth), ImageUtils
                     .getScaleType(scaleType));
-            attrs.add(new Attribute(ATTRNAME_SRC, imgSrc, srcAttr.getQuote()));
+            attrs.add(new Attribute(ATTRNAME_SRC, TagEvaluatorUtils
+                    .filter(imgSrc), srcAttr.getQuote()));
 
             name = TAGNAME_IMG;
             attributes = attrs.toArray(new Attribute[0]);
