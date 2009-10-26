@@ -94,7 +94,7 @@
     <dependency>
       <groupId>org.seasar.cms.s2-classbuilder</groupId>
       <artifactId>s2-classbuilder</artifactId>
-      <version>0.0.11-SNAPSHOT</version>
+      <version>0.0.11</version>
     </dependency>
     <dependency>
       <groupId>org.seasar.kvasir</groupId>
