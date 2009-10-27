@@ -4,4 +4,6 @@
 <components>
   <component name="imageConfig"
     class="org.seasar.ymir.zpt.mobylet.image.YmirImageConfig" />
+  <component name="imageDesigner"
+    class="org.seasar.ymir.zpt.mobylet.view.designer.YmirImageDesigner" />
 </components>

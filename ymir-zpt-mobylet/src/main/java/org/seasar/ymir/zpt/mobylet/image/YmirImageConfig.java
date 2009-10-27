@@ -17,6 +17,8 @@ import org.mobylet.core.util.RequestUtils;
 public class YmirImageConfig extends ImageConfig {
     private static final Log log = LogFactory.getLog(YmirImageConfig.class);
 
+    private String scaleServletPath;
+
     @Override
     public String getScaleServletPath() {
         String original = super.getScaleServletPath();
@@ -25,12 +27,18 @@ public class YmirImageConfig extends ImageConfig {
         if (request == null) {
             return original;
         }
+        String contextPath = request.getContextPath();
 
-        if (original == null || !original.startsWith("/")) {
+        if (original == null) {
+            // mobylet.image.propertiesに設定されていない場合は、
+            // requestが参照できるのであればweb.xmlのMobyletImageScaleFilterに設定されているpath指定を返す。
+            return contextPath + scaleServletPath;
+        }
+
+        if (!original.startsWith("/")) {
             return original;
         }
 
-        String contextPath = request.getContextPath();
         return getScaleServletPath(original, contextPath);
     }
 
@@ -58,5 +66,9 @@ public class YmirImageConfig extends ImageConfig {
         } else {
             return "";
         }
+    }
+
+    public void setScaleServletPath(String scaleServletPath) {
+        this.scaleServletPath = scaleServletPath;
     }
 }
