@@ -16,6 +16,8 @@ public class YmirTalesExpressionEvaluator extends
 
     public static final String TYPE_FORMAT = "format";
 
+    public static final String TYPE_DECORATE = "decorate";
+
     public YmirTalesExpressionEvaluator() {
         NoteLocalizer noteLocalizer = newNoteLocalilzer();
         addPathResolver(new YmirPathResolver().setNoteLocalizer(noteLocalizer))
@@ -25,6 +27,7 @@ public class YmirTalesExpressionEvaluator extends
         addTypePrefix(TYPE_I18NPAGE, new I18NPageTypePrefixHandler());
         addTypePrefix(TYPE_JAVA, new YmirJavaTypePrefixHandler());
         addTypePrefix(TYPE_FORMAT, new FormatTypePrefixHandler());
+        addTypePrefix(TYPE_DECORATE, new DecorateTypePrefixHandler());
     }
 
     @Override
