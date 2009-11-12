@@ -60,6 +60,10 @@ public class DecorateTypePrefixHandler implements TypePrefixHandler {
             } else {
                 if (skipWhitespace) {
                     skipWhitespace = false;
+                } else {
+                    if (with != null) {
+                        break;
+                    }
                 }
             }
         }

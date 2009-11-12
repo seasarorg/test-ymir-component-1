@@ -55,6 +55,8 @@ public class DecorateTypePrefixHandlerTest extends TestCase {
 
         varResolver = new YmirVariableResolver(new MockRequest(), httpRequest,
                 container);
+        varResolver.setVariable("true", Boolean.TRUE);
+        varResolver.setVariable("false", Boolean.FALSE);
         context = new ZptTemplateContext();
         context.setElement(new TagElement("input",
                 new Attribute[] { new Attribute("class", "number", "\"") },
@@ -101,6 +103,11 @@ public class DecorateTypePrefixHandlerTest extends TestCase {
     public void test_追加する値としてwithという単語が使えること() throws Exception {
         assertEquals("number with", target_.handle(context, varResolver,
                 "notes/contains(hoehoe) with with"));
+    }
+
+    public void test_空白を含む式を条件として記述できること() throws Exception {
+        assertEquals("number with", target_.handle(context, varResolver,
+                "false | true with with"));
     }
 
     public void test_文法エラーの場合はIllegalArgumentExceptionがスローされること()
