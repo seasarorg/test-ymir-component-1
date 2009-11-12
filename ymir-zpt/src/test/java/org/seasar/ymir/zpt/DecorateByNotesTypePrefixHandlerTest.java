@@ -22,8 +22,8 @@ import net.skirnir.freyja.Element;
 import net.skirnir.freyja.TagElement;
 import net.skirnir.freyja.zpt.ZptTemplateContext;
 
-public class DecorateTypePrefixHandlerTest extends TestCase {
-    private DecorateTypePrefixHandler target_ = new DecorateTypePrefixHandler();
+public class DecorateByNotesTypePrefixHandlerTest extends TestCase {
+    private DecorateByNotesTypePrefixHandler target_ = new DecorateByNotesTypePrefixHandler();
 
     private MockServletContext servletContext = new MockServletContextImpl(
             "/context");
@@ -49,6 +49,7 @@ public class DecorateTypePrefixHandlerTest extends TestCase {
                 new Attribute[] { new Attribute("class", "number", "\"") },
                 new Element[0]));
         context.setTargetName("class");
+        context.setProcessingAttributeName("tal:attributes");
         Notes notes = new Notes();
         notes.add("hoehoe", new Note("")).add("with", new Note(""));
         httpRequest.setAttribute(RequestProcessor.ATTR_NOTES, notes);
@@ -136,6 +137,26 @@ public class DecorateTypePrefixHandlerTest extends TestCase {
             throws Exception {
         try {
             target_.handle(context, varResolver, "hoehoe with hehehe fugafuga");
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    public void test_talAttributesの中でない場合はIllegalArgumentExceptionがスローされること5()
+            throws Exception {
+        context.setProcessingAttributeName(null);
+        try {
+            target_.handle(context, varResolver, "hoehoe with error");
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    public void test_class属性以外の属性に対して使用した場合はIllegalArgumentExceptionがスローされること5()
+            throws Exception {
+        context.setTargetName("id");
+        try {
+            target_.handle(context, varResolver, "hoehoe with error");
             fail();
         } catch (IllegalArgumentException expected) {
         }

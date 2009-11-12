@@ -18,6 +18,8 @@ public class YmirTalesExpressionEvaluator extends
 
     public static final String TYPE_DECORATE = "decorate";
 
+    public static final String TYPE_DECORATE_BY_NOTES = "decorate-by-notes";
+
     public YmirTalesExpressionEvaluator() {
         NoteLocalizer noteLocalizer = newNoteLocalilzer();
         addPathResolver(new YmirPathResolver().setNoteLocalizer(noteLocalizer))
@@ -28,6 +30,8 @@ public class YmirTalesExpressionEvaluator extends
         addTypePrefix(TYPE_JAVA, new YmirJavaTypePrefixHandler());
         addTypePrefix(TYPE_FORMAT, new FormatTypePrefixHandler());
         addTypePrefix(TYPE_DECORATE, new DecorateTypePrefixHandler());
+        addTypePrefix(TYPE_DECORATE_BY_NOTES,
+                new DecorateByNotesTypePrefixHandler());
     }
 
     @Override
