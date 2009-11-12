@@ -47,7 +47,6 @@ public class DecorateTypePrefixHandler implements TypePrefixHandler {
         int whitespaceStartIndex = expr.length();
         for (int i = expr.length() - 1; i >= 0; i--) {
             if (expr.charAt(i) == ' ') {
-                whitespaceStartIndex = i;
                 if (!skipWhitespace) {
                     skipWhitespace = true;
                     String tkn = expr.substring(i + 1, whitespaceStartIndex);
@@ -57,6 +56,7 @@ public class DecorateTypePrefixHandler implements TypePrefixHandler {
                         with = tkn;
                     }
                 }
+                whitespaceStartIndex = i;
             } else {
                 if (skipWhitespace) {
                     skipWhitespace = false;
