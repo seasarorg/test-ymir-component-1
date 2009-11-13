@@ -63,6 +63,12 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                     "ismap", "noresize", "checked", "selected", "declare",
                     "defer", "nowrap")));
 
+    private static final String TAL_DEFINE = "tal:define";
+
+    private static final String TAL_REPEAT = "tal:repeat";
+
+    private static final String TAL_ATTRIBUTES = "tal:attributes";
+
     @Override
     public String[] getSpecialTagPatternStrings() {
         return new String[] { "form", "input", "select", "textarea", "button" };
@@ -87,9 +93,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         Attribute defineAttr = null;
         Attribute repeatAttr = null;
         for (int i = 0; i < attrs.length; i++) {
-            if ("tal:define".equals(attrs[i].getName())) {
+            if (TAL_DEFINE.equals(attrs[i].getName())) {
                 defineAttr = attrs[i];
-            } else if ("tal:repeat".equals(attrs[i].getName())) {
+            } else if (TAL_REPEAT.equals(attrs[i].getName())) {
                 repeatAttr = attrs[i];
             }
         }
@@ -100,9 +106,15 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             if (defineAttr != null) {
                 analyzerContext.pushVariableScope();
                 variableScopePushed = true;
-                processDefine(analyzerContext,
-                        context.getExpressionEvaluator(), context
-                                .getVariableResolver(), defineAttr);
+                try {
+                    analyzerContext.setProcessingAttributeName(TAL_DEFINE);
+
+                    processDefine(analyzerContext, context
+                            .getExpressionEvaluator(), context
+                            .getVariableResolver(), defineAttr);
+                } finally {
+                    analyzerContext.setProcessingAttributeName(null);
+                }
             }
 
             if (repeatAttr != null) {
@@ -126,7 +138,11 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                 repeatVarname = statement.substring(0, sp).trim();
                 String value = statement.substring(sp + 1).trim();
 
+                String oldTargetName = analyzerContext.getTargetName();
                 try {
+                    analyzerContext.setProcessingAttributeName(TAL_REPEAT);
+                    analyzerContext.setTargetName(repeatVarname);
+
                     repeatObjs = toArray(context.getExpressionEvaluator()
                             .evaluate(context, context.getVariableResolver(),
                                     value));
@@ -138,6 +154,9 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                             "Can't evaluate tal:repeat expression", ex)
                             .setLineNumber(repeatAttr.getLineNumber())
                             .setColumnNumber(repeatAttr.getColumnNumber());
+                } finally {
+                    analyzerContext.setTargetName(oldTargetName);
+                    analyzerContext.setProcessingAttributeName(null);
                 }
 
                 repeatInfo = analyzerContext.pushRepeatInfo(repeatVarname,
@@ -555,7 +574,7 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
         Attribute attributesAttr = null;
         for (int i = 0; i < attrs.length; i++) {
             if (attrs[i].getName().startsWith("tal:")) {
-                if ("tal:attributes".equals(attrs[i].getName())) {
+                if (TAL_ATTRIBUTES.equals(attrs[i].getName())) {
                     attributesAttr = attrs[i];
                 }
             } else {
@@ -563,8 +582,14 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             }
         }
         if (attributesAttr != null) {
-            attrs = processAttributes(context, expEvaluator, varResolver,
-                    attributesAttr, attrs, true);
+            try {
+                context.setProcessingAttributeName(TAL_ATTRIBUTES);
+
+                attrs = processAttributes(context, expEvaluator, varResolver,
+                        attributesAttr, attrs, true);
+            } finally {
+                context.setProcessingAttributeName(null);
+            }
         }
         return TagEvaluatorUtils.toMap(attrs);
     }
@@ -689,8 +714,11 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
             }
             String varname = statement.substring(0, sp).trim();
             String value = StringUtils.trimLeft(statement.substring(sp + 1));
+            String oldTargetName = talContext.getTargetName();
             Object evaluated;
             try {
+                talContext.setTargetName(varname);
+
                 evaluated = expEvaluator.evaluate(talContext, varResolver,
                         value);
             } catch (FreyjaRuntimeException ex) {
@@ -701,6 +729,8 @@ public class AnalyzerTalTagEvaluator extends TalTagEvaluator {
                         "Can't evaluate tal:attributes expression", ex)
                         .setLineNumber(attr.getLineNumber()).setColumnNumber(
                                 attr.getColumnNumber());
+            } finally {
+                talContext.setTargetName(oldTargetName);
             }
             if (evaluated != Default.instance) {
                 if (isHTML && BOOLEAN_ATTRIBUTE_SET.contains(varname)) {
