@@ -1460,6 +1460,7 @@ public class SourceCreatorImpl implements SourceCreator {
             break;
 
         case DTO:
+            importClassNameSet.add(Serializable.class.getName());
             baseImportClassNameSet.add(Serializable.class.getName());
             baseImportClassNameSet.add(Array.class.getName());
             break;
