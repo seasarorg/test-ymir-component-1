@@ -35,7 +35,7 @@ public class DecorateTypePrefixHandler implements TypePrefixHandler {
             throw new IllegalArgumentException(
                     "This expression type should be used only in "
                             + ATTRIBUTES_TAG + " for '" + ATTR_CLASS
-                            + "' attribute.");
+                            + "' attribute: " + expr);
         }
         String defaultValue = getDefaultValue((TagElement) talContext
                 .getElement(), ATTR_CLASS);
