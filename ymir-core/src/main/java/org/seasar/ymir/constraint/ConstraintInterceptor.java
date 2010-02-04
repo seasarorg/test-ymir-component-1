@@ -222,8 +222,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         return suppressTypeSet;
     }
 
-    @SuppressWarnings("deprecation")
-    ConstraintType[] getSuppressConstraintsValue(Method actionMethod) {
+    private ConstraintType[] getSuppressConstraintsValue(Method actionMethod) {
         SuppressConstraints suppress = annotationHandler_.getAnnotation(
                 actionMethod, SuppressConstraints.class);
         if (suppress != null) {
@@ -406,8 +405,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         return list.toArray(new Action[0]);
     }
 
-    @SuppressWarnings("deprecation")
-    String[] getValidatorValue(Method method) {
+    private String[] getValidatorValue(Method method) {
         Validator validator = annotationHandler_.getAnnotation(method,
                 Validator.class);
         if (validator != null) {

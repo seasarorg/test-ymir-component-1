@@ -105,7 +105,7 @@ public class MetaAnnotationDescImpl implements MetaAnnotationDesc {
     protected String toLiteral(Object obj, boolean shorten) {
         if (obj == null) {
             return String.valueOf(null);
-        } else if (obj instanceof Class) {
+        } else if (obj instanceof Class<?>) {
             if (shorten) {
                 touchedClassNameSet_.add(((Class<?>) obj).getName());
                 return ClassUtils.getShortName((Class<?>) obj) + ".class";

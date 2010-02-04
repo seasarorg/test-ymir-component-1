@@ -97,7 +97,7 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
                     }
                 }
                 return map.values().toArray(new Annotation[0]);
-            } else if (element instanceof Class) {
+            } else if (element instanceof Class<?>) {
                 Class<?> clazz = (Class<?>) element;
                 Map<Class<?>, Annotation> map = new LinkedHashMap<Class<?>, Annotation>();
                 do {
@@ -131,7 +131,6 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
         return (T[]) annotations;
     }
 
-    @SuppressWarnings("unchecked")
     protected <T extends Annotation> T[] getAnnotations0(
             AnnotatedElement element, Class<T> annotationClass) {
         return getAnnotations0(getAnnotations(element), annotationClass);

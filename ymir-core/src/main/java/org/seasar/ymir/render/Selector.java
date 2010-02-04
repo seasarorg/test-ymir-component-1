@@ -215,7 +215,6 @@ public class Selector implements Serializable {
      * 
      * @return 選択されている候補オブジェクト。
      */
-    @SuppressWarnings("unchecked")
     public Candidate[] getSelectedCandidates() {
         // 本当は<C extends Candidate>[]を返すようにしたいが、1つもCandidateを持っていない場合に
         // 空のCの配列を生成できないため断念。

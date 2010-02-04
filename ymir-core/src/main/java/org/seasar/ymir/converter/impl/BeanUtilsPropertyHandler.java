@@ -83,7 +83,7 @@ public class BeanUtilsPropertyHandler implements PropertyHandler {
         }
         if (type instanceof ParameterizedType) {
             return toClass(((ParameterizedType) type).getRawType());
-        } else if (type instanceof Class) {
+        } else if (type instanceof Class<?>) {
             return (Class<?>) type;
         } else {
             return Object.class;

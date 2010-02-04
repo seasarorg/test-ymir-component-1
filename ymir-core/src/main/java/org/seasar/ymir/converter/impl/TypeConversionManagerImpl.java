@@ -127,7 +127,6 @@ public class TypeConversionManagerImpl implements TypeConversionManager {
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected <T> T convertStringTo(String value, Class<T> type,
             Annotation[] hint) {
         TypeConverter<T> converter = getTypeConverter(type);

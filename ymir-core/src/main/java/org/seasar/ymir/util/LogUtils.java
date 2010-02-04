@@ -101,7 +101,7 @@ public class LogUtils {
         if (obj == null) {
             return null;
         }
-        if (obj instanceof Map) {
+        if (obj instanceof Map<?, ?>) {
             return toString((Map<?, ?>) obj);
         } else if (obj.getClass().isArray()) {
             StringBuilder sb = new StringBuilder();

@@ -119,7 +119,7 @@ public class GenericsUtils {
                 sb.append(SUFFIX_ARRAY);
             }
             return clazz.getName() + sb.toString();
-        } else if (type instanceof TypeVariable) {
+        } else if (type instanceof TypeVariable<?>) {
             TypeVariable<?> typeVariable = (TypeVariable<?>) type;
             Type[] bounds = typeVariable.getBounds();
             if (bounds.length > 0) {
@@ -140,7 +140,7 @@ public class GenericsUtils {
         if (type == null) {
             return null;
         }
-        if (type instanceof Class) {
+        if (type instanceof Class<?>) {
             return null;
         } else if (type instanceof GenericArrayType) {
             return getUpperBoundType(((GenericArrayType) type)
@@ -148,7 +148,7 @@ public class GenericsUtils {
         } else if (type instanceof ParameterizedType) {
             return getUpperBoundType(((ParameterizedType) type)
                     .getActualTypeArguments()[0]);
-        } else if (type instanceof TypeVariable) {
+        } else if (type instanceof TypeVariable<?>) {
             TypeVariable<?> typeVariable = (TypeVariable<?>) type;
             Type[] bounds = typeVariable.getBounds();
             if (bounds.length > 0) {

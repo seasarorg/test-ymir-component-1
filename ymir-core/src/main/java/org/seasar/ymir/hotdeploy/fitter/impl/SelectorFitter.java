@@ -7,7 +7,6 @@ import java.util.List;
 import org.seasar.ymir.render.Candidate;
 import org.seasar.ymir.render.Selector;
 
-@SuppressWarnings("unchecked")
 public class SelectorFitter extends AbstractFitter<Selector> {
     public Class<Selector> getTargetClass() {
         return Selector.class;

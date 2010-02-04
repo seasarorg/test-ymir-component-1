@@ -7,6 +7,8 @@ import java.lang.reflect.Array;
 import org.seasar.ymir.util.StringUtils;
 
 public abstract class AbstractCandidate implements Candidate {
+    private static final long serialVersionUID = 1L;
+
     protected boolean selected_;
 
     protected String value_;

@@ -38,7 +38,6 @@ public class FreemarkerSourceGenerator implements SourceGenerator {
         return generateClassSource(templateName, classDesc);
     }
 
-    @SuppressWarnings("unchecked")
     public String generateBaseSource(ClassDesc classDesc) {
         if (classDesc == null) {
             return null;

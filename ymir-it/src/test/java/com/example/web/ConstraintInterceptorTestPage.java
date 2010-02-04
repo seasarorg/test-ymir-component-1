@@ -41,20 +41,17 @@ public class ConstraintInterceptorTestPage {
         fuga_ = fuga;
     }
 
-    @SuppressWarnings("deprecation")
     @Validator("_get_button1")
     public Notes validate1() {
         return new Notes().add(new Note("validator1"));
     }
 
-    @SuppressWarnings("deprecation")
     @Validator("_get_button1")
     public void validate2() throws ValidationFailedException {
         throw new ValidationFailedException(new Notes().add(new Note(
                 "validator2")));
     }
 
-    @SuppressWarnings("deprecation")
     @Validator
     public Notes validate3() {
         request_.setAttribute("validator3", "validator3");
@@ -67,7 +64,6 @@ public class ConstraintInterceptorTestPage {
         return null;
     }
 
-    @SuppressWarnings("deprecation")
     @Validator
     public void validate4() throws ValidationFailedException {
         request_.setAttribute("validator4", "validator4");
@@ -78,7 +74,6 @@ public class ConstraintInterceptorTestPage {
         request_.setAttribute("validator42", "validator42");
     }
 
-    @SuppressWarnings("deprecation")
     @Validator("_get_button6")
     public void validate5(int param1, String param2) {
         request_.setAttribute("param1", Integer.valueOf(param1));
@@ -93,9 +88,9 @@ public class ConstraintInterceptorTestPage {
 
     @Validator("_get_button7")
     public void validate7(
-            @Resolve(scopeClass = ApplicationScope.class, name = "app")
-            String app, @Resolve(ComponentScope.class)
-            HttpServletRequest request, int param1, String param2) {
+            @Resolve(scopeClass = ApplicationScope.class, name = "app") String app,
+            @Resolve(ComponentScope.class) HttpServletRequest request,
+            int param1, String param2) {
         request_.setAttribute("app", app);
         request_.setAttribute("request", request);
         request_.setAttribute("param12", Integer.valueOf(param1));
@@ -106,7 +101,6 @@ public class ConstraintInterceptorTestPage {
     public void _get_button1() {
     }
 
-    @SuppressWarnings("deprecation")
     @SuppressConstraints
     @Fuga("button2")
     public void _get_button2() {
@@ -117,7 +111,6 @@ public class ConstraintInterceptorTestPage {
     public void _get_button22() {
     }
 
-    @SuppressWarnings("deprecation")
     @SuppressConstraints(ConstraintType.VALIDATION)
     @Fuga("button3")
     public void _get_button3() {
