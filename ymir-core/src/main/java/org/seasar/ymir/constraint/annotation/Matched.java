@@ -40,7 +40,7 @@ public @interface Matched {
     /**
      * 正規表現パターンです。
      * <p>patternプロパティと同じです。
-     * patternプロパティとともに指定された場合はpatternプロパティが優先されます。
+     * patternメンバとともに指定された場合はpatternメンバが優先されます。
      * </p>
      * 
      * @return 正規表現パターン。
@@ -55,9 +55,12 @@ public @interface Matched {
     String pattern() default "";
 
     /**
-     * エラーメッセージのキーです。
+     * エラーメッセージの部分キーです。
+     * <p>通常はエラーメッセージのキーは「error.constraint.matched」ですが、
+     * 例えばこのメンバの値を「abc」とするとキーが「error.constraint.matched.abc」になります。
+     * </p>
      * 
-     * @return エラーメッセージのキー。
+     * @return エラーメッセージの部分キー。
      */
     String messageKey() default "";
 }
