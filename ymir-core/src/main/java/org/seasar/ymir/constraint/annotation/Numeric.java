@@ -101,8 +101,8 @@ public @interface Numeric {
 
     /**
      * エラーメッセージのキーです。
-     * <p>通常はエラーメッセージのキーは「error.constraint.XXXX」ですが、
-     * 例えばこのメンバの値を「abc」とするとキーが「error.constraint.XXXX.abc」になります。
+     * <p>通常はエラーメッセージのキーは「error.constraint.XXXXX」ですが、
+     * 例えばこのメンバの値を「abc」とするとキーが「error.constraint.XXXXX.abc」になります。
      * </p>
      * <p>キー全体を指定したい場合は先頭に「!」をつけて下さい。
      * 例えばメンバの値を「!error.custom」とするとキーは「error.custom」になります。
