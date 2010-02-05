@@ -52,6 +52,8 @@ public @interface Numeric {
 
     /**
      * 数値が整数であることを要求するかどうかです。
+     * <p>デフォルト値はtrueです。
+     * </p>
      * 
      * @return 数値が整数であることを要求するかどうか。
      */
@@ -65,7 +67,7 @@ public @interface Numeric {
      * @return 数値の最小値。
      * @see #greaterEqual()
      */
-    double greaterThan() default Double.MIN_VALUE;
+    double greaterThan() default -Double.MAX_VALUE;
 
     /**
      * 数値の最小値です。
@@ -75,7 +77,7 @@ public @interface Numeric {
      * @return 数値の最小値。
      * @see #greaterThan()
      */
-    double greaterEqual() default Double.MIN_VALUE;
+    double greaterEqual() default -Double.MAX_VALUE;
 
     /**
      * 数値の最小値です。
@@ -99,8 +101,8 @@ public @interface Numeric {
 
     /**
      * エラーメッセージのキーです。
-     * <p>通常はエラーメッセージのキーは「error.constraint.XXX」ですが、
-     * 例えばこのメンバの値を「abc」とするとキーが「error.constraint.XXX.abc」になります。
+     * <p>通常はエラーメッセージのキーは「error.constraint.XXXX」ですが、
+     * 例えばこのメンバの値を「abc」とするとキーが「error.constraint.XXXX.abc」になります。
      * </p>
      * <p>キー全体を指定したい場合は先頭に「!」をつけて下さい。
      * 例えばメンバの値を「!error.custom」とするとキーは「error.custom」になります。

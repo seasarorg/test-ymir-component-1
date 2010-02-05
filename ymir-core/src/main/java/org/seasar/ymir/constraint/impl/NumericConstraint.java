@@ -28,10 +28,10 @@ public class NumericConstraint extends AbstractConstraint<Numeric> {
 
         boolean greaterIncludeEqual = false;
         Double greaterEdge = annotation.greaterThan();
-        if (greaterEdge == Double.MIN_VALUE) {
+        if (greaterEdge == -Double.MAX_VALUE) {
             greaterEdge = annotation.greaterEqual();
             greaterIncludeEqual = true;
-            if (greaterEdge == Double.MIN_VALUE) {
+            if (greaterEdge == -Double.MAX_VALUE) {
                 greaterEdge = null;
             }
         }

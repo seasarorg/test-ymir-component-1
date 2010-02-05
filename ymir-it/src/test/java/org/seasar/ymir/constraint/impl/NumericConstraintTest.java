@@ -17,63 +17,63 @@ public class NumericConstraintTest extends
         return new NumericConstraint();
     }
 
-    @Numeric(greaterEqual = 10)
+    @Numeric(greaterEqual = 10, integer = false)
     public void setValue(String value) {
     }
 
-    @Numeric(greaterThan = 10)
+    @Numeric(greaterThan = 10, integer = false)
     public void setValue2(String value) {
     }
 
-    @Numeric(lessEqual = 10)
+    @Numeric(lessEqual = 10, integer = false)
     public void setValue3(String value) {
     }
 
-    @Numeric(lessThan = 10)
+    @Numeric(lessThan = 10, integer = false)
     public void setValue4(String value) {
     }
 
-    @Numeric(integer = true)
+    @Numeric
     public void setValue5(String value) {
     }
 
-    @Numeric(greaterEqual = 10, messageKey = "KEY")
+    @Numeric(greaterEqual = 10, integer = false, messageKey = "KEY")
     public void setValue6(String value) {
     }
 
-    @Numeric(greaterEqual = 10, messageKey = "!KEY")
+    @Numeric(greaterEqual = 10, integer = false, messageKey = "!KEY")
     public void setValue7(String value) {
     }
 
-    @Numeric(greaterThan = 10, messageKey = "KEY")
+    @Numeric(greaterThan = 10, integer = false, messageKey = "KEY")
     public void setValue8(String value) {
     }
 
-    @Numeric(greaterThan = 10, messageKey = "!KEY")
+    @Numeric(greaterThan = 10, integer = false, messageKey = "!KEY")
     public void setValue9(String value) {
     }
 
-    @Numeric(lessEqual = 10, messageKey = "KEY")
+    @Numeric(lessEqual = 10, integer = false, messageKey = "KEY")
     public void setValue10(String value) {
     }
 
-    @Numeric(lessEqual = 10, messageKey = "!KEY")
+    @Numeric(lessEqual = 10, integer = false, messageKey = "!KEY")
     public void setValue11(String value) {
     }
 
-    @Numeric(lessThan = 10, messageKey = "KEY")
+    @Numeric(lessThan = 10, integer = false, messageKey = "KEY")
     public void setValue12(String value) {
     }
 
-    @Numeric(lessThan = 10, messageKey = "!KEY")
+    @Numeric(lessThan = 10, integer = false, messageKey = "!KEY")
     public void setValue13(String value) {
     }
 
-    @Numeric(integer = true, messageKey = "KEY")
+    @Numeric(messageKey = "KEY")
     public void setValue14(String value) {
     }
 
-    @Numeric(integer = true, messageKey = "!KEY")
+    @Numeric(messageKey = "!KEY")
     public void setValue15(String value) {
     }
 
