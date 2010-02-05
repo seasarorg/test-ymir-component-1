@@ -13,9 +13,9 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
+import org.seasar.ymir.conversation.Conversation;
 import org.seasar.ymir.conversation.ConversationManager;
 import org.seasar.ymir.conversation.Conversations;
-import org.seasar.ymir.conversation.annotation.Conversation;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.session.SessionManager;
 
@@ -70,29 +70,48 @@ public class ConversationScope implements Scope {
         if (isUseSessionScopeAsConversationScope()) {
             return sessionManager_.getRawAttribute(name);
         } else {
-            Conversations conversations = conversationManager_
-                    .getConversations();
-            if (conversations != null
-                    && conversationNameEquals(getPageConversationName(),
-                            conversations.getCurrentConversationName())) {
-                return conversations.getRawAttribute(name);
+            Conversation conversation = findCurrentConversation();
+            if (conversation != null) {
+                return conversation.getAttribute(name);
             } else {
                 return null;
             }
         }
     }
 
-    boolean conversationNameEquals(String conversationName1,
-            String conversationName2) {
-        return conversationName1 != null
-                && conversationName1.equals(conversationName2);
+    Conversation findCurrentConversation() {
+        Conversations conversations = conversationManager_.getConversations();
+        if (conversations == null) {
+            return null;
+        }
+
+        String pageConversationName = getPageConversationName();
+        if (pageConversationName == null) {
+            return null;
+        }
+
+        Conversation conversation = conversations.getCurrentConversation();
+        if (conversation == null) {
+            conversation = conversations.getSuperConversation();
+        }
+        if (conversation == null) {
+            return null;
+        }
+
+        if (!pageConversationName.equals(conversation.getName())) {
+            return null;
+        }
+
+        return conversation;
     }
 
     String getPageConversationName() {
-        Conversation conversation = annotationHandler_
-                .getAnnotation(((Request) getS2Container().getComponent(
-                        Request.class)).getCurrentDispatch().getPageComponent()
-                        .getPageClass(), Conversation.class);
+        org.seasar.ymir.conversation.annotation.Conversation conversation = annotationHandler_
+                .getAnnotation(
+                        ((Request) getS2Container().getComponent(Request.class))
+                                .getCurrentDispatch().getPageComponent()
+                                .getPageClass(),
+                        org.seasar.ymir.conversation.annotation.Conversation.class);
         if (conversation != null) {
             return conversation.name();
         } else {
@@ -112,12 +131,9 @@ public class ConversationScope implements Scope {
         if (isUseSessionScopeAsConversationScope()) {
             sessionManager_.setAttribute(name, value);
         } else {
-            Conversations conversations = conversationManager_
-                    .getConversations();
-            if (conversations != null
-                    && conversationNameEquals(getPageConversationName(),
-                            conversations.getCurrentConversationName())) {
-                conversations.setAttribute(name, value);
+            Conversation conversation = findCurrentConversation();
+            if (conversation != null) {
+                conversation.setAttribute(name, value);
             }
         }
     }
@@ -138,12 +154,9 @@ public class ConversationScope implements Scope {
             // ようにするなどして対処する。
             return new ArrayList<String>().iterator();
         } else {
-            Conversations conversations = conversationManager_
-                    .getConversations();
-            if (conversations != null
-                    && conversationNameEquals(getPageConversationName(),
-                            conversations.getCurrentConversationName())) {
-                return conversations.getAttributeNames();
+            Conversation conversation = findCurrentConversation();
+            if (conversation != null) {
+                return conversation.getAttributeNames();
             } else {
                 return new ArrayList<String>().iterator();
             }

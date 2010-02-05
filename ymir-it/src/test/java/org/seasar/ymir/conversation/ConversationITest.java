@@ -193,4 +193,18 @@ public class ConversationITest extends YmirTestCase {
         assertEquals("conversation6", conversationManager.getConversations()
                 .getCurrentConversationName());
     }
+
+    public void test_BeginSubConversationしてからBeginに遷移する間にOutjectされたら親カンバセーションにOutjectされること()
+            throws Exception {
+        process(Conversation6Phase1Page.class);
+        process(Conversation6Phase1Page.class, "beginSub");
+        process(Conversation7Phase1Page.class);
+
+        ConversationManager conversationManager = getComponent(ConversationManager.class);
+
+        assertNull(conversationManager.getConversations()
+                .getCurrentConversation().getAttribute("messageForParent"));
+        assertEquals("MESSAGE", conversationManager.getConversations()
+                .getSuperConversation().getAttribute("messageForParent"));
+    }
 }
