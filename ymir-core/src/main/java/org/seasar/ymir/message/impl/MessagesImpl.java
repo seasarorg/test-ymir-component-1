@@ -116,23 +116,15 @@ public class MessagesImpl implements Messages {
     public String getMessage(final String name) {
         updateMessages();
         final Locale locale = localeManager_.getLocale();
-        final String pageName = getPageName();
-        final String pageSpecificName = MessagesUtils.getPageSpecificName(name,
-                pageName);
-
-        String message = null;
-        if (pageSpecificName != null) {
-            message = getProperty0(pageSpecificName, locale);
-            if (message == null && pageName.endsWith(SUFFIX_PAGE)) {
-                message = getProperty0(MessagesUtils.getPageSpecificName(name,
-                        pageName.substring(0, pageName.length()
-                                - SUFFIX_PAGE.length())), locale);
+        for (String messageNameCnadidate : MessagesUtils
+                .getMessageNameCandidates(name,
+                        getPageNameCandidates(getPageName()))) {
+            String message = getProperty0(messageNameCnadidate, locale);
+            if (message != null) {
+                return message;
             }
         }
-        if (message == null) {
-            message = getProperty0(name, locale);
-        }
-        return message;
+        return null;
     }
 
     String getPageName() {
@@ -143,6 +135,28 @@ public class MessagesImpl implements Messages {
         } catch (final ComponentNotFoundRuntimeException ex) {
             return null;
         }
+    }
+
+    protected String[] getPageNameCandidates(String pageName) {
+        List<String> candidates = new ArrayList<String>();
+        if (pageName != null && pageName.length() > 0) {
+            candidates.add(pageName);
+            if (pageName.endsWith(SUFFIX_PAGE)) {
+                candidates.add(pageName.substring(0, pageName.length()
+                        - SUFFIX_PAGE.length()));
+            }
+
+            for (int i = pageName.length() - 1; i >= 1; i--) {
+                char ch = pageName.charAt(i);
+                if (ch == '_') {
+                    String name = pageName.substring(0, i);
+                    if (!name.endsWith("_")) {
+                        candidates.add(name);
+                    }
+                }
+            }
+        }
+        return candidates.toArray(new String[0]);
     }
 
     void updateMessages() {

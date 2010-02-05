@@ -148,4 +148,50 @@ public class MessagesImplTest extends TestCase {
 
         assertEquals("埋め込み値の解釈が再帰的に行なわれること", "DEF", message.getMessage("e"));
     }
+
+    public void test_getPageNameCandidates() throws Exception {
+        MessagesImpl target = new MessagesImpl();
+
+        String[] actual = target.getPageNameCandidates(null);
+        assertEquals(0, actual.length);
+
+        actual = target.getPageNameCandidates("");
+        assertEquals(0, actual.length);
+
+        actual = target.getPageNameCandidates("_");
+        assertEquals(1, actual.length);
+        int idx = 0;
+        assertEquals("_", actual[idx++]);
+
+        actual = target.getPageNameCandidates("a");
+        assertEquals(1, actual.length);
+        idx = 0;
+        assertEquals("a", actual[idx++]);
+
+        actual = target.getPageNameCandidates("_RootPage");
+        assertEquals(2, actual.length);
+        idx = 0;
+        assertEquals("_RootPage", actual[idx++]);
+        assertEquals("_Root", actual[idx++]);
+
+        actual = target.getPageNameCandidates("pkg__RootPage");
+        assertEquals(3, actual.length);
+        idx = 0;
+        assertEquals("pkg__RootPage", actual[idx++]);
+        assertEquals("pkg__Root", actual[idx++]);
+        assertEquals("pkg", actual[idx++]);
+
+        actual = target.getPageNameCandidates("indexPage");
+        assertEquals(2, actual.length);
+        idx = 0;
+        assertEquals("indexPage", actual[idx++]);
+        assertEquals("index", actual[idx++]);
+
+        actual = target.getPageNameCandidates("pkg_indexPage");
+        assertEquals(3, actual.length);
+        idx = 0;
+        assertEquals("pkg_indexPage", actual[idx++]);
+        assertEquals("pkg_index", actual[idx++]);
+        assertEquals("pkg", actual[idx++]);
+    }
 }
