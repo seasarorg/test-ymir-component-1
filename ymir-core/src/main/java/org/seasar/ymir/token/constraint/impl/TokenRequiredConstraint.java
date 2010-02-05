@@ -18,6 +18,11 @@ public class TokenRequiredConstraint extends AbstractConstraint<TokenRequired> {
         tokenManager_ = tokenManager;
     }
 
+    @Override
+    protected String getConstraintKey() {
+        return "token.tokenRequired";
+    }
+
     public void confirm(Object component, Request request,
             TokenRequired annotation, AnnotatedElement element)
             throws ConstraintViolatedException {
@@ -32,7 +37,7 @@ public class TokenRequiredConstraint extends AbstractConstraint<TokenRequired> {
                         + "token.tokenRequired");
             } else {
                 throw new ValidationFailedException().addNote(new Note(
-                        PREFIX_MESSAGEKEY + "token.tokenRequired",
+                        getFullMessageKey(annotation.messageKey()),
                         new Object[0]));
             }
         }

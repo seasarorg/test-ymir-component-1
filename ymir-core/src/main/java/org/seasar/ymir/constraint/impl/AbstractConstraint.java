@@ -1,5 +1,7 @@
 package org.seasar.ymir.constraint.impl;
 
+import static org.seasar.ymir.constraint.Globals.PREFIX_REGEX;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -10,11 +12,18 @@ import java.util.regex.Pattern;
 
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.Constraint;
+import org.seasar.ymir.constraint.ConstraintUtils;
+import org.seasar.ymir.constraint.Globals;
 import org.seasar.ymir.util.BeanUtils;
 
 abstract public class AbstractConstraint<T extends Annotation> implements
         Constraint<T> {
-    protected static final String PREFIX_REGEX = "#";
+    abstract protected String getConstraintKey();
+
+    protected String getFullMessageKey(String messageKey) {
+        return ConstraintUtils
+                .getFullMessageKey(getConstraintKey(), messageKey);
+    }
 
     protected String getPropertyName(AnnotatedElement element) {
         if (!(element instanceof Method)) {

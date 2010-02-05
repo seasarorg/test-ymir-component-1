@@ -18,8 +18,6 @@ abstract public class AbstractRegexConstraint<T extends Annotation> extends
     @SuppressWarnings("unchecked")
     private Map<String, Pattern> compiledPatternMap_ = new LruHashMap(256);
 
-    abstract protected String getConstraintKey();
-
     protected void confirm(Request request, T annotation,
             AnnotatedElement element, String[] property, String pattern,
             String messageKey) throws ConstraintViolatedException {
@@ -34,26 +32,20 @@ abstract public class AbstractRegexConstraint<T extends Annotation> extends
                     "Please specify either 'pattern' or 'value' property");
         }
 
-        String keySuffix;
-        if (messageKey == null || messageKey.length() == 0) {
-            keySuffix = "";
-        } else {
-            keySuffix = "." + messageKey;
-        }
-
+        String fullMessageKey = getFullMessageKey(messageKey);
         Notes notes = new Notes();
         for (int i = 0; i < names.length; i++) {
-            confirm(request, annotation, names[i], keySuffix, pattern, notes);
+            confirm(request, annotation, names[i], fullMessageKey, pattern,
+                    notes);
         }
         if (notes.size() > 0) {
             throw new ValidationFailedException().setNotes(notes);
         }
     }
 
-    void confirm(Request request, T annotation, String name, String keySuffix,
-            String pattern, Notes notes) {
+    void confirm(Request request, T annotation, String name,
+            String fullMessageKey, String pattern, Notes notes) {
         Pattern compiled = getCompiledPattern(pattern);
-        String key = PREFIX_MESSAGEKEY + getConstraintKey() + keySuffix;
         String[] values = request.getParameterValues(name);
         if (values == null) {
             return;
@@ -62,25 +54,26 @@ abstract public class AbstractRegexConstraint<T extends Annotation> extends
             if (values[i].length() == 0) {
                 continue;
             }
-            confirm(request, annotation, name, key, pattern, notes, values[i],
-                    compiled.matcher(values[i]));
+            confirm(request, annotation, name, fullMessageKey, pattern, notes,
+                    values[i], compiled.matcher(values[i]));
         }
     }
 
     protected boolean confirm(Request request, T annotation, String name,
-            String key, String pattern, Notes notes, String value,
+            String fullMessageKey, String pattern, Notes notes, String value,
             Matcher matcher) {
         if (matcher.matches()) {
             return true;
         } else {
-            notes.add(name, newNote(request, name, key, pattern, value));
+            notes.add(name, newNote(request, name, fullMessageKey, pattern,
+                    value));
             return false;
         }
     }
 
-    protected Note newNote(Request request, String name, String key,
+    protected Note newNote(Request request, String name, String fullMessageKey,
             String pattern, String value) {
-        return new Note(key, name, pattern);
+        return new Note(fullMessageKey, name, pattern);
     }
 
     Pattern getCompiledPattern(String pattern) {

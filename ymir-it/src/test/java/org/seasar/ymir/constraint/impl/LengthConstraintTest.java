@@ -1,6 +1,6 @@
 package org.seasar.ymir.constraint.impl;
 
-import org.seasar.ymir.constraint.Constraint;
+import org.seasar.ymir.constraint.Globals;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.Length;
 import org.seasar.ymir.message.Note;
@@ -42,6 +42,30 @@ public class LengthConstraintTest extends
     public void setValue7(String value) {
     }
 
+    @Length(max = 10, messageKey = "KEY")
+    public void setValue8(String value) {
+    }
+
+    @Length(max = 10, messageKey = "!KEY")
+    public void setValue9(String value) {
+    }
+
+    @Length(min = 10, messageKey = "KEY")
+    public void setValue10(String value) {
+    }
+
+    @Length(min = 10, messageKey = "!KEY")
+    public void setValue11(String value) {
+    }
+
+    @Length(min = 5, max = 5, messageKey = "KEY")
+    public void setValue12(String value) {
+    }
+
+    @Length(min = 5, max = 5, messageKey = "!KEY")
+    public void setValue13(String value) {
+    }
+
     public void testValidate_最大長が指定されている場合() throws Exception {
         getRequest().getParameterMap().put("value",
                 new String[] { "1234567890" });
@@ -58,6 +82,27 @@ public class LengthConstraintTest extends
             confirm(getSetterMethod("value"));
             fail();
         } catch (ValidationFailedException expected) {
+            assertEquals(Globals.PREFIX_MESSAGEKEY + "length.max", expected
+                    .getNotes().getNotes()[0].getValue());
+        }
+
+        getRequest().getParameterMap().put("value8",
+                new String[] { "12345678901" });
+        try {
+            confirm(getSetterMethod("value8"));
+            fail();
+        } catch (ValidationFailedException expected) {
+            assertEquals(Globals.PREFIX_MESSAGEKEY + "length.max.KEY", expected
+                    .getNotes().getNotes()[0].getValue());
+        }
+
+        getRequest().getParameterMap().put("value9",
+                new String[] { "12345678901" });
+        try {
+            confirm(getSetterMethod("value9"));
+            fail();
+        } catch (ValidationFailedException expected) {
+            assertEquals("KEY", expected.getNotes().getNotes()[0].getValue());
         }
     }
 
@@ -77,25 +122,27 @@ public class LengthConstraintTest extends
             confirm(getSetterMethod("value2"));
             fail();
         } catch (ValidationFailedException expected) {
-        }
-    }
-
-    public void testValidate3_最大長が指定されている場合() throws Exception {
-        getRequest().getParameterMap().put("value3",
-                new String[] { "1234567890" });
-
-        try {
-            confirm(getSetterMethod("value3"));
-        } catch (ValidationFailedException ex) {
-            fail();
+            assertEquals(Globals.PREFIX_MESSAGEKEY + "length.min", expected
+                    .getNotes().getNotes()[0].getValue());
         }
 
-        getRequest().getParameterMap().put("value3",
-                new String[] { "12345678901" });
+        getRequest().getParameterMap().put("value10",
+                new String[] { "123456789" });
         try {
-            confirm(getSetterMethod("value3"));
+            confirm(getSetterMethod("value10"));
             fail();
         } catch (ValidationFailedException expected) {
+            assertEquals(Globals.PREFIX_MESSAGEKEY + "length.min.KEY", expected
+                    .getNotes().getNotes()[0].getValue());
+        }
+
+        getRequest().getParameterMap().put("value11",
+                new String[] { "123456789" });
+        try {
+            confirm(getSetterMethod("value11"));
+            fail();
+        } catch (ValidationFailedException expected) {
+            assertEquals("KEY", expected.getNotes().getNotes()[0].getValue());
         }
     }
 
@@ -136,8 +183,25 @@ public class LengthConstraintTest extends
         } catch (ValidationFailedException ex) {
             Note[] notes = ex.getNotes().getNotes();
             assertEquals(1, notes.length);
-            assertEquals(Constraint.PREFIX_MESSAGEKEY + "length.different",
+            assertEquals(Globals.PREFIX_MESSAGEKEY + "length.different",
                     notes[0].getValue());
+        }
+
+        getRequest().getParameterMap().put("value12", new String[] { "1" });
+        try {
+            confirm(getSetterMethod("value12"));
+            fail();
+        } catch (ValidationFailedException expected) {
+            assertEquals(Globals.PREFIX_MESSAGEKEY + "length.different.KEY",
+                    expected.getNotes().getNotes()[0].getValue());
+        }
+
+        getRequest().getParameterMap().put("value13", new String[] { "1" });
+        try {
+            confirm(getSetterMethod("value13"));
+            fail();
+        } catch (ValidationFailedException expected) {
+            assertEquals("KEY", expected.getNotes().getNotes()[0].getValue());
         }
     }
 }

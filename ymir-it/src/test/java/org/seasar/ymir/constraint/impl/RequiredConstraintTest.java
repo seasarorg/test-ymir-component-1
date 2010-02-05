@@ -2,6 +2,7 @@ package org.seasar.ymir.constraint.impl;
 
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.constraint.Constraint;
+import org.seasar.ymir.constraint.Globals;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.Required;
 import org.seasar.ymir.impl.FormFileImpl;
@@ -57,13 +58,36 @@ public class RequiredConstraintTest extends
     public void setFile(FormFile file) {
     }
 
-    public void testValidate_パラメータが指定されていない場合() throws Exception {
-        getRequest().getParameterMap().put("value", new String[] { "" });
+    @Required(messageKey = "KEY")
+    public void setValue9(String value) {
+    }
 
+    @Required(messageKey = "!KEY")
+    public void setValue10(String value) {
+    }
+
+    public void testValidate_パラメータが指定されていない場合() throws Exception {
         try {
             confirm(getSetterMethod("value"));
             fail();
         } catch (ValidationFailedException expected) {
+            assertEquals(Globals.PREFIX_MESSAGEKEY + "required", expected
+                    .getNotes().getNotes()[0].getValue());
+        }
+
+        try {
+            confirm(getSetterMethod("value9"));
+            fail();
+        } catch (ValidationFailedException expected) {
+            assertEquals(Globals.PREFIX_MESSAGEKEY + "required.KEY", expected
+                    .getNotes().getNotes()[0].getValue());
+        }
+
+        try {
+            confirm(getSetterMethod("value10"));
+            fail();
+        } catch (ValidationFailedException expected) {
+            assertEquals("KEY", expected.getNotes().getNotes()[0].getValue());
         }
     }
 

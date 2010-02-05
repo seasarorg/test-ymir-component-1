@@ -33,7 +33,7 @@ public interface Constraint<T extends Annotation> {
     /**
      * 制約エラーを表すメッセージ文のキーの接頭辞です。
      */
-    String PREFIX_MESSAGEKEY = "error.constraint.";
+    String PREFIX_MESSAGEKEY = Globals.PREFIX_MESSAGEKEY;
 
     /**
      * 制約チェックを行ないます。

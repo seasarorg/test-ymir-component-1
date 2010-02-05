@@ -14,6 +14,11 @@ import org.seasar.ymir.message.Notes;
 public class DatetimeConstraint extends AbstractConstraint<Datetime> {
     public static final String PATTERN = "yyyy-MM-dd HH:mm:ss";
 
+    @Override
+    protected String getConstraintKey() {
+        return "datetime";
+    }
+
     public void confirm(Object component, Request request, Datetime annotation,
             AnnotatedElement element) throws ConstraintViolatedException {
         String[] names = getParameterNames(request, getPropertyName(element),
@@ -31,9 +36,10 @@ public class DatetimeConstraint extends AbstractConstraint<Datetime> {
         }
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
 
+        String fullMessageKey = getFullMessageKey(annotation.messageKey());
         Notes notes = new Notes();
         for (int i = 0; i < names.length; i++) {
-            confirm(request, names[i], pattern, sdf, notes);
+            confirm(request, names[i], pattern, sdf, notes, fullMessageKey);
         }
         if (notes.size() > 0) {
             throw new ValidationFailedException().setNotes(notes);
@@ -41,8 +47,7 @@ public class DatetimeConstraint extends AbstractConstraint<Datetime> {
     }
 
     void confirm(Request request, String name, String pattern,
-            SimpleDateFormat sdf, Notes notes) {
-        String key = PREFIX_MESSAGEKEY + "datetime";
+            SimpleDateFormat sdf, Notes notes, String fullMessageKey) {
         String[] values = request.getParameterValues(name);
         if (values == null) {
             return;
@@ -55,11 +60,11 @@ public class DatetimeConstraint extends AbstractConstraint<Datetime> {
             try {
                 parsed = sdf.parse(values[i]);
             } catch (ParseException ex) {
-                notes.add(name, new Note(key, name, pattern));
+                notes.add(name, new Note(fullMessageKey, name, pattern));
                 continue;
             }
             if (!values[i].equals(sdf.format(parsed))) {
-                notes.add(name, new Note(key, name, pattern));
+                notes.add(name, new Note(fullMessageKey, name, pattern));
                 continue;
             }
         }

@@ -17,6 +17,11 @@ public class AbstractConstraintTest extends TestCase {
                 Annotation annotation, AnnotatedElement element)
                 throws ConstraintViolatedException {
         }
+
+        @Override
+        protected String getConstraintKey() {
+            return "";
+        }
     };
 
     public void testAdd() throws Exception {

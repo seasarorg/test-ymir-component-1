@@ -1,5 +1,7 @@
 package org.seasar.ymir.constraint.impl;
 
+import static org.seasar.ymir.constraint.Globals.PREFIX_REGEX;
+
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,22 +11,29 @@ import java.util.regex.Pattern;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
+import org.seasar.ymir.constraint.Globals;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.Required;
 import org.seasar.ymir.message.Note;
 import org.seasar.ymir.message.Notes;
 
 public class RequiredConstraint extends AbstractConstraint<Required> {
+    @Override
+    protected String getConstraintKey() {
+        return "required";
+    }
+
     public void confirm(Object component, Request request, Required annotation,
             AnnotatedElement element) throws ConstraintViolatedException {
 
+        String fullMessageKey = getFullMessageKey(annotation.messageKey());
         Notes notes = new Notes();
         if (annotation.matchedParameterRequired()) {
             // 正規表現で指定されているパラメータについては、マッチするパラメータが存在するかのチェックを行なう。
             String[] patterns = getNotMatchedPatterns(request, annotation
                     .value());
             for (String pattern : patterns) {
-                notes.add(pattern, new Note(PREFIX_MESSAGEKEY + "required",
+                notes.add(pattern, new Note(fullMessageKey,
                         new Object[] { pattern }));
             }
         }
@@ -38,7 +47,7 @@ public class RequiredConstraint extends AbstractConstraint<Required> {
         for (int i = 0; i < names.length; i++) {
             if (isEmpty(request, names[i], annotation.completely(), annotation
                     .allowWhitespace(), annotation.allowFullWidthWhitespace())) {
-                notes.add(names[i], new Note(PREFIX_MESSAGEKEY + "required",
+                notes.add(names[i], new Note(fullMessageKey,
                         new Object[] { names[i] }));
             }
         }

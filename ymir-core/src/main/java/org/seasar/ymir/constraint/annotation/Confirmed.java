@@ -35,4 +35,18 @@ public @interface Confirmed {
      * @return リクエストパラメータ名。
      */
     String[] value();
+
+    /**
+     * エラーメッセージのキーです。
+     * <p>通常はエラーメッセージのキーは「error.constraint.XXX」ですが、
+     * 例えばこのメンバの値を「abc」とするとキーが「error.constraint.XXX.abc」になります。
+     * </p>
+     * <p>キー全体を指定したい場合は先頭に「!」をつけて下さい。
+     * 例えばメンバの値を「!error.custom」とするとキーは「error.custom」になります。
+     * </p>
+     * 
+     * @return エラーメッセージのキー。
+     * @since 1.0.7
+     */
+    String messageKey() default "";
 }

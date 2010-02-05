@@ -17,4 +17,13 @@ public interface Globals extends org.seasar.ymir.Globals {
 
     String APPKEY_CORE_CONSTRAINT_PERMISSIONDENIEDMETHOD_ENABLE = APPKEYPREFIX_CORE_CONSTRAINT
             + "permissionDeniedMethod.enable";
+
+    /**
+     * 制約エラーを表すメッセージ文のキーの接頭辞です。
+     */
+    String PREFIX_MESSAGEKEY = "error.constraint.";
+
+    String PREFIX_REGEX = "#";
+
+    String PREFIX_MESSAGEKEY_FULL = "!";
 }

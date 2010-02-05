@@ -13,6 +13,11 @@ import org.seasar.ymir.message.Note;
 import org.seasar.ymir.message.Notes;
 
 public class ConfirmedConstraint extends AbstractConstraint<Confirmed> {
+    @Override
+    protected String getConstraintKey() {
+        return "confirmed";
+    }
+
     public void confirm(Object component, Request request,
             Confirmed annotation, AnnotatedElement element)
             throws ConstraintViolatedException {
@@ -22,15 +27,16 @@ public class ConfirmedConstraint extends AbstractConstraint<Confirmed> {
             return;
         }
 
+        String fullMessageKey = getFullMessageKey(annotation.messageKey());
         Notes notes = new Notes();
-        confirm(request, names, notes);
+        confirm(request, names, notes, fullMessageKey);
         if (notes.size() > 0) {
             throw new ValidationFailedException().setNotes(notes);
         }
     }
 
-    void confirm(Request request, String[] names, Notes notes) {
-        String key = PREFIX_MESSAGEKEY + "confirmed";
+    void confirm(Request request, String[] names, Notes notes,
+            String fullMessageKey) {
         Set<String> valueSet = new HashSet<String>();
         for (String name : names) {
             String[] values = request.getParameterValues(name);
@@ -39,7 +45,7 @@ public class ConfirmedConstraint extends AbstractConstraint<Confirmed> {
             }
         }
         if (valueSet.size() > 1) {
-            notes.add(new Note(key, (Object[]) names), names);
+            notes.add(new Note(fullMessageKey, (Object[]) names), names);
         }
     }
 }
