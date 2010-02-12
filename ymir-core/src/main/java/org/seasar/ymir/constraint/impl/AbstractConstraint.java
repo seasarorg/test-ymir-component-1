@@ -2,6 +2,7 @@ package org.seasar.ymir.constraint.impl;
 
 import static org.seasar.ymir.constraint.Globals.PREFIX_REGEX;
 
+import java.beans.Introspector;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -18,7 +19,16 @@ import org.seasar.ymir.util.BeanUtils;
 
 abstract public class AbstractConstraint<T extends Annotation> implements
         Constraint<T> {
-    abstract protected String getConstraintKey();
+    private static final String SUFFIX_CONSTRAINT = "Constraint";
+
+    protected String getConstraintKey() {
+        String name = getClass().getSimpleName();
+        if (name.endsWith(SUFFIX_CONSTRAINT)) {
+            name = name
+                    .substring(0, name.length() - SUFFIX_CONSTRAINT.length());
+        }
+        return Introspector.decapitalize(name);
+    }
 
     protected String getFullMessageKey(String messageKey) {
         return ConstraintUtils
