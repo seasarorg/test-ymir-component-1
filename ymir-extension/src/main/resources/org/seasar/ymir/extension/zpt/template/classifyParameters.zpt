@@ -27,7 +27,7 @@
   <input type="hidden" name="__ymir__subTask" value="classify" />
   <input type="hidden" name="__ymir__method" tal:attributes="value request/method" />
   <input type="submit" value=" OK " />
-  <input type="submit" name="__ymir__button_skip" value="スキップ" />
+  <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" />
 </form>
   </body>
 </html>

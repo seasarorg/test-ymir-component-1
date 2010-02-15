@@ -3,7 +3,7 @@
     <meta tal:attributes="content string:text/html;; charset=${templateEncoding}" http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>SYSTEM NOTIFICATION</title>
   </head>
-  <body>
+  <body onload="document.getElementById('skipButton').focus()">
 <h1>SYSTEM NOTIFICATION</h1>
 <div tal:condition="not:pathMetaData/template/directory">
 <p>リクエストされたパス<span tal:replace="request/path">PATH</span>に対応するテンプレート<span tal:replace="pathMetaData/template/path">TEMPLTATE</span>が見つかりませんでした。</p>
@@ -39,7 +39,7 @@
   <div style="clear: both"></div>
   <p tal:condition="not:pathMetaData/template/directory"><input type="checkbox" name="mkdir" value="true" tal:attributes="checked mkdirChecked" /> ディレクトリを作成</p>
   <p><input type="submit" value="設定" />
-  <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" /></p>
+  <input type="submit" name="__ymir__button_skip" value="スキップ" /></p>
 </form>
   </body>
 </html>

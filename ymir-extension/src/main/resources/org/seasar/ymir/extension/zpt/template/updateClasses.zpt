@@ -57,9 +57,9 @@
 </div>
 <p>自動生成を行なう場合は「OK」ボタンを、<span tal:condition="auto">今回は</span>自動生成を行なわない場合は「<span tal:condition="auto">今回は</span>スキップ」ボタンを<span tal:condition="auto">、今回は自動生成を行なわずに今後もこのテンプレートを自動生成の対象外にする場合は「常にスキップ」ボタンを</span>押して下さい。</p>
 <p><input type="submit" value=" OK " />
-  <input type="submit" name="__ymir__button_skip" value="今回はスキップ" tal:condition="auto" />
-  <input id="skipButton" type="submit" name="__ymir__button_always_skip" value="常にスキップ" tal:condition="auto" />
-  <input type="submit" name="__ymir__button_skip" value="スキップ" tal:condition="not:auto" />
+  <input id="skipButton" type="submit" name="__ymir__button_skip" value="今回はスキップ" tal:condition="auto" />
+  <input type="submit" name="__ymir__button_always_skip" value="常にスキップ" tal:condition="auto" />
+  <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" tal:condition="not:auto" />
   <div tal:condition="createdClassDescs">
   <p><strong>追加されるクラス：</strong></p>
   <ul>
@@ -142,7 +142,7 @@
   <input type="hidden" name="__ymir__method" tal:attributes="value request/method" />
   <input type="submit" value=" OK " />
   <input type="submit" name="__ymir__button_skip" value="今回はスキップ" tal:condition="auto" />
-  <input id="skipButton" type="submit" name="__ymir__button_always_skip" value="常にスキップ" tal:condition="auto" />
+  <input type="submit" name="__ymir__button_always_skip" value="常にスキップ" tal:condition="auto" />
   <input type="submit" name="__ymir__button_skip" value="スキップ" tal:condition="not:auto" />
 </form>
   </body>

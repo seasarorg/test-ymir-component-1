@@ -3,7 +3,7 @@
     <meta tal:attributes="content string:text/html;; charset=${templateEncoding}" http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>SYSTEM NOTIFICATION</title>
   </head>
-  <body>
+  <body onload="document.getElementById('skipButton').focus()">
 <h1>SYSTEM NOTIFICATION</h1>
 <p>リクエストされたパス<span tal:replace="request/path">PATH</span>に対応するPageクラス<span tal:replace="pathMetaData/className">CLASSNAME</span>がリクエストを処理するための<span tal:replace="actionName">ACTIONNAME</span>()メソッドを持っていません。</p>
 <p><span tal:replace="actionName">ACTIONNAME</span>()メソッドを作成する場合は「作成」ボタンを押して下さい。作成しない場合は「スキップ」ボタンを押して下さい。</p>

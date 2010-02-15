@@ -3,7 +3,7 @@
     <meta tal:attributes="content string:text/html;; charset=${templateEncoding}" http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>SYSTEM NOTIFICATION</title>
   </head>
-  <body>
+  <body onload="document.getElementById('skipButton').focus()">
 <h1>SYSTEM NOTIFICATION</h1>
 <p>メッセージ<span tal:replace="messageKey">MESSAGE_KEY</span>のエントリがメッセージリソースファイル<span tal:replace="messagesName">MESSAGES_NAME</span>.xpropertiesに存在しませんので追加します。</p>
 <p>よろしければメッセージ文字列を指定して「追加」ボタンを押して下さい。追加しない場合は「スキップ」ボタンを押して下さい。</p>

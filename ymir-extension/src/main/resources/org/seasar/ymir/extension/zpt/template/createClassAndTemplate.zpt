@@ -3,7 +3,7 @@
     <meta tal:attributes="content string:text/html;; charset=${templateEncoding}" http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>SYSTEM NOTIFICATION</title>
   </head>
-  <body>
+  <body onload="document.getElementById('skipButton').focus()">
 <h1>SYSTEM NOTIFICATION</h1>
 <p>リクエストされたパス<span tal:replace="request/path">PATH</span>に対応するクラス<span tal:replace="pathMetaData/className">CLASSNAME</span>が見つかりませんでしたので、クラスを作成します。</p>
 <p>処理を行なった後の遷移先：</p>
