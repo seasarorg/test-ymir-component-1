@@ -371,16 +371,16 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public Response updateByRequesting(Request request) {
-        return update(request, null, byRequestingActionSelector_, true);
+        return update(request, null, byRequestingActionSelector_, false);
     }
 
     public Response update(Request request, Response response) {
-        return update(request, response, actionSelector_, false);
+        return update(request, response, actionSelector_, true);
     }
 
     Response update(Request request, Response response,
             ActionSelector<UpdateAction> actionSelector,
-            boolean processIfTaskSpecified) {
+            boolean processEvenIfAnotherTaskSpecified) {
         synchronized (this) {
             if (!initialized_) {
                 setProjectRootIfNotDetecetd(getApplication());
@@ -450,18 +450,16 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         UpdateAction action = null;
-        if (taskSpecified) {
-            if (processIfTaskSpecified) {
-                action = byRequestingActionSelector_.getAction(condition);
+        if (taskSpecified && processEvenIfAnotherTaskSpecified) {
+            action = byRequestingActionSelector_.getAction(condition);
+            if (action == null) {
+                action = actionSelector_.getAction(condition);
                 if (action == null) {
-                    action = actionSelector_.getAction(condition);
-                    if (action == null) {
-                        UpdateByExceptionAction byExceptionAction = byExceptionActionSelector_
-                                .getAction(condition);
-                        if (byExceptionAction != null) {
-                            return byExceptionAction.act(request, pathMetaData,
-                                    null);
-                        }
+                    UpdateByExceptionAction byExceptionAction = byExceptionActionSelector_
+                            .getAction(condition);
+                    if (byExceptionAction != null) {
+                        return byExceptionAction.act(request, pathMetaData,
+                                null);
                     }
                 }
             }
