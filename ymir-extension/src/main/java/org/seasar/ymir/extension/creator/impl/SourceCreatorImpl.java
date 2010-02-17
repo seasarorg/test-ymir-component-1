@@ -164,7 +164,6 @@ import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.HTMLUtils;
 import org.seasar.ymir.util.MetaUtils;
-import org.seasar.ymir.util.ServletUtils;
 
 import net.skirnir.freyja.EvaluationRuntimeException;
 
@@ -372,15 +371,16 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public Response updateByRequesting(Request request) {
-        return update(request, null, byRequestingActionSelector_);
+        return update(request, null, byRequestingActionSelector_, true);
     }
 
     public Response update(Request request, Response response) {
-        return update(request, response, actionSelector_);
+        return update(request, response, actionSelector_, false);
     }
 
     Response update(Request request, Response response,
-            ActionSelector<UpdateAction> actionSelector) {
+            ActionSelector<UpdateAction> actionSelector,
+            boolean processIfTaskSpecified) {
         synchronized (this) {
             if (!initialized_) {
                 setProjectRootIfNotDetecetd(getApplication());
@@ -404,8 +404,10 @@ public class SourceCreatorImpl implements SourceCreator {
         }
 
         Object condition = null;
+        boolean taskSpecified = false;
         if (request.getParameter(PARAM_TASK) != null) {
             condition = request.getParameter(PARAM_TASK);
+            taskSpecified = true;
         } else if (path.startsWith(PATH_PREFIX)) {
             int slash = path.indexOf('/', PATH_PREFIX.length());
             if (slash >= 0) {
@@ -447,7 +449,25 @@ public class SourceCreatorImpl implements SourceCreator {
             }
         }
 
-        UpdateAction action = actionSelector.getAction(condition);
+        UpdateAction action = null;
+        if (taskSpecified) {
+            if (processIfTaskSpecified) {
+                action = byRequestingActionSelector_.getAction(condition);
+                if (action == null) {
+                    action = actionSelector_.getAction(condition);
+                    if (action == null) {
+                        UpdateByExceptionAction byExceptionAction = byExceptionActionSelector_
+                                .getAction(condition);
+                        if (byExceptionAction != null) {
+                            return byExceptionAction.act(request, pathMetaData,
+                                    null);
+                        }
+                    }
+                }
+            }
+        } else {
+            action = actionSelector.getAction(condition);
+        }
         if (action != null) {
             Response newResponse = action.act(request, pathMetaData);
             if (newResponse != null) {
@@ -495,22 +515,8 @@ public class SourceCreatorImpl implements SourceCreator {
         if (t instanceof EvaluationRuntimeException && t.getCause() != null) {
             t = t.getCause();
         }
-        String path = ServletUtils.normalizePath(request.getCurrentDispatch()
-                .getPath());
-        Object condition = null;
-        if (request.getParameter(PARAM_TASK) != null) {
-            condition = request.getParameter(PARAM_TASK);
-        } else if (path.startsWith(PATH_PREFIX)) {
-            int slash = path.indexOf('/', PATH_PREFIX.length());
-            if (slash >= 0) {
-                condition = path.substring(PATH_PREFIX.length(), slash);
-            } else {
-                condition = path.substring(PATH_PREFIX.length());
-            }
-        } else {
-            condition = t.getClass();
-        }
 
+        Object condition = t.getClass();
         UpdateByExceptionAction action = byExceptionActionSelector_
                 .getAction(condition);
         if (action == null) {

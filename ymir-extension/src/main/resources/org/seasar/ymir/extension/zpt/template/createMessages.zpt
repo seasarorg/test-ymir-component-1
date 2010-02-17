@@ -12,6 +12,7 @@
   <input type="hidden" name="__ymir__task" value="createMessages" />
   <input type="hidden" name="__ymir__subTask" value="create" />
   <input type="hidden" name="__ymir__method" tal:attributes="value request/method" />
+  <input type="hidden" name="__ymir__messagesName" tal:attributes="value messagesName" />
   <p><input type="submit" value="作成" />
   <input id="skipButton" type="submit" name="__ymir__button_skip" value="スキップ" /></p>
 </form>

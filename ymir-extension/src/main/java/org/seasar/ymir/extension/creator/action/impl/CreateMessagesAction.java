@@ -21,6 +21,9 @@ public class CreateMessagesAction extends AbstractAction implements
 
     private static final String SUFFIX_XPROPERTIES = ".xproperties";
 
+    protected static final String PARAM_MESSAGESNAME = SourceCreator.PARAM_PREFIX
+            + "messagesName";
+
     public CreateMessagesAction(SourceCreator sourceCreator) {
         super(sourceCreator);
     }
@@ -36,7 +39,7 @@ public class CreateMessagesAction extends AbstractAction implements
 
         String subTask = request.getParameter(PARAM_SUBTASK);
         if ("create".equals(subTask)) {
-            return actCreate(request, pathMetaData, t);
+            return actCreate(request, pathMetaData);
         } else {
             return actDefault(request, pathMetaData, t);
         }
@@ -54,23 +57,27 @@ public class CreateMessagesAction extends AbstractAction implements
                 "createMessages", variableMap);
     }
 
-    Response actCreate(Request request, PathMetaData pathMetaData, Throwable t) {
-        MessagesNotFoundRuntimeException mnfre = (MessagesNotFoundRuntimeException) t;
-
+    Response actCreate(Request request, PathMetaData pathMetaData) {
         String method = request.getParameter(PARAM_METHOD);
         if (method == null) {
             return null;
         }
 
-        createMessages(mnfre.getMessagesName());
+        String messagesName = request.getParameter(PARAM_MESSAGESNAME);
+        if (messagesName == null) {
+            return null;
+        }
+
+        createMessages(messagesName);
 
         boolean successfullySynchronized = synchronizeResources(new String[] { getResourcesPath() });
 
         Map<String, Object> variableMap = newVariableMap();
         variableMap.put("request", request);
+
         variableMap.put("parameters", getParameters(request));
         variableMap.put("method", method);
-        variableMap.put("messagesName", mnfre.getMessagesName());
+        variableMap.put("messagesName", messagesName);
         variableMap.put("successfullySynchronized", successfullySynchronized);
         return getSourceCreator().getResponseCreator().createResponse(
                 "createMessages_create", variableMap);

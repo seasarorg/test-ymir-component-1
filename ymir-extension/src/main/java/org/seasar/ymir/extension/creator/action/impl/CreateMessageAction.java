@@ -18,6 +18,12 @@ import org.seasar.ymir.message.MessageNotFoundRuntimeException;
 public class CreateMessageAction extends AbstractAction implements
         UpdateByExceptionAction {
 
+    protected static final String PARAM_MESSAGESNAME = SourceCreator.PARAM_PREFIX
+            + "messagesName";
+
+    protected static final String PARAM_MESSAGEKEY = SourceCreator.PARAM_PREFIX
+            + "messageKey";
+
     protected static final String PARAM_VALUE = SourceCreator.PARAM_PREFIX
             + "value";
 
@@ -38,7 +44,7 @@ public class CreateMessageAction extends AbstractAction implements
 
         String subTask = request.getParameter(PARAM_SUBTASK);
         if ("create".equals(subTask)) {
-            return actCreate(request, pathMetaData, t);
+            return actCreate(request, pathMetaData);
         } else {
             return actDefault(request, pathMetaData, t);
         }
@@ -56,20 +62,23 @@ public class CreateMessageAction extends AbstractAction implements
                 "createMessage", variableMap);
     }
 
-    Response actCreate(Request request, PathMetaData pathMetaData, Throwable t) {
-        MessageNotFoundRuntimeException mnfre = (MessageNotFoundRuntimeException) t;
-
+    Response actCreate(Request request, PathMetaData pathMetaData) {
         String method = request.getParameter(PARAM_METHOD);
         if (method == null) {
             return null;
         }
 
+        String messagesName = request.getParameter(PARAM_MESSAGESNAME);
+        String messageKey = request.getParameter(PARAM_MESSAGEKEY);
         String value = request.getParameter(PARAM_VALUE);
+        if (messagesName == null || messageKey == null) {
+            return null;
+        }
         if (value == null) {
             value = "";
         }
 
-        createMessage(mnfre.getMessagesName(), mnfre.getMessageKey(), value);
+        createMessage(messagesName, messageKey, value);
 
         boolean successfullySynchronized = synchronizeResources(new String[] { getResourcesPath() });
 
@@ -77,8 +86,8 @@ public class CreateMessageAction extends AbstractAction implements
         variableMap.put("request", request);
         variableMap.put("parameters", getParameters(request));
         variableMap.put("method", method);
-        variableMap.put("messageKey", mnfre.getMessageKey());
-        variableMap.put("messagesName", mnfre.getMessagesName());
+        variableMap.put("messageKey", messageKey);
+        variableMap.put("messagesName", messagesName);
         variableMap.put("successfullySynchronized", successfullySynchronized);
         return getSourceCreator().getResponseCreator().createResponse(
                 "createMessage_create", variableMap);
