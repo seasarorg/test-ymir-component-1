@@ -8,7 +8,7 @@ public enum ClassType {
     BEAN("", true), PAGE("Page", false), DTO("Dto", false), DAO("Dao", true), DXO(
             "Dxo", true), CONVERTER("Converter", true), ;
 
-    private static final String SUFFIX_BASE = "Base";
+    public static final String SUFFIX_BASE = "Base";
 
     private String suffix_;
 

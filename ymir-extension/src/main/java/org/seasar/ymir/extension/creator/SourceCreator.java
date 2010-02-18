@@ -89,6 +89,8 @@ public interface SourceCreator extends Updater {
 
     void writeSourceFile(String templateName, ClassDesc classDesc, boolean force);
 
+    void writeEmptyBaseSourceFileIfNotExists(ClassDesc classDesc);
+
     SourceGenerator getSourceGenerator();
 
     Class<?> getClass(String className);

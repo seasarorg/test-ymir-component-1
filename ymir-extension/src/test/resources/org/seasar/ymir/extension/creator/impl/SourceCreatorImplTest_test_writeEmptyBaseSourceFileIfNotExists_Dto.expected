@@ -1,0 +1,8 @@
+package com.example.web.sub;
+
+import java.io.Serializable;
+
+public class DtoBase extends com.example.web.DtoBase
+    implements Serializable {
+    private static final long serialVersionUID = 1L;
+}

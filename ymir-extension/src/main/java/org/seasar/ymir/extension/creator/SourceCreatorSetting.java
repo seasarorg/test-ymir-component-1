@@ -23,6 +23,7 @@ import org.seasar.ymir.extension.creator.util.SourceCreatorUtils;
 import org.seasar.ymir.message.Note;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.render.Selector;
+import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.ServletUtils;
 
 import net.skirnir.freyja.TemplateContext;
@@ -46,6 +47,8 @@ public class SourceCreatorSetting {
 
     public static final String APPKEYPREFIX_SOURCECREATOR_SUPERCLASS = APPKEY_SOURCECREATOR_SUPERCLASS
             + ".";
+
+    public static final String APPKEY_SOURCECREATOR_CREATEBASECLASSES = "extension.sourceCreator.createBaseClasses";
 
     public static final String APPKEY_SOURCECREATOR_FIELDSPECIALPREFIX = "extension.sourceCreator.fieldSpecialPrefix";
 
@@ -260,6 +263,42 @@ public class SourceCreatorSetting {
                 continue;
             }
             return application.getProperty(key);
+        }
+
+        if (PropertyUtils.valueOf(application
+                .getProperty(APPKEY_SOURCECREATOR_CREATEBASECLASSES), false)) {
+            ClassType type = ClassType.typeOfClass(className);
+            if (type != ClassType.BEAN) {
+                String shortName = ClassUtils.getShortName(className);
+                String baseShortName = type.getSuffix() + ClassType.SUFFIX_BASE;
+                if (shortName.equals(baseShortName)) {
+                    for (String rootPackageName : application
+                            .getRootPackageNames()) {
+                        if (!className.startsWith(rootPackageName)
+                                || className.length() == rootPackageName
+                                        .length()
+                                || className.charAt(rootPackageName.length()) != '.') {
+                            continue;
+                        }
+
+                        String packageName = ClassUtils
+                                .getPackageName(className);
+                        int dot = packageName.lastIndexOf('.');
+                        if (dot > rootPackageName.length()) {
+                            return className.substring(0, dot + 1)
+                                    + baseShortName;
+                        }
+                    }
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(ClassUtils.getPackageName(className));
+                    if (sb.length() > 0) {
+                        sb.append(".");
+                    }
+                    sb.append(baseShortName);
+                    return sb.toString();
+                }
+            }
         }
 
         return null;

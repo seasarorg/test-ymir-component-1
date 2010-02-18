@@ -599,22 +599,31 @@ public class SourceCreatorImpl implements SourceCreator {
             // Dtoに触るようなプロパティを持っているなら
             // Converterのsetterを自動生成する。
             addConverterSetterToPageClassDesc(pageClassDescs[i], classDescSet);
+        }
 
-            // Pageの親クラスが存在しない場合は生成しておく。
-            String superclassName = pageClassDescs[i].getSuperclassName();
-            if (superclassName != null) {
-                Class<?> superclass = getClass(superclassName);
-                if (superclass == null) {
-                    ClassDesc classDesc = newClassDesc(pageClassDescs[i]
-                            .getDescPool(), superclassName, null);
-                    if (!isOuter(classDesc)) {
-                        prepareForUpdating(classDesc);
-                        writeSourceFile("PageSuperclass.java", classDesc, false);
-                        classDescBag.addAsCreated(classDesc, true);
+        List<ClassDesc> classDescList = new ArrayList<ClassDesc>(Arrays
+                .asList(classDescBag.getClassDescs()));
+        do {
+            List<ClassDesc> newClassDescList = new ArrayList<ClassDesc>();
+            for (ClassDesc classDesc : classDescList) {
+                // 親クラスが存在しない場合は生成しておく。
+                String superclassName = classDesc.getSuperclassName();
+                if (superclassName != null) {
+                    Class<?> superclass = getClass(superclassName);
+                    if (superclass == null) {
+                        ClassDesc superClassDesc = newClassDesc(classDesc
+                                .getDescPool(), superclassName, null);
+                        if (!isOuter(superClassDesc)) {
+                            prepareForUpdating(superClassDesc);
+                            writeEmptyBaseSourceFileIfNotExists(superClassDesc);
+                            classDescBag.addAsCreated(superClassDesc, true);
+                            newClassDescList.add(superClassDesc);
+                        }
                     }
                 }
             }
-        }
+            classDescList = newClassDescList;
+        } while (!classDescList.isEmpty());
 
         updateClasses0(classDescBag);
     }
@@ -1438,6 +1447,20 @@ public class SourceCreatorImpl implements SourceCreator {
         Set<String> importClassNameSet = new HashSet<String>();
         Set<String> baseImportClassNameSet = new HashSet<String>();
 
+        if (classDesc.getSuperclassName() != null) {
+            String baseClassShortName = classDesc.getShortName();
+            if (!baseClassShortName.endsWith(ClassType.SUFFIX_BASE)) {
+                baseClassShortName += ClassType.SUFFIX_BASE;
+            }
+            if (!classDesc.getSuperclassShortName().equals(baseClassShortName)
+                    && !ClassUtils
+                            .getPackageName(classDesc.getSuperclassName())
+                            .equals(classDesc.getPackageName())
+                    && !ClassUtils.isJavaLang(classDesc.getSuperclassName())) {
+                baseImportClassNameSet.add(classDesc.getSuperclassName());
+            }
+        }
+
         switch (classDesc.getType()) {
         case BEAN:
             importClassNameSet
@@ -1887,6 +1910,21 @@ public class SourceCreatorImpl implements SourceCreator {
         return sourceGenerator_.generateBaseSource(classDesc);
     }
 
+    @SuppressWarnings("unchecked")
+    public void writeEmptyBaseSourceFileIfNotExists(ClassDesc classDesc) {
+        if (classDesc == null) {
+            return;
+        }
+
+        Map<String, Object> parameter = classDesc.getSourceGeneratorParameter();
+        ImportDesc importDesc = new ImportDescImpl(this, classDesc);
+        importDesc.add(new HashSet<String>(((Set<String>) parameter
+                .get(Globals.PARAMETER_BASEIMPORTCLASSSET))));
+        parameter.put(Globals.PARAMETER_IMPORTDESC, importDesc);
+
+        writeSourceFile("Base.java", classDesc, false);
+    }
+
     public void writeSourceFile(String templateName, ClassDesc classDesc,
             boolean force) {
         File sourceFile = getSourceFile(classDesc.getName());
@@ -2308,12 +2346,12 @@ public class SourceCreatorImpl implements SourceCreator {
                         // それを避けるためにこうしている。
                         superclassName = null;
                     }
-                }
-                if (superclassName != null) {
-                    Class<?> superclass = findClass(ClassUtils
-                            .getShortName(superclassName), className);
-                    if (superclass != null) {
-                        superclassName = superclass.getName();
+                    if (superclassName != null) {
+                        Class<?> superclass = findClass(ClassUtils
+                                .getShortName(superclassName), className);
+                        if (superclass != null) {
+                            superclassName = superclass.getName();
+                        }
                     }
                 }
             }

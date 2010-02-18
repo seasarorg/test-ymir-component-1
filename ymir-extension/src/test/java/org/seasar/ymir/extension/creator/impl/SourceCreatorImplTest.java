@@ -1178,4 +1178,45 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertEquals(readResource(getClass(),
                 "test_updateClasses_YMIR_342.expected"), actual);
     }
+
+    public void test_writeEmptyBaseSourceFileIfNotExists_Page()
+            throws Exception {
+        ClassDesc classDesc = target_.newClassDesc(pool_,
+                "com.example.web.sub.PageBase", null);
+        classDesc.setSuperclassName("com.example.web.PageBase");
+        File actualFile = new File(getSourceDir(), classDesc.getName().replace(
+                '.', '/')
+                + ".java");
+        actualFile.delete();
+
+        target_.prepareForUpdating(classDesc);
+        target_.writeEmptyBaseSourceFileIfNotExists(classDesc);
+
+        String actual = IOUtils.readString(new FileInputStream(actualFile),
+                "UTF-8", false);
+
+        assertEquals(readResource(getClass(),
+                "test_writeEmptyBaseSourceFileIfNotExists_Page.expected"),
+                actual);
+    }
+
+    public void test_writeEmptyBaseSourceFileIfNotExists_Dto() throws Exception {
+        ClassDesc classDesc = target_.newClassDesc(pool_,
+                "com.example.web.sub.DtoBase", null);
+        classDesc.setSuperclassName("com.example.web.DtoBase");
+        File actualFile = new File(getSourceDir(), classDesc.getName().replace(
+                '.', '/')
+                + ".java");
+        actualFile.delete();
+
+        target_.prepareForUpdating(classDesc);
+        target_.writeEmptyBaseSourceFileIfNotExists(classDesc);
+
+        String actual = IOUtils.readString(new FileInputStream(actualFile),
+                "UTF-8", false);
+
+        assertEquals(readResource(getClass(),
+                "test_writeEmptyBaseSourceFileIfNotExists_Dto.expected"),
+                actual);
+    }
 }

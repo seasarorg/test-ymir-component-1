@@ -125,8 +125,8 @@ public class CreateConfigurationAction extends AbstractAction implements
                     ClassDesc classDesc = getSourceCreator().newClassDesc(
                             newDescPool(), value, null);
                     getSourceCreator().prepareForUpdating(classDesc);
-                    getSourceCreator().writeSourceFile("PageSuperclass.java",
-                            classDesc, false);
+                    getSourceCreator().writeEmptyBaseSourceFileIfNotExists(
+                            classDesc);
                 } else {
                     application.removeProperty(key);
                     skip = true;

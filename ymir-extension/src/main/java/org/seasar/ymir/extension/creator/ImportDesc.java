@@ -22,4 +22,6 @@ public interface ImportDesc {
     boolean isEmpty();
 
     void clear();
+    
+    boolean containsClass(String className);
 }

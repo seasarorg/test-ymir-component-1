@@ -21,7 +21,6 @@ import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.extension.creator.ClassCreationHintBag;
 import org.seasar.ymir.extension.creator.ClassDesc;
 import org.seasar.ymir.extension.creator.ClassDescBag;
-import org.seasar.ymir.extension.creator.ClassDescSet;
 import org.seasar.ymir.extension.creator.ClassHint;
 import org.seasar.ymir.extension.creator.DescPool;
 import org.seasar.ymir.extension.creator.InvalidClassDescException;
@@ -117,8 +116,7 @@ public class MockSourceCreator implements SourceCreator {
         return null;
     }
 
-    public void writeSourceFile(ClassDesc classDesc, ClassDescSet classDescSet)
-            throws InvalidClassDescException {
+    public void writeEmptyBaseSourceFileIfNotExists(ClassDesc classDesc) {
     }
 
     public void writeSourceFile(String templateName, ClassDesc classDesc,

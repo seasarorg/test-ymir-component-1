@@ -47,4 +47,27 @@ public class SourceCreatorSettingTest extends SourceCreatorImplTestBase {
                 "org.seasar.ymir.*");
         assertTrue(target_.isOnDtoSearchPath(Selector.class.getName()));
     }
+
+    public void test_getSuperclassName() throws Exception {
+        target_.setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_CREATEBASECLASSES,
+                String.valueOf(true));
+        assertEquals("com.example.web.sub.PageBase", target_
+                .getSuperclassName("com.example.web.sub.HoePage"));
+        assertEquals("com.example.web.sub.PageBase", target_
+                .getSuperclassName("com.example.web.sub.HoePageBase"));
+        assertEquals("com.example.web.PageBase", target_
+                .getSuperclassName("com.example.web.sub.PageBase"));
+        assertNull(target_.getSuperclassName("com.example.web.PageBase"));
+        assertNull(target_.getSuperclassName("com.example.web.sub.Hoehoe"));
+        assertNull(target_.getSuperclassName("com.example.web.sub.HoehoeBase"));
+
+        target_.setProperty(
+                SourceCreatorSetting.APPKEYPREFIX_SOURCECREATOR_SUPERCLASS
+                        + "com.example.web.sub.HoePage",
+                "com.example.web.sub.PageParent");
+        assertEquals("superclass指定がcreateBaseClassses指定よりも優先されること",
+                "com.example.web.sub.PageParent", target_
+                        .getSuperclassName("com.example.web.sub.HoePage"));
+    }
 }

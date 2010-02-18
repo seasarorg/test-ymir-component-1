@@ -143,4 +143,15 @@ public class ImportDescImpl implements ImportDesc {
         javaClassSet_.clear();
         javaxClassSet_.clear();
     }
+
+    public boolean containsClass(String className) {
+        if (applicationClassSet_.contains(className)
+                || frameworkClassSet_.contains(className)
+                || javaClassSet_.contains(className)
+                || javaxClassSet_.contains(className)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
