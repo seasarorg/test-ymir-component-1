@@ -573,7 +573,7 @@ public class SourceCreatorImpl implements SourceCreator {
                 .getGeneratedClassDescs().toArray(new ClassDesc[0]), pool
                 .getHintBag());
 
-        return classifyClassDescs(classDescs);
+        return newClassDescBag(classDescs);
     }
 
     public void updateClasses(ClassDescBag classDescBag) {
@@ -601,6 +601,10 @@ public class SourceCreatorImpl implements SourceCreator {
             addConverterSetterToPageClassDesc(pageClassDescs[i], classDescSet);
         }
 
+        updateClasses0(classDescBag);
+    }
+
+    void writeBaseSourceFileIfNotExist(ClassDescBag classDescBag) {
         List<ClassDesc> classDescList = new ArrayList<ClassDesc>(Arrays
                 .asList(classDescBag.getClassDescs()));
         do {
@@ -624,8 +628,6 @@ public class SourceCreatorImpl implements SourceCreator {
             }
             classDescList = newClassDescList;
         } while (!classDescList.isEmpty());
-
-        updateClasses0(classDescBag);
     }
 
     void addConverterSetterToPageClassDesc(ClassDesc pageClassDesc,
@@ -880,7 +882,7 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     }
 
-    ClassDescBag classifyClassDescs(ClassDesc[] classDescs) {
+    ClassDescBag newClassDescBag(ClassDesc[] classDescs) {
         ClassDescBag classDescBag = new ClassDescBag();
         for (int i = 0; i < classDescs.length; i++) {
             if (getClass(classDescs[i].getName()) == null) {
@@ -1320,6 +1322,8 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     private void updateClasses0(ClassDescBag classDescBag) {
+        writeBaseSourceFileIfNotExist(classDescBag);
+
         for (ClassType type : ClassType.values()) {
             ClassDesc[] classDescs = classDescBag.getClassDescs(type);
             ClassDescSet classDescSet = classDescBag.getClassDescSet();
@@ -1338,6 +1342,8 @@ public class SourceCreatorImpl implements SourceCreator {
 
     public void updateClass(ClassDesc classDesc)
             throws InvalidClassDescException {
+        writeBaseSourceFileIfNotExist(newClassDescBag(new ClassDesc[] { classDesc }));
+
         updateClass(classDesc, null);
     }
 
@@ -1698,12 +1704,21 @@ public class SourceCreatorImpl implements SourceCreator {
                     generatedMd.setThrowsDesc(throwsDesc);
                 }
 
-                // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
-                // GeneratedにあるアノテーションのうちBaseにもあるものについてはBaseのものをGeneratedに上書きする。
                 if (baseMd != null) {
+                    // 元々ついているMetaでないアノテーションはBaseを優先させる必要があるため、
+                    // GeneratedにあるアノテーションのうちBaseにもあるものについてはBaseのものをGeneratedに上書きする。
                     generatedMd.setAnnotationDescs(mergeAnnotationDescs(baseMd
                             .getAnnotationDescs(), generatedMd
                             .getAnnotationDescs()));
+
+                    // Generatedがボディを持っていない場合、baseのボディがあればGeneratedに設定しておく。
+                    // この時、戻り値型もあわせておく。
+                    if (generatedMd.getBodyDesc() == null
+                            && baseMd.getBodyDesc() != null) {
+                        generatedMd.setBodyDesc(baseMd.getBodyDesc());
+                        generatedMd.setReturnTypeDesc(baseMd
+                                .getReturnTypeDesc());
+                    }
                 }
             }
 

@@ -299,7 +299,7 @@ public class DescUtils {
         if (DescUtils.merge(returnTd1, returnTd2, force)) {
             BodyDesc bodyDesc = md2.getBodyDesc();
             if (bodyDesc != null) {
-                md1.setBodyDesc(md2.getBodyDesc());
+                md1.setBodyDesc(bodyDesc);
             }
         }
         md1.setAnnotationDescs(DescUtils.merge(md1.getAnnotationDescs(), md2

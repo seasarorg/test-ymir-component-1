@@ -505,15 +505,20 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
 
     public void testAdjustByExistentClass13_Baseにあるメソッドのアノテーションとボディが保持されること()
             throws Exception {
-        ClassDesc classDesc = target_.newClassDesc(pool_, AdjustPage.class,
-                true);
+        ClassDesc classDesc = target_.newClassDesc(pool_, AdjustPage.class
+                .getName(), null);
+        classDesc.setBornOf("/login.html");
+        MethodDescImpl md = new MethodDescImpl(pool_, "_get");
+        md.setReturnTypeDesc(Void.TYPE);
+        classDesc.setMethodDesc(md);
+
         target_.adjustByExistentClass(classDesc);
 
-        MethodDesc actual = classDesc.getMethodDesc(new MethodDescImpl(pool_,
-                "_get"));
+        MethodDesc actual = classDesc.getMethodDesc(md);
         assertNotNull(actual);
         assertNotNull(actual.getMetaFirstValue(Globals.META_NAME_SOURCE));
         assertNotNull(actual.getBodyDesc());
+        assertEquals("String", actual.getReturnTypeDesc().getName());
     }
 
     public void testAdjustByExistentClass14_Baseにあるプロパティの初期値情報が正しくマージされること()
@@ -781,6 +786,20 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertNotNull(actual);
         assertEquals("由来が同じなら置き換わること", "void", actual.getReturnTypeDesc()
                 .getName());
+
+        pool = DescPool.newInstance(target_, null);
+        pool.setBornOf("/adjust24.html");
+        classDesc = pool.getClassDesc(Adjust24Page.class);
+        classDesc.setMethodDesc(new MethodDescImpl(pool, "_get_string"));
+
+        target_.adjustByExistentClass(classDesc);
+
+        actual = classDesc
+                .getMethodDesc(new MethodDescImpl(pool, "_get_string"));
+        assertNotNull(actual);
+        assertNotNull("由来が同じでもBaseがボディを持っている場合は置き換わらないこと", actual.getBodyDesc());
+        assertEquals("由来が同じでもBaseがボディを持っている場合は置き換わらないこと", "String", actual
+                .getReturnTypeDesc().getName());
 
         pool = DescPool.newInstance(target_, null);
         pool.setBornOf("/adjust24.html");

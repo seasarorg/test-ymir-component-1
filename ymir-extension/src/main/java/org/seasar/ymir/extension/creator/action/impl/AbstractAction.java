@@ -87,7 +87,8 @@ abstract public class AbstractAction {
     protected Parameter[] getParameters(Request request) {
         List<Parameter> list = new ArrayList<Parameter>();
         for (Iterator<Map.Entry<String, String[]>> itr = request
-                .getParameterMap().entrySet().iterator(); itr.hasNext();) {
+                .getCurrentDispatch().getQueryParameterMap().entrySet()
+                .iterator(); itr.hasNext();) {
             Map.Entry<String, String[]> entry = itr.next();
             String name = entry.getKey();
             if (name.startsWith(SourceCreatorImpl.PARAM_PREFIX)) {
