@@ -110,7 +110,7 @@ public class MockDispatch implements Dispatch {
         }
     }
 
-    public MockDispatch setParameterMap(Map<String, String[]> parameterMap) {
+    public MockDispatch setPathParameterMap(Map<String, String[]> parameterMap) {
         parameterMap_ = parameterMap;
         return this;
     }
