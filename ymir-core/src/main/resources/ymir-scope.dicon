@@ -11,6 +11,8 @@
     class="org.seasar.ymir.scope.impl.RequestScope" />
   <component name="pathInfoScope"
     class="org.seasar.ymir.scope.impl.PathInfoScope" />
+  <component name="URIParameterScope"
+    class="org.seasar.ymir.scope.impl.URIParameterScope" />
   <component name="cookieScope"
     class="org.seasar.ymir.scope.impl.CookieScope" />
   <component name="requestParameterScope"

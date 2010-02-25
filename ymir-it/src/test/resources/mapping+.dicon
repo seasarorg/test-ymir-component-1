@@ -61,4 +61,18 @@
       "sequence=${1}" }
     </arg>
   </component>
+  <component class="org.seasar.ymir.impl.YmirPathMapping">
+    <arg>
+      #{ "pattern" : "/URIParameterITest3/([^/]*)/([^/]*)\\.html",
+      "pageComponentNameTemplate" : "URIParameterITest3Page",
+      "actionNameTemplate" : "_${method}", "parameterTemplate" :
+      "category=${1};sequence=${2}" }
+    </arg>
+  </component>
+  <component class="org.seasar.ymir.impl.YmirPathMapping">
+    <arg>"/URIParameterScopeITest/([^/]*)/[^/]*\\.html"</arg>
+    <arg>"URIParameterScopeITestPage"</arg>
+    <arg>null</arg>
+    <arg>"category=${1}"</arg>
+  </component>
 </components>
