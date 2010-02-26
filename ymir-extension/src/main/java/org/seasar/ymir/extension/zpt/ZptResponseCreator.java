@@ -12,6 +12,7 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.response.SelfContainedResponse;
+import org.seasar.ymir.util.ResponseUtils;
 import org.seasar.ymir.zpt.YmirPathResolver;
 
 import net.skirnir.freyja.TemplateContext;
@@ -41,14 +42,12 @@ public class ZptResponseCreator implements ResponseCreator {
 
     public Response createResponse(String templateName,
             Map<String, Object> variableMap) {
-
         return createResponse(getClass().getResource(
                 TEMPLATE_PREFIX + templateName + TEMPLATE_SUFFIX), variableMap);
     }
 
     public Response createResponse(URL templateURL,
             Map<String, Object> variableMap) {
-
         TemplateContext context = evaluator_.newContext();
         context.setProperty(TemplateContext.PROP_CONTENT_TYPE, "text/html");
         if (variableMap != null) {
@@ -61,9 +60,12 @@ public class ZptResponseCreator implements ResponseCreator {
             context.setVariableResolver(resolver);
         }
         try {
-            return new SelfContainedResponse(evaluator_.evaluate(context,
-                    new InputStreamReader(templateURL.openStream(), "UTF-8")),
+            SelfContainedResponse response = new SelfContainedResponse(
+                    evaluator_.evaluate(context, new InputStreamReader(
+                            templateURL.openStream(), "UTF-8")),
                     "text/html; charset=" + getEncoding());
+            ResponseUtils.setNoCache(response);
+            return response;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
