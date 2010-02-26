@@ -1711,9 +1711,11 @@ public class SourceCreatorImpl implements SourceCreator {
                             .getAnnotationDescs(), generatedMd
                             .getAnnotationDescs()));
 
-                    // Generatedがボディを持っていない場合、baseのボディがあればGeneratedに設定しておく。
+                    // Generatedがボディを持っていない場合、BaseのボディがあればGeneratedに設定しておく。
                     // この時、戻り値型もあわせておく。
-                    if (generatedMd.getBodyDesc() == null
+                    // ただしGapでオーバライドされている場合は万が一（Baseに過去のゴミのボディがアノテーションで残ってしまっている場合など）
+                    // にも型がずれないよう、補正はしない。
+                    if (gapMd == null && generatedMd.getBodyDesc() == null
                             && baseMd.getBodyDesc() != null) {
                         generatedMd.setBodyDesc(baseMd.getBodyDesc());
                         generatedMd.setReturnTypeDesc(baseMd
