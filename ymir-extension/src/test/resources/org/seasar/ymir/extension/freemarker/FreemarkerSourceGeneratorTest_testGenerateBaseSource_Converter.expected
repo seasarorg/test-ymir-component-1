@@ -142,7 +142,7 @@ public class HoeConverterBase {
      * 
      * @param entity Source object.
      * @param dto Destination object.
-     * @return The first argument of this method.
+     * @return Dto given as the second argument of this method.
      */
     public HoeDto copyEntityToDto(Hoe<List> entity, HoeDto dto) {
         reflectAaaToDto(entity, dto);
@@ -289,7 +289,7 @@ public class HoeConverterBase {
      * 
      * @param dto Source object.
      * @param entity Destination object.
-     * @return The first argument of this method.
+     * @return Entity given as the second argument of this method.
      */
     public Hoe<List> copyDtoToEntity(HoeDto dto, Hoe<List> entity) {
         reflectAaaToEntity(dto, entity);

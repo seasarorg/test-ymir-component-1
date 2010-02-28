@@ -300,7 +300,7 @@ public class ${classDesc.shortName}Base {
      * 
      * @param dto Source object.
      * @param entity Destination object.
-     * @return entity given as the second argument of this method.
+     * @return Entity given as the second argument of this method.
      */
     public ${pairTypeDesc.shortName} copyDtoToEntity(${targetClassDesc.shortName} dto, ${pairTypeDesc.shortName} entity) {
 <#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc>
