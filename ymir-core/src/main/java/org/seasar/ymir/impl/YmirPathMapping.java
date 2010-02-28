@@ -159,7 +159,7 @@ public class YmirPathMapping implements PathMapping {
             String pageComponentNameTemplate, String actionNameTemplate,
             String pathInfoTemplate, String parameterTemplate,
             String defaultReturnValueTemplate) {
-        this(false, pageComponentNameTemplate, pageComponentNameTemplate,
+        this(false, patternString, pageComponentNameTemplate,
                 actionNameTemplate, pathInfoTemplate, parameterTemplate,
                 defaultReturnValueTemplate);
     }
