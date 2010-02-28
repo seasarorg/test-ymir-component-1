@@ -155,7 +155,7 @@ public class ${classDesc.shortName}Base {
      * 
      * @param entity Source object.
      * @param dto Destination object.
-     * @return The first argument of this method.
+     * @return Dto given as the second argument of this method.
      */
     public ${targetClassDesc.shortName} copyEntityToDto(${pairTypeDesc.shortName} entity, ${targetClassDesc.shortName} dto) {
 <#list targetClassDesc.propertyDescs as propertyDesc>
@@ -300,7 +300,7 @@ public class ${classDesc.shortName}Base {
      * 
      * @param dto Source object.
      * @param entity Destination object.
-     * @return The first argument of this method.
+     * @return entity given as the second argument of this method.
      */
     public ${pairTypeDesc.shortName} copyDtoToEntity(${targetClassDesc.shortName} dto, ${pairTypeDesc.shortName} entity) {
 <#list pairTypeDesc.componentClassDesc.propertyDescs as propertyDesc>
