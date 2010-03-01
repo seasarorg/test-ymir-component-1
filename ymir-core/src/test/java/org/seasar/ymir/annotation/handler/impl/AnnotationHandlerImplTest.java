@@ -14,6 +14,9 @@ import org.seasar.ymir.impl.Hoe;
 import org.seasar.ymir.impl.HoeAlias;
 import org.seasar.ymir.impl.HoeAliass;
 import org.seasar.ymir.impl.HoeHolder;
+import org.seasar.ymir.scope.annotation.In;
+import org.seasar.ymir.scope.impl.RequestParameterScope;
+import org.seasar.ymir.scope.impl.SessionScope;
 
 public class AnnotationHandlerImplTest extends TestCase {
     private AnnotationHandlerImpl target_ = new AnnotationHandlerImpl();
@@ -100,5 +103,12 @@ public class AnnotationHandlerImplTest extends TestCase {
         assertEquals(Numeric.class, actual[idx++].annotationType());
         assertEquals(Required.class, actual[idx].annotationType());
         assertTrue(((Required) actual[idx++]).allowWhitespace());
+    }
+
+    public void testGetAnnotations_親クラスのメソッドのアノテーションが無視されること() throws Exception {
+        In[] actual = target_.getAnnotations(Inherited.class.getMethod("hoe2"),
+                In.class);
+
+        assertEquals(0, actual.length);
     }
 }

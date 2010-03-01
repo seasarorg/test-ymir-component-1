@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.annotation.SuppressInheritance;
 import org.seasar.ymir.annotation.handler.AnnotationElements;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.cache.CacheManager;
@@ -83,6 +84,10 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
                                                 annotation);
                             }
                         }
+                        if (method
+                                .isAnnotationPresent(SuppressInheritance.class)) {
+                            break;
+                        }
                     }
 
                     clazz = clazz.getSuperclass();
@@ -105,6 +110,9 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
                         if (!map.containsKey(annotation.annotationType())) {
                             map.put(annotation.annotationType(), annotation);
                         }
+                    }
+                    if (clazz.isAnnotationPresent(SuppressInheritance.class)) {
+                        break;
                     }
                     clazz = clazz.getSuperclass();
                 } while (clazz != Object.class && clazz != null);
