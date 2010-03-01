@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import ognl.SetPropertyAccessor;
+
 /**
  * ページング処理を記述するためのDTOです。
  * <p>DBFluteのPagingResultBeanと連携することもできます。
@@ -21,43 +23,48 @@ public class Paging implements Serializable {
 
     private static final String METHODNAME_GETALLPAGECOUNT = "getAllPageCount";
 
+    private static final String METHODNAME_GETPAGESIZE = "getPageSize";
+
     private static final String METHODNAME_GETCURRENTPAGENUMBER = "getCurrentPageNumber";
 
     private static final String METHODNAME_GETPAGERANGESIZE = "getPageRangeSize";
 
-    private int allRecordCount;
+    private int allRecordCount_;
 
-    private int allPageCount;
+    private int allPageCount_;
 
-    private int currentPageNumber;
+    private int pageSize_;
 
-    private boolean existPrePage;
+    private int currentPageNumber_;
 
-    private boolean existNextPage;
+    private boolean existPrePage_;
 
-    private int pageRangeSize;
+    private boolean existNextPage_;
 
-    private PageNumber[] pageNumbers;
+    private int pageRangeSize_;
+
+    private PageNumber[] pageNumbers_;
 
     public Paging() {
         // Ymirの自動生成のために必要。
     }
 
-    public Paging(int allRecordCount, int allPageCount, int currentPageNumber,
-            int pageRangeSize) {
-        initialize(allRecordCount, allPageCount, currentPageNumber,
+    public Paging(int allRecordCount, int allPageCount, int pageSize,
+            int currentPageNumber, int pageRangeSize) {
+        initialize(allRecordCount, allPageCount, pageSize, currentPageNumber,
                 pageRangeSize);
     }
 
-    public void initialize(int allRecordCount, int allPageCount,
+    public void initialize(int allRecordCount, int allPageCount, int pageSize,
             int currentPageNumber, int pageRangeSize) {
-        this.allRecordCount = allRecordCount;
-        this.allPageCount = allPageCount;
-        this.currentPageNumber = currentPageNumber;
-        existPrePage = currentPageNumber > 1;
-        existNextPage = currentPageNumber < allPageCount;
-        this.pageRangeSize = pageRangeSize;
-        pageNumbers = updatePageNumbers();
+        allRecordCount_ = allRecordCount;
+        allPageCount_ = allPageCount;
+        pageSize_ = pageSize;
+        currentPageNumber_ = currentPageNumber;
+        existPrePage_ = currentPageNumber > 1;
+        existNextPage_ = currentPageNumber < allPageCount;
+        pageRangeSize_ = pageRangeSize;
+        pageNumbers_ = updatePageNumbers();
     }
 
     public Paging(Object pagingResultBean) {
@@ -74,6 +81,8 @@ public class Paging implements Serializable {
                     .intValue(), ((Integer) beanClass.getMethod(
                     METHODNAME_GETALLPAGECOUNT).invoke(pagingResultBean))
                     .intValue(), ((Integer) beanClass.getMethod(
+                    METHODNAME_GETPAGESIZE).invoke(pagingResultBean))
+                    .intValue(), ((Integer) beanClass.getMethod(
                     METHODNAME_GETCURRENTPAGENUMBER).invoke(pagingResultBean))
                     .intValue(), ((Integer) beanClass.getMethod(
                     METHODNAME_GETPAGERANGESIZE).invoke(pagingResultBean))
@@ -85,54 +94,116 @@ public class Paging implements Serializable {
 
     private PageNumber[] updatePageNumbers() {
         List<PageNumber> pageNumbers = new ArrayList<PageNumber>();
-        int startPageNumber = currentPageNumber - pageRangeSize;
+        int startPageNumber = currentPageNumber_ - pageRangeSize_;
         if (startPageNumber < 1) {
             startPageNumber = 1;
         }
-        int endPageNumber = currentPageNumber + pageRangeSize;
-        if (endPageNumber > allPageCount) {
-            endPageNumber = allPageCount;
+        int endPageNumber = currentPageNumber_ + pageRangeSize_;
+        if (endPageNumber > allPageCount_) {
+            endPageNumber = allPageCount_;
         }
         for (int pageNumber = startPageNumber; pageNumber <= endPageNumber; pageNumber++) {
             pageNumbers.add(new PageNumber(pageNumber,
-                    pageNumber == currentPageNumber));
+                    pageNumber == currentPageNumber_));
         }
         return pageNumbers.toArray(new PageNumber[0]);
     }
 
+    /**
+     * レコードの総数を返します。
+     * 
+     * @return レコードの総数。
+     */
     public int getAllRecordCount() {
-        return allRecordCount;
+        return allRecordCount_;
     }
 
+    /**
+     * ページの総数を返します。
+     * 
+     * @return ページの総数。
+     */
     public int getAllPageCount() {
-        return allPageCount;
+        return allPageCount_;
     }
 
+    /**
+     * 1ページあたりのレコード数を返します。
+     * 
+     * @return 1ページあたりのレコード数。
+     */
+    public int getPageSize() {
+        return pageSize_;
+    }
+
+    /**
+     * 現在のページ番号を返します。
+     * 
+     * @return 現在のページ番号。
+     */
     public int getCurrentPageNumber() {
-        return currentPageNumber;
+        return currentPageNumber_;
     }
 
+    /**
+     * 1つ前のページ番号を返します。
+     * 
+     * @return 1つ前のページ番号。
+     */
     public int getPrePageNumber() {
-        return currentPageNumber - 1;
+        return currentPageNumber_ - 1;
     }
 
+    /**
+     * 1つ後のページ番号を返します。
+     * 
+     * @return 1つ後のページ番号。
+     */
     public int getNextPageNumber() {
-        return currentPageNumber + 1;
+        return currentPageNumber_ + 1;
     }
 
+    /**
+     * 1つ前のページが存在するかどうかを返します。
+     * 
+     * @return 1つ前のページが存在するかどうか。
+     */
     public boolean isExistPrePage() {
-        return existPrePage;
+        return existPrePage_;
     }
 
+    /**
+     * 1つ後のページが存在するかどうかを返します。
+     * 
+     * @return 1つ後のページが存在するかどうか。
+     */
     public boolean isExistNextPage() {
-        return existNextPage;
+        return existNextPage_;
     }
 
+    /**
+     * 表示するページリンクの幅を表示するかを返します。
+     * <p>例えばこのメソッドの返り値が5の場合、
+     * {@link #getPageNumbers()}は現在のページの前後5ページ分の
+     * {@link PageNumber}オブジェクトを返します。
+     * </p>
+     * 
+     * @return 前後何ページ分のリンクを表示するか。
+     */
     public int getPageRangeSize() {
-        return pageRangeSize;
+        return pageRangeSize_;
     }
 
+    /**
+     * ページ番号のリンクを表示するためのPageNumberオブジェクトの配列を返します。
+     * <p>例えば{@link #getPageRangeSize()}の返り値が5の場合、
+     * このメソッドは現在のページの前後5ページ分の
+     * {@link PageNumber}オブジェクトを返します。
+     * </p>
+     * 
+     * @return PageNumberオブジェクトの配列。
+     */
     public PageNumber[] getPageNumbers() {
-        return pageNumbers;
+        return pageNumbers_;
     }
 }

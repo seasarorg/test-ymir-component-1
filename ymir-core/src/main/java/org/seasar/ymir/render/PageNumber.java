@@ -11,9 +11,9 @@ import java.io.Serializable;
 public class PageNumber implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private int pageNumber;
+    private int pageNumber_;
 
-    private boolean current;
+    private boolean current_;
 
     public PageNumber() {
         // Ymirの自動生成のために必要。
@@ -23,16 +23,21 @@ public class PageNumber implements Serializable {
         initialize(pageNumber, current);
     }
 
+    @Override
+    public String toString() {
+        return String.valueOf(pageNumber_);
+    }
+
     public void initialize(int pageNumber, boolean current) {
-        this.pageNumber = pageNumber;
-        this.current = current;
+        pageNumber_ = pageNumber;
+        current_ = current;
     }
 
     public int getPageNumber() {
-        return pageNumber;
+        return pageNumber_;
     }
 
     public boolean isCurrent() {
-        return current;
+        return current_;
     }
 }
