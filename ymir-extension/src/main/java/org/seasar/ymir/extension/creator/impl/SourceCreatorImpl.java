@@ -1514,7 +1514,9 @@ public class SourceCreatorImpl implements SourceCreator {
             baseImportClassNameSet.add(BindingType.class.getName());
             baseImportClassNameSet.add(Messages.class.getName());
             baseImportClassNameSet.add(TypeConversionManager.class.getName());
-            if (((TypeDesc[]) parameter.get(Globals.PARAMETER_PAIRTYPEDESCS)).length > 0) {
+            TypeDesc[] pairTypeDescs = (TypeDesc[]) parameter
+                    .get(Globals.PARAMETER_PAIRTYPEDESCS);
+            if (pairTypeDescs != null && pairTypeDescs.length > 0) {
                 baseImportClassNameSet.add(ArrayList.class.getName());
                 baseImportClassNameSet.add(List.class.getName());
             }
