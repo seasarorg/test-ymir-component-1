@@ -25,7 +25,7 @@ public class AbstractActionTest extends TestCase {
         dispatch.setQueryParameterMap(queryParameterMap);
         HashMap<String, String[]> pathParameterMap = new HashMap<String, String[]>();
         pathParameterMap.put("path", new String[] { "pathValue" });
-        dispatch.setPathParameterMap(pathParameterMap);
+        dispatch.setURIParameterMap(pathParameterMap);
         request.enterDispatch(dispatch);
 
         Parameter[] parameters = new AbstractAction(null) {

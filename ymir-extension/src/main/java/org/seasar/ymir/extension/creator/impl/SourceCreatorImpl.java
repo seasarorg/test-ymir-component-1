@@ -458,8 +458,12 @@ public class SourceCreatorImpl implements SourceCreator {
                     UpdateByExceptionAction byExceptionAction = byExceptionActionSelector_
                             .getAction(condition);
                     if (byExceptionAction != null) {
-                        return byExceptionAction.act(request, pathMetaData,
-                                null);
+                        Response newResponse = byExceptionAction.act(request,
+                                pathMetaData, null);
+                        if (newResponse != null) {
+                            response = newResponse;
+                        }
+                        return response;
                     }
                 }
             }
