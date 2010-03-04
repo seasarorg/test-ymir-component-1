@@ -224,15 +224,15 @@ public class RequestImpl implements FrameworkRequest {
         dispatch_ = dispatch;
 
         parameterMap_ = mergeParameterMap(queryParameterMap_, dispatch
-                .getPathParameterMap());
+                .getURIParameterMap());
     }
 
     Map<String, String[]> mergeParameterMap(
             Map<String, String[]> queryParameterMap,
-            Map<String, String[]> pathParameterMap) {
+            Map<String, String[]> uriParameterMap) {
         Map<String, String[]> merged = new HashMap<String, String[]>(
                 queryParameterMap);
-        for (Iterator<Map.Entry<String, String[]>> itr = pathParameterMap
+        for (Iterator<Map.Entry<String, String[]>> itr = uriParameterMap
                 .entrySet().iterator(); itr.hasNext();) {
             Map.Entry<String, String[]> entry = itr.next();
             String key = entry.getKey();

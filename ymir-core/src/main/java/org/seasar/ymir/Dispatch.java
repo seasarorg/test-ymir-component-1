@@ -141,7 +141,7 @@ public interface Dispatch {
      * 
      * @return パラメータを格納しているMap。
      * パスにマッチしたPathMappingルールが持つパラメータテンプレートがnullの場合はnullが返されます。
-     * @deprecated 代わりに{@link #getPathParameterMap()}を使用して下さい。
+     * @deprecated 代わりに{@link #getURIParameterMap()}を使用して下さい。
      */
     Map<String, String[]> getParameterMap();
 
@@ -151,8 +151,18 @@ public interface Dispatch {
      * @return パラメータを格納しているMap。
      * パスにマッチしたPathMappingルールが持つパラメータテンプレートがnullの場合はnullが返されます。
      * @since 1.0.3
+     * @deprecated 代わりに{@link #getURIParameterMap()}を使って下さい。
      */
     Map<String, String[]> getPathParameterMap();
+
+    /**
+     * パスから取り出したパラメータを格納しているMapを返します。
+     * 
+     * @return パラメータを格納しているMap。
+     * パスにマッチしたPathMappingルールが持つパラメータテンプレートがnullの場合はnullが返されます。
+     * @since 1.0.7
+     */
+    Map<String, String[]> getURIParameterMap();
 
     /**
      * パスに付与されているクエリパラメータを格納しているMapを返します。

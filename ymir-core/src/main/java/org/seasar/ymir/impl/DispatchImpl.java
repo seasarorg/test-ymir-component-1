@@ -128,10 +128,14 @@ public class DispatchImpl implements FrameworkDispatch {
     }
 
     public Map<String, String[]> getParameterMap() {
-        return getPathParameterMap();
+        return getURIParameterMap();
     }
 
     public Map<String, String[]> getPathParameterMap() {
+        return getURIParameterMap();
+    }
+
+    public Map<String, String[]> getURIParameterMap() {
         if (matched_ != null) {
             Map<String, String[]> parameterMap = matched_.getParameterMap();
             if (parameterMap != null) {

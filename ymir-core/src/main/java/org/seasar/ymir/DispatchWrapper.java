@@ -54,8 +54,13 @@ public class DispatchWrapper implements Dispatch {
         return dispatch_.getParameterMap();
     }
 
+    @Deprecated
     public Map<String, String[]> getPathParameterMap() {
         return dispatch_.getPathParameterMap();
+    }
+
+    public Map<String, String[]> getURIParameterMap() {
+        return dispatch_.getURIParameterMap();
     }
 
     public Map<String, String[]> getQueryParameterMap() {

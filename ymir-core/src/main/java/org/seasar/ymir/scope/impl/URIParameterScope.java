@@ -38,8 +38,7 @@ public class URIParameterScope implements Scope {
             return null;
         }
 
-        return getRequest().getCurrentDispatch().getPathParameterMap()
-                .get(name);
+        return getRequest().getCurrentDispatch().getURIParameterMap().get(name);
     }
 
     Request getRequest() {
@@ -50,7 +49,7 @@ public class URIParameterScope implements Scope {
     }
 
     public Iterator<String> getAttributeNames() {
-        return getRequest().getCurrentDispatch().getPathParameterMap().keySet()
+        return getRequest().getCurrentDispatch().getURIParameterMap().keySet()
                 .iterator();
     }
 }

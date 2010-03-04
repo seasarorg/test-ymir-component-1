@@ -99,10 +99,14 @@ public class MockDispatch implements Dispatch {
     }
 
     public Map<String, String[]> getParameterMap() {
-        return getPathParameterMap();
+        return getURIParameterMap();
     }
 
     public Map<String, String[]> getPathParameterMap() {
+        return getURIParameterMap();
+    }
+
+    public Map<String, String[]> getURIParameterMap() {
         if (parameterMap_ != null) {
             return parameterMap_;
         } else {
@@ -110,7 +114,12 @@ public class MockDispatch implements Dispatch {
         }
     }
 
+    @Deprecated
     public MockDispatch setPathParameterMap(Map<String, String[]> parameterMap) {
+        return setURIParameterMap(parameterMap);
+    }
+
+    public MockDispatch setURIParameterMap(Map<String, String[]> parameterMap) {
         parameterMap_ = parameterMap;
         return this;
     }
