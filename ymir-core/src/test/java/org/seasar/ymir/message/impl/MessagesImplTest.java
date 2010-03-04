@@ -19,8 +19,8 @@ public class MessagesImplTest extends TestCase {
 
         final MessagesImpl message = new MessagesImpl() {
             @Override
-            String getPageName() {
-                return "no_page";
+            String[] getPageNames() {
+                return new String[] { "no_page" };
             }
 
             @Override
@@ -47,8 +47,8 @@ public class MessagesImplTest extends TestCase {
 
         final MessagesImpl message = new MessagesImpl() {
             @Override
-            String getPageName() {
-                return "no_page";
+            String[] getPageNames() {
+                return new String[] { "no_page" };
             }
 
             @Override
@@ -93,8 +93,8 @@ public class MessagesImplTest extends TestCase {
          */
         final MessagesImpl message = new MessagesImpl() {
             @Override
-            String getPageName() {
-                return "no_page";
+            String[] getPageNames() {
+                return new String[] { "no_page" };
             }
 
             @Override
@@ -126,8 +126,8 @@ public class MessagesImplTest extends TestCase {
 
         final MessagesImpl message = new MessagesImpl() {
             @Override
-            String getPageName() {
-                return "no_page";
+            String[] getPageNames() {
+                return new String[] { "no_page" };
             }
 
             @Override
@@ -155,43 +155,54 @@ public class MessagesImplTest extends TestCase {
         String[] actual = target.getPageNameCandidates(null);
         assertEquals(0, actual.length);
 
-        actual = target.getPageNameCandidates("");
+        actual = target.getPageNameCandidates(new String[] { "" });
         assertEquals(0, actual.length);
 
-        actual = target.getPageNameCandidates("_");
+        actual = target.getPageNameCandidates(new String[] { "_" });
         assertEquals(1, actual.length);
         int idx = 0;
         assertEquals("_", actual[idx++]);
 
-        actual = target.getPageNameCandidates("a");
+        actual = target.getPageNameCandidates(new String[] { "a" });
         assertEquals(1, actual.length);
         idx = 0;
         assertEquals("a", actual[idx++]);
 
-        actual = target.getPageNameCandidates("_RootPage");
+        actual = target.getPageNameCandidates(new String[] { "_RootPage" });
         assertEquals(2, actual.length);
         idx = 0;
         assertEquals("_RootPage", actual[idx++]);
         assertEquals("_Root", actual[idx++]);
 
-        actual = target.getPageNameCandidates("pkg__RootPage");
+        actual = target.getPageNameCandidates(new String[] { "pkg__RootPage" });
         assertEquals(3, actual.length);
         idx = 0;
         assertEquals("pkg__RootPage", actual[idx++]);
         assertEquals("pkg__Root", actual[idx++]);
         assertEquals("pkg", actual[idx++]);
 
-        actual = target.getPageNameCandidates("indexPage");
+        actual = target.getPageNameCandidates(new String[] { "indexPage" });
         assertEquals(2, actual.length);
         idx = 0;
         assertEquals("indexPage", actual[idx++]);
         assertEquals("index", actual[idx++]);
 
-        actual = target.getPageNameCandidates("pkg_indexPage");
+        actual = target.getPageNameCandidates(new String[] { "pkg_indexPage" });
         assertEquals(3, actual.length);
         idx = 0;
         assertEquals("pkg_indexPage", actual[idx++]);
         assertEquals("pkg_index", actual[idx++]);
         assertEquals("pkg", actual[idx++]);
+
+        actual = target.getPageNameCandidates(new String[] {
+            "pkg_sub_forwardPage", "pkg_sub_indexPage" });
+        assertEquals(6, actual.length);
+        idx = 0;
+        assertEquals("pkg_sub_forwardPage", actual[idx++]);
+        assertEquals("pkg_sub_forward", actual[idx++]);
+        assertEquals("pkg_sub", actual[idx++]);
+        assertEquals("pkg", actual[idx++]);
+        assertEquals("pkg_sub_indexPage", actual[idx++]);
+        assertEquals("pkg_sub_index", actual[idx++]);
     }
 }

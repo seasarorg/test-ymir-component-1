@@ -30,8 +30,8 @@ public class NoteRendererImplTest extends TestCase {
     private Messages newMessages(Locale locale, String suffix) {
         MessagesImpl messages = new MessagesImpl() {
             @Override
-            String getPageName() {
-                return "indexPage";
+            String[] getPageNames() {
+                return new String[] { "indexPage" };
             }
 
             @Override

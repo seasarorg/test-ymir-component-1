@@ -1,8 +1,10 @@
 package org.seasar.ymir.message.impl;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -118,7 +120,7 @@ public class MessagesImpl implements Messages {
         final Locale locale = localeManager_.getLocale();
         for (String messageNameCnadidate : MessagesUtils
                 .getMessageNameCandidates(name,
-                        getPageNameCandidates(getPageName()))) {
+                        getPageNameCandidates(getPageNames()))) {
             String message = getProperty0(messageNameCnadidate, locale);
             if (message != null) {
                 return message;
@@ -127,9 +129,9 @@ public class MessagesImpl implements Messages {
         return null;
     }
 
-    String getPageName() {
+    String[] getPageNames() {
         try {
-            return MessagesUtils.getPageName((Request) getYmir()
+            return MessagesUtils.getPageNames((Request) getYmir()
                     .getApplication().getS2Container().getComponent(
                             Request.class));
         } catch (final ComponentNotFoundRuntimeException ex) {
@@ -137,8 +139,18 @@ public class MessagesImpl implements Messages {
         }
     }
 
-    protected String[] getPageNameCandidates(String pageName) {
-        List<String> candidates = new ArrayList<String>();
+    protected String[] getPageNameCandidates(String[] pageNames) {
+        Set<String> candidates = new LinkedHashSet<String>();
+        if (pageNames != null) {
+            for (String pageName : pageNames) {
+                gatherPageNameCandidates(pageName, candidates);
+            }
+        }
+        return candidates.toArray(new String[0]);
+    }
+
+    protected void gatherPageNameCandidates(String pageName,
+            Set<String> candidates) {
         if (pageName != null && pageName.length() > 0) {
             candidates.add(pageName);
             if (pageName.endsWith(SUFFIX_PAGE)) {
@@ -156,7 +168,6 @@ public class MessagesImpl implements Messages {
                 }
             }
         }
-        return candidates.toArray(new String[0]);
     }
 
     void updateMessages() {
