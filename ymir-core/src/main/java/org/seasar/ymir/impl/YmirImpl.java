@@ -21,10 +21,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.seasar.cms.pluggable.Configuration;
 import org.seasar.cms.pluggable.ThreadContext;
+import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.el.VariableResolver;
+import org.seasar.kvasir.util.el.impl.MapVariableResolver;
 import org.seasar.kvasir.util.io.IOUtils;
 import org.seasar.ymir.Application;
 import org.seasar.ymir.ApplicationManager;
@@ -50,6 +52,7 @@ import org.seasar.ymir.util.ArtifactMetaData;
 import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.util.ServletUtils;
 import org.seasar.ymir.util.YmirUtils;
+import org.seasar.ymir.util.map.FirstValueMap;
 
 public class YmirImpl implements Ymir {
     public static final String PARAM_METHOD = "__ymir__method";
@@ -604,11 +607,29 @@ public class YmirImpl implements Ymir {
                         .matchPageComponentName(ymirNamingConvention_
                                 .fromClassNameToComponentName(pageClassName));
                 if (resolver != null) {
-                    return pathMappings[i].getPath(resolver);
+                    return pathMappings[i].getPath(new MapVariableResolver(
+                            new FirstValueMap<String, String>(
+                                    getCurrentURIParameter()), resolver));
                 }
             }
         }
         return null;
+    }
+
+    private Map<String, String[]> getCurrentURIParameter() {
+        Request request = null;
+        try {
+            request = (Request) getApplication().getS2Container().getComponent(
+                    Request.class);
+        } catch (ComponentNotFoundRuntimeException ignore) {
+        }
+        if (request != null) {
+            Dispatch dispatch = request.getCurrentDispatch();
+            if (dispatch != null) {
+                return dispatch.getURIParameterMap();
+            }
+        }
+        return Collections.emptyMap();
     }
 
     public Class<?> getPageClassOfPath(String path) {
