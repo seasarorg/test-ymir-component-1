@@ -13,6 +13,13 @@ public class DeniedYmirPathMapping extends YmirPathMapping {
     }
 
     /**
+     * このクラスのオブジェクトを構築します。
+     * 
+     * @param patternString パスのパターンです。
+     * @param pageComponentNameTemplate パスに対応するPageコンポーネント名を構築するためのテンプレートです。
+     * nullを指定することもできます。
+     * あるページからフォワードさせた先でもPageクラスのアクションを呼び出したい場合には
+     * この引数にnullでないテンプレート文字列を指定して下さい。
      * @since 1.0.7
      */
     public DeniedYmirPathMapping(String patternString,
