@@ -28,15 +28,15 @@ import net.skirnir.freyja.zpt.ZptTemplateContext;
 public class DecorateTypePrefixHandlerTest extends TestCase {
     private DecorateTypePrefixHandler target_ = new DecorateTypePrefixHandler();
 
-    private MockServletContext servletContext = new MockServletContextImpl(
+    private MockServletContext servletContext_ = new MockServletContextImpl(
             "/context");
 
-    private MockHttpServletRequest httpRequest = new MockHttpServletRequestImpl(
-            servletContext, HttpMethod.GET, "/index.html");
+    private MockHttpServletRequest httpRequest_ = new MockHttpServletRequestImpl(
+            servletContext_, HttpMethod.GET, "/index.html");
 
-    private YmirVariableResolver varResolver;
+    private YmirVariableResolver varResolver_;
 
-    private ZptTemplateContext context;
+    private ZptTemplateContext context_;
 
     @Override
     protected void setUp() throws Exception {
@@ -53,67 +53,67 @@ public class DecorateTypePrefixHandlerTest extends TestCase {
         YmirContext.setYmir(ymir);
         target_.setTalesExpressionEvaluator(new YmirTalesExpressionEvaluator());
 
-        varResolver = new YmirVariableResolver(new MockRequest(), httpRequest,
-                container);
-        varResolver.setVariable("true", Boolean.TRUE);
-        varResolver.setVariable("false", Boolean.FALSE);
-        context = new ZptTemplateContext();
-        context.setElement(new TagElement("input",
+        varResolver_ = new YmirVariableResolver(new MockRequest(),
+                httpRequest_, container);
+        varResolver_.setVariable("true", Boolean.TRUE);
+        varResolver_.setVariable("false", Boolean.FALSE);
+        context_ = new ZptTemplateContext();
+        context_.setElement(new TagElement("input",
                 new Attribute[] { new Attribute("class", "number", "\"") },
                 new Element[0]));
-        context.setTargetName("class");
-        context.setProcessingAttributeName("tal:attributes");
+        context_.setTargetName("class");
+        context_.setProcessingAttributeName("tal:attributes");
         Notes notes = new Notes();
         notes.add("hoehoe", new Note("")).add("with", new Note(""));
-        httpRequest.setAttribute(RequestProcessor.ATTR_NOTES, notes);
+        httpRequest_.setAttribute(RequestProcessor.ATTR_NOTES, notes);
     }
 
     public void test_値が追加できること() throws Exception {
-        assertEquals("number error", target_.handle(context, varResolver,
+        assertEquals("number error", target_.handle(context_, varResolver_,
                 " notes/notes  with  error "));
     }
 
     public void test_既存の値がない場合でも値が設定できること() throws Exception {
-        context.setElement(new TagElement("input", new Attribute[0],
+        context_.setElement(new TagElement("input", new Attribute[0],
                 new Element[0]));
-        assertEquals("error", target_.handle(context, varResolver,
+        assertEquals("error", target_.handle(context_, varResolver_,
                 " notes/contains(hoehoe)  with  error "));
     }
 
     public void test_条件にマッチしない場合は何もしないこと() throws Exception {
-        assertEquals("number", target_.handle(context, varResolver,
+        assertEquals("number", target_.handle(context_, varResolver_,
                 "notes/contains(fugafuga) with error"));
     }
 
     public void test_値が置換できること() throws Exception {
-        assertEquals("error", target_.handle(context, varResolver,
+        assertEquals("error", target_.handle(context_, varResolver_,
                 "notes/contains(hoehoe) with !error"));
     }
 
     public void test_値が既に設定されている場合は何もしないこと() throws Exception {
-        assertEquals("number error", target_.handle(context, varResolver,
+        assertEquals("number error", target_.handle(context_, varResolver_,
                 "notes/contains(hoehoe) with error"));
     }
 
     public void test_条件としてwithという単語が使えること() throws Exception {
-        assertEquals("number", target_.handle(context, varResolver,
+        assertEquals("number", target_.handle(context_, varResolver_,
                 "with with error"));
     }
 
     public void test_追加する値としてwithという単語が使えること() throws Exception {
-        assertEquals("number with", target_.handle(context, varResolver,
+        assertEquals("number with", target_.handle(context_, varResolver_,
                 "notes/contains(hoehoe) with with"));
     }
 
     public void test_空白を含む式を条件として記述できること() throws Exception {
-        assertEquals("number with", target_.handle(context, varResolver,
+        assertEquals("number with", target_.handle(context_, varResolver_,
                 "false | true with with"));
     }
 
     public void test_文法エラーの場合はIllegalArgumentExceptionがスローされること()
             throws Exception {
         try {
-            target_.handle(context, varResolver, "");
+            target_.handle(context_, varResolver_, "");
             fail();
         } catch (IllegalArgumentException expected) {
         }
@@ -122,7 +122,7 @@ public class DecorateTypePrefixHandlerTest extends TestCase {
     public void test_文法エラーの場合はIllegalArgumentExceptionがスローされること2()
             throws Exception {
         try {
-            target_.handle(context, varResolver, "hoehoe");
+            target_.handle(context_, varResolver_, "hoehoe");
             fail();
         } catch (IllegalArgumentException expected) {
         }
@@ -131,7 +131,7 @@ public class DecorateTypePrefixHandlerTest extends TestCase {
     public void test_文法エラーの場合はIllegalArgumentExceptionがスローされること3()
             throws Exception {
         try {
-            target_.handle(context, varResolver, "hoehoe fugafuga");
+            target_.handle(context_, varResolver_, "hoehoe fugafuga");
             fail();
         } catch (IllegalArgumentException expected) {
         }
@@ -140,7 +140,7 @@ public class DecorateTypePrefixHandlerTest extends TestCase {
     public void test_文法エラーの場合はIllegalArgumentExceptionがスローされること4()
             throws Exception {
         try {
-            target_.handle(context, varResolver, "hoehoe fugafuga hehehe");
+            target_.handle(context_, varResolver_, "hoehoe fugafuga hehehe");
             fail();
         } catch (IllegalArgumentException expected) {
         }
@@ -149,7 +149,8 @@ public class DecorateTypePrefixHandlerTest extends TestCase {
     public void test_文法エラーの場合はIllegalArgumentExceptionがスローされること5()
             throws Exception {
         try {
-            target_.handle(context, varResolver, "hoehoe with hehehe fugafuga");
+            target_.handle(context_, varResolver_,
+                    "hoehoe with hehehe fugafuga");
             fail();
         } catch (IllegalArgumentException expected) {
         }
@@ -157,9 +158,9 @@ public class DecorateTypePrefixHandlerTest extends TestCase {
 
     public void test_talAttributesの中でない場合はIllegalArgumentExceptionがスローされること5()
             throws Exception {
-        context.setProcessingAttributeName(null);
+        context_.setProcessingAttributeName(null);
         try {
-            target_.handle(context, varResolver, "hoehoe with error");
+            target_.handle(context_, varResolver_, "hoehoe with error");
             fail();
         } catch (IllegalArgumentException expected) {
         }
@@ -167,9 +168,9 @@ public class DecorateTypePrefixHandlerTest extends TestCase {
 
     public void test_class属性以外の属性に対して使用した場合はIllegalArgumentExceptionがスローされること5()
             throws Exception {
-        context.setTargetName("id");
+        context_.setTargetName("id");
         try {
-            target_.handle(context, varResolver, "hoehoe with error");
+            target_.handle(context_, varResolver_, "hoehoe with error");
             fail();
         } catch (IllegalArgumentException expected) {
         }
