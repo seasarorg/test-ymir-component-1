@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.converter.PropertyHandler;
+import org.seasar.ymir.converter.TypeConversionException;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.converter.TypeConverter;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
@@ -114,6 +115,54 @@ public class TypeConversionManagerImpl implements TypeConversionManager {
         }
     }
 
+    public <T> T tryToConvert(Object value, Class<T> type)
+            throws TypeConversionException {
+        return tryToConvert(value, type, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T tryToConvert(Object value, Class<T> type, Annotation[] hint)
+            throws TypeConversionException {
+        if (hint == null) {
+            hint = new Annotation[0];
+        }
+        if (value == null) {
+            return tryToConvertStringTo(null, type, hint);
+        }
+
+        Class<?> clazz = value.getClass();
+        boolean isArray = clazz.isArray();
+        boolean typeIsArray = type.isArray();
+        Class<?> typeComponentType = typeIsArray ? type.getComponentType()
+                : type;
+        if (isArray) {
+            if (typeIsArray) {
+                Object[] converted = (Object[]) Array.newInstance(
+                        typeComponentType, Array.getLength(value));
+                for (int i = 0; i < converted.length; i++) {
+                    converted[i] = tryToConvertComponent(Array.get(value, i),
+                            typeComponentType, hint);
+                }
+                return (T) converted;
+            } else if (Array.getLength(value) > 0) {
+                return (T) tryToConvertComponent(Array.get(value, 0),
+                        typeComponentType, hint);
+            } else {
+                return (T) tryToConvertComponent(null, typeComponentType, hint);
+            }
+        } else {
+            if (typeIsArray) {
+                Object[] converted = (Object[]) Array.newInstance(
+                        typeComponentType, 1);
+                converted[0] = tryToConvertComponent(value, typeComponentType,
+                        hint);
+                return (T) converted;
+            } else {
+                return (T) tryToConvertComponent(value, typeComponentType, hint);
+            }
+        }
+    }
+
     @SuppressWarnings("unchecked")
     <T> T convertComponent(Object value, Class<T> componentType,
             Annotation[] hint) {
@@ -127,6 +176,19 @@ public class TypeConversionManagerImpl implements TypeConversionManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    <T> T tryToConvertComponent(Object value, Class<T> componentType,
+            Annotation[] hint) throws TypeConversionException {
+        if (value == null || value instanceof String) {
+            return tryToConvertStringTo((String) value, componentType, hint);
+        } else if (componentType.isAssignableFrom(value.getClass())) {
+            return (T) value;
+        } else {
+            return tryToConvertStringTo(convertToString(value, hint),
+                    componentType, hint);
+        }
+    }
+
     protected <T> T convertStringTo(String value, Class<T> type,
             Annotation[] hint) {
         TypeConverter<T> converter = getTypeConverter(type);
@@ -134,6 +196,16 @@ public class TypeConversionManagerImpl implements TypeConversionManager {
             return null;
         } else {
             return converter.convert(value, hint);
+        }
+    }
+
+    protected <T> T tryToConvertStringTo(String value, Class<T> type,
+            Annotation[] hint) throws TypeConversionException {
+        TypeConverter<T> converter = getTypeConverter(type);
+        if (converter == null) {
+            return null;
+        } else {
+            return converter.tryToConvert(value, hint);
         }
     }
 

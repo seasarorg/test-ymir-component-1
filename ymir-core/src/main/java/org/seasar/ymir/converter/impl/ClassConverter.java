@@ -2,6 +2,8 @@ package org.seasar.ymir.converter.impl;
 
 import java.lang.annotation.Annotation;
 
+import org.seasar.ymir.converter.TypeConversionException;
+
 @SuppressWarnings("unchecked")
 public class ClassConverter extends TypeConverterBase<Class> {
     public ClassConverter() {
@@ -9,7 +11,8 @@ public class ClassConverter extends TypeConverterBase<Class> {
     }
 
     @Override
-    protected Class doConvert(Object value, Annotation[] hint) {
+    protected Class doConvert(Object value, Annotation[] hint)
+            throws TypeConversionException {
         try {
             ClassLoader classLoader = Thread.currentThread()
                     .getContextClassLoader();
@@ -23,7 +26,7 @@ public class ClassConverter extends TypeConverterBase<Class> {
                     + " to the corresponding property"
                     + " in order to notify validation error to a user: "
                     + value, ex);
-            return defaultValue_;
+            throw new TypeConversionException(ex, value);
         }
     }
 }

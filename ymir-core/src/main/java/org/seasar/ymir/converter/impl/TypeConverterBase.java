@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.seasar.ymir.converter.TypeConversionException;
 import org.seasar.ymir.converter.TypeConverter;
 
 /**
@@ -33,6 +34,16 @@ abstract public class TypeConverterBase<T> implements TypeConverter<T> {
 
     @SuppressWarnings("unchecked")
     public T convert(Object value, Annotation[] hint) {
+        try {
+            return tryToConvert(value, hint);
+        } catch (TypeConversionException ex) {
+            return defaultValue_;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public T tryToConvert(Object value, Annotation[] hint)
+            throws TypeConversionException {
         if (value == null) {
             return defaultValue_;
         } else if (getType().isAssignableFrom(value.getClass())) {
@@ -53,8 +64,10 @@ abstract public class TypeConverterBase<T> implements TypeConverter<T> {
      * @param hint 変換のためのヒント。nullを指定することはできません。
      * 指定したくない場合は空の配列を指定して下さい。
      * @return 変換結果。
+     * @throws TypeConversionException 変換できなかった場合。
      */
-    abstract protected T doConvert(Object value, Annotation[] hint);
+    abstract protected T doConvert(Object value, Annotation[] hint)
+            throws TypeConversionException;
 
     public String convertToString(T value, Annotation[] hint) {
         return value.toString();

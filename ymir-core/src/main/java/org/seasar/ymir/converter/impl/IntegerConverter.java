@@ -2,13 +2,16 @@ package org.seasar.ymir.converter.impl;
 
 import java.lang.annotation.Annotation;
 
+import org.seasar.ymir.converter.TypeConversionException;
+
 public class IntegerConverter extends TypeConverterBase<Integer> {
     public IntegerConverter() {
         type_ = Integer.class;
     }
 
     @Override
-    protected Integer doConvert(Object value, Annotation[] hint) {
+    protected Integer doConvert(Object value, Annotation[] hint)
+            throws TypeConversionException {
         if (value instanceof Number) {
             return Integer.valueOf(((Number) value).intValue());
         } else if (value instanceof Boolean) {
@@ -24,7 +27,7 @@ public class IntegerConverter extends TypeConverterBase<Integer> {
                     + " to the corresponding property"
                     + " in order to notify validation error to a user: "
                     + value, ex);
-            return defaultValue_;
+            throw new TypeConversionException(ex, value);
         }
     }
 }

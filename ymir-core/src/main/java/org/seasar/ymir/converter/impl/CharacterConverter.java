@@ -2,13 +2,16 @@ package org.seasar.ymir.converter.impl;
 
 import java.lang.annotation.Annotation;
 
+import org.seasar.ymir.converter.TypeConversionException;
+
 public class CharacterConverter extends TypeConverterBase<Character> {
     public CharacterConverter() {
         type_ = Character.class;
     }
 
     @Override
-    protected Character doConvert(Object value, Annotation[] hint) {
+    protected Character doConvert(Object value, Annotation[] hint)
+            throws TypeConversionException {
         if (value instanceof Number) {
             return Character.valueOf((char) ((Number) value).shortValue());
         } else if (value instanceof Boolean) {
@@ -25,7 +28,7 @@ public class CharacterConverter extends TypeConverterBase<Character> {
                         + " in order to notify validation error to a user: "
                         + value, ex);
             }
-            return defaultValue_;
+            throw new TypeConversionException(ex, value);
         }
     }
 }

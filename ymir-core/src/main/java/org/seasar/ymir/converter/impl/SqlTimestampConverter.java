@@ -4,6 +4,8 @@ import java.lang.annotation.Annotation;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
+import org.seasar.ymir.converter.TypeConversionException;
+
 public class SqlTimestampConverter extends DateConverterBase<Timestamp> {
     public static final String PATTERN = "yyyy-MM-dd HH:mm:ss.fffffffff";
 
@@ -13,7 +15,8 @@ public class SqlTimestampConverter extends DateConverterBase<Timestamp> {
     }
 
     @Override
-    protected Timestamp doConvert(Object value, Annotation[] hint) {
+    protected Timestamp doConvert(Object value, Annotation[] hint)
+            throws TypeConversionException {
         if (value instanceof Number) {
             return new Timestamp(((Number) value).longValue());
         } else if (value instanceof java.util.Date) {
@@ -36,7 +39,7 @@ public class SqlTimestampConverter extends DateConverterBase<Timestamp> {
                         + " in order to notify validation error to a user: "
                         + value, ex);
             }
-            return defaultValue_;
+            throw new TypeConversionException(ex, value);
         }
     }
 

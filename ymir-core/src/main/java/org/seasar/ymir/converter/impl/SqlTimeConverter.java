@@ -4,6 +4,8 @@ import java.lang.annotation.Annotation;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 
+import org.seasar.ymir.converter.TypeConversionException;
+
 public class SqlTimeConverter extends DateConverterBase<Time> {
     public static final String PATTERN = "HH:mm:ss";
 
@@ -13,7 +15,8 @@ public class SqlTimeConverter extends DateConverterBase<Time> {
     }
 
     @Override
-    protected Time doConvert(Object value, Annotation[] hint) {
+    protected Time doConvert(Object value, Annotation[] hint)
+            throws TypeConversionException {
         if (value instanceof Number) {
             return new Time(((Number) value).longValue());
         } else if (value instanceof java.util.Date) {
@@ -31,7 +34,7 @@ public class SqlTimeConverter extends DateConverterBase<Time> {
                         + " in order to notify validation error to a user: "
                         + value, ex);
             }
-            return defaultValue_;
+            throw new TypeConversionException(ex, value);
         }
     }
 }

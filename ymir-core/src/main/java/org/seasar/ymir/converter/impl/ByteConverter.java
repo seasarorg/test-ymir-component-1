@@ -2,13 +2,16 @@ package org.seasar.ymir.converter.impl;
 
 import java.lang.annotation.Annotation;
 
+import org.seasar.ymir.converter.TypeConversionException;
+
 public class ByteConverter extends TypeConverterBase<Byte> {
     public ByteConverter() {
         type_ = Byte.class;
     }
 
     @Override
-    protected Byte doConvert(Object value, Annotation[] hint) {
+    protected Byte doConvert(Object value, Annotation[] hint)
+            throws TypeConversionException {
         if (value instanceof Number) {
             return Byte.valueOf(((Number) value).byteValue());
         } else if (value instanceof Boolean) {
@@ -26,7 +29,7 @@ public class ByteConverter extends TypeConverterBase<Byte> {
                         + " in order to notify validation error to a user: "
                         + value, ex);
             }
-            return defaultValue_;
+            throw new TypeConversionException(ex, value);
         }
     }
 }

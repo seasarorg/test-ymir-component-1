@@ -3,13 +3,16 @@ package org.seasar.ymir.converter.impl;
 import java.lang.annotation.Annotation;
 import java.math.BigInteger;
 
+import org.seasar.ymir.converter.TypeConversionException;
+
 public class BigIntegerConverter extends TypeConverterBase<BigInteger> {
     public BigIntegerConverter() {
         type_ = BigInteger.class;
     }
 
     @Override
-    protected BigInteger doConvert(Object value, Annotation[] hint) {
+    protected BigInteger doConvert(Object value, Annotation[] hint)
+            throws TypeConversionException {
         if (value instanceof Number) {
             return BigInteger.valueOf(((Number) value).longValue());
         }
@@ -24,7 +27,7 @@ public class BigIntegerConverter extends TypeConverterBase<BigInteger> {
                         + " in order to notify validation error to a user: "
                         + value, ex);
             }
-            return defaultValue_;
+            throw new TypeConversionException(ex, value);
         }
     }
 }

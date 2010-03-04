@@ -4,6 +4,8 @@ import java.lang.annotation.Annotation;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.seasar.ymir.converter.TypeConversionException;
+
 public class DateConverter extends DateConverterBase<Date> {
     public static final String PATTERN = "yyyy-MM-dd HH:mm:ss";
 
@@ -13,7 +15,8 @@ public class DateConverter extends DateConverterBase<Date> {
     }
 
     @Override
-    protected Date doConvert(Object value, Annotation[] hint) {
+    protected Date doConvert(Object value, Annotation[] hint)
+            throws TypeConversionException {
         if (value instanceof Number) {
             return new Date(((Number) value).longValue());
         }
@@ -27,7 +30,7 @@ public class DateConverter extends DateConverterBase<Date> {
                     + " to the corresponding property"
                     + " in order to notify validation error to a user: "
                     + value, ex);
-            return defaultValue_;
+            throw new TypeConversionException(ex, value);
         }
     }
 }

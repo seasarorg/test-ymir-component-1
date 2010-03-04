@@ -2,13 +2,16 @@ package org.seasar.ymir.converter.impl;
 
 import java.lang.annotation.Annotation;
 
+import org.seasar.ymir.converter.TypeConversionException;
+
 public class BooleanConverter extends TypeConverterBase<Boolean> {
     public BooleanConverter() {
         type_ = Boolean.class;
     }
 
     @Override
-    protected Boolean doConvert(Object value, Annotation[] hint) {
+    protected Boolean doConvert(Object value, Annotation[] hint)
+            throws TypeConversionException {
         if (value instanceof Number) {
             return Boolean.valueOf(((Number) value).doubleValue() != 0);
         }
@@ -27,7 +30,7 @@ public class BooleanConverter extends TypeConverterBase<Boolean> {
                 || stringValue.equalsIgnoreCase("0")) {
             return (Boolean.FALSE);
         } else {
-            return defaultValue_;
+            throw new TypeConversionException(value);
         }
     }
 }

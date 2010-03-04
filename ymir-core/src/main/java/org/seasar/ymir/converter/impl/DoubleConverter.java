@@ -2,13 +2,16 @@ package org.seasar.ymir.converter.impl;
 
 import java.lang.annotation.Annotation;
 
+import org.seasar.ymir.converter.TypeConversionException;
+
 public class DoubleConverter extends TypeConverterBase<Double> {
     public DoubleConverter() {
         type_ = Double.class;
     }
 
     @Override
-    protected Double doConvert(Object value, Annotation[] hint) {
+    protected Double doConvert(Object value, Annotation[] hint)
+            throws TypeConversionException {
         if (value instanceof Number) {
             return Double.valueOf(((Number) value).doubleValue());
         } else if (value instanceof Boolean) {
@@ -26,7 +29,7 @@ public class DoubleConverter extends TypeConverterBase<Double> {
                         + " in order to notify validation error to a user: "
                         + value, ex);
             }
-            return defaultValue_;
+            throw new TypeConversionException(ex, value);
         }
     }
 }

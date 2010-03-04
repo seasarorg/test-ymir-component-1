@@ -2,13 +2,16 @@ package org.seasar.ymir.converter.impl;
 
 import java.lang.annotation.Annotation;
 
+import org.seasar.ymir.converter.TypeConversionException;
+
 public class LongConverter extends TypeConverterBase<Long> {
     public LongConverter() {
         type_ = Long.class;
     }
 
     @Override
-    protected Long doConvert(Object value, Annotation[] hint) {
+    protected Long doConvert(Object value, Annotation[] hint)
+            throws TypeConversionException {
         if (value instanceof Number) {
             return Long.valueOf(((Number) value).longValue());
         } else if (value instanceof Boolean) {
@@ -26,7 +29,7 @@ public class LongConverter extends TypeConverterBase<Long> {
                         + " in order to notify validation error to a user: "
                         + value, ex);
             }
-            return defaultValue_;
+            throw new TypeConversionException(ex, value);
         }
     }
 }
