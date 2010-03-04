@@ -31,6 +31,16 @@
     <arg>"${1}Page"</arg>
   </component>
   <component class="org.seasar.ymir.impl.YmirPathMapping">
+    <arg>"/URIParameterITest4/([^/]*)/index.htm"</arg>
+    <arg>"URIParameterITest4Page"</arg>
+    <arg>null</arg>
+    <arg>"category=${1}"</arg>
+    <initMethod name="setReverseMapping">
+      <arg>"URIParameterITest4Page"</arg>
+      <arg>"/URIParameterITest4/${category}/index.htm"</arg>
+    </initMethod>
+  </component>
+  <component class="org.seasar.ymir.impl.YmirPathMapping">
     <arg>"/([a-zA-Z][a-zA-Z0-9]*)/([a-zA-Z][a-zA-Z0-9]*)\\.do"</arg>
     <arg>"${1}Page"</arg>
     <arg>"_${method}_${2}"</arg>

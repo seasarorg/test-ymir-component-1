@@ -1,5 +1,6 @@
 package org.seasar.ymir;
 
+import org.seasar.ymir.response.RedirectResponse;
 import org.seasar.ymir.testing.YmirTestCase;
 
 import com.example.web.URIParameterITest1Page;
@@ -47,5 +48,11 @@ public class URIParameterITest extends YmirTestCase {
         assertEquals("1", request.getParameter("sequence"));
         assertEquals("science&technology", page.getCategory());
         assertEquals(10, page.getSequence());
+    }
+
+    public void test_PageクラスからURIパラメータを埋め込んだパス文字列を取得できること() throws Exception {
+        process("/URIParameterITest4/science&technology/index.htm");
+        assertEquals("/URIParameterITest4/science&technology/index.htm",
+                ((RedirectResponse) getResponse()).getPath());
     }
 }
