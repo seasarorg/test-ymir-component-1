@@ -30,7 +30,7 @@ public class BooleanConverter extends TypeConverterBase<Boolean> {
                 || stringValue.equalsIgnoreCase("0")) {
             return (Boolean.FALSE);
         } else {
-            throw new TypeConversionException(value);
+            throw new TypeConversionException(value, getType());
         }
     }
 }

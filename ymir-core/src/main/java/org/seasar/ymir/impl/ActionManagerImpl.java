@@ -47,8 +47,8 @@ public class ActionManagerImpl implements ActionManager {
 
     public Action newAction(Object page, Class<?> pageClass, Method method,
             Object... extendedParams) {
-        return new ActionImpl(page, newMethodInvoker(pageClass, method,
-                extendedParams));
+        return new ActionImpl(page, pageClass, newMethodInvoker(pageClass,
+                method, extendedParams));
     }
 
     public MethodInvoker newMethodInvoker(Class<?> pageClass, Method method,
@@ -57,8 +57,13 @@ public class ActionManagerImpl implements ActionManager {
                 pageClass, method, extendedParams));
     }
 
+    public Action newAction(Object page, Class<?> pageClass,
+            MethodInvoker methodInvoker) {
+        return new ActionImpl(page, pageClass, methodInvoker);
+    }
+
     public Action newAction(Object page, MethodInvoker methodInvoker) {
-        return new ActionImpl(page, methodInvoker);
+        return new ActionImpl(page, page.getClass(), methodInvoker);
     }
 
     public Action newVoidAction(Object page) {

@@ -1,9 +1,16 @@
 package org.seasar.ymir.util;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.AbstractCollection;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.RandomAccess;
 
 import junit.framework.TestCase;
 
@@ -155,5 +162,27 @@ public class ClassUtilsTest extends TestCase {
         assertFalse(ClassUtils.isCapable(Short.valueOf((short) 10),
                 Integer.class));
         assertFalse(ClassUtils.isCapable(Long.valueOf(10), Integer.class));
+    }
+
+    public void test_getAssignableClasses() throws Exception {
+        Collection<Class<?>> actual = ClassUtils
+                .getAssignableClasses(Object.class);
+        assertEquals(1, actual.size());
+        Iterator<Class<?>> itr = actual.iterator();
+        assertEquals(Object.class, itr.next());
+
+        actual = ClassUtils.getAssignableClasses(ArrayList.class);
+        assertEquals(10, actual.size());
+        itr = actual.iterator();
+        assertEquals(ArrayList.class, itr.next());
+        assertEquals(List.class, itr.next());
+        assertEquals(Collection.class, itr.next());
+        assertEquals(Iterable.class, itr.next());
+        assertEquals(RandomAccess.class, itr.next());
+        assertEquals(Cloneable.class, itr.next());
+        assertEquals(Serializable.class, itr.next());
+        assertEquals(AbstractList.class, itr.next());
+        assertEquals(AbstractCollection.class, itr.next());
+        assertEquals(Object.class, itr.next());
     }
 }

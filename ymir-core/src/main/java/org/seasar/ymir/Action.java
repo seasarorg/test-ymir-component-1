@@ -21,6 +21,16 @@ public interface Action {
     Object getTarget();
 
     /**
+     * アクションの実行対象であるオブジェクトのクラスを返します。
+     * このメソッドは基本的にAOPによってエンハンスされる前のクラスを返すため、
+     * <p><code>getTarget().getClass()</p>の返り値と一致するとは限りません。
+     * 
+     * @return アクションの実行対象であるオブジェクトのクラス。nullが返ることはありません。
+     * @since 1.0.7
+     */
+    Class<?> getTargetClass();
+
+    /**
      * アクションの名前を返します。
      * 
      * @return アクションの名前。nullが返ることはありません。

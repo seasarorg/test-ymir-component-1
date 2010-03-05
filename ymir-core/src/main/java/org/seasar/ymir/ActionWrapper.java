@@ -23,6 +23,10 @@ public class ActionWrapper implements Action {
         return action_.getTarget();
     }
 
+    public Class<?> getTargetClass() {
+        return action_.getTargetClass();
+    }
+
     public Object invoke() throws WrappingRuntimeException {
         return action_.invoke();
     }

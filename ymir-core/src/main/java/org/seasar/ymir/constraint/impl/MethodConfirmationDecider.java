@@ -11,20 +11,20 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.constraint.ConfirmationDecider;
 import org.seasar.ymir.constraint.ConstraintType;
 
-public class SuppressTypeAndMethodConfirmationDecider implements
-        ConfirmationDecider {
+/**
+ * @since 1.0.7
+ */
+public class MethodConfirmationDecider implements ConfirmationDecider {
     private ActionManager actionManager_;
 
     private Class<?> pageClass_;
 
     private Method method_;
 
-    public SuppressTypeAndMethodConfirmationDecider(
-            ActionManager actionManager, MethodInvoker methodInvoker) {
-    }
+    private ConfirmationDecider decider_;
 
-    public SuppressTypeAndMethodConfirmationDecider(
-            ActionManager actionManager, Class<?> pageClass, Method method) {
+    public MethodConfirmationDecider(ActionManager actionManager,
+            Class<?> pageClass, Method method, ConfirmationDecider decider) {
         actionManager_ = actionManager;
         pageClass_ = pageClass;
         if (method.getReturnType() == Boolean.TYPE) {
@@ -33,11 +33,13 @@ public class SuppressTypeAndMethodConfirmationDecider implements
             throw new IllegalClientCodeRuntimeException(
                     "Return type must be boolean or void: method=" + method);
         }
+        decider_ = decider;
     }
 
     public boolean isConfirmed(Object page, Request request,
             ConstraintType type, Set<ConstraintType> suppressTypeSet) {
-        if (suppressTypeSet.contains(type)) {
+        if (decider_ != null
+                && !decider_.isConfirmed(page, request, type, suppressTypeSet)) {
             return false;
         } else if (method_ != null) {
             return ((Boolean) actionManager_.newAction(page, pageClass_,

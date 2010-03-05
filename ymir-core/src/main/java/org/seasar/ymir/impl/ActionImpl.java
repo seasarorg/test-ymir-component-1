@@ -9,18 +9,21 @@ import org.seasar.ymir.WrappingRuntimeException;
 public class ActionImpl implements Action {
     private Object target_;
 
+    private Class<?> targetClass_;
+
     private MethodInvoker methodInvoker_;
 
-    public ActionImpl(Object target, MethodInvoker methodInvoker) {
+    public ActionImpl(Object target, Class<?> targetClass,
+            MethodInvoker methodInvoker) {
         target_ = target;
+        targetClass_ = targetClass;
         methodInvoker_ = methodInvoker;
     }
 
     @Override
     public String toString() {
-        return target_.getClass().getName() + "@"
-                + System.identityHashCode(target_) + "#"
-                + methodInvoker_.toString();
+        return targetClass_.getName() + "@" + System.identityHashCode(target_)
+                + "#" + methodInvoker_.toString();
     }
 
     public MethodInvoker getMethodInvoker() {
@@ -29,6 +32,13 @@ public class ActionImpl implements Action {
 
     public Object getTarget() {
         return target_;
+    }
+
+    /**
+     * @since 1.0.7
+     */
+    public Class<?> getTargetClass() {
+        return targetClass_;
     }
 
     public String getName() {

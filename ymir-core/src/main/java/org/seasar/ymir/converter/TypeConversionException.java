@@ -10,24 +10,32 @@ public class TypeConversionException extends Exception {
 
     private Object value_;
 
+    private Class<?> type_;
+
     public TypeConversionException() {
-        this(null);
+        this(null, null);
     }
 
-    public TypeConversionException(Object value) {
+    public TypeConversionException(Object value, Class<?> type) {
         value_ = value;
+        type_ = type;
     }
 
     public TypeConversionException(Throwable cause) {
-        this(cause, null);
+        this(cause, null, null);
     }
 
-    public TypeConversionException(Throwable cause, Object value) {
+    public TypeConversionException(Throwable cause, Object value, Class<?> type) {
         super(cause);
         value_ = value;
+        type_ = type;
     }
 
     public Object getValue() {
         return value_;
+    }
+
+    public Class<?> getType() {
+        return type_;
     }
 }

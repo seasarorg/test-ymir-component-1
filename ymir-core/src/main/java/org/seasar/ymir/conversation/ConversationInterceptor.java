@@ -92,12 +92,13 @@ public class ConversationInterceptor extends AbstractYmirProcessInterceptor {
                                     + action.getTarget().getClass().getName()
                                     + "#" + action.getName() + "()");
                 }
-                action = actionManager_.newAction(action.getTarget(),
-                        new EndConversationMethodInvoker(action
-                                .getMethodInvoker(), actionManager_));
+                action = actionManager_.newAction(action.getTarget(), action
+                        .getTargetClass(), new EndConversationMethodInvoker(
+                        action.getMethodInvoker(), actionManager_));
             } else {
                 if (beginSubConversation != null) {
                     action = actionManager_.newAction(action.getTarget(),
+                            action.getTargetClass(),
                             new BeginSubConversationMethodInvoker(action
                                     .getMethodInvoker(), beginSubConversation));
                 }

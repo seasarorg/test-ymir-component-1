@@ -21,12 +21,7 @@ public class ClassConverter extends TypeConverterBase<Class> {
             }
             return (classLoader.loadClass(value.toString()));
         } catch (Exception ex) {
-            log_.debug("Conversion error occured."
-                    + " You may add a constraint annotation"
-                    + " to the corresponding property"
-                    + " in order to notify validation error to a user: "
-                    + value, ex);
-            throw new TypeConversionException(ex, value);
+            throw new TypeConversionException(ex, value, getType());
         }
     }
 }

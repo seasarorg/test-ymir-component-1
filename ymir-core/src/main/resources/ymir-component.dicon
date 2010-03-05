@@ -35,8 +35,7 @@
     class="org.seasar.ymir.mime.impl.ServletMimeTypeDetector" />
   <component name="annotationHandler"
     class="org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl" />
-  <component name="messages"
-    class="org.seasar.ymir.message.impl.MessagesImpl">
+  <component name="messages" class="org.seasar.ymir.message.impl.MessagesImpl">
     <initMethod name="addPath">
       <arg>"messages.xproperties"</arg>
     </initMethod>
@@ -49,8 +48,7 @@
     class="org.seasar.ymir.session.impl.SessionManagerImpl" />
   <component name="windowManager"
     class="org.seasar.ymir.window.impl.WindowManagerImpl" />
-  <component name="dateManager"
-    class="org.seasar.ymir.date.impl.DateManagerImpl" />
+  <component name="dateManager" class="org.seasar.ymir.date.impl.DateManagerImpl" />
   <component name="redirectionManager"
     class="org.seasar.ymir.redirection.impl.RedirectionManagerImpl" />
   <component name="scopeIdManager"
@@ -67,14 +65,15 @@
     class="org.seasar.ymir.impl.ComponentMetaDataFactoryImpl" />
   <component name="scopeManager"
     class="org.seasar.ymir.scope.impl.ScopeManagerImpl" />
-  <component name="actionManager"
-    class="org.seasar.ymir.impl.ActionManagerImpl" />
+  <component name="actionManager" class="org.seasar.ymir.impl.ActionManagerImpl" />
   <component name="responseConstructorSelector"
     class="org.seasar.ymir.response.constructor.impl.ResponseConstructorSelectorImpl" />
   <component name="strategySelector"
     class="org.seasar.ymir.response.scheme.impl.StrategySelectorImpl" />
   <component name="historyManager"
     class="org.seasar.ymir.history.impl.HistoryManagerImpl" />
+  <component name="constraintManager"
+    class="org.seasar.ymir.constraint.impl.ConstraintManagerImpl" />
   <!-- HotdeployFitter -->
   <component name="listFitter"
     class="org.seasar.ymir.hotdeploy.fitter.impl.ListFitter" />
@@ -84,4 +83,7 @@
     class="org.seasar.ymir.hotdeploy.fitter.impl.CollectionFitter" />
   <component name="selectorFitter"
     class="org.seasar.ymir.hotdeploy.fitter.impl.SelectorFitter" />
+  <!-- ConstraintBagCreator -->
+  <component name="constraintBagCreator"
+    class="org.seasar.ymir.constraint.impl.ConstraintBagCreatorImpl" />
 </components>

@@ -3,10 +3,13 @@ package org.seasar.ymir.util;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javassist.CannotCompileException;
 import javassist.ClassClassPath;
@@ -554,5 +557,24 @@ public class ClassUtils {
         } else {
             return componentName;
         }
+    }
+
+    public static Collection<Class<?>> getAssignableClasses(Class<?> clazz) {
+        Set<Class<?>> set = new LinkedHashSet<Class<?>>();
+        gatherAssignableClasses(clazz, set);
+        return set;
+    }
+
+    static void gatherAssignableClasses(Class<?> clazz, Set<Class<?>> set) {
+        if (set.contains(clazz)) {
+            return;
+        }
+        Class<?> cl = clazz;
+        do {
+            set.add(cl);
+            for (Class<?> ifc : cl.getInterfaces()) {
+                gatherAssignableClasses(ifc, set);
+            }
+        } while ((cl = cl.getSuperclass()) != null);
     }
 }

@@ -32,11 +32,17 @@ abstract public class TypeConverterBase<T> implements TypeConverter<T> {
         defaultValue_ = defaultValue;
     }
 
-    @SuppressWarnings("unchecked")
     public T convert(Object value, Annotation[] hint) {
         try {
             return tryToConvert(value, hint);
         } catch (TypeConversionException ex) {
+            if (log_.isDebugEnabled()) {
+                log_.debug("Conversion error occured."
+                        + " You may add a constraint annotation"
+                        + " to the corresponding property"
+                        + " in order to notify validation error to a user: "
+                        + value, ex);
+            }
             return defaultValue_;
         }
     }

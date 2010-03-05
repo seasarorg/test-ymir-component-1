@@ -42,6 +42,13 @@ abstract public class AbstractConstraint<T extends Annotation> implements
         return BeanUtils.toPropertyName(((Method) element).getName());
     }
 
+    protected Class<?> getPropertyType(AnnotatedElement element) {
+        if (!(element instanceof Method)) {
+            return null;
+        }
+        return BeanUtils.getPropertyType((Method) element);
+    }
+
     protected String[] getParameterNames(Request request, String string,
             String[] strings) {
         return expand(add(string, strings), request);

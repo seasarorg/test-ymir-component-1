@@ -202,7 +202,7 @@ public class ExceptionProcessorImplTest extends TestCase {
         assertTrue("スーパークラスのハンドラが呼び出されること",
                 actual instanceof PassthroughResponse);
 
-        dispatch.setAction(new ActionImpl(null, new MethodInvokerImpl(
+        dispatch.setAction(new ActionImpl(null, null, new MethodInvokerImpl(
                 Page2.class.getMethod("_get"))));
         actual = target.process(request, new NullPointerException(), true);
 

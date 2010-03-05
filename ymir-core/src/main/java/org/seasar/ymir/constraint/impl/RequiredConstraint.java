@@ -8,10 +8,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.seasar.ymir.FormFile;
 import org.seasar.ymir.Request;
+import org.seasar.ymir.constraint.ConstraintUtils;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
-import org.seasar.ymir.constraint.Globals;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.Required;
 import org.seasar.ymir.message.Note;
@@ -44,11 +43,13 @@ public class RequiredConstraint extends AbstractConstraint<Required> {
             return;
         }
 
-        for (int i = 0; i < names.length; i++) {
-            if (isEmpty(request, names[i], annotation.completely(), annotation
-                    .allowWhitespace(), annotation.allowFullWidthWhitespace())) {
-                notes.add(names[i], new Note(fullMessageKey,
-                        new Object[] { names[i] }));
+        for (String name : names) {
+            if (ConstraintUtils.isEmpty(request, name, annotation.completely(),
+                    annotation.allowWhitespace(), annotation
+                            .allowFullWidthWhitespace())) {
+                notes
+                        .add(name, new Note(fullMessageKey,
+                                new Object[] { name }));
             }
         }
         if (notes.size() > 0) {
@@ -80,59 +81,5 @@ public class RequiredConstraint extends AbstractConstraint<Required> {
             }
         }
         return list.toArray(new String[0]);
-    }
-
-    boolean isEmpty(Request request, String name, boolean completely,
-            boolean allowWhitespace, boolean allowFullWidthWhitespace) {
-        String[] values = request.getParameterValues(name);
-        if (values != null) {
-            if (completely) {
-                for (int i = 0; i < values.length; i++) {
-                    if (isEmpty(values[i], allowWhitespace,
-                            allowFullWidthWhitespace)) {
-                        return true;
-                    }
-                }
-            } else {
-                for (int i = 0; i < values.length; i++) {
-                    if (!isEmpty(values[i], allowWhitespace,
-                            allowFullWidthWhitespace)) {
-                        return false;
-                    }
-                }
-            }
-        }
-        FormFile[] files = request.getFileParameterValues(name);
-        if (files != null) {
-            if (completely) {
-                for (int i = 0; i < files.length; i++) {
-                    if (files[i].getSize() == 0) {
-                        return true;
-                    }
-                }
-            } else {
-                for (int i = 0; i < files.length; i++) {
-                    if (files[i].getSize() > 0) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
-    protected boolean isEmpty(String value, boolean allowWhitespace,
-            boolean allowFullWidthWhitespace) {
-        if (value == null) {
-            return true;
-        }
-
-        if (!allowWhitespace) {
-            value = value.trim();
-        }
-        if (!allowFullWidthWhitespace) {
-            value = value.replace("　", "");
-        }
-        return value.length() == 0;
     }
 }

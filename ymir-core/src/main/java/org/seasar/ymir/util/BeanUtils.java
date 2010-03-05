@@ -1,6 +1,7 @@
 package org.seasar.ymir.util;
 
 import java.beans.Introspector;
+import java.lang.reflect.Method;
 
 public class BeanUtils {
     private static final String PREFIX_SET = "set";
@@ -103,5 +104,21 @@ public class BeanUtils {
                         + propertyName.substring(1);
             }
         }
+    }
+
+    public static Class<?> getPropertyType(Method method) {
+        if (method != null) {
+            String name = method.getName();
+            if (name.startsWith(PREFIX_GET) || name.startsWith(PREFIX_IS)) {
+                return method.getReturnType();
+            } else if (name.startsWith(PREFIX_SET)) {
+                Class<?>[] types = method.getParameterTypes();
+                if (types.length > 0) {
+                    return types[0];
+                }
+            }
+        }
+
+        return null;
     }
 }

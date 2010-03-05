@@ -2,6 +2,8 @@ package org.seasar.ymir;
 
 import java.lang.reflect.Method;
 
+import javassist.expr.NewArray;
+
 public interface ActionManager {
     Action newAction(Object page, Class<?> pageClass, Method method,
             Object... extendedParams);
@@ -9,6 +11,15 @@ public interface ActionManager {
     MethodInvoker newMethodInvoker(Class<?> pageClass, Method method,
             Object... extendedParams);
 
+    /**
+     * @since 1.0.7
+     */
+    Action newAction(Object page, Class<?> pageClass,
+            MethodInvoker methodInvoker);
+
+    /**
+     * @deprecated 代わりに{@link #newAction(Object, Class, MethodInvoker)}を使って下さい。
+     */
     Action newAction(Object page, MethodInvoker methodInvoker);
 
     Action newVoidAction(Object page);

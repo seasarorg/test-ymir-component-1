@@ -6,29 +6,29 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.seasar.ymir.constraint.ConstraintType;
+import org.seasar.ymir.constraint.impl.NotEmptyConstraint;
 import org.seasar.ymir.constraint.impl.RequiredConstraint;
 
 /**
  * リクエストパラメータの値が空でないことを表す制約アノテーションです。
- * <p>指定されている全てのリクエストパラメータがHTTPリクエストに存在してかつ値が空でないことを要求します。
+ * <p>指定されている全てのリクエストパラメータについて、HTTPリクエストに存在している場合に値が空でないことを要求します。
+ * </p>
+ * <p>このアノテーションと{@link Required}アノテーションの違いは、
+ * このアノテーションではパラメータが存在しない場合にはエラーにならないのに対し、
+ * {@link Required}アノテーションではパラメータが存在しない場合にエラーになる点です。
  * </p>
  * <p>制約チェックの対象とするリクエストパラメータは、
  * アノテーションが付与されているSetterメソッドに対応するプロパティの名前と同じ名前を持つリクエストパラメータと、
  * アノテーションのvalueプロパティで名前を指定されているリクエストパラメータです。
  * </p>
- * <p>リクエストパラメータ名を正規表現で与えた場合に、
- * 正規表現にマッチするリクエストパラメータが存在しないケースでは制約チェックエラーとならないことに注意して下さい。
- * 制約チェックエラーとなるのは、正規表現にマッチするリクエストパラメータが存在してかつ値が空の場合です。
- * これは、制約アノテーションにおけるリクエストパラメータ名指定においては、
- * 正規表現は制約チェックの対象とするリクエストパラメータ名を決定するために使用されるという共通のルールに従っているためです。
- * </p>
  * 
  * @author YOKOTA Takehiko
+ * @since 1.0.7
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.TYPE, ElementType.METHOD })
-@ConstraintAnnotation(type = ConstraintType.VALIDATION, component = RequiredConstraint.class)
-public @interface Required {
+@ConstraintAnnotation(type = ConstraintType.VALIDATION, component = NotEmptyConstraint.class)
+public @interface NotEmpty {
     /**
      * リクエストパラメータ名です。
      * <p>先頭が「#」で始まる名前は正規表現パターンと見なされます。
@@ -73,21 +73,8 @@ public @interface Required {
      * </p>
      * 
      * @return 全角空白文字列を空とみなさないかどうか。
-     * @since 1.0.5
      */
     boolean allowFullWidthWhitespace() default true;
-
-    /**
-     * 正規表現で指定されているリクエストパラメータ名にマッチするリクエストパラメータの存在を必須とするかどうかです。
-     * <p>このプロパティがtrueの場合は、
-     * 正規表現で指定されているリクエストパラメータ名にマッチするリクエストパラメータが1つも存在しない場合制約チェックエラーになります。
-     * falseの場合は、
-     * 正規表現で指定されているリクエストパラメータ名にマッチするリクエストパラメータが存在しなくても制約チェックエラーとみなしません。
-     * </p>
-     * 
-     * @return 正規表現で指定されているリクエストパラメータ名にマッチするリクエストパラメータの存在を必須とするかどうか。
-     */
-    boolean matchedParameterRequired() default false;
 
     /**
      * エラーメッセージのキーです。
@@ -99,7 +86,6 @@ public @interface Required {
      * </p>
      * 
      * @return エラーメッセージのキー。
-     * @since 1.0.7
      */
     String messageKey() default "";
 }
