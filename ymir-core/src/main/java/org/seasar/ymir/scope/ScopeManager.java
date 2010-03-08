@@ -2,6 +2,7 @@ package org.seasar.ymir.scope;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.converter.TypeConversionManager;
@@ -120,4 +121,60 @@ public interface ScopeManager {
      */
     Object[] resolveParameters(Class<?> pageClass, Method method,
             Object[] extendedParams);
+
+    /**
+     * 指定されたパラメータを指定されたオブジェクトのプロパティにポピュレートします。
+     * 
+     * @param bean ポピュレート先のオブジェクト。
+     * nullを指定した場合は何もされません。
+     * @param parameterMap ポピュレートするパラメータのMap。
+     * nullを指定した場合は何もされません。
+     * @throws PopulationFailureException ポピュレートに失敗した場合。
+     * @since 1.0.7
+     */
+    void populate(Object bean, Map<String, ?> parameterMap)
+            throws PopulationFailureException;
+
+    /**
+     * 指定されたパラメータを指定されたオブジェクトのプロパティにポピュレートします。
+     * <p>ポピュレートに失敗しても処理を継続します。
+     * </p>
+     * 
+     * @param bean ポピュレート先のオブジェクト。
+     * nullを指定した場合は何もされません。
+     * @param parameterMap ポピュレートするパラメータのMap。
+     * nullを指定した場合は何もされません。
+     * @since 1.0.7
+     */
+    void populateQuietly(Object bean, Map<String, ?> parameterMap);
+
+    /**
+     * 指定された値を指定されたオブジェクトのプロパティにポピュレートします。
+     * 
+     * @param bean ポピュレート先のオブジェクト。
+     * nullを指定した場合は何もされません。
+     * @param name プロパティ名。
+     * nullを指定してはいけません。
+     * @param value 値。
+     * nullを指定することもできます。
+     * @throws PopulationFailureException ポピュレートに失敗した場合。
+     * @since 1.0.7
+     */
+    void populate(Object bean, String name, Object value)
+            throws PopulationFailureException;
+
+    /**
+     * 指定された値を指定されたオブジェクトのプロパティにポピュレートします。
+     * <p>ポピュレートに失敗しても処理を継続します。
+     * </p>
+     * 
+     * @param bean ポピュレート先のオブジェクト。
+     * nullを指定した場合は何もされません。
+     * @param name プロパティ名。
+     * nullを指定してはいけません。
+     * @param value 値。
+     * nullを指定することもできます。
+     * @since 1.0.7
+     */
+    void populateQuietly(Object bean, String name, Object value);
 }

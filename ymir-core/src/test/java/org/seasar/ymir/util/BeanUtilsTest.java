@@ -140,4 +140,15 @@ public class BeanUtilsTest extends TestCase {
         assertEquals("abc", BeanUtils.normalizePropertyName("Abc"));
         assertEquals("URL", BeanUtils.normalizePropertyName("uRL"));
     }
+
+    public void test_capitalize() throws Exception {
+        assertNull(BeanUtils.capitalize(null));
+        assertEquals("", BeanUtils.capitalize(""));
+        assertEquals("A", BeanUtils.capitalize("a"));
+        assertEquals("Abc", BeanUtils.capitalize("abc"));
+        assertEquals("URL", BeanUtils.capitalize("URL"));
+        assertEquals("A", BeanUtils.capitalize("A"));
+        assertEquals("Abc", BeanUtils.capitalize("Abc"));
+        assertEquals("URL", BeanUtils.capitalize("uRL"));
+    }
 }

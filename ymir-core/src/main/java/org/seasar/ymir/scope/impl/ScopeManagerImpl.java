@@ -4,6 +4,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ActionManager;
@@ -12,10 +14,12 @@ import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.cache.CacheManager;
+import org.seasar.ymir.converter.PropertyHandler;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.converter.annotation.TypeConversionHint;
 import org.seasar.ymir.hotdeploy.HotdeployManager;
 import org.seasar.ymir.scope.AttributeNotFoundRuntimeException;
+import org.seasar.ymir.scope.PopulationFailureException;
 import org.seasar.ymir.scope.Scope;
 import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.ScopeMetaData;
@@ -26,6 +30,8 @@ import org.seasar.ymir.scope.handler.ScopeAttributeResolver;
 import org.seasar.ymir.util.ClassUtils;
 
 public class ScopeManagerImpl implements ScopeManager {
+    private static final Log log_ = LogFactory.getLog(ScopeManagerImpl.class);
+
     private ActionManager actionManager_;
 
     private ApplicationManager applicationManager_;
@@ -179,5 +185,69 @@ public class ScopeManagerImpl implements ScopeManager {
             }
         }
         return params;
+    }
+
+    public void populate(Object bean, Map<String, ?> parameterMap)
+            throws PopulationFailureException {
+        populate0(bean, parameterMap, false);
+    }
+
+    public void populateQuietly(Object bean,
+            Map<String, ? extends Object> parameterMap) {
+        try {
+            populate0(bean, parameterMap, true);
+        } catch (PopulationFailureException ex) {
+            throw new RuntimeException("Can't happen!", ex);
+        }
+    }
+
+    protected void populate0(Object bean, Map<String, ?> parameterMap,
+            boolean quietly) throws PopulationFailureException {
+        if (bean == null || parameterMap == null) {
+            return;
+        }
+
+        for (Map.Entry<String, ?> entry : parameterMap.entrySet()) {
+            populate0(bean, entry.getKey(), entry.getValue(), quietly);
+        }
+    }
+
+    public void populate(Object bean, String name, Object value)
+            throws PopulationFailureException {
+        populate0(bean, name, value, false);
+    }
+
+    public void populateQuietly(Object bean, String name, Object value) {
+        try {
+            populate0(bean, name, value, true);
+        } catch (PopulationFailureException ex) {
+            throw new RuntimeException("Can't happen!", ex);
+        }
+    }
+
+    protected void populate0(Object bean, String name, Object value,
+            boolean quietly) throws PopulationFailureException {
+        PropertyHandler handler = typeConversionManager_.getPropertyHandler(
+                bean, name);
+        if (handler == null || handler.getWriteMethod() == null) {
+            return;
+        }
+
+        Object converted = typeConversionManager_.convert(value, handler
+                .getPropertyType(), annotationHandler_.getMarkedAnnotations(
+                handler.getWriteMethod(), TypeConversionHint.class));
+
+        try {
+            handler.setProperty(converted);
+        } catch (Throwable t) {
+            if (log_.isDebugEnabled()) {
+                log_.debug("Can't populate: property name=" + name + ", value="
+                        + value + ", write method=" + handler.getWriteMethod(),
+                        t);
+            }
+            if (!quietly) {
+                throw new PopulationFailureException(name, value, handler, t);
+            }
+        }
     }
 }
