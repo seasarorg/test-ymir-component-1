@@ -37,7 +37,6 @@ public class CreateTemplateAction extends AbstractAction implements
     }
 
     public Response act(Request request, PathMetaData pathMetaData) {
-
         if (isSkipButtonPushed(request)) {
             return null;
         }
@@ -51,13 +50,16 @@ public class CreateTemplateAction extends AbstractAction implements
     }
 
     Response actDefault(Request request, PathMetaData pathMetaData) {
-
         Template template = pathMetaData.getTemplate();
         String templateSource = "";
         if (!template.isDirectory()) {
             templateSource = getSourceCreator().getSourceGenerator()
                     .generateTemplateSource(getSuffix(template.getName()),
                             new HashMap<String, Object>());
+        } else {
+            if (pathMetaData.getSourceFile().exists()) {
+                return null;
+            }
         }
 
         Map<String, Object> variableMap = newVariableMap();
