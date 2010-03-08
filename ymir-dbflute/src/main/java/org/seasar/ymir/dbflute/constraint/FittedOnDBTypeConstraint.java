@@ -3,8 +3,13 @@ package org.seasar.ymir.dbflute.constraint;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
+import org.seasar.dbflute.Entity;
+import org.seasar.dbflute.dbmeta.DBMeta;
+import org.seasar.dbflute.dbmeta.info.ColumnInfo;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Request;
@@ -49,14 +54,35 @@ public class FittedOnDBTypeConstraint extends
 
     @Override
     protected String getConstraintKey() {
-        return "fittedOnType";
+        return "fittedOnDBType";
     }
 
     public void confirm(Object component, Request request,
             FittedOnDBType annotation, AnnotatedElement element)
             throws ConstraintViolatedException {
+        Class<?> entityClass = null;
+        Map<String, ColumnInfo> columnInfoMap = new HashMap<String, ColumnInfo>();
+        if (element instanceof Class) {
+            entityClass = ((Class<?>) element);
+        } else if (element instanceof Method) {
+            entityClass = ((Method) element).getDeclaringClass();
+        }
+        if (Entity.class.isAssignableFrom(entityClass)) {
+            DBMeta meta;
+            try {
+                meta = ((Entity) entityClass.newInstance()).getDBMeta();
+            } catch (Throwable t) {
+                throw new RuntimeException("Cannot instanciate entity: "
+                        + entityClass.getName(), t);
+            }
+            for (ColumnInfo columnInfo : meta.getColumnInfoList()) {
+                columnInfoMap.put(columnInfo.getPropertyName(), columnInfo);
+            }
+        }
+
         Notes notes = new Notes();
-        if (element instanceof Class<?>) {
+
+        if (element instanceof Class) {
             for (Iterator<String> itr = request.getParameterNames(); itr
                     .hasNext();) {
                 String name = itr.next();
@@ -65,13 +91,15 @@ public class FittedOnDBTypeConstraint extends
                 if (handler == null) {
                     continue;
                 }
-                confirm(request, name, handler.getPropertyType(),
-                        annotationHandler_.getMarkedAnnotations(handler
-                                .getWriteMethod(), TypeConversionHint.class),
-                        notes, annotation.messageKey());
+                confirm(request, name, columnInfoMap.get(name), handler
+                        .getPropertyType(), annotationHandler_
+                        .getMarkedAnnotations(handler.getWriteMethod(),
+                                TypeConversionHint.class), notes, annotation
+                        .messageKey());
             }
         } else if (element instanceof Method) {
-            confirm(request, getPropertyName(element),
+            String name = getPropertyName(element);
+            confirm(request, name, columnInfoMap.get(name),
                     getPropertyType(element), annotationHandler_
                             .getMarkedAnnotations(element,
                                     TypeConversionHint.class), notes,
@@ -85,8 +113,8 @@ public class FittedOnDBTypeConstraint extends
         }
     }
 
-    void confirm(Request request, String name, Class<?> type,
-            Annotation[] hint, Notes notes, String messageKey) {
+    void confirm(Request request, String name, ColumnInfo columnInfo,
+            Class<?> type, Annotation[] hint, Notes notes, String messageKey) {
         String[] values = request.getParameterValues(name);
         if (values == null) {
             return;
@@ -95,6 +123,8 @@ public class FittedOnDBTypeConstraint extends
             if (value.length() == 0) {
                 continue;
             }
+
+            // 型をチェックする。
             try {
                 typeConversionManager_.tryToConvert(value, type, hint);
             } catch (TypeConversionException ex) {
@@ -110,6 +140,22 @@ public class FittedOnDBTypeConstraint extends
                 }
                 notes.add(name, new Note(ConstraintUtils.getFullMessageKey(
                         constraintKey, messageKey), name, typeName));
+            }
+
+            if (columnInfo != null) {
+                // 長さをチェックする。
+                if (columnInfo.getPropertyType() == String.class) {
+                    Integer size = columnInfo.getColumnSize();
+                    if (size != null && value.length() > size) {
+                        notes.add(name, new Note(ConstraintUtils
+                                .getFullMessageKey(
+                                        getConstraintKey() + ".size",
+                                        messageKey), name, size));
+                    }
+                }
+
+                // 必須条件をチェックする。
+                // TODO
             }
         }
     }
