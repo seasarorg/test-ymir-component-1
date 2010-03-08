@@ -315,7 +315,6 @@ public class Select extends Tag {
      * 
      * @return 選択されたOptionの値。
      * 選択されたOptionが存在しない場合はnullを返します。
-     * @throws IllegalStateException このオブジェクトが内部にOptionを持っていない場合。
      */
     public Integer getSelectedValueAsInteger() {
         String value = getSelectedValue();
@@ -351,7 +350,6 @@ public class Select extends Tag {
      * 
      * @return 選択されたOptionの値。
      * 選択されたOptionが存在しない場合は空の配列を返します。
-     * @throws IllegalStateException このオブジェクトが内部にOptionを持っていない場合。
      */
     public Integer[] getSelectedValuesAsInteger() {
         String[] values = getSelectedValues();
