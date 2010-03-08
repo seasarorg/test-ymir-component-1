@@ -6,6 +6,7 @@ import java.util.regex.PatternSyntaxException;
 
 import net.skirnir.freyja.Attribute;
 import net.skirnir.freyja.Element;
+import net.skirnir.freyja.IllegalSyntaxException;
 import net.skirnir.freyja.TagElement;
 
 public class TemplateParsingInterceptorChainImpl implements
@@ -68,7 +69,8 @@ public class TemplateParsingInterceptorChainImpl implements
         return false;
     }
 
-    public Element[] tagElementCreated(TagElement tagElement) {
+    public Element[] tagElementCreated(TagElement tagElement)
+            throws IllegalSyntaxException {
         if (shouldProcess(tagElement)) {
             return templateParsingInterceptor_.tagElementCreated(tagElement,
                     chain_);

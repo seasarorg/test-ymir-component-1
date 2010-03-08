@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.skirnir.freyja.ConstantElement;
 import net.skirnir.freyja.Element;
+import net.skirnir.freyja.IllegalSyntaxException;
 import net.skirnir.freyja.TagElement;
 
 public class FugaTemplateParsingInterceptor implements
@@ -21,7 +22,8 @@ public class FugaTemplateParsingInterceptor implements
     }
 
     public Element[] tagElementCreated(TagElement tagElement,
-            TemplateParsingInterceptorChain chain) {
+            TemplateParsingInterceptorChain chain)
+            throws IllegalSyntaxException {
         List<Element> elementList = new ArrayList<Element>();
         elementList.addAll(Arrays.asList(chain.tagElementCreated(tagElement)));
         elementList.add(new ConstantElement(((ConstantElement) tagElement

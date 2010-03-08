@@ -2,6 +2,7 @@ package org.seasar.ymir.zpt;
 
 import net.skirnir.freyja.Attribute;
 import net.skirnir.freyja.Element;
+import net.skirnir.freyja.IllegalSyntaxException;
 import net.skirnir.freyja.TagElement;
 
 public class HoeTemplateParsingInterceptor implements
@@ -17,7 +18,8 @@ public class HoeTemplateParsingInterceptor implements
     }
 
     public Element[] tagElementCreated(TagElement tagElement,
-            TemplateParsingInterceptorChain chain) {
+            TemplateParsingInterceptorChain chain)
+            throws IllegalSyntaxException {
         Attribute[] attributes = tagElement.getAttributes();
         String id = null;
         for (int i = 0; i < attributes.length; i++) {

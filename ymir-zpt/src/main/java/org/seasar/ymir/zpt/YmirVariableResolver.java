@@ -16,11 +16,13 @@ import org.seasar.framework.container.S2Container;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestProcessor;
+import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.impl.RequestProcessorImpl;
 import org.seasar.ymir.message.Messages;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.token.Token;
 import org.seasar.ymir.token.TokenManager;
+import org.seasar.ymir.zpt.annotation.ParameterHolder;
 import org.seasar.ymir.zpt.util.YmirUtils;
 
 import net.skirnir.freyja.TemplateContext;
@@ -52,6 +54,8 @@ public class YmirVariableResolver extends VariableResolverImpl {
 
     private TokenManager tokenManager_;
 
+    private AnnotationHandler annotationHandler_;
+
     private Token token_;
 
     private boolean selfLoaded_;
@@ -59,6 +63,10 @@ public class YmirVariableResolver extends VariableResolverImpl {
     private Object self_;
 
     private ParamSelf paramSelf_;
+
+    private boolean parameterHolderLoaded_;
+
+    private Object parameterHolder_;
 
     private static final Log log_ = LogFactory
             .getLog(YmirVariableResolver.class);
@@ -77,6 +85,8 @@ public class YmirVariableResolver extends VariableResolverImpl {
         messages_ = (Messages) container.getComponent(Globals.NAME_MESSAGES);
         tokenManager_ = (TokenManager) container
                 .getComponent(TokenManager.class);
+        annotationHandler_ = (AnnotationHandler) container
+                .getComponent(AnnotationHandler.class);
         parent_ = parent;
     }
 
@@ -300,9 +310,32 @@ public class YmirVariableResolver extends VariableResolverImpl {
         return self_;
     }
 
+    Object getParameterHolder() {
+        if (!parameterHolderLoaded_) {
+            Object self = getSelf();
+            if (self != null) {
+                ParameterHolder annotation = annotationHandler_.getAnnotation(
+                        self.getClass(), ParameterHolder.class);
+                if (annotation != null) {
+                    try {
+                        parameterHolder_ = PropertyUtils.getProperty(self,
+                                annotation.value());
+                    } catch (Throwable t) {
+                        throw new RuntimeException("Cannot get property '"
+                                + annotation.value() + "' from 'self'", t);
+                    }
+                } else {
+                    parameterHolder_ = self;
+                }
+            }
+            parameterHolderLoaded_ = true;
+        }
+        return parameterHolder_;
+    }
+
     public ParamSelf getParamSelf() {
         if (paramSelf_ == null) {
-            paramSelf_ = new ParamSelf(request_, getSelf());
+            paramSelf_ = new ParamSelf(request_, getParameterHolder());
         }
         return paramSelf_;
     }

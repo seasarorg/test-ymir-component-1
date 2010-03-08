@@ -9,6 +9,7 @@ import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.util.ContainerUtils;
 
 import net.skirnir.freyja.Element;
+import net.skirnir.freyja.IllegalSyntaxException;
 import net.skirnir.freyja.TagElement;
 import net.skirnir.freyja.impl.TemplateParserImpl;
 
@@ -68,7 +69,8 @@ public class YmirTemplateParser extends TemplateParserImpl {
     }
 
     @Override
-    protected void addElement(TagInfo tagInfo, TagElement element) {
+    protected void addElement(TagInfo tagInfo, TagElement element)
+            throws IllegalSyntaxException {
         Element[] elements = chain_.tagElementCreated(element);
         for (int i = 0; i < elements.length; i++) {
             tagInfo.addElement(elements[i]);

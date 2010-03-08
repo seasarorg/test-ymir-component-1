@@ -1,6 +1,7 @@
 package org.seasar.ymir.zpt;
 
 import net.skirnir.freyja.Element;
+import net.skirnir.freyja.IllegalSyntaxException;
 import net.skirnir.freyja.TagElement;
 
 public interface TemplateParsingInterceptor {
@@ -44,7 +45,10 @@ public interface TemplateParsingInterceptor {
      * 
      * @param tagElement 生成されたタグオブジェクト。
      * @return 最終的なElementオブジェクトの配列。nullを返してはいけません。
+     * @throws IllegalSyntaxException 構文エラーが発生した場合にスローして下さい。
+     * 行番号とカラム番号は自動的に設定されますので設定は不要です。
      */
     Element[] tagElementCreated(TagElement tagElement,
-            TemplateParsingInterceptorChain chain);
+            TemplateParsingInterceptorChain chain)
+            throws IllegalSyntaxException;
 }
