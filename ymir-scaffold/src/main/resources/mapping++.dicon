@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
+  "http://www.seasar.org/dtd/components24.dtd">
+<components>
+  <component name="maintenanceRootPathMapping" class="org.seasar.ymir.impl.YmirPathMapping">
+    <arg>"/([a-zA-Z][a-zA-Z0-9]*)/maintenance"</arg>
+    <arg>"?Page"</arg>
+    <arg>null</arg>
+    <arg>null</arg>
+    <arg>null</arg>
+    <arg>"redirect:/${1}/maintenance/index.html"</arg>
+  </component>
+  <component name="maintenancePathMapping" class="org.seasar.ymir.impl.YmirPathMapping">
+    <arg>"/([a-zA-Z][a-zA-Z0-9]*)/maintenance/([a-zA-Z][a-zA-Z0-9]*)\\.html"</arg>
+    <arg>"${1}_maintenance_indexPage"</arg>
+    <arg>null</arg>
+    <arg>"action=${2}"</arg>
+    <initMethod name="setReverseMapping">
+      <arg>"([a-zA-Z][a-zA-Z0-9]*)_maintenance_indexPage"</arg>
+      <arg>"/${1}/maintenance/${action}.html"</arg>
+    </initMethod>
+  </component>
+</components>
