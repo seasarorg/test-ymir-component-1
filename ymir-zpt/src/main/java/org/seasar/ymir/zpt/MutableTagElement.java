@@ -60,7 +60,6 @@ public class MutableTagElement extends TagElement {
         super(null, null, null);
     }
 
-    @SuppressWarnings("unchecked")
     protected MutableTagElement(TagElement element) {
         super(null, null, null);
 
