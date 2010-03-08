@@ -7,6 +7,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,7 +58,7 @@ public class ConstraintManagerImpl implements ConstraintManager {
 
     private ConstraintBagCreator<?>[] constraintBagCreators_;
 
-    private Map<Class<?>, List<ConstraintBagCreator<?>>> constraintBagCreatorMap_;
+    private Map<Class<?>, List<ConstraintBagCreator<?>>> constraintBagCreatorMap_ = new HashMap<Class<?>, List<ConstraintBagCreator<?>>>();
 
     private Map<ElementKey, ConstraintBag<?>[]> bagsWithAlwaysDeciderMap_;
 
@@ -80,22 +81,12 @@ public class ConstraintManagerImpl implements ConstraintManager {
         bagsWithAlwaysDeciderMap_ = cacheManager.newMap();
         bagsWithDependsOnSuppressTypeDeciderMap_ = cacheManager.newMap();
         validatorMethodsMap_ = cacheManager.newMap();
-
-        constraintBagCreatorMap_ = cacheManager.newMap();
-        initializeConstraintBagCreatorMap();
     }
 
     @Binding(bindingType = BindingType.MUST)
     public void setConstraintBagCreators(
             ConstraintBagCreator<?>[] constraintBagCreators) {
         constraintBagCreators_ = constraintBagCreators;
-        initializeConstraintBagCreatorMap();
-    }
-
-    private void initializeConstraintBagCreatorMap() {
-        if (constraintBagCreatorMap_ == null || constraintBagCreators_ == null) {
-            return;
-        }
 
         for (ConstraintBagCreator<?> creator : constraintBagCreators_) {
             Class<?> clazz = creator.getTargetClass();
