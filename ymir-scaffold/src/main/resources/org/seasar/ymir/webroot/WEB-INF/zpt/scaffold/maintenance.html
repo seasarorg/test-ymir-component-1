@@ -19,8 +19,8 @@
       <tr tal:repeat="entity self/entities">
         <td tal:repeat="info columnInfos" tal:content="eval:entity/${info/propertyName}"></td>
         <td>
-          <a tal:attributes="href page:edit.html?edit&id=${entity/id}">編集</a>
-          <a tal:attributes="href page:index.html?do_delete[${entity/id}]">削除</a>
+          <a tal:attributes="href page:edit.html?edit&${java:self.getPrimaryKeyMap(entity)}">編集</a>
+          <a tal:attributes="href page:delete.html?do_delete&${java:self.getPrimaryKeyMap(entity)}">削除</a>
         </td>
       </tr>
     </tbody>

@@ -6,12 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.skirnir.freyja.Attribute;
-import net.skirnir.freyja.ConstantElement;
-import net.skirnir.freyja.Element;
-import net.skirnir.freyja.IllegalSyntaxException;
-import net.skirnir.freyja.TagElement;
-
 import org.seasar.dbflute.Entity;
 import org.seasar.dbflute.dbmeta.info.ColumnInfo;
 import org.seasar.framework.container.annotation.tiger.Binding;
@@ -25,6 +19,12 @@ import org.seasar.ymir.util.ClassUtils;
 import org.seasar.ymir.zpt.MutableTagElement;
 import org.seasar.ymir.zpt.TemplateParsingInterceptor;
 import org.seasar.ymir.zpt.TemplateParsingInterceptorChain;
+
+import net.skirnir.freyja.Attribute;
+import net.skirnir.freyja.ConstantElement;
+import net.skirnir.freyja.Element;
+import net.skirnir.freyja.IllegalSyntaxException;
+import net.skirnir.freyja.TagElement;
 
 public class ScaffoldInterceptor implements TemplateParsingInterceptor {
     private static final Attribute[] ATTRIBUTES_EMPTY = new Attribute[0];
@@ -46,20 +46,11 @@ public class ScaffoldInterceptor implements TemplateParsingInterceptor {
 
     private static final String[] SPECIALTAGPATTERNSTRINGS = new String[0];
 
-    private ApplicationManager applicationManager_;
-
-    private YmirNamingConvention ymirNamingConvention_;
+    @Binding(bindingType = BindingType.MUST)
+    protected ApplicationManager applicationManager;
 
     @Binding(bindingType = BindingType.MUST)
-    public void setApplicationManager(ApplicationManager applicationManager) {
-        applicationManager_ = applicationManager;
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setYmirNamingConvention(
-            YmirNamingConvention ymirNamingConvention) {
-        ymirNamingConvention_ = ymirNamingConvention;
-    }
+    protected YmirNamingConvention ymirNamingConvention;
 
     public String[] getSpecialAttributePatternStrings() {
         return SPECIALATTRIBUTEPATTERNSTRINGS;
@@ -220,11 +211,13 @@ public class ScaffoldInterceptor implements TemplateParsingInterceptor {
                             .setBodyElements(buildSimpleFormBodyElements(columnInfos));
                     expanded.add(tagElement);
                 }
-                expanded.add(new TagElement("p", ATTRIBUTES_EMPTY,
-                        new Element[] {
-                                buildSubmitElement("do_" + getActionName(),
-                                        " 登録 "), new ConstantElement("&nbsp;"),
-                                buildSubmitElement("cancel", "キャンセル"), }));
+                expanded
+                        .add(new TagElement("p", ATTRIBUTES_EMPTY,
+                                new Element[] {
+                                    buildSubmitElement("do_" + getActionName(),
+                                            " 登録 "),
+                                    new ConstantElement("&nbsp;"),
+                                    buildSubmitElement("cancel", "キャンセル"), }));
             }
         }
         return expanded.toArray(ELEMENTS_EMPTY);
@@ -310,9 +303,8 @@ public class ScaffoldInterceptor implements TemplateParsingInterceptor {
 
     private TagElement buildSubmitElement(String actionName, String label) {
         return new TagElement("input", new Attribute[] {
-                new Attribute("type", "submit"),
-                new Attribute("name", actionName),
-                new Attribute("value", label), }, null);
+            new Attribute("type", "submit"), new Attribute("name", actionName),
+            new Attribute("value", label), }, null);
     }
 
     protected MutableTagElement buildInputElement(ColumnInfo columnInfo) {
@@ -379,7 +371,7 @@ public class ScaffoldInterceptor implements TemplateParsingInterceptor {
     @SuppressWarnings("unchecked")
     private Class<? extends Entity> findEntityClass(String name) {
         String capitalized = BeanUtils.capitalize(name);
-        for (String rootPackageName : ymirNamingConvention_
+        for (String rootPackageName : ymirNamingConvention
                 .getRootPackageNames()) {
             String className = rootPackageName + ".dbflute.exentity."
                     + capitalized;
@@ -454,7 +446,7 @@ public class ScaffoldInterceptor implements TemplateParsingInterceptor {
     }
 
     private Request getRequest() {
-        return (Request) applicationManager_.findContextApplication()
+        return (Request) applicationManager.findContextApplication()
                 .getS2Container().getComponent(Request.class);
     }
 }

@@ -30,27 +30,14 @@ import org.seasar.ymir.util.ClassUtils;
 
 public class FittedOnDBTypeConstraint extends
         AbstractConstraint<FittedOnDBType> {
-    private AnnotationHandler annotationHandler_;
-
-    private Messages messages_;
-
-    private TypeConversionManager typeConversionManager_;
-
     @Binding(bindingType = BindingType.MUST)
-    public void setAnnotationHandler(AnnotationHandler annotationHandler) {
-        annotationHandler_ = annotationHandler;
-    }
+    protected AnnotationHandler annotationHandler;
 
     @Binding(bindingType = BindingType.MUST, value = "messages")
-    public void setMessages(Messages messages) {
-        messages_ = messages;
-    }
+    protected Messages messages;
 
-    @Binding(bindingType = BindingType.MUST)
-    public void setTypeConversionManager(
-            TypeConversionManager typeConversionManager) {
-        typeConversionManager_ = typeConversionManager;
-    }
+    @Binding(bindingType = BindingType.MUST, value = "messages")
+    protected TypeConversionManager typeConversionManager_;
 
     @Override
     protected String getConstraintKey() {
@@ -62,7 +49,7 @@ public class FittedOnDBTypeConstraint extends
             throws ConstraintViolatedException {
         Class<?> entityClass = null;
         Map<String, ColumnInfo> columnInfoMap = new HashMap<String, ColumnInfo>();
-        if (element instanceof Class) {
+        if (element instanceof Class<?>) {
             entityClass = ((Class<?>) element);
         } else if (element instanceof Method) {
             entityClass = ((Method) element).getDeclaringClass();
@@ -82,7 +69,7 @@ public class FittedOnDBTypeConstraint extends
 
         Notes notes = new Notes();
 
-        if (element instanceof Class) {
+        if (element instanceof Class<?>) {
             for (Iterator<String> itr = request.getParameterNames(); itr
                     .hasNext();) {
                 String name = itr.next();
@@ -92,7 +79,7 @@ public class FittedOnDBTypeConstraint extends
                     continue;
                 }
                 confirm(request, name, columnInfoMap.get(name), handler
-                        .getPropertyType(), annotationHandler_
+                        .getPropertyType(), annotationHandler
                         .getMarkedAnnotations(handler.getWriteMethod(),
                                 TypeConversionHint.class), notes, annotation
                         .messageKey());
@@ -100,7 +87,7 @@ public class FittedOnDBTypeConstraint extends
         } else if (element instanceof Method) {
             String name = getPropertyName(element);
             confirm(request, name, columnInfoMap.get(name),
-                    getPropertyType(element), annotationHandler_
+                    getPropertyType(element), annotationHandler
                             .getMarkedAnnotations(element,
                                     TypeConversionHint.class), notes,
                     annotation.messageKey());
@@ -133,7 +120,7 @@ public class FittedOnDBTypeConstraint extends
                 if (messageKey == null || messageKey.length() == 0) {
                     // メッセージキーが明示的に指定されていない場合は、
                     // 型名つきのキーが存在すればそれを使うようにする。存在しなければデフォルトのキーを使うようにする。
-                    if (messages_.getMessage(ConstraintUtils
+                    if (messages.getMessage(ConstraintUtils
                             .getFullMessageKey(constraintKey)) == null) {
                         constraintKey = getConstraintKey();
                     }
