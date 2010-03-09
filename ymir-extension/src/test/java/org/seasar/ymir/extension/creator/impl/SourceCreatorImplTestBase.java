@@ -26,6 +26,7 @@ import org.seasar.ymir.Globals;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.PathMapping;
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.annotation.handler.impl.AnnotationHandlerImpl;
 import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.creator.PageCreator;
 import org.seasar.ymir.extension.creator.ClassDesc;
@@ -108,6 +109,7 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         container_.register(YmirNamingConvention.class);
         container_.register(ZptAnalyzer.class);
         container_.register(ConfigurationImpl.class);
+        container_.register(AnnotationHandlerImpl.class);
         container_.register(ApplicationManagerImpl.class);
         container_.register(HotdeployManagerImpl.class);
         container_.register(MessagesImpl.class, Globals.NAME_MESSAGES);
