@@ -15,17 +15,17 @@ import org.seasar.ymir.util.ServletUtils;
  * @since 1.0.7
  */
 public class JavaResourceServlet extends HttpServlet {
-    private static final String INITPARAM_ROOTPACKAGEPATH = "rootPackagePath";
+    private static final String INITPARAM_WEBROOTPACKAGEPATH = "webrootPackagePath";
 
     private static final String INITPRARM_ENCODING = "encoding";
 
-    private static final String DEFAULT_ROOTPACKAGEPATH = "org/seasar/ymir/webroot";
+    private static final String DEFAULT_WEBROOTPACKAGEPATH = "org/seasar/ymir/webroot";
 
     private static final long serialVersionUID = 1L;
 
     private static final String DEFAULT_MIMETYPE = "application/octet-stream";
 
-    private String rootPackagePath_;
+    private String webrootPackagePath_;
 
     private String encoding_;
 
@@ -33,15 +33,15 @@ public class JavaResourceServlet extends HttpServlet {
     public void init() throws ServletException {
         super.init();
 
-        String rootPackagePath = getInitParameter(INITPARAM_ROOTPACKAGEPATH);
-        if (rootPackagePath == null) {
-            rootPackagePath = DEFAULT_ROOTPACKAGEPATH;
+        String webrootPackagePath = getInitParameter(INITPARAM_WEBROOTPACKAGEPATH);
+        if (webrootPackagePath == null) {
+            webrootPackagePath = DEFAULT_WEBROOTPACKAGEPATH;
         }
-        if (rootPackagePath.endsWith("/")) {
-            rootPackagePath = rootPackagePath.substring(0, rootPackagePath
-                    .length() - 1/*= "/".length() */);
+        if (webrootPackagePath.endsWith("/")) {
+            webrootPackagePath = webrootPackagePath.substring(0,
+                    webrootPackagePath.length() - 1/*= "/".length() */);
         }
-        rootPackagePath_ = rootPackagePath;
+        webrootPackagePath_ = webrootPackagePath;
 
         encoding_ = getInitParameter(INITPRARM_ENCODING);
         if (encoding_ == null) {
@@ -55,7 +55,8 @@ public class JavaResourceServlet extends HttpServlet {
         String path = ServletUtils.getPath(req);
         InputStream is = getServletContext().getResourceAsStream(path);
         if (is == null) {
-            is = getClassLoader().getResourceAsStream(rootPackagePath_ + path);
+            is = getClassLoader().getResourceAsStream(
+                    webrootPackagePath_ + path);
             if (is == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
