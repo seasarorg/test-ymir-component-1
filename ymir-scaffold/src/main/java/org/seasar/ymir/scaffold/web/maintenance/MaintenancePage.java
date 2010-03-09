@@ -1,5 +1,6 @@
 package org.seasar.ymir.scaffold.web.maintenance;
 
+import java.lang.annotation.Annotation;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,16 +10,20 @@ import org.seasar.dbflute.Entity;
 import org.seasar.dbflute.cbean.ConditionBean;
 import org.seasar.dbflute.cbean.PagingResultBean;
 import org.seasar.dbflute.cbean.ckey.ConditionKey;
+import org.seasar.dbflute.dbmeta.DBMeta;
 import org.seasar.dbflute.dbmeta.info.ColumnInfo;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Phase;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.annotation.Invoke;
+import org.seasar.ymir.constraint.ConstraintManager;
+import org.seasar.ymir.constraint.ConstraintViolatedException;
+import org.seasar.ymir.constraint.annotation.Validator;
 import org.seasar.ymir.dbflute.EntityManager;
+import org.seasar.ymir.dbflute.constraint.annotation.FittedOnDBType;
 import org.seasar.ymir.render.Paging;
 import org.seasar.ymir.scaffold.annotation.IndexColumns;
 import org.seasar.ymir.scaffold.util.PageBase;
@@ -34,11 +39,21 @@ import org.seasar.ymir.zpt.annotation.ParameterHolder;
 
 @ParameterHolder("entity")
 public class MaintenancePage extends PageBase {
-    @Binding(bindingType = BindingType.MUST)
-    protected ApplicationManager applicationManager;
+    private static final FittedOnDBType FITTED_ON_DB_TYPE = new FittedOnDBType() {
+        public String messageKey() {
+            return "";
+        }
+
+        public Class<? extends Annotation> annotationType() {
+            return FittedOnDBType.class;
+        }
+    };
 
     @Binding(bindingType = BindingType.MUST)
     protected EntityManager entityManager;
+
+    @Binding(bindingType = BindingType.MUST)
+    protected ConstraintManager constraintManager;
 
     @Binding(bindingType = BindingType.MUST)
     protected SessionManager sessionManager;
@@ -48,11 +63,13 @@ public class MaintenancePage extends PageBase {
 
     private Class<? extends Entity> entityClass;
 
-    private List<ColumnInfo> columnInfos;
+    private DBMeta dbMeta;
 
     private List<String> primaryKeyColumnNames;
 
     private Entity entity;
+
+    private List<ColumnInfo> columnInfos;
 
     private List<? extends Entity> entities;
 
@@ -64,7 +81,7 @@ public class MaintenancePage extends PageBase {
 
     public Map<String, String> getPrimaryKeyMap(Entity entity) {
         Map<String, String> map = new HashMap<String, String>();
-        
+
         return map;
     }
 
@@ -92,12 +109,20 @@ public class MaintenancePage extends PageBase {
                     + entityName);
         }
 
+        dbMeta = entityManager.getDBMeta(entityClass);
         primaryKeyColumnNames = entityManager
                 .getPrimaryKeyColumnNames(entityClass);
     }
 
+    @Validator
+    public void validate() throws ConstraintViolatedException {
+        constraintManager.confirmConstraint(this, getYmirRequest(),
+                FITTED_ON_DB_TYPE, entityClass);
+    }
+
     @Invoke(Phase.ACTION_INVOKING)
-    public void prepareEntity(@URIParameter("action") String action) {
+    public void prepareEntity(@URIParameter("action")
+    String action) {
         Request request = getYmirRequest();
         HttpMethod method = request.getMethod();
         if ("add".equals(action)) {
@@ -133,10 +158,11 @@ public class MaintenancePage extends PageBase {
         if (key == null) {
             return null;
         }
-        return entity.getTablePropertyName() + "." + key;
+        return dbMeta.getTablePropertyName() + "." + key;
     }
 
-    public void _get(@RequestParameter("p") Integer p) {
+    public void _get(@RequestParameter("p")
+    Integer p) {
         index(p);
     }
 
@@ -160,7 +186,7 @@ public class MaintenancePage extends PageBase {
             includes = indexColumns.includes();
             excludes = indexColumns.excludes();
         }
-        columnInfos = ScaffoldUtils.extractColumnsList(entity.getDBMeta()
+        columnInfos = ScaffoldUtils.extractColumnsList(dbMeta
                 .getColumnInfoList(), includes, excludes, "versionNo");
 
         sessionManager.setAttribute(getSessionKey("p"), p);
