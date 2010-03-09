@@ -73,6 +73,14 @@ public class MaintenancePage extends PageBase {
 
     private Paging paging;
 
+    public String getTableLabel() {
+        String label = dbMeta.getTableAlias();
+        if (label == null) {
+            label = dbMeta.getTablePropertyName();
+        }
+        return label;
+    }
+
     public List<ColumnInfo> getColumnInfos() {
         return columnInfos;
     }
@@ -81,6 +89,14 @@ public class MaintenancePage extends PageBase {
         Map<String, String> map = new HashMap<String, String>();
 
         return map;
+    }
+
+    public String getColumnLabel(ColumnInfo columnInfo) {
+        String label = columnInfo.getColumnAlias();
+        if (label == null) {
+            label = columnInfo.getPropertyName();
+        }
+        return label;
     }
 
     public Entity getEntity() {
@@ -136,7 +152,8 @@ public class MaintenancePage extends PageBase {
         return dbMeta.getTablePropertyName() + "." + key;
     }
 
-    public void _get(@RequestParameter("p") Integer p) {
+    public void _get(@RequestParameter("p")
+    Integer p) {
         index(p);
     }
 
