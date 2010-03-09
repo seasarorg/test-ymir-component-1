@@ -14,7 +14,6 @@ import org.seasar.dbflute.dbmeta.DBMeta;
 import org.seasar.dbflute.dbmeta.info.ColumnInfo;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Phase;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -31,7 +30,6 @@ import org.seasar.ymir.scaffold.util.Redirect;
 import org.seasar.ymir.scaffold.util.ScaffoldUtils;
 import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.annotation.RequestParameter;
-import org.seasar.ymir.scope.annotation.URIParameter;
 import org.seasar.ymir.session.SessionManager;
 import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.StringUtils;
@@ -114,41 +112,18 @@ public class MaintenancePage extends PageBase {
                 .getPrimaryKeyColumnNames(entityClass);
     }
 
-    @Validator
+    @Validator("_post_\\.*")
     public void validate() throws ConstraintViolatedException {
         constraintManager.confirmConstraint(this, getYmirRequest(),
                 FITTED_ON_DB_TYPE, entityClass);
     }
 
-    @Invoke(Phase.ACTION_INVOKING)
-    public void prepareEntity(@URIParameter("action")
-    String action) {
-        Request request = getYmirRequest();
-        HttpMethod method = request.getMethod();
-        if ("add".equals(action)) {
-            entity = entityManager.newEntity(entityClass);
-
-            if (method == HttpMethod.POST) {
-                scopeManager.populateQuietly(entity, request.getParameterMap());
-            }
-        } else if ("edit".equals(action)) {
-            entity = loadEntity();
-
-            if (method == HttpMethod.POST) {
-                scopeManager.populateQuietly(entity, request.getParameterMap());
-            }
-        } else if ("delete".equals(action)) {
-            entity = loadEntity();
-        }
-    }
-
     protected Entity loadEntity() {
-        Request request = getYmirRequest();
         ConditionBean cb = entityManager.newConditionBean(entityClass);
         for (String name : primaryKeyColumnNames) {
             cb.localCQ().invokeQuery(name,
                     ConditionKey.CK_EQUAL.getConditionKey(),
-                    request.getParameter(name));
+                    getYmirRequest().getParameter(name));
         }
         return entityManager.getBehavior(entityClass)
                 .readEntityWithDeletedCheck(cb);
@@ -161,8 +136,7 @@ public class MaintenancePage extends PageBase {
         return dbMeta.getTablePropertyName() + "." + key;
     }
 
-    public void _get(@RequestParameter("p")
-    Integer p) {
+    public void _get(@RequestParameter("p") Integer p) {
         index(p);
     }
 
@@ -197,15 +171,20 @@ public class MaintenancePage extends PageBase {
     }
 
     public void _get_add() {
+        entity = entityManager.newEntity(entityClass);
     }
 
     public Response _post_do_add() {
+        Request request = getYmirRequest();
+        entity = entityManager.newEntity(entityClass);
+        scopeManager.populateQuietly(entity, request.getParameterMap());
+
         Date now = new Date();
-        String created = getYmirRequest().getParameter("created");
+        String created = request.getParameter("created");
         if (StringUtils.isEmpty(created)) {
             scopeManager.populateQuietly(entity, "created", now);
         }
-        String modified = getYmirRequest().getParameter("modified");
+        String modified = request.getParameter("modified");
         if (StringUtils.isEmpty(modified)) {
             scopeManager.populateQuietly(entity, "modified", now);
         }
@@ -215,11 +194,16 @@ public class MaintenancePage extends PageBase {
     }
 
     public void _get_edit() {
+        entity = loadEntity();
     }
 
     public Response _post_do_edit() {
+        Request request = getYmirRequest();
+        entity = loadEntity();
+        scopeManager.populateQuietly(entity, request.getParameterMap());
+
         Date now = new Date();
-        String modified = getYmirRequest().getParameter("modified");
+        String modified = request.getParameter("modified");
         if (StringUtils.isEmpty(modified)) {
             scopeManager.populateQuietly(entity, "modified", now);
         }
@@ -228,7 +212,11 @@ public class MaintenancePage extends PageBase {
         return Redirect.to("index.html", "returned");
     }
 
-    public void _get_do_delete() {
+    public Response _get_do_delete() {
+        entity = loadEntity();
+        entityManager.getBehavior(entityClass).remove(entity);
+
+        return Redirect.to("index.html", "returned");
     }
 
     public Response _post_cancel() {
