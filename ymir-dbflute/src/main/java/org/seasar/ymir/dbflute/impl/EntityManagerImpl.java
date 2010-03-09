@@ -2,6 +2,7 @@ package org.seasar.ymir.dbflute.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,6 +28,8 @@ public class EntityManagerImpl implements EntityManager {
     private Map<Class<? extends Entity>, Class<? extends ConditionBean>> conditionBeanClassMap = new ConcurrentHashMap<Class<? extends Entity>, Class<? extends ConditionBean>>();
 
     private Map<Class<? extends Entity>, DBMeta> dbMetaMap = new ConcurrentHashMap<Class<? extends Entity>, DBMeta>();
+
+    private Map<Class<? extends Entity>, Map<String, ColumnInfo>> columnInfoMap = new ConcurrentHashMap<Class<? extends Entity>, Map<String, ColumnInfo>>();
 
     private Map<Class<? extends Entity>, List<String>> primaryKeyColumnNamesMap = new ConcurrentHashMap<Class<? extends Entity>, List<String>>();
 
@@ -86,6 +89,12 @@ public class EntityManagerImpl implements EntityManager {
 
         DBMeta dbMeta = newEntity(entityClass).getDBMeta();
         dbMetaMap.put(entityClass, dbMeta);
+
+        Map<String, ColumnInfo> ciMap = new HashMap<String, ColumnInfo>();
+        for (ColumnInfo columnInfo : dbMeta.getColumnInfoList()) {
+            ciMap.put(columnInfo.getPropertyName(), columnInfo);
+        }
+        columnInfoMap.put(entityClass, ciMap);
 
         List<String> primaryKeyColumnNames = new ArrayList<String>();
         UniqueInfo uniqueInfo = dbMeta.getPrimaryUniqueInfo();
@@ -158,6 +167,23 @@ public class EntityManagerImpl implements EntityManager {
         }
 
         return dbMetaMap.get(entityClass);
+    }
+
+    public ColumnInfo getColumnInfo(String entityName, String columnName) {
+        return getColumnInfo(getEntityClass(entityName), columnName);
+    }
+
+    public ColumnInfo getColumnInfo(Class<? extends Entity> entityClass,
+            String columnName) {
+        if (entityClass == null) {
+            return null;
+        }
+        Map<String, ColumnInfo> map = columnInfoMap.get(entityClass);
+        if (map == null) {
+            return null;
+        }
+
+        return map.get(columnName);
     }
 
     public List<String> getPrimaryKeyColumnNames(String entityName) {

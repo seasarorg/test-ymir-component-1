@@ -2,6 +2,6 @@
 <!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
-  <component name="entityManager" class="org.seasar.ymir.dbflute.impl.EntityManager" />
   <component name="fittedOnDBTypeConstraint" class="org.seasar.ymir.dbflute.constraint.FittedOnDBTypeConstraint" />
+  <component name="scaffoldMessageProvider" class="org.seasar.ymir.dbflute.EntityMessageProvider" />
 </components>

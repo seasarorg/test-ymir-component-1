@@ -106,6 +106,23 @@ public class FittedOnDBTypeConstraint extends
         if (values == null) {
             return;
         }
+
+        // 必須条件をチェックする。
+        if (columnInfo != null && columnInfo.isNotNull()) {
+            boolean exist = false;
+            for (String value : values) {
+                if (value.length() > 0) {
+                    exist = true;
+                    break;
+                }
+            }
+            if (!exist) {
+                notes.add(name, new Note(ConstraintUtils.getFullMessageKey(
+                        "required", messageKey), name));
+                return;
+            }
+        }
+
         for (String value : values) {
             if (value.length() == 0) {
                 continue;
@@ -140,9 +157,6 @@ public class FittedOnDBTypeConstraint extends
                                         messageKey), name, size));
                     }
                 }
-
-                // 必須条件をチェックする。
-                // TODO
             }
         }
     }

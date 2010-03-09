@@ -6,6 +6,7 @@ import org.seasar.dbflute.Entity;
 import org.seasar.dbflute.bhv.BehaviorWritable;
 import org.seasar.dbflute.cbean.ConditionBean;
 import org.seasar.dbflute.dbmeta.DBMeta;
+import org.seasar.dbflute.dbmeta.info.ColumnInfo;
 
 public interface EntityManager {
     Class<? extends Entity> getEntityClass(String entityName);
@@ -25,6 +26,11 @@ public interface EntityManager {
     DBMeta getDBMeta(String entityName);
 
     DBMeta getDBMeta(Class<? extends Entity> entityClass);
+
+    ColumnInfo getColumnInfo(String entityName, String columnName);
+
+    ColumnInfo getColumnInfo(Class<? extends Entity> entityClass,
+            String columnName);
 
     List<String> getPrimaryKeyColumnNames(String entityName);
 
