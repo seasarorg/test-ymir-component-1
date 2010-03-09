@@ -17,9 +17,15 @@ public class ScaffoldingYmirFreyjaServlet extends YmirFreyjaServlet {
 
     private static final String INITPARAM_ROOTPACKAGEPATH = "rootPackagePath";
 
+    private static final String INITPARAM_RESOURCEENCODING = "resourceEncoding";
+
     private static final String DEFAULT_ROOTPACKAGEPATH = "org/seasar/ymir/zptroot";
 
+    private static final String DEFAULT_RESOURCEENCODING = "UTF-8";
+
     private String rootPackagePath_;
+
+    private String resourceEncoding_;
 
     @Override
     public void init() throws ServletException {
@@ -32,6 +38,11 @@ public class ScaffoldingYmirFreyjaServlet extends YmirFreyjaServlet {
                     .length() - 1/*= "/".length() */);
         }
         rootPackagePath_ = rootPackagePath;
+
+        resourceEncoding_ = getInitParameter(INITPARAM_RESOURCEENCODING);
+        if (resourceEncoding_ == null) {
+            resourceEncoding_ = DEFAULT_RESOURCEENCODING;
+        }
 
         super.init();
     }
@@ -47,6 +58,6 @@ public class ScaffoldingYmirFreyjaServlet extends YmirFreyjaServlet {
     protected TemplateSet createTemplateSet() {
         return new CascadingTemplateSet(super.createTemplateSet(),
                 new TraversingJavaResourceTemplateSet(rootPackagePath_,
-                        getPageEncoding(), getTemplateEvaluator()));
+                        resourceEncoding_, getTemplateEvaluator()));
     }
 }
