@@ -1,4 +1,4 @@
-package org.seasar.ymir.scaffold.web.maintenance;
+package org.seasar.ymir.scaffold.web;
 
 import java.lang.annotation.Annotation;
 import java.util.Date;
