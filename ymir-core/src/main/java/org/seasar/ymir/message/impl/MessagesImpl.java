@@ -22,10 +22,11 @@ import org.seasar.ymir.Request;
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.locale.LocaleManager;
+import org.seasar.ymir.message.MessageProvider;
 import org.seasar.ymir.message.Messages;
 import org.seasar.ymir.util.MessagesUtils;
 
-public class MessagesImpl implements Messages {
+public class MessagesImpl implements Messages, MessageProvider {
     private static final String SUFFIX_PAGE = "Page";
 
     private final Log log_ = LogFactory.getLog(MessagesImpl.class);
@@ -35,6 +36,13 @@ public class MessagesImpl implements Messages {
     private I18NProperties messages_;
 
     private TextTemplateEvaluator evaluator_ = new SimpleTextTemplateEvaluator();
+
+    private MessageProvider[] messageProviders_ = new MessageProvider[0];
+
+    @Binding(bindingType = BindingType.MAY)
+    public void setMessageProviders(MessageProvider[] messageProviders) {
+        messageProviders_ = messageProviders;
+    }
 
     private VariableResolver variableResolverAdapter_ = new VariableResolver() {
         public Object getValue(Object key) {
@@ -90,18 +98,29 @@ public class MessagesImpl implements Messages {
 
     public String getProperty(final String name, final Locale locale) {
         updateMessages();
-        return getProperty0(name, locale);
+        return getMessage(name, locale);
     }
 
+    /**
+     * @deprecated 代わりに{@link #getMessage(String, Locale)}を使って下さい。
+     */
     protected String getProperty0(final String name, final Locale locale) {
-        return resolveValue(messages_.getProperty(name, locale), locale);
+        return getMessage(name, locale);
     }
 
+    /**
+     * @deprecated 代わりに{@link #resolveValue(String, Locale)}を使って下さい。
+     */
     protected String resolveValue(String value, final Locale locale) {
+        return resolveValue(this, value, locale);
+    }
+
+    protected String resolveValue(final MessageProvider provider, String value,
+            final Locale locale) {
         try {
             return evaluator_.evaluateAsString(value, new VariableResolver() {
                 public Object getValue(Object key) {
-                    String value = getProperty0((String) key, locale);
+                    String value = provider.getMessage((String) key, locale);
                     if (value != null) {
                         return value;
                     } else {
@@ -118,12 +137,21 @@ public class MessagesImpl implements Messages {
     public String getMessage(final String name) {
         updateMessages();
         final Locale locale = localeManager_.getLocale();
-        for (String messageNameCnadidate : MessagesUtils
-                .getMessageNameCandidates(name,
-                        getPageNameCandidates(getPageNames()))) {
-            String message = getProperty0(messageNameCnadidate, locale);
+        String[] candidates = MessagesUtils.getMessageNameCandidates(name,
+                getPageNameCandidates(getPageNames()));
+        for (String candidate : candidates) {
+            String message = getMessage(candidate, locale);
             if (message != null) {
                 return message;
+            }
+        }
+        for (MessageProvider provider : messageProviders_) {
+            for (String candidate : candidates) {
+                String message = resolveValue(provider, provider.getMessage(
+                        candidate, locale), locale);
+                if (message != null) {
+                    return message;
+                }
             }
         }
         return null;
@@ -178,5 +206,9 @@ public class MessagesImpl implements Messages {
 
     protected Ymir getYmir() {
         return YmirContext.getYmir();
+    }
+
+    public String getMessage(String name, Locale locale) {
+        return resolveValue(this, messages_.getProperty(name, locale), locale);
     }
 }

@@ -1,7 +1,7 @@
 package org.seasar.ymir.constraint;
 
 import static org.seasar.ymir.RequestProcessor.ATTR_NOTES;
-import static org.seasar.ymir.constraint.ConstraintBagCreator.CONSTRAINTBAG_EMPTY;
+import static org.seasar.ymir.constraint.ConstraintManager.CONSTRAINTBAGS_EMPTY;
 import static org.seasar.ymir.constraint.Globals.APPKEY_CORE_CONSTRAINT_PERMISSIONDENIEDMETHOD_ENABLE;
 import static org.seasar.ymir.constraint.Globals.APPKEY_CORE_CONSTRAINT_VALIDATIONFAILEDMETHOD_ENABLE;
 
@@ -148,10 +148,8 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             throws PermissionDeniedException {
         Action action = request.getCurrentDispatch().getAction();
         MethodInvoker actionInvoker = null;
-        Class<?> actionPage = null;
         Method actionMethod = null;
         if (action != null) {
-            actionPage = action.getTargetClass();
             actionInvoker = action.getMethodInvoker();
             if (actionInvoker != null) {
                 actionMethod = actionInvoker.getMethod();
@@ -167,7 +165,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
         // アクションに関連付けられている制約をチェックする。
         constraintManager_.confirmConstraint(constraintManager_
-                .getConstraintBags(actionPage, actionMethod, constraintManager_
+                .getConstraintBags(actionMethod, constraintManager_
                         .getAlwaysDecider()), suppressTypeSet, pageComponent
                 .getPage(), request, notes);
 
@@ -228,10 +226,10 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             List<ConstraintBag<?>> list = new ArrayList<ConstraintBag<?>>();
             for (int i = 0; i < bundleCds.length; i++) {
                 constraintManager_.getConstraintBags(bundleCds[i]
-                        .getComponentClass(), bundleCds[i].getComponentClass(),
-                        (ConstraintBundle) bundleCds[i].getComponent(), list);
+                        .getComponentClass(), (ConstraintBundle) bundleCds[i]
+                        .getComponent(), list);
             }
-            bags = list.toArray(CONSTRAINTBAG_EMPTY);
+            bags = list.toArray(CONSTRAINTBAGS_EMPTY);
             application.setRelatedObject(ConstraintBag[].class, bags);
         }
         return bags;

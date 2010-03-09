@@ -78,11 +78,26 @@ public interface AnnotationHandler {
      * <p>要素がnullである場合や該当するアノテーションが存在しない場合は空の配列を返します。</p>
      * 
      * @param element 要素。nullを指定することもできます。
-     * @param annotationClass メタアノテーション型。nullを指定してはいけません。
+     * @param metaAnnotationClass メタアノテーション型。nullを指定してはいけません。
      * @return 指定されたメタアノテーションが付与されているアノテーションの配列。存在しない場合は空の配列を返します。
      */
     Annotation[] getMarkedAnnotations(AnnotatedElement element,
             Class<? extends Annotation> metaAnnotationClass);
+
+    /**
+     * 指定されたアノテーションのうち、指定されたメタアノテーションが付与されているものを返します。
+     * <p>コレクションアノテーションやエイリアスアノテーションはともに展開されて返されます。
+     * </p>
+     * <p>該当するアノテーションが存在しない場合は空の配列を返します。</p>
+     * 
+     * @param metaAnnotationClass メタアノテーション型。nullを指定してはいけません。
+     * @param annotations 要素。nullを指定してはいけません。
+     * @return 指定されたメタアノテーションが付与されているアノテーションの配列。存在しない場合は空の配列を返します。
+     * @since 1.0.7
+     */
+    Annotation[] getMarkedAnnotations(
+            Class<? extends Annotation> metaAnnotationClass,
+            Annotation... annotations);
 
     /**
      * メソッドの引数に付与されているアノテーションのうち、指定された型と合致するアノテーションを返します。

@@ -47,6 +47,7 @@ public interface Constraint<T extends Annotation> {
      * @param request 現在のRequestオブジェクト。
      * @param annotation 制約を表すアノテーション。
      * @param element 制約を表すアノテーションが付与されていた要素。
+     * アノテーションが要素由来でない場合はnullを渡して下さい。
      * @throws ConstraintViolatedException 制約を満たしていない場合。
      */
     void confirm(Object component, Request request, T annotation,

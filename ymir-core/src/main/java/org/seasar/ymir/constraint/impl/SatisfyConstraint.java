@@ -38,7 +38,7 @@ public class SatisfyConstraint implements Constraint<Satisfy> {
     private void confirm(Object component, Request request, Class<?> beanClass,
             AnnotatedElement element) throws ConstraintViolatedException {
         for (ConstraintBag<?> bag : constraintManager_
-                .getConstraintBags(beanClass, constraintManager_
+                .getConstraintBagsForClass(beanClass, constraintManager_
                         .getAlwaysDecider())) {
             bag.confirm(component, request, SUPPRESSTYPESET_EMPTY);
         }

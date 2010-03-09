@@ -83,7 +83,4 @@
     class="org.seasar.ymir.hotdeploy.fitter.impl.CollectionFitter" />
   <component name="selectorFitter"
     class="org.seasar.ymir.hotdeploy.fitter.impl.SelectorFitter" />
-  <!-- ConstraintBagCreator -->
-  <component name="constraintBagCreator"
-    class="org.seasar.ymir.constraint.impl.ConstraintBagCreatorImpl" />
 </components>

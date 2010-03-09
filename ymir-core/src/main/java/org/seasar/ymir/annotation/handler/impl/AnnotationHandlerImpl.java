@@ -200,6 +200,12 @@ public class AnnotationHandlerImpl implements AnnotationHandler {
         return gatherer.getAnnotations();
     }
 
+    public Annotation[] getMarkedAnnotations(
+            Class<? extends Annotation> metaAnnotationClass,
+            Annotation... annotations) {
+        return getMarkedAnnotations0(annotations, metaAnnotationClass);
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends Annotation> T[] getParameterAnnotations(Method method,
             int index, Class<T> annotationClass) {

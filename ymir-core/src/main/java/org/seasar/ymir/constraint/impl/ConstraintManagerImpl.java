@@ -1,13 +1,14 @@
 package org.seasar.ymir.constraint.impl;
 
-import static org.seasar.ymir.constraint.ConstraintBagCreator.CONSTRAINTBAG_EMPTY;
-
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,13 +27,13 @@ import org.seasar.ymir.cache.CacheManager;
 import org.seasar.ymir.constraint.ConfirmationDecider;
 import org.seasar.ymir.constraint.Constraint;
 import org.seasar.ymir.constraint.ConstraintBag;
-import org.seasar.ymir.constraint.ConstraintBagCreator;
 import org.seasar.ymir.constraint.ConstraintManager;
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
+import org.seasar.ymir.constraint.annotation.ConstraintHolder;
 import org.seasar.ymir.constraint.annotation.Validator;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.util.ClassUtils;
@@ -56,13 +57,11 @@ public class ConstraintManagerImpl implements ConstraintManager {
 
     private AnnotationHandler annotationHandler_;
 
-    private ConstraintBagCreator<?>[] constraintBagCreators_;
+    private ApplicationManager applicationManager_;
 
-    private Map<Class<?>, List<ConstraintBagCreator<?>>> constraintBagCreatorMap_ = new HashMap<Class<?>, List<ConstraintBagCreator<?>>>();
+    private Map<AnnotatedElement, ConstraintBag<?>[]> bagsWithAlwaysDeciderMap_;
 
-    private Map<ElementKey, ConstraintBag<?>[]> bagsWithAlwaysDeciderMap_;
-
-    private Map<ElementKey, ConstraintBag<?>[]> bagsWithDependsOnSuppressTypeDeciderMap_;
+    private Map<AnnotatedElement, ConstraintBag<?>[]> bagsWithDependsOnSuppressTypeDeciderMap_;
 
     private Map<Key, Method[]> validatorMethodsMap_;
 
@@ -77,27 +76,15 @@ public class ConstraintManagerImpl implements ConstraintManager {
     }
 
     @Binding(bindingType = BindingType.MUST)
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        applicationManager_ = applicationManager;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
     public void setCacheManager(CacheManager cacheManager) {
         bagsWithAlwaysDeciderMap_ = cacheManager.newMap();
         bagsWithDependsOnSuppressTypeDeciderMap_ = cacheManager.newMap();
         validatorMethodsMap_ = cacheManager.newMap();
-    }
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setConstraintBagCreators(
-            ConstraintBagCreator<?>[] constraintBagCreators) {
-        constraintBagCreators_ = constraintBagCreators;
-
-        for (ConstraintBagCreator<?> creator : constraintBagCreators_) {
-            Class<?> clazz = creator.getTargetClass();
-            List<ConstraintBagCreator<?>> list = constraintBagCreatorMap_
-                    .get(clazz);
-            if (list == null) {
-                list = new ArrayList<ConstraintBagCreator<?>>();
-                constraintBagCreatorMap_.put(clazz, list);
-            }
-            list.add(creator);
-        }
     }
 
     public ConfirmationDecider getAlwaysDecider() {
@@ -128,7 +115,7 @@ public class ConstraintManagerImpl implements ConstraintManager {
             Set<ConstraintType> suppressTypeSet, Object bean, Request request,
             Notes notes) throws PermissionDeniedException {
         // クラスとプロパティとConstraintHolderが付与されたメソッドに関連付けられている制約をチェックする。
-        confirmConstraint(getConstraintBags(beanClass,
+        confirmConstraint(getConstraintBagsForClass(beanClass,
                 DECIDER_DEPENDS_ON_SUPPRESSTYPE), suppressTypeSet, bean,
                 request, notes);
 
@@ -155,121 +142,98 @@ public class ConstraintManagerImpl implements ConstraintManager {
         }
     }
 
-    public ConstraintBag<?>[] getConstraintBags(Class<?> beanClass,
+    @SuppressWarnings("unchecked")
+    public void confirmConstraint(Object component, Request request,
+            Annotation annotation, AnnotatedElement element)
+            throws ConstraintViolatedException {
+        for (Annotation expanded : annotationHandler_.getMarkedAnnotations(
+                ConstraintAnnotation.class, annotation)) {
+            Class<? extends Constraint<?>> constraintClass = expanded
+                    .annotationType().getAnnotation(ConstraintAnnotation.class)
+                    .component();
+            Constraint constraint = (Constraint) getS2Container().getComponent(
+                    constraintClass);
+            constraint.confirm(component, request, expanded, element);
+        }
+    }
+
+    public ConstraintBag<?>[] getConstraintBagsForClass(Class<?> beanClass,
             ConfirmationDecider decider) {
         if (beanClass == null) {
-            return CONSTRAINTBAG_EMPTY;
+            return CONSTRAINTBAGS_EMPTY;
         }
 
-        Map<ElementKey, ConstraintBag<?>[]> bagsMap = null;
+        Map<AnnotatedElement, ConstraintBag<?>[]> bagsMap = null;
         ConstraintBag<?>[] bags = null;
         if (decider == DECIDER_ALWAYS) {
             bagsMap = bagsWithAlwaysDeciderMap_;
         } else if (decider == DECIDER_DEPENDS_ON_SUPPRESSTYPE) {
             bagsMap = bagsWithDependsOnSuppressTypeDeciderMap_;
         }
-        ElementKey key = null;
         if (bagsMap != null) {
-            key = new ElementKey(beanClass, null);
-            bags = bagsMap.get(key);
-        }
-        if (bags == null) {
-            bags = createConstraintBagsForClass(beanClass, decider);
-        }
-        if (bagsMap != null) {
-            bagsMap.put(key, bags);
-        }
-        return bags;
-    }
-
-    @SuppressWarnings("unchecked")
-    ConstraintBag[] createConstraintBagsForClass(Class<?> beanClass,
-            ConfirmationDecider decider) {
-        for (Class<?> clazz : ClassUtils.getAssignableClasses(beanClass)) {
-            List creators = constraintBagCreatorMap_.get(clazz);
-            if (creators != null) {
-                for (ConstraintBagCreator c : (List<ConstraintBagCreator>) creators) {
-                    ConstraintBag[] bags = c.createConstraintBags(beanClass,
-                            decider);
-                    if (bags != null) {
-                        return bags;
-                    }
-                }
-            }
-        }
-        return CONSTRAINTBAG_EMPTY;
-    }
-
-    public ConstraintBag<?>[] getConstraintBags(Class<?> beanClass,
-            AnnotatedElement element, ConfirmationDecider decider) {
-        if (beanClass == null || element == null) {
-            return CONSTRAINTBAG_EMPTY;
-        }
-
-        Map<ElementKey, ConstraintBag<?>[]> bagsMap = null;
-        ConstraintBag<?>[] bags = null;
-        if (decider == DECIDER_ALWAYS) {
-            bagsMap = bagsWithAlwaysDeciderMap_;
-        } else if (decider == DECIDER_DEPENDS_ON_SUPPRESSTYPE) {
-            bagsMap = bagsWithDependsOnSuppressTypeDeciderMap_;
-        }
-        ElementKey key = null;
-        if (bagsMap != null) {
-            key = new ElementKey(beanClass, element);
-            bags = bagsMap.get(key);
+            bags = bagsMap.get(beanClass);
         }
         if (bags == null) {
             List<ConstraintBag<?>> list = new ArrayList<ConstraintBag<?>>();
-            createConstraintBags(beanClass, element, decider, list);
-            bags = list.toArray(CONSTRAINTBAG_EMPTY);
+            createConstraintBagsForClass(beanClass, decider, list);
+            bags = list.toArray(CONSTRAINTBAGS_EMPTY);
         }
         if (bagsMap != null) {
-            bagsMap.put(key, bags);
+            bagsMap.put(beanClass, bags);
         }
         return bags;
     }
 
-    public void getConstraintBags(Class<?> beanClass, AnnotatedElement element,
-            ConfirmationDecider decider, List<ConstraintBag<?>> list) {
-        if (beanClass == null || element == null) {
-            return;
+    public ConstraintBag<?>[] getConstraintBags(AnnotatedElement element,
+            ConfirmationDecider decider) {
+        if (element == null) {
+            return CONSTRAINTBAGS_EMPTY;
         }
 
-        Map<ElementKey, ConstraintBag<?>[]> bagsMap = null;
+        Map<AnnotatedElement, ConstraintBag<?>[]> bagsMap = null;
+        ConstraintBag<?>[] bags = null;
         if (decider == DECIDER_ALWAYS) {
             bagsMap = bagsWithAlwaysDeciderMap_;
         } else if (decider == DECIDER_DEPENDS_ON_SUPPRESSTYPE) {
             bagsMap = bagsWithDependsOnSuppressTypeDeciderMap_;
         }
         if (bagsMap != null) {
-            ElementKey key = new ElementKey(beanClass, element);
-            ConstraintBag<?>[] bags = bagsMap.get(key);
+            bags = bagsMap.get(element);
+        }
+        if (bags == null) {
+            List<ConstraintBag<?>> list = new ArrayList<ConstraintBag<?>>();
+            createConstraintBags(element, decider, list);
+            bags = list.toArray(CONSTRAINTBAGS_EMPTY);
+        }
+        if (bagsMap != null) {
+            bagsMap.put(element, bags);
+        }
+        return bags;
+    }
+
+    public void getConstraintBags(AnnotatedElement element,
+            ConfirmationDecider decider, List<ConstraintBag<?>> list) {
+        if (element == null) {
+            return;
+        }
+
+        Map<AnnotatedElement, ConstraintBag<?>[]> bagsMap = null;
+        if (decider == DECIDER_ALWAYS) {
+            bagsMap = bagsWithAlwaysDeciderMap_;
+        } else if (decider == DECIDER_DEPENDS_ON_SUPPRESSTYPE) {
+            bagsMap = bagsWithDependsOnSuppressTypeDeciderMap_;
+        }
+        if (bagsMap != null) {
+            ConstraintBag<?>[] bags = bagsMap.get(element);
             if (bags == null) {
                 List<ConstraintBag<?>> l = new ArrayList<ConstraintBag<?>>();
-                createConstraintBags(beanClass, element, decider, l);
-                bags = l.toArray(CONSTRAINTBAG_EMPTY);
-                bagsMap.put(key, bags);
+                createConstraintBags(element, decider, l);
+                bags = l.toArray(CONSTRAINTBAGS_EMPTY);
+                bagsMap.put(element, bags);
             }
             list.addAll(Arrays.asList(bags));
         } else {
-            createConstraintBags(beanClass, element, decider, list);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void createConstraintBags(Class<?> beanClass,
-            AnnotatedElement element, ConfirmationDecider decider,
-            List<ConstraintBag<?>> list) {
-        for (Class<?> clazz : ClassUtils.getAssignableClasses(beanClass)) {
-            List creators = constraintBagCreatorMap_.get(clazz);
-            if (creators != null) {
-                for (ConstraintBagCreator c : (List<ConstraintBagCreator>) creators) {
-                    if (c.createConstraintBags(beanClass, element, decider,
-                            list)) {
-                        return;
-                    }
-                }
-            }
+            createConstraintBags(element, decider, list);
         }
     }
 
@@ -321,6 +285,10 @@ public class ConstraintManagerImpl implements ConstraintManager {
         return null;
     }
 
+    protected S2Container getS2Container() {
+        return applicationManager_.findContextApplication().getS2Container();
+    }
+
     protected static class Key {
         private Class<?> pageClass_;
 
@@ -364,46 +332,62 @@ public class ConstraintManagerImpl implements ConstraintManager {
         }
     }
 
-    protected static class ElementKey {
-        private Class<?> beanClass_;
+    private void createConstraintBagsForClass(Class<?> beanClass,
+            ConfirmationDecider decider, List<ConstraintBag<?>> bags) {
+        // クラス自体に付与されているアノテーションからConstraintBagを作成する。
+        createConstraintBags(beanClass, decider, bags);
 
-        private AnnotatedElement element_;
+        // クラスが持つメンバに付与されているアノテーションからConstraintBagを作成する。
+        createFromClassMembers(beanClass, decider, bags);
 
-        public ElementKey(Class<?> beanClass, AnnotatedElement element) {
-            beanClass_ = beanClass;
-            element_ = element;
+        // ConstraintHolderアノテーションが付与されているメソッドからConstraintBagを作成する。
+        createFromConstraintHolders(beanClass, decider, bags);
+    }
+
+    protected void createFromClassMembers(Class<?> beanClass,
+            ConfirmationDecider decider, List<ConstraintBag<?>> bags) {
+        BeanInfo beanInfo;
+        try {
+            beanInfo = Introspector.getBeanInfo(beanClass);
+        } catch (IntrospectionException ex) {
+            throw new RuntimeException(ex);
         }
 
-        @Override
-        public int hashCode() {
-            int code = beanClass_.hashCode();
-            if (element_ != null) {
-                code += element_.hashCode();
+        // クラスが持つプロパティのGetter/Setterに付与されているアノテーションからConstraintBagを作成する。
+        // fieldは対象外。
+        PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
+        for (int i = 0; i < pds.length; i++) {
+            createConstraintBags(pds[i].getReadMethod(), decider, bags);
+            createConstraintBags(pds[i].getWriteMethod(), decider, bags);
+        }
+    }
+
+    protected void createFromConstraintHolders(Class<?> beanClass,
+            ConfirmationDecider decider, List<ConstraintBag<?>> bags) {
+
+        for (Method method : ClassUtils.getMethods(beanClass)) {
+            if (annotationHandler_
+                    .getAnnotation(method, ConstraintHolder.class) != null) {
+                createConstraintBags(method, new MethodConfirmationDecider(
+                        actionManager_, beanClass, method, decider), bags);
             }
-            return code;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void createConstraintBags(AnnotatedElement element,
+            ConfirmationDecider decider, List<ConstraintBag<?>> bags) {
+        if (element == null) {
+            return;
         }
 
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            } else if (obj == null || obj.getClass() != getClass()) {
-                return false;
-            }
-            ElementKey o = (ElementKey) obj;
-            if (o.element_ == null) {
-                if (element_ != null) {
-                    return false;
-                }
-            } else {
-                if (!o.element_.equals(element_)) {
-                    return false;
-                }
-            }
-            if (o.beanClass_ != beanClass_) {
-                return false;
-            }
-            return true;
+        for (Annotation annotation : annotationHandler_.getMarkedAnnotations(
+                element, ConstraintAnnotation.class)) {
+            ConstraintAnnotation constraintAnnotation = annotation
+                    .annotationType().getAnnotation(ConstraintAnnotation.class);
+            bags.add(new ConstraintBag(((Constraint) getS2Container()
+                    .getComponent(constraintAnnotation.component())),
+                    annotation, element, decider));
         }
     }
 }
