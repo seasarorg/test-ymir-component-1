@@ -113,9 +113,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                 return response;
             }
         }
-        if (ymir_.isUnderDevelopment()
-                && request.getRequestDispatch().getMatchedPathMapping()
-                        .isUpdatable()) {
+        if (ymir_.isUnderDevelopment() && YmirUtils.isUpdatable(request)) {
             for (int i = 0; i < updaters_.length; i++) {
                 Response response = updaters_[i].updateByException(request,
                         target);

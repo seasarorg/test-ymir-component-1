@@ -180,8 +180,7 @@ public class RequestProcessorImpl implements RequestProcessor {
             throw new PageNotFoundRuntimeException(dispatch.getPath());
         }
 
-        boolean updatable = request.getRequestDispatch()
-                .getMatchedPathMapping().isUpdatable();
+        boolean updatable = YmirUtils.isUpdatable(request);
 
         // 自動生成はrequestの時だけ行なう。（forwardの自動生成はどのみちここでキャッチされて
         // 処理されてしまうので…。）

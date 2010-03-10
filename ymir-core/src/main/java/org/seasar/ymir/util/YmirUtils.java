@@ -8,6 +8,7 @@ import org.seasar.ymir.DispatchWrapper;
 import org.seasar.ymir.FrameworkDispatch;
 import org.seasar.ymir.FrameworkRequest;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
+import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestWrapper;
 import org.seasar.ymir.impl.DispatchImpl;
@@ -84,5 +85,23 @@ public class YmirUtils {
         } else {
             return new FrameworkDispatchImpl(dispatch);
         }
+    }
+
+    /**
+     * @since 1.0.7
+     */
+    public static boolean isUpdatable(Request request) {
+        if (request == null) {
+            return false;
+        }
+        Dispatch dispatch = request.getRequestDispatch();
+        if (dispatch == null) {
+            return false;
+        }
+        MatchedPathMapping matched = dispatch.getMatchedPathMapping();
+        if (matched == null) {
+            return false;
+        }
+        return matched.isUpdatable();
     }
 }

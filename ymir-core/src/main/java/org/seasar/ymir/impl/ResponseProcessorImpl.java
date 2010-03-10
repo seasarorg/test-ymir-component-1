@@ -248,9 +248,7 @@ public class ResponseProcessorImpl implements ResponseProcessor {
             Request request) {
         Dispatcher dispatcher = request.getCurrentDispatch().getDispatcher();
         if ((dispatcher == Dispatcher.REQUEST || dispatcher == Dispatcher.FORWARD)
-                && ymir_.isUnderDevelopment()
-                && request.getRequestDispatch().getMatchedPathMapping()
-                        .isUpdatable()) {
+                && ymir_.isUnderDevelopment() && YmirUtils.isUpdatable(request)) {
             return httpServletResponseFilterFactory_.newUpdaterResponseFilter(
                     httpRequest, httpResponse, updaters_);
         } else {
