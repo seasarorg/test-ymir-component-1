@@ -163,6 +163,11 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
         if (response == null) {
             global = true;
 
+            // ymir-1.0.6まではExceptionクラスと祖先クラスについてカスタムハンドラを全て探して、
+            // 見つからなければデフォルトのハンドラを探していたが、これだと例えばThrowableHandler
+            // カスタムハンドラを作ってしまうとValidationFailderの処理が正しく行なわれなくなって
+            // しまう。このためymir-1.0.7からは挙動を変更した。
+
             S2Container container = getS2Container();
             ComponentDef handlerCd = null;
             exceptionClass = target.getClass();
@@ -172,22 +177,15 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
                     handlerCd = container.getComponentDef(componentName);
                     break;
                 }
-            } while ((exceptionClass = exceptionClass.getSuperclass()) != Object.class);
 
-            if (handlerCd == null) {
                 // 見つからなかった場合はデフォルトのハンドラを探す。
-                // こうしているのは、(ExceptionHandler)Creatorで定義したコンポーネントは
-                // あらゆるコンポーネント定義よりも優先順位が低くなってしまうため。
-                exceptionClass = target.getClass();
-                do {
-                    String componentName = NAMEPREFIX_DEFAULT
-                            + getComponentName(exceptionClass);
-                    if (container.hasComponentDef(componentName)) {
-                        handlerCd = container.getComponentDef(componentName);
-                        break;
-                    }
-                } while ((exceptionClass = exceptionClass.getSuperclass()) != Object.class);
-            }
+                componentName = NAMEPREFIX_DEFAULT
+                        + getComponentName(exceptionClass);
+                if (container.hasComponentDef(componentName)) {
+                    handlerCd = container.getComponentDef(componentName);
+                    break;
+                }
+            } while ((exceptionClass = exceptionClass.getSuperclass()) != Object.class);
 
             // この時点でhandlerCdがnullならymir-convention.diconの記述ミス。
 
