@@ -36,7 +36,7 @@ public class FittedOnDBTypeConstraint extends
     @Binding(bindingType = BindingType.MUST, value = "messages")
     protected Messages messages;
 
-    @Binding(bindingType = BindingType.MUST, value = "messages")
+    @Binding(bindingType = BindingType.MUST)
     protected TypeConversionManager typeConversionManager_;
 
     @Override

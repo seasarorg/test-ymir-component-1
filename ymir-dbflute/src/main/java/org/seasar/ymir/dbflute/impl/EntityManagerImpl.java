@@ -18,6 +18,7 @@ import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.dbflute.EntityManager;
+import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ClassUtils;
 
 public class EntityManagerImpl implements EntityManager {
@@ -57,18 +58,19 @@ public class EntityManagerImpl implements EntityManager {
         Class<? extends Entity> entityClass = null;
         Class<ConditionBean> cbClass = null;
 
+        String cEntityName = BeanUtils.capitalize(entityName);
         for (String rootPackageName : ymirNamingConvention
                 .getRootPackageNames()) {
             try {
                 entityClass = (Class<? extends Entity>) ClassUtils
                         .forName(rootPackageName + ".dbflute.exentity."
-                                + entityName);
+                                + cEntityName);
             } catch (ClassNotFoundException ignore) {
                 continue;
             }
 
             String cbClassName = rootPackageName + ".dbflute.cbean."
-                    + entityName + "CB";
+                    + cEntityName + "CB";
             try {
                 cbClass = (Class<ConditionBean>) ClassUtils
                         .forName(cbClassName);
