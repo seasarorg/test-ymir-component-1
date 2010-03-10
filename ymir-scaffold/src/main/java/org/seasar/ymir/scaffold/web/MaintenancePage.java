@@ -126,7 +126,7 @@ public class MaintenancePage extends PageBase {
                 .getPrimaryKeyColumnNames(entityClass);
     }
 
-    @Validator("_post_\\.*")
+    @Validator("_post_.*")
     public void validate() throws ConstraintViolatedException {
         constraintManager.confirmConstraint(this, getYmirRequest(),
                 FITTED_ON_DB_TYPE, entityClass);

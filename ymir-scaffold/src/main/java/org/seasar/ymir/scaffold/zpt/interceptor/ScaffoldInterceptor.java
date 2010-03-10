@@ -286,13 +286,24 @@ public class ScaffoldInterceptor implements TemplateParsingInterceptor {
         List<Element> bodies = new ArrayList<Element>();
 
         bodies.add(new ConstantElement("<tbody>"));
+        List<Element> hiddenElements = new ArrayList<Element>();
         for (ColumnInfo columnInfo : columnInfos) {
+            MutableTagElement inputElement = buildInputElement(columnInfo);
+            if ("hidden".equals(inputElement
+                    .getDefilteredAttributeValue("type"))) {
+                hiddenElements.add(inputElement);
+                continue;
+            }
+
             bodies.add(new ConstantElement("<tr><th>"
                     + getFilteredLabel(columnInfo) + "</th><td>"));
-            bodies.add(buildInputElement(columnInfo));
+            bodies.add(inputElement);
             bodies.add(new ConstantElement("</td></tr>"));
         }
         bodies.add(new ConstantElement("<tr><th>&nbsp;</td><td>"));
+        for (Element hiddenElement : hiddenElements) {
+            bodies.add(hiddenElement);
+        }
         bodies.add(buildSubmitElement("do_" + getActionName(), " 登録 "));
         bodies.add(new ConstantElement("&nbsp;"));
         bodies.add(buildSubmitElement("cancel", "キャンセル"));
@@ -314,7 +325,8 @@ public class ScaffoldInterceptor implements TemplateParsingInterceptor {
         if (columnInfo.isPrimary()) {
             element.setName("input");
             element.addAttribute("type", "hidden");
-        } else if (type == String.class && columnInfo.getColumnSize() >= 200) {
+        } else if (type == String.class
+                && "CLOB".equals(columnInfo.getColumnDbType())) {
             element.setName("textarea");
         } else {
             element.setName("input");
@@ -330,7 +342,10 @@ public class ScaffoldInterceptor implements TemplateParsingInterceptor {
         String tagName = element.getName();
         String name = columnInfo.getPropertyName();
         Class<?> type = columnInfo.getPropertyType();
+        String decorate = "class decorate:notes/contains(" + name
+                + ") with ys-error";
         if ("textarea".equals(tagName)) {
+            element.addAttribute("tal:attributes", decorate);
             element.addAttribute("tal:content", "param-self/" + name);
             if (element.getAttribute("cols") == null) {
                 element.addAttribute("cols", 64);
@@ -339,19 +354,26 @@ public class ScaffoldInterceptor implements TemplateParsingInterceptor {
                 element.addAttribute("rows", 10);
             }
         } else if ("input".equals(tagName)) {
-            element.addAttribute("tal:attributes", "value param-self/" + name);
+            element.addAttribute("tal:attributes", "value param-self/" + name
+                    + "; " + decorate);
             if ("text".equals(element.getDefilteredAttributeValue("type"))) {
                 int size;
                 if (type == String.class) {
-                    size = columnInfo.getColumnSize() * 2;
-                    if (element.getAttribute("maxlength") == null) {
-                        element.addAttribute("maxlength", columnInfo
-                                .getColumnSize());
+                    int columnSize = columnInfo.getColumnSize();
+                    if (columnSize < 1000) {
+                        // columnSizeが非常に大きい場合にはそのまま埋め込んでもあまり現実的でないため、
+                        // 制限を設けている。
+                        size = (int) Math.min(columnSize * 1.5, 64);
+                        if (element.getAttribute("maxlength") == null) {
+                            element.addAttribute("maxlength", columnSize);
+                        }
+                    } else {
+                        size = 64;
                     }
                 } else if (Date.class.isAssignableFrom(type)) {
                     size = 20;
                 } else {
-                    size = 32;
+                    size = 20;
                 }
                 if (element.getAttribute("size") == null) {
                     element.addAttribute("size", size);
