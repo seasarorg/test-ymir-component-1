@@ -31,7 +31,6 @@ import org.seasar.ymir.scaffold.util.ScaffoldUtils;
 import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.annotation.RequestParameter;
 import org.seasar.ymir.session.SessionManager;
-import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.StringUtils;
 import org.seasar.ymir.zpt.annotation.ParameterHolder;
 
@@ -114,8 +113,7 @@ public class MaintenancePage extends PageBase {
     @Invoke(Phase.OBJECT_INJECTED)
     public void initializeEntity() {
         String path = getYmirRequest().getPath();
-        String entityName = BeanUtils.capitalize(path.substring(1, path
-                .indexOf("/", 1)));
+        String entityName = path.substring(1, path.indexOf("/", 1));
 
         entityClass = entityManager.getEntityClass(entityName);
         if (entityClass == null) {
