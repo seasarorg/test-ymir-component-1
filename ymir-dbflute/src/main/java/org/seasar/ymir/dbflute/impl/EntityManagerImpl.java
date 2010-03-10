@@ -37,9 +37,6 @@ public class EntityManagerImpl implements EntityManager {
     @Binding(bindingType = BindingType.MUST)
     protected ApplicationManager applicationManager;
 
-    @Binding(bindingType = BindingType.MUST)
-    protected YmirNamingConvention ymirNamingConvention;
-
     public Class<? extends Entity> getEntityClass(String entityName) {
         if (entityName == null) {
             return null;
@@ -57,6 +54,8 @@ public class EntityManagerImpl implements EntityManager {
     private Class<? extends Entity> prepareForEntity(String entityName) {
         Class<? extends Entity> entityClass = null;
         Class<ConditionBean> cbClass = null;
+
+        YmirNamingConvention ymirNamingConvention = getYmirNamingConvention();
 
         String cEntityName = BeanUtils.capitalize(entityName);
         for (String rootPackageName : ymirNamingConvention
@@ -107,6 +106,13 @@ public class EntityManagerImpl implements EntityManager {
                 .unmodifiableList(primaryKeyColumnNames));
 
         return entityClass;
+    }
+
+    protected YmirNamingConvention getYmirNamingConvention() {
+        // YmirNamingConventionは上階層にあって自動でDIできないのでこうしている。
+        return (YmirNamingConvention) applicationManager
+                .findContextApplication().getS2Container().getComponent(
+                        YmirNamingConvention.class);
     }
 
     public Entity newEntity(String entityName) {

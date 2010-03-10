@@ -12,6 +12,7 @@ import org.seasar.dbflute.dbmeta.DBMeta;
 import org.seasar.dbflute.dbmeta.info.ColumnInfo;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.constraint.ConstraintUtils;
@@ -48,23 +49,28 @@ public class FittedOnDBTypeConstraint extends
             FittedOnDBType annotation, AnnotatedElement element)
             throws ConstraintViolatedException {
         Class<?> entityClass = null;
+        Entity entity = null;
         Map<String, ColumnInfo> columnInfoMap = new HashMap<String, ColumnInfo>();
         if (element instanceof Class<?>) {
             entityClass = ((Class<?>) element);
         } else if (element instanceof Method) {
             entityClass = ((Method) element).getDeclaringClass();
         }
-        if (Entity.class.isAssignableFrom(entityClass)) {
-            DBMeta meta;
-            try {
-                meta = ((Entity) entityClass.newInstance()).getDBMeta();
-            } catch (Throwable t) {
-                throw new RuntimeException("Cannot instanciate entity: "
-                        + entityClass.getName(), t);
-            }
-            for (ColumnInfo columnInfo : meta.getColumnInfoList()) {
-                columnInfoMap.put(columnInfo.getPropertyName(), columnInfo);
-            }
+        if (!Entity.class.isAssignableFrom(entityClass)) {
+            throw new IllegalClientCodeRuntimeException(
+                    "Cannot add @FittedOnType annotation to non-entity class element: "
+                            + entityClass.getName());
+        }
+
+        try {
+            entity = (Entity) entityClass.newInstance();
+        } catch (Throwable t) {
+            throw new RuntimeException("Cannot instanciate entity: "
+                    + entityClass.getName(), t);
+        }
+        DBMeta meta = entity.getDBMeta();
+        for (ColumnInfo columnInfo : meta.getColumnInfoList()) {
+            columnInfoMap.put(columnInfo.getPropertyName(), columnInfo);
         }
 
         Notes notes = new Notes();
@@ -74,7 +80,7 @@ public class FittedOnDBTypeConstraint extends
                     .hasNext();) {
                 String name = itr.next();
                 PropertyHandler handler = typeConversionManager_
-                        .getPropertyHandler(component, name);
+                        .getPropertyHandler(entity, name);
                 if (handler == null) {
                     continue;
                 }
