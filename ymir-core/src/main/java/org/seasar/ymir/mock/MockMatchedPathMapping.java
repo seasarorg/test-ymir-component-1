@@ -152,4 +152,8 @@ public class MockMatchedPathMapping implements MatchedPathMapping {
     public void setDefaultActionName(String defaultActionName) {
         defaultActionName_ = defaultActionName;
     }
+
+    public boolean isUpdatable() {
+        return true;
+    }
 }

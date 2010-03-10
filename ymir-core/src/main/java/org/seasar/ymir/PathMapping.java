@@ -142,4 +142,12 @@ public interface PathMapping {
      * @since 1.0.3
      */
     String getActionKeyFromParameterName(String parameterName);
+
+    /**
+     * このPathMappingがマッチするリクエストについて自動生成を行なうべきかどうかを返します。
+     * 
+     * @return 自動生成を行なうべきかどうか。
+     * @since 1.0.7
+     */
+    boolean isUpdatable();
 }

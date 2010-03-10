@@ -99,6 +99,8 @@ public class YmirPathMapping implements PathMapping {
 
     private ActionManager actionManager_;
 
+    private boolean updatable_ = true;
+
     private final Log log_ = LogFactory.getLog(YmirPathMapping.class);
 
     public YmirPathMapping(String patternString,
@@ -689,5 +691,14 @@ public class YmirPathMapping implements PathMapping {
         }
 
         return button.getName();
+    }
+
+    @Binding(bindingType = BindingType.NONE)
+    public void setUpdatable(boolean updatable) {
+        updatable_ = updatable;
+    }
+
+    public boolean isUpdatable() {
+        return updatable_;
     }
 }

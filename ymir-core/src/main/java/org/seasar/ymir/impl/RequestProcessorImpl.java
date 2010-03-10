@@ -180,9 +180,12 @@ public class RequestProcessorImpl implements RequestProcessor {
             throw new PageNotFoundRuntimeException(dispatch.getPath());
         }
 
+        boolean updatable = request.getRequestDispatch()
+                .getMatchedPathMapping().isUpdatable();
+
         // 自動生成はrequestの時だけ行なう。（forwardの自動生成はどのみちここでキャッチされて
         // 処理されてしまうので…。）
-        if (ymir_.isUnderDevelopment()) {
+        if (ymir_.isUnderDevelopment() && updatable) {
             for (int i = 0; i < updaters_.length; i++) {
                 Response response = updaters_[i].updateByRequesting(request);
                 if (response != null) {
@@ -195,7 +198,7 @@ public class RequestProcessorImpl implements RequestProcessor {
 
         // 自動生成はrequestの時だけ行なう。（forwardの自動生成はどのみちここでキャッチされて
         // 処理されてしまうので…。）
-        if (ymir_.isUnderDevelopment()) {
+        if (ymir_.isUnderDevelopment() && updatable) {
             for (int i = 0; i < updaters_.length; i++) {
                 Response newResponse = updaters_[i].update(request, response);
                 if (newResponse != response) {

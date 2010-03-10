@@ -92,4 +92,12 @@ public interface MatchedPathMapping {
      * @since 1.0.0
      */
     Action getPrerenderAction(PageComponent pageComponent, Request request);
+
+    /**
+     * このオブジェクトが持つPathMappingとマッチしたリクエストについて自動生成を行なうべきかどうかを返します。
+     * 
+     * @return 自動生成を行なうべきかどうか。
+     * @since 1.0.7
+     */
+    boolean isUpdatable();
 }
