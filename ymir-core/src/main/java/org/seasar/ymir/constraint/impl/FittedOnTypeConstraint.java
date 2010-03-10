@@ -8,6 +8,7 @@ import java.util.Iterator;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.constraint.ConstraintUtils;
@@ -56,11 +57,20 @@ public class FittedOnTypeConstraint extends AbstractConstraint<FittedOnType> {
             throws ConstraintViolatedException {
         Notes notes = new Notes();
         if (element instanceof Class<?>) {
+            Class<?> clazz = (Class<?>) element;
+            Object bean;
+            try {
+                bean = clazz.newInstance();
+            } catch (Throwable t) {
+                throw new IllegalClientCodeRuntimeException(
+                        "Can't add @FittedOnType annotation to a class that has no public default constructor: "
+                                + clazz.getName(), t);
+            }
             for (Iterator<String> itr = request.getParameterNames(); itr
                     .hasNext();) {
                 String name = itr.next();
                 PropertyHandler handler = typeConversionManager_
-                        .getPropertyHandler(component, name);
+                        .getPropertyHandler(bean, name);
                 if (handler == null) {
                     continue;
                 }
