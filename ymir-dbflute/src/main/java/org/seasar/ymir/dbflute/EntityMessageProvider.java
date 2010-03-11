@@ -14,7 +14,11 @@ public class EntityMessageProvider implements MessageProvider {
     @Binding(bindingType = BindingType.MUST)
     protected EntityManager entityManager;
 
-    public String getMessage(String name, Locale locale) {
+    public String getMessageValue(String name, Locale locale) {
+        return getMessageValue(name);
+    }
+
+    public String getMessageValue(String name) {
         if (!name.startsWith(PREFIX_LABEL)) {
             return null;
         }
