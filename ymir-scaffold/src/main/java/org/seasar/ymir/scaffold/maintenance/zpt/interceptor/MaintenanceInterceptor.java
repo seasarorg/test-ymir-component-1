@@ -74,7 +74,7 @@ public class MaintenanceInterceptor implements TagRenderingInterceptor {
             }
             MaintenancePage self = (MaintenancePage) context
                     .getVariableResolver().getVariable(context, "self");
-            buildInputElement(element, self.getColumnInfo(name));
+            buildInputElement(element, self.getColumnInfo(columnName));
         }
 
         return chain.render(context, element.getName(),
