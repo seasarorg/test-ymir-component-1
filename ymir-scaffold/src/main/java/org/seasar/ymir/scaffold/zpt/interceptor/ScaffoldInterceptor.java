@@ -238,8 +238,9 @@ public class ScaffoldInterceptor implements TemplateParsingInterceptor {
         if (excludesStr != null) {
             excludes = excludesStr.split("\\s+");
         }
-        return ScaffoldUtils.extractColumnsList(columnInfoMap, includes,
-                excludes, "id", "versionNo");
+//        return ScaffoldUtils.extractColumnsList(columnInfoMap, includes,
+//                excludes, "id", "versionNo");
+        return null;
     }
 
     private Element[] buildSimpleFormBodyElements(List<ColumnInfo> columnInfos) {

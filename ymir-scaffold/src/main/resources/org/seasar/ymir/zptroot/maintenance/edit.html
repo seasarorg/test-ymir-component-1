@@ -13,7 +13,9 @@
 <h1 tal:content="string:${self/tableLabel}の編集"></h1>
 
 <div metal:use-macro="/WEB-INF/zpt/scaffold/maintenance.html#notes"></div>
-<form ys:expand="form">ここにフォームが表示されます。</form>
+<form metal:use-macro="/WEB-INF/zpt/scaffold/maintenance.html#form">
+ここにフォームが表示されます。
+</form>
 
 </div>
 </body>

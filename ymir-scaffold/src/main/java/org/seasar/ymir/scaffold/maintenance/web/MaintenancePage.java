@@ -1,4 +1,4 @@
-package org.seasar.ymir.scaffold.web;
+package org.seasar.ymir.scaffold.maintenance.web;
 
 import java.lang.annotation.Annotation;
 import java.util.Date;
@@ -24,10 +24,8 @@ import org.seasar.ymir.constraint.annotation.Validator;
 import org.seasar.ymir.dbflute.EntityManager;
 import org.seasar.ymir.dbflute.constraint.annotation.FittedOnDBType;
 import org.seasar.ymir.render.Paging;
-import org.seasar.ymir.scaffold.annotation.IndexColumns;
 import org.seasar.ymir.scaffold.util.PageBase;
 import org.seasar.ymir.scaffold.util.Redirect;
-import org.seasar.ymir.scaffold.util.ScaffoldUtils;
 import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.annotation.RequestParameter;
 import org.seasar.ymir.session.SessionManager;
@@ -166,17 +164,6 @@ public class MaintenancePage extends PageBase {
                 entityClass).readPage(cb);
         entities = bean.getSelectedList();
         paging = new Paging(bean);
-
-        IndexColumns indexColumns = getClass()
-                .getAnnotation(IndexColumns.class);
-        String[] includes = null;
-        String[] excludes = null;
-        if (indexColumns != null) {
-            includes = indexColumns.includes();
-            excludes = indexColumns.excludes();
-        }
-        columnInfos = ScaffoldUtils.extractColumnsList(dbMeta
-                .getColumnInfoList(), includes, excludes, "versionNo");
 
         sessionManager.setAttribute(getSessionKey("p"), p);
     }

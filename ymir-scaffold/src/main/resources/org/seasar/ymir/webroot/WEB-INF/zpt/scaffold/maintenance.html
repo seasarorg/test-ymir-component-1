@@ -7,6 +7,25 @@
 </head>
 <body>
 
+<form metal:define-macro="form" method="post" tal:attributes="action page:${request/path}" tal:define="form self/form">
+  <input type="hidden" tal:repeat="column form/hiddenColumns" tal:attribute="name column/name; value eval:param-self/${column/name}" />
+  <table>
+    <tbody>
+      <tr tal:repeat="column form/columns">
+        <th tal:content="eval:messages/label.${column/name}"></th>
+        <td tal:content="structure column/html"></td>
+      </tr>
+      <tr>
+        <th>&nbsp;</th>
+        <td>
+          <input type="submit" tal:attributes="name form/actionName; value form/actionLabel" />
+          <input type="submit" name="cancel" value="キャンセル" />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</form>
+
 <div metal:define-macro="index" tal:define="columnInfos self/columnInfos">
   <table border="1">
     <thead>
