@@ -1,7 +1,9 @@
 package org.seasar.ymir.zpt;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -70,6 +72,8 @@ public class MutableTagElement extends TagElement {
             attrMap_.put(lattrName, attr);
         }
         bodyElements_ = element.getBodyElements();
+        setColumnNumber(element.getColumnNumber());
+        setLineNumber(element.getLineNumber());
     }
 
     protected MutableTagElement(String name) {
@@ -138,26 +142,36 @@ public class MutableTagElement extends TagElement {
         attrMap_.remove(attrName.toLowerCase());
     }
 
-    public void removeAttributes(String attrNamePattern,
+    public void removeAttributes(String[] attrNamePatterns,
             String... validAttrNames) throws IllegalSyntaxException {
-        Pattern pattern = Pattern.compile(attrNamePattern.toLowerCase());
+        List<Pattern> patterns = new ArrayList<Pattern>();
+        for (String attrNamePattern : attrNamePatterns) {
+            patterns.add(Pattern.compile(attrNamePattern));
+        }
+
         for (Iterator<Map.Entry<String, Attribute>> itr = attrMap_.entrySet()
                 .iterator(); itr.hasNext();) {
             Map.Entry<String, Attribute> entry = itr.next();
-            if (pattern.matcher(entry.getKey()).find()) {
-                itr.remove();
+            for (Pattern pattern : patterns) {
+                if (pattern.matcher(entry.getKey()).find()) {
+                    itr.remove();
+                    break;
+                }
+            }
 
-                boolean valid = false;
-                for (String validAttrName : validAttrNames) {
-                    if (entry.getKey().equals(validAttrName)) {
-                        valid = true;
-                        break;
-                    }
+            boolean valid = false;
+            for (String validAttrName : validAttrNames) {
+                if (entry.getKey().equals(validAttrName)) {
+                    valid = true;
+                    break;
                 }
-                if (!valid) {
-                    throw new IllegalSyntaxException("Unknown attribute: "
-                            + entry.getKey());
-                }
+            }
+            if (!valid) {
+                Attribute attr = entry.getValue();
+                throw (IllegalSyntaxException) new IllegalSyntaxException(
+                        "Unknown attribute: " + entry.getKey()).setLineNumber(
+                        attr.getLineNumber()).setColumnNumber(
+                        attr.getColumnNumber());
             }
         }
     }
