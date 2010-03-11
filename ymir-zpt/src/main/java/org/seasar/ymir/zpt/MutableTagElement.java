@@ -96,8 +96,10 @@ public class MutableTagElement extends TagElement {
         super(null, null, null);
         setName(name);
         if (attributes != null) {
-            for (Attribute attribute : attributes) {
-                addAttribute(attribute);
+            for (Attribute attr : attributes) {
+                String lattrName = attr.getName().toLowerCase();
+                originalAttrMap_.put(lattrName, attr);
+                attrMap_.put(lattrName, attr);
             }
         }
         setBodyElements(bodyElements);
