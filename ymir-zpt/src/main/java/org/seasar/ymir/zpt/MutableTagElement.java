@@ -1,10 +1,13 @@
 package org.seasar.ymir.zpt;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import net.skirnir.freyja.Attribute;
@@ -149,29 +152,24 @@ public class MutableTagElement extends TagElement {
             patterns.add(Pattern.compile(attrNamePattern));
         }
 
+        Set<String> validNames = new HashSet<String>(Arrays
+                .asList(validAttrNames));
         for (Iterator<Map.Entry<String, Attribute>> itr = attrMap_.entrySet()
                 .iterator(); itr.hasNext();) {
             Map.Entry<String, Attribute> entry = itr.next();
             for (Pattern pattern : patterns) {
-                if (pattern.matcher(entry.getKey()).find()) {
+                String name = entry.getKey();
+                if (pattern.matcher(name).find()) {
                     itr.remove();
-                    break;
-                }
-            }
 
-            boolean valid = false;
-            for (String validAttrName : validAttrNames) {
-                if (entry.getKey().equals(validAttrName)) {
-                    valid = true;
-                    break;
+                    if (!validNames.contains(name)) {
+                        Attribute attr = entry.getValue();
+                        throw (IllegalSyntaxException) new IllegalSyntaxException(
+                                "Unknown attribute: " + name).setLineNumber(
+                                attr.getLineNumber()).setColumnNumber(
+                                attr.getColumnNumber());
+                    }
                 }
-            }
-            if (!valid) {
-                Attribute attr = entry.getValue();
-                throw (IllegalSyntaxException) new IllegalSyntaxException(
-                        "Unknown attribute: " + entry.getKey()).setLineNumber(
-                        attr.getLineNumber()).setColumnNumber(
-                        attr.getColumnNumber());
             }
         }
     }
