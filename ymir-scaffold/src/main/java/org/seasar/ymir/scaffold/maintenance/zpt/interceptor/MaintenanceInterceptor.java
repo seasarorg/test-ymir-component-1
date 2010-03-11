@@ -95,12 +95,9 @@ public class MaintenanceInterceptor implements TagRenderingInterceptor {
             element.addAttribute("cols", 64);
             element.addAttribute("rows", 10);
             Attribute valueAttr = element.getOriginalAttribute("value");
-            if (valueAttr == null) {
-                throw new EvaluationRuntimeException(
-                        "Attribute 'value' must be specified", element);
-            }
-            element.setBodyElements(new Element[] { new ConstantElement(
-                    valueAttr.getValue()) });
+            String value = valueAttr != null ? valueAttr.getValue() : "";
+            element
+                    .setBodyElements(new Element[] { new ConstantElement(value) });
         } else {
             element.setName("input");
             element.addAttribute("type", "text");
