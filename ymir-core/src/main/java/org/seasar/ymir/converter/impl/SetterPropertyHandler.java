@@ -37,4 +37,9 @@ public class SetterPropertyHandler implements PropertyHandler {
             NoSuchMethodException {
         method_.invoke(obj_, new Object[] { value });
     }
+
+    public Object getProperty() throws IllegalAccessException,
+            InvocationTargetException, NoSuchMethodException {
+        return null;
+    }
 }

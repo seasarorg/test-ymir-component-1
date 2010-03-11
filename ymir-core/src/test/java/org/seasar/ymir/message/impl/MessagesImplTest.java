@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 
 import org.seasar.ymir.Ymir;
 import org.seasar.ymir.locale.mock.MockLocaleManager;
+import org.seasar.ymir.message.MessageProvider;
 import org.seasar.ymir.mock.MockYmir;
 
 public class MessagesImplTest extends TestCase {
@@ -29,6 +30,7 @@ public class MessagesImplTest extends TestCase {
             }
         };
         message.setLocaleManager(localeManager);
+        message.setMessageProviders(new MessageProvider[] { message });
         message.addPath(path);
         message.init();
 
@@ -57,6 +59,7 @@ public class MessagesImplTest extends TestCase {
             }
         };
         message.setLocaleManager(localeManager);
+        message.setMessageProviders(new MessageProvider[] { message });
         message.addPath(path);
         message.init();
 
@@ -103,6 +106,7 @@ public class MessagesImplTest extends TestCase {
             }
         };
         message.setLocaleManager(localeManager);
+        message.setMessageProviders(new MessageProvider[] { message });
         message.addPath(path1);
         message.addPath(path2);
         message.addPath(path3);
@@ -136,6 +140,7 @@ public class MessagesImplTest extends TestCase {
             }
         };
         message.setLocaleManager(localeManager);
+        message.setMessageProviders(new MessageProvider[] { message });
         message.addPath(path);
         message.init();
 
@@ -204,5 +209,45 @@ public class MessagesImplTest extends TestCase {
         assertEquals("pkg", actual[idx++]);
         assertEquals("pkg_sub_indexPage", actual[idx++]);
         assertEquals("pkg_sub_index", actual[idx++]);
+    }
+
+    public void testMessageProvider() throws Exception {
+        // ## Arrange ##
+        final String path = MessagesImplTest.class.getName().replace('.', '/')
+                + "-testMessageProvider.xproperties";
+
+        final MockLocaleManager localeManager = new MockLocaleManager();
+        localeManager.setLocale(Locale.JAPAN);
+
+        final String secondPath = MessagesImplTest.class.getName().replace('.',
+                '/')
+                + "-testMessageProvider-second.xproperties";
+
+        final MessageProviderImpl secondMessageProvider = new MessageProviderImpl();
+        secondMessageProvider.addPath(secondPath);
+        secondMessageProvider.init();
+
+        final MessagesImpl message = new MessagesImpl() {
+            @Override
+            String[] getPageNames() {
+                return new String[] { "no_page" };
+            }
+
+            @Override
+            protected Ymir getYmir() {
+                return new MockYmir();
+            }
+        };
+        message.setLocaleManager(localeManager);
+        message.setMessageProviders(new MessageProvider[] { message,
+            secondMessageProvider });
+        message.addPath(path);
+        message.init();
+
+        // ## Act ##
+        // ## Assert ##
+        assertEquals("1a", message.getMessage("a"));
+        assertEquals("1c_ja", message.getMessage("c"));
+        assertEquals("1c", message.getProperty("c"));
     }
 }

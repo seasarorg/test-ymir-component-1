@@ -34,7 +34,11 @@ public class MessageProviderImpl implements MessageProvider {
         messages_ = propertiesBuilder.build();
     }
 
-    public String getMessage(String name, Locale locale) {
+    public String getMessageValue(String name, Locale locale) {
         return messages_.getProperty(name, locale);
+    }
+
+    public String getMessageValue(String name) {
+        return messages_.getProperty(name);
     }
 }

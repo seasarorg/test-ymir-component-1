@@ -139,4 +139,9 @@ public class BeanUtilsPropertyHandler implements PropertyHandler {
             NoSuchMethodException {
         propertyUtilsBean_.setProperty(bean_, name_, value);
     }
+
+    public Object getProperty() throws IllegalAccessException,
+            InvocationTargetException, NoSuchMethodException {
+        return propertyUtilsBean_.getProperty(bean_, name_);
+    }
 }

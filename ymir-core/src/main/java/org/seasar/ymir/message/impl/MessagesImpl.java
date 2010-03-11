@@ -37,23 +37,12 @@ public class MessagesImpl implements Messages, MessageProvider {
 
     private TextTemplateEvaluator evaluator_ = new SimpleTextTemplateEvaluator();
 
-    private MessageProvider[] messageProviders_ = new MessageProvider[0];
+    private MessageProvider[] messageProviders_ = new MessageProvider[] { this };
 
     @Binding(bindingType = BindingType.MAY)
     public void setMessageProviders(MessageProvider[] messageProviders) {
         messageProviders_ = messageProviders;
     }
-
-    private VariableResolver variableResolverAdapter_ = new VariableResolver() {
-        public Object getValue(Object key) {
-            String value = getProperty0((String) key);
-            if (value != null) {
-                return value;
-            } else {
-                return "";
-            }
-        }
-    };
 
     private LocaleManager localeManager_;
 
@@ -84,12 +73,31 @@ public class MessagesImpl implements Messages, MessageProvider {
     }
 
     protected String getProperty0(final String name) {
-        return resolveValue(messages_.getProperty(name));
+        return resolveValue(getRawProperty(name));
+    }
+
+    protected String getRawProperty(final String name) {
+        for (MessageProvider provider : messageProviders_) {
+            String value = provider.getMessageValue(name);
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
     }
 
     protected String resolveValue(String value) {
         try {
-            return evaluator_.evaluateAsString(value, variableResolverAdapter_);
+            return evaluator_.evaluateAsString(value, new VariableResolver() {
+                public Object getValue(Object key) {
+                    String value = getProperty((String) key);
+                    if (value != null) {
+                        return value;
+                    } else {
+                        return "";
+                    }
+                }
+            });
         } catch (EvaluationException ex) {
             log_.warn("Can't evaluate: " + value, ex);
             return value;
@@ -98,29 +106,28 @@ public class MessagesImpl implements Messages, MessageProvider {
 
     public String getProperty(final String name, final Locale locale) {
         updateMessages();
-        return getMessage(name, locale);
+        return getProperty0(name, locale);
     }
 
-    /**
-     * @deprecated 代わりに{@link #getMessage(String, Locale)}を使って下さい。
-     */
     protected String getProperty0(final String name, final Locale locale) {
-        return getMessage(name, locale);
+        return resolveValue(getRawProperty(name, locale), locale);
     }
 
-    /**
-     * @deprecated 代わりに{@link #resolveValue(String, Locale)}を使って下さい。
-     */
+    protected String getRawProperty(final String name, Locale locale) {
+        for (MessageProvider provider : messageProviders_) {
+            String value = provider.getMessageValue(name, locale);
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
+    }
+
     protected String resolveValue(String value, final Locale locale) {
-        return resolveValue(this, value, locale);
-    }
-
-    protected String resolveValue(final MessageProvider provider, String value,
-            final Locale locale) {
         try {
             return evaluator_.evaluateAsString(value, new VariableResolver() {
                 public Object getValue(Object key) {
-                    String value = provider.getMessage((String) key, locale);
+                    String value = getProperty((String) key, locale);
                     if (value != null) {
                         return value;
                     } else {
@@ -139,15 +146,9 @@ public class MessagesImpl implements Messages, MessageProvider {
         final Locale locale = localeManager_.getLocale();
         String[] candidates = MessagesUtils.getMessageNameCandidates(name,
                 getPageNameCandidates(getPageNames()));
-        for (String candidate : candidates) {
-            String message = getMessage(candidate, locale);
-            if (message != null) {
-                return message;
-            }
-        }
         for (MessageProvider provider : messageProviders_) {
             for (String candidate : candidates) {
-                String message = resolveValue(provider, provider.getMessage(
+                String message = resolveValue(provider.getMessageValue(
                         candidate, locale), locale);
                 if (message != null) {
                     return message;
@@ -208,7 +209,11 @@ public class MessagesImpl implements Messages, MessageProvider {
         return YmirContext.getYmir();
     }
 
-    public String getMessage(String name, Locale locale) {
-        return resolveValue(this, messages_.getProperty(name, locale), locale);
+    public String getMessageValue(String name, Locale locale) {
+        return messages_.getProperty(name, locale);
+    }
+
+    public String getMessageValue(String name) {
+        return messages_.getProperty(name);
     }
 }

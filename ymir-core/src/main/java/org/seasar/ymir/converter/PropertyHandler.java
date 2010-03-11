@@ -64,4 +64,15 @@ public interface PropertyHandler {
     void setProperty(Object value) throws IllegalAccessException,
             IllegalArgumentException, InvocationTargetException,
             NoSuchMethodException;
+
+    /**
+     * プロパティの値を返します。
+     * 
+     * @throws IllegalAccessException アクセスできない場合。
+     * @throws InvocationTargetException 値の取得に失敗した場合。
+     * @throws NoSuchMethodException プロパティ取得のためのメソッドが存在しない場合。
+     * @since 1.0.7
+     */
+    Object getProperty() throws IllegalAccessException,
+            InvocationTargetException, NoSuchMethodException;
 }
