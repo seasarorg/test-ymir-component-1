@@ -4,13 +4,15 @@
 <html metal:use-macro="/WEB-INF/zpt/frame.html" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <title metal:fill-slot="title" tal:content="string:${self/tableLabel}の一覧"></title>
-  <link rel="stylesheet" type="text/css" media="all" tal:attributes="href page:/ys/style.css" /> 
+  <title metal:fill-slot="title" tal:content="string:${eval:messages/%label.${self/view/entityName}}の一覧"></title>
+  <div metal:fill-slot="css">
+    <link rel="stylesheet" type="text/css" media="all" tal:attributes="href page:/ys/style.css" />
+  </div> 
 </head>
 <body>
 <div metal:fill-slot="body">
 
-<h1 tal:content="string:${self/tableLabel}の一覧"></h1>
+<h1 tal:content="string:${eval:messages/%label.${self/view/entityName}}の一覧"></h1>
 
 <div metal:use-macro="/WEB-INF/zpt/scaffold/maintenance.html#navigation"></div>
 <div metal:use-macro="/WEB-INF/zpt/scaffold/maintenance.html#notes"></div>

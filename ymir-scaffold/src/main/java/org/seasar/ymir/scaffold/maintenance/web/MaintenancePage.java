@@ -2,15 +2,11 @@ package org.seasar.ymir.scaffold.maintenance.web;
 
 import java.lang.annotation.Annotation;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.seasar.dbflute.Entity;
 import org.seasar.dbflute.cbean.ConditionBean;
 import org.seasar.dbflute.cbean.PagingResultBean;
-import org.seasar.dbflute.cbean.ckey.ConditionKey;
-import org.seasar.dbflute.dbmeta.DBMeta;
 import org.seasar.dbflute.dbmeta.info.ColumnInfo;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
@@ -18,18 +14,24 @@ import org.seasar.ymir.Phase;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.annotation.Invoke;
+import org.seasar.ymir.annotation.handler.AnnotationHandler;
+import org.seasar.ymir.cache.CacheManager;
 import org.seasar.ymir.constraint.ConstraintManager;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.annotation.Validator;
+import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.dbflute.EntityManager;
 import org.seasar.ymir.dbflute.constraint.annotation.FittedOnDBType;
-import org.seasar.ymir.render.Paging;
+import org.seasar.ymir.scaffold.maintenance.dto.ViewDto;
+import org.seasar.ymir.scaffold.maintenance.enm.Action;
+import org.seasar.ymir.scaffold.maintenance.zpt.interceptor.MaintenanceInterceptor;
+import org.seasar.ymir.scaffold.util.MaskingMap;
 import org.seasar.ymir.scaffold.util.PageBase;
 import org.seasar.ymir.scaffold.util.Redirect;
 import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.annotation.RequestParameter;
+import org.seasar.ymir.scope.annotation.URIParameter;
 import org.seasar.ymir.session.SessionManager;
-import org.seasar.ymir.util.StringUtils;
 import org.seasar.ymir.zpt.annotation.ParameterHolder;
 
 @ParameterHolder("entity")
@@ -45,111 +47,83 @@ public class MaintenancePage extends PageBase {
     };
 
     @Binding(bindingType = BindingType.MUST)
-    protected EntityManager entityManager;
+    protected AnnotationHandler annotationHandler;
 
     @Binding(bindingType = BindingType.MUST)
     protected ConstraintManager constraintManager;
 
     @Binding(bindingType = BindingType.MUST)
+    protected EntityManager entityManager;
+
+    @Binding(bindingType = BindingType.MUST)
     protected SessionManager sessionManager;
+
+    @Binding(bindingType = BindingType.MUST)
+    protected TypeConversionManager typeConversionManager;
 
     @Binding(bindingType = BindingType.MUST)
     protected ScopeManager scopeManager;
 
-    private Class<? extends Entity> entityClass;
+    private Map<Class<?>, EntityBean> entityBeanCacheMap;
 
-    private DBMeta dbMeta;
+    private EntityBean entityBean;
 
-    private List<String> primaryKeyColumnNames;
+    private Action action;
+
+    private ViewDto view;
 
     private Entity entity;
 
-    private List<ColumnInfo> columnInfos;
+    @Binding(bindingType = BindingType.MUST)
+    public void setCacheManager(CacheManager cacheManager) {
+        entityBeanCacheMap = cacheManager.newMap();
+    }
 
-    private List<? extends Entity> entities;
-
-    private Paging paging;
-
-    public String getTableLabel() {
-        String label = dbMeta.getTableAlias();
-        if (label == null) {
-            label = dbMeta.getTablePropertyName();
+    private EntityBean getEntityBean() {
+        Class<?> key = getClass();
+        EntityBean bean = entityBeanCacheMap.get(key);
+        if (bean == null) {
+            String path = getYmirRequest().getPath();
+            String entityName = path.substring(1, path.indexOf("/", 1));
+            bean = new EntityBean(annotationHandler, entityManager,
+                    typeConversionManager, entityName, getClass());
+            entityBeanCacheMap.put(key, bean);
         }
-        return label;
+        return bean;
     }
 
-    public List<ColumnInfo> getColumnInfos() {
-        return columnInfos;
-    }
-
-    public Map<String, String> getPrimaryKeyMap(Entity entity) {
-        Map<String, String> map = new HashMap<String, String>();
-
-        return map;
-    }
-
-    public String getColumnLabel(ColumnInfo columnInfo) {
-        String label = columnInfo.getColumnAlias();
-        if (label == null) {
-            label = columnInfo.getPropertyName();
-        }
-        return label;
-    }
-
-    public Entity getEntity() {
-        return entity;
-    }
-
-    public List<? extends Entity> getEntities() {
-        return entities;
-    }
-
-    public Paging getPaging() {
-        return paging;
+    @URIParameter
+    public void setAction(String action) {
+        this.action = Action.enumOf(action);
     }
 
     @Invoke(Phase.OBJECT_INJECTED)
-    public void initializeEntity() {
-        String path = getYmirRequest().getPath();
-        String entityName = path.substring(1, path.indexOf("/", 1));
-
-        entityClass = entityManager.getEntityClass(entityName);
-        if (entityClass == null) {
-            throw new RuntimeException("Cannot find entity class for: "
-                    + entityName);
-        }
-
-        dbMeta = entityManager.getDBMeta(entityClass);
-        primaryKeyColumnNames = entityManager
-                .getPrimaryKeyColumnNames(entityClass);
+    public void initialize() {
+        entityBean = getEntityBean();
+        view = new ViewDto(entityBean, action);
     }
 
-    @Validator("_post_.*")
+    @Validator("_post_do_.*")
     public void validate() throws ConstraintViolatedException {
         constraintManager.confirmConstraint(this, getYmirRequest(),
-                FITTED_ON_DB_TYPE, entityClass);
-    }
-
-    protected Entity loadEntity() {
-        ConditionBean cb = entityManager.newConditionBean(entityClass);
-        for (String name : primaryKeyColumnNames) {
-            cb.localCQ().invokeQuery(name,
-                    ConditionKey.CK_EQUAL.getConditionKey(),
-                    getYmirRequest().getParameter(name));
-        }
-        return entityManager.getBehavior(entityClass)
-                .readEntityWithDeletedCheck(cb);
+                FITTED_ON_DB_TYPE, entityBean.getEntityClass());
     }
 
     protected String getSessionKey(String key) {
         if (key == null) {
             return null;
         }
-        return dbMeta.getTablePropertyName() + "." + key;
+        return entityBean.getEntityName() + "." + key;
     }
 
-    public void _get(@RequestParameter("p")
-    Integer p) {
+    private Entity populateParameters(Entity entity) {
+        scopeManager.populateQuietly(entity, new MaskingMap<String, String[]>(
+                getYmirRequest().getParameterMap(), entityBean
+                        .getUpdatableColumnNames(action)));
+        return entity;
+    }
+
+    public void _get(@RequestParameter("p") Integer p) {
         index(p);
     }
 
@@ -158,12 +132,11 @@ public class MaintenancePage extends PageBase {
             p = 1;
         }
 
-        ConditionBean cb = entityManager.newConditionBean(entityClass);
-        cb.paging(10, p);
-        PagingResultBean<? extends Entity> bean = entityManager.getBehavior(
-                entityClass).readPage(cb);
-        entities = bean.getSelectedList();
-        paging = new Paging(bean);
+        ConditionBean cb = entityBean.newConditionBean();
+        cb.paging(entityBean.getRecordsByPage(), p);
+        PagingResultBean<? extends Entity> bean = entityBean.getBehavior()
+                .readPage(cb);
+        view.setResultBean(bean);
 
         sessionManager.setAttribute(getSessionKey("p"), p);
     }
@@ -173,55 +146,70 @@ public class MaintenancePage extends PageBase {
     }
 
     public void _get_add() {
-        entity = entityManager.newEntity(entityClass);
+        entity = entityBean.newEntity();
     }
 
     public Response _post_do_add() {
-        Request request = getYmirRequest();
-        entity = entityManager.newEntity(entityClass);
-        scopeManager.populateQuietly(entity, request.getParameterMap());
+        entity = populateParameters(entityBean.newEntity());
 
         Date now = new Date();
-        String created = request.getParameter("created");
-        if (StringUtils.isEmpty(created)) {
-            scopeManager.populateQuietly(entity, "created", now);
+        String createdDateColumnName = entityBean.getCreatedDateColumnName();
+        if (createdDateColumnName != null) {
+            scopeManager.populateQuietly(entity, createdDateColumnName, now);
         }
-        String modified = request.getParameter("modified");
-        if (StringUtils.isEmpty(modified)) {
-            scopeManager.populateQuietly(entity, "modified", now);
+        String modifiedDateColumnName = entityBean.getModifiedDateColumnName();
+        if (modifiedDateColumnName != null) {
+            scopeManager.populateQuietly(entity, modifiedDateColumnName, now);
         }
-        entityManager.getBehavior(entityClass).create(entity);
+        entityBean.getBehavior().create(entity);
 
         return Redirect.to("index.html", "returned");
     }
 
     public void _get_edit() {
-        entity = loadEntity();
+        entity = entityBean.loadEntity(getYmirRequest());
     }
 
     public Response _post_do_edit() {
         Request request = getYmirRequest();
-        entity = loadEntity();
-        scopeManager.populateQuietly(entity, request.getParameterMap());
+        entity = populateParameters(entityBean.loadEntity(request));
 
-        Date now = new Date();
-        String modified = request.getParameter("modified");
-        if (StringUtils.isEmpty(modified)) {
-            scopeManager.populateQuietly(entity, "modified", now);
+        String modifiedDateColumnName = entityBean.getModifiedDateColumnName();
+        if (modifiedDateColumnName != null) {
+            scopeManager.populateQuietly(entity, modifiedDateColumnName,
+                    new Date());
         }
-        entityManager.getBehavior(entityClass).modify(entity);
+        entityBean.getBehavior().modify(entity);
 
         return Redirect.to("index.html", "returned");
     }
 
     public Response _get_do_delete() {
-        entity = loadEntity();
-        entityManager.getBehavior(entityClass).remove(entity);
+        entity = entityBean.loadEntity(getYmirRequest());
+        entityBean.getBehavior().remove(entity);
 
         return Redirect.to("index.html", "returned");
     }
 
     public Response _post_cancel() {
         return Redirect.to("index.html", "returned");
+    }
+
+    public ViewDto getView() {
+        return view;
+    }
+
+    public Entity getEntity() {
+        return entity;
+    }
+
+    /**
+     * このメソッドは{@link MaintenanceInterceptor}から使用されます。
+     *  
+     * @param columnName カラム名。
+     * @return カラム名に対応する{@link ColumnInfo}オブジェクト。
+     */
+    public ColumnInfo getColumnInfo(String columnName) {
+        return entityBean.getColumnInfo(columnName);
     }
 }
