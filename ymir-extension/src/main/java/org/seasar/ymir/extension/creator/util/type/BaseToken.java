@@ -17,7 +17,7 @@ public class BaseToken implements Token {
     }
 
     @SuppressWarnings("unchecked")
-    public <R> R accept(TokenVisitor<?> visitor) {
+    public <R> R accept(TokenVisitor<?> visitor, Object... parameters) {
         return (R) visitor.visit(this);
     }
 

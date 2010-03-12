@@ -116,7 +116,7 @@ public class TypeToken implements Token {
     }
 
     @SuppressWarnings("unchecked")
-    public <R> R accept(TokenVisitor<?> visitor) {
+    public <R> R accept(TokenVisitor<?> visitor, Object... parameters) {
         R result = (R) visitor.visit(name_);
         if (result != null) {
             return result;

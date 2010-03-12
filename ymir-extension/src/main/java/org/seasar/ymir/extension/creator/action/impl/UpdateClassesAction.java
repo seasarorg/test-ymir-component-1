@@ -340,7 +340,7 @@ public class UpdateClassesAction extends AbstractAction implements UpdateAction 
 
         TypeToken type = new TypeToken(typeName);
         type.accept(new TokenVisitor<Object>() {
-            public Object visit(Token acceptor) {
+            public Object visit(Token acceptor, Object... parameters) {
                 String name = GenericsUtils.getComponentName(acceptor
                         .getBaseName());
                 if (name.indexOf('.') < 0 && !ClassUtils.isPrimitive(name)) {

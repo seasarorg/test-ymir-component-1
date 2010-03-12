@@ -2649,7 +2649,8 @@ public class SourceCreatorImpl implements SourceCreator {
         ParameterRole role = pageComponent
                 .accept(new PageComponentVisitor<ParameterRole>() {
                     @Override
-                    public ParameterRole process(PageComponent pageComponent) {
+                    public ParameterRole process(PageComponent pageComponent,
+                            Object... parameters) {
                         if (getPropertyDescriptor(pageComponent.getPageClass(),
                                 actionKey) != null) {
                             return ParameterRole.PARAMETER;

@@ -500,7 +500,7 @@ public class PropertyDescImpl extends AbstractAnnotatedDesc implements
     private void addTypeName(final Set<String> set, String typeName) {
         TypeToken token = new TypeToken(typeName);
         token.accept(new TokenVisitor<Object>() {
-            public Object visit(Token acceptor) {
+            public Object visit(Token acceptor, Object... parameters) {
                 set.add(acceptor.getComponentName());
                 return null;
             }

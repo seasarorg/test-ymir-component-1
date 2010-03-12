@@ -170,7 +170,7 @@ public class GenericsUtils {
 
         TypeToken typeToken = new TypeToken(typeName);
         typeToken.accept(new TokenVisitor<Object>() {
-            public Object visit(Token acceptor) {
+            public Object visit(Token acceptor, Object... parameters) {
                 String componentName = acceptor.getComponentName();
                 StringBuilder sb = new StringBuilder();
                 sb.append(ClassUtils.getNormalizedName(componentName));
@@ -191,7 +191,7 @@ public class GenericsUtils {
 
         TypeToken typeToken = new TypeToken(typeName);
         typeToken.accept(new TokenVisitor<Object>() {
-            public Object visit(Token acceptor) {
+            public Object visit(Token acceptor, Object... parameters) {
                 String componentName = acceptor.getComponentName();
                 StringBuilder sb = new StringBuilder();
                 sb.append(ClassUtils.getShortName(componentName));
@@ -212,7 +212,7 @@ public class GenericsUtils {
 
         TypeToken typeToken = new TypeToken(typeName);
         typeToken.accept(new TokenVisitor<Object>() {
-            public Object visit(Token acceptor) {
+            public Object visit(Token acceptor, Object... parameters) {
                 Class<?> componentClass = DescUtils.findClass(acceptor
                         .getComponentName());
                 if (componentClass != null) {

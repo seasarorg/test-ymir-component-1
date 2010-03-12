@@ -282,7 +282,7 @@ public class TypeDescImpl implements TypeDesc {
 
         TypeToken token = new TypeToken(componentTypeName_);
         token.accept(new TokenVisitor<Object>() {
-            public Object visit(Token acceptor) {
+            public Object visit(Token acceptor, Object... parameters) {
                 touchedClassNameSet_.add(acceptor.getComponentName());
                 acceptor.setBaseName(ClassUtils.getShorterName(acceptor
                         .getBaseName()));
@@ -334,7 +334,7 @@ public class TypeDescImpl implements TypeDesc {
     TypeToken getTypeTokenForShorten(String typeName) {
         TypeToken typeToken = new TypeToken(typeName);
         typeToken.accept(new TokenVisitor<Object>() {
-            public Object visit(Token acceptor) {
+            public Object visit(Token acceptor, Object... parameters) {
                 acceptor.setBaseName(ClassUtils.getShortName(acceptor
                         .getBaseName()));
                 return null;
@@ -398,7 +398,7 @@ public class TypeDescImpl implements TypeDesc {
     public void addDependingClassNamesTo(final Set<String> set) {
         TypeToken token = new TypeToken(componentTypeName_);
         token.accept(new TokenVisitor<Object>() {
-            public Object visit(Token acceptor) {
+            public Object visit(Token acceptor, Object... parameters) {
                 String componentName = acceptor.getComponentName();
                 Class<?> componentClass = pool_.getSourceCreator().getClass(
                         componentName);
