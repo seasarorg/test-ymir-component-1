@@ -18,6 +18,12 @@ public enum Phase {
     OBJECT_INJECTED,
 
     /**
+     * スコープからオブジェクトがポピュレートされたことを表します。
+     * @since 1.0.7
+     */
+    OBJECT_POPULATED,
+
+    /**
      * Pageコンポーネントについてアクションが実行されようとしていることを表します。
      */
     ACTION_INVOKING,

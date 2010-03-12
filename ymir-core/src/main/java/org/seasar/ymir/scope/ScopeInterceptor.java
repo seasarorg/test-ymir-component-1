@@ -29,6 +29,8 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
 
     private PageComponentVisitor<?> visitorForInvokingInPhaseObjectInjected_;
 
+    private PageComponentVisitor<?> visitorForInvokingInPhaseObjectPopulated_;
+
     private ThreadLocal<Boolean> injected_ = new ThreadLocal<Boolean>();
 
     private static final Log log_ = LogFactory.getLog(ScopeInterceptor.class);
@@ -58,6 +60,9 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
 
         visitorForInvokingInPhaseObjectInjected_ = new VisitorForInvoking(
                 Phase.OBJECT_INJECTED, actionManager_,
+                componentMetaDataFactory_);
+        visitorForInvokingInPhaseObjectPopulated_ = new VisitorForInvoking(
+                Phase.OBJECT_POPULATED, actionManager_,
                 componentMetaDataFactory_);
     }
 
@@ -92,6 +97,8 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
         pageComponent.accept(visitorForInvokingInPhaseObjectInjected_);
 
         pageComponent.accept(new VisitorForPopulating(actionName));
+
+        pageComponent.accept(visitorForInvokingInPhaseObjectPopulated_);
 
         setInjected(true);
 
