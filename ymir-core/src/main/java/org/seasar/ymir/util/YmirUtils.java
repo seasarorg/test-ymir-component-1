@@ -100,7 +100,9 @@ public class YmirUtils {
         }
         MatchedPathMapping matched = dispatch.getMatchedPathMapping();
         if (matched == null) {
-            return false;
+            // /__ymir__/resource/js/scriptaculous/scriptaculous.js とかを
+            // 出力するためにはこうする必要がある。
+            return true;
         }
         return matched.isUpdatable();
     }

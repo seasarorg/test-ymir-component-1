@@ -241,6 +241,17 @@ public interface Request extends AttributeContainer {
     Dispatch getCurrentDispatch();
 
     /**
+     * 現在処理中のディスパッチがインクルード由来のものかどうかを返します。
+     * <p>例えばrequest→forward→include→forwardのようにディスパッチされている場合は
+     * trueを返します。
+     * </p>
+     * 
+     * @return インクルード由来のディスパッチを処理中かどうか。
+     * @since 1.0.7
+     */
+    boolean isIncluded();
+
+    /**
      * 現在のディスパッチの処理を終了します。
      * <p>このメソッドはフレームワークによって用いられます。
      * アプリケーションはこのメソッドを呼び出さないようにして下さい。

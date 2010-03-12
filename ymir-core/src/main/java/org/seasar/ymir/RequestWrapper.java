@@ -61,6 +61,10 @@ public class RequestWrapper implements Request {
         return request_.getCurrentDispatch();
     }
 
+    public boolean isIncluded() {
+        return request_.isIncluded();
+    }
+
     public FormFile getFileParameter(String name) {
         return request_.getFileParameter(name);
     }

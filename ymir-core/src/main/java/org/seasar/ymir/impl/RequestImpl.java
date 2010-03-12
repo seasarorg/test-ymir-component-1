@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.seasar.ymir.AttributeContainer;
 import org.seasar.ymir.Dispatch;
+import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.FormFile;
 import org.seasar.ymir.FrameworkRequest;
 import org.seasar.ymir.HttpMethod;
@@ -214,6 +215,15 @@ public class RequestImpl implements FrameworkRequest {
 
     public Dispatch getCurrentDispatch() {
         return dispatch_;
+    }
+
+    public boolean isIncluded() {
+        for (Dispatch dispatch : dispatchStack_) {
+            if (dispatch.getDispatcher() == Dispatcher.INCLUDE) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void enterDispatch(Dispatch dispatch) {

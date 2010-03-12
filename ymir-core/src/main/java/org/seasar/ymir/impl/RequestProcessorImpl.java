@@ -338,6 +338,8 @@ public class RequestProcessorImpl implements RequestProcessor {
     }
 
     protected Response processInclude(final Request request) {
+        Response response = new PassthroughResponse();
+
         Dispatch dispatch = request.getCurrentDispatch();
         if (!dispatch.isIgnored()) {
             // includeの場合はselfを設定するだけ。
@@ -346,9 +348,10 @@ public class RequestProcessorImpl implements RequestProcessor {
             if (page != null) {
                 request.setAttribute(ATTR_SELF, page);
             }
+            response = adjustResponse(dispatch, response, page);
         }
 
-        return new PassthroughResponse();
+        return response;
     }
 
     protected PageComponent createPageComponent(Object pageComponentKey) {

@@ -58,6 +58,10 @@ class FrameworkRequestImpl implements FrameworkRequest {
         return request_.getCurrentDispatch();
     }
 
+    public boolean isIncluded() {
+        return request_.isIncluded();
+    }
+
     public Object getExtendedParameter(String name, Object defaultValue) {
         return request_.getExtendedParameter(name, defaultValue);
     }
