@@ -5,6 +5,7 @@ import java.util.List;
 import org.seasar.dbflute.Entity;
 import org.seasar.dbflute.bhv.BehaviorWritable;
 import org.seasar.dbflute.cbean.ConditionBean;
+import org.seasar.dbflute.cbean.ckey.ConditionKey;
 import org.seasar.dbflute.dbmeta.DBMeta;
 import org.seasar.dbflute.dbmeta.info.ColumnInfo;
 
@@ -35,4 +36,7 @@ public interface EntityManager {
     List<String> getPrimaryKeyColumnNames(String entityName);
 
     List<String> getPrimaryKeyColumnNames(Class<? extends Entity> entityClass);
+
+    void setValue(ConditionBean cb, String columnName, ConditionKey key,
+            Object value);
 }
