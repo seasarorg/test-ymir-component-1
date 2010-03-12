@@ -4,12 +4,15 @@ import java.util.Map;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.ActionManager;
 import org.seasar.ymir.ComponentMetaData;
 import org.seasar.ymir.ComponentMetaDataFactory;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.cache.CacheManager;
 
 public class ComponentMetaDataFactoryImpl implements ComponentMetaDataFactory {
+    private ActionManager actionManager_;
+
     private AnnotationHandler annotationHandler_;
 
     private Map<Class<?>, ComponentMetaData> metaDataMap_;
@@ -17,6 +20,11 @@ public class ComponentMetaDataFactoryImpl implements ComponentMetaDataFactory {
     @Binding(bindingType = BindingType.MUST)
     public void setAnnotationHandler(AnnotationHandler annotationHandler) {
         annotationHandler_ = annotationHandler;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setActionManager(ActionManager actionManager) {
+        actionManager_ = actionManager;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -34,6 +42,7 @@ public class ComponentMetaDataFactoryImpl implements ComponentMetaDataFactory {
     }
 
     protected ComponentMetaData newInstance(Class<?> clazz) {
-        return new ComponentMetaDataImpl(clazz, annotationHandler_);
+        return new ComponentMetaDataImpl(clazz, actionManager_,
+                annotationHandler_);
     }
 }

@@ -55,7 +55,7 @@ public class CollectionAnnotationElement extends AbstractAnnotationElement {
     }
 
     @SuppressWarnings("unchecked")
-    public <R> R accept(AnnotationProcessor<?> visitor) {
+    public <R> R accept(AnnotationProcessor<?> visitor, Object... parameters) {
         for (AnnotationElement element : expandedElements_) {
             R returned = (R) element.accept(visitor);
             if (returned != null) {

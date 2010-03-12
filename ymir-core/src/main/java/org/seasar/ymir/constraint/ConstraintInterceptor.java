@@ -56,6 +56,10 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
     private Map<Method, Set<ConstraintType>> suppressTypeSetMap_;
 
+    private PageComponentVisitor<Action> visitorForFindingPermissionDeniedMethod_ = new VisitorForFindingPermissionDeniedMethod();
+
+    private PageComponentVisitor<Action> visitorForFindingValidationFailedMethod_ = new VisitorForFindingValidationFailedMethod();
+
     @Binding(bindingType = BindingType.MUST)
     public void setActionManager(ActionManager actionManager) {
         actionManager_ = actionManager;
@@ -97,9 +101,8 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
                     // バリデーションエラーが発生した場合は、エラー処理メソッドが存在すればそれを呼び出す。
                     // メソッドが存在しなければ何もしない（元のアクションメソッドの呼び出しをスキップする）。
-                    finalAction = pageComponent
-                            .accept(new VisitorForFindingValidationFailedMethod(
-                                    notes));
+                    finalAction = pageComponent.accept(
+                            visitorForFindingValidationFailedMethod_, notes);
                     if (finalAction == null) {
                         finalAction = actionManager_
                                 .newVoidAction(pageComponent.getPage());
@@ -117,8 +120,8 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
                 // 権限エラーが発生した場合は、エラー処理メソッドが存在すればそれを呼び出す。
                 // メソッドが存在しなければPermissionDeniedExceptionを上に再スローする。
-                finalAction = (Action) pageComponent
-                        .accept(new VisitorForFindingPermissionDeniedMethod(ex));
+                finalAction = (Action) pageComponent.accept(
+                        visitorForFindingPermissionDeniedMethod_, ex);
                 if (finalAction == null) {
                     throw new WrappingRuntimeException(ex);
                 }
@@ -237,20 +240,14 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
     protected class VisitorForFindingValidationFailedMethod extends
             PageComponentVisitor<Action> {
-        private Notes notes_;
-
-        public VisitorForFindingValidationFailedMethod(Notes notes) {
-            notes_ = notes;
-        }
-
-        public Action process(PageComponent pageComponent) {
+        public Action process(PageComponent pageComponent, Object... parameters) {
             Object page = pageComponent.getPage();
             Class<?> pageClass = pageComponent.getPageClass();
             Method[] methods = ClassUtils.getMethods(pageClass,
                     ACTION_VALIDATIONFAILED);
             if (methods.length == 1) {
                 return actionManager_.newAction(page, pageClass, methods[0],
-                        new Object[] { notes_ });
+                        new Object[] { parameters[0] });
             } else if (methods.length == 0) {
                 return null;
             } else {
@@ -263,21 +260,14 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
 
     protected class VisitorForFindingPermissionDeniedMethod extends
             PageComponentVisitor<Action> {
-        private PermissionDeniedException ex_;
-
-        public VisitorForFindingPermissionDeniedMethod(
-                PermissionDeniedException ex) {
-            ex_ = ex;
-        }
-
-        public Action process(PageComponent pageComponent) {
+        public Action process(PageComponent pageComponent, Object... parameters) {
             Object page = pageComponent.getPage();
             Class<?> pageClass = pageComponent.getPageClass();
             Method[] methods = ClassUtils.getMethods(pageClass,
                     ACTION_PERMISSIONDENIED);
             if (methods.length == 1) {
                 return actionManager_.newAction(page, pageClass, methods[0],
-                        new Object[] { ex_ });
+                        new Object[] { parameters[0] });
             } else if (methods.length == 0) {
                 return null;
             } else {
@@ -303,7 +293,7 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
             notes_ = notes;
         }
 
-        public Object process(PageComponent pageComponent) {
+        public Object process(PageComponent pageComponent, Object... parameters) {
             Object page = pageComponent.getPage();
             try {
                 constraintManager_.confirmConstraint(pageComponent

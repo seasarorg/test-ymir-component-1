@@ -12,10 +12,10 @@ import java.io.ObjectInputStream.GetField;
  */
 abstract public class PageComponentVisitor<R> implements
         Visitor<R, PageComponent> {
-    public final R visit(PageComponent pageComponent) {
+    public final R visit(PageComponent pageComponent, Object... parameters) {
         PageComponent[] descendants = pageComponent.getDescendants();
         for (int i = 0; i < descendants.length; i++) {
-            R processed = process(descendants[i]);
+            R processed = process(descendants[i], parameters);
             if (isFinalResult(processed)) {
                 return processed;
             }
@@ -28,11 +28,12 @@ abstract public class PageComponentVisitor<R> implements
      * 指定されたPageComponentを処理します。
      * 
      * @param pageComponent 処理対象のPageComponent。
+     * @param parameters パラメータ。
      * @return 処理結果。
      * 処理結果が{@link #isFinalResult(R)}をtrueにするような値である場合、
      * この処理結果を最終的な処理結果とみなしてトラバースを終了します。
      */
-    abstract public R process(PageComponent pageComponent);
+    abstract public R process(PageComponent pageComponent, Object... parameters);
 
     /**
      * 指定された処理結果が最終的な処理結果かどうかを返します。

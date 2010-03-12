@@ -26,7 +26,7 @@ public class MarkedAnnotationGatherer implements AnnotationProcessor<Void> {
         metaAnnotationType_ = metaAnnotationType;
     }
 
-    public Void visit(AnnotationElement acceptor) {
+    public Void visit(AnnotationElement acceptor, Object... parameters) {
         Annotation annotation = acceptor.getAnnotation();
         if (annotation.annotationType()
                 .isAnnotationPresent(metaAnnotationType_)) {

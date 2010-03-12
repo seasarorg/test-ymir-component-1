@@ -30,6 +30,10 @@ class FrameworkRequestImpl implements FrameworkRequest {
         return request_.getAbsolutePath();
     }
 
+    public String getOriginalActionName() {
+        return request_.getOriginalActionName();
+    }
+
     public String getActionName() {
         return request_.getActionName();
     }

@@ -25,7 +25,7 @@ public class AnnotationGatherer implements AnnotationProcessor<Void> {
         annotationType_ = annotationType;
     }
 
-    public Void visit(AnnotationElement acceptor) {
+    public Void visit(AnnotationElement acceptor, Object... parameters) {
         Annotation annotation = acceptor.getAnnotation();
         if (annotation.annotationType().equals(annotationType_)) {
             list_.add(annotation);

@@ -80,7 +80,7 @@ public class PageComponentImpl implements PageComponent {
     }
 
     @SuppressWarnings("unchecked")
-    public <R> R accept(PageComponentVisitor<?> visitor) {
-        return (R) visitor.visit(this);
+    public <R> R accept(PageComponentVisitor<?> visitor, Object... parameters) {
+        return (R) visitor.visit(this, parameters);
     }
 }

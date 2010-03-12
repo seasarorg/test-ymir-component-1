@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -259,7 +260,8 @@ public class YmirImpl implements Ymir {
             return parameterMap;
         }
 
-        Map<String, String[]> map = new HashMap<String, String[]>(parameterMap);
+        Map<String, String[]> map = new LinkedHashMap<String, String[]>(
+                parameterMap);
         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
             ymirProcessInterceptors_[i].filterParameterMap(httpRequest, path,
                     dispatcher, map);

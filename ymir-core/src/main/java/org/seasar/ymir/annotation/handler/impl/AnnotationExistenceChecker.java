@@ -12,7 +12,7 @@ public class AnnotationExistenceChecker implements AnnotationProcessor<Boolean> 
         annotationType_ = annotationType;
     }
 
-    public Boolean visit(AnnotationElement acceptor) {
+    public Boolean visit(AnnotationElement acceptor, Object... parameters) {
         if (acceptor.getAnnotation().annotationType().equals(annotationType_)) {
             return Boolean.TRUE;
         } else {

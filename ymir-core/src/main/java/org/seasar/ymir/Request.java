@@ -3,6 +3,7 @@ package org.seasar.ymir;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.util.ServletUtils;
 
 /**
@@ -260,10 +261,30 @@ public interface Request extends AttributeContainer {
     void leaveDispatch();
 
     /**
-     * 現在のディスパッチにおける、パスとHTTPメソッドに対応するアクションの名前を返します。
+     * 現在のディスパッチにおける、元々のアクションの名前を返します。
+     * <p>このメソッドが返すアクションの名前は、
+     * リクエストされたパスに対応するアクションの名前です。
+     * 実際に実行されるアクションは{@link YmirProcessInterceptor}等によって
+     * 変更されることがあるため、このメソッドが返すアクションの名前が
+     * 実際に実行されるアクションの名前と一致するとは限りません。
+     * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
+     * 
+     * @return 元々のアクションの名前。
+     * @see #getActionName()
+     * @since 1.0.7
+     */
+    String getOriginalActionName();
+
+    /**
+     * 現在のディスパッチにおける、最終的なアクションの名前返します。
+     * <p>このメソッドが返すアクションの名前は、
+     * {@link YmirProcessInterceptor}等によって
+     * 変更された後の最終的なアクションの名前です。
+     * </p>
      * <p>パスに対応するPageコンポーネントが存在しない場合はnullを返します。</p>
      *
-     * @return アクション名。
+     * @return 最終的なアクションの名前。
+     * @see #getOriginalActionName()
      */
     String getActionName();
 }

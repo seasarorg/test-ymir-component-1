@@ -20,16 +20,19 @@ import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.util.ClassUtils;
 
 public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
-
     private ActionManager actionManager_;
 
     private ComponentMetaDataFactory componentMetaDataFactory_;
 
     private ScopeManager scopeManager_;
 
-    private PageComponentVisitor<?> visitorForInvokingInPhaseObjectInjected_;
+    private PageComponentVisitor<?> visitorForInvokingInPhase_;
 
-    private PageComponentVisitor<?> visitorForInvokingInPhaseObjectPopulated_;
+    private PageComponentVisitor<?> visitorForInjecting_ = new VisitorForInjecting();
+
+    private PageComponentVisitor<?> visitorForPopulating_ = new VisitorForPopulating();
+
+    private PageComponentVisitor<?> visitorForOutjecting_ = new VisitorForOutjecting();
 
     private ThreadLocal<Boolean> injected_ = new ThreadLocal<Boolean>();
 
@@ -58,11 +61,7 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
             return;
         }
 
-        visitorForInvokingInPhaseObjectInjected_ = new VisitorForInvoking(
-                Phase.OBJECT_INJECTED, actionManager_,
-                componentMetaDataFactory_);
-        visitorForInvokingInPhaseObjectPopulated_ = new VisitorForInvoking(
-                Phase.OBJECT_POPULATED, actionManager_,
+        visitorForInvokingInPhase_ = new VisitorForInvoking(actionManager_,
                 componentMetaDataFactory_);
     }
 
@@ -92,13 +91,15 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
         PageComponent pageComponent = dispatch.getPageComponent();
         String actionName = dispatch.getActionName();
 
-        pageComponent.accept(new VisitorForInjecting(actionName));
+        pageComponent.accept(visitorForInjecting_, actionName);
 
-        pageComponent.accept(visitorForInvokingInPhaseObjectInjected_);
+        pageComponent.accept(visitorForInvokingInPhase_, Phase.OBJECT_INJECTED,
+                actionName);
 
-        pageComponent.accept(new VisitorForPopulating(actionName));
+        pageComponent.accept(visitorForPopulating_, actionName);
 
-        pageComponent.accept(visitorForInvokingInPhaseObjectPopulated_);
+        pageComponent.accept(visitorForInvokingInPhase_,
+                Phase.OBJECT_POPULATED, actionName);
 
         setInjected(true);
 
@@ -111,8 +112,8 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
                 .getPageComponent();
         if (pageComponent != null) {
             // 自動生成ONの場合はpageComponentはnullになることがある。
-            pageComponent.accept(new VisitorForOutjecting(request
-                    .getCurrentDispatch().getActionName()));
+            pageComponent.accept(visitorForOutjecting_, request
+                    .getCurrentDispatch().getActionName());
         }
 
         return response;
@@ -128,8 +129,8 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
                     handler.getClass());
             // actionNameはExceptionがスローされたタイミングで未決定であったり決定できていたりする。
             // そういう不確定な情報に頼るのはよろしくないので敢えてnullとみなすようにしている。
-            pageComponent.accept(new VisitorForInjecting(null));
-            pageComponent.accept(new VisitorForPopulating(null));
+            pageComponent.accept(visitorForInjecting_);
+            pageComponent.accept(visitorForPopulating_);
         } else if (!isInjected()) {
             PageComponent pageComponent = request.getCurrentDispatch()
                     .getPageComponent();
@@ -142,8 +143,8 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
             // ローカルハンドラの場合は、アクションが確定していればアクションに紐づくハンドラが呼ばれた方が
             // うれしいと思われるため、アクション名を見るようにしている。
             String actionName = request.getCurrentDispatch().getActionName();
-            pageComponent.accept(new VisitorForInjecting(actionName));
-            pageComponent.accept(new VisitorForPopulating(actionName));
+            pageComponent.accept(visitorForInjecting_, actionName);
+            pageComponent.accept(visitorForPopulating_, actionName);
         }
 
         return action;
@@ -157,7 +158,7 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
         if (global) {
             PageComponent pageComponent = new PageComponentImpl(handler,
                     handler.getClass());
-            pageComponent.accept(new VisitorForOutjecting(null));
+            pageComponent.accept(visitorForOutjecting_);
         }
 
         return response;
@@ -169,13 +170,10 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     class VisitorForInjecting extends PageComponentVisitor<Object> {
-        private String actionName_;
+        public Object process(PageComponent pageComponent, Object... parameters) {
+            String actionName = parameters.length >= 1 ? (String) parameters[0]
+                    : null;
 
-        public VisitorForInjecting(String actionName) {
-            actionName_ = actionName;
-        }
-
-        public Object process(PageComponent pageComponent) {
             // 各コンテキストが持つ属性をinjectする。
             if (log_.isDebugEnabled()) {
                 log_.debug("Injection to "
@@ -183,7 +181,7 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
                                 .getPrettyName(pageComponent.getPageClass())
                         + " start");
             }
-            scopeManager_.injectScopeAttributes(pageComponent, actionName_);
+            scopeManager_.injectScopeAttributes(pageComponent, actionName);
             if (log_.isDebugEnabled()) {
                 log_.debug("Injection to "
                         + ClassUtils
@@ -196,13 +194,10 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     class VisitorForPopulating extends PageComponentVisitor<Object> {
-        private String actionName_;
+        public Object process(PageComponent pageComponent, Object... parameters) {
+            String actionName = parameters.length >= 1 ? (String) parameters[0]
+                    : null;
 
-        public VisitorForPopulating(String actionName) {
-            actionName_ = actionName;
-        }
-
-        public Object process(PageComponent pageComponent) {
             // 各コンテキストが持つ属性をpopulateする。
             if (log_.isDebugEnabled()) {
                 log_.debug("Population to "
@@ -210,7 +205,7 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
                                 .getPrettyName(pageComponent.getPageClass())
                         + " start");
             }
-            scopeManager_.populateScopeAttributes(pageComponent, actionName_);
+            scopeManager_.populateScopeAttributes(pageComponent, actionName);
             if (log_.isDebugEnabled()) {
                 log_.debug("Population to "
                         + ClassUtils
@@ -223,13 +218,10 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
     }
 
     class VisitorForOutjecting extends PageComponentVisitor<Object> {
-        private String actionName_;
+        public Object process(PageComponent pageComponent, Object... parameters) {
+            String actionName = parameters.length >= 1 ? (String) parameters[0]
+                    : null;
 
-        public VisitorForOutjecting(String actionName) {
-            actionName_ = actionName;
-        }
-
-        public Object process(PageComponent pageComponent) {
             // 各コンテキストに属性をoutjectする。
             if (log_.isDebugEnabled()) {
                 log_.debug("Outjection from "
@@ -237,7 +229,7 @@ public class ScopeInterceptor extends AbstractYmirProcessInterceptor {
                                 .getPrettyName(pageComponent.getPageClass())
                         + " start");
             }
-            scopeManager_.outjectScopeAttributes(pageComponent, actionName_);
+            scopeManager_.outjectScopeAttributes(pageComponent, actionName);
             if (log_.isDebugEnabled()) {
                 log_.debug("Outjection from "
                         + ClassUtils

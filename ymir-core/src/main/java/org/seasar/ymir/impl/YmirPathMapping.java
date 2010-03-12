@@ -432,7 +432,8 @@ public class YmirPathMapping implements PathMapping {
         Action action = pageComponent
                 .accept(new PageComponentVisitor<Action>() {
                     @Override
-                    public Action process(PageComponent pageComponent) {
+                    public Action process(PageComponent pageComponent,
+                            Object... parameters) {
                         return getActionForButton(pageComponent.getPage(),
                                 pageComponent.getPageClass(), actionName,
                                 request);
@@ -442,7 +443,8 @@ public class YmirPathMapping implements PathMapping {
             // ボタンに対応するデフォルトアクションを探索する。
             action = pageComponent.accept(new PageComponentVisitor<Action>() {
                 @Override
-                public Action process(PageComponent pageComponent) {
+                public Action process(PageComponent pageComponent,
+                        Object... parameters) {
                     return getActionForButton(pageComponent.getPage(),
                             pageComponent.getPageClass(), defaultActionName,
                             request);
@@ -454,7 +456,8 @@ public class YmirPathMapping implements PathMapping {
             // 通常のアクションを探索する。
             action = pageComponent.accept(new PageComponentVisitor<Action>() {
                 @Override
-                public Action process(PageComponent pageComponent) {
+                public Action process(PageComponent pageComponent,
+                        Object... parameters) {
                     return getAction(pageComponent.getPage(), pageComponent
                             .getPageClass(), actionName, request);
                 }
@@ -464,7 +467,8 @@ public class YmirPathMapping implements PathMapping {
             // デフォルトアクションを探索する。
             action = pageComponent.accept(new PageComponentVisitor<Action>() {
                 @Override
-                public Action process(PageComponent pageComponent) {
+                public Action process(PageComponent pageComponent,
+                        Object... parameters) {
                     return getAction(pageComponent.getPage(), pageComponent
                             .getPageClass(), defaultActionName, request);
                 }

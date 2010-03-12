@@ -14,14 +14,17 @@ import java.lang.reflect.Method;
  */
 public interface ComponentMetaData {
     /**
-     * 指定されたフェーズに関連付けられているメソッドを返します。
+     * 指定されたフェーズに関連付けられているメソッドのうち、
+     * 指定されたアクションに紐づいているものを返します。
      * <p>フレームワークは、フェーズに関連付けられているPageオブジェクトのメソッドを呼び出します。
      * このメソッドは呼び出すメソッドを取得するためにフレームワークから呼び出されます。
      * </p>
      * 
      * @param phase フェーズ。
+     * @param actionName アクション名。nullを指定することもできます。
+     * nullを指定した場合はそのフェーズに関する全てのメソッドが返されます。
      * @return メソッド。nullを返すことはありません。
      * @see PageProcessor#invokeMethods(Object, PageMetaData, Phase)
      */
-    Method[] getMethods(Phase phase);
+    Method[] getMethods(Phase phase, String actionName);
 }

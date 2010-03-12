@@ -345,7 +345,8 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
             exceptionClass_ = exceptionClass;
         }
 
-        public Response process(PageComponent pageComponent) {
+        public Response process(PageComponent pageComponent,
+                Object... parameters) {
             handlerClass_ = pageComponent.getPageClass();
             Method actionMethod = findActionMethod(handlerClass_, false,
                     exceptionClass_, actionName_, false);

@@ -281,4 +281,8 @@ public class RequestImpl implements FrameworkRequest {
     public String getActionName() {
         return dispatch_.getActionName();
     }
+
+    public String getOriginalActionName() {
+        return dispatch_.getOriginalActionName();
+    }
 }

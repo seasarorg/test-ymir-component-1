@@ -18,22 +18,22 @@ public class VisitorForInvoking extends PageComponentVisitor<Response> {
 
     private ComponentMetaDataFactory componentMetaDataFactory_;
 
-    private Phase phase_;
-
-    public VisitorForInvoking(Phase phase, ActionManager actionManager,
+    public VisitorForInvoking(ActionManager actionManager,
             ComponentMetaDataFactory componentMetaDataFactory) {
-        phase_ = phase;
         actionManager_ = actionManager;
         componentMetaDataFactory_ = componentMetaDataFactory;
     }
 
-    public Response process(PageComponent pageComponent) {
+    public Response process(PageComponent pageComponent, Object... parameters) {
+        Phase phase = (Phase) parameters[0];
+        String actionName = parameters.length >= 2 ? (String) parameters[1]
+                : null;
         Response response = new PassthroughResponse();
 
         ComponentMetaData metaData = componentMetaDataFactory_
                 .getInstance(pageComponent.getPageClass());
 
-        for (Method method : metaData.getMethods(phase_)) {
+        for (Method method : metaData.getMethods(phase, actionName)) {
             response = actionManager_.invokeAction(actionManager_.newAction(
                     pageComponent.getPage(), pageComponent.getPageClass(),
                     method));

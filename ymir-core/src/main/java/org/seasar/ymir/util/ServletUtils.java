@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -481,7 +482,7 @@ public class ServletUtils {
             return null;
         }
 
-        Map<String, String[]> map = new HashMap<String, String[]>();
+        Map<String, String[]> map = new LinkedHashMap<String, String[]>();
 
         StringTokenizer st = new StringTokenizer(param, "&");
         while (st.hasMoreTokens()) {

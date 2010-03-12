@@ -55,7 +55,7 @@ public class AliasAnnotationElement extends AbstractAnnotationElement {
     }
 
     @SuppressWarnings("unchecked")
-    public <R> R accept(AnnotationProcessor<?> visitor) {
+    public <R> R accept(AnnotationProcessor<?> visitor, Object... parameters) {
         return (R) expandedElement_.accept(visitor);
     }
 

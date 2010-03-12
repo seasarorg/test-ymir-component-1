@@ -59,11 +59,7 @@ public class RequestProcessorImpl implements RequestProcessor {
 
     private YmirProcessInterceptor[] ymirProcessInterceptors_ = new YmirProcessInterceptor[0];
 
-    private PageComponentVisitor<Response> visitorForInvokingInPhasePageComponentCreated_;
-
-    private PageComponentVisitor<Response> visitorForInvokingInPhaseActionInvoking_;
-
-    private PageComponentVisitor<Response> visitorForInvokingInPhaseActionInvoked_;
+    private PageComponentVisitor<Response> visitorForInvoking_;
 
     private final Log log_ = LogFactory.getLog(RequestProcessorImpl.class);
 
@@ -122,16 +118,8 @@ public class RequestProcessorImpl implements RequestProcessor {
             return;
         }
 
-        visitorForInvokingInPhasePageComponentCreated_ = new VisitorForInvoking(
-                Phase.PAGECOMPONENT_CREATED, actionManager_,
+        visitorForInvoking_ = new VisitorForInvoking(actionManager_,
                 componentMetaDataFactory_);
-
-        visitorForInvokingInPhaseActionInvoking_ = new VisitorForInvoking(
-                Phase.ACTION_INVOKING, actionManager_,
-                componentMetaDataFactory_);
-
-        visitorForInvokingInPhaseActionInvoked_ = new VisitorForInvoking(
-                Phase.ACTION_INVOKED, actionManager_, componentMetaDataFactory_);
     }
 
     public Object backupForInclusion(AttributeContainer attributeContainer) {
@@ -243,8 +231,9 @@ public class RequestProcessorImpl implements RequestProcessor {
                         dispatch.setOriginalAction(originalAction);
                         dispatch.setAction(originalAction);
 
-                        Response r = pageComponent
-                                .accept(visitorForInvokingInPhasePageComponentCreated_);
+                        Response r = pageComponent.accept(visitorForInvoking_,
+                                Phase.PAGECOMPONENT_CREATED, dispatch
+                                        .getActionName());
                         if (r.getType() != ResponseType.PASSTHROUGH) {
                             response = r;
                             break;
@@ -263,7 +252,14 @@ public class RequestProcessorImpl implements RequestProcessor {
                                     .actionInvoking(request, action);
                             dispatch.setAction(action);
                         }
-                        page = (action != null ? action.getTarget() : null);
+                        String actionName;
+                        if (action != null) {
+                            page = action.getTarget();
+                            actionName = action.getName();
+                        } else {
+                            page = null;
+                            actionName = null;
+                        }
 
                         if (action == null
                                 && dispatch.getDispatcher() == Dispatcher.REQUEST) {
@@ -275,8 +271,8 @@ public class RequestProcessorImpl implements RequestProcessor {
                                     .getPath(), request.getMethod());
                         }
 
-                        r = pageComponent
-                                .accept(visitorForInvokingInPhaseActionInvoking_);
+                        r = pageComponent.accept(visitorForInvoking_,
+                                Phase.ACTION_INVOKING, actionName);
                         if (r.getType() != ResponseType.PASSTHROUGH) {
                             response = r;
                             break;
@@ -289,8 +285,8 @@ public class RequestProcessorImpl implements RequestProcessor {
                                     .actionInvoked(request, response);
                         }
 
-                        r = pageComponent
-                                .accept(visitorForInvokingInPhaseActionInvoked_);
+                        r = pageComponent.accept(visitorForInvoking_,
+                                Phase.ACTION_INVOKED, actionName);
                         if (r.getType() != ResponseType.PASSTHROUGH) {
                             response = r;
                             break;
@@ -470,7 +466,7 @@ public class RequestProcessorImpl implements RequestProcessor {
             matched_ = request_.getCurrentDispatch().getMatchedPathMapping();
         }
 
-        public Object process(PageComponent pageComponent) {
+        public Object process(PageComponent pageComponent, Object... parameters) {
             actionManager_.invokeAction(matched_.getPrerenderAction(
                     pageComponent, request_));
             return null;
