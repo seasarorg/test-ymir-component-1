@@ -2,6 +2,7 @@ package org.seasar.ymir.scaffold.maintenance.web;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -206,9 +207,8 @@ public class EntityBean implements Constants {
     public Entity loadEntity(Request request) {
         ConditionBean cb = newConditionBean();
         for (String name : getPrimaryKeyColumnNames()) {
-            cb.localCQ().invokeQuery(name,
-                    ConditionKey.CK_EQUAL.getConditionKey(),
-                    request.getParameter(name));
+            entityManager.setValue(cb, name, ConditionKey.CK_EQUAL, request
+                    .getParameter(name));
         }
         return behavior.readEntityWithDeletedCheck(cb);
     }
@@ -244,8 +244,12 @@ public class EntityBean implements Constants {
         }
     }
 
-    public List<String> getHiddenColumnNames() {
-        return hiddenColumnNames;
+    public List<String> getHiddenColumnNames(Action action) {
+        if (action == Action.EDIT) {
+            return hiddenColumnNames;
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     public String getCreatedDateColumnName() {

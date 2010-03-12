@@ -35,7 +35,7 @@ public class ViewDto implements Constants {
     }
 
     public List<String> getHiddenColumnNames() {
-        return entityBean.getHiddenColumnNames();
+        return entityBean.getHiddenColumnNames(action);
     }
 
     public List<String> getUpdatableColumnNames() {

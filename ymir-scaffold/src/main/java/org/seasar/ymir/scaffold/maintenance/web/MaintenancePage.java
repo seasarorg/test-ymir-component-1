@@ -10,8 +10,8 @@ import org.seasar.dbflute.cbean.PagingResultBean;
 import org.seasar.dbflute.dbmeta.info.ColumnInfo;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Phase;
-import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.annotation.Invoke;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
@@ -79,7 +79,12 @@ public class MaintenancePage extends PageBase {
         entityBeanCacheMap = cacheManager.newMap();
     }
 
-    private EntityBean getEntityBean() {
+    @Invoke(Phase.PAGECOMPONENT_CREATED)
+    public void initialize() {
+        entityBean = getEntityBean();
+    }
+
+    protected EntityBean getEntityBean() {
         Class<?> key = getClass();
         EntityBean bean = entityBeanCacheMap.get(key);
         if (bean == null) {
@@ -92,23 +97,6 @@ public class MaintenancePage extends PageBase {
         return bean;
     }
 
-    @URIParameter
-    public void setAction(String action) {
-        this.action = Action.enumOf(action);
-    }
-
-    @Invoke(Phase.OBJECT_INJECTED)
-    public void initialize() {
-        entityBean = getEntityBean();
-        view = new ViewDto(entityBean, action);
-    }
-
-    @Validator("_post_do_.*")
-    public void validate() throws ConstraintViolatedException {
-        constraintManager.confirmConstraint(this, getYmirRequest(),
-                FITTED_ON_DB_TYPE, entityBean.getEntityClass());
-    }
-
     protected String getSessionKey(String key) {
         if (key == null) {
             return null;
@@ -116,11 +104,48 @@ public class MaintenancePage extends PageBase {
         return entityBean.getEntityName() + "." + key;
     }
 
+    @URIParameter
+    public void setAction(String action) {
+        this.action = Action.enumOf(action);
+    }
+
+    @Invoke(Phase.OBJECT_INJECTED)
+    public void initializeView() {
+        view = new ViewDto(entityBean, action);
+    }
+
+    @Invoke(value = Phase.OBJECT_POPULATED, actionName = ".*_add")
+    public void prepareEntityForAdd() {
+        if (getYmirRequest().getMethod() == HttpMethod.POST) {
+            entity = populateParameters(entityBean.newEntity());
+        }
+    }
+
+    @Invoke(value = Phase.OBJECT_POPULATED, actionName = ".*_edit")
+    public void prepareEntityForEdit() {
+        entity = entityBean.loadEntity(getYmirRequest());
+
+        if (getYmirRequest().getMethod() == HttpMethod.POST) {
+            entity = populateParameters(entity);
+        }
+    }
+
+    @Invoke(value = Phase.OBJECT_POPULATED, actionName = ".*_delete")
+    public void prepareEntityForDelete() {
+        entity = entityBean.loadEntity(getYmirRequest());
+    }
+
     private Entity populateParameters(Entity entity) {
         scopeManager.populateQuietly(entity, new MaskingMap<String, String[]>(
                 getYmirRequest().getParameterMap(), entityBean
                         .getUpdatableColumnNames(action)));
         return entity;
+    }
+
+    @Validator("_post_do_.*")
+    public void validate() throws ConstraintViolatedException {
+        constraintManager.confirmConstraint(this, getYmirRequest(),
+                FITTED_ON_DB_TYPE, entityBean.getEntityClass());
     }
 
     public void _get(@RequestParameter("p") Integer p) {
@@ -146,12 +171,9 @@ public class MaintenancePage extends PageBase {
     }
 
     public void _get_add() {
-        entity = entityBean.newEntity();
     }
 
     public Response _post_do_add() {
-        entity = populateParameters(entityBean.newEntity());
-
         Date now = new Date();
         String createdDateColumnName = entityBean.getCreatedDateColumnName();
         if (createdDateColumnName != null) {
@@ -167,13 +189,9 @@ public class MaintenancePage extends PageBase {
     }
 
     public void _get_edit() {
-        entity = entityBean.loadEntity(getYmirRequest());
     }
 
     public Response _post_do_edit() {
-        Request request = getYmirRequest();
-        entity = populateParameters(entityBean.loadEntity(request));
-
         String modifiedDateColumnName = entityBean.getModifiedDateColumnName();
         if (modifiedDateColumnName != null) {
             scopeManager.populateQuietly(entity, modifiedDateColumnName,
@@ -185,7 +203,6 @@ public class MaintenancePage extends PageBase {
     }
 
     public Response _get_do_delete() {
-        entity = entityBean.loadEntity(getYmirRequest());
         entityBean.getBehavior().remove(entity);
 
         return Redirect.to("index.html", "returned");

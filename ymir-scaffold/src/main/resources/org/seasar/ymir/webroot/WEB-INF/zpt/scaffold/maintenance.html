@@ -8,8 +8,8 @@
 <body>
 
 <form metal:define-macro="form" method="post" tal:attributes="action page:${ymirRequest/path}" tal:define="view self/view; entity self/entity">
-  <div tal:repeat="column view/hiddenColumns" tal:omit-tag="">
-    <input type="hidden" tal:define="name column/name" tal:attribute="name name; value param-self/?name" />
+  <div tal:repeat="name view/hiddenColumnNames" tal:omit-tag="">
+    <input type="hidden" tal:attributes="name name; value param-self/?name" />
   </div>
   <table>
     <tbody>
