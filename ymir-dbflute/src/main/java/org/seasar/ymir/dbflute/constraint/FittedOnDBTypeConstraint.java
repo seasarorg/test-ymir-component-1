@@ -3,12 +3,9 @@ package org.seasar.ymir.dbflute.constraint;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.seasar.dbflute.Entity;
-import org.seasar.dbflute.dbmeta.DBMeta;
 import org.seasar.dbflute.dbmeta.info.ColumnInfo;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
@@ -23,6 +20,7 @@ import org.seasar.ymir.converter.PropertyHandler;
 import org.seasar.ymir.converter.TypeConversionException;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.converter.annotation.TypeConversionHint;
+import org.seasar.ymir.dbflute.EntityManager;
 import org.seasar.ymir.dbflute.constraint.annotation.FittedOnDBType;
 import org.seasar.ymir.message.Messages;
 import org.seasar.ymir.message.Note;
@@ -33,6 +31,9 @@ public class FittedOnDBTypeConstraint extends
         AbstractConstraint<FittedOnDBType> {
     @Binding(bindingType = BindingType.MUST)
     protected AnnotationHandler annotationHandler;
+
+    @Binding(bindingType = BindingType.MUST)
+    protected EntityManager entityManager;
 
     @Binding(bindingType = BindingType.MUST, value = "messages")
     protected Messages messages;
@@ -48,34 +49,24 @@ public class FittedOnDBTypeConstraint extends
     public void confirm(Object component, Request request,
             FittedOnDBType annotation, AnnotatedElement element)
             throws ConstraintViolatedException {
-        Class<?> entityClass = null;
-        Entity entity = null;
-        Map<String, ColumnInfo> columnInfoMap = new HashMap<String, ColumnInfo>();
+        Class<?> clazz = null;
         if (element instanceof Class<?>) {
-            entityClass = ((Class<?>) element);
+            clazz = ((Class<?>) element);
         } else if (element instanceof Method) {
-            entityClass = ((Method) element).getDeclaringClass();
+            clazz = ((Method) element).getDeclaringClass();
         }
-        if (!Entity.class.isAssignableFrom(entityClass)) {
+        if (!Entity.class.isAssignableFrom(clazz)) {
             throw new IllegalClientCodeRuntimeException(
                     "Cannot add @FittedOnType annotation to non-entity class element: "
-                            + entityClass.getName());
+                            + clazz.getName());
         }
-
-        try {
-            entity = (Entity) entityClass.newInstance();
-        } catch (Throwable t) {
-            throw new RuntimeException("Cannot instanciate entity: "
-                    + entityClass.getName(), t);
-        }
-        DBMeta meta = entity.getDBMeta();
-        for (ColumnInfo columnInfo : meta.getColumnInfoList()) {
-            columnInfoMap.put(columnInfo.getPropertyName(), columnInfo);
-        }
+        @SuppressWarnings("unchecked")
+        Class<? extends Entity> entityClass = (Class<? extends Entity>) clazz;
 
         Notes notes = new Notes();
 
         if (element instanceof Class<?>) {
+            Entity entity = entityManager.newEntity(entityClass);
             for (Iterator<String> itr = request.getParameterNames(); itr
                     .hasNext();) {
                 String name = itr.next();
@@ -84,19 +75,18 @@ public class FittedOnDBTypeConstraint extends
                 if (handler == null) {
                     continue;
                 }
-                confirm(request, name, columnInfoMap.get(name), handler
-                        .getPropertyType(), annotationHandler
+                confirm(request, name, entityManager.getColumnInfo(entityClass,
+                        name), handler.getPropertyType(), annotationHandler
                         .getMarkedAnnotations(handler.getWriteMethod(),
                                 TypeConversionHint.class), notes, annotation
                         .messageKey());
             }
         } else if (element instanceof Method) {
             String name = getPropertyName(element);
-            confirm(request, name, columnInfoMap.get(name),
-                    getPropertyType(element), annotationHandler
-                            .getMarkedAnnotations(element,
-                                    TypeConversionHint.class), notes,
-                    annotation.messageKey());
+            confirm(request, name, entityManager.getColumnInfo(entityClass,
+                    name), getPropertyType(element), annotationHandler
+                    .getMarkedAnnotations(element, TypeConversionHint.class),
+                    notes, annotation.messageKey());
         } else {
             throw new RuntimeException("May logic error");
         }
@@ -108,13 +98,17 @@ public class FittedOnDBTypeConstraint extends
 
     void confirm(Request request, String name, ColumnInfo columnInfo,
             Class<?> type, Annotation[] hint, Notes notes, String messageKey) {
+        if (columnInfo == null) {
+            return;
+        }
+
         String[] values = request.getParameterValues(name);
         if (values == null) {
             return;
         }
 
         // 必須条件をチェックする。
-        if (columnInfo != null && columnInfo.isNotNull()) {
+        if (columnInfo.isNotNull()) {
             boolean exist = false;
             for (String value : values) {
                 if (value.length() > 0) {
@@ -152,16 +146,13 @@ public class FittedOnDBTypeConstraint extends
                         constraintKey, messageKey), name, typeName));
             }
 
-            if (columnInfo != null) {
-                // 長さをチェックする。
-                if (columnInfo.getPropertyType() == String.class) {
-                    Integer size = columnInfo.getColumnSize();
-                    if (size != null && value.length() > size) {
-                        notes.add(name, new Note(ConstraintUtils
-                                .getFullMessageKey(
-                                        getConstraintKey() + ".size",
-                                        messageKey), name, size));
-                    }
+            // 長さをチェックする。
+            if (columnInfo.getPropertyType() == String.class) {
+                Integer size = columnInfo.getColumnSize();
+                if (size != null && value.length() > size) {
+                    notes.add(name, new Note(ConstraintUtils.getFullMessageKey(
+                            getConstraintKey() + ".size", messageKey), name,
+                            size));
                 }
             }
         }

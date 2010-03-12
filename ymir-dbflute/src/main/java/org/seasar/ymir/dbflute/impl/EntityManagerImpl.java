@@ -19,6 +19,7 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.dbflute.EntityManager;
+import org.seasar.ymir.dbflute.util.DBFluteUtils;
 import org.seasar.ymir.util.BeanUtils;
 import org.seasar.ymir.util.ClassUtils;
 
@@ -56,8 +57,17 @@ public class EntityManagerImpl implements EntityManager {
     private Class<? extends Entity> prepareForEntity(String entityName) {
         Class<? extends Entity> entityClass = null;
         Class<ConditionBean> cbClass = null;
+        final String key = entityName;
 
         YmirNamingConvention ymirNamingConvention = getYmirNamingConvention();
+
+        if (key.indexOf('_') >= 0) {
+            // DBNameなのでエンティティ名に変換する。
+            entityName = DBFluteUtils.camelize(key);
+        } else if (key.length() > 0 && Character.isUpperCase(key.charAt(0))) {
+            // 大文字で始まっていればDBNameとみなして小文字に変換する。
+            entityName = key.toLowerCase();
+        }
 
         String cEntityName = BeanUtils.capitalize(entityName);
         for (String rootPackageName : ymirNamingConvention
@@ -84,7 +94,7 @@ public class EntityManagerImpl implements EntityManager {
             return null;
         }
 
-        entityClassMap.put(entityName, entityClass);
+        entityClassMap.put(key, entityClass);
         behaviorMap.put(entityClass, (BehaviorWritable) applicationManager
                 .findContextApplication().getS2Container().getComponent(
                         entityName + "Bhv"));
@@ -187,7 +197,11 @@ public class EntityManagerImpl implements EntityManager {
             return null;
         }
 
-        return dbMeta.findColumnInfo(columnName);
+        try {
+            return dbMeta.findColumnInfo(columnName);
+        } catch (IllegalArgumentException ignore) {
+            return null;
+        }
     }
 
     public List<String> getPrimaryKeyColumnNames(String entityName) {
@@ -210,8 +224,7 @@ public class EntityManagerImpl implements EntityManager {
             return;
         }
 
-        ColumnInfo columnInfo = getColumnInfo(getTablePropertyName(cb),
-                columnName);
+        ColumnInfo columnInfo = getColumnInfo(cb.getTableDbName(), columnName);
         if (columnInfo == null) {
             return;
         }
@@ -221,13 +234,5 @@ public class EntityManagerImpl implements EntityManager {
                 key.getConditionKey(),
                 typeConversionManager.convert(value, columnInfo
                         .getPropertyType()));
-    }
-
-    private String getTablePropertyName(ConditionBean cb) {
-        // TODO もう少しスマートにできないか？
-        String name = cb.getClass().getSimpleName();
-        name = BeanUtils.capitalize(name
-                .substring(0, name.length() - 2/*= "CB".length() */));
-        return name;
     }
 }
