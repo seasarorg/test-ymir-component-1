@@ -72,7 +72,7 @@ public class EntityBean implements Constants {
 
         entityClass = entityManager.getEntityClass(entityName);
         if (entityClass == null) {
-            throw new RuntimeException("Cannot find entity class for: "
+            throw new IllegalArgumentException("Cannot find entity class for: "
                     + entityName);
         }
 

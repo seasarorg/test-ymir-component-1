@@ -22,6 +22,8 @@ import org.seasar.ymir.constraint.annotation.Validator;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.dbflute.EntityManager;
 import org.seasar.ymir.dbflute.constraint.annotation.FittedOnDBType;
+import org.seasar.ymir.message.Note;
+import org.seasar.ymir.scaffold.ScaffoldRuntimeException;
 import org.seasar.ymir.scaffold.maintenance.dto.ViewDto;
 import org.seasar.ymir.scaffold.maintenance.enm.Action;
 import org.seasar.ymir.scaffold.maintenance.zpt.interceptor.MaintenanceInterceptor;
@@ -90,8 +92,13 @@ public class MaintenancePage extends PageBase {
         if (bean == null) {
             String path = getYmirRequest().getPath();
             String entityName = path.substring(1, path.indexOf("/", 1));
-            bean = new EntityBean(annotationHandler, entityManager,
-                    typeConversionManager, entityName, getClass());
+            try {
+                bean = new EntityBean(annotationHandler, entityManager,
+                        typeConversionManager, entityName, getClass());
+            } catch (Throwable t) {
+                throw new ScaffoldRuntimeException(t).addNote(new Note(
+                        "error.maintenance.entityNotFound", entityName));
+            }
             entityBeanCacheMap.put(key, bean);
         }
         return bean;
@@ -148,7 +155,8 @@ public class MaintenancePage extends PageBase {
                 FITTED_ON_DB_TYPE, entityBean.getEntityClass());
     }
 
-    public void _get(@RequestParameter("p") Integer p) {
+    public void _get(@RequestParameter("p")
+    Integer p) {
         index(p);
     }
 

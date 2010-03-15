@@ -4,3 +4,5 @@ label.maintenance.do_add=追加
 label.maintenance.do_edit=変更
 label.maintenance.do_delete=削除
 label.maintenance.edit=編集
+
+error.maintenance.entityNotFound={0}テーブルが見つかりませんでした。
