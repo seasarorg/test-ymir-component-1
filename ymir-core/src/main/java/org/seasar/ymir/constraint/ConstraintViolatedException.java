@@ -2,6 +2,7 @@ package org.seasar.ymir.constraint;
 
 import org.seasar.ymir.message.Note;
 import org.seasar.ymir.message.Notes;
+import org.seasar.ymir.message.NotesHolder;
 
 /**
  * 制約を満たしていない場合にスローされる例外クラスです。
@@ -11,7 +12,8 @@ import org.seasar.ymir.message.Notes;
  * 
  * @author YOKOTA Takehiko
  */
-abstract public class ConstraintViolatedException extends Exception {
+abstract public class ConstraintViolatedException extends Exception implements
+        NotesHolder {
     private static final long serialVersionUID = -7148377969598636958L;
 
     private String path_;
