@@ -1,8 +1,10 @@
 package org.seasar.ymir.scaffold.maintenance.dto;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.seasar.dbflute.Entity;
 import org.seasar.dbflute.cbean.PagingResultBean;
@@ -30,15 +32,15 @@ public class ViewDto implements Constants {
         paging = new Paging(bean);
     }
 
-    public List<ColumnDto> getColumns() {
-        return entityBean.getColumns(action);
+    public Collection<ColumnDto> getColumns() {
+        return entityBean.getColumnMap(action).values();
     }
 
-    public List<String> getHiddenColumnNames() {
+    public Set<String> getHiddenColumnNames() {
         return entityBean.getHiddenColumnNames(action);
     }
 
-    public List<String> getUpdatableColumnNames() {
+    public Set<String> getUpdatableColumnNames() {
         return entityBean.getUpdatableColumnNames(action);
     }
 

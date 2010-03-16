@@ -1,10 +1,10 @@
 package org.seasar.ymir.scaffold.maintenance.web;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -44,21 +44,25 @@ public class EntityBean implements Constants {
 
     private List<String> primaryKeyColumnNames;
 
+    private Set<String> readOnlyColumnNames = new HashSet<String>();
+
     private String createdDateColumnName;
 
     private String modifiedDateColumnName;
 
-    private List<ColumnDto> indexColumns = new ArrayList<ColumnDto>();
+    private Set<String> passwordColumnNames = Collections.emptySet();
 
-    private List<ColumnDto> addColumns = new ArrayList<ColumnDto>();
+    private Map<String, ColumnDto> indexColumnMap = new LinkedHashMap<String, ColumnDto>();
 
-    private List<String> addUpdatableColumnNames = new ArrayList<String>();
+    private Map<String, ColumnDto> addColumnMap = new LinkedHashMap<String, ColumnDto>();
 
-    private List<ColumnDto> editColumns = new ArrayList<ColumnDto>();
+    private Set<String> addUpdatableColumnNames = new HashSet<String>();
 
-    private List<String> editUpdatableColumnNames = new ArrayList<String>();
+    private Map<String, ColumnDto> editColumnMap = new LinkedHashMap<String, ColumnDto>();
 
-    private List<String> hiddenColumnNames = new ArrayList<String>();
+    private Set<String> editUpdatableColumnNames = new HashSet<String>();
+
+    private Set<String> hiddenColumnNames = new LinkedHashSet<String>();
 
     private int recordsByPage = 20;
 
@@ -86,6 +90,16 @@ public class EntityBean implements Constants {
 
     private void readAnnotations(AnnotationHandler annotationHandler,
             Class<?> pageClass) {
+        Set<String> indexColumnNames = new LinkedHashSet<String>();
+        Set<String> indexExcludeColumnNames = new HashSet<String>();
+
+        Set<String> addColumnNames = new LinkedHashSet<String>();
+
+        Set<String> editColumnNames = new LinkedHashSet<String>();
+        Set<String> editExcludeColumnNames = new HashSet<String>();
+
+        readOnlyColumnNames = new HashSet<String>();
+
         createdDateColumnName = DEFAULT_COLUMN_CREATED_DATE;
         modifiedDateColumnName = DEFAULT_COLUMN_MODIFIED_DATE;
         MaintenanceEntity entityAnn = annotationHandler.getAnnotation(
@@ -99,10 +113,11 @@ public class EntityBean implements Constants {
             if (modifiedDateColumnName.length() == 0) {
                 modifiedDateColumnName = null;
             }
+            passwordColumnNames = new HashSet<String>(Arrays.asList(entityAnn
+                    .passwordColumn()));
+            indexExcludeColumnNames.addAll(passwordColumnNames);
         }
 
-        Set<String> indexColumnNames = new LinkedHashSet<String>();
-        Set<String> indexExcludeColumnNames = new HashSet<String>();
         MaintenanceIndex indexAnn = annotationHandler.getAnnotation(pageClass,
                 MaintenanceIndex.class);
         if (indexAnn != null) {
@@ -112,16 +127,12 @@ public class EntityBean implements Constants {
             recordsByPage = indexAnn.recordsByPage();
         }
 
-        Set<String> addColumnNames = new LinkedHashSet<String>();
         MaintenanceAdd addAnn = annotationHandler.getAnnotation(pageClass,
                 MaintenanceAdd.class);
         if (addAnn != null) {
             addColumnNames.addAll(Arrays.asList(addAnn.columnsOrder()));
         }
 
-        Set<String> editColumnNames = new LinkedHashSet<String>();
-        Set<String> editExcludeColumnNames = new HashSet<String>();
-        Set<String> readOnlyColumnNames = new HashSet<String>();
         MaintenanceEdit editAnn = annotationHandler.getAnnotation(pageClass,
                 MaintenanceEdit.class);
         if (editAnn != null) {
@@ -159,21 +170,24 @@ public class EntityBean implements Constants {
 
         for (String name : indexColumnNames) {
             if (!indexExcludeColumnNames.contains(name)) {
-                indexColumns.add(new ColumnDto(columnInfoMap.get(name)));
+                indexColumnMap
+                        .put(name, new ColumnDto(columnInfoMap.get(name)));
             }
         }
 
         for (String name : addColumnNames) {
-            addColumns.add(new ColumnDto(columnInfoMap.get(name)));
-            addUpdatableColumnNames.add(name);
+            addColumnMap.put(name, new ColumnDto(columnInfoMap.get(name)));
+            if (!isPasswordColumn(name)) {
+                addUpdatableColumnNames.add(name);
+            }
         }
 
         for (String name : editColumnNames) {
             if (!editExcludeColumnNames.contains(name)) {
                 boolean readOnly = readOnlyColumnNames.contains(name);
-                editColumns
-                        .add(new ColumnDto(columnInfoMap.get(name), readOnly));
-                if (!readOnly) {
+                editColumnMap.put(name, new ColumnDto(columnInfoMap.get(name),
+                        readOnly));
+                if (!readOnly && !isPasswordColumn(name)) {
                     editUpdatableColumnNames.add(name);
                 }
             }
@@ -213,16 +227,16 @@ public class EntityBean implements Constants {
         return behavior.readEntityWithDeletedCheck(cb);
     }
 
-    public List<ColumnDto> getColumns(Action action) {
+    public Map<String, ColumnDto> getColumnMap(Action action) {
         switch (action) {
         case INDEX:
-            return indexColumns;
+            return indexColumnMap;
 
         case ADD:
-            return addColumns;
+            return addColumnMap;
 
         case EDIT:
-            return editColumns;
+            return editColumnMap;
 
         default:
             throw new IllegalArgumentException("Illegal action: "
@@ -230,7 +244,7 @@ public class EntityBean implements Constants {
         }
     }
 
-    public List<String> getUpdatableColumnNames(Action action) {
+    public Set<String> getUpdatableColumnNames(Action action) {
         switch (action) {
         case ADD:
             return addUpdatableColumnNames;
@@ -244,11 +258,11 @@ public class EntityBean implements Constants {
         }
     }
 
-    public List<String> getHiddenColumnNames(Action action) {
+    public Set<String> getHiddenColumnNames(Action action) {
         if (action == Action.EDIT) {
             return hiddenColumnNames;
         } else {
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
     }
 
@@ -288,5 +302,21 @@ public class EntityBean implements Constants {
 
     public ColumnInfo getColumnInfo(String columnName) {
         return entityManager.getColumnInfo(entityClass, columnName);
+    }
+
+    public boolean isPasswordColumn(String columnName) {
+        return passwordColumnNames.contains(columnName);
+    }
+
+    public Set<String> getPasswordColumnNames() {
+        return passwordColumnNames;
+    }
+
+    public boolean isIncludedColumn(Action action, String columnName) {
+        return getColumnMap(action).containsKey(columnName);
+    }
+
+    public boolean isReadOnlyColumn(String columnName) {
+        return readOnlyColumnNames.contains(columnName);
     }
 }

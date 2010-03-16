@@ -14,4 +14,6 @@ public @interface MaintenanceEntity {
     String createdDateColumn() default DEFAULT_COLUMN_CREATED_DATE;
 
     String modifiedDateColumn() default DEFAULT_COLUMN_MODIFIED_DATE;
+
+    String[] passwordColumn() default {};
 }

@@ -7,6 +7,8 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.convention.YmirNamingConvention;
+import org.seasar.ymir.scaffold.maintenance.enm.Action;
+import org.seasar.ymir.scaffold.maintenance.web.EntityBean;
 import org.seasar.ymir.scaffold.maintenance.web.MaintenancePage;
 import org.seasar.ymir.zpt.MutableTagElement;
 import org.seasar.ymir.zpt.TagRenderingInterceptor;
@@ -74,7 +76,8 @@ public class MaintenanceInterceptor implements TagRenderingInterceptor {
             }
             MaintenancePage self = (MaintenancePage) context
                     .getVariableResolver().getVariable(context, "self");
-            buildInputElement(element, self.getColumnInfo(columnName));
+            buildInputElement(element, self.getEntityBean(), self.getAction(),
+                    columnName);
         }
 
         return chain.render(context, element.getName(),
@@ -83,13 +86,16 @@ public class MaintenanceInterceptor implements TagRenderingInterceptor {
     }
 
     protected void buildInputElement(MutableTagElement element,
-            ColumnInfo columnInfo) {
+            EntityBean entityBean, Action action, String columnName) {
+        ColumnInfo columnInfo = entityBean.getColumnInfo(columnName);
         if (columnInfo == null) {
             return;
         }
 
         Class<?> type = columnInfo.getPropertyType();
-        if (type == String.class && "CLOB".equals(columnInfo.getColumnDbType())) {
+        boolean passwordColumn = entityBean.isPasswordColumn(columnName);
+        if (!passwordColumn && type == String.class
+                && "CLOB".equals(columnInfo.getColumnDbType())) {
             element.setName("textarea");
             element.removeAttribute("type");
             element.addAttribute("cols", 64);
@@ -100,7 +106,12 @@ public class MaintenanceInterceptor implements TagRenderingInterceptor {
                     .setBodyElements(new Element[] { new ConstantElement(value) });
         } else {
             element.setName("input");
-            element.addAttribute("type", "text");
+            element.addAttribute("type", passwordColumn ? "password" : "text");
+
+            if (passwordColumn && action == Action.EDIT) {
+                element.removeAttribute("value");
+            }
+
             int size;
             if (type == String.class) {
                 int columnSize = columnInfo.getColumnSize();

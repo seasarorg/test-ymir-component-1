@@ -1,17 +1,20 @@
 package org.seasar.ymir.scaffold.maintenance.web;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Map;
 
 import org.seasar.dbflute.Entity;
 import org.seasar.dbflute.cbean.ConditionBean;
 import org.seasar.dbflute.cbean.PagingResultBean;
-import org.seasar.dbflute.dbmeta.info.ColumnInfo;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Phase;
+import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.annotation.Invoke;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
@@ -26,7 +29,6 @@ import org.seasar.ymir.message.Note;
 import org.seasar.ymir.scaffold.ScaffoldRuntimeException;
 import org.seasar.ymir.scaffold.maintenance.dto.ViewDto;
 import org.seasar.ymir.scaffold.maintenance.enm.Action;
-import org.seasar.ymir.scaffold.maintenance.zpt.interceptor.MaintenanceInterceptor;
 import org.seasar.ymir.scaffold.util.MaskingMap;
 import org.seasar.ymir.scaffold.util.PageBase;
 import org.seasar.ymir.scaffold.util.Redirect;
@@ -34,6 +36,7 @@ import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.annotation.RequestParameter;
 import org.seasar.ymir.scope.annotation.URIParameter;
 import org.seasar.ymir.session.SessionManager;
+import org.seasar.ymir.util.StringUtils;
 import org.seasar.ymir.zpt.annotation.ParameterHolder;
 
 @ParameterHolder("entity")
@@ -83,10 +86,10 @@ public class MaintenancePage extends PageBase {
 
     @Invoke(Phase.PAGECOMPONENT_CREATED)
     public void initialize() {
-        entityBean = getEntityBean();
+        entityBean = prepareEntityBean();
     }
 
-    protected EntityBean getEntityBean() {
+    protected EntityBean prepareEntityBean() {
         Class<?> key = getClass();
         EntityBean bean = entityBeanCacheMap.get(key);
         if (bean == null) {
@@ -191,6 +194,13 @@ public class MaintenancePage extends PageBase {
         if (modifiedDateColumnName != null) {
             scopeManager.populateQuietly(entity, modifiedDateColumnName, now);
         }
+
+        Request request = getYmirRequest();
+        for (String name : entityBean.getPasswordColumnNames()) {
+            scopeManager.populateQuietly(entity, name, encryptPassword(request
+                    .getParameter(name)));
+        }
+
         entityBean.getBehavior().create(entity);
 
         return Redirect.to("index.html", "returned");
@@ -205,9 +215,47 @@ public class MaintenancePage extends PageBase {
             scopeManager.populateQuietly(entity, modifiedDateColumnName,
                     new Date());
         }
+
+        Request request = getYmirRequest();
+        for (String name : entityBean.getPasswordColumnNames()) {
+            if (entityBean.isIncludedColumn(action, name)
+                    && !entityBean.isReadOnlyColumn(name)) {
+                String value = request.getParameter(name);
+                if (!StringUtils.isEmpty(value)) {
+                    scopeManager.populateQuietly(entity, name,
+                            encryptPassword(value));
+                }
+            }
+        }
+
         entityBean.getBehavior().modify(entity);
 
         return Redirect.to("index.html", "returned");
+    }
+
+    protected String encryptPassword(String rawPassword) {
+        if (rawPassword == null) {
+            return null;
+        }
+
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("SHA1");
+        } catch (NoSuchAlgorithmException ex) {
+            throw new RuntimeException(ex);
+        }
+        try {
+            digest.update(rawPassword.getBytes("ISO-8859-1"));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest.digest()) {
+                @SuppressWarnings("cast")
+                String s = "0" + Integer.toHexString((int) b);
+                sb.append(s.substring(s.length() - 2));
+            }
+            return sb.toString();
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     public Response _get_do_delete() {
@@ -228,13 +276,11 @@ public class MaintenancePage extends PageBase {
         return entity;
     }
 
-    /**
-     * このメソッドは{@link MaintenanceInterceptor}から使用されます。
-     *  
-     * @param columnName カラム名。
-     * @return カラム名に対応する{@link ColumnInfo}オブジェクト。
-     */
-    public ColumnInfo getColumnInfo(String columnName) {
-        return entityBean.getColumnInfo(columnName);
+    public EntityBean getEntityBean() {
+        return entityBean;
+    }
+
+    public Action getAction() {
+        return action;
     }
 }
