@@ -8,9 +8,12 @@ import org.seasar.ymir.DispatchWrapper;
 import org.seasar.ymir.FrameworkDispatch;
 import org.seasar.ymir.FrameworkRequest;
 import org.seasar.ymir.IllegalClientCodeRuntimeException;
-import org.seasar.ymir.MatchedPathMapping;
+import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.RequestWrapper;
+import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.annotation.SuppressUpdating;
+import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.impl.DispatchImpl;
 import org.seasar.ymir.impl.RequestImpl;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
@@ -92,18 +95,20 @@ public class YmirUtils {
      */
     public static boolean isUpdatable(Request request) {
         if (request == null) {
-            return false;
+            return true;
         }
         Dispatch dispatch = request.getRequestDispatch();
         if (dispatch == null) {
-            return false;
-        }
-        MatchedPathMapping matched = dispatch.getMatchedPathMapping();
-        if (matched == null) {
-            // /__ymir__/resource/js/scriptaculous/scriptaculous.js とかを
-            // 出力するためにはこうする必要がある。
             return true;
         }
-        return matched.isUpdatable();
+        PageComponent pageComponent = dispatch.getPageComponent();
+        if (pageComponent == null) {
+            return true;
+        }
+        AnnotationHandler annotationHandler = (AnnotationHandler) YmirContext
+                .getYmir().getApplication().getS2Container().getComponent(
+                        AnnotationHandler.class);
+        return !annotationHandler.isAnnotationPresent(pageComponent
+                .getPageClass(), SuppressUpdating.class);
     }
 }

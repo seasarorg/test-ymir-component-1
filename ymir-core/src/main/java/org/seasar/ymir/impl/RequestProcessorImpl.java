@@ -168,11 +168,9 @@ public class RequestProcessorImpl implements RequestProcessor {
             throw new PageNotFoundRuntimeException(dispatch.getPath());
         }
 
-        boolean updatable = YmirUtils.isUpdatable(request);
-
         // 自動生成はrequestの時だけ行なう。（forwardの自動生成はどのみちここでキャッチされて
         // 処理されてしまうので…。）
-        if (ymir_.isUnderDevelopment() && updatable) {
+        if (ymir_.isUnderDevelopment() && YmirUtils.isUpdatable(request)) {
             for (int i = 0; i < updaters_.length; i++) {
                 Response response = updaters_[i].updateByRequesting(request);
                 if (response != null) {
@@ -185,7 +183,7 @@ public class RequestProcessorImpl implements RequestProcessor {
 
         // 自動生成はrequestの時だけ行なう。（forwardの自動生成はどのみちここでキャッチされて
         // 処理されてしまうので…。）
-        if (ymir_.isUnderDevelopment() && updatable) {
+        if (ymir_.isUnderDevelopment() && YmirUtils.isUpdatable(request)) {
             for (int i = 0; i < updaters_.length; i++) {
                 Response newResponse = updaters_[i].update(request, response);
                 if (newResponse != response) {

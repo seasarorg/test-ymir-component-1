@@ -74,8 +74,4 @@ public class MatchedPathMappingImpl implements MatchedPathMapping {
         return pathMapping_.getPrerenderAction(pageComponent, request,
                 variableResolver_);
     }
-
-    public boolean isUpdatable() {
-        return pathMapping_.isUpdatable();
-    }
 }
