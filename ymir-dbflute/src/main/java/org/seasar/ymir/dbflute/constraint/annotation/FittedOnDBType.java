@@ -14,6 +14,27 @@ import org.seasar.ymir.dbflute.constraint.FittedOnDBTypeConstraint;
 @ConstraintAnnotation(type = ConstraintType.VALIDATION, component = FittedOnDBTypeConstraint.class)
 public @interface FittedOnDBType {
     /**
+     * 型チェックを抑制したいカラムに対応するプロパティ名です。
+     * 
+     * @return 型チェックを抑制したいカラムに対応するプロパティ名。
+     */
+    String[] suppressTypeCheckFor() default {};
+
+    /**
+     * 空チェックを抑制したいカラムに対応するプロパティ名です。
+     * 
+     * @return 空チェックを抑制したいカラムに対応するプロパティ名。
+     */
+    String[] suppressEmptyCheckFor() default {};
+
+    /**
+     * サイズチェックを抑制したいカラムに対応するプロパティ名です。
+     * 
+     * @return サイズチェックを抑制したいカラムに対応するプロパティ名。
+     */
+    String[] suppressSizeCheckFor() default {};
+
+    /**
      * エラーメッセージのキーです。
      * <p>通常はエラーメッセージのキーは「error.constraint.XXXX」ですが、
      * 例えばこのメンバの値を「abc」とするとキーが「error.constraint.XXXX.abc」になります。
