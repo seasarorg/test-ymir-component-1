@@ -44,13 +44,13 @@
   <table border="1">
     <thead>
       <tr>
-        <th tal:repeat="column view/columns" tal:content="eval:messages/%label.${column/name}"></th>
+        <th tal:repeat="column view/columns" tal:content="eval:${column/labelPath}"></th>
         <th>アクション</th>
      </tr>
     </thead>
     <tbody>
       <tr tal:repeat="entity self/view/entities">
-        <td tal:repeat="column view/columns" tal:content="eval:entity/${column/name}"></td>
+        <td tal:repeat="column view/columns" tal:content="eval:${column/path}"></td>
         <td tal:define="map java:view.getPrimaryKeyMap(entity)">
           <a tal:attributes="href page:edit.html?edit&$map" tal:content="messages/%label.maintenance.edit"></a>
           <a tal:attributes="href page:delete.html?do_delete&$map" tal:content="messages/%label.maintenance.delete"></a>

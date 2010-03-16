@@ -3,7 +3,6 @@
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
   <component name="maintenanceRootPathMapping" class="org.seasar.ymir.impl.YmirPathMapping">
-    <property name="updatable">false</property>
     <arg>"/([a-zA-Z][a-zA-Z0-9]*)/maintenance"</arg>
     <arg>"?Page"</arg>
     <arg>null</arg>
@@ -12,7 +11,6 @@
     <arg>"redirect:/${1}/maintenance/index.html"</arg>
   </component>
   <component name="maintenancePathMapping" class="org.seasar.ymir.impl.YmirPathMapping">
-    <property name="updatable">false</property>
     <arg>"/([a-zA-Z][a-zA-Z0-9]*)/maintenance/([a-zA-Z][a-zA-Z0-9]*)\\.html"</arg>
     <arg>"${1}_maintenance_indexPage"</arg>
     <arg>"_${method}"</arg>

@@ -10,6 +10,7 @@ import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.scaffold.maintenance.enm.Action;
 import org.seasar.ymir.scaffold.maintenance.web.EntityBean;
 import org.seasar.ymir.scaffold.maintenance.web.MaintenancePage;
+import org.seasar.ymir.scaffold.util.ScaffoldUtils;
 import org.seasar.ymir.zpt.MutableTagElement;
 import org.seasar.ymir.zpt.TagRenderingInterceptor;
 import org.seasar.ymir.zpt.TagRenderingInterceptorChain;
@@ -101,7 +102,8 @@ public class MaintenanceInterceptor implements TagRenderingInterceptor {
             element.addAttribute("cols", 64);
             element.addAttribute("rows", 10);
             Attribute valueAttr = element.getOriginalAttribute("value");
-            String value = valueAttr != null ? valueAttr.getValue() : "";
+            String value = valueAttr != null ? ScaffoldUtils
+                    .adjustContentForTextarea(valueAttr.getValue()) : "";
             element
                     .setBodyElements(new Element[] { new ConstantElement(value) });
         } else {

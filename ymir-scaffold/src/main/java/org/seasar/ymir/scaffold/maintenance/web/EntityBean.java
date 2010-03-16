@@ -25,6 +25,7 @@ import org.seasar.ymir.scaffold.maintenance.Constants;
 import org.seasar.ymir.scaffold.maintenance.annotation.MaintenanceAdd;
 import org.seasar.ymir.scaffold.maintenance.annotation.MaintenanceEdit;
 import org.seasar.ymir.scaffold.maintenance.annotation.MaintenanceEntity;
+import org.seasar.ymir.scaffold.maintenance.annotation.MaintenanceFK;
 import org.seasar.ymir.scaffold.maintenance.annotation.MaintenanceIndex;
 import org.seasar.ymir.scaffold.maintenance.dto.ColumnDto;
 import org.seasar.ymir.scaffold.maintenance.enm.Action;
@@ -55,6 +56,8 @@ public class EntityBean implements Constants {
     private Map<String, ColumnDto> indexColumnMap = new LinkedHashMap<String, ColumnDto>();
 
     private Map<String, ColumnDto> addColumnMap = new LinkedHashMap<String, ColumnDto>();
+
+    private Map<String, MaintenanceFK> fkMap = new HashMap<String, MaintenanceFK>();
 
     private Set<String> addUpdatableColumnNames = new HashSet<String>();
 
@@ -118,6 +121,11 @@ public class EntityBean implements Constants {
             indexExcludeColumnNames.addAll(passwordColumnNames);
         }
 
+        for (MaintenanceFK ann : annotationHandler.getAnnotations(pageClass,
+                MaintenanceFK.class)) {
+            fkMap.put(ann.column(), ann);
+        }
+
         MaintenanceIndex indexAnn = annotationHandler.getAnnotation(pageClass,
                 MaintenanceIndex.class);
         if (indexAnn != null) {
@@ -170,8 +178,8 @@ public class EntityBean implements Constants {
 
         for (String name : indexColumnNames) {
             if (!indexExcludeColumnNames.contains(name)) {
-                indexColumnMap
-                        .put(name, new ColumnDto(columnInfoMap.get(name)));
+                indexColumnMap.put(name, new ColumnDto(columnInfoMap.get(name),
+                        getFK(name)));
             }
         }
 
@@ -318,5 +326,13 @@ public class EntityBean implements Constants {
 
     public boolean isReadOnlyColumn(String columnName) {
         return readOnlyColumnNames.contains(columnName);
+    }
+
+    public MaintenanceFK getFK(String columnName) {
+        return fkMap.get(columnName);
+    }
+
+    public Set<String> getOuterColumns() {
+        return fkMap.keySet();
     }
 }

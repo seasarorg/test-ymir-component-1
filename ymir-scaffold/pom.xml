@@ -68,7 +68,7 @@
     <dependency>
       <groupId>org.seasar.dbflute</groupId>
       <artifactId>dbflute-runtime</artifactId>
-      <version>0.9.6.6-RC3</version>
+      <version>0.9.6.7-RC1</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

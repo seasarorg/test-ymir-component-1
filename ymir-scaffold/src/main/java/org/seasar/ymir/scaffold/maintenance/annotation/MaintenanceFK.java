@@ -11,4 +11,6 @@ public @interface MaintenanceFK {
     String column();
 
     String foreignDisplayColumn();
+
+    String foreignDisplayColumnLabel();
 }

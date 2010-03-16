@@ -10,6 +10,7 @@ import java.util.Map;
 import org.seasar.dbflute.Entity;
 import org.seasar.dbflute.cbean.ConditionBean;
 import org.seasar.dbflute.cbean.PagingResultBean;
+import org.seasar.dbflute.dbmeta.info.ForeignInfo;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.HttpMethod;
@@ -17,6 +18,7 @@ import org.seasar.ymir.Phase;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.annotation.Invoke;
+import org.seasar.ymir.annotation.SuppressUpdating;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.cache.CacheManager;
 import org.seasar.ymir.constraint.ConstraintManager;
@@ -27,6 +29,7 @@ import org.seasar.ymir.dbflute.EntityManager;
 import org.seasar.ymir.dbflute.constraint.annotation.FittedOnDBType;
 import org.seasar.ymir.message.Note;
 import org.seasar.ymir.scaffold.ScaffoldRuntimeException;
+import org.seasar.ymir.scaffold.maintenance.Constants;
 import org.seasar.ymir.scaffold.maintenance.dto.ViewDto;
 import org.seasar.ymir.scaffold.maintenance.enm.Action;
 import org.seasar.ymir.scaffold.util.MaskingMap;
@@ -39,17 +42,9 @@ import org.seasar.ymir.session.SessionManager;
 import org.seasar.ymir.util.StringUtils;
 import org.seasar.ymir.zpt.annotation.ParameterHolder;
 
+@SuppressUpdating
 @ParameterHolder("entity")
 public class MaintenancePage extends PageBase {
-    private static final FittedOnDBType FITTED_ON_DB_TYPE = new FittedOnDBType() {
-        public String messageKey() {
-            return "";
-        }
-
-        public Class<? extends Annotation> annotationType() {
-            return FittedOnDBType.class;
-        }
-    };
 
     @Binding(bindingType = BindingType.MUST)
     protected AnnotationHandler annotationHandler;
@@ -78,6 +73,38 @@ public class MaintenancePage extends PageBase {
     private ViewDto view;
 
     private Entity entity;
+
+    @SuppressWarnings("all")
+    protected static class FittedOnDBTypeImpl implements FittedOnDBType {
+        private String[] suppressEmptyCheckFor = Constants.STRINGS_EMPTY;
+
+        public FittedOnDBTypeImpl() {
+        }
+
+        public FittedOnDBTypeImpl(String... suppressEmptyCheckFor) {
+            this.suppressEmptyCheckFor = suppressEmptyCheckFor;
+        }
+
+        public String messageKey() {
+            return "";
+        }
+
+        public Class<? extends Annotation> annotationType() {
+            return FittedOnDBType.class;
+        }
+
+        public String[] suppressEmptyCheckFor() {
+            return suppressEmptyCheckFor;
+        }
+
+        public String[] suppressSizeCheckFor() {
+            return Constants.STRINGS_EMPTY;
+        }
+
+        public String[] suppressTypeCheckFor() {
+            return Constants.STRINGS_EMPTY;
+        }
+    };
 
     @Binding(bindingType = BindingType.MUST)
     public void setCacheManager(CacheManager cacheManager) {
@@ -125,14 +152,14 @@ public class MaintenancePage extends PageBase {
     }
 
     @Invoke(value = Phase.OBJECT_POPULATED, actionName = ".*_add")
-    public void prepareEntityForAdd() {
+    public void prepareEntityToAdd() {
         if (getYmirRequest().getMethod() == HttpMethod.POST) {
             entity = populateParameters(entityBean.newEntity());
         }
     }
 
     @Invoke(value = Phase.OBJECT_POPULATED, actionName = ".*_edit")
-    public void prepareEntityForEdit() {
+    public void prepareEntityToEdit() {
         entity = entityBean.loadEntity(getYmirRequest());
 
         if (getYmirRequest().getMethod() == HttpMethod.POST) {
@@ -141,7 +168,7 @@ public class MaintenancePage extends PageBase {
     }
 
     @Invoke(value = Phase.OBJECT_POPULATED, actionName = ".*_delete")
-    public void prepareEntityForDelete() {
+    public void prepareEntityToDelete() {
         entity = entityBean.loadEntity(getYmirRequest());
     }
 
@@ -152,14 +179,21 @@ public class MaintenancePage extends PageBase {
         return entity;
     }
 
-    @Validator("_post_do_.*")
-    public void validate() throws ConstraintViolatedException {
+    @Validator("_post_do_add")
+    public void validateToAdd() throws ConstraintViolatedException {
         constraintManager.confirmConstraint(this, getYmirRequest(),
-                FITTED_ON_DB_TYPE, entityBean.getEntityClass());
+                new FittedOnDBTypeImpl(), entityBean.getEntityClass());
     }
 
-    public void _get(@RequestParameter("p")
-    Integer p) {
+    @Validator("_post_do_edit")
+    public void validateToEdit() throws ConstraintViolatedException {
+        constraintManager.confirmConstraint(this, getYmirRequest(),
+                new FittedOnDBTypeImpl(entityBean.getPasswordColumnNames()
+                        .toArray(Constants.STRINGS_EMPTY)), entityBean
+                        .getEntityClass());
+    }
+
+    public void _get(@RequestParameter("p") Integer p) {
         index(p);
     }
 
@@ -169,6 +203,13 @@ public class MaintenancePage extends PageBase {
         }
 
         ConditionBean cb = entityBean.newConditionBean();
+        for (String outerColumn : entityBean.getOuterColumns()) {
+            for (ForeignInfo foreignInfo : entityBean
+                    .getColumnInfo(outerColumn).getForeignInfoList()) {
+                cb.invokeSetupSelect(foreignInfo.getForeignPropertyName());
+            }
+        }
+        cb.addOrderBy_PK_Asc();
         cb.paging(entityBean.getRecordsByPage(), p);
         PagingResultBean<? extends Entity> bean = entityBean.getBehavior()
                 .readPage(cb);
