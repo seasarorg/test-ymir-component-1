@@ -399,7 +399,7 @@ public class SourceCreatorImpl implements SourceCreator {
         HttpMethod method = pathMetaData.getMethod();
 
         if (request.getParameter(PARAM_TASK) == null
-                && !shouldUpdate(forwardPath)) {
+                && !(shouldUpdate(path) && shouldUpdate(forwardPath))) {
             return response;
         }
 
@@ -2392,7 +2392,8 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public String filterResponse(String response) {
-        if (!shouldUpdate()) {
+        if (!shouldUpdate()
+                || !shouldUpdate(getRequest().getCurrentDispatch().getPath())) {
             return response;
         }
 
