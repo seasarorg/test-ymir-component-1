@@ -281,7 +281,7 @@ public class MaintenancePage extends PageBase {
 
         MessageDigest digest;
         try {
-            digest = MessageDigest.getInstance("SHA1");
+            digest = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException ex) {
             throw new RuntimeException(ex);
         }
