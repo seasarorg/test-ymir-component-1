@@ -106,7 +106,9 @@ public class ConstraintManagerImpl implements ConstraintManager {
             } catch (ValidationFailedException ex) {
                 notes.add(ex.getNotes());
             } catch (ConstraintViolatedException ex) {
-                throw new RuntimeException("May logic error", ex);
+                throw new RuntimeException(
+                        "Constraint can throw sub-class of either PermissionDeniedException or ValidationFailedException",
+                        ex);
             }
         }
     }
