@@ -510,7 +510,8 @@ public class SourceCreatorImpl implements SourceCreator {
     }
 
     public Response updateByException(Request request, Throwable t) {
-        if (!shouldUpdate()) {
+        if (!shouldUpdate()
+                || !shouldUpdate(getRequest().getCurrentDispatch().getPath())) {
             return null;
         }
 
