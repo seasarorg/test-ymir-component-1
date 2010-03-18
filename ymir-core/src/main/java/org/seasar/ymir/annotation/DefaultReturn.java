@@ -5,6 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.seasar.ymir.response.scheme.impl.PassthroughStrategy;
+
 /**
  * Pageのアクションのデフォルトの返り値を指定するためのアノテーションです。
  * <p>このアノテーションはPageクラスのアクションメソッドに付与したり
@@ -33,5 +35,5 @@ public @interface DefaultReturn {
      * 
      * @return デフォルトの返り値。
      */
-    String value();
+    String value() default PassthroughStrategy.SCHEME + ":";
 }
