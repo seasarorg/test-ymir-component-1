@@ -4,21 +4,22 @@
 <html metal:use-macro="/WEB-INF/zpt/frame.html" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <title metal:fill-slot="title" tal:content="string:${eval:messages/%label.${self/view/entityName}}の編集"></title>
+  <title metal:fill-slot="title">テーブルのメンテナンス</title>
   <div metal:fill-slot="head" tal:omit-tag="">
-    <div metal:use-macro="/WEB-INF/zpt/scaffold/jquery.html#head"></div>
+    <div metal:use-macro="/WEB-INF/zpt/scaffold/macro/jquery.html#head"></div>
     <link rel="stylesheet" type="text/css" media="all" tal:attributes="href page:/ys/style.css" />
   </div> 
 </head>
 <body>
 <div metal:fill-slot="body">
 
-<h1 tal:content="string:${eval:messages/%label.${self/view/entityName}}の編集"></h1>
+<h1>テーブルのメンテナンス</h1>
 
-<div metal:use-macro="/WEB-INF/zpt/scaffold/generic.html#notes"></div>
-<form metal:use-macro="/WEB-INF/zpt/scaffold/maintenance.html#form">
-ここにフォームが表示されます。
-</form>
+<ul>
+  <li tal:repeat="link self/entityLinks">
+    <a tal:attributes="href page:${link/path}" tal:content="eval:messages/%label.${link/entityName}"></a>
+  </li>
+</ul>
 
 </div>
 </body>

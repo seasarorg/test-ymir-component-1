@@ -5,32 +5,41 @@ import java.util.List;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.ymir.Ymir;
 import org.seasar.ymir.annotation.DefaultReturn;
 import org.seasar.ymir.annotation.SuppressUpdating;
 import org.seasar.ymir.convention.YmirNamingConvention;
+import org.seasar.ymir.scaffold.maintenance.dto.EntityLinkDto;
 import org.seasar.ymir.scaffold.util.ClassScanner;
 import org.seasar.ymir.scaffold.util.PageBase;
 
 @SuppressUpdating
-@DefaultReturn("/maintenance/list.template.html")
+@DefaultReturn("/WEB-INF/zpt/scaffold/maintenance/list.html")
 public class YsMaintenanceListPage extends PageBase {
+    @Binding(bindingType = BindingType.MUST)
+    protected Ymir ymir;
+
     @Binding(bindingType = BindingType.MUST)
     protected YmirNamingConvention ymirNamingConvention;
 
-    private List<String> entityNames = new ArrayList<String>();
+    private List<EntityLinkDto> entityLinks = new ArrayList<EntityLinkDto>();
 
     public void _get() {
         String webRootPackageName = ymirNamingConvention.getRootPackageNames()[0]
                 + ".web";
         int afterDot = webRootPackageName.length() + 1;
-        for (String className : new ClassScanner().scanNames(
-                webRootPackageName, "[^\\.]+\\.maintenance\\.IndexPage")) {
-            entityNames.add(className.substring(afterDot, className.indexOf(
-                    '.', afterDot)));
+        for (Class<?> pageClass : new ClassScanner().scan(webRootPackageName,
+                "(.*\\.)?IndexPage")) {
+            if (YsMaintenancePage.class.isAssignableFrom(pageClass)) {
+                String className = pageClass.getName();
+                entityLinks.add(new EntityLinkDto(className.substring(afterDot,
+                        className.indexOf('.', afterDot)), ymir
+                        .getPathOfPageClass(pageClass)));
+            }
         }
     }
 
-    public List<String> getEntityNames() {
-        return entityNames;
+    public List<EntityLinkDto> getEntityLinks() {
+        return entityLinks;
     }
 }

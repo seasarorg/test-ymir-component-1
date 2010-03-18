@@ -13,13 +13,11 @@
   <component name="maintenancePathMapping" class="org.seasar.ymir.impl.YmirPathMapping">
     <arg>"/([a-zA-Z][a-zA-Z0-9]*)/maintenance/([a-zA-Z][a-zA-Z0-9]*)\\.html"</arg>
     <arg>"${1}_maintenance_indexPage"</arg>
-    <arg>"_${method}"</arg>
     <arg>null</arg>
     <arg>"action=${2}"</arg>
-    <arg>"/${1}/maintenance/${2}.template.html"</arg>
     <initMethod name="setReverseMapping">
       <arg>"([a-zA-Z][a-zA-Z0-9]*)_maintenance_indexPage"</arg>
-      <arg>"/${1}/maintenance/${action}.html"</arg>
+      <arg>"/${1}/maintenance/index.html"</arg>
     </initMethod>
   </component>
 </components>

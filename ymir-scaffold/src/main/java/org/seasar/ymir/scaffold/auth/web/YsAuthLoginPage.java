@@ -6,6 +6,7 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.annotation.DefaultReturn;
 import org.seasar.ymir.annotation.SuppressUpdating;
 import org.seasar.ymir.constraint.annotation.Required;
+import org.seasar.ymir.constraint.annotation.ValidationFailed;
 import org.seasar.ymir.scaffold.auth.LoginUser;
 import org.seasar.ymir.scaffold.dbflute.exbhv.YsUserBhv;
 import org.seasar.ymir.scaffold.dbflute.exentity.YsUser;
@@ -19,7 +20,7 @@ import org.seasar.ymir.session.annotation.InvalidateSession;
 import org.seasar.ymir.util.StringUtils;
 
 @SuppressUpdating
-@DefaultReturn("/auth/login.template.html")
+@DefaultReturn("/WEB-INF/zpt/scaffold/auth/login.html")
 public class YsAuthLoginPage extends PageBase {
     @Binding(bindingType = BindingType.MUST)
     protected YsUserBhv ysUserBhv;
@@ -45,6 +46,12 @@ public class YsAuthLoginPage extends PageBase {
     @In(SessionScope.class)
     public void setRedirectionURL(String redirectionURL) {
         this.redirectionURL = redirectionURL;
+    }
+
+    @ValidationFailed
+    public void validationFailed() {
+        getNotes().clear();
+        addNote("error.auth.login.failed");
     }
 
     public void _get() {

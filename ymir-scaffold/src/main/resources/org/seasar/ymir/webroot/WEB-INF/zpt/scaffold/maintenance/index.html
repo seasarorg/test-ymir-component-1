@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <title metal:fill-slot="title" tal:content="string:${eval:messages/%label.${self/view/entityName}}の一覧"></title>
   <div metal:fill-slot="head" tal:omit-tag="">
-    <div metal:use-macro="/WEB-INF/zpt/scaffold/jquery.html#head"></div>
+    <div metal:use-macro="/WEB-INF/zpt/scaffold/macro/jquery.html#head"></div>
     <link rel="stylesheet" type="text/css" media="all" tal:attributes="href page:/ys/style.css" />
   </div> 
 </head>
@@ -15,11 +15,11 @@
 
 <h1 tal:content="string:${eval:messages/%label.${self/view/entityName}}の一覧"></h1>
 
-<div metal:use-macro="/WEB-INF/zpt/scaffold/maintenance.html#navigation"></div>
-<div metal:use-macro="/WEB-INF/zpt/scaffold/maintenance.html#notes"></div>
-<div metal:use-macro="/WEB-INF/zpt/scaffold/maintenance.html#paging-summary"></div>
-<div metal:use-macro="/WEB-INF/zpt/scaffold/maintenance.html#index"></div>
-<div metal:use-macro="/WEB-INF/zpt/scaffold/maintenance.html#paging"></div>
+<div metal:use-macro="/WEB-INF/zpt/scaffold/maintenance/macro.html#navigation"></div>
+<div metal:use-macro="/WEB-INF/zpt/scaffold/maintenance/macro.html#notes"></div>
+<div metal:use-macro="/WEB-INF/zpt/scaffold/maintenance/macro.html#paging-summary"></div>
+<div metal:use-macro="/WEB-INF/zpt/scaffold/maintenance/macro.html#index"></div>
+<div metal:use-macro="/WEB-INF/zpt/scaffold/maintenance/macro.html#paging"></div>
 
 </div>
 </body>

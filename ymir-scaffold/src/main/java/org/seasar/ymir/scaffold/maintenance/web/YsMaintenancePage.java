@@ -14,6 +14,7 @@ import org.seasar.ymir.HttpMethod;
 import org.seasar.ymir.Phase;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
+import org.seasar.ymir.annotation.DefaultReturn;
 import org.seasar.ymir.annotation.Invoke;
 import org.seasar.ymir.annotation.SuppressUpdating;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
@@ -41,6 +42,7 @@ import org.seasar.ymir.util.StringUtils;
 import org.seasar.ymir.zpt.annotation.ParameterHolder;
 
 @SuppressUpdating
+@DefaultReturn("/WEB-INF/zpt/scaffold/maintenance/${2}.html")
 @ParameterHolder("entity")
 public class YsMaintenancePage extends PageBase {
 
@@ -195,7 +197,8 @@ public class YsMaintenancePage extends PageBase {
                         .getEntityClass());
     }
 
-    public void _get(@RequestParameter("p") Integer p) {
+    public void _get(@RequestParameter("p")
+    Integer p) {
         index(p);
     }
 

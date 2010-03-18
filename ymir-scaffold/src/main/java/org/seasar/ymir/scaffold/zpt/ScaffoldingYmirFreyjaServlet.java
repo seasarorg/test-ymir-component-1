@@ -18,19 +18,13 @@ public class ScaffoldingYmirFreyjaServlet extends YmirFreyjaServlet {
 
     private static final String INITPARAM_WEBROOTPACKAGEPATH = "webrootPackagePath";
 
-    private static final String INITPARAM_ZPTROOTPACKAGEPATH = "zptrootPackagePath";
-
     private static final String INITPARAM_RESOURCEENCODING = "resourceEncoding";
 
     private static final String DEFAULT_WEBROOTPACKAGEPATH = "org/seasar/ymir/webroot";
 
-    private static final String DEFAULT_ZPTROOTPACKAGEPATH = "org/seasar/ymir/zptroot";
-
     private static final String DEFAULT_RESOURCEENCODING = "UTF-8";
 
     private String webrootPackagePath_;
-
-    private String zptrootPackagePath_;
 
     private String resourceEncoding_;
 
@@ -45,16 +39,6 @@ public class ScaffoldingYmirFreyjaServlet extends YmirFreyjaServlet {
                     webrootPackagePath.length() - 1/*= "/".length() */);
         }
         webrootPackagePath_ = webrootPackagePath;
-
-        String zptrootPackagePath = getInitParameter(INITPARAM_ZPTROOTPACKAGEPATH);
-        if (zptrootPackagePath == null) {
-            zptrootPackagePath = DEFAULT_ZPTROOTPACKAGEPATH;
-        }
-        if (zptrootPackagePath.endsWith("/")) {
-            zptrootPackagePath = zptrootPackagePath.substring(0,
-                    zptrootPackagePath.length() - 1/*= "/".length() */);
-        }
-        zptrootPackagePath_ = zptrootPackagePath;
 
         resourceEncoding_ = getInitParameter(INITPARAM_RESOURCEENCODING);
         if (resourceEncoding_ == null) {
@@ -73,11 +57,8 @@ public class ScaffoldingYmirFreyjaServlet extends YmirFreyjaServlet {
 
     @Override
     protected TemplateSet createTemplateSet() {
-        return new CascadingTemplateSet(new TemplateSet[] {
-            super.createTemplateSet(),
-            new JavaResourceTemplateSet(webrootPackagePath_, resourceEncoding_,
-                    getTemplateEvaluator()),
-            new TraversingJavaResourceTemplateSet(zptrootPackagePath_,
-                    resourceEncoding_, getTemplateEvaluator()) });
+        return new CascadingTemplateSet(super.createTemplateSet(),
+                new JavaResourceTemplateSet(webrootPackagePath_,
+                        resourceEncoding_, getTemplateEvaluator()));
     }
 }
