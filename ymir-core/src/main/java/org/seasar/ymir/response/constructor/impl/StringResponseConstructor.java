@@ -9,16 +9,13 @@ import org.seasar.ymir.response.scheme.StrategySelector;
 import org.seasar.ymir.response.scheme.impl.ForwardStrategy;
 
 public class StringResponseConstructor implements ResponseConstructor<String> {
-
     private StrategySelector strategySelector_;
 
     public Class<String> getTargetClass() {
-
         return String.class;
     }
 
     public Response constructResponse(Object page, String returnValue) {
-
         if (returnValue == null) {
             return VoidResponse.INSTANCE;
         }
@@ -42,7 +39,6 @@ public class StringResponseConstructor implements ResponseConstructor<String> {
     }
 
     public void setStrategySelector(StrategySelector strategySelector) {
-
         strategySelector_ = strategySelector;
     }
 }
