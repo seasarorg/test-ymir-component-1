@@ -38,7 +38,7 @@ public class LengthConstraint extends AbstractConstraint<Length> {
         Notes notes = new Notes();
         for (int i = 0; i < names.length; i++) {
             confirm(request, names[i], annotation.min(), max, notes, annotation
-                    .messageKey());
+                    .messageKey(), annotation.namePrefixOnNote());
         }
         if (notes.size() > 0) {
             throw new ValidationFailedException().setNotes(notes);
@@ -46,7 +46,7 @@ public class LengthConstraint extends AbstractConstraint<Length> {
     }
 
     void confirm(Request request, String name, int min, int max, Notes notes,
-            String messageKey) {
+            String messageKey, String namePrefixOnNote) {
         String[] values = request.getParameterValues(name);
         if (values == null) {
             return;
@@ -75,8 +75,8 @@ public class LengthConstraint extends AbstractConstraint<Length> {
             }
             if (suffix != null) {
                 notes.add(name, new Note(ConstraintUtils.getFullMessageKey(
-                        getConstraintKey() + suffix, messageKey), new Object[] {
-                    name, border }));
+                        getConstraintKey() + suffix, messageKey),
+                        namePrefixOnNote + name, border));
             }
         }
     }

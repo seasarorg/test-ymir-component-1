@@ -77,14 +77,15 @@ public class FittedOnTypeConstraint extends AbstractConstraint<FittedOnType> {
                 confirm(request, name, handler.getPropertyType(),
                         annotationHandler_.getMarkedAnnotations(handler
                                 .getWriteMethod(), TypeConversionHint.class),
-                        notes, annotation.messageKey());
+                        notes, annotation.messageKey(), annotation
+                                .namePrefixOnNote());
             }
         } else if (element instanceof Method) {
             confirm(request, getPropertyName(element),
                     getPropertyType(element), annotationHandler_
                             .getMarkedAnnotations(element,
                                     TypeConversionHint.class), notes,
-                    annotation.messageKey());
+                    annotation.messageKey(), annotation.namePrefixOnNote());
         } else {
             throw new RuntimeException("May logic error");
         }
@@ -95,7 +96,8 @@ public class FittedOnTypeConstraint extends AbstractConstraint<FittedOnType> {
     }
 
     void confirm(Request request, String name, Class<?> type,
-            Annotation[] hint, Notes notes, String messageKey) {
+            Annotation[] hint, Notes notes, String messageKey,
+            String namePrefixOnNote) {
         String[] values = request.getParameterValues(name);
         if (values == null) {
             return;
@@ -118,7 +120,8 @@ public class FittedOnTypeConstraint extends AbstractConstraint<FittedOnType> {
                     }
                 }
                 notes.add(name, new Note(ConstraintUtils.getFullMessageKey(
-                        constraintKey, messageKey), name, typeName));
+                        constraintKey, messageKey), namePrefixOnNote + name,
+                        typeName));
             }
         }
     }

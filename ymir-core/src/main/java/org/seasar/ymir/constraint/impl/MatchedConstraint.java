@@ -23,6 +23,6 @@ public class MatchedConstraint extends AbstractRegexConstraint<Matched> {
                     "Please specify either 'pattern' or 'value' property");
         }
         confirm(request, annotation, element, annotation.property(), pattern,
-                annotation.messageKey());
+                annotation.messageKey(), annotation.namePrefixOnNote());
     }
 }

@@ -39,7 +39,8 @@ public class DatetimeConstraint extends AbstractConstraint<Datetime> {
         String fullMessageKey = getFullMessageKey(annotation.messageKey());
         Notes notes = new Notes();
         for (int i = 0; i < names.length; i++) {
-            confirm(request, names[i], pattern, sdf, notes, fullMessageKey);
+            confirm(request, names[i], pattern, sdf, notes, fullMessageKey,
+                    annotation.namePrefixOnNote());
         }
         if (notes.size() > 0) {
             throw new ValidationFailedException().setNotes(notes);
@@ -47,7 +48,8 @@ public class DatetimeConstraint extends AbstractConstraint<Datetime> {
     }
 
     void confirm(Request request, String name, String pattern,
-            SimpleDateFormat sdf, Notes notes, String fullMessageKey) {
+            SimpleDateFormat sdf, Notes notes, String fullMessageKey,
+            String namePrefixOnNote) {
         String[] values = request.getParameterValues(name);
         if (values == null) {
             return;
@@ -60,11 +62,13 @@ public class DatetimeConstraint extends AbstractConstraint<Datetime> {
             try {
                 parsed = sdf.parse(values[i]);
             } catch (ParseException ex) {
-                notes.add(name, new Note(fullMessageKey, name, pattern));
+                notes.add(name, new Note(fullMessageKey, namePrefixOnNote
+                        + name, pattern));
                 continue;
             }
             if (!values[i].equals(sdf.format(parsed))) {
-                notes.add(name, new Note(fullMessageKey, name, pattern));
+                notes.add(name, new Note(fullMessageKey, namePrefixOnNote
+                        + name, pattern));
                 continue;
             }
         }

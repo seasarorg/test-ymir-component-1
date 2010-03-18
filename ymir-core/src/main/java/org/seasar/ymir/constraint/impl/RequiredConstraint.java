@@ -32,8 +32,9 @@ public class RequiredConstraint extends AbstractConstraint<Required> {
             String[] patterns = getNotMatchedPatterns(request, annotation
                     .value());
             for (String pattern : patterns) {
-                notes.add(pattern, new Note(fullMessageKey,
-                        new Object[] { pattern }));
+                notes.add(pattern, new Note(fullMessageKey, annotation
+                        .namePrefixOnNote()
+                        + pattern));
             }
         }
 
@@ -47,9 +48,9 @@ public class RequiredConstraint extends AbstractConstraint<Required> {
             if (ConstraintUtils.isEmpty(request, name, annotation.completely(),
                     annotation.allowWhitespace(), annotation
                             .allowFullWidthWhitespace())) {
-                notes
-                        .add(name, new Note(fullMessageKey,
-                                new Object[] { name }));
+                notes.add(name, new Note(fullMessageKey, annotation
+                        .namePrefixOnNote()
+                        + name));
             }
         }
         if (notes.size() > 0) {

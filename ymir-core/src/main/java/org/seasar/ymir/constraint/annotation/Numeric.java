@@ -112,4 +112,15 @@ public @interface Numeric {
      * @since 1.0.7
      */
     String messageKey() default "";
+
+    /**
+     * エラーメッセージのカテゴリに付与する接頭語です。
+     * <p>あるパラメータに関するエラーメッセージはパラメータ名と同じ名前のカテゴリに属するようにNotesオブジェクトに追加されます。
+     * このメンバを指定すると、このメンバの値がカテゴリ名の先頭に付与されるようになります。
+     * </p>
+     * 
+     * @return カテゴリに付与する接頭語。
+     * @since 1.0.7
+     */
+    String namePrefixOnNote() default "";
 }

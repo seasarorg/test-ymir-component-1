@@ -46,9 +46,9 @@ public class NotEmptyConstraint extends AbstractConstraint<NotEmpty> {
             if (ConstraintUtils.isEmpty(request, name, annotation.completely(),
                     annotation.allowWhitespace(), annotation
                             .allowFullWidthWhitespace())) {
-                notes
-                        .add(name, new Note(fullMessageKey,
-                                new Object[] { name }));
+                notes.add(name, new Note(fullMessageKey, annotation
+                        .namePrefixOnNote()
+                        + name));
             }
         }
         if (notes.size() > 0) {

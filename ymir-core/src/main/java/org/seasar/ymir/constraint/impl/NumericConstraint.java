@@ -50,7 +50,7 @@ public class NumericConstraint extends AbstractConstraint<Numeric> {
         for (int i = 0; i < names.length; i++) {
             confirm(request, names[i], integer, greaterEdge,
                     greaterIncludeEqual, lessEdge, lessIncludeEqual, notes,
-                    annotation.messageKey());
+                    annotation.messageKey(), annotation.namePrefixOnNote());
         }
         if (notes.size() > 0) {
             throw new ValidationFailedException().setNotes(notes);
@@ -59,7 +59,8 @@ public class NumericConstraint extends AbstractConstraint<Numeric> {
 
     void confirm(Request request, String name, boolean integer,
             Double greaterEdge, boolean greaterIncludeEqual, Double lessEdge,
-            boolean lessIncludeEqual, Notes notes, String messageKey) {
+            boolean lessIncludeEqual, Notes notes, String messageKey,
+            String namePrefixOnNote) {
         String[] values = request.getParameterValues(name);
         if (values == null) {
             return;
@@ -72,48 +73,55 @@ public class NumericConstraint extends AbstractConstraint<Numeric> {
             try {
                 value = Double.parseDouble(values[i]);
             } catch (NumberFormatException ex) {
-                notes
-                        .add(name, new Note(ConstraintUtils.getFullMessageKey(
-                                getConstraintKey(), messageKey),
-                                new Object[] { name }));
+                notes.add(name, new Note(ConstraintUtils.getFullMessageKey(
+                        getConstraintKey(), messageKey), namePrefixOnNote
+                        + name));
                 continue;
             }
             if (integer && values[i].indexOf('.') >= 0) {
                 notes.add(name, new Note(ConstraintUtils.getFullMessageKey(
                         getConstraintKey() + ".integer", messageKey),
-                        new Object[] { name, lessEdge, greaterEdge }));
+                        namePrefixOnNote + name, lessEdge, greaterEdge));
             }
             if (greaterEdge != null) {
                 if (greaterIncludeEqual) {
                     if (value < greaterEdge.doubleValue()) {
-                        notes.add(name, new Note(ConstraintUtils
-                                .getFullMessageKey(getConstraintKey()
-                                        + ".greaterEqual", messageKey),
-                                new Object[] { name, greaterEdge, lessEdge }));
+                        notes
+                                .add(name, new Note(ConstraintUtils
+                                        .getFullMessageKey(getConstraintKey()
+                                                + ".greaterEqual", messageKey),
+                                        namePrefixOnNote + name, greaterEdge,
+                                        lessEdge));
                     }
                 } else {
                     if (value <= greaterEdge.doubleValue()) {
-                        notes.add(name, new Note(ConstraintUtils
-                                .getFullMessageKey(getConstraintKey()
-                                        + ".greaterThan", messageKey),
-                                new Object[] { name, greaterEdge, lessEdge }));
+                        notes
+                                .add(name, new Note(ConstraintUtils
+                                        .getFullMessageKey(getConstraintKey()
+                                                + ".greaterThan", messageKey),
+                                        namePrefixOnNote + name, greaterEdge,
+                                        lessEdge));
                     }
                 }
             }
             if (lessEdge != null) {
                 if (lessIncludeEqual) {
                     if (value > lessEdge.doubleValue()) {
-                        notes.add(name, new Note(ConstraintUtils
-                                .getFullMessageKey(getConstraintKey()
-                                        + ".lessEqual", messageKey),
-                                new Object[] { name, lessEdge, greaterEdge }));
+                        notes
+                                .add(name, new Note(ConstraintUtils
+                                        .getFullMessageKey(getConstraintKey()
+                                                + ".lessEqual", messageKey),
+                                        namePrefixOnNote + name, lessEdge,
+                                        greaterEdge));
                     }
                 } else {
                     if (value >= lessEdge.doubleValue()) {
-                        notes.add(name, new Note(ConstraintUtils
-                                .getFullMessageKey(getConstraintKey()
-                                        + ".lessThan", messageKey),
-                                new Object[] { name, lessEdge, greaterEdge }));
+                        notes
+                                .add(name, new Note(ConstraintUtils
+                                        .getFullMessageKey(getConstraintKey()
+                                                + ".lessThan", messageKey),
+                                        namePrefixOnNote + name, lessEdge,
+                                        greaterEdge));
                     }
                 }
             }

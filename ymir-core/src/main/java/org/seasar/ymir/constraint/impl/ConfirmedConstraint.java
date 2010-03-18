@@ -29,14 +29,15 @@ public class ConfirmedConstraint extends AbstractConstraint<Confirmed> {
 
         String fullMessageKey = getFullMessageKey(annotation.messageKey());
         Notes notes = new Notes();
-        confirm(request, names, notes, fullMessageKey);
+        confirm(request, names, notes, fullMessageKey, annotation
+                .namePrefixOnNote());
         if (notes.size() > 0) {
             throw new ValidationFailedException().setNotes(notes);
         }
     }
 
     void confirm(Request request, String[] names, Notes notes,
-            String fullMessageKey) {
+            String fullMessageKey, String namePrefixOnNote) {
         Set<String> valueSet = new HashSet<String>();
         for (String name : names) {
             String[] values = request.getParameterValues(name);
@@ -45,7 +46,11 @@ public class ConfirmedConstraint extends AbstractConstraint<Confirmed> {
             }
         }
         if (valueSet.size() > 1) {
-            notes.add(new Note(fullMessageKey, (Object[]) names), names);
+            Object[] actualNames = new Object[names.length];
+            for (int i = 0; i < names.length; i++) {
+                actualNames[i] = namePrefixOnNote + names[i];
+            }
+            notes.add(new Note(fullMessageKey, actualNames), names);
         }
     }
 }
