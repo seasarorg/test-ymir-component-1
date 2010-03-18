@@ -41,6 +41,7 @@ import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.util.RequestUtils;
+import org.seasar.ymir.util.ServletUtils;
 import org.seasar.ymir.util.YmirUtils;
 
 public class RequestProcessorImpl implements RequestProcessor {
@@ -451,6 +452,13 @@ public class RequestProcessorImpl implements RequestProcessor {
             if (returnValue != null) {
                 response = actionManager_.constructResponse(page, Object.class,
                         returnValue);
+                if (response.getType() == ResponseType.FORWARD
+                        && response.getPath().equals(
+                                ServletUtils.normalizePath(dispatch.getPath()))) {
+                    // デフォルトリターンがリクエストパスと同じパスへのFORWARDの場合は
+                    // 処理がループしないようにpassthroughに置き換える。
+                    response = new PassthroughResponse();
+                }
             }
         }
 
