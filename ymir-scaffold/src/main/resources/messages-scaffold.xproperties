@@ -6,3 +6,4 @@ label.maintenance.do_delete=削除
 label.maintenance.edit=編集
 
 error.maintenance.entityNotFound={0}テーブルが見つかりませんでした。
+error.auth.login.failed=ユーザ名またはパスワードが間違っています。

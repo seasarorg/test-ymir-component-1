@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE components PUBLIC "-//SEASAR2.1//DTD S2Container//EN"
+    "http://www.seasar.org/dtd/components21.dtd">
+
+<components namespace="dbflute">
+    <include path="j2ee.dicon"/>
+
+    <!-- The components of DBFlute Runtime. -->
+    <component class="org.seasar.ymir.scaffold.allcommon.DBFluteInitializer"/>
+    <component name="invokerAssistant" class="org.seasar.ymir.scaffold.allcommon.ImplementedInvokerAssistant"/>
+    <component name="commonColumnAutoSetupper" class="org.seasar.ymir.scaffold.allcommon.ImplementedCommonColumnAutoSetupper"/>
+    <component name="behaviorSelector" class="org.seasar.ymir.scaffold.allcommon.ImplementedBehaviorSelector"/>
+    <component name="behaviorCommandInvoker" class="org.seasar.dbflute.bhv.core.BehaviorCommandInvoker"/>
+
+    <!-- The components of Behavior. -->
+    <component name="ysGroupBhv" class="org.seasar.ymir.scaffold.exbhv.YsGroupBhv"/>
+    <component name="ysGroupUserBhv" class="org.seasar.ymir.scaffold.exbhv.YsGroupUserBhv"/>
+    <component name="ysRoleBhv" class="org.seasar.ymir.scaffold.exbhv.YsRoleBhv"/>
+    <component name="ysRoleGroupUserBhv" class="org.seasar.ymir.scaffold.exbhv.YsRoleGroupUserBhv"/>
+    <component name="ysUserBhv" class="org.seasar.ymir.scaffold.exbhv.YsUserBhv"/>
+</components>

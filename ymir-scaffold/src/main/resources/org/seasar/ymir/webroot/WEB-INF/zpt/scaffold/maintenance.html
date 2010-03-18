@@ -34,12 +34,6 @@
   </table>
 </form>
 
-<div metal:define-macro="form-notes" tal:condition="notes/size(org.seasar.ymir.message.GLOBAL_NOTE)">
-  <ul>
-    <li tal:repeat="note notes/notes(org.seasar.ymir.message.GLOBAL_NOTE)" tal:content="note/%value"></li>
-  </ul>
-</div>
-
 <div metal:define-macro="index" tal:define="view self/view; entity self/entity">
   <table border="1">
     <thead>

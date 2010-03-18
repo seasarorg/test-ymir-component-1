@@ -1,5 +1,7 @@
 package org.seasar.ymir.scaffold.maintenance.zpt.interceptor;
 
+import static org.seasar.ymir.scaffold.Globals.PREFIX_YS;
+
 import java.util.Date;
 
 import org.seasar.dbflute.dbmeta.info.ColumnInfo;
@@ -24,8 +26,6 @@ import net.skirnir.freyja.TagEvaluatorUtils;
 import net.skirnir.freyja.TemplateContext;
 
 public class MaintenanceInterceptor implements TagRenderingInterceptor {
-    private static final String PREFIX_YS = "ys:";
-
     private static final String PREFIX_MAINTENANCE = "maintenance-";
 
     private static final String YS_EXPAND = PREFIX_YS + PREFIX_MAINTENANCE

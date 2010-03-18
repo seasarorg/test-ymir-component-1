@@ -1,9 +1,6 @@
 package org.seasar.ymir.scaffold.maintenance.web;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Map;
 
@@ -35,6 +32,7 @@ import org.seasar.ymir.scaffold.maintenance.enm.Action;
 import org.seasar.ymir.scaffold.util.MaskingMap;
 import org.seasar.ymir.scaffold.util.PageBase;
 import org.seasar.ymir.scaffold.util.Redirect;
+import org.seasar.ymir.scaffold.util.ScaffoldUtils;
 import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.annotation.RequestParameter;
 import org.seasar.ymir.scope.annotation.URIParameter;
@@ -193,7 +191,8 @@ public class MaintenancePage extends PageBase {
                         .getEntityClass());
     }
 
-    public void _get(@RequestParameter("p") Integer p) {
+    public void _get(@RequestParameter("p")
+    Integer p) {
         index(p);
     }
 
@@ -238,7 +237,7 @@ public class MaintenancePage extends PageBase {
 
         Request request = getYmirRequest();
         for (String name : entityBean.getPasswordColumnNames()) {
-            scopeManager.populateQuietly(entity, name, encryptPassword(request
+            scopeManager.populateQuietly(entity, name, hash(request
                     .getParameter(name)));
         }
 
@@ -263,8 +262,7 @@ public class MaintenancePage extends PageBase {
                     && !entityBean.isReadOnlyColumn(name)) {
                 String value = request.getParameter(name);
                 if (!StringUtils.isEmpty(value)) {
-                    scopeManager.populateQuietly(entity, name,
-                            encryptPassword(value));
+                    scopeManager.populateQuietly(entity, name, hash(value));
                 }
             }
         }
@@ -274,29 +272,8 @@ public class MaintenancePage extends PageBase {
         return Redirect.to("index.html", "returned");
     }
 
-    protected String encryptPassword(String rawPassword) {
-        if (rawPassword == null) {
-            return null;
-        }
-
-        MessageDigest digest;
-        try {
-            digest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException ex) {
-            throw new RuntimeException(ex);
-        }
-        try {
-            digest.update(rawPassword.getBytes("ISO-8859-1"));
-            StringBuilder sb = new StringBuilder();
-            for (byte b : digest.digest()) {
-                @SuppressWarnings("cast")
-                String s = "0" + Integer.toHexString((int) b);
-                sb.append(s.substring(s.length() - 2));
-            }
-            return sb.toString();
-        } catch (UnsupportedEncodingException ex) {
-            throw new RuntimeException(ex);
-        }
+    protected String hash(String rawPassword) {
+        return ScaffoldUtils.hash(rawPassword);
     }
 
     public Response _get_do_delete() {

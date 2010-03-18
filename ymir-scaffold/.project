@@ -14,5 +14,6 @@
 	<natures>
 		<nature>org.maven.ide.eclipse_light.maven2Nature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
+        <nature>org.t2framework.vili.viliProjectNature</nature>
 	</natures>
 </projectDescription>
