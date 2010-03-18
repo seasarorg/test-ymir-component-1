@@ -56,6 +56,10 @@ public class MatchedPathMappingImpl implements MatchedPathMapping {
         return pathMapping_.getDefaultReturnValue(variableResolver_);
     }
 
+    public String evaluate(String template) {
+        return pathMapping_.evaluate(template, variableResolver_);
+    }
+
     public boolean isDenied() {
         return pathMapping_.isDenied();
     }

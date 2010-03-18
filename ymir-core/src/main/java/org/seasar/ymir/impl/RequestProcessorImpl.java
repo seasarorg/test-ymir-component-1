@@ -1,5 +1,6 @@
 package org.seasar.ymir.impl;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -33,6 +34,7 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseType;
 import org.seasar.ymir.Updater;
 import org.seasar.ymir.Ymir;
+import org.seasar.ymir.annotation.DefaultReturn;
 import org.seasar.ymir.annotation.Include;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.constraint.ConstraintType;
@@ -209,6 +211,7 @@ public class RequestProcessorImpl implements RequestProcessor {
         if (!dispatch.isIgnored()) {
             PageComponent pageComponent = createPageComponent(dispatch
                     .getPageComponentName());
+            Action action = null;
 
             // dispatch.isMatched()がtrueの場合でもpageComponentがnullになることがある
             // ことに注意。
@@ -244,7 +247,7 @@ public class RequestProcessorImpl implements RequestProcessor {
                         }
 
                         // 実際のアクションを決定する。
-                        Action action = originalAction;
+                        action = originalAction;
                         for (int i = 0; i < ymirProcessInterceptors_.length; i++) {
                             action = ymirProcessInterceptors_[i]
                                     .actionInvoking(request, action);
@@ -321,7 +324,10 @@ public class RequestProcessorImpl implements RequestProcessor {
             // 適切にできるようにデフォルト値からResponseを作るようにする。
             // （例えば、リクエストパス名がテンプレートパス名ではない場合に、リクエストパス名で
             // テンプレートが作られてしまうとうれしくない。）
-            response = adjustResponse(dispatch, response, page);
+            response = adjustResponse(dispatch, response, page,
+                    action != null ? action.getTargetClass() : null,
+                    action != null ? action.getMethodInvoker().getMethod()
+                            : null);
 
             if (log_.isDebugEnabled()) {
                 log_.debug("Adjusted response: " + response);
@@ -337,12 +343,14 @@ public class RequestProcessorImpl implements RequestProcessor {
         Dispatch dispatch = request.getCurrentDispatch();
         if (!dispatch.isIgnored()) {
             // includeの場合はselfを設定するだけ。
-            Object page = getPage(request.getCurrentDispatch()
-                    .getPageComponentName());
+            String componentName = request.getCurrentDispatch()
+                    .getPageComponentName();
+            Object page = getPage(componentName);
+            Class<?> pageClass = getComponentClass(componentName);
             if (page != null) {
                 request.setAttribute(ATTR_SELF, page);
             }
-            response = adjustResponse(dispatch, response, page);
+            response = adjustResponse(dispatch, response, page, pageClass, null);
         }
 
         return response;
@@ -414,11 +422,32 @@ public class RequestProcessorImpl implements RequestProcessor {
         return getS2Container().hasComponentDef(componentKey);
     }
 
-    Response adjustResponse(Dispatch dispatch, Response response, Object page) {
-        if (response.getType() == ResponseType.PASSTHROUGH
-                && !fileResourceExists(dispatch.getPath())) {
-            Object returnValue = dispatch.getMatchedPathMapping()
-                    .getDefaultReturnValue();
+    Response adjustResponse(Dispatch dispatch, Response response, Object page,
+            Class<?> pageClass, Method actionMethod) {
+        if (response.getType() == ResponseType.PASSTHROUGH) {
+            Object returnValue = null;
+
+            DefaultReturn defaultReturn = null;
+            if (actionMethod != null) {
+                defaultReturn = annotationHandler_.getAnnotation(actionMethod,
+                        DefaultReturn.class);
+            }
+            if (defaultReturn == null && pageClass != null) {
+                defaultReturn = annotationHandler_.getAnnotation(pageClass,
+                        DefaultReturn.class);
+            }
+
+            if (defaultReturn != null) {
+                returnValue = dispatch.getMatchedPathMapping().evaluate(
+                        defaultReturn.value());
+            } else {
+                // XXX 20100317 なぜファイルがない場合だけなんだっけ…。
+                if (!fileResourceExists(dispatch.getPath())) {
+                    returnValue = dispatch.getMatchedPathMapping()
+                            .getDefaultReturnValue();
+                }
+            }
+
             if (returnValue != null) {
                 response = actionManager_.constructResponse(page, Object.class,
                         returnValue);

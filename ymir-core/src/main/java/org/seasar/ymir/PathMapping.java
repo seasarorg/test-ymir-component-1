@@ -68,6 +68,18 @@ public interface PathMapping {
     Object getDefaultReturnValue(VariableResolver resolver);
 
     /**
+     * テンプレートを評価します。
+     * 
+     * @param template テンプレート。
+     * nullを指定した場合、評価結果はnullになります。
+    * @param resolver パスとパターンとのマッチング結果を表すVariableResolver。
+     * nullを指定した場合、評価結果はnullになります。
+     * @return 評価結果。
+     * @since 1.0.7
+     */
+    String evaluate(String template, VariableResolver resolver);
+
+    /**
      * このオブジェクトが持つパターンとマッチするパスへの直接アクセスが禁止されているかどうかを返します。
      * 
      * @return パスへの直接アクセスが禁止されているかどうか。

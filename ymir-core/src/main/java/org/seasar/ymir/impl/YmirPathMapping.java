@@ -381,7 +381,7 @@ public class YmirPathMapping implements PathMapping {
         return evaluate(defaultReturnValueTemplate_, resolver);
     }
 
-    String evaluate(String template, VariableResolver resolver) {
+    public String evaluate(String template, VariableResolver resolver) {
         if (resolver == null || template == null) {
             return null;
         } else {

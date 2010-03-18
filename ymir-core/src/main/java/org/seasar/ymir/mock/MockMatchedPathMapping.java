@@ -67,6 +67,10 @@ public class MockMatchedPathMapping implements MatchedPathMapping {
         return defaultReturnValue_;
     }
 
+    public String evaluate(String template) {
+        return null;
+    }
+
     public MockMatchedPathMapping setDefaultReturnValue(
             Object defaultReturnValue) {
         defaultReturnValue_ = defaultReturnValue;
