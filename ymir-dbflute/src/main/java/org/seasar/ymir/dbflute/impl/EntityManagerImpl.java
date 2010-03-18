@@ -13,10 +13,10 @@ import org.seasar.dbflute.cbean.ckey.ConditionKey;
 import org.seasar.dbflute.dbmeta.DBMeta;
 import org.seasar.dbflute.dbmeta.info.ColumnInfo;
 import org.seasar.dbflute.dbmeta.info.UniqueInfo;
+import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ApplicationManager;
-import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.dbflute.EntityManager;
 import org.seasar.ymir.dbflute.util.DBFluteUtils;
@@ -59,8 +59,6 @@ public class EntityManagerImpl implements EntityManager {
         Class<ConditionBean> cbClass = null;
         final String key = entityName;
 
-        YmirNamingConvention ymirNamingConvention = getYmirNamingConvention();
-
         if (key.indexOf('_') >= 0) {
             // DBNameなのでエンティティ名に変換する。
             entityName = DBFluteUtils.camelize(key);
@@ -69,35 +67,37 @@ public class EntityManagerImpl implements EntityManager {
             entityName = key.toLowerCase();
         }
 
-        String cEntityName = BeanUtils.capitalize(entityName);
-        for (String rootPackageName : ymirNamingConvention
-                .getRootPackageNames()) {
-            try {
-                entityClass = (Class<? extends Entity>) ClassUtils
-                        .forName(rootPackageName + ".dbflute.exentity."
-                                + cEntityName);
-            } catch (ClassNotFoundException ignore) {
-                continue;
-            }
-
-            String cbClassName = rootPackageName + ".dbflute.cbean."
-                    + cEntityName + "CB";
-            try {
-                cbClass = (Class<ConditionBean>) ClassUtils
-                        .forName(cbClassName);
-            } catch (ClassNotFoundException ex) {
-                throw new RuntimeException("Cannot find ConditionBean class: "
-                        + cbClassName);
-            }
-        }
-        if (entityClass == null) {
+        BehaviorWritable bhv;
+        try {
+            bhv = (BehaviorWritable) applicationManager
+                    .findContextApplication().getS2Container().getComponent(
+                            entityName + "Bhv");
+        } catch (ComponentNotFoundRuntimeException ex) {
             return null;
         }
 
+        String bhvClassName = bhv.getClass().getName();
+        String packageName = bhvClassName.substring(0, bhvClassName
+                .lastIndexOf('.', bhvClassName.lastIndexOf('.') - 1));
+
+        String cEntityName = BeanUtils.capitalize(entityName);
+        try {
+            entityClass = (Class<? extends Entity>) ClassUtils
+                    .forName(packageName + ".exentity." + cEntityName);
+        } catch (ClassNotFoundException ignore) {
+            return null;
+        }
+
+        String cbClassName = packageName + ".cbean." + cEntityName + "CB";
+        try {
+            cbClass = (Class<ConditionBean>) ClassUtils.forName(cbClassName);
+        } catch (ClassNotFoundException ex) {
+            throw new RuntimeException("Cannot find ConditionBean class: "
+                    + cbClassName);
+        }
+
         entityClassMap.put(key, entityClass);
-        behaviorMap.put(entityClass, (BehaviorWritable) applicationManager
-                .findContextApplication().getS2Container().getComponent(
-                        entityName + "Bhv"));
+        behaviorMap.put(entityClass, bhv);
         conditionBeanClassMap.put(entityClass, cbClass);
 
         DBMeta dbMeta = newEntity(entityClass).getDBMeta();
@@ -112,13 +112,6 @@ public class EntityManagerImpl implements EntityManager {
                 .unmodifiableList(primaryKeyColumnNames));
 
         return entityClass;
-    }
-
-    protected YmirNamingConvention getYmirNamingConvention() {
-        // YmirNamingConventionは上階層にあって自動でDIできないのでこうしている。
-        return (YmirNamingConvention) applicationManager
-                .findContextApplication().getS2Container().getComponent(
-                        YmirNamingConvention.class);
     }
 
     public Entity newEntity(String entityName) {

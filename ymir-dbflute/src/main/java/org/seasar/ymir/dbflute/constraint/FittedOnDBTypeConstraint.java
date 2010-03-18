@@ -91,7 +91,7 @@ public class FittedOnDBTypeConstraint extends
                                 TypeConversionHint.class), suppressTypeCheckSet
                         .contains(name), suppressEmptyCheckSet.contains(name),
                         suppressSizeCheckSet.contains(name), notes, annotation
-                                .messageKey());
+                                .messageKey(), annotation.namePrefixOnNote());
             }
         } else if (element instanceof Method) {
             String name = getPropertyName(element);
@@ -100,7 +100,8 @@ public class FittedOnDBTypeConstraint extends
                     .getMarkedAnnotations(element, TypeConversionHint.class),
                     suppressTypeCheckSet.contains(name), suppressEmptyCheckSet
                             .contains(name), suppressSizeCheckSet
-                            .contains(name), notes, annotation.messageKey());
+                            .contains(name), notes, annotation.messageKey(),
+                    annotation.namePrefixOnNote());
         } else {
             throw new RuntimeException("May logic error");
         }
@@ -113,7 +114,7 @@ public class FittedOnDBTypeConstraint extends
     void confirm(Request request, String name, ColumnInfo columnInfo,
             Class<?> type, Annotation[] hint, boolean suppressCheckForType,
             boolean suppressCheckForEmpty, boolean suppressCheckForSize,
-            Notes notes, String messageKey) {
+            Notes notes, String messageKey, String namePrefixOnNote) {
         if (columnInfo == null) {
             return;
         }
@@ -135,7 +136,7 @@ public class FittedOnDBTypeConstraint extends
                 }
                 if (!exist) {
                     notes.add(name, new Note(ConstraintUtils.getFullMessageKey(
-                            "required", messageKey), name));
+                            "required", messageKey), namePrefixOnNote + name));
                     return;
                 }
             }
@@ -162,7 +163,8 @@ public class FittedOnDBTypeConstraint extends
                         }
                     }
                     notes.add(name, new Note(ConstraintUtils.getFullMessageKey(
-                            constraintKey, messageKey), name, typeName));
+                            constraintKey, messageKey),
+                            namePrefixOnNote + name, typeName));
                 }
             }
 
@@ -174,7 +176,8 @@ public class FittedOnDBTypeConstraint extends
                         notes.add(name, new Note(ConstraintUtils
                                 .getFullMessageKey(
                                         getConstraintKey() + ".size",
-                                        messageKey), name, size));
+                                        messageKey), namePrefixOnNote + name,
+                                size));
                     }
                 }
             }
