@@ -4,14 +4,18 @@ import java.util.List;
 
 import org.seasar.dbflute.dbmeta.info.ColumnInfo;
 import org.seasar.dbflute.dbmeta.info.ForeignInfo;
-import org.seasar.ymir.scaffold.maintenance.annotation.MaintenanceFK;
+import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.message.Messages;
+import org.seasar.ymir.scaffold.maintenance.annotation.YsMaintenanceFK;
 
 public class ColumnDto {
+    private Messages messages;
+
     private ColumnInfo columnInfo;
 
     private String name;
 
-    private MaintenanceFK fk;
+    private YsMaintenanceFK fk;
 
     private boolean readOnly;
 
@@ -23,11 +27,11 @@ public class ColumnDto {
         this(columnInfo, null, readOnly);
     }
 
-    public ColumnDto(ColumnInfo columnInfo, MaintenanceFK fk) {
+    public ColumnDto(ColumnInfo columnInfo, YsMaintenanceFK fk) {
         this(columnInfo, fk, false);
     }
 
-    public ColumnDto(ColumnInfo columnInfo, MaintenanceFK fk, boolean readOnly) {
+    public ColumnDto(ColumnInfo columnInfo, YsMaintenanceFK fk, boolean readOnly) {
         this.columnInfo = columnInfo;
         name = columnInfo.getPropertyName();
         this.fk = fk;
@@ -50,12 +54,20 @@ public class ColumnDto {
         return "entity/" + name;
     }
 
-    public String getLabelPath() {
+    public String getLabel() {
         if (fk != null) {
-            return "string:" + fk.foreignDisplayColumnLabel();
+            return fk.foreignDisplayColumnLabel();
         } else {
-            return "messages/%label." + name;
+            return getMessages().getMessage("label." + name);
         }
+    }
+
+    protected Messages getMessages() {
+        if (messages == null) {
+            messages = (Messages) YmirContext.getYmir().getApplication()
+                    .getS2Container().getComponent(Messages.class);
+        }
+        return messages;
     }
 
     public boolean isReadOnly() {

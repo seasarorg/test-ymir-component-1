@@ -22,11 +22,11 @@ import org.seasar.ymir.converter.PropertyHandler;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.dbflute.EntityManager;
 import org.seasar.ymir.scaffold.maintenance.Constants;
-import org.seasar.ymir.scaffold.maintenance.annotation.MaintenanceAdd;
-import org.seasar.ymir.scaffold.maintenance.annotation.MaintenanceEdit;
-import org.seasar.ymir.scaffold.maintenance.annotation.MaintenanceEntity;
-import org.seasar.ymir.scaffold.maintenance.annotation.MaintenanceFK;
-import org.seasar.ymir.scaffold.maintenance.annotation.MaintenanceIndex;
+import org.seasar.ymir.scaffold.maintenance.annotation.YsMaintenanceAdd;
+import org.seasar.ymir.scaffold.maintenance.annotation.YsMaintenanceEdit;
+import org.seasar.ymir.scaffold.maintenance.annotation.YsMaintenanceEntity;
+import org.seasar.ymir.scaffold.maintenance.annotation.YsMaintenanceFK;
+import org.seasar.ymir.scaffold.maintenance.annotation.YsMaintenanceIndex;
 import org.seasar.ymir.scaffold.maintenance.dto.ColumnDto;
 import org.seasar.ymir.scaffold.maintenance.enm.Action;
 
@@ -57,7 +57,7 @@ public class EntityBean implements Constants {
 
     private Map<String, ColumnDto> addColumnMap = new LinkedHashMap<String, ColumnDto>();
 
-    private Map<String, MaintenanceFK> fkMap = new HashMap<String, MaintenanceFK>();
+    private Map<String, YsMaintenanceFK> fkMap = new HashMap<String, YsMaintenanceFK>();
 
     private Set<String> addUpdatableColumnNames = new HashSet<String>();
 
@@ -105,8 +105,8 @@ public class EntityBean implements Constants {
 
         createdDateColumnName = DEFAULT_COLUMN_CREATED_DATE;
         modifiedDateColumnName = DEFAULT_COLUMN_MODIFIED_DATE;
-        MaintenanceEntity entityAnn = annotationHandler.getAnnotation(
-                pageClass, MaintenanceEntity.class);
+        YsMaintenanceEntity entityAnn = annotationHandler.getAnnotation(
+                pageClass, YsMaintenanceEntity.class);
         if (entityAnn != null) {
             createdDateColumnName = entityAnn.createdDateColumn();
             if (createdDateColumnName.length() == 0) {
@@ -121,13 +121,13 @@ public class EntityBean implements Constants {
             indexExcludeColumnNames.addAll(passwordColumnNames);
         }
 
-        for (MaintenanceFK ann : annotationHandler.getAnnotations(pageClass,
-                MaintenanceFK.class)) {
+        for (YsMaintenanceFK ann : annotationHandler.getAnnotations(pageClass,
+                YsMaintenanceFK.class)) {
             fkMap.put(ann.column(), ann);
         }
 
-        MaintenanceIndex indexAnn = annotationHandler.getAnnotation(pageClass,
-                MaintenanceIndex.class);
+        YsMaintenanceIndex indexAnn = annotationHandler.getAnnotation(pageClass,
+                YsMaintenanceIndex.class);
         if (indexAnn != null) {
             indexColumnNames.addAll(Arrays.asList(indexAnn.columnsOrder()));
             indexExcludeColumnNames.addAll(Arrays.asList(indexAnn
@@ -135,14 +135,14 @@ public class EntityBean implements Constants {
             recordsByPage = indexAnn.recordsByPage();
         }
 
-        MaintenanceAdd addAnn = annotationHandler.getAnnotation(pageClass,
-                MaintenanceAdd.class);
+        YsMaintenanceAdd addAnn = annotationHandler.getAnnotation(pageClass,
+                YsMaintenanceAdd.class);
         if (addAnn != null) {
             addColumnNames.addAll(Arrays.asList(addAnn.columnsOrder()));
         }
 
-        MaintenanceEdit editAnn = annotationHandler.getAnnotation(pageClass,
-                MaintenanceEdit.class);
+        YsMaintenanceEdit editAnn = annotationHandler.getAnnotation(pageClass,
+                YsMaintenanceEdit.class);
         if (editAnn != null) {
             editColumnNames.addAll(Arrays.asList(editAnn.columnsOrder()));
             editExcludeColumnNames.addAll(Arrays.asList(editAnn
@@ -328,7 +328,7 @@ public class EntityBean implements Constants {
         return readOnlyColumnNames.contains(columnName);
     }
 
-    public MaintenanceFK getFK(String columnName) {
+    public YsMaintenanceFK getFK(String columnName) {
         return fkMap.get(columnName);
     }
 

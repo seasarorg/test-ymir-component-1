@@ -5,7 +5,8 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <title metal:fill-slot="title">ログイン</title>
-  <div metal:fill-slot="css">
+  <div metal:fill-slot="head" tal:omit-tag="">
+    <div metal:use-macro="/WEB-INF/zpt/scaffold/jquery.html#head"></div>
     <link rel="stylesheet" type="text/css" media="all" tal:attributes="href page:/ys/style.css" />
   </div> 
 </head>
@@ -19,11 +20,11 @@
   <table>
     <tbody>
       <tr>
-        <th>ユーザ名</th>
+        <th tal:content="messages/%label.ys-auth-name"></th>
         <td><input type="text" name="name" ys:field="" /></td>
       </tr>
       <tr>
-        <th>パスワード</th>
+        <th tal:content="messages/%labelys-auth-password"></th>
         <td><input type="password" name="password" ys:field="" /></td>
       </tr>
       <tr>

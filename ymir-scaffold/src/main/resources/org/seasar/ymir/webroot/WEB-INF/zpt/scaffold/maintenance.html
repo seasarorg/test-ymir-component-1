@@ -18,7 +18,7 @@
         <td tal:define="name column/name; readOnly column/readOnly">
           <span tal:condition="readOnly" tal:replace="entity/?name"></span>
           <div tal:condition="not:readOnly" tal:omit-tag="">
-            <input type="text" tal:attributes="name name; value param-self/?name; class eval:decorate-by-notes:$name with ys-error" ys:maintenance-expand="all" />
+            <input type="text" tal:attributes="name name; value param-self/?name; class eval:decorate-by-notes:$name with ys-error" ys:maintenance:expand="all" />
             <span tal:condition="eval:notes/size($name)" tal:repeat="note eval:notes/notes($name)" tal:content="note/%value"></span> 
           </div>
         </td>
@@ -38,7 +38,7 @@
   <table border="1">
     <thead>
       <tr>
-        <th tal:repeat="column view/columns" tal:content="eval:${column/labelPath}"></th>
+        <th tal:repeat="column view/columns" tal:content="column/label"></th>
         <th>アクション</th>
      </tr>
     </thead>

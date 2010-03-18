@@ -11,7 +11,7 @@ import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.scaffold.maintenance.enm.Action;
 import org.seasar.ymir.scaffold.maintenance.web.EntityBean;
-import org.seasar.ymir.scaffold.maintenance.web.MaintenancePage;
+import org.seasar.ymir.scaffold.maintenance.web.YsMaintenancePage;
 import org.seasar.ymir.scaffold.util.ScaffoldUtils;
 import org.seasar.ymir.zpt.MutableTagElement;
 import org.seasar.ymir.zpt.TagRenderingInterceptor;
@@ -26,7 +26,7 @@ import net.skirnir.freyja.TagEvaluatorUtils;
 import net.skirnir.freyja.TemplateContext;
 
 public class MaintenanceInterceptor implements TagRenderingInterceptor {
-    private static final String PREFIX_MAINTENANCE = "maintenance-";
+    private static final String PREFIX_MAINTENANCE = "maintenance:";
 
     private static final String YS_EXPAND = PREFIX_YS + PREFIX_MAINTENANCE
             + "expand";
@@ -75,7 +75,7 @@ public class MaintenanceInterceptor implements TagRenderingInterceptor {
                 throw new EvaluationRuntimeException(
                         "Attribute 'name' must be specified", element);
             }
-            MaintenancePage self = (MaintenancePage) context
+            YsMaintenancePage self = (YsMaintenancePage) context
                     .getVariableResolver().getVariable(context, "self");
             buildInputElement(element, self.getEntityBean(), self.getAction(),
                     columnName);

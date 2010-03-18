@@ -2,7 +2,7 @@ package org.seasar.ymir.scaffold.auth;
 
 import java.io.Serializable;
 
-import org.seasar.ymir.scaffold.exentity.YsUser;
+import org.seasar.ymir.scaffold.dbflute.exentity.YsUser;
 
 public class LoginUser implements Serializable {
     private static final long serialVersionUID = 1L;

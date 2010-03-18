@@ -4,7 +4,7 @@
 <database name="">
     <table comment="グループ:" name="YS_GROUP" schema="PUBLIC" type="TABLE">
         <column autoIncrement="true" comment="ID:" dbType="BIGINT"
-            default="NEXT VALUE FOR PUBLIC.SYSTEM_SEQUENCE_956CBF3D_EB60_4FC2_B2FA_C3A49FE47AAE"
+            default="NEXT VALUE FOR PUBLIC.SYSTEM_SEQUENCE_7548AF65_89A8_4022_9927_08B0F4A6AD48"
             javaType="Long" name="ID" pkName="CONSTRAINT_E"
             primaryKey="true" required="true" size="19" type="BIGINT"/>
         <column comment="グループ名:" dbType="VARCHAR" javaType="String"
@@ -25,7 +25,7 @@
     </table>
     <table name="YS_GROUP_USER" schema="PUBLIC" type="TABLE">
         <column autoIncrement="true" comment="" dbType="BIGINT"
-            default="NEXT VALUE FOR PUBLIC.SYSTEM_SEQUENCE_D91C23A1_6A3B_46AB_8E65_9C1BCBB6FAA2"
+            default="NEXT VALUE FOR PUBLIC.SYSTEM_SEQUENCE_413F2BB7_CE57_4E91_8E07_DBE940156FBC"
             javaType="Long" name="ID" pkName="CONSTRAINT_1"
             primaryKey="true" required="true" size="19" type="BIGINT"/>
         <column comment="" dbType="BIGINT" javaType="Long"
@@ -56,7 +56,7 @@
     </table>
     <table comment="ロール:" name="YS_ROLE" schema="PUBLIC" type="TABLE">
         <column autoIncrement="true" comment="ID:" dbType="BIGINT"
-            default="NEXT VALUE FOR PUBLIC.SYSTEM_SEQUENCE_EDC48711_A88F_4BC0_B026_6760BCE58A03"
+            default="NEXT VALUE FOR PUBLIC.SYSTEM_SEQUENCE_CC74FD44_F3A3_4188_BCB1_BC7E6F5133A7"
             javaType="Long" name="ID" pkName="CONSTRAINT_F7"
             primaryKey="true" required="true" size="19" type="BIGINT"/>
         <column comment="ロール名:" dbType="VARCHAR" javaType="String"
@@ -77,7 +77,7 @@
     </table>
     <table name="YS_ROLE_GROUP_USER" schema="PUBLIC" type="TABLE">
         <column autoIncrement="true" comment="" dbType="BIGINT"
-            default="NEXT VALUE FOR PUBLIC.SYSTEM_SEQUENCE_1CA546E3_E03A_4548_ADB8_1ED0460E3B9A"
+            default="NEXT VALUE FOR PUBLIC.SYSTEM_SEQUENCE_C17FADF6_E0C9_4F01_BE0A_9DED77474D09"
             javaType="Long" name="ID" pkName="CONSTRAINT_3"
             primaryKey="true" required="true" size="19" type="BIGINT"/>
         <column comment="" dbType="BIGINT" javaType="Long"
@@ -117,7 +117,7 @@
     </table>
     <table comment="ユーザ:" name="YS_USER" schema="PUBLIC" type="TABLE">
         <column autoIncrement="true" comment="ID:" dbType="BIGINT"
-            default="NEXT VALUE FOR PUBLIC.SYSTEM_SEQUENCE_2B4E92E7_160C_433F_A834_02CED9A87D7B"
+            default="NEXT VALUE FOR PUBLIC.SYSTEM_SEQUENCE_4C59B8AF_2B11_4A7D_B5DC_37B92FCE3E71"
             javaType="Long" name="ID" pkName="CONSTRAINT_F"
             primaryKey="true" required="true" size="19" type="BIGINT"/>
         <column comment="ユーザ名:" dbType="VARCHAR" javaType="String"

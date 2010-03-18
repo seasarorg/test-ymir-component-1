@@ -1,5 +1,9 @@
 package org.seasar.ymir.scaffold.zpt.interceptor;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.seasar.ymir.scaffold.Globals;
 import org.seasar.ymir.zpt.MutableTagElement;
 import org.seasar.ymir.zpt.TalAttributes;
@@ -19,7 +23,7 @@ public class ScaffoldInterceptor implements TemplateParsingInterceptor, Globals 
     private static final String YS_FIELD = PREFIX_YS + "field";
 
     private static final String[] SPECIALATTRIBUTEPATTERNSTRINGS = new String[] { "^"
-            + PREFIX_YS };
+            + PREFIX_YS + "[^:]+$" };
 
     private static final String[] SPECIALTAGPATTERNSTRINGS = new String[0];
 
@@ -49,17 +53,17 @@ public class ScaffoldInterceptor implements TemplateParsingInterceptor, Globals 
                 YS_FIELD);
         if (element.getOriginalAttribute(YS_FORM) != null) {
             // ys:form。
-            manipulateForForm(element);
-            tagElement = element;
+            return manipulateForForm(element, chain);
         } else if (element.getOriginalAttribute(YS_FIELD) != null) {
             // ys:field。
-            manipulateForField(element);
-            tagElement = element;
+            return manipulateForField(element, chain);
         }
+
         return chain.tagElementCreated(tagElement);
     }
 
-    private void manipulateForForm(MutableTagElement element)
+    private Element[] manipulateForForm(MutableTagElement element,
+            TemplateParsingInterceptorChain chain)
             throws IllegalSyntaxException {
         TalAttributes talAttributes = TalAttributes.valueOf(element
                 .getAttribute(ATTR_TAL_ATTRIBUTES));
@@ -85,6 +89,8 @@ public class ScaffoldInterceptor implements TemplateParsingInterceptor, Globals 
 
         element.addAttribute(new Attribute(ATTR_TAL_ATTRIBUTES, talAttributes
                 .toFilteredString()));
+
+        return chain.tagElementCreated(element);
     }
 
     private boolean isFileInputTag(Element element) {
@@ -106,7 +112,8 @@ public class ScaffoldInterceptor implements TemplateParsingInterceptor, Globals 
         return false;
     }
 
-    private void manipulateForField(MutableTagElement element)
+    private Element[] manipulateForField(MutableTagElement element,
+            TemplateParsingInterceptorChain chain)
             throws IllegalSyntaxException {
         TalAttributes talAttributes = TalAttributes.valueOf(element
                 .getAttribute(ATTR_TAL_ATTRIBUTES));
@@ -147,5 +154,23 @@ public class ScaffoldInterceptor implements TemplateParsingInterceptor, Globals 
             talAttributes.addStatement(ATTR_CLASS, "decorate-by-notes:"
                     + prefix + name + " with " + CSS_CLASS_ERROR);
         }
+
+        element.addAttribute(new Attribute(ATTR_TAL_ATTRIBUTES, talAttributes
+                .toFilteredString()));
+
+        TagElement notesElement = new TagElement("span",
+                new Attribute[] {
+                    new Attribute("tal:condition", prefix + "notes/size("
+                            + name + ")"),
+                    new Attribute("tal:repeat", "note " + prefix
+                            + "notes/notes(" + name + ")"),
+                    new Attribute("tal:content", "note/%value") },
+                ELEMENTS_EMPTY);
+
+        List<Element> elements = new ArrayList<Element>(Arrays.asList(chain
+                .tagElementCreated(element)));
+        elements.add(notesElement);
+
+        return elements.toArray(ELEMENTS_EMPTY);
     }
 }
