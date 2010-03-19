@@ -19,7 +19,15 @@ abstract public class DateConverterBase<T extends Date> extends
     }
 
     protected String getPattern(Annotation[] hint) {
-        String pattern = pattern_;
+        String pattern = getPatternOrNull(hint);
+        if (pattern == null) {
+            pattern = pattern_;
+        }
+        return pattern;
+    }
+
+    protected String getPatternOrNull(Annotation[] hint) {
+        String pattern = null;
         for (int i = 0; i < hint.length; i++) {
             if (hint[i].annotationType() == Datetime.class) {
                 Datetime annotation = (Datetime) hint[i];
