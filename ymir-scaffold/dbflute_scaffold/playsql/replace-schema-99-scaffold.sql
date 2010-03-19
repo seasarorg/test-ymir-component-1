@@ -87,7 +87,7 @@ COMMENT ON COLUMN ys_role.created_date IS '作成日時:';
 COMMENT ON COLUMN ys_role.modified_date IS '更新日時:';
 COMMENT ON COLUMN ys_role.version_no IS 'バージョン番号:';
 
-ALTER TABLE ys_role ADD CONSTRAINT uk_name
+ALTER TABLE ys_role ADD CONSTRAINT uk_ys_role_name
     UNIQUE (name);
 
 INSERT INTO ys_role (

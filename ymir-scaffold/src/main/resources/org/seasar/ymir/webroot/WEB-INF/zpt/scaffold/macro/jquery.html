@@ -7,12 +7,23 @@
 </head>
 <body>
 
-<div metal:define-macro="head" tal:omit-tag="" tal:define="config container/component(config); version config/property(jquery.version) | string:1.4.2; uiVersion config/property(jqueryui.version) | string:1.8rc3; uiTheme config/property(jqueryui.theme) | string:smoothness">
+<div metal:define-macro="head" tal:omit-tag="" tal:define="config container/component(config); version config/property(ys.jquery.version) | string:1.4.2; uiVersion config/property(ys.jqueryui.version) | string:1.8rc3; uiTheme config/property(ys.jqueryui.theme) | string:smoothness">
   <link type="text/css" rel="stylesheet" tal:attributes="href page:/ys/css/$uiTheme/jquery-ui-$uiVersion.custom.css" /> 
   <script type="text/javascript" tal:attributes="src page:/ys/js/jquery-$version.min.js"></script>
   <script type="text/javascript" tal:attributes="src page:/ys/js/jquery-ui-$uiVersion.custom.min.js"></script>
+  <script type="text/javascript" tal:attributes="src page:/ys/tablesorter/jquery.tablesorter.min.js"></script>
+  <link type="text/css" tal:attributes="href page:/ys/tablesorter/themes/${config/property(ys.tablesorter.theme) | string:blue}/style.css" rel="stylesheet" />  
   <script type="text/javascript">
     $(function(){
+      // Tablesorter
+      $(".tablesorter").tablesorter();
+
+      // Button
+      $("a.button").button();
+      $("a.button").css("font-size", "80%");
+      $("button, input:submit").button();
+      $("button, input:submit").css("font-size", "80%");
+
       // Accordion
       $(".accordion").accordion({ header: "h3" });
 
@@ -41,7 +52,8 @@
 
       // Datepicker
       $('.datepicker').datepicker({
-        inline: true
+        inline: true,
+        dateFormat: 'yy-mm-dd'
       });
 
       // Slider

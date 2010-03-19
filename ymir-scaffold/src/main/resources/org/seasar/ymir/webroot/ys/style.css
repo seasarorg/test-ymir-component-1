@@ -1,5 +1,10 @@
 @charset 'UTF-8';
 
+body {
+  font: 85% "Trebuchet MS", sans-serif;
+  margin: 50px;
+}
+
 .ys-error {
   background-color: #FF3333;
 }

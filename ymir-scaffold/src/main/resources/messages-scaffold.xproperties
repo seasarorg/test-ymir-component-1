@@ -8,6 +8,7 @@ label.maintenance.edit=編集
 error.maintenance.entityNotFound={0}テーブルが見つかりませんでした。
 
 error.auth.login.failed=ユーザ名またはパスワードが間違っています。
+error.auth.permissionDenied=リクエストされたページにアクセスする権限がありません。権限のあるユーザでログインして再度アクセスして下さい。
 
 label.ys-auth-name=ユーザ名
 label.ys-auth-password=パスワード

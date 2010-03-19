@@ -3,6 +3,7 @@ package org.seasar.ymir.scaffold.maintenance.web;
 import java.lang.annotation.Annotation;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.seasar.dbflute.Entity;
 import org.seasar.dbflute.cbean.ConditionBean;
@@ -18,7 +19,6 @@ import org.seasar.ymir.annotation.DefaultReturn;
 import org.seasar.ymir.annotation.Invoke;
 import org.seasar.ymir.annotation.SuppressUpdating;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
-import org.seasar.ymir.cache.CacheManager;
 import org.seasar.ymir.constraint.ConstraintManager;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
 import org.seasar.ymir.constraint.annotation.Validator;
@@ -31,9 +31,9 @@ import org.seasar.ymir.scaffold.maintenance.Constants;
 import org.seasar.ymir.scaffold.maintenance.dto.ViewDto;
 import org.seasar.ymir.scaffold.maintenance.enm.Action;
 import org.seasar.ymir.scaffold.util.MaskingMap;
-import org.seasar.ymir.scaffold.util.PageBase;
 import org.seasar.ymir.scaffold.util.Redirect;
 import org.seasar.ymir.scaffold.util.ScaffoldUtils;
+import org.seasar.ymir.scaffold.web.ScaffoldPageBase;
 import org.seasar.ymir.scope.ScopeManager;
 import org.seasar.ymir.scope.annotation.RequestParameter;
 import org.seasar.ymir.scope.annotation.URIParameter;
@@ -44,7 +44,8 @@ import org.seasar.ymir.zpt.annotation.ParameterHolder;
 @SuppressUpdating
 @DefaultReturn("/WEB-INF/zpt/scaffold/maintenance/${2}.html")
 @ParameterHolder("entity")
-public class YsMaintenancePage extends PageBase {
+public class YsMaintenancePage extends ScaffoldPageBase {
+    private static final Map<Class<?>, EntityBean> entityBeanCacheMap = new ConcurrentHashMap<Class<?>, EntityBean>();
 
     @Binding(bindingType = BindingType.MUST)
     protected AnnotationHandler annotationHandler;
@@ -63,8 +64,6 @@ public class YsMaintenancePage extends PageBase {
 
     @Binding(bindingType = BindingType.MUST)
     protected ScopeManager scopeManager;
-
-    private Map<Class<?>, EntityBean> entityBeanCacheMap;
 
     private EntityBean entityBean;
 
@@ -109,11 +108,6 @@ public class YsMaintenancePage extends PageBase {
             return "";
         }
     };
-
-    @Binding(bindingType = BindingType.MUST)
-    public void setCacheManager(CacheManager cacheManager) {
-        entityBeanCacheMap = cacheManager.newMap();
-    }
 
     @Invoke(Phase.PAGECOMPONENT_CREATED)
     public void initialize() {
@@ -197,8 +191,7 @@ public class YsMaintenancePage extends PageBase {
                         .getEntityClass());
     }
 
-    public void _get(@RequestParameter("p")
-    Integer p) {
+    public void _get(@RequestParameter("p") Integer p) {
         index(p);
     }
 

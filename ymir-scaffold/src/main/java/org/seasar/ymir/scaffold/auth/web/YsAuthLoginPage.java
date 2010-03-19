@@ -10,8 +10,8 @@ import org.seasar.ymir.constraint.annotation.ValidationFailed;
 import org.seasar.ymir.scaffold.auth.LoginUser;
 import org.seasar.ymir.scaffold.dbflute.exbhv.YsUserBhv;
 import org.seasar.ymir.scaffold.dbflute.exentity.YsUser;
-import org.seasar.ymir.scaffold.util.PageBase;
 import org.seasar.ymir.scaffold.util.Redirect;
+import org.seasar.ymir.scaffold.web.ScaffoldPageBase;
 import org.seasar.ymir.scope.annotation.In;
 import org.seasar.ymir.scope.annotation.Out;
 import org.seasar.ymir.scope.annotation.RequestParameter;
@@ -21,7 +21,7 @@ import org.seasar.ymir.util.StringUtils;
 
 @SuppressUpdating
 @DefaultReturn("/WEB-INF/zpt/scaffold/auth/login.html")
-public class YsAuthLoginPage extends PageBase {
+public class YsAuthLoginPage extends ScaffoldPageBase {
     @Binding(bindingType = BindingType.MUST)
     protected YsUserBhv ysUserBhv;
 
@@ -57,7 +57,7 @@ public class YsAuthLoginPage extends PageBase {
     public void _get() {
     }
 
-    @Required(value = { "name", "password" }, namePrefixOnNote = "ys-auth-")
+    @Required(value = "name", namePrefixOnNote = "ys-auth-")
     @InvalidateSession
     public Response _post() {
         YsUser user = login(name, password);
@@ -79,7 +79,7 @@ public class YsAuthLoginPage extends PageBase {
     }
 
     protected YsUser login(String name, String password) {
-        YsUser user = ysUserBhv.selectByName(name);
+        YsUser user = ysUserBhv.selectForLogin(name);
         if (user != null && user.passwordEquals(password)) {
             return user;
         } else {

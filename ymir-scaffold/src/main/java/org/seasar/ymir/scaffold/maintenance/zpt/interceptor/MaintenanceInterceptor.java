@@ -131,6 +131,10 @@ public class MaintenanceInterceptor implements TagRenderingInterceptor {
                 size = 20;
             }
             element.addAttribute("size", size);
+
+            if (Date.class.isAssignableFrom(type)) {
+                ScaffoldUtils.addClassAttribute(element, "datepicker");
+            }
         }
     }
 }

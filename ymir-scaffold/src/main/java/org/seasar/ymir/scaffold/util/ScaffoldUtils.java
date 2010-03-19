@@ -3,6 +3,14 @@ package org.seasar.ymir.scaffold.util;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.seasar.ymir.zpt.MutableTagElement;
+
+import net.skirnir.freyja.Attribute;
+import net.skirnir.freyja.TagEvaluatorUtils;
 
 public class ScaffoldUtils {
     private static final String LS = System.getProperty("line.separator");
@@ -44,5 +52,26 @@ public class ScaffoldUtils {
         } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    public static void addClassAttribute(MutableTagElement element,
+            String... defilteredClassNames) {
+        Set<String> classNameSet = new LinkedHashSet<String>();
+        String classValue = element.getDefilteredAttributeValue("class");
+        if (classValue != null) {
+            classNameSet.addAll(Arrays.asList(classValue.trim().split("\\s+")));
+        }
+        for (String className : defilteredClassNames) {
+            classNameSet.add(className);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        String delim = "";
+        for (String className : classNameSet) {
+            sb.append(delim).append(className);
+            delim = " ";
+        }
+        element.addAttribute(new Attribute("class", TagEvaluatorUtils.filter(sb
+                .toString())));
     }
 }

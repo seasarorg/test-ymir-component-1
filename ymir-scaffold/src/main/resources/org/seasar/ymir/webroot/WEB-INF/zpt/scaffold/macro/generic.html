@@ -7,10 +7,13 @@
 </head>
 <body>
 
-<div metal:define-macro="notes" tal:condition="notes/size(org.seasar.ymir.message.GLOBAL_NOTE)">
-  <ul>
-    <li tal:repeat="note notes/notes(org.seasar.ymir.message.GLOBAL_NOTE)" tal:content="note/%value"></li>
-  </ul>
+<div class="ui-widget" metal:define-macro="notes" tal:condition="notes/size(org.seasar.ymir.message.GLOBAL_NOTE)">
+  <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+    <p tal:repeat="note notes/notes(org.seasar.ymir.message.GLOBAL_NOTE)">
+      <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+      <span tal:content="note/%value"></span>
+    </p>
+  </div>
 </div>
 
 </body>

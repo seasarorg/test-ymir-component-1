@@ -16,4 +16,8 @@ public class LoginUser implements Serializable {
     public YsUser getUser() {
         return user;
     }
+
+    public boolean isInRole(String... roleNames) {
+        return user.isInRole(roleNames);
+    }
 }

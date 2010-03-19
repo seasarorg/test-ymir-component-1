@@ -35,7 +35,7 @@
 </form>
 
 <div metal:define-macro="index" tal:define="view self/view; entity self/entity">
-  <table border="1">
+  <table class="tablesorter">
     <thead>
       <tr>
         <th tal:repeat="column view/columns" tal:content="column/label"></th>
@@ -46,8 +46,8 @@
       <tr tal:repeat="entity self/view/entities">
         <td tal:repeat="column view/columns" tal:content="eval:${column/path}"></td>
         <td tal:define="map java:view.getPrimaryKeyMap(entity)">
-          <a tal:attributes="href page:edit.html?edit&$map" tal:content="messages/%label.maintenance.edit"></a>
-          <a tal:attributes="href page:delete.html?do_delete&$map" tal:content="messages/%label.maintenance.delete"></a>
+          <a class="button" tal:attributes="href page:edit.html?edit&$map" tal:content="messages/%label.maintenance.edit"></a>
+          <a class="button" tal:attributes="href page:delete.html?do_delete&$map" tal:content="messages/%label.maintenance.delete"></a>
         </td>
       </tr>
     </tbody>
