@@ -308,6 +308,13 @@ public class SourceCreatorSetting {
         return getProperty(APPKEY_SOURCECREATOR_SUPERCLASS);
     }
 
+    /**
+     * @since 1.0.7
+     */
+    public boolean isJavascriptEnabled() {
+        return isInPlaceEditorEnabled() || isControlPanelEnabled();
+    }
+
     public boolean isInPlaceEditorEnabled() {
         return PropertyUtils.valueOf(
                 getProperty(APPKEY_SOURCECREATOR_ENABLEINPLACEEDITOR), true);

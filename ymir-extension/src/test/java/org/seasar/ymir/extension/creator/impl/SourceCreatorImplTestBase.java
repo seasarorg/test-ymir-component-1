@@ -38,6 +38,7 @@ import org.seasar.ymir.extension.creator.mapping.PathMappingExtraData;
 import org.seasar.ymir.extension.creator.mapping.impl.YmirPathMappingExtraData;
 import org.seasar.ymir.extension.freemarker.FreemarkerSourceGenerator;
 import org.seasar.ymir.extension.zpt.ZptAnalyzer;
+import org.seasar.ymir.extension.zpt.ZptResponseCreator;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.impl.AbstractApplication;
 import org.seasar.ymir.impl.ApplicationManagerImpl;
@@ -116,6 +117,7 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         container_.register(LocaleManagerImpl.class);
         container_.register(SessionManagerImpl.class);
         container_.register(TokenManagerImpl.class);
+        container_.register(ZptResponseCreator.class);
 
         LocalHotdeployS2Container localHotdeployS2Container = (LocalHotdeployS2Container) container_
                 .getComponent(LocalHotdeployS2Container.class);

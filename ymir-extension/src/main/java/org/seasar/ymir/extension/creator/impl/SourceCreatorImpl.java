@@ -218,6 +218,37 @@ public class SourceCreatorImpl implements SourceCreator {
         }
     };
 
+    public class ButtonCreator {
+        private Request request;
+
+        public ButtonCreator(Request request) {
+            this.request = request;
+        }
+
+        public Button getButton(String taskName) {
+            return new Button(taskName);
+        }
+
+        public class Button {
+            private String taskName;
+
+            private String label;
+
+            public Button(String taskName) {
+                this.taskName = taskName;
+            }
+
+            public Button getLabel(String label) {
+                this.label = label;
+                return this;
+            }
+
+            public String getHTML() {
+                return createButtonHTML(request, taskName, label);
+            }
+        }
+    }
+
     private YmirImpl ymir_;
 
     private NamingConvention namingConvention_;
@@ -2398,45 +2429,39 @@ public class SourceCreatorImpl implements SourceCreator {
             return response;
         }
 
-        if (setting_.isInPlaceEditorEnabled()
-                || setting_.isControlPanelEnabled()) {
-            String jsPrefix = "<script type=\"text/javascript\" src=\""
-                    + getHttpServletRequest().getContextPath() + PATH_PREFIX
-                    + "resource/js/";
-            String jsSuffix = "\"></script>";
-            response = response.replace("</head>", jsPrefix
-                    + "prototype/prototype.js" + jsSuffix + jsPrefix
-                    + "scriptaculous/scriptaculous.js" + jsSuffix + jsPrefix
-                    + "sourceCreator.js" + jsSuffix + "</head>");
+        if (setting_.isJavascriptEnabled()) {
+            Map<String, Object> variableMap = new HashMap<String, Object>();
+            variableMap.put("root", getHttpServletRequest()
+                    .getContextPath()
+                    + PATH_PREFIX + "resource");
+            variableMap.put("buttonCreator", new ButtonCreator(getRequest()));
+
+            String javascriptHead = getResponseCreator().evaluateTemplate(
+                    "javascriptHead", variableMap);
+            response = response.replace("</head>", javascriptHead + "</head>");
 
             if (setting_.isInPlaceEditorEnabled()) {
-                response = Pattern
-                        .compile("(<body(\\s+[^>]*)?>)")
-                        .matcher(response)
-                        .replaceFirst(
-                                "$1"
-                                        + Matcher
-                                                .quoteReplacement("<div id=\"__ymir__inPlaceEditor\">"));
-                response = response.replace("</body>", "</div></body>");
+                String inPlaceEditorBodyHead = getResponseCreator()
+                        .evaluateTemplate("inPlaceEditorBodyHead", variableMap);
+                response = Pattern.compile("(<body(\\s+[^>]*)?>)").matcher(
+                        response).replaceFirst(
+                        "$1" + Matcher.quoteReplacement(inPlaceEditorBodyHead));
+                String inPlaceEditorBodyFoot = getResponseCreator()
+                        .evaluateTemplate("inPlaceEditorBodyFoot", variableMap);
+                response = response.replace("</body>", Matcher
+                        .quoteReplacement(inPlaceEditorBodyFoot)
+                        + "</body>");
             }
             if (setting_.isControlPanelEnabled()) {
-                response = response.replace("</body>",
-                        "<div id=\"__ymir__controlPanel\">"
-                                + createControlPanelFormHTML(getRequest())
-                                + createUpdateClassesButtonHTML(getRequest())
-                                + "</div></body>");
+                String controlPanelBody = getResponseCreator()
+                        .evaluateTemplate("controlPanelBody", variableMap);
+                response = response.replace("</body>", Matcher
+                        .quoteReplacement(controlPanelBody)
+                        + "</body>");
             }
         }
 
         return response;
-    }
-
-    String createControlPanelFormHTML(Request request) {
-        return createButtonHTML(request, "systemConsole", "SYSTEM CONSOLE");
-    }
-
-    String createUpdateClassesButtonHTML(Request request) {
-        return createButtonHTML(request, "updateClasses", "UPDATE CLASSES");
     }
 
     String createButtonHTML(Request request, String taskName, String buttonLabel) {

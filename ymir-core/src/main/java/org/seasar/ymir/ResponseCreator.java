@@ -29,4 +29,24 @@ public interface ResponseCreator {
      * @return 生成したResponseオブジェクト。
      */
     Response createResponse(URL templateURL, Map<String, Object> variableMap);
+
+    /**
+     * テンプレートを評価します。
+     * 
+     * @param templateName テンプレート名。
+     * @param variableMap テンプレートに埋め込む変数を保持するMap。
+     * @return 評価結果。
+     * @since 1.0.7
+     */
+    String evaluateTemplate(String templateName, Map<String, Object> variableMap);
+
+    /**
+     * テンプレートを評価します。
+     * 
+     * @param templateURL テンプレートのURL。
+     * @param variableMap テンプレートに埋め込む変数を保持するMap。
+     * @return 評価結果。
+     * @since 1.0.7
+     */
+    String evaluateTemplate(URL templateURL, Map<String, Object> variableMap);
 }

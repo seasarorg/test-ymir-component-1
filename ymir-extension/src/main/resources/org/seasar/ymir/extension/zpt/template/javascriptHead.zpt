@@ -1,0 +1,3 @@
+<script type="text/javascript" tal:attributes="src string:$root/js/prototype/prototype.js"></script>
+<script type="text/javascript" tal:attributes="src string:$root/js/scriptaculous/scriptaculous.js"></script>
+<script type="text/javascript" tal:attributes="src string:$root/js/sourceCreator.js"></script>

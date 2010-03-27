@@ -1,0 +1,4 @@
+<div id="__ymir__controlPanel">
+<span tal:replace="structure buttonCreator/button(systemConsole)/label(SYSTEM CONSOLE)/HTML">SYSTEM CONSOLE</span>
+<span tal:replace="structure buttonCreator/button(updateClasses)/label(UPDATE CLASSES)/HTML">UPDATE CLASSES</span>
+</div>

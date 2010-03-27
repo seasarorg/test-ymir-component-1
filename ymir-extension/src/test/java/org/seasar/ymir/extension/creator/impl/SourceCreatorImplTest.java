@@ -53,6 +53,8 @@ import com.example.web.SourceCreatorImplTest2Page;
 import com.example.web.SourceCreatorImplTest3Page;
 
 public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
+    private static final String LS = "\r\n";
+
     public void testGetComponentName() throws Exception {
         String actual = target_.getComponentName("/index.html", HttpMethod.GET);
 
@@ -350,10 +352,14 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertEquals(
                 "<html><head>"
                         + "<script type=\"text/javascript\" src=\"/context/__ymir__/resource/js/prototype/prototype.js\"></script>"
+                        + LS
                         + "<script type=\"text/javascript\" src=\"/context/__ymir__/resource/js/scriptaculous/scriptaculous.js\"></script>"
+                        + LS
                         + "<script type=\"text/javascript\" src=\"/context/__ymir__/resource/js/sourceCreator.js\"></script>"
+                        + LS
                         + "</head><body><div id=\"__ymir__inPlaceEditor\">BODY</div>"
                         + "<div id=\"__ymir__controlPanel\">"
+                        + LS
                         + "<form action=\"/context/path\" method=\"post\">"
                         + "<input type=\"hidden\" name=\"__ymir__task\" value=\"systemConsole\" />"
                         + "<input type=\"hidden\" name=\"__ymir__method\" value=\"GET\" />"
@@ -362,6 +368,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         + "<input type=\"hidden\" name=\"bbb\" value=\"c\" />"
                         + "<input type=\"submit\" value=\"SYSTEM CONSOLE\" />"
                         + "</form>"
+                        + LS
                         + "<form action=\"/context/path\" method=\"post\">"
                         + "<input type=\"hidden\" name=\"__ymir__task\" value=\"updateClasses\" />"
                         + "<input type=\"hidden\" name=\"__ymir__method\" value=\"GET\" />"
@@ -369,7 +376,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
                         + "<input type=\"hidden\" name=\"aaa\" value=\"b\" />"
                         + "<input type=\"hidden\" name=\"bbb\" value=\"c\" />"
                         + "<input type=\"submit\" value=\"UPDATE CLASSES\" />"
-                        + "</form></div></body></html>",
+                        + "</form>" + LS + "</div>" + "</body></html>",
                 target_
                         .filterResponse("<html><head></head><body>BODY</body></html>"));
     }
@@ -869,7 +876,7 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         assertNotNull(actual);
     }
 
-    public void testCreateControlPanelFormHTML() throws Exception {
+    public void testCreateButtonHTML() throws Exception {
         MockRequest request = new MockRequest();
         request.setParameterValues("aaa", new String[] { "a&?", "b" });
         request.setParameter("bbb", "c");
@@ -879,7 +886,8 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
         dispatch.setAbsolutePath("/context/path");
         request.enterDispatch(dispatch);
 
-        String actual = target_.createControlPanelFormHTML(request);
+        String actual = target_.createButtonHTML(request, "systemConsole",
+                "SYSTEM CONSOLE");
 
         assertEquals(
                 "<form action=\"/context/path\" method=\"post\"><input type=\"hidden\" name=\"__ymir__task\" value=\"systemConsole\" /><input type=\"hidden\" name=\"__ymir__method\" value=\"GET\" /><input type=\"hidden\" name=\"aaa\" value=\"a%26%3F\" /><input type=\"hidden\" name=\"aaa\" value=\"b\" /><input type=\"hidden\" name=\"bbb\" value=\"c\" /><input type=\"submit\" value=\"SYSTEM CONSOLE\" /></form>",

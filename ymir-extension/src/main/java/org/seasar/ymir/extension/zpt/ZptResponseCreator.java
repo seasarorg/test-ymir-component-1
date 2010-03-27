@@ -13,7 +13,9 @@ import org.seasar.ymir.Response;
 import org.seasar.ymir.ResponseCreator;
 import org.seasar.ymir.response.SelfContainedResponse;
 import org.seasar.ymir.util.ResponseUtils;
+import org.seasar.ymir.zpt.EvalTypePrefixHandler;
 import org.seasar.ymir.zpt.YmirPathResolver;
+import org.seasar.ymir.zpt.YmirTalesExpressionEvaluator;
 
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.TemplateEvaluator;
@@ -32,8 +34,10 @@ public class ZptResponseCreator implements ResponseCreator {
 
     private final TemplateEvaluator evaluator_ = new TemplateEvaluatorImpl(
             new MetalTagEvaluator(), new TalesExpressionEvaluator()
-                    .addPathResolver(new YmirPathResolver()
-                            .setNoteLocalizer(new NoteLocalizerImpl())));
+                    .addTypePrefix(YmirTalesExpressionEvaluator.TYPE_EVAL,
+                            new EvalTypePrefixHandler()).addPathResolver(
+                            new YmirPathResolver()
+                                    .setNoteLocalizer(new NoteLocalizerImpl())));
 
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
@@ -42,8 +46,7 @@ public class ZptResponseCreator implements ResponseCreator {
 
     public Response createResponse(String templateName,
             Map<String, Object> variableMap) {
-        return createResponse(getClass().getResource(
-                TEMPLATE_PREFIX + templateName + TEMPLATE_SUFFIX), variableMap);
+        return createResponse(getURL(templateName), variableMap);
     }
 
     public Response createResponse(URL templateURL,
@@ -74,5 +77,36 @@ public class ZptResponseCreator implements ResponseCreator {
     String getEncoding() {
         return applicationManager_.findContextApplication()
                 .getTemplateEncoding();
+    }
+
+    public String evaluateTemplate(String templateName,
+            Map<String, Object> variableMap) {
+        return evaluateTemplate(getURL(templateName), variableMap);
+    }
+
+    protected URL getURL(String templateName) {
+        return getClass().getResource(
+                TEMPLATE_PREFIX + templateName + TEMPLATE_SUFFIX);
+    }
+
+    public String evaluateTemplate(URL templateURL,
+            Map<String, Object> variableMap) {
+        TemplateContext context = evaluator_.newContext();
+        context.setProperty(TemplateContext.PROP_CONTENT_TYPE, "text/html");
+        if (variableMap != null) {
+            VariableResolver resolver = new VariableResolverImpl();
+            for (Iterator<Map.Entry<String, Object>> itr = variableMap
+                    .entrySet().iterator(); itr.hasNext();) {
+                Map.Entry<String, Object> entry = itr.next();
+                resolver.setVariable(entry.getKey(), entry.getValue());
+            }
+            context.setVariableResolver(resolver);
+        }
+        try {
+            return evaluator_.evaluate(context, new InputStreamReader(
+                    templateURL.openStream(), "UTF-8"));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }
