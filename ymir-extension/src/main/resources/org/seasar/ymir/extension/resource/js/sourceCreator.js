@@ -13,13 +13,13 @@ function prepareForInPlaceEditing() {
 
     new SourceCreator.InPlaceEditor(
         inPlaceEditorTag,
-        '@CONTEXT_PATH@/__ymir__/updateTemplate.do',
+        '<span tal:replace="request/contextPath" />/__ymir__/updateTemplate.do',
         {
             cols: 80,
             rows: 25,
             highlightcolor: '#FFFFFF',
             clickToEditText: 'Double click to edit the template',
-            loadTextURL: '@CONTEXT_PATH@/__ymir__/editTemplate.do?path='
+            loadTextURL: '<span tal:replace="request/contextPath" />/__ymir__/editTemplate.do?path='
                 + encodeURIComponent(location.href),
             callback: function (form, value) {
                 return 'path=' + encodeURIComponent(location.href)
