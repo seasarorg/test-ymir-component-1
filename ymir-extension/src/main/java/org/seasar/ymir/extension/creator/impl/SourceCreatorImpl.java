@@ -2431,8 +2431,8 @@ public class SourceCreatorImpl implements SourceCreator {
 
         if (setting_.isJavascriptEnabled()) {
             Map<String, Object> variableMap = new HashMap<String, Object>();
-            variableMap.put("root", getHttpServletRequest()
-                    .getContextPath()
+            variableMap.put("setting", setting_);
+            variableMap.put("root", getHttpServletRequest().getContextPath()
                     + PATH_PREFIX + "resource");
             variableMap.put("buttonCreator", new ButtonCreator(getRequest()));
 

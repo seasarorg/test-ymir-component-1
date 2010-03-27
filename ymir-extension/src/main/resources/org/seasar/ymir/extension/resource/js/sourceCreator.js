@@ -1,6 +1,4 @@
-$(function() {
-    prepareForSourceCreator();
-});
+Event.observe(window, 'load', prepareForSourceCreator, false);
 
 function prepareForSourceCreator() {
     prepareForInPlaceEditing();
@@ -8,7 +6,7 @@ function prepareForSourceCreator() {
 }
 
 function prepareForInPlaceEditing() {
-    $('#__ymir__inPlaceEditor');
+    var inPlaceEditorTag = $('__ymir__inPlaceEditor');
     if (!inPlaceEditorTag) {
         return;
     }
