@@ -45,7 +45,8 @@ public class ResourceAction implements UpdateAction {
             variableMap.put("sourceCreator", sourceCreator_);
             variableMap.put("request", request);
             return sourceCreator_.getResponseCreator().createResponse(
-                    resourceFullPath, variableMap);
+                    getClass().getClassLoader().getResource(resourceFullPath),
+                    variableMap);
         } else {
             InputStream in = getClass().getClassLoader().getResourceAsStream(
                     resourceFullPath);
