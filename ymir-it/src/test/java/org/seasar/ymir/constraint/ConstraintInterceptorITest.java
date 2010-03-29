@@ -1,12 +1,12 @@
 package org.seasar.ymir.constraint;
 
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
-import org.seasar.ymir.constraint.ConstraintInterceptor;
 import org.seasar.ymir.message.Notes;
 import org.seasar.ymir.mock.servlet.MockHttpServletRequest;
 import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.ConstraintInterceptorTest2Page;
+import com.example.web.ConstraintInterceptorTest3Page;
 import com.example.web.ConstraintInterceptorTestPage;
 
 public class ConstraintInterceptorITest extends
@@ -166,5 +166,13 @@ public class ConstraintInterceptorITest extends
         assertNotNull(actual.get("saru"));
         assertNotNull(actual.get("tora"));
         assertNotNull(actual.get("fufu"));
+    }
+
+    public void test_ConstraintHolderが付与されているGetterの返り値がfalseの時に制約が有効になってしまわないこと()
+            throws Exception {
+        process(ConstraintInterceptorTest3Page.class);
+
+        Notes actual = getNotes();
+        assertNull(actual);
     }
 }
