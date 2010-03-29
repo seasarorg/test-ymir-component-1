@@ -99,7 +99,9 @@ public class RequestImpl implements FrameworkRequest {
                 return values[0];
             } else {
                 // チェックボックスのための補正によって、valuesがこうなることがある。
-                // その場合といえどもnullを返すのはNPEの元なので、空文字列を返すようにする。
+                // その場合といえどもgetParameterNames()はこのnameを返すため、
+                // ここでnullを返すようにしてしまうとNPEの元になる。
+                // そのためここでは空文字列を返すようにしている。
                 return "";
             }
         } else {
