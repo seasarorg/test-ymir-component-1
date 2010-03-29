@@ -1,138 +1,91 @@
-Event.observe(window, 'load', prepareForSourceCreator, false);
-
-function prepareForSourceCreator() {
-    prepareForInPlaceEditing();
+$(function() {
+<span tal:condition="sourceCreator/sourceCreatorSetting/inPlaceEditorEnabled" tal:omit-tag="">
+    prepareForInPlaceEditor();
+</span>
+<span tal:condition="sourceCreator/sourceCreatorSetting/controlPanelEnabled" tal:omit-tag="">
     prepareForControlPanel();
-}
-
-function prepareForInPlaceEditing() {
-    var inPlaceEditorTag = $('__ymir__inPlaceEditor');
-    if (!inPlaceEditorTag) {
-        return;
-    }
-
-    new SourceCreator.InPlaceEditor(
-        inPlaceEditorTag,
-        '<span tal:replace="request/contextPath" />/__ymir__/updateTemplate.do',
-        {
-            cols: 80,
-            rows: 25,
-            highlightcolor: '#FFFFFF',
-            clickToEditText: 'Double click to edit the template',
-            loadTextURL: '<span tal:replace="request/contextPath" />/__ymir__/editTemplate.do?path='
-                + encodeURIComponent(location.href),
-            callback: function (form, value) {
-                return 'path=' + encodeURIComponent(location.href)
-                    + '&body=' + encodeURIComponent(value);
-            },
-            onComplete: function (transport, element) {
-                window.location.reload();
-            }
-        }
-    );
-}
-
-var SourceCreator = {};
-
-SourceCreator.InPlaceEditor = Class.create();
-
-Object.extend(SourceCreator.InPlaceEditor.prototype,
-    Ajax.InPlaceEditor.prototype);
-Object.extend(SourceCreator.InPlaceEditor.prototype, {
-  registerListeners: function() {
-    this._listeners = { };
-    var listener;
-    $H(this.Listeners).each(function(pair) {
-      listener = this[pair.value].bind(this);
-      this._listeners[pair.key] = listener;
-      if (!this.options.externalControlOnly)
-        this.element.observe(pair.key, listener);
-      if (this.options.externalControl)
-        this.options.externalControl.observe(pair.key, listener);
-    }.bind(this));
-  },
-  Listeners: {
-    dblclick: 'enterEditMode',
-    keydown: 'checkForEscapeOrReturn',
-    mouseover: 'enterHover',
-    mouseout: 'leaveHover'
-  }
+</span>
 });
+
+function prepareForInPlaceEditor() {
+    $('#__ymir__inPlaceEditor').editable({
+        type: 'textarea',
+        editBy: 'dblclick',
+        submit: 'save',
+        cancel: 'cancel',
+        textareaFactory: function() {
+            return $('<textarea />').attr('rows', 18).css({
+                width: '90%'
+            });
+        },
+        onLoadText: function() {
+            var container = $('<textarea />');
+            $this = this;
+            $.ajax({
+                async: false,
+                data: {
+                    path: location.href
+                },
+                dataType: 'text',
+                type: 'POST',
+                success: function(data) {
+                    container.val(data);
+                },
+                url: '<span tal:replace="request/contextPath" />/__ymir__/editTemplate.do'
+            });
+            return container.val();
+        },
+        onSubmitting: function(param) {
+            $.ajax({
+                async: false,
+                data: {
+                    path: location.href,
+                    body: param.current
+                },
+                type: 'POST',
+                url: '<span tal:replace="request/contextPath" />/__ymir__/updateTemplate.do'
+            });
+            location.reload();
+            return false;
+        }
+    });
+}
 
 function prepareForControlPanel() {
-    var controlPanel = $('__ymir__controlPanel');
-    if (!controlPanel) {
-        return;
-    }
-
-    new SourceCreator.ControlPanel(controlPanel);
-}
-
-SourceCreator.ControlPanel = Class.create();
-Object.extend(SourceCreator.ControlPanel.prototype, {
-    initialize: function(element) {
-        this.element = element;
-        this.visible = true;
-        this.inEffect = false;
-
-        var clientWidth = document.body.clientWidth;
-        Element.setStyle(this.element, {
-            'display': 'none',
-            'position': 'absolute',
-            'top': 0,
-            'left': (clientWidth - Element.getWidth(this.element)) + 'px'
-        });
-        this.hide();
-
-        var bodyTags = $A(document.getElementsByTagName('body'));
-        if (bodyTags.length == 0) {
+    var element = $('#__ymir__controlPanel');
+    var container = $('<div />').append(element.children()).appendTo(element);
+    element.data('inEffect', false);
+    element.data('display', false);
+    element.css('position', 'absolute');
+    element.css({
+        top: 0,
+        left: ($(document).width() - element.width()) + 'px',
+        width: element.width(),
+        height: element.height()
+    }).hover(function(event) {
+        $this = $(this);
+        if ($this.data('inEffect') == true) {
             return;
         }
-        Event.observe(bodyTags.first(), 'mousemove',
-            this.update.bindAsEventListener(this), false);
-    },
-    update: function(event) {
-        var mouseX = Event.pointerX(event);
-        var mouseY = Event.pointerY(event);
-        var clientWidth = document.body.clientWidth;
-        if (mouseX > clientWidth / 2 && mouseY < 24) {
-            this.show();
-        } else {
-            this.hide();
-        }
-    },
-    show: function() {
-        if (!this.visible && !this.inEffect) {
-            this.inEffect = true;
-            var clientWidth = document.body.clientWidth;
-            Element.setStyle(this.element, {
-                'left': (clientWidth - Element.getWidth(this.element)) + 'px'
-            });
-            Element.show(this.element);
-            new Effect.Opacity(this.element, {
-                from: 0.0,
-                to: 1.0,
-                duration: 1.0,
-                afterFinish: function() {
-                    this.visible = true;
-                    this.inEffect = false;
-                }.bind(this)
+        if ($this.data('display') == false) {
+            $this.data('inEffect', true);
+            container.show('slide', { direction: 'up' }, 800, function() {
+                $this.data('display', true);
+                $this.data('inEffect', false);
             });
         }
-    },
-    hide: function() {
-        if (this.visible && !this.inEffect) {
-            this.inEffect = true;
-            new Effect.Opacity(this.element, {
-                from: 1.0,
-                to: 0.0,
-                duration: 1.0,
-                afterFinish: function() {
-                    Element.hide(this.element);
-                    this.visible = false;
-                    this.inEffect = false;
-                }.bind(this)
+    }, function(event) {
+        $this = $(this);
+        if ($this.data('inEffect') == true) {
+            return;
+        }
+        if ($this.data('display') == true) {
+            $this.data('inEffect', true);
+            container.hide('slide', { direction: 'up' }, 800, function() {
+                $this.data('display', false);
+                $this.data('inEffect', false);
             });
         }
-    }
-});
+    });
+    container.hide();
+}

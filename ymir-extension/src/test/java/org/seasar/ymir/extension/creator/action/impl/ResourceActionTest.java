@@ -43,7 +43,7 @@ public class ResourceActionTest extends TestCase {
     public void testAct() throws Exception {
 
         Response actual = target_.act(new MockRequest(), new PathMetaDataImpl(
-                "/__ymir__/resource/js/prototype/prototype.js", HttpMethod.GET,
+                "/__ymir__/resource/js/jquery/jquery-1.4.2.min.js", HttpMethod.GET,
                 false, null, null, null, null, null, null));
 
         assertEquals(ResponseType.SELF_CONTAINED, actual.getType());

@@ -351,9 +351,13 @@ public class SourceCreatorImplTest extends SourceCreatorImplTestBase {
     public void testFilterResponse() throws Exception {
         assertEquals(
                 "<html><head>"
-                        + "<script type=\"text/javascript\" src=\"/context/__ymir__/resource/js/prototype/prototype.js\"></script>"
+                        + "<link type=\"text/css\" rel=\"stylesheet\" href=\"/context/__ymir__/resource/js/jquery/css/smoothness/jquery-ui-1.8.custom.css\" />"
                         + LS
-                        + "<script type=\"text/javascript\" src=\"/context/__ymir__/resource/js/scriptaculous/scriptaculous.js\"></script>"
+                        + "<script type=\"text/javascript\" src=\"/context/__ymir__/resource/js/jquery/jquery-1.4.2.min.js\"></script>"
+                        + LS
+                        + "<script type=\"text/javascript\" src=\"/context/__ymir__/resource/js/jquery/jquery-ui-1.8.custom.min.js\"></script>"
+                        + LS
+                        + "<script type=\"text/javascript\" src=\"/context/__ymir__/resource/js/jquery/editable/jquery.editable.ex-1.3.3.js\"></script>"
                         + LS
                         + "<script type=\"text/javascript\" src=\"/context/__ymir__/resource/js/sourceCreator.js\"></script>"
                         + LS
