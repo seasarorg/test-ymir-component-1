@@ -366,20 +366,32 @@ public class ConstraintManagerImpl implements ConstraintManager {
 
     protected void createFromConstraintHolders(Class<?> beanClass,
             ConfirmationDecider decider, List<ConstraintBag<?>> bags) {
-
         for (Method method : ClassUtils.getMethods(beanClass)) {
             if (annotationHandler_
                     .getAnnotation(method, ConstraintHolder.class) != null) {
                 createConstraintBags(method, new MethodConfirmationDecider(
-                        actionManager_, beanClass, method, decider), bags);
+                        actionManager_, beanClass, method, decider), bags,
+                        false);
             }
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected void createConstraintBags(AnnotatedElement element,
             ConfirmationDecider decider, List<ConstraintBag<?>> bags) {
+        createConstraintBags(element, decider, bags, true);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void createConstraintBags(AnnotatedElement element,
+            ConfirmationDecider decider, List<ConstraintBag<?>> bags,
+            boolean exceptForConstraintHolder) {
         if (element == null) {
+            return;
+        }
+
+        if (exceptForConstraintHolder
+                && annotationHandler_.isAnnotationPresent(element,
+                        ConstraintHolder.class)) {
             return;
         }
 
