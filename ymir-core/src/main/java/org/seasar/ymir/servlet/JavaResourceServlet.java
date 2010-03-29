@@ -52,6 +52,17 @@ public class JavaResourceServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+        doProcess(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        doProcess(req, resp);
+    }
+
+    protected void doProcess(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
         String path = ServletUtils.getPath(req);
         InputStream is = getServletContext().getResourceAsStream(path);
         if (is == null) {
@@ -59,6 +70,7 @@ public class JavaResourceServlet extends HttpServlet {
                     webrootPackagePath_ + path);
             if (is == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
             }
         }
         try {
