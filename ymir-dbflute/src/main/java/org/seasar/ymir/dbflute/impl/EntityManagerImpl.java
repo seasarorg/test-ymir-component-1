@@ -2,9 +2,9 @@ package org.seasar.ymir.dbflute.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.seasar.dbflute.Entity;
 import org.seasar.dbflute.bhv.BehaviorWritable;
@@ -12,10 +12,11 @@ import org.seasar.dbflute.cbean.ConditionBean;
 import org.seasar.dbflute.cbean.ckey.ConditionKey;
 import org.seasar.dbflute.dbmeta.DBMeta;
 import org.seasar.dbflute.dbmeta.info.ColumnInfo;
+import org.seasar.dbflute.dbmeta.info.ForeignInfo;
 import org.seasar.dbflute.dbmeta.info.UniqueInfo;
-import org.seasar.framework.container.ComponentNotFoundRuntimeException;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
+import org.seasar.framework.container.annotation.tiger.InitMethod;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.converter.TypeConversionManager;
 import org.seasar.ymir.dbflute.EntityManager;
@@ -30,88 +31,122 @@ public class EntityManagerImpl implements EntityManager {
     @Binding(bindingType = BindingType.MUST)
     protected TypeConversionManager typeConversionManager;
 
-    private Map<String, Class<? extends Entity>> entityClassMap = new ConcurrentHashMap<String, Class<? extends Entity>>();
+    private Map<String, Class<? extends Entity>> entityClassMap;
 
-    private Map<Class<? extends Entity>, BehaviorWritable> behaviorMap = new ConcurrentHashMap<Class<? extends Entity>, BehaviorWritable>();
+    private Map<Class<? extends Entity>, BehaviorWritable> behaviorMap;
 
-    private Map<Class<? extends Entity>, Class<? extends ConditionBean>> conditionBeanClassMap = new ConcurrentHashMap<Class<? extends Entity>, Class<? extends ConditionBean>>();
+    private Map<Class<? extends Entity>, Class<? extends ConditionBean>> conditionBeanClassMap;
 
-    private Map<Class<? extends Entity>, DBMeta> dbMetaMap = new ConcurrentHashMap<Class<? extends Entity>, DBMeta>();
+    private Map<Class<? extends Entity>, DBMeta> dbMetaMap;
 
-    private Map<Class<? extends Entity>, List<String>> primaryKeyColumnNamesMap = new ConcurrentHashMap<Class<? extends Entity>, List<String>>();
+    private Map<Class<? extends Entity>, List<String>> primaryKeyColumnNamesMap;
+
+    private Map<Class<? extends Entity>, List<ForeignInfo>> childForeignInfoMap;
+
+    @SuppressWarnings("unchecked")
+    @InitMethod
+    public void initialize() {
+        entityClassMap = new HashMap<String, Class<? extends Entity>>();
+        behaviorMap = new HashMap<Class<? extends Entity>, BehaviorWritable>();
+        conditionBeanClassMap = new HashMap<Class<? extends Entity>, Class<? extends ConditionBean>>();
+        dbMetaMap = new HashMap<Class<? extends Entity>, DBMeta>();
+        primaryKeyColumnNamesMap = new HashMap<Class<? extends Entity>, List<String>>();
+        childForeignInfoMap = new HashMap<Class<? extends Entity>, List<ForeignInfo>>();
+
+        for (BehaviorWritable bhv : (BehaviorWritable[]) applicationManager
+                .findContextApplication().getS2Container().findComponents(
+                        BehaviorWritable.class)) {
+            String bhvClassName = bhv.getClass().getName();
+            String packageName = bhvClassName.substring(0, bhvClassName
+                    .lastIndexOf('.', bhvClassName.lastIndexOf('.') - 1));
+            DBMeta dbMeta = bhv.getDBMeta();
+            String entityName = dbMeta.getTablePropertyName();
+            if (entityClassMap.containsKey(entityName)) {
+                // TODO YS_USERなどの重複登録問題が解決するまではこうしておく。
+                continue;
+            }
+
+            Class<? extends Entity> entityClass;
+            String cEntityName = BeanUtils.capitalize(entityName);
+            String entityClassName = packageName + ".exentity." + cEntityName;
+            try {
+                entityClass = (Class<? extends Entity>) ClassUtils
+                        .forName(entityClassName);
+            } catch (ClassNotFoundException ex) {
+                throw new RuntimeException("Entity class corresponding to '"
+                        + bhvClassName + "' not found: " + entityClassName, ex);
+            }
+
+            Class<? extends ConditionBean> cbClass;
+            String cbClassName = packageName + ".cbean." + cEntityName + "CB";
+            try {
+                cbClass = (Class<? extends ConditionBean>) ClassUtils
+                        .forName(cbClassName);
+            } catch (ClassNotFoundException ex) {
+                throw new RuntimeException("Cannot find ConditionBean class: "
+                        + cbClassName);
+            }
+
+            entityClassMap.put(entityName, entityClass);
+            dbMetaMap.put(entityClass, dbMeta);
+            behaviorMap.put(entityClass, bhv);
+            conditionBeanClassMap.put(entityClass, cbClass);
+
+            List<String> primaryKeyColumnNames = new ArrayList<String>();
+            UniqueInfo uniqueInfo = dbMeta.getPrimaryUniqueInfo();
+            for (ColumnInfo columnInfo : uniqueInfo.getUniqueColumnList()) {
+                primaryKeyColumnNames.add(columnInfo.getPropertyName());
+            }
+            primaryKeyColumnNamesMap.put(entityClass, Collections
+                    .unmodifiableList(primaryKeyColumnNames));
+        }
+
+        for (DBMeta dbMeta : dbMetaMap.values()) {
+            for (ForeignInfo info : dbMeta.getForeignInfoList()) {
+                Class<? extends Entity> foreignEntityClass = entityClassMap
+                        .get(info.getForeignDBMeta().getTablePropertyName());
+                List<ForeignInfo> list = childForeignInfoMap
+                        .get(foreignEntityClass);
+                if (list == null) {
+                    list = new ArrayList<ForeignInfo>();
+                    childForeignInfoMap.put(foreignEntityClass, list);
+                }
+                list.add(info);
+            }
+        }
+
+        entityClassMap = Collections.unmodifiableMap(entityClassMap);
+        behaviorMap = Collections.unmodifiableMap(behaviorMap);
+        conditionBeanClassMap = Collections
+                .unmodifiableMap(conditionBeanClassMap);
+        dbMetaMap = Collections.unmodifiableMap(dbMetaMap);
+        primaryKeyColumnNamesMap = Collections
+                .unmodifiableMap(primaryKeyColumnNamesMap);
+        childForeignInfoMap = Collections.unmodifiableMap(childForeignInfoMap);
+    }
 
     public Class<? extends Entity> getEntityClass(String entityName) {
         if (entityName == null) {
             return null;
         }
 
-        Class<? extends Entity> entityClass = entityClassMap.get(entityName);
-        if (entityClass == null) {
-            entityClass = prepareForEntity(entityName);
-        }
-
-        return entityClass;
+        return entityClassMap.get(normalizeEntityName(entityName));
     }
 
-    @SuppressWarnings("unchecked")
-    private Class<? extends Entity> prepareForEntity(String entityName) {
-        Class<? extends Entity> entityClass = null;
-        Class<ConditionBean> cbClass = null;
-        final String key = entityName;
+    String normalizeEntityName(String entityName) {
+        if (entityName == null) {
+            return null;
+        }
 
-        if (key.indexOf('_') >= 0) {
+        if (entityName.indexOf('_') >= 0) {
             // DBNameなのでエンティティ名に変換する。
-            entityName = DBFluteUtils.camelize(key);
-        } else if (key.length() > 0 && Character.isUpperCase(key.charAt(0))) {
+            return DBFluteUtils.camelize(entityName);
+        } else if (entityName.length() > 0
+                && Character.isUpperCase(entityName.charAt(0))) {
             // 大文字で始まっていればDBNameとみなして小文字に変換する。
-            entityName = key.toLowerCase();
+            return entityName.toLowerCase();
         }
-
-        BehaviorWritable bhv;
-        try {
-            bhv = (BehaviorWritable) applicationManager
-                    .findContextApplication().getS2Container().getComponent(
-                            entityName + "Bhv");
-        } catch (ComponentNotFoundRuntimeException ex) {
-            return null;
-        }
-
-        String bhvClassName = bhv.getClass().getName();
-        String packageName = bhvClassName.substring(0, bhvClassName
-                .lastIndexOf('.', bhvClassName.lastIndexOf('.') - 1));
-
-        String cEntityName = BeanUtils.capitalize(entityName);
-        try {
-            entityClass = (Class<? extends Entity>) ClassUtils
-                    .forName(packageName + ".exentity." + cEntityName);
-        } catch (ClassNotFoundException ignore) {
-            return null;
-        }
-
-        String cbClassName = packageName + ".cbean." + cEntityName + "CB";
-        try {
-            cbClass = (Class<ConditionBean>) ClassUtils.forName(cbClassName);
-        } catch (ClassNotFoundException ex) {
-            throw new RuntimeException("Cannot find ConditionBean class: "
-                    + cbClassName);
-        }
-
-        entityClassMap.put(key, entityClass);
-        behaviorMap.put(entityClass, bhv);
-        conditionBeanClassMap.put(entityClass, cbClass);
-
-        DBMeta dbMeta = newEntity(entityClass).getDBMeta();
-        dbMetaMap.put(entityClass, dbMeta);
-
-        List<String> primaryKeyColumnNames = new ArrayList<String>();
-        UniqueInfo uniqueInfo = dbMeta.getPrimaryUniqueInfo();
-        for (ColumnInfo columnInfo : uniqueInfo.getUniqueColumnList()) {
-            primaryKeyColumnNames.add(columnInfo.getPropertyName());
-        }
-        primaryKeyColumnNamesMap.put(entityClass, Collections
-                .unmodifiableList(primaryKeyColumnNames));
-
-        return entityClass;
+        return entityName;
     }
 
     public Entity newEntity(String entityName) {
@@ -203,11 +238,30 @@ public class EntityManagerImpl implements EntityManager {
 
     public List<String> getPrimaryKeyColumnNames(
             Class<? extends Entity> entityClass) {
-        if (entityClass == null) {
-            return null;
+        List<String> primaryKeyColumnNames = null;
+        if (entityClass != null) {
+            primaryKeyColumnNames = primaryKeyColumnNamesMap.get(entityClass);
         }
+        if (primaryKeyColumnNames == null) {
+            primaryKeyColumnNames = Collections.emptyList();
+        }
+        return primaryKeyColumnNames;
+    }
 
-        return primaryKeyColumnNamesMap.get(entityClass);
+    public List<ForeignInfo> getChildForeignInfos(String entityName) {
+        return getChildForeignInfos(getEntityClass(entityName));
+    }
+
+    public List<ForeignInfo> getChildForeignInfos(
+            Class<? extends Entity> entityClass) {
+        List<ForeignInfo> childForeignInfos = null;
+        if (entityClass != null) {
+            childForeignInfos = childForeignInfoMap.get(entityClass);
+        }
+        if (childForeignInfos == null) {
+            childForeignInfos = Collections.emptyList();
+        }
+        return childForeignInfos;
     }
 
     public void setValue(ConditionBean cb, String columnName, ConditionKey key,

@@ -8,6 +8,7 @@ import org.seasar.dbflute.cbean.ConditionBean;
 import org.seasar.dbflute.cbean.ckey.ConditionKey;
 import org.seasar.dbflute.dbmeta.DBMeta;
 import org.seasar.dbflute.dbmeta.info.ColumnInfo;
+import org.seasar.dbflute.dbmeta.info.ForeignInfo;
 
 public interface EntityManager {
     Class<? extends Entity> getEntityClass(String entityName);
@@ -36,6 +37,10 @@ public interface EntityManager {
     List<String> getPrimaryKeyColumnNames(String entityName);
 
     List<String> getPrimaryKeyColumnNames(Class<? extends Entity> entityClass);
+
+    List<ForeignInfo> getChildForeignInfos(String entityName);
+
+    List<ForeignInfo> getChildForeignInfos(Class<? extends Entity> entityClass);
 
     void setValue(ConditionBean cb, String columnName, ConditionKey key,
             Object value);
