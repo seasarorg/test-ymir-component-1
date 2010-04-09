@@ -31,6 +31,11 @@ public class ActionNotFoundRuntimeException extends BadRequestRuntimeException {
         setMethod(method);
     }
 
+    public String toString() {
+        return "Action not found for: path=" + getPath() + ", method="
+                + method_;
+    }
+
     /**
      * HTTPメソッド名を返します。
      * 
