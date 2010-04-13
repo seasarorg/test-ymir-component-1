@@ -127,6 +127,10 @@ public class RequestLoggingFilter implements Filter {
         sb.append(IND).append("RequestedSessionId=").append(
                 request.getRequestedSessionId()).append(LF);
 
+        HttpSession session = request.getSession(false);
+        sb.append(IND).append("Actual session ID=").append(
+                session != null ? session.getId() : "(none)").append(LF);
+
         sb.append(IND).append("REQUEST_URI=").append(request.getRequestURI());
         sb.append(", SERVLET_PATH=").append(request.getServletPath())
                 .append(LF);
@@ -185,6 +189,11 @@ public class RequestLoggingFilter implements Filter {
 
         sb.append(IND).append("Response=")
                 .append(response.getClass().getName()).append(LF);
+
+        HttpSession session = request.getSession(false);
+        sb.append(IND).append("Session ID=").append(
+                session != null ? session.getId() : "(none)").append(LF);
+
         sb.append(IND).append("CharacterEncoding=").append(
                 response.getCharacterEncoding());
         sb.append(", ContentType=").append(response.getContentType());
