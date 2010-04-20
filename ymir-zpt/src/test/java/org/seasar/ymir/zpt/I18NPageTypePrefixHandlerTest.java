@@ -11,10 +11,15 @@ import javax.servlet.ServletContext;
 
 import org.seasar.framework.mock.servlet.MockServletContextImpl;
 
-import junit.framework.TestCase;
+public class I18NPageTypePrefixHandlerTest extends ZptTestCase {
+    private I18NPageTypePrefixHandler target_;
 
-public class I18NPageTypePrefixHandlerTest extends TestCase {
-    private I18NPageTypePrefixHandler target_ = new I18NPageTypePrefixHandler();
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        target_ = new I18NPageTypePrefixHandler();
+    }
 
     public void testDetermineResourcePath() throws Exception {
         ServletContext servletContext = new MockServletContextImpl("/context") {

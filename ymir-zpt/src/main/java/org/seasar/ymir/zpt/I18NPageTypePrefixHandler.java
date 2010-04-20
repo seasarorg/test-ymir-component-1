@@ -10,9 +10,8 @@ import org.seasar.kvasir.util.LocaleUtils;
 import net.skirnir.freyja.TemplateContext;
 import net.skirnir.freyja.VariableResolver;
 import net.skirnir.freyja.webapp.ServletVariableResolver;
-import net.skirnir.freyja.zpt.webapp.PageTypePrefixHandler;
 
-public class I18NPageTypePrefixHandler extends PageTypePrefixHandler {
+public class I18NPageTypePrefixHandler extends YmirPageTypePrefixHandler {
     @Override
     protected String filterPath(TemplateContext context,
             VariableResolver varResolver, String path) {

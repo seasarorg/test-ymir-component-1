@@ -40,9 +40,4 @@ public class RedirectionPathResolverImpl implements RedirectionPathResolver {
         }
         return path;
     }
-
-    public String resolveURL(String url, HttpServletRequest httpRequest,
-            HttpServletResponse httpResponse, Request request, Response response) {
-        return url;
-    }
 }

@@ -15,6 +15,7 @@ import org.seasar.ymir.cache.impl.CacheManagerImpl;
 import org.seasar.ymir.hotdeploy.fitter.impl.ListFitter;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.impl.ApplicationManagerImpl;
+import org.seasar.ymir.impl.ContextURLResolverImpl;
 import org.seasar.ymir.locale.impl.LocaleManagerImpl;
 import org.seasar.ymir.message.impl.MessagesImpl;
 import org.seasar.ymir.mock.MockApplication;
@@ -71,6 +72,7 @@ abstract public class ZptTestCase extends TestCase {
         messages_ = new MessagesImpl();
         messages_.setLocaleManager(localeManager);
         container_.register(messages_, Globals.NAME_MESSAGES);
+        container_.register(new ContextURLResolverImpl());
 
         MockYmir ymir = new MockYmir();
         MockApplication application = new MockApplication();

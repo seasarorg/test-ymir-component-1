@@ -20,8 +20,8 @@ public interface RedirectionPathResolver {
      * </p>
      * 
      * @param path パス。
-     * @param httpResponse 現在のHttpServletRequestオブジェクト。 
      * @param httpRequest 現在のHttpServletResponseオブジェクト。
+     * @param httpResponse 現在のHttpServletRequestオブジェクト。 
      * @param request 現在のRequestオブジェクト。
      * @param response 現在のResponseオブジェクト。
      * @return 最終的なパス。
@@ -36,31 +36,13 @@ public interface RedirectionPathResolver {
      * </p>
      * 
      * @param path パス。
-     * @param httpResponse 現在のHttpServletRequestオブジェクト。 
      * @param httpRequest 現在のHttpServletResponseオブジェクト。
+     * @param httpResponse 現在のHttpServletRequestオブジェクト。 
      * @param request 現在のRequestオブジェクト。
      * @param response 現在のResponseオブジェクト。
      * @return 最終的なパス。
      * @since 1.0.3
      */
     String resolveForProceed(String path, HttpServletRequest httpRequest,
-            HttpServletResponse httpResponse, Request request, Response response);
-
-    /**
-     * 指定されたredirect URLを最終的な形式に加工して返します。
-     * <p>このメソッドに渡されるURLはリダイレクトのために加工された最終的なURLです。
-     * 必要に応じてセッションIDも埋め込まれています。
-     * </p>
-     * 
-     * @param url URL。
-     * nullが指定されることはありません。
-     * @param httpResponse 現在のHttpServletRequestオブジェクト。 
-     * @param httpRequest 現在のHttpServletResponseオブジェクト。
-     * @param request 現在のRequestオブジェクト。
-     * @param response 現在のResponseオブジェクト。
-     * @return 最終的なパス。
-     * @since 1.0.7
-     */
-    String resolveURL(String url, HttpServletRequest httpRequest,
             HttpServletResponse httpResponse, Request request, Response response);
 }

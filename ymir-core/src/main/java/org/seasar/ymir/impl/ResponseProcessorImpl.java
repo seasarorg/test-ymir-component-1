@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.PropertyUtils;
+import org.seasar.ymir.ContextURLResolver;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.HttpServletResponseFilter;
@@ -46,6 +47,8 @@ public class ResponseProcessorImpl implements ResponseProcessor {
 
     private RedirectionPathResolver redirectionPathResolver_ = new RedirectionPathResolverImpl();
 
+    private ContextURLResolver contextURLResolver_;
+
     private HttpServletResponseFilterFactory httpServletResponseFilterFactory_ = new HttpServletResponseFilterFactoryImpl();
 
     @Binding(bindingType = BindingType.MUST)
@@ -73,6 +76,11 @@ public class ResponseProcessorImpl implements ResponseProcessor {
     public void setRedirectionPathResolver(
             RedirectionPathResolver redirectionPathResolver) {
         redirectionPathResolver_ = redirectionPathResolver;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setContextURLResolver(ContextURLResolver contextURLResolver) {
+        contextURLResolver_ = contextURLResolver;
     }
 
     @Binding(bindingType = BindingType.MAY)
@@ -208,11 +216,10 @@ public class ResponseProcessorImpl implements ResponseProcessor {
                     resolved = httpResponse.encodeRedirectURL(resolved);
                 }
             }
-            try {
-                resolved = redirectionPathResolver_.resolveURL(resolved,
-                        httpRequest, httpResponse, request, response);
-            } catch (NoSuchMethodError ignore) {
-                // 互換性のため。
+            if (!contextURLResolver_.isResolved(resolved, httpRequest,
+                    httpResponse, request)) {
+                resolved = contextURLResolver_.resolveURL(resolved,
+                        httpRequest, httpResponse, request);
             }
         }
         return resolved;

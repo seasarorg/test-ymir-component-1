@@ -6,7 +6,10 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.seasar.framework.container.annotation.tiger.Binding;
+import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.PropertyUtils;
+import org.seasar.ymir.ContextURLResolver;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.YmirContext;
@@ -33,6 +36,13 @@ public class SessionIdEmbeddingInterceptor implements TagRenderingInterceptor {
 
     private static final String[] SPECIALATTRIBUTEPATTERNSTRINGS = new String[] {
         ATTR_ACTION, ATTR_HREF, ATTR_SRC };
+
+    private ContextURLResolver contextURLResolver_;
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setContextURLResolver(ContextURLResolver contextURLResolver) {
+        contextURLResolver_ = contextURLResolver;
+    }
 
     public String[] getSpecialAttributePatternStrings() {
         return SPECIALATTRIBUTEPATTERNSTRINGS;
@@ -120,26 +130,12 @@ public class SessionIdEmbeddingInterceptor implements TagRenderingInterceptor {
                 .getVariable(context, ServletVariableResolver.VAR_RESPONSE);
         Request request = (Request) resolver.getVariable(context,
                 YmirVariableResolver.NAME_YMIRREQUEST);
-        return resolveURL(url, httpRequest, httpResponse, request);
-    }
-
-    /**
-     * 指定されたURLを最終的なURLに加工します。
-     * <p>必要に応じてこのメソッドをサブクラスでオーバライドして下さい。
-     * </p>
-     * <p>このメソッドの中で必要に応じて相対URLを絶対URLに加工したり
-     * 強制的にセッションIDを埋め込んだりすることができます。
-     * </p>
-     * 
-     * @param url URL。nullが渡されることはありません。
-     * @param httpResponse 現在のHttpServletRequestオブジェクト。 
-     * @param httpRequest 現在のHttpServletResponseオブジェクト。
-     * @param request 現在のRequestオブジェクト。
-     * @return 加工後のURL。
-     * @since 1.0.7
-     */
-    protected String resolveURL(String url, HttpServletRequest httpRequest,
-            HttpServletResponse httpResponse, Request request) {
-        return url;
+        if (contextURLResolver_.isResolved(url, httpRequest, httpResponse,
+                request)) {
+            return url;
+        } else {
+            return contextURLResolver_.resolveURL(url, httpRequest,
+                    httpResponse, request);
+        }
     }
 }
