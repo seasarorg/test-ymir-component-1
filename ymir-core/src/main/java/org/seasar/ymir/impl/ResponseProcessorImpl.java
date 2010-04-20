@@ -30,6 +30,7 @@ import org.seasar.ymir.Ymir;
 import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.util.ResponseUtils;
+import org.seasar.ymir.util.ServletUtils;
 import org.seasar.ymir.util.YmirUtils;
 
 public class ResponseProcessorImpl implements ResponseProcessor {
@@ -195,10 +196,23 @@ public class ResponseProcessorImpl implements ResponseProcessor {
             throw new NullPointerException(
                     "Redirection path is null: may logic is wrong");
         }
-        if (resolved.indexOf(":") < 0) {
-            // 内部パスの場合は必要に応じてエンコードする。
-            if (!shouldOmitSessionId()) {
-                resolved = httpResponse.encodeRedirectURL(resolved);
+        if (!proceed) {
+            if (shouldOmitSessionId()) {
+                // セッションIDを除去する。
+                resolved = ServletUtils.omitSessionId(resolved);
+            } else {
+                // 必要に応じてHttpServletResponse#encodeRedirectURL()を使って
+                // URLをエンコードする。
+                if (shouldAddSessionId(resolved)
+                        && !ServletUtils.isSessionIdEmbedded(resolved)) {
+                    resolved = httpResponse.encodeRedirectURL(resolved);
+                }
+            }
+            try {
+                resolved = redirectionPathResolver_.resolveURL(resolved,
+                        httpRequest, httpResponse, request, response);
+            } catch (NoSuchMethodError ignore) {
+                // 互換性のため。
             }
         }
         return resolved;
@@ -208,6 +222,10 @@ public class ResponseProcessorImpl implements ResponseProcessor {
         return PropertyUtils.valueOf(ymir_.getApplication().getProperty(
                 Globals.APPKEY_CORE_SESSION_OMITSESSIONID),
                 Globals.DEFAULT_CORE_SESSION_OMITSESSIONID);
+    }
+
+    protected boolean shouldAddSessionId(String url) {
+        return url.indexOf(':') < 0;
     }
 
     protected void populateHeaders(Response response,

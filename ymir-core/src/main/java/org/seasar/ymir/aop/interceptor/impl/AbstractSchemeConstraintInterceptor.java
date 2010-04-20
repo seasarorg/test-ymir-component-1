@@ -7,6 +7,9 @@ import org.seasar.framework.aop.interceptors.AbstractInterceptor;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ApplicationManager;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
+import org.seasar.ymir.Response;
+import org.seasar.ymir.response.RedirectResponse;
 import org.seasar.ymir.response.scheme.impl.RedirectStrategy;
 import org.seasar.ymir.util.ServletUtils;
 
@@ -30,8 +33,18 @@ abstract public class AbstractSchemeConstraintInterceptor extends
             return invocation.proceed();
         }
 
-        return RedirectStrategy.SCHEME + ":"
-                + ServletUtils.constructRequestURL(httpRequest, scheme, port);
+        String url = ServletUtils
+                .constructRequestURL(httpRequest, scheme, port);
+        Class<?> returnType = invocation.getMethod().getReturnType();
+        if (returnType == String.class) {
+            return RedirectStrategy.SCHEME + ":" + url;
+        } else if (returnType.isAssignableFrom(Response.class)) {
+            return new RedirectResponse(url);
+        } else {
+            throw new IllegalClientCodeRuntimeException(
+                    "The return type must be String or supertype of Response: "
+                            + invocation.getMethod());
+        }
     }
 
     abstract protected String getScheme();

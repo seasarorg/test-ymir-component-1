@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -62,6 +64,14 @@ public class ServletUtils {
     public static final String SEGMENT_PARENT = "..";
 
     public static final String SEGMENT_CURRENT = ".";
+
+    private static final Pattern PATTERN_SESSIONID = Pattern
+            .compile(";jsessionid=[^#?]+");
+
+    private static final String REPLACEMENT_OMIT_SESSIONID = "";
+
+    private static final Pattern PATTERN_STRIPPED_URL = Pattern
+            .compile("([^;#?]*)[;#?].*");
 
     protected ServletUtils() {
     }
@@ -677,5 +687,52 @@ public class ServletUtils {
         sb.append(parameter);
 
         return sb.toString();
+    }
+
+    /**
+     * 指定されたURLにセッションIDが埋め込まれているかどうかを返します。
+     * 
+     * @param url URL。nullを指定することもできます。
+     * @return セッションIDが埋め込まれているかどうか。
+     * @since 1.0.7
+     */
+    public static boolean isSessionIdEmbedded(String url) {
+        if (url == null) {
+            return false;
+        }
+        return PATTERN_SESSIONID.matcher(url).find();
+    }
+
+    /**
+     * 指定されたURLからセッションIDを除去します。
+     * @param url URL。nullを指定することもできます。
+     * @return セッションIDを除去したURL。
+     * @since 1.0.7
+     */
+    public static String omitSessionId(String url) {
+        if (url == null) {
+            return null;
+        }
+        return PATTERN_SESSIONID.matcher(url).replaceFirst(
+                REPLACEMENT_OMIT_SESSIONID);
+    }
+
+    /**
+     * 指定されたURLからクエリストリングとパスパラメータを除去したものを返します。
+     * 
+     * @param url URL。nullを指定することもできます。
+     * @return クエリストリングとパスパラメータを除去したURL。
+     * @since 1.0.7
+     */
+    public static String stripParameters(String url) {
+        if (url == null) {
+            return null;
+        }
+        Matcher matcher = PATTERN_STRIPPED_URL.matcher(url);
+        if (matcher.matches()) {
+            return matcher.group(1);
+        } else {
+            return url;
+        }
     }
 }

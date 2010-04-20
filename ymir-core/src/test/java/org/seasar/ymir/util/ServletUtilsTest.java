@@ -107,4 +107,18 @@ public class ServletUtilsTest extends TestCase {
         assertEquals("空文字列はカレントパスを表すこと", "/path", ServletUtils.toAbsolutePath(
                 "/path", ""));
     }
+
+    public void test_omitSessionId() throws Exception {
+        assertEquals("/a?b=1", ServletUtils
+                .omitSessionId("/a;jsessionid=aaaa?b=1"));
+    }
+
+    public void test_stripParameters() throws Exception {
+        assertEquals("/a.html", ServletUtils.stripParameters("/a.html?b=1"));
+
+        assertEquals("/a.html", ServletUtils
+                .stripParameters("/a.html;jsessionid=1?b=1"));
+
+        assertEquals("/a.html", ServletUtils.stripParameters("/a.html#top?b=1"));
+    }
 }

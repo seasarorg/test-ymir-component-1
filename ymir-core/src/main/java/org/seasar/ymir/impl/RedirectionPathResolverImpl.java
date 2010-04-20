@@ -23,8 +23,9 @@ public class RedirectionPathResolverImpl implements RedirectionPathResolver {
         return path;
     }
 
-    public String resolveForProceed(String path, HttpServletRequest httpRequest,
-            HttpServletResponse httpResponse, Request request, Response response) {
+    public String resolveForProceed(String path,
+            HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+            Request request, Response response) {
         if (path == null) {
             return null;
         }
@@ -38,5 +39,10 @@ public class RedirectionPathResolverImpl implements RedirectionPathResolver {
             path = "/" + path;
         }
         return path;
+    }
+
+    public String resolveURL(String url, HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse, Request request, Response response) {
+        return url;
     }
 }
