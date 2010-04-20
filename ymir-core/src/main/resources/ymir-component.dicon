@@ -63,7 +63,7 @@
   <component name="historyManager" class="org.seasar.ymir.history.impl.HistoryManagerImpl" />
   <component name="constraintManager"
     class="org.seasar.ymir.constraint.impl.ConstraintManagerImpl" />
-  <component name="contextURLResolver" class="org.seasar.ymir.impl.ContextURLResolverImpl" />
+  <component name="followingURLResolver" class="org.seasar.ymir.impl.FollowingURLResolverImpl" />
   <!-- HotdeployFitter -->
   <component name="listFitter" class="org.seasar.ymir.hotdeploy.fitter.impl.ListFitter" />
   <component name="mapFitter" class="org.seasar.ymir.hotdeploy.fitter.impl.MapFitter" />

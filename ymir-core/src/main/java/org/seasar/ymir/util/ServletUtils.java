@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.ymir.Dispatcher;
@@ -72,6 +73,9 @@ public class ServletUtils {
 
     private static final Pattern PATTERN_STRIPPED_URL = Pattern
             .compile("([^;#?]*)[;#?].*");
+
+    private static final Pattern PATTERN_EMBED_SESSIONID = Pattern
+            .compile("[;#?]");
 
     protected ServletUtils() {
     }
@@ -705,6 +709,7 @@ public class ServletUtils {
 
     /**
      * 指定されたURLからセッションIDを除去します。
+     * 
      * @param url URL。nullを指定することもできます。
      * @return セッションIDを除去したURL。
      * @since 1.0.7
@@ -715,6 +720,40 @@ public class ServletUtils {
         }
         return PATTERN_SESSIONID.matcher(url).replaceFirst(
                 REPLACEMENT_OMIT_SESSIONID);
+    }
+
+    /**
+     * 指定されたURLにセッションIDを埋め込みます。
+     * <p>既に埋め込まれている場合は何もしません。
+     * また、セッションが存在しない場合も何もしません。
+     * </p>
+     * 
+     * @param url URL。nullを指定することもできます。
+     * @param request HttpServletRequestオブジェクト。
+     * @return セッションIDを埋め込んだURL。
+     * @since 1.0.7
+     */
+    public static String embedSessionId(String url, HttpServletRequest request) {
+        if (url == null || isSessionIdEmbedded(url)) {
+            return url;
+        }
+
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return url;
+        }
+
+        Matcher matcher = PATTERN_EMBED_SESSIONID.matcher(url);
+        String head;
+        String tail;
+        if (matcher.find()) {
+            head = url.substring(0, matcher.start());
+            tail = url.substring(matcher.start());
+        } else {
+            head = url;
+            tail = "";
+        }
+        return head + ";jsessionid=" + session.getId() + tail;
     }
 
     /**

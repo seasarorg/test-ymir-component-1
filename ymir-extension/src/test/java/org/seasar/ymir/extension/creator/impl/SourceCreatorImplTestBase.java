@@ -42,7 +42,7 @@ import org.seasar.ymir.extension.zpt.ZptResponseCreator;
 import org.seasar.ymir.hotdeploy.impl.HotdeployManagerImpl;
 import org.seasar.ymir.impl.AbstractApplication;
 import org.seasar.ymir.impl.ApplicationManagerImpl;
-import org.seasar.ymir.impl.ContextURLResolverImpl;
+import org.seasar.ymir.impl.FollowingURLResolverImpl;
 import org.seasar.ymir.impl.PathMappingProviderImpl;
 import org.seasar.ymir.impl.RequestProcessorImpl;
 import org.seasar.ymir.impl.SingleApplication;
@@ -119,7 +119,7 @@ abstract public class SourceCreatorImplTestBase extends TestCaseBase {
         container_.register(SessionManagerImpl.class);
         container_.register(TokenManagerImpl.class);
         container_.register(ZptResponseCreator.class);
-        container_.register(ContextURLResolverImpl.class);
+        container_.register(FollowingURLResolverImpl.class);
 
         LocalHotdeployS2Container localHotdeployS2Container = (LocalHotdeployS2Container) container_
                 .getComponent(LocalHotdeployS2Container.class);

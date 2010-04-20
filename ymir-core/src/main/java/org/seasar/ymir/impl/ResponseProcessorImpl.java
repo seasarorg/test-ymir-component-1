@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.PropertyUtils;
-import org.seasar.ymir.ContextURLResolver;
+import org.seasar.ymir.FollowingURLResolver;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.HttpServletResponseFilter;
@@ -47,7 +47,7 @@ public class ResponseProcessorImpl implements ResponseProcessor {
 
     private RedirectionPathResolver redirectionPathResolver_ = new RedirectionPathResolverImpl();
 
-    private ContextURLResolver contextURLResolver_;
+    private FollowingURLResolver followingURLResolver_;
 
     private HttpServletResponseFilterFactory httpServletResponseFilterFactory_ = new HttpServletResponseFilterFactoryImpl();
 
@@ -79,8 +79,9 @@ public class ResponseProcessorImpl implements ResponseProcessor {
     }
 
     @Binding(bindingType = BindingType.MUST)
-    public void setContextURLResolver(ContextURLResolver contextURLResolver) {
-        contextURLResolver_ = contextURLResolver;
+    public void setFollowingURLResolver(
+            FollowingURLResolver followingURLResolver) {
+        followingURLResolver_ = followingURLResolver;
     }
 
     @Binding(bindingType = BindingType.MAY)
@@ -216,9 +217,9 @@ public class ResponseProcessorImpl implements ResponseProcessor {
                     resolved = httpResponse.encodeRedirectURL(resolved);
                 }
             }
-            if (!contextURLResolver_.isResolved(resolved, httpRequest,
+            if (!followingURLResolver_.isResolved(resolved, httpRequest,
                     httpResponse, request)) {
-                resolved = contextURLResolver_.resolveURL(resolved,
+                resolved = followingURLResolver_.resolveURL(resolved,
                         httpRequest, httpResponse, request);
             }
         }

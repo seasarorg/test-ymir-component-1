@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.kvasir.util.PropertyUtils;
-import org.seasar.ymir.ContextURLResolver;
+import org.seasar.ymir.FollowingURLResolver;
 import org.seasar.ymir.Globals;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.YmirContext;
@@ -37,11 +37,12 @@ public class SessionIdEmbeddingInterceptor implements TagRenderingInterceptor {
     private static final String[] SPECIALATTRIBUTEPATTERNSTRINGS = new String[] {
         ATTR_ACTION, ATTR_HREF, ATTR_SRC };
 
-    private ContextURLResolver contextURLResolver_;
+    private FollowingURLResolver followingURLResolver_;
 
     @Binding(bindingType = BindingType.MUST)
-    public void setContextURLResolver(ContextURLResolver contextURLResolver) {
-        contextURLResolver_ = contextURLResolver;
+    public void setFollowingURLResolver(
+            FollowingURLResolver followingURLResolver) {
+        followingURLResolver_ = followingURLResolver;
     }
 
     public String[] getSpecialAttributePatternStrings() {
@@ -130,11 +131,11 @@ public class SessionIdEmbeddingInterceptor implements TagRenderingInterceptor {
                 .getVariable(context, ServletVariableResolver.VAR_RESPONSE);
         Request request = (Request) resolver.getVariable(context,
                 YmirVariableResolver.NAME_YMIRREQUEST);
-        if (contextURLResolver_.isResolved(url, httpRequest, httpResponse,
+        if (followingURLResolver_.isResolved(url, httpRequest, httpResponse,
                 request)) {
             return url;
         } else {
-            return contextURLResolver_.resolveURL(url, httpRequest,
+            return followingURLResolver_.resolveURL(url, httpRequest,
                     httpResponse, request);
         }
     }

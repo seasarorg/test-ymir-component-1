@@ -121,4 +121,28 @@ public class ServletUtilsTest extends TestCase {
 
         assertEquals("/a.html", ServletUtils.stripParameters("/a.html#top?b=1"));
     }
+
+    public void test_embedSessionId() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequestImpl(
+                new MockServletContextImpl("/context"), "/path/to/file.html");
+
+        assertNull(ServletUtils.embedSessionId(null, request));
+
+        assertEquals("既に埋め込まれている場合は何もしないこと", "/a.html;jsessionid=aaa",
+                ServletUtils.embedSessionId("/a.html;jsessionid=aaa", request));
+
+        assertEquals("セッションが存在しなければ埋め込まれないこと", "/a.html", ServletUtils
+                .embedSessionId("/a.html", request));
+
+        String id = request.getSession(true).getId();
+
+        assertEquals("セッションが存在する場合は埋め込まれること", "/a.html;jsessionid=" + id,
+                ServletUtils.embedSessionId("/a.html", request));
+
+        assertEquals("セッションが存在する場合は埋め込まれること", "/a.html;jsessionid=" + id
+                + "?a=b", ServletUtils.embedSessionId("/a.html?a=b", request));
+
+        assertEquals("セッションが存在する場合は埋め込まれること", "/a.html;jsessionid=" + id
+                + "#top", ServletUtils.embedSessionId("/a.html#top", request));
+    }
 }
