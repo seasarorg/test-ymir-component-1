@@ -442,6 +442,33 @@ abstract public class YmirTestCase extends TestCase {
         return httpResponse_;
     }
 
+    /**
+     * Ymirにリクエストを処理させます。
+     * <p>テストケースのテストメソッドからこのメソッドを呼び出すことで、
+     * Ymirにリクエストを処理させることができます。
+     * </p>
+     * <p>通常の（文字列型の）リクエストパラメータは引数で指定できません。
+     * 予め{@link #acceptRequest(String, HttpMethod, RequestInitializer)}
+     * を使ってHttpServletRequestに設定しておいて下さい。
+     * </p>
+     * <p>dispatcherとして{@link Dispatcher#REQUEST}以外を指定することで、
+     * クライアントからのリクエストだけでなくforwardやincludeといった
+     * サーブレットコンテナの中でのディスパッチを処理させることもできます。
+     * </p>
+     * 
+     * @param servletContext ServletContextオブジェクト。
+     * @param httpRequest HttpServletRequestオブジェクト。
+     * @param httpResponse HttpServletResponseオブジェクト。
+     * @param dispatcher Dispatcherオブジェクト。
+     * @param path コンテキスト相対のリクエストパス。リクエストパラメータを付与することはできません。
+     * @param method HTTPメソッド。
+     * @param fileParameterMap ファイル型のリクエストパラメータを持つMap。
+     * nullを指定することもできます。
+     * @param chain Ymirの処理が終わった後に処理を渡すための{@link FilterChain}オブジェクト。
+     * nullを指定してはいけません。
+     * @throws IOException I/Oエラーが発生した場合。
+     * @throws ServletException サーブレットエラーが発生した場合。
+     */
     public void process(ServletContext servletContext,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             Dispatcher dispatcher, String path, HttpMethod method,
@@ -535,6 +562,26 @@ abstract public class YmirTestCase extends TestCase {
                 EMPTY_PARAMS);
     }
 
+    /**
+     * Ymirにリクエストを処理させます。
+     * <p>テストケースのテストメソッドからこのメソッドを呼び出すことで、
+     * Ymirにリクエストを処理させることができます。
+     * </p>
+     * 
+     * @param path コンテキスト相対のリクエストパス。クエリストリングを付与することもできます。
+     * @param method HTTPメソッド。
+     * @param initializer RequestInitializerオブジェクト。
+     * nullを指定することもできます。
+     * @param chain Ymirの処理が終わった後に処理を渡すための{@link FilterChain}オブジェクト。
+     * nullを指定してはいけません。
+     * @param param 1つめのリクエストパラメータの名前。
+     * @param params 1つめのリクエストパラメータの値、2つめのリクエストパラメータの名前、
+     * 2つめのリクエストパラメータの値、…の配列。
+     * @return Ymirの処理の後FilterChainが呼び出された場合、引数で与えたFilterChainオブジェクト。
+     * Ymirがレスポンスを自前で処理した場合などFilterChainが呼び出されなかった場合、null。
+     * @throws IOException I/Oエラーが発生した場合。
+     * @throws ServletException サーブレットエラーが発生した場合。
+     */
     public FilterChain process(String path, HttpMethod method,
             RequestInitializer initializer, MockFilterChain chain,
             String param, Object... params) throws IOException,
@@ -693,6 +740,24 @@ abstract public class YmirTestCase extends TestCase {
                 chain, param, params);
     }
 
+    /**
+     * リクエストを受け付けます。
+     * <p>引数で指定されたリクエストを受け付け、
+     * HttpServletRequestとHttpServletResponseを構築して
+     * オブジェクト内部に設定します。
+     * 設定されたHttpServletRequestとHttpServletResponseはそれぞれ
+     * {@link #getHttpServletRequest()}と{@link #getHttpServletResponse()}
+     * で取り出すことができます。
+     * </p>
+     * <p>リクエストを受け付けた直後になんらかの初期化処理をしたい場合は
+     * requestInitializerを指定して下さい。
+     * </p>
+     * 
+     * @param path コンテキスト相対のリクエストパス。クエリストリングを付与することもできます。
+     * @param method HTTPメソッド。
+     * @param requestInitializer RequestInitializerオブジェクト。
+     * nullを指定することもできます。
+     */
     public void acceptRequest(String path, HttpMethod method,
             RequestInitializer requestInitializer) {
         MockHttpSession session = null;
