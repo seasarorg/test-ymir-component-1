@@ -3,6 +3,7 @@ package org.seasar.ymir.zpt.mobylet.interceptor;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mobylet.core.image.ImageCodec;
 import org.mobylet.core.util.ImageUtils;
 import org.mobylet.core.util.StringUtils;
 import org.mobylet.view.designer.ImageDesigner;
@@ -40,6 +41,10 @@ public class ImgInterceptor implements TagRenderingInterceptor {
 
     private static final String ATTRNAME_SRC = "src";
 
+    private static final String ATTRNAME_CODEC = "codec";
+
+    private static final String ATTRNAME_USEFILTER = "useFilter";
+
     private static final String[] SPECIAL_TAG_PATTERN_STRINGS = new String[] { "^"
             + TAGNAME + "$" };
 
@@ -58,6 +63,8 @@ public class ImgInterceptor implements TagRenderingInterceptor {
             String magniWidth = null;
             String scaleType = null;
             Attribute srcAttr = null;
+            String codec = null;
+            String useFilter = null;
             List<Attribute> attrs = new ArrayList<Attribute>();
             for (Attribute attr : attributes) {
                 String attrName = attr.getName();
@@ -67,6 +74,10 @@ public class ImgInterceptor implements TagRenderingInterceptor {
                     scaleType = TagEvaluatorUtils.defilter(attr.getValue());
                 } else if (ATTRNAME_SRC.equals(attrName)) {
                     srcAttr = attr;
+                } else if (ATTRNAME_CODEC.equals(attrName)) {
+                    codec = TagEvaluatorUtils.defilter(attr.getValue());
+                } else if (ATTRNAME_USEFILTER.equals(attrName)) {
+                    useFilter = TagEvaluatorUtils.defilter(attr.getValue());
                 } else {
                     attrs.add(attr);
                 }
@@ -84,7 +95,10 @@ public class ImgInterceptor implements TagRenderingInterceptor {
             String imgSrc = designer.getSrc(TagEvaluatorUtils.defilter(srcAttr
                     .getValue()), StringUtils.isEmpty(magniWidth) ? null
                     : Double.parseDouble(magniWidth), ImageUtils
-                    .getScaleType(scaleType));
+                    .getScaleType(scaleType),
+                    (StringUtils.isEmpty(codec) ? null : ImageCodec
+                            .valueOf(codec)), "TRUE"
+                            .equalsIgnoreCase(useFilter));
             attrs.add(new Attribute(ATTRNAME_SRC, TagEvaluatorUtils
                     .filter(imgSrc), srcAttr.getQuote()));
 

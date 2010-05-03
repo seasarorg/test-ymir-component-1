@@ -1,5 +1,6 @@
 package org.seasar.ymir.zpt.mobylet.view.designer;
 
+import org.mobylet.core.image.ImageCodec;
 import org.mobylet.core.image.ImageConfig;
 import org.mobylet.core.image.ImageSourceType;
 import org.mobylet.core.image.ScaleType;
@@ -14,21 +15,25 @@ import org.mobylet.view.designer.ImageDesigner;
  * @since 1.0.7
  */
 public class YmirImageDesigner extends ImageDesigner {
+
     @Override
-    public String getSrc(String src, double magniWidth, ScaleType scaleType) {
+    public String getSrc(String src, double magniWidth, ScaleType scaleType,
+            ImageCodec codec, boolean useFilter) {
         ScaleType pScaleType = scaleType == null ? ScaleType.FITWIDTH
                 : scaleType;
         Double pMagniWidth = new Double(magniWidth);
         ImageConfig config = getConfig();
-        if (config.useScaleServlet()
+        if (!useFilter
+                && config.useScaleServlet()
                 && (PathUtils.isNetworkPath(src) || config.getImageSourceType() == ImageSourceType.NETWORK)) {
             return useServlet(src, pMagniWidth, pScaleType);
         } else {
+            // useFilterがtrueであるか、
             // scaleServletを使わない設定であるか、
             // ローカル画像を処理する機能が有効でかつローカルパスが指定されている場合はMobyletフィルタで処理をするようにする。
             // Mobyletフィルタではローカル画像を処理する機能が有効かどうかのチェックをしない（scaleServletではチェックされる）ため、
             // ローカル画像を処理する機能が無効である場合はMobyletフィルタには処理させないようにしている。
-            return useFilter(src, pMagniWidth, pScaleType);
+            return useFilter(src, pMagniWidth, pScaleType, codec);
         }
     }
 
