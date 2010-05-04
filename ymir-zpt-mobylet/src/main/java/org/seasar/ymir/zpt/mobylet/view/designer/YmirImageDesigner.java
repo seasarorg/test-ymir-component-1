@@ -15,7 +15,6 @@ import org.mobylet.view.designer.ImageDesigner;
  * @since 1.0.7
  */
 public class YmirImageDesigner extends ImageDesigner {
-
     @Override
     public String getSrc(String src, double magniWidth, ScaleType scaleType,
             ImageCodec codec, boolean useFilter) {
