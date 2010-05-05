@@ -94,7 +94,7 @@ public class YmirNamingConvention extends PluggableNamingConventionImpl {
             throw new EmptyRuntimeException("componentName");
         }
         String[] names = split(componentName);
-        StringBuffer buf = new StringBuffer(50);
+        StringBuilder buf = new StringBuilder(50);
         for (int i = 0; i < names.length; ++i) {
             if (i == names.length - 1) {
                 buf.append(StringUtil.capitalize(names[i]));

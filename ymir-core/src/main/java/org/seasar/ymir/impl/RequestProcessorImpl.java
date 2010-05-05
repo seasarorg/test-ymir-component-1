@@ -23,6 +23,7 @@ import org.seasar.ymir.Dispatch;
 import org.seasar.ymir.Dispatcher;
 import org.seasar.ymir.ExceptionProcessor;
 import org.seasar.ymir.FrameworkDispatch;
+import org.seasar.ymir.IllegalClientCodeRuntimeException;
 import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.PageComponentVisitor;
@@ -38,6 +39,7 @@ import org.seasar.ymir.annotation.DefaultReturn;
 import org.seasar.ymir.annotation.Include;
 import org.seasar.ymir.annotation.handler.AnnotationHandler;
 import org.seasar.ymir.constraint.ConstraintType;
+import org.seasar.ymir.convention.YmirNamingConvention;
 import org.seasar.ymir.interceptor.YmirProcessInterceptor;
 import org.seasar.ymir.response.PassthroughResponse;
 import org.seasar.ymir.util.RequestUtils;
@@ -49,6 +51,8 @@ public class RequestProcessorImpl implements RequestProcessor {
             .noneOf(ConstraintType.class);
 
     private Ymir ymir_;
+
+    private YmirNamingConvention ymirNamingConvention_;
 
     private ActionManager actionManager_;
 
@@ -69,6 +73,12 @@ public class RequestProcessorImpl implements RequestProcessor {
     @Binding(bindingType = BindingType.MUST)
     public void setYmir(Ymir ymir) {
         ymir_ = ymir;
+    }
+
+    @Binding(bindingType = BindingType.MUST)
+    public void setYmirNamingConvention(
+            YmirNamingConvention ymirNamingConvention) {
+        ymirNamingConvention_ = ymirNamingConvention;
     }
 
     @Binding(bindingType = BindingType.MUST)
@@ -212,6 +222,11 @@ public class RequestProcessorImpl implements RequestProcessor {
         if (!dispatch.isIgnored()) {
             PageComponent pageComponent = createPageComponent(dispatch
                     .getPageComponentName());
+            if (log_.isDebugEnabled()) {
+                log_.debug("Page component name: "
+                        + dispatch.getPageComponentName());
+                log_.debug("Page component: " + pageComponent);
+            }
             Action action = null;
 
             // dispatch.isMatched()がtrueの場合でもpageComponentがnullになることがある
@@ -396,6 +411,20 @@ public class RequestProcessorImpl implements RequestProcessor {
 
         S2Container s2container = getS2Container();
         if (s2container.hasComponentDef(pageComponentKey)) {
+            if (ymir_.isUnderDevelopment()
+                    && pageComponentKey instanceof String) {
+                String pageClassName = ymirNamingConvention_
+                        .fromComponentNameToClassName((String) pageComponentKey);
+                String pageComponentName = ymirNamingConvention_
+                        .fromClassNameToComponentName(pageClassName);
+                if (!pageComponentKey.equals(pageComponentName)) {
+                    throw new IllegalClientCodeRuntimeException(
+                            "Since page component name '"
+                                    + pageComponentKey
+                                    + "' is illegal, this application may not run correctly in release mode. You can use correct page component name '"
+                                    + pageComponentName + "'.");
+                }
+            }
             return s2container.getComponent(pageComponentKey);
         } else {
             return null;
