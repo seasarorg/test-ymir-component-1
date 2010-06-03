@@ -20,7 +20,11 @@ public class IntegerConverter extends TypeConverterBase<Integer> {
         }
 
         try {
-            return (Integer.valueOf(value.toString()));
+            // 2010-06-03: Double.parseDouble()は先頭に空白がついていてもparseできるが
+            // Integerのparseではできない。そのため@NumericでOKでもここで
+            // エラーになるというケースがあった（例：「 1」）ため、trimするようにしている。
+            // Thanks sue
+            return (Integer.valueOf(value.toString().trim()));
         } catch (Exception ex) {
             throw new TypeConversionException(ex, value, getType());
         }
