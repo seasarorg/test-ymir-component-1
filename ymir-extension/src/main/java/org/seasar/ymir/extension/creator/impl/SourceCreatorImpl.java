@@ -2920,7 +2920,15 @@ public class SourceCreatorImpl implements SourceCreator {
 
                     // スーパークラスが未設定の場合は、インタフェースの抽象実装クラスがあれば
                     // それをスーパークラスとする。
-                    if (componentClassDesc.getSuperclassName() == null) {
+                    boolean createBaseClassesEnabled = getSourceCreatorSetting()
+                            .isCreateBaseClassesEnabled();
+                    if (componentClassDesc.getSuperclassName() == null
+                            || createBaseClassesEnabled
+                            && componentClassDesc.getSuperclassName().equals(
+                                    getSourceCreatorSetting()
+                                            .getSuperclassName(
+                                                    componentClassDesc
+                                                            .getName()))) {
                         String abstractClassName = getSourceCreatorSetting()
                                 .findDtoClassName(
                                         PREFIX_ABSTRACT

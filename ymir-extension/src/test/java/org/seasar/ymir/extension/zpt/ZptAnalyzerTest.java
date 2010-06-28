@@ -1525,7 +1525,6 @@ public class ZptAnalyzerTest extends TestCase {
 
     public void testAnalyze82_インタフェースを返す既存DTOクラスのプロパティに対応する自動生成DTO型はそのインタフェースを実装していること()
             throws Exception {
-
         sourceCreator_.getApplication().setProperty(
                 SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
                 "org.seasar.ymir.render.*");
@@ -1544,7 +1543,6 @@ public class ZptAnalyzerTest extends TestCase {
 
     public void testAnalyze83_インタフェースを返す既存DTOクラスのプロパティをrepeat変数で受けている場合にはグループ名がrepeat変数名よりも優先されること()
             throws Exception {
-
         sourceCreator_.getApplication().setProperty(
                 SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
                 "org.seasar.ymir.render.*");
@@ -1728,5 +1726,26 @@ public class ZptAnalyzerTest extends TestCase {
         assertEquals(1, parameters.length);
         idx = 0;
         assertEquals("param4.value", parameters[idx++].getElement());
+    }
+
+    public void testAnalyze94_createBaseClassesがtrueであってもインタフェースを返す既存DTOクラスのプロパティに対応する自動生成DTO型はそのインタフェースを実装していること()
+            throws Exception {
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_CREATEBASECLASSES,
+                String.valueOf(true));
+
+        act("testAnalyze94");
+
+        assertNull(getClassDesc("com.example.dto.CandidateDto"));
+        ClassDesc actual = getClassDesc("com.example.dto.EntryDto");
+        assertNotNull(actual);
+        TypeDesc[] tds = actual.getInterfaceTypeDescs();
+        assertEquals(1, tds.length);
+        assertEquals(Candidate.class.getName(), tds[0].getName());
+        assertEquals("インタフェースの抽象実装クラスがあればそれが設定されていること", AbstractCandidate.class
+                .getName(), actual.getSuperclassName());
     }
 }

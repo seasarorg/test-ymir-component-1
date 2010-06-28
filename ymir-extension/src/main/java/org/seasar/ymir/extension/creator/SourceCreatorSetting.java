@@ -265,8 +265,7 @@ public class SourceCreatorSetting {
             return application.getProperty(key);
         }
 
-        if (PropertyUtils.valueOf(application
-                .getProperty(APPKEY_SOURCECREATOR_CREATEBASECLASSES), false)) {
+        if (isCreateBaseClassesEnabled()) {
             ClassType type = ClassType.typeOfClass(className);
             if (type != ClassType.BEAN) {
                 String shortName = ClassUtils.getShortName(className);
@@ -302,6 +301,11 @@ public class SourceCreatorSetting {
         }
 
         return null;
+    }
+
+    public boolean isCreateBaseClassesEnabled() {
+        return PropertyUtils.valueOf(
+                getProperty(APPKEY_SOURCECREATOR_CREATEBASECLASSES), false);
     }
 
     public String getPageSuperclassName() {
