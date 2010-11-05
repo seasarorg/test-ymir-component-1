@@ -29,4 +29,6 @@
     class="org.seasar.ymir.redirection.impl.RedirectionScope" />
   <component name="conversationScope"
     class="org.seasar.ymir.conversation.impl.ConversationScope" />
+  <component name="windowScope"
+    class="org.seasar.ymir.window.impl.WindowScope" />
 </components>
