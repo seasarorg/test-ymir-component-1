@@ -572,6 +572,7 @@ abstract public class YmirTestCase extends TestCase {
      * @param method HTTPメソッド。
      * @param initializer RequestInitializerオブジェクト。
      * nullを指定することもできます。
+     * リクエストを受け付けた直後になんらかの初期化処理をしたい場合はinitializerを指定して下さい。
      * @param chain Ymirの処理が終わった後に処理を渡すための{@link FilterChain}オブジェクト。
      * nullを指定してはいけません。
      * @param param 1つめのリクエストパラメータの名前。
