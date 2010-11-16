@@ -8,7 +8,7 @@ import org.seasar.ymir.response.constructor.ResponseConstructor;
 import net.sf.json.JSONObject;
 
 public class JSONResponseConstructor implements ResponseConstructor<JSONObject> {
-    private static final String CONTENT_TYPE = "application/json; charset=UTF-8";
+    public static final String CONTENT_TYPE = "application/json; charset=UTF-8";
 
     public Response constructResponse(Object page, JSONObject returnValue) {
         if (returnValue == null) {
