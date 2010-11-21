@@ -1541,6 +1541,27 @@ public class ZptAnalyzerTest extends TestCase {
                 .getName(), actual.getSuperclassName());
     }
 
+    public void testAnalyze82_インタフェースを返す既存DTOクラスのプロパティに対応する自動生成DTO型はそのインタフェースを実装していること2()
+            throws Exception {
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_DTOSEARCHPATH,
+                "org.seasar.ymir.render.*");
+        sourceCreator_.getApplication().setProperty(
+                SourceCreatorSetting.APPKEY_SOURCECREATOR_CREATEBASECLASSES,
+                String.valueOf(true));
+
+        act("testAnalyze82");
+
+        assertNull(getClassDesc("com.example.dto.CandidateDto"));
+        ClassDesc actual = getClassDesc("com.example.dto.EntryDto");
+        assertNotNull(actual);
+        TypeDesc[] tds = actual.getInterfaceTypeDescs();
+        assertEquals(1, tds.length);
+        assertEquals(Candidate.class.getName(), tds[0].getName());
+        assertEquals("DtoBaseを作る設定であっても、インタフェースの抽象実装クラスがあればそれが設定されていること",
+                AbstractCandidate.class.getName(), actual.getSuperclassName());
+    }
+
     public void testAnalyze83_インタフェースを返す既存DTOクラスのプロパティをrepeat変数で受けている場合にはグループ名がrepeat変数名よりも優先されること()
             throws Exception {
         sourceCreator_.getApplication().setProperty(
