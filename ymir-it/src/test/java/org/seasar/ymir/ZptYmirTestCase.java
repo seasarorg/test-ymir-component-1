@@ -24,8 +24,8 @@ abstract public class ZptYmirTestCase extends YmirTestCase {
     private MockServletConfig config_;
 
     @Override
-    public void setUp() {
-        super.setUp();
+    protected void setUpYmir() {
+        super.setUpYmir();
 
         servlet_ = new FreyjaServlet();
         config_ = new MockServletConfigImpl();

@@ -23,6 +23,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
 
@@ -240,12 +241,49 @@ abstract public class YmirTestCase extends TestCase {
                         String.valueOf(true));
     }
 
+    @Override
+    public void runBare() throws Throwable {
+        setUpYmir();
+        try {
+            setUp();
+            try {
+                runTest();
+            } finally {
+                tearDown();
+            }
+        } finally {
+            tearDownYmir();
+        }
+    }
+
+    @Override
+    protected void runTest() throws Throwable {
+        TransactionManager tm = null;
+        if (needTransaction()) {
+            try {
+                tm = getComponent(TransactionManager.class);
+                tm.begin();
+            } catch (Throwable t) {
+                System.err.println(t);
+            }
+        }
+        try {
+            super.runTest();
+        } finally {
+            if (tm != null) {
+                tm.rollback();
+            }
+        }
+    }
+
+    protected boolean needTransaction() {
+        return getName().endsWith("Tx");
+    }
+
     /**
      * テストメソッドを呼び出す前の処理を行ないます。
-     * <p>このメソッドをオーバライドする場合は必ずsuperメソッドを呼び出して下さい。
-     * </p>
      */
-    public void setUp() {
+    protected void setUpYmir() {
         servletContext_ = new MockServletContextImpl(getContextPath());
         servletContext_
                 .setRequestDispatcherFactory(new InternalRequestDispatcherFactory());
@@ -281,6 +319,10 @@ abstract public class YmirTestCase extends TestCase {
         ymir_ = YmirContext.getYmir();
     }
 
+    public void setUp() {
+        // 後方互換性のためこうしている。
+    }
+
     File findWebappRoot(File dir) {
         return new File(findProjectRoot(dir), webappRoot_);
     }
@@ -297,10 +339,8 @@ abstract public class YmirTestCase extends TestCase {
 
     /**
      * テストメソッドを呼び出した後の処理を行ないます。
-     * <p>このメソッドをオーバライドする場合は必ずsuperメソッドを呼び出して下さい。
-     * </p>
      */
-    public void tearDown() {
+    protected void tearDownYmir() {
         ymirListener_
                 .contextDestroyed(new ServletContextEvent(servletContext_));
     }
