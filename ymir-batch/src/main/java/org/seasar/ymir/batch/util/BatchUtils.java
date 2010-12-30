@@ -8,6 +8,10 @@ import org.seasar.framework.util.ResourceUtil;
 import org.seasar.ymir.checkbox.Globals;
 
 public class BatchUtils {
+    private static final String NAME_TARGET = "target";
+
+    private static final String PATH_SRC_MAIN_BATCH = "src/main/batch";
+
     private BatchUtils() {
     }
 
@@ -33,12 +37,26 @@ public class BatchUtils {
     }
 
     public static File getBatchHome() {
-        // BatchUtils.classを持つymir-batchにプロジェクト参照されている場合はバッチプロジェクトのホームが
-        // 正しく見つからないためこうしている。
+        File dir;
         try {
-            return getBuildDir(Class.forName(Globals.LANDMARK_CLASSNAME)).getParentFile();
+            // BatchUtils.classを持つymir-batchにプロジェクト参照されている場合はバッチプロジェクトのホームが
+            // 正しく見つからないためこうしている。
+            dir = getBuildDir(Class.forName(Globals.LANDMARK_CLASSNAME)).getParentFile();
         } catch (ClassNotFoundException ex) {
-            return getBuildDir(BatchUtils.class).getParentFile();
+            dir = getBuildDir(BatchUtils.class).getParentFile();
         }
+
+        if (NAME_TARGET.equals(dir.getName())) {
+            // Maven2でテストを実行している可能性がある。
+            // その場合は正しくホームディレクトリを特定できないため補正をする。
+            File d = dir.getParentFile();
+            if (d != null) {
+                d = new File(d, PATH_SRC_MAIN_BATCH);
+                if (d.exists() && d.isDirectory()) {
+                    dir = d;
+                }
+            }
+        }
+        return dir;
     }
 }
