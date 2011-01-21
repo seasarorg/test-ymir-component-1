@@ -13,13 +13,16 @@ public class CollectionFitter extends AbstractFitter<Collection> {
 
     public void fitContent(Collection value) {
         try {
-            List list = new ArrayList();
-            for (Iterator itr = value.iterator(); itr.hasNext();) {
-                list.add(getHotdeployManager().fit(itr.next()));
-            }
-            value.clear();
-            for (Iterator itr = list.iterator(); itr.hasNext();) {
-                value.add(itr.next());
+            // 複数スレッドから同じオブジェクトを参照された場合に処理が衝突しないようにこうしている。
+            synchronized (value) {
+                List list = new ArrayList();
+                for (Iterator itr = value.iterator(); itr.hasNext();) {
+                    list.add(getHotdeployManager().fit(itr.next()));
+                }
+                value.clear();
+                for (Iterator itr = list.iterator(); itr.hasNext();) {
+                    value.add(itr.next());
+                }
             }
         } catch (UnsupportedOperationException ignore) {
             // 変更不能なObjectである可能性がある。

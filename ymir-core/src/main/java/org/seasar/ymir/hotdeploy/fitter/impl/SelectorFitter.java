@@ -13,13 +13,16 @@ public class SelectorFitter extends AbstractFitter<Selector> {
     }
 
     public void fitContent(Selector value) {
-        Candidate[] candidates = value.getCandidates();
-        if (candidates != null) {
-            List<Candidate> list = new ArrayList<Candidate>();
-            for (Candidate candidate : candidates) {
-                list.add((Candidate) getHotdeployManager().fit(candidate));
+        // 複数スレッドから同じオブジェクトを参照された場合に処理が衝突しないようにこうしている。
+        synchronized (value) {
+            Candidate[] candidates = value.getCandidates();
+            if (candidates != null) {
+                List<Candidate> list = new ArrayList<Candidate>();
+                for (Candidate candidate : candidates) {
+                    list.add((Candidate) getHotdeployManager().fit(candidate));
+                }
+                value.setCandidateList(list);
             }
-            value.setCandidateList(list);
         }
     }
 }
