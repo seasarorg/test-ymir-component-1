@@ -47,7 +47,7 @@ public interface Action {
 
     /**
      * アクションを実行します。
-     * <p>アクションの実行とは、通常アクションの実行対象であるオブジェクトについて
+     * <p>通常、アクションの実行とはアクションの実行対象であるオブジェクトについて
      * {@link #getMethodInvoker()}が返すMethodInvokerのメソッドを呼び出すことです。
      * </p>
      * <p>{@link #shouldInvoke()}がfalseである場合、
