@@ -18,7 +18,7 @@ import org.seasar.kvasir.util.io.IORuntimeException;
 import org.seasar.kvasir.util.io.impl.ByteArrayInputStreamFactory;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionManager;
-import org.seasar.ymir.ActionWrapper;
+import org.seasar.ymir.MethodInvokerWrapper;
 import org.seasar.ymir.PageComponent;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
@@ -144,21 +144,23 @@ public class AmfInterceptor extends AbstractYmirProcessInterceptor {
         if (method == null) {
             return null;
         }
-        return new ActionWrapper(actionManager_.newAction(pageComponent.getPage(), pageComponent.getPageClass(),
-                method, message.getParameters().toArray())) {
+
+        Action action = actionManager_.newAction(pageComponent.getPage(), pageComponent.getPageClass(), method, message
+                .getParameters().toArray());
+        return actionManager_.newAction(action, new MethodInvokerWrapper(action.getMethodInvoker()) {
             @Override
             public Class<? extends Object> getReturnType() {
                 return Response.class;
             }
 
             @Override
-            public Object invoke() throws WrappingRuntimeException {
-                Object returned = super.invoke();
+            public Object invoke(Object component, Object[] parameters) throws WrappingRuntimeException {
+                Object returned = super.invoke(component, parameters);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 AmfUtils.sendResopnse(getActionContext(), message, returned, baos);
                 return new SelfContainedResponse(new ByteArrayInputStreamFactory(baos.toByteArray()));
             }
-        };
+        });
     }
 
     Method findMethod(Class<?> pageClass, String name) {

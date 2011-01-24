@@ -1,5 +1,7 @@
 package org.seasar.ymir.history.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.seasar.framework.container.annotation.tiger.Binding;
@@ -24,6 +26,8 @@ public class HistoryManagerImpl implements HistoryManager, LifecycleListener {
 
     private int recordCount_ = HistoryImpl.DEFAULT_RECORDCOUNT;
 
+    private List<Pattern> ignorePathPatterns = new ArrayList<Pattern>();
+
     @Binding(bindingType = BindingType.MUST)
     public void setApplicationManager(ApplicationManager applicationManager) {
         applicationManager_ = applicationManager;
@@ -37,6 +41,22 @@ public class HistoryManagerImpl implements HistoryManager, LifecycleListener {
     @Binding(bindingType = BindingType.NONE)
     public void setRecordCount(int recordCount) {
         recordCount_ = recordCount;
+    }
+
+    public void addIgnorePathPatternString(String ignorePathPatternString) {
+        ignorePathPatterns.add(Pattern.compile(ignorePathPatternString));
+    }
+
+    public void setIgnorePathPatternStrings(
+            List<String> ignorePathPatternStrings) {
+        ignorePathPatterns.clear();
+        for (String ignorePathPatternString : ignorePathPatternStrings) {
+            addIgnorePathPatternString(ignorePathPatternString);
+        }
+    }
+
+    public List<Pattern> getIgnorePathPatterns() {
+        return ignorePathPatterns;
     }
 
     public void init() {

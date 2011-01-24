@@ -1,22 +1,22 @@
 package org.seasar.ymir.history;
 
+import java.util.regex.Pattern;
+
 import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
-import org.seasar.ymir.Action;
 import org.seasar.ymir.Dispatch;
-import org.seasar.ymir.Dispatcher;
-import org.seasar.ymir.HttpMethod;
+import org.seasar.ymir.MatchedPathMapping;
 import org.seasar.ymir.Path;
 import org.seasar.ymir.Request;
 import org.seasar.ymir.Response;
-import org.seasar.ymir.ResponseType;
+import org.seasar.ymir.YmirContext;
 import org.seasar.ymir.conversation.ConversationManager;
 import org.seasar.ymir.conversation.Conversations;
 import org.seasar.ymir.history.impl.HistoryElementImpl;
 import org.seasar.ymir.interceptor.impl.AbstractYmirProcessInterceptor;
 import org.seasar.ymir.util.RequestUtils;
 import org.seasar.ymir.util.ResponseUtils;
-import org.seasar.ymir.window.WindowManager;
+import org.seasar.ymir.util.YmirUtils;
 
 public class HistoryInterceptor extends AbstractYmirProcessInterceptor {
     private ConversationManager conversationManager_;
@@ -55,6 +55,23 @@ public class HistoryInterceptor extends AbstractYmirProcessInterceptor {
             // レスポンスがリダイレクト系の場合はこの画面へのアクセスは単なる入り口でしかないと考えた方が都合が良いので
             // ヒストリを記録しない。
             return false;
+        }
+
+        MatchedPathMapping mapping = request.getCurrentDispatch()
+                .getMatchedPathMapping();
+        if (mapping == null) {
+            // リリースモードではこういうことはないが、開発モードではこういうことがありうる。
+            // かつこの場合は（リリースモードと本番モードでのアクセス履歴記録の挙動を変えないため）
+            // アクセス履歴を記録してはいけない。
+            return false;
+        }
+
+        // 無視すべきパスパターンにマッチするパスは記録しない。
+        String path = request.getCurrentDispatch().getPath();
+        for (Pattern pattern : historyManager_.getIgnorePathPatterns()) {
+            if (pattern.matcher(path).matches()) {
+                return false;
+            }
         }
 
         return true;

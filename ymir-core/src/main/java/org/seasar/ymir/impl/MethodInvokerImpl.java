@@ -50,9 +50,14 @@ public class MethodInvokerImpl implements MethodInvoker {
         parameters_ = parameters;
     }
 
-    public Object invoke(Object component) {
+    public final Object invoke(Object component) {
+        return invoke(component, parameters_);
+    }
+
+    public Object invoke(Object component, Object[] parameters)
+            throws WrappingRuntimeException {
         try {
-            return method_.invoke(component, parameters_);
+            return method_.invoke(component, parameters);
         } catch (IllegalArgumentException ex) {
             throw new RuntimeException(ex);
         } catch (IllegalAccessException ex) {

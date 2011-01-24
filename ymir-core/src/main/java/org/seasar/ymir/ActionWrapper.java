@@ -27,15 +27,15 @@ public class ActionWrapper implements Action {
         return action_.getTargetClass();
     }
 
-    public Object invoke() throws WrappingRuntimeException {
-        return action_.invoke();
+    public final Object invoke() throws WrappingRuntimeException {
+        return getMethodInvoker().invoke(getTarget());
     }
 
-    public boolean shouldInvoke() {
-        return action_.shouldInvoke();
+    public final boolean shouldInvoke() {
+        return getMethodInvoker().shouldInvoke();
     }
 
-    public Class<? extends Object> getReturnType() {
-        return action_.getReturnType();
+    public final Class<? extends Object> getReturnType() {
+        return getMethodInvoker().getReturnType();
     }
 }

@@ -2,7 +2,6 @@ package org.seasar.ymir;
 
 import java.lang.reflect.Method;
 
-
 public class MethodInvokerWrapper implements MethodInvoker {
     protected MethodInvoker methodInvoker_;
 
@@ -26,8 +25,13 @@ public class MethodInvokerWrapper implements MethodInvoker {
         return methodInvoker_.getReturnType();
     }
 
-    public Object invoke(Object component) {
-        return methodInvoker_.invoke(component);
+    public final Object invoke(Object component) {
+        return invoke(component, getParameters());
+    }
+
+    public Object invoke(Object component, Object[] parameters)
+            throws WrappingRuntimeException {
+        return methodInvoker_.invoke(component, parameters);
     }
 
     public boolean shouldInvoke() {

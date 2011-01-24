@@ -3,6 +3,7 @@ package org.seasar.ymir.impl;
 import java.lang.reflect.Method;
 
 import org.seasar.ymir.MethodInvoker;
+import org.seasar.ymir.WrappingRuntimeException;
 
 /**
  * 指定された返り値を単にそのままinvoke呼び出しの返り値として返すようなMethodInvoker実装です。
@@ -45,6 +46,11 @@ public class AsIsMethodInvoker implements MethodInvoker {
     }
 
     public Object invoke(Object component) {
+        return invoke(component, getParameters());
+    }
+
+    public Object invoke(Object component, Object[] parameters)
+            throws WrappingRuntimeException {
         return returnValue_;
     }
 

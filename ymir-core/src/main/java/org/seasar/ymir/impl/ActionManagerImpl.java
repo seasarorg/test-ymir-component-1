@@ -11,6 +11,7 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.Action;
 import org.seasar.ymir.ActionManager;
+import org.seasar.ymir.ActionWrapper;
 import org.seasar.ymir.MethodInvoker;
 import org.seasar.ymir.Response;
 import org.seasar.ymir.cache.CacheManager;
@@ -68,6 +69,15 @@ public class ActionManagerImpl implements ActionManager {
 
     public Action newVoidAction(Object page) {
         return newAction(page, VoidMethodInvoker.INSTANCE);
+    }
+
+    public Action newAction(Action action, final MethodInvoker methodInvoker) {
+        return new ActionWrapper(action) {
+            @Override
+            public MethodInvoker getMethodInvoker() {
+                return methodInvoker;
+            }
+        };
     }
 
     public Response invokeAction(Action action) {

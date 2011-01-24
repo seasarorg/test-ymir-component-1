@@ -39,6 +39,9 @@ public interface Action {
 
     /**
      * アクションを実行可能かどうかを返します。
+     * <p>このメソッドは<code>getMethodInvoker().shouldInvoke()</code>
+     * の短縮形です。
+     * </p>
      * 
      * @return アクションを実行可能かどうか。
      * @see #invoke()
@@ -47,8 +50,8 @@ public interface Action {
 
     /**
      * アクションを実行します。
-     * <p>通常、アクションの実行とはアクションの実行対象であるオブジェクトについて
-     * {@link #getMethodInvoker()}が返すMethodInvokerのメソッドを呼び出すことです。
+     * <p>このメソッドは<code>getMethodInvoker().invoke(getTarget())</code>
+     * の短縮形です。
      * </p>
      * <p>{@link #shouldInvoke()}がfalseである場合、
      * このメソッドを呼び出してはいけません。
@@ -62,6 +65,9 @@ public interface Action {
 
     /**
      * アクションの実行結果の型を表すClassオブジェクトを返します。
+     * <p>このメソッドは<code>getMethodInvoker().getReturnType()</code>
+     * の短縮形です。
+     * </p>
      * 
      * @return アクションの実行結果の型を表すClassオブジェクト。
      */

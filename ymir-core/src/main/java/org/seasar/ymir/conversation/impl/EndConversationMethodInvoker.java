@@ -15,7 +15,7 @@ public class EndConversationMethodInvoker extends MethodInvokerWrapper {
         actionManager_ = actionManager;
     }
 
-    public Object invoke(Object component) {
+    public Object invoke(Object component, Object[] parameters) {
         RuntimeException exception = null;
         Object returned = null;
         try {

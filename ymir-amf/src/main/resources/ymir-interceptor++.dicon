@@ -3,6 +3,7 @@
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
   <include path="ymir-component.dicon" />
-  <component name="AmfInterceptor"
-    class="org.seasar.ymir.amf.AmfInterceptor" />
+  <component name="AmfInterceptor" class="org.seasar.ymir.amf.AmfInterceptor">
+    <property name="priority">1000000</property>
+  </component>
 </components>

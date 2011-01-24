@@ -24,6 +24,17 @@ public interface ActionManager {
 
     Action newVoidAction(Object page);
 
+    /**
+     * 指定されたActionについて、Actionが持つMethodInvokerの代わりに
+     * 指定されたMethodInvokerを使うようなActionを生成して返します。
+     * 
+     * @param action 元となるAction。nullを指定してはいけません。
+     * @param methodInvoker MethodInvoker。nullを指定してはいけません。
+     * @return MethodInvokerを差し替えたAction。
+     * @since 1.0.7
+     */
+    Action newAction(Action action, MethodInvoker methodInvoker);
+
     Response invokeAction(Action action);
 
     /**
