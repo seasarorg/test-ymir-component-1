@@ -244,6 +244,8 @@
       <module>../ymir-zpt-mobylet</module>
     -->
     <module>../ymir-dbflute</module>
+    <!--
     <module>../ymir-scaffold</module>
+    -->
   </modules>
 </project>
