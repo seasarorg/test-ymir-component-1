@@ -161,9 +161,9 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         Set<ConstraintType> suppressTypeSet = getSuppressTypeSet(actionMethod);
         Notes notes = new Notes();
 
-        // 共通の制約をチェックする。
+        // 共通の制約と横断的な制約をチェックする。
         constraintManager_.confirmConstraint(
-                getConstraintBagsFromConstraintBundles(), suppressTypeSet,
+                getConstraintBagsFromBundlesAndTheOthers(), suppressTypeSet,
                 pageComponent.getPage(), request, notes);
 
         // アクションに関連付けられている制約をチェックする。
@@ -218,19 +218,31 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         return null;
     }
 
-    ConstraintBag<?>[] getConstraintBagsFromConstraintBundles() {
+    @SuppressWarnings("deprecation")
+    ConstraintBag<?>[] getConstraintBagsFromBundlesAndTheOthers() {
         Application application = applicationManager_.findContextApplication();
         ConstraintBag<?>[] bags = application
                 .getRelatedObject(ConstraintBag[].class);
         if (bags == null) {
+            List<ConstraintBag<?>> list = new ArrayList<ConstraintBag<?>>();
+
             ComponentDef[] bundleCds = ContainerUtils.findAllComponentDefs(
                     application.getS2Container(), ConstraintBundle.class);
-            List<ConstraintBag<?>> list = new ArrayList<ConstraintBag<?>>();
             for (int i = 0; i < bundleCds.length; i++) {
                 constraintManager_.getConstraintBags(bundleCds[i]
                         .getComponentClass(), (ConstraintBundle) bundleCds[i]
                         .getComponent(), list);
             }
+
+            ComponentDef[] constraintCds = ContainerUtils.findAllComponentDefs(
+                    application.getS2Container(), CrosscuttingConstraint.class);
+            for (int i = 0; i < constraintCds.length; i++) {
+                constraintManager_.getConstraintBags(constraintCds[i]
+                        .getComponentClass(),
+                        (CrosscuttingConstraint) constraintCds[i]
+                                .getComponent(), list);
+            }
+
             bags = list.toArray(CONSTRAINTBAGS_EMPTY);
             application.setRelatedObject(ConstraintBag[].class, bags);
         }

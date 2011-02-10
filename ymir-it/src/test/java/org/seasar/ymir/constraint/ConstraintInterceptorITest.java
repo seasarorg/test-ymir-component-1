@@ -7,6 +7,7 @@ import org.seasar.ymir.testing.PageTestCase;
 
 import com.example.web.ConstraintInterceptorTest2Page;
 import com.example.web.ConstraintInterceptorTest3Page;
+import com.example.web.ConstraintInterceptorTest4Page;
 import com.example.web.ConstraintInterceptorTestPage;
 
 public class ConstraintInterceptorITest extends
@@ -25,7 +26,8 @@ public class ConstraintInterceptorITest extends
             fail();
         }
 
-        assertEquals(1, actual.getConstraintBagsFromConstraintBundles().length);
+        assertEquals(1,
+                actual.getConstraintBagsFromBundlesAndTheOthers().length);
     }
 
     public void test_アクション制約とクラス制約と共通制約を返すこと・getterの制約も含むこと() throws Exception {
@@ -174,5 +176,15 @@ public class ConstraintInterceptorITest extends
 
         Notes actual = getNotes();
         assertNull(actual);
+    }
+
+    public void test_CrosscuttingConstraintが呼び出されること() throws Exception {
+        process(ConstraintInterceptorTest4Page.class);
+
+        assertFalse("アクションメソッドは呼び出されないこと", getComponent(
+                ConstraintInterceptorTest4Page.class).isCalled());
+
+        Notes actual = getNotes();
+        assertNotNull("制約チェックで違反となっていること", actual);
     }
 }

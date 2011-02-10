@@ -31,6 +31,13 @@ public class ConstraintBag<T extends Annotation> {
         type_ = constraintAnnotation.type();
     }
 
+    public ConstraintBag(Constraint<T> constraint, ConstraintType type,
+            ConfirmationDecider confirmationDecider) {
+        constraint_ = constraint;
+        confirmationDecider_ = confirmationDecider;
+        type_ = type;
+    }
+
     public void confirm(Object page, Request request,
             Set<ConstraintType> suppressTypeSet)
             throws ConstraintViolatedException {

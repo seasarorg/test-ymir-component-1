@@ -11,4 +11,5 @@
   <component class="org.seasar.ymir.constraint.impl.FugaConstraint" />
   <component class="org.seasar.ymir.constraint.impl.FufuConstraint" />
   <component class="org.seasar.ymir.zpt.checkbox.CheckboxInterceptor" />
+  <component class="org.seasar.ymir.constraint.HoeCrosscuttingConstraint" />
 </components>

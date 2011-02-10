@@ -5,6 +5,9 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * redirectまたはHTMLへの埋め込み用のURLを加工するためのインタフェースです。
+ * <p>redirect先として指定されたURLやHTMLに埋め込まれるURLを一括して加工したい場合には、
+ * このインタフェースの実装クラスを作成してymir-component.diconにコンポーネント定義を追加して下さい。
+ * </p>
  * 
  * @author skirnir
  * @since 1.0.7

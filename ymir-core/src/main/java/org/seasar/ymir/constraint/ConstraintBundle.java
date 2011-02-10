@@ -14,6 +14,8 @@ import org.seasar.ymir.constraint.annotation.ConstraintHolder;
  * </p>
  * 
  * @author YOKOTA Takehiko
+ * @deprecated 仕組みが分かりにくいため廃止する予定です。
+ * 代わりに{@link CrosscuttingConstraint}を使用して下さい。
  */
 public interface ConstraintBundle extends ConfirmationDecider {
 }

@@ -30,6 +30,7 @@ import org.seasar.ymir.constraint.ConstraintBag;
 import org.seasar.ymir.constraint.ConstraintManager;
 import org.seasar.ymir.constraint.ConstraintType;
 import org.seasar.ymir.constraint.ConstraintViolatedException;
+import org.seasar.ymir.constraint.CrosscuttingConstraint;
 import org.seasar.ymir.constraint.PermissionDeniedException;
 import org.seasar.ymir.constraint.ValidationFailedException;
 import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
@@ -237,6 +238,15 @@ public class ConstraintManagerImpl implements ConstraintManager {
         } else {
             createConstraintBags(element, decider, list);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void getConstraintBags(AnnotatedElement element,
+            CrosscuttingConstraint crosscuttingConstraint,
+            List<ConstraintBag<?>> list) {
+        list.add(new ConstraintBag(new CrosscuttingConstraintAdapter(
+                crosscuttingConstraint), crosscuttingConstraint
+                .getConstraintType(), crosscuttingConstraint));
     }
 
     protected Action[] getValidators(Object bean, Class<?> beanClass,

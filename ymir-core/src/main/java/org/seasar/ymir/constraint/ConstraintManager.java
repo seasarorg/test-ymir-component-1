@@ -60,4 +60,7 @@ public interface ConstraintManager {
      */
     void getConstraintBags(AnnotatedElement element,
             ConfirmationDecider decider, List<ConstraintBag<?>> bags);
+
+    void getConstraintBags(AnnotatedElement element,
+            CrosscuttingConstraint constraint, List<ConstraintBag<?>> list);
 }

@@ -163,7 +163,7 @@ public class ExceptionProcessorImpl implements ExceptionProcessor {
 
             // ymir-1.0.6まではExceptionクラスと祖先クラスについてカスタムハンドラを全て探して、
             // 見つからなければデフォルトのハンドラを探していたが、これだと例えばThrowableHandler
-            // カスタムハンドラを作ってしまうとValidationFailderの処理が正しく行なわれなくなって
+            // カスタムハンドラを作ってしまうとValidationFaildの処理が正しく行なわれなくなって
             // しまう。このためymir-1.0.7からは挙動を変更した。
 
             S2Container container = getS2Container();
