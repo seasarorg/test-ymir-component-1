@@ -17,7 +17,7 @@ public class ConstraintInterceptorITest extends
         return ConstraintInterceptorTestPage.class;
     }
 
-    public void test_app_diconに登録したConstraintBundleコンポーネントが正しく登録されること()
+    public void test_app_diconに登録したConstraintBundleコンポーネントとCrosscuttingConstraintコンポーネントが正しく登録されること()
             throws Exception {
         ConstraintInterceptor actual = null;
         try {
@@ -26,7 +26,7 @@ public class ConstraintInterceptorITest extends
             fail();
         }
 
-        assertEquals(1,
+        assertEquals(2,
                 actual.getConstraintBagsFromBundlesAndTheOthers().length);
     }
 
