@@ -14,8 +14,6 @@ import org.seasar.ymir.constraint.annotation.ConstraintHolder;
  * </p>
  * 
  * @author YOKOTA Takehiko
- * @deprecated この仕組みは分かりにくいために将来のバージョンで削除される予定です。
- * 複数のPageクラスにまとめて制約を付与したい場合は、代わりに{@link ConstraintHolder}の仕組みを使って下さい。
  */
 public interface ConstraintBundle extends ConfirmationDecider {
 }

@@ -218,7 +218,6 @@ public class ConstraintInterceptor extends AbstractYmirProcessInterceptor {
         return null;
     }
 
-    @SuppressWarnings("deprecation")
     ConstraintBag<?>[] getConstraintBagsFromConstraintBundles() {
         Application application = applicationManager_.findContextApplication();
         ConstraintBag<?>[] bags = application
