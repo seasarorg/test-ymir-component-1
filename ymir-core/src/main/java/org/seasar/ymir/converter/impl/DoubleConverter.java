@@ -20,7 +20,17 @@ public class DoubleConverter extends TypeConverterBase<Double> {
         }
 
         try {
-            return (Double.valueOf(value.toString()));
+            String valueString = value.toString();
+            if ("2.2250738585072012e-308".equals(valueString)) {
+                // http://www.oracle.com/technetwork/topics/security/alert-cve-2010-4476-305811.html
+                // http://www-01.ibm.com/support/docview.wss?rs=0&uid=swg21468197
+                // 回避のため。
+                // ちなみに Double.valueOf(2.2250738585072012e-308)
+                // とするとEclipseがハングした…。
+                return Double.valueOf(2.22507385850721e-308);
+            } else {
+                return (Double.valueOf(valueString));
+            }
         } catch (Exception ex) {
             throw new TypeConversionException(ex, value, getType());
         }
