@@ -10,6 +10,7 @@ import org.seasar.dbflute.BehaviorSelector;
 import org.seasar.dbflute.bhv.BehaviorReadable;
 import org.seasar.dbflute.dbmeta.DBMeta;
 import org.seasar.dbflute.util.DfTraceViewUtil;
+import org.seasar.dbflute.util.DfTypeUtil;
 
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.ComponentNotFoundRuntimeException;
@@ -34,28 +35,6 @@ public class ImplementedBehaviorSelector implements BehaviorSelector {
 
     /** The container of Seasar. */
     protected S2Container _container;
-
-    // ===================================================================================
-    //                                                                           Component
-    //                                                                           =========
-    @SuppressWarnings("unchecked")
-    public <COMPONENT> COMPONENT getComponent(Class<COMPONENT> componentType) {
-        assertObjectNotNull("componentType", componentType);
-        assertObjectNotNull("_container", _container);
-        try {
-		    return (COMPONENT)_container.getComponent(componentType);
-		} catch (ComponentNotFoundRuntimeException e) { // Normally it doesn't come.
-		    final COMPONENT component;
-		    try {
-		        // for HotDeploy Mode
-		        component = (COMPONENT)_container.getRoot().getComponent(componentType);
-		    } catch (ComponentNotFoundRuntimeException ignored) {
-		        throw e;
-		    }
-		    _container = _container.getRoot(); // Change container.
-		    return component;
-		}
-    }
 
     // ===================================================================================
     //                                                                          Initialize
@@ -141,10 +120,36 @@ public class ImplementedBehaviorSelector implements BehaviorSelector {
     }
 
     // ===================================================================================
+    //                                                                           Component
+    //                                                                           =========
+    @SuppressWarnings("unchecked")
+    protected <COMPONENT> COMPONENT getComponent(Class<COMPONENT> componentType) { // only for behavior
+        assertObjectNotNull("componentType", componentType);
+        assertObjectNotNull("_container", _container);
+        try {
+		    return (COMPONENT)_container.getComponent(componentType);
+		} catch (ComponentNotFoundRuntimeException e) { // Normally it doesn't come.
+		    final COMPONENT component;
+		    try {
+		        // for HotDeploy Mode
+		        component = (COMPONENT)_container.getRoot().getComponent(componentType);
+		    } catch (ComponentNotFoundRuntimeException ignored) {
+		        throw e;
+		    }
+		    _container = _container.getRoot(); // Change container.
+		    return component;
+		}
+    }
+
+    // ===================================================================================
     //                                                                      General Helper
     //                                                                      ==============
     protected String initUncap(String str) {
         return str.substring(0, 1).toLowerCase() + str.substring(1);
+    }
+
+    protected String toClassTitle(Object obj) {
+        return DfTypeUtil.toClassTitle(obj);
     }
 
     protected <KEY, VALUE> HashMap<KEY, VALUE> newHashMap() {

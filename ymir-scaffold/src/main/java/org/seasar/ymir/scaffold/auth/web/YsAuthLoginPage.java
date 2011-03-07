@@ -8,8 +8,9 @@ import org.seasar.ymir.annotation.SuppressUpdating;
 import org.seasar.ymir.constraint.annotation.Required;
 import org.seasar.ymir.constraint.annotation.ValidationFailed;
 import org.seasar.ymir.scaffold.auth.LoginUser;
-import org.seasar.ymir.scaffold.dbflute.exbhv.YsUserBhv;
-import org.seasar.ymir.scaffold.dbflute.exentity.YsUser;
+import org.seasar.ymir.scaffold.auth.User;
+import org.seasar.ymir.scaffold.auth.UserManager;
+import org.seasar.ymir.scaffold.auth.annotation.SuppressLoginCheck;
 import org.seasar.ymir.scaffold.util.Redirect;
 import org.seasar.ymir.scaffold.web.ScaffoldPageBase;
 import org.seasar.ymir.scope.annotation.In;
@@ -20,10 +21,11 @@ import org.seasar.ymir.session.annotation.InvalidateSession;
 import org.seasar.ymir.util.StringUtils;
 
 @SuppressUpdating
+@SuppressLoginCheck
 @DefaultReturn("/WEB-INF/zpt/scaffold/auth/login.html")
 public class YsAuthLoginPage extends ScaffoldPageBase {
     @Binding(bindingType = BindingType.MUST)
-    protected YsUserBhv ysUserBhv;
+    protected UserManager userManager;
 
     private LoginUser loginUser;
 
@@ -60,7 +62,7 @@ public class YsAuthLoginPage extends ScaffoldPageBase {
     @Required(value = "name", namePrefixOnNote = "ys-auth-")
     @InvalidateSession
     public Response _post() {
-        YsUser user = login(name, password);
+        User user = login(name, password);
         if (user != null) {
             loginUser = new LoginUser(user);
             if (StringUtils.isEmpty(redirectionURL)) {
@@ -78,8 +80,12 @@ public class YsAuthLoginPage extends ScaffoldPageBase {
         return Redirect.to("/");
     }
 
-    protected YsUser login(String name, String password) {
-        YsUser user = ysUserBhv.selectForLogin(name);
+    @InvalidateSession
+    public void _get_logout() {
+    }
+
+    protected User login(String name, String password) {
+        User user = userManager.getUserByName(name);
         if (user != null && user.passwordEquals(password)) {
             return user;
         } else {

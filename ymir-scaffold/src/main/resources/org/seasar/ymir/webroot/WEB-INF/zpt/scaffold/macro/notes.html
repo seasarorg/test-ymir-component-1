@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+
+<div metal:define-macro="notes" class="ui-widget" tal:condition="notes/size(org.seasar.ymir.message.GLOBAL_NOTE)">
+  <div class="ui-state-error ui-corner-all" style="padding: 0 .7em; margin: 1em 0 1em 0"> 
+    <p tal:repeat="note notes/notes(org.seasar.ymir.message.GLOBAL_NOTE)">
+      <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+      <span tal:content="note/%value"></span>
+    </p>
+  </div>
+</div>
+
+</body>
+</html>

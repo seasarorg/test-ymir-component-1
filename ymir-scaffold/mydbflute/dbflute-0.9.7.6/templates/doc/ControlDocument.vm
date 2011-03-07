@@ -1,0 +1,33 @@
+#
+# @since DBFlute-0.9.0
+#
+#set ($database = $schemaData.database)
+$database.enableDocumentOutputDirectory()
+
+## - - - - - - - - - - - -
+## Initialize properties.
+## - - - - - - - - - - - -
+$database.initializeVersion(90)
+$database.initializeAdditionalPrimaryKey()
+$database.initializeAdditionalUniqueKey()
+$database.initializeAdditionalForeignKey()
+$database.initializeClassificationDeployment()
+
+## - - - - - -
+## Schema HTML
+## - - - - - -
+## *the argument 'dataModel' might be unused on DBFlute
+#set ($outFile = "${database.schemaHtmlFileName}")
+$generator.parse("doc/html/datamodel.vm", $outFile, "dataModel", $dataModel)
+
+## for migration of renaming
+$database.deleteOldSchemaHtmlFile()
+
+## - - - - - - -
+## History HTML
+## - - - - - - -
+$database.loadSchemaHistory()
+#if ($database.existsSchemaHistory())
+#set ($outFile = "${database.historyHtmlFileName}")
+$generator.parse("doc/html/diffmodel.vm", $outFile, "dataModel", $dataModel)
+#end

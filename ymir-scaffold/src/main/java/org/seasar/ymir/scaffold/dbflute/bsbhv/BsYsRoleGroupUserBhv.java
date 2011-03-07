@@ -7,18 +7,14 @@ import org.seasar.dbflute.bhv.*;
 import org.seasar.dbflute.cbean.ConditionBean;
 import org.seasar.dbflute.cbean.EntityRowHandler;
 import org.seasar.dbflute.cbean.ListResultBean;
-import org.seasar.dbflute.cbean.PagingBean;
-import org.seasar.dbflute.cbean.PagingHandler;
-import org.seasar.dbflute.cbean.PagingInvoker;
 import org.seasar.dbflute.cbean.PagingResultBean;
-import org.seasar.dbflute.cbean.ResultBeanBuilder;
 import org.seasar.dbflute.dbmeta.DBMeta;
 import org.seasar.ymir.scaffold.dbflute.exentity.*;
 import org.seasar.ymir.scaffold.dbflute.bsentity.dbmeta.*;
 import org.seasar.ymir.scaffold.dbflute.cbean.*;
 
 /**
- * The behavior of YS_ROLE_GROUP_USER that is TABLE. <br />
+ * The behavior of YS_ROLE_GROUP_USER as TABLE. <br />
  * <pre>
  * [primary-key]
  *     ID
@@ -92,10 +88,19 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                        ============
     /**
      * Select the count by the condition-bean. {IgnorePagingCondition}
+     * <pre>
+     * YsRoleGroupUserCB cb = new YsRoleGroupUserCB();
+     * cb.query().setFoo...(value);
+     * int count = ysRoleGroupUserBhv.<span style="color: #FD4747">selectCount</span>(cb);
+     * </pre>
      * @param cb The condition-bean of YsRoleGroupUser. (NotNull)
      * @return The selected count.
      */
     public int selectCount(YsRoleGroupUserCB cb) {
+        return doSelectCount(cb);
+    }
+
+    protected int doSelectCount(YsRoleGroupUserCB cb) {
         assertCBNotNull(cb);
         return delegateSelectCount(cb);
     }
@@ -109,14 +114,27 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                       Cursor Select
     //                                                                       =============
     /**
-     * Select the cursor by the condition-bean. <br />
-     * Attention: It has a mapping cost from result set to entity.
+     * Select the cursor by the condition-bean.
+     * <pre>
+     * YsRoleGroupUserCB cb = new YsRoleGroupUserCB();
+     * cb.query().setFoo...(value);
+     * ysRoleGroupUserBhv.<span style="color: #FD4747">selectCursor</span>(cb, new EntityRowHandler&lt;YsRoleGroupUser&gt;() {
+     *     public void handle(YsRoleGroupUser entity) {
+     *         ... = entity.getFoo...();
+     *     }
+     * });
+     * </pre>
      * @param cb The condition-bean of YsRoleGroupUser. (NotNull)
      * @param entityRowHandler The handler of entity row of YsRoleGroupUser. (NotNull)
      */
     public void selectCursor(YsRoleGroupUserCB cb, EntityRowHandler<YsRoleGroupUser> entityRowHandler) {
-        assertCBNotNull(cb); assertObjectNotNull("entityRowHandler<YsRoleGroupUser>", entityRowHandler);
-        delegateSelectCursor(cb, entityRowHandler);
+        doSelectCursor(cb, entityRowHandler, YsRoleGroupUser.class);
+    }
+
+    protected <ENTITY extends YsRoleGroupUser> void doSelectCursor(YsRoleGroupUserCB cb, EntityRowHandler<ENTITY> entityRowHandler, Class<ENTITY> entityType) {
+        assertCBNotNull(cb); assertObjectNotNull("entityRowHandler<YsRoleGroupUser>", entityRowHandler); assertObjectNotNull("entityType", entityType);
+        assertSpecifyDerivedReferrerEntityProperty(cb, entityType);
+        delegateSelectCursor(cb, entityRowHandler, entityType);
     }
 
     // ===================================================================================
@@ -124,13 +142,28 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                       =============
     /**
      * Select the entity by the condition-bean.
+     * <pre>
+     * YsRoleGroupUserCB cb = new YsRoleGroupUserCB();
+     * cb.query().setFoo...(value);
+     * YsRoleGroupUser ysRoleGroupUser = ysRoleGroupUserBhv.<span style="color: #FD4747">selectEntity</span>(cb);
+     * if (ysRoleGroupUser != null) {
+     *     ... = ysRoleGroupUser.get...();
+     * } else {
+     *     ...
+     * }
+     * </pre>
      * @param cb The condition-bean of YsRoleGroupUser. (NotNull)
      * @return The selected entity. (Nullable: If the condition has no data, it returns null)
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
+     * @exception org.seasar.dbflute.exception.SelectEntityConditionNotFoundException When the condition for selecting an entity is not found.
      */
-    public YsRoleGroupUser selectEntity(final YsRoleGroupUserCB cb) {
-        return helpSelectEntityInternally(cb, new InternalSelectEntityCallback<YsRoleGroupUser, YsRoleGroupUserCB>() {
-            public List<YsRoleGroupUser> callbackSelectList(YsRoleGroupUserCB cb) { return selectList(cb); } });
+    public YsRoleGroupUser selectEntity(YsRoleGroupUserCB cb) {
+        return doSelectEntity(cb, YsRoleGroupUser.class);
+    }
+
+    protected <ENTITY extends YsRoleGroupUser> ENTITY doSelectEntity(final YsRoleGroupUserCB cb, final Class<ENTITY> entityType) {
+        return helpSelectEntityInternally(cb, new InternalSelectEntityCallback<ENTITY, YsRoleGroupUserCB>() {
+            public List<ENTITY> callbackSelectList(YsRoleGroupUserCB cb) { return doSelectList(cb, entityType); } });
     }
 
     @Override
@@ -140,14 +173,25 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
 
     /**
      * Select the entity by the condition-bean with deleted check.
+     * <pre>
+     * YsRoleGroupUserCB cb = new YsRoleGroupUserCB();
+     * cb.query().setFoo...(value);
+     * YsRoleGroupUser ysRoleGroupUser = ysRoleGroupUserBhv.<span style="color: #FD4747">selectEntityWithDeletedCheck</span>(cb);
+     * ... = ysRoleGroupUser.get...(); <span style="color: #3F7E5E">// the entity always be not null</span>
+     * </pre>
      * @param cb The condition-bean of YsRoleGroupUser. (NotNull)
      * @return The selected entity. (NotNull)
      * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
+     * @exception org.seasar.dbflute.exception.SelectEntityConditionNotFoundException When the condition for selecting an entity is not found.
      */
-    public YsRoleGroupUser selectEntityWithDeletedCheck(final YsRoleGroupUserCB cb) {
-        return helpSelectEntityWithDeletedCheckInternally(cb, new InternalSelectEntityWithDeletedCheckCallback<YsRoleGroupUser, YsRoleGroupUserCB>() {
-            public List<YsRoleGroupUser> callbackSelectList(YsRoleGroupUserCB cb) { return selectList(cb); } });
+    public YsRoleGroupUser selectEntityWithDeletedCheck(YsRoleGroupUserCB cb) {
+        return doSelectEntityWithDeletedCheck(cb, YsRoleGroupUser.class);
+    }
+
+    protected <ENTITY extends YsRoleGroupUser> ENTITY doSelectEntityWithDeletedCheck(final YsRoleGroupUserCB cb, final Class<ENTITY> entityType) {
+        return helpSelectEntityWithDeletedCheckInternally(cb, new InternalSelectEntityWithDeletedCheckCallback<ENTITY, YsRoleGroupUserCB>() {
+            public List<ENTITY> callbackSelectList(YsRoleGroupUserCB cb) { return doSelectList(cb, entityType); } });
     }
 
     @Override
@@ -160,9 +204,14 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
      * @param id The one of primary key. (NotNull)
      * @return The selected entity. (Nullable: If the primary-key value has no data, it returns null)
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
+     * @exception org.seasar.dbflute.exception.SelectEntityConditionNotFoundException When the condition for selecting an entity is not found.
      */
     public YsRoleGroupUser selectByPKValue(Long id) {
-        return selectEntity(buildPKCB(id));
+        return doSelectByPKValue(id, YsRoleGroupUser.class);
+    }
+
+    protected <ENTITY extends YsRoleGroupUser> ENTITY doSelectByPKValue(Long id, Class<ENTITY> entityType) {
+        return doSelectEntity(buildPKCB(id), entityType);
     }
 
     /**
@@ -171,9 +220,14 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
      * @return The selected entity. (NotNull)
      * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
+     * @exception org.seasar.dbflute.exception.SelectEntityConditionNotFoundException When the condition for selecting an entity is not found.
      */
     public YsRoleGroupUser selectByPKValueWithDeletedCheck(Long id) {
-        return selectEntityWithDeletedCheck(buildPKCB(id));
+        return doSelectByPKValueWithDeletedCheck(id, YsRoleGroupUser.class);
+    }
+
+    protected <ENTITY extends YsRoleGroupUser> ENTITY doSelectByPKValueWithDeletedCheck(Long id, Class<ENTITY> entityType) {
+        return doSelectEntityWithDeletedCheck(buildPKCB(id), entityType);
     }
 
     private YsRoleGroupUserCB buildPKCB(Long id) {
@@ -188,12 +242,28 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                         ===========
     /**
      * Select the list as result bean.
+     * <pre>
+     * YsRoleGroupUserCB cb = new YsRoleGroupUserCB();
+     * cb.query().setFoo...(value);
+     * cb.query().addOrderBy_Bar...();
+     * ListResultBean&lt;YsRoleGroupUser&gt; ysRoleGroupUserList = ysRoleGroupUserBhv.<span style="color: #FD4747">selectList</span>(cb);
+     * for (YsRoleGroupUser ysRoleGroupUser : ysRoleGroupUserList) {
+     *     ... = ysRoleGroupUser.get...();
+     * }
+     * </pre>
      * @param cb The condition-bean of YsRoleGroupUser. (NotNull)
      * @return The result bean of selected list. (NotNull)
+     * @exception org.seasar.dbflute.exception.DangerousResultSizeException When the result size is over the specified safety size.
      */
     public ListResultBean<YsRoleGroupUser> selectList(YsRoleGroupUserCB cb) {
-        assertCBNotNull(cb);
-        return new ResultBeanBuilder<YsRoleGroupUser>(getTableDbName()).buildListResultBean(cb, delegateSelectList(cb));
+        return doSelectList(cb, YsRoleGroupUser.class);
+    }
+
+    protected <ENTITY extends YsRoleGroupUser> ListResultBean<ENTITY> doSelectList(YsRoleGroupUserCB cb, Class<ENTITY> entityType) {
+        assertCBNotNull(cb); assertObjectNotNull("entityType", entityType);
+        assertSpecifyDerivedReferrerEntityProperty(cb, entityType);
+        return helpSelectListInternally(cb, entityType, new InternalSelectListCallback<ENTITY, YsRoleGroupUserCB>() {
+            public List<ENTITY> callbackSelectList(YsRoleGroupUserCB cb, Class<ENTITY> entityType) { return delegateSelectList(cb, entityType); } });
     }
 
     @Override
@@ -205,19 +275,37 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                         Page Select
     //                                                                         ===========
     /**
-     * Select the page as result bean.
+     * Select the page as result bean. <br />
+     * (both count-select and paging-select are executed)
+     * <pre>
+     * YsRoleGroupUserCB cb = new YsRoleGroupUserCB();
+     * cb.query().setFoo...(value);
+     * cb.query().addOrderBy_Bar...();
+     * cb.<span style="color: #FD4747">paging</span>(20, 3); <span style="color: #3F7E5E">// 20 records per a page and current page number is 3</span>
+     * PagingResultBean&lt;YsRoleGroupUser&gt; page = ysRoleGroupUserBhv.<span style="color: #FD4747">selectPage</span>(cb);
+     * int allRecordCount = page.getAllRecordCount();
+     * int allPageCount = page.getAllPageCount();
+     * boolean isExistPrePage = page.isExistPrePage();
+     * boolean isExistNextPage = page.isExistNextPage();
+     * ...
+     * for (YsRoleGroupUser ysRoleGroupUser : page) {
+     *     ... = ysRoleGroupUser.get...();
+     * }
+     * </pre>
      * @param cb The condition-bean of YsRoleGroupUser. (NotNull)
      * @return The result bean of selected page. (NotNull)
+     * @exception org.seasar.dbflute.exception.DangerousResultSizeException When the result size is over the specified safety size.
      */
-    public PagingResultBean<YsRoleGroupUser> selectPage(final YsRoleGroupUserCB cb) {
-        assertCBNotNull(cb);
-        final PagingInvoker<YsRoleGroupUser> invoker = new PagingInvoker<YsRoleGroupUser>(getTableDbName());
-        final PagingHandler<YsRoleGroupUser> handler = new PagingHandler<YsRoleGroupUser>() {
-            public PagingBean getPagingBean() { return cb; }
-            public int count() { return selectCount(cb); }
-            public List<YsRoleGroupUser> paging() { return selectList(cb); }
-        };
-        return invoker.invokePaging(handler);
+    public PagingResultBean<YsRoleGroupUser> selectPage(YsRoleGroupUserCB cb) {
+        return doSelectPage(cb, YsRoleGroupUser.class);
+    }
+
+    protected <ENTITY extends YsRoleGroupUser> PagingResultBean<ENTITY> doSelectPage(YsRoleGroupUserCB cb, Class<ENTITY> entityType) {
+        assertCBNotNull(cb); assertObjectNotNull("entityType", entityType);
+        return helpSelectPageInternally(cb, entityType, new InternalSelectPageCallback<ENTITY, YsRoleGroupUserCB>() {
+            public int callbackSelectCount(YsRoleGroupUserCB cb) { return doSelectCount(cb); }
+            public List<ENTITY> callbackSelectList(YsRoleGroupUserCB cb, Class<ENTITY> entityType) { return doSelectList(cb, entityType); }
+        });
     }
 
     @Override
@@ -230,11 +318,13 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                       =============
     /**
      * Select the scalar value derived by a function. <br />
-     * Call a function method after this method called like as follows:
+     * You should call a function method after this method called like as follows:
      * <pre>
-     * ysRoleGroupUserBhv.scalarSelect(Date.class).max(new ScalarQuery(YsRoleGroupUserCB cb) {
-     *     cb.specify().columnXxxDatetime(); // the required specification of target column
-     *     cb.query().setXxxName_PrefixSearch("S"); // query as you like it
+     * ysRoleGroupUserBhv.<span style="color: #FD4747">scalarSelect</span>(Date.class).max(new ScalarQuery() {
+     *     public void query(YsRoleGroupUserCB cb) {
+     *         cb.specify().<span style="color: #FD4747">columnFooDatetime()</span>; <span style="color: #3F7E5E">// required for a function</span>
+     *         cb.query().setBarName_PrefixSearch("S");
+     *     }
      * });
      * </pre>
      * @param <RESULT> The type of result.
@@ -242,11 +332,24 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
      * @return The scalar value derived by a function. (Nullable)
      */
     public <RESULT> SLFunction<YsRoleGroupUserCB, RESULT> scalarSelect(Class<RESULT> resultType) {
-        YsRoleGroupUserCB cb = newMyConditionBean();
-        cb.xsetupForScalarSelect();
-        cb.getSqlClause().disableSelectIndex(); // for when you use union
-        return new SLFunction<YsRoleGroupUserCB, RESULT>(cb, resultType);
+        return doScalarSelect(resultType, newMyConditionBean());
     }
+
+    protected <RESULT, CB extends YsRoleGroupUserCB> SLFunction<CB, RESULT> doScalarSelect(Class<RESULT> resultType, CB cb) {
+        assertObjectNotNull("resultType", resultType); assertCBNotNull(cb);
+        cb.xsetupForScalarSelect(); cb.getSqlClause().disableSelectIndex(); // for when you use union
+        return new SLFunction<CB, RESULT>(cb, resultType);
+    }
+
+    // ===================================================================================
+    //                                                                            Sequence
+    //                                                                            ========
+    @Override
+    protected Number doReadNextVal() {
+        String msg = "This table is NOT related to sequence: " + getTableDbName();
+        throw new UnsupportedOperationException(msg);
+    }
+
     // ===================================================================================
     //                                                                    Pull out Foreign
     //                                                                    ================
@@ -295,6 +398,14 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                       =============
     /**
      * Insert the entity.
+     * <pre>
+     * YsRoleGroupUser ysRoleGroupUser = new YsRoleGroupUser();
+     * <span style="color: #3F7E5E">// if auto-increment, you don't need to set the PK value</span>
+     * ysRoleGroupUser.setFoo...(value);
+     * ysRoleGroupUser.setBar...(value);
+     * ysRoleGroupUserBhv.<span style="color: #FD4747">insert</span>(ysRoleGroupUser);
+     * ... = ysRoleGroupUser.getPK...(); <span style="color: #3F7E5E">// if auto-increment, you can get the value after</span>
+     * </pre>
      * @param ysRoleGroupUser The entity of insert target. (NotNull)
      * @exception org.seasar.dbflute.exception.EntityAlreadyExistsException When the entity already exists. (Unique Constraint Violation)
      */
@@ -309,7 +420,19 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Update the entity modified-only. {UpdateCountZeroException, ConcurrencyControl}
+     * Update the entity modified-only. {UpdateCountZeroException, ExclusiveControl}
+     * <pre>
+     * YsRoleGroupUser ysRoleGroupUser = new YsRoleGroupUser();
+     * ysRoleGroupUser.setPK...(value); <span style="color: #3F7E5E">// required</span>
+     * ysRoleGroupUser.setFoo...(value); <span style="color: #3F7E5E">// you should set only modified columns</span>
+     * <span style="color: #3F7E5E">// if exclusive control, the value of exclusive control column is required</span>
+     * ysRoleGroupUser.<span style="color: #FD4747">setVersionNo</span>(value);
+     * try {
+     *     ysRoleGroupUserBhv.<span style="color: #FD4747">update</span>(ysRoleGroupUser);
+     * } catch (EntityAlreadyUpdatedException e) { <span style="color: #3F7E5E">// if concurrent update</span>
+     *     ...
+     * } 
+     * </pre>
      * @param ysRoleGroupUser The entity of update target. (NotNull) {PrimaryKeyRequired, ConcurrencyColumnRequired}
      * @exception org.seasar.dbflute.exception.EntityAlreadyUpdatedException When the entity has already been updated.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
@@ -324,9 +447,18 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     protected void doModify(Entity entity) {
         update(downcast(entity));
     }
-    
+
     /**
-     * Update the entity non-strictly modified-only. {UpdateCountZeroException, NonConcurrencyControl}
+     * Update the entity non-strictly modified-only. {UpdateCountZeroException, NonExclusiveControl}
+     * <pre>
+     * YsRoleGroupUser ysRoleGroupUser = new YsRoleGroupUser();
+     * ysRoleGroupUser.setPK...(value); <span style="color: #3F7E5E">// required</span>
+     * ysRoleGroupUser.setFoo...(value); <span style="color: #3F7E5E">// you should set only modified columns</span>
+     * <span style="color: #3F7E5E">// you don't need to set the value of exclusive control column</span>
+     * <span style="color: #3F7E5E">// (auto-increment for version number is valid though non-exclusive control)</span>
+     * <span style="color: #3F7E5E">//ysRoleGroupUser.setVersionNo(value);</span>
+     * ysRoleGroupUserBhv.<span style="color: #FD4747">updateNonstrict</span>(ysRoleGroupUser);
+     * </pre>
      * @param ysRoleGroupUser The entity of update target. (NotNull) {PrimaryKeyRequired}
      * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
@@ -343,7 +475,7 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Insert or update the entity modified-only. {ConcurrencyControl(when update)}
+     * Insert or update the entity modified-only. {ExclusiveControl(when update)}
      * @param ysRoleGroupUser The entity of insert or update target. (NotNull)
      * @exception org.seasar.dbflute.exception.EntityAlreadyUpdatedException When the entity has already been updated.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
@@ -364,7 +496,7 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Insert or update the entity non-strictly modified-only. {NonConcurrencyControl(when update)}
+     * Insert or update the entity non-strictly modified-only. {NonExclusiveControl(when update)}
      * @param ysRoleGroupUser The entity of insert or update target. (NotNull)
      * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
@@ -383,7 +515,18 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Delete the entity. {UpdateCountZeroException, ConcurrencyControl}
+     * Delete the entity. {UpdateCountZeroException, ExclusiveControl}
+     * <pre>
+     * YsRoleGroupUser ysRoleGroupUser = new YsRoleGroupUser();
+     * ysRoleGroupUser.setPK...(value); <span style="color: #3F7E5E">// required</span>
+     * <span style="color: #3F7E5E">// if exclusive control, the value of exclusive control column is required</span>
+     * ysRoleGroupUser.<span style="color: #FD4747">setVersionNo</span>(value);
+     * try {
+     *     ysRoleGroupUserBhv.<span style="color: #FD4747">delete</span>(ysRoleGroupUser);
+     * } catch (EntityAlreadyUpdatedException e) { <span style="color: #3F7E5E">// if concurrent update</span>
+     *     ...
+     * } 
+     * </pre>
      * @param ysRoleGroupUser The entity of delete target. (NotNull) {PrimaryKeyRequired, ConcurrencyColumnRequired}
      * @exception org.seasar.dbflute.exception.EntityAlreadyUpdatedException When the entity has already been updated.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
@@ -399,7 +542,15 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Delete the entity non-strictly. {UpdateCountZeroException, NonConcurrencyControl}
+     * Delete the entity non-strictly. {UpdateCountZeroException, NonExclusiveControl}
+     * <pre>
+     * YsRoleGroupUser ysRoleGroupUser = new YsRoleGroupUser();
+     * ysRoleGroupUser.setPK...(value); <span style="color: #3F7E5E">// required</span>
+     * <span style="color: #3F7E5E">// you don't need to set the value of exclusive control column</span>
+     * <span style="color: #3F7E5E">// (auto-increment for version number is valid though non-exclusive control)</span>
+     * <span style="color: #3F7E5E">//ysRoleGroupUser.setVersionNo(value);</span>
+     * ysRoleGroupUserBhv.<span style="color: #FD4747">deleteNonstrict</span>(ysRoleGroupUser);
+     * </pre>
      * @param ysRoleGroupUser Entity. (NotNull) {PrimaryKeyRequired}
      * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
@@ -410,7 +561,16 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Delete the entity non-strictly ignoring deleted. {UpdateCountZeroException, NonConcurrencyControl}
+     * Delete the entity non-strictly ignoring deleted. {UpdateCountZeroException, NonExclusiveControl}
+     * <pre>
+     * YsRoleGroupUser ysRoleGroupUser = new YsRoleGroupUser();
+     * ysRoleGroupUser.setPK...(value); <span style="color: #3F7E5E">// required</span>
+     * <span style="color: #3F7E5E">// you don't need to set the value of exclusive control column</span>
+     * <span style="color: #3F7E5E">// (auto-increment for version number is valid though non-exclusive control)</span>
+     * <span style="color: #3F7E5E">//ysRoleGroupUser.setVersionNo(value);</span>
+     * ysRoleGroupUserBhv.<span style="color: #FD4747">deleteNonstrictIgnoreDeleted</span>(ysRoleGroupUser);
+     * <span style="color: #3F7E5E">// if the target entity doesn't exist, no exception</span>
+     * </pre>
      * @param ysRoleGroupUser Entity. (NotNull) {PrimaryKeyRequired}
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
      */
@@ -423,7 +583,7 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                        Batch Update
     //                                                                        ============
     /**
-     * Batch insert the list. This method use 'Batch Update' of java.sql.PreparedStatement.
+     * Batch-insert the list. This method uses 'Batch Update' of java.sql.PreparedStatement.
      * @param ysRoleGroupUserList The list of the entity. (NotNull)
      * @return The array of inserted count.
      */
@@ -433,8 +593,9 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Batch update the list. All columns are update target. {NOT modified only} <br />
-     * This method use 'Batch Update' of java.sql.PreparedStatement.
+     * Batch-update the list. <br />
+     * All columns are update target. {NOT modified only} <br />
+     * This method uses 'Batch Update' of java.sql.PreparedStatement.
      * @param ysRoleGroupUserList The list of the entity. (NotNull)
      * @return The array of updated count.
      * @exception org.seasar.dbflute.exception.BatchEntityAlreadyUpdatedException When the entity has already been updated. This exception extends EntityAlreadyUpdatedException.
@@ -445,8 +606,9 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Batch update the list non-strictly. All columns are update target. {NOT modified only} <br />
-     * This method use 'Batch Update' of java.sql.PreparedStatement.
+     * Batch-update the list non-strictly. <br />
+     * All columns are update target. {NOT modified only} <br />
+     * This method uses 'Batch Update' of java.sql.PreparedStatement.
      * @param ysRoleGroupUserList The list of the entity. (NotNull)
      * @return The array of updated count.
      * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
@@ -457,8 +619,8 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Batch delete the list. <br />
-     * This method use 'Batch Update' of java.sql.PreparedStatement.
+     * Batch-delete the list. <br />
+     * This method uses 'Batch Update' of java.sql.PreparedStatement.
      * @param ysRoleGroupUserList The list of the entity. (NotNull)
      * @return The array of deleted count.
      * @exception org.seasar.dbflute.exception.BatchEntityAlreadyUpdatedException When the entity has already been updated. This exception extends EntityAlreadyUpdatedException.
@@ -469,8 +631,8 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Batch delete the list non-strictly. <br />
-     * This method use 'Batch Update' of java.sql.PreparedStatement.
+     * Batch-delete the list non-strictly. <br />
+     * This method uses 'Batch Update' of java.sql.PreparedStatement.
      * @param ysRoleGroupUserList The list of the entity. (NotNull)
      * @return The array of deleted count.
      * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
@@ -484,26 +646,137 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                        Query Update
     //                                                                        ============
     /**
-     * Query update the several entities. {NoConcurrencyControl}
+     * Query-update the several entities non-strictly modified-only. {NonExclusiveControl}
+     * <pre>
+     * YsRoleGroupUser ysRoleGroupUser = new YsRoleGroupUser();
+     * <span style="color: #3F7E5E">// you don't need to set PK value</span>
+     * <span style="color: #3F7E5E">//ysRoleGroupUser.setPK...(value);</span>
+     * ysRoleGroupUser.setFoo...(value); <span style="color: #3F7E5E">// you should set only modified columns</span>
+     * <span style="color: #3F7E5E">// you don't need to set the value of exclusive control column</span>
+     * <span style="color: #3F7E5E">// (auto-increment for version number is valid though non-exclusive control)</span>
+     * <span style="color: #3F7E5E">//ysRoleGroupUser.setVersionNo(value);</span>
+     * YsRoleGroupUserCB cb = new YsRoleGroupUserCB();
+     * cb.query().setFoo...(value);
+     * ysRoleGroupUserBhv.<span style="color: #FD4747">queryUpdate</span>(ysRoleGroupUser, cb);
+     * </pre>
      * @param ysRoleGroupUser The entity that contains update values. (NotNull) {PrimaryKeyNotRequired}
      * @param cb The condition-bean of YsRoleGroupUser. (NotNull)
      * @return The updated count.
      */
     public int queryUpdate(YsRoleGroupUser ysRoleGroupUser, YsRoleGroupUserCB cb) {
-        assertObjectNotNull("ysRoleGroupUser", ysRoleGroupUser); assertCBNotNull(cb);
-        setupCommonColumnOfUpdateIfNeeds(ysRoleGroupUser);
-        filterEntityOfUpdate(ysRoleGroupUser); assertEntityOfUpdate(ysRoleGroupUser);
-        return invoke(createQueryUpdateEntityCBCommand(ysRoleGroupUser, cb));
+        return delegateQueryUpdate(ysRoleGroupUser, cb);
     }
 
     /**
-     * Query delete the several entities. {NoConcurrencyControl}
+     * Query-delete the several entities. {NonExclusiveControl}
+     * <pre>
+     * YsRoleGroupUserCB cb = new YsRoleGroupUserCB();
+     * cb.query().setFoo...(value);
+     * ysRoleGroupUserBhv.<span style="color: #FD4747">queryDelete</span>(ysRoleGroupUser, cb);
+     * </pre>
      * @param cb The condition-bean of YsRoleGroupUser. (NotNull)
      * @return The deleted count.
      */
     public int queryDelete(YsRoleGroupUserCB cb) {
-        assertCBNotNull(cb);
-        return invoke(createQueryDeleteCBCommand(cb));
+        return delegateQueryDelete(cb);
+    }
+
+    /**
+     * Varying-update the entity modified-only. {UpdateCountZeroException, ExclusiveControl}
+     * <pre>
+     * YsRoleGroupUser ysRoleGroupUser = new YsRoleGroupUser();
+     * ysRoleGroupUser.setPK...(value); <span style="color: #3F7E5E">// required</span>
+     * ysRoleGroupUser.setOther...(value); <span style="color: #3F7E5E">// you should set only modified columns</span>
+     * <span style="color: #3F7E5E">// if exclusive control, the value of exclusive control column is required</span>
+     * ysRoleGroupUser.<span style="color: #FD4747">setVersionNo</span>(value);
+     * try {
+     *     UpdateOption&lt;YsRoleGroupUserCB&gt; option = new UpdateOption&lt;YsRoleGroupUserCB&gt;();
+     *     option.self(new SpecifyQuery&lt;YsRoleGroupUserCB&gt;() {
+     *         public void specify(YsRoleGroupUserCB cb) {
+     *             cb.specify().<span style="color: #FD4747">columnXxxCount()</span>;
+     *         }
+     *     }).plus(1); <span style="color: #3F7E5E">// XXX_COUNT = XXX_COUNT + 1</span>
+     *     ysRoleGroupUserBhv.<span style="color: #FD4747">varyingUpdate</span>(ysRoleGroupUser, option);
+     * } catch (EntityAlreadyUpdatedException e) { <span style="color: #3F7E5E">// if concurrent update</span>
+     *     ...
+     * }
+     * </pre>
+     * @param ysRoleGroupUser The entity of update target. (NotNull) {PrimaryKeyRequired, ConcurrencyColumnRequired}
+     * @param option The option of update for varying values. (NotNull)
+     * @exception org.seasar.dbflute.exception.EntityAlreadyUpdatedException When the entity has already been updated.
+     * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
+     * @exception org.seasar.dbflute.exception.EntityAlreadyExistsException When the entity already exists. (Unique Constraint Violation)
+     */
+    public void varyingUpdate(YsRoleGroupUser ysRoleGroupUser, final UpdateOption<YsRoleGroupUserCB> option) {
+        processVaryingUpdate(option);
+        helpUpdateInternally(ysRoleGroupUser, new InternalUpdateCallback<YsRoleGroupUser>() {
+            public int callbackDelegateUpdate(YsRoleGroupUser entity) { return delegateVaryingUpdate(entity, option); } });
+    }
+
+    /**
+     * Varying-update the entity non-strictly modified-only. {UpdateCountZeroException, NonExclusiveControl}
+     * <pre>
+     * YsRoleGroupUser ysRoleGroupUser = new YsRoleGroupUser();
+     * ysRoleGroupUser.setPK...(value); <span style="color: #3F7E5E">// required</span>
+     * ysRoleGroupUser.setOther...(value); <span style="color: #3F7E5E">// you should set only modified columns</span>
+     * <span style="color: #3F7E5E">// you don't need to set the value of exclusive control column</span>
+     * <span style="color: #3F7E5E">// (auto-increment for version number is valid though non-exclusive control)</span>
+     * <span style="color: #3F7E5E">//ysRoleGroupUser.setVersionNo(value);</span>
+     * UpdateOption&lt;YsRoleGroupUserCB&gt; option = new UpdateOption&lt;YsRoleGroupUserCB&gt;();
+     * option.self(new SpecifyQuery&lt;YsRoleGroupUserCB&gt;() {
+     *     public void specify(YsRoleGroupUserCB cb) {
+     *         cb.specify().<span style="color: #FD4747">columnFooCount()</span>;
+     *     }
+     * }).plus(1); <span style="color: #3F7E5E">// FOO_COUNT = FOO_COUNT + 1</span>
+     * ysRoleGroupUserBhv.<span style="color: #FD4747">varyingUpdateNonstrict</span>(ysRoleGroupUser, option);
+     * </pre>
+     * @param ysRoleGroupUser The entity of update target. (NotNull) {PrimaryKeyRequired}
+     * @param option The option of update for varying values. (NotNull)
+     * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
+     * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
+     * @exception org.seasar.dbflute.exception.EntityAlreadyExistsException When the entity already exists. (Unique Constraint Violation)
+     */
+    public void varyingUpdateNonstrict(YsRoleGroupUser ysRoleGroupUser, final UpdateOption<YsRoleGroupUserCB> option) {
+        processVaryingUpdate(option);
+        helpUpdateNonstrictInternally(ysRoleGroupUser, new InternalUpdateNonstrictCallback<YsRoleGroupUser>() {
+            public int callbackDelegateUpdateNonstrict(YsRoleGroupUser entity) { return delegateVaryingUpdateNonstrict(entity, option); } });
+    }
+
+    /**
+     * Varying-query-update the several entities non-strictly modified-only. {NonExclusiveControl}
+     * <pre>
+     * YsRoleGroupUser ysRoleGroupUser = new YsRoleGroupUser();
+     * <span style="color: #3F7E5E">// you don't need to set PK value</span>
+     * <span style="color: #3F7E5E">//ysRoleGroupUser.setPK...(value);</span>
+     * ysRoleGroupUser.setOther...(value); <span style="color: #3F7E5E">// you should set only modified columns</span>
+     * <span style="color: #3F7E5E">// you don't need to set the value of exclusive control column</span>
+     * <span style="color: #3F7E5E">// (auto-increment for version number is valid though non-exclusive control)</span>
+     * <span style="color: #3F7E5E">//ysRoleGroupUser.setVersionNo(value);</span>
+     * YsRoleGroupUserCB cb = new YsRoleGroupUserCB();
+     * cb.query().setFoo...(value);
+     * UpdateOption&lt;YsRoleGroupUserCB&gt; option = new UpdateOption&lt;YsRoleGroupUserCB&gt;();
+     * option.self(new SpecifyQuery&lt;YsRoleGroupUserCB&gt;() {
+     *     public void specify(YsRoleGroupUserCB cb) {
+     *         cb.specify().<span style="color: #FD4747">columnFooCount()</span>;
+     *     }
+     * }).plus(1); <span style="color: #3F7E5E">// FOO_COUNT = FOO_COUNT + 1</span>
+     * ysRoleGroupUserBhv.<span style="color: #FD4747">varyingQueryUpdate</span>(ysRoleGroupUser, cb, option);
+     * </pre>
+     * @param ysRoleGroupUser The entity that contains update values. (NotNull) {PrimaryKeyNotRequired}
+     * @param cb The condition-bean of YsRoleGroupUser. (NotNull)
+     * @param option The option of update for varying values. (NotNull)
+     * @return The updated count.
+     */
+    public int varyingQueryUpdate(YsRoleGroupUser ysRoleGroupUser, YsRoleGroupUserCB cb, final UpdateOption<YsRoleGroupUserCB> option) {
+        processVaryingUpdate(option);
+        return delegateVaryingQueryUpdate(ysRoleGroupUser, cb, option);
+    }
+
+    protected void processVaryingUpdate(UpdateOption<YsRoleGroupUserCB> option) {
+        assertUpdateOptionNotNull(option);
+        YsRoleGroupUserCB cb = newMyConditionBean();
+        cb.xsetupForVaryingUpdate();
+        option.resolveSpecification(cb);
     }
     
     // ===================================================================================
@@ -514,10 +787,10 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     //                                                Select
     //                                                ------
     protected int delegateSelectCount(YsRoleGroupUserCB cb) { return invoke(createSelectCountCBCommand(cb)); }
-    protected void delegateSelectCursor(YsRoleGroupUserCB cb, EntityRowHandler<YsRoleGroupUser> entityRowHandler)
-    { invoke(createSelectCursorCBCommand(cb, entityRowHandler, YsRoleGroupUser.class)); }
-    protected List<YsRoleGroupUser> delegateSelectList(YsRoleGroupUserCB cb)
-    { return invoke(createSelectListCBCommand(cb, YsRoleGroupUser.class)); }
+    protected <ENTITY extends YsRoleGroupUser> void delegateSelectCursor(YsRoleGroupUserCB cb, EntityRowHandler<ENTITY> entityRowHandler, Class<ENTITY> entityType)
+    { invoke(createSelectCursorCBCommand(cb, entityRowHandler, entityType)); }
+    protected <ENTITY extends YsRoleGroupUser> List<ENTITY> delegateSelectList(YsRoleGroupUserCB cb, Class<ENTITY> entityType)
+    { return invoke(createSelectListCBCommand(cb, entityType)); }
 
     // -----------------------------------------------------
     //                                                Update
@@ -549,6 +822,18 @@ public abstract class BsYsRoleGroupUserBhv extends AbstractBehaviorWritable {
     protected int[] doRemoveList(List<Entity> ls) { return delegateDeleteList((List)ls); }
     protected int[] delegateDeleteListNonstrict(List<YsRoleGroupUser> ls)
     { if (ls.isEmpty()) { return new int[]{}; } return invoke(createBatchDeleteNonstrictEntityCommand(helpFilterBeforeDeleteInternally(ls))); }
+
+    protected int delegateQueryUpdate(YsRoleGroupUser e, YsRoleGroupUserCB cb)
+    { if (!processBeforeQueryUpdate(e, cb)) { return 0; } return invoke(createQueryUpdateEntityCBCommand(e, cb));  }
+    protected int delegateQueryDelete(YsRoleGroupUserCB cb)
+    { if (!processBeforeQueryDelete(cb)) { return 0; } return invoke(createQueryDeleteCBCommand(cb));  }
+
+    protected int delegateVaryingUpdate(YsRoleGroupUser e, UpdateOption<YsRoleGroupUserCB> op)
+    { if (!processBeforeUpdate(e)) { return 1; } return invoke(createVaryingUpdateEntityCommand(e, op)); }
+    protected int delegateVaryingUpdateNonstrict(YsRoleGroupUser e, UpdateOption<YsRoleGroupUserCB> op)
+    { if (!processBeforeUpdate(e)) { return 1; } return invoke(createVaryingUpdateNonstrictEntityCommand(e, op)); }
+    protected int delegateVaryingQueryUpdate(YsRoleGroupUser e, YsRoleGroupUserCB cb, UpdateOption<YsRoleGroupUserCB> op)
+    { if (!processBeforeQueryUpdate(e, cb)) { return 0; } return invoke(createVaryingQueryUpdateEntityCBCommand(e, cb, op));  }
 
     // ===================================================================================
     //                                                                Optimistic Lock Info

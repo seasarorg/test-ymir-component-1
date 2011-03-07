@@ -7,9 +7,10 @@ import org.seasar.dbflute.DBDef;
 import org.seasar.dbflute.Entity;
 import org.seasar.dbflute.dbmeta.AbstractDBMeta;
 import org.seasar.dbflute.dbmeta.info.*;
+import org.seasar.dbflute.dbmeta.name.*;
 import org.seasar.dbflute.helper.StringKeyMap;
-import org.seasar.ymir.scaffold.dbflute.allcommon.DBCurrent;
-import org.seasar.ymir.scaffold.dbflute.exentity.YsRole;
+import org.seasar.ymir.scaffold.dbflute.allcommon.*;
+import org.seasar.ymir.scaffold.dbflute.exentity.*;
 
 /**
  * The DB meta of YS_ROLE. (Singleton)
@@ -32,20 +33,25 @@ public class YsRoleDbm extends AbstractDBMeta {
     // ===================================================================================
     //                                                                          Table Info
     //                                                                          ==========
-    public String getTableDbName() { return "YS_ROLE"; }
-    public String getTablePropertyName() { return "ysRole"; }
-    public String getTableSqlName() { return "YS_ROLE"; }
-    public String getTableAlias() { return "ロール"; }
+    protected final String _tableDbName = "YS_ROLE";
+    protected final String _tablePropertyName = "ysRole";
+    protected final TableSqlName _tableSqlName = new TableSqlName("YS_ROLE", _tableDbName);
+    { _tableSqlName.xacceptFilter(DBFluteConfig.getInstance().getTableSqlNameFilter()); }
+    public String getTableDbName() { return _tableDbName; }
+    public String getTablePropertyName() { return _tablePropertyName; }
+    public TableSqlName getTableSqlName() { return _tableSqlName; }
+    protected final String _tableAlias = "ロール";
+    public String getTableAlias() { return _tableAlias; }
 
     // ===================================================================================
     //                                                                         Column Info
     //                                                                         ===========
-    protected ColumnInfo _columnId = cci("ID", "ID", true, "id", Long.class, true, true, "BIGINT", 19, 0, false, null, null, null, "ysRoleGroupUserList");
-    protected ColumnInfo _columnName = cci("NAME", "ロール名", true, "name", String.class, false, false, "VARCHAR", 200, 0, false, null, null, null, null);
-    protected ColumnInfo _columnDisplayName = cci("DISPLAY_NAME", "表示名", true, "displayName", String.class, false, false, "VARCHAR", 200, 0, false, null, null, null, null);
-    protected ColumnInfo _columnCreatedDate = cci("CREATED_DATE", "作成日時", true, "createdDate", java.sql.Timestamp.class, false, false, "TIMESTAMP", 23, 10, false, null, null, null, null);
-    protected ColumnInfo _columnModifiedDate = cci("MODIFIED_DATE", "更新日時", true, "modifiedDate", java.sql.Timestamp.class, false, false, "TIMESTAMP", 23, 10, false, null, null, null, null);
-    protected ColumnInfo _columnVersionNo = cci("VERSION_NO", "バージョン番号", true, "versionNo", Long.class, false, false, "BIGINT", 19, 0, false, OptimisticLockType.VERSION_NO, null, null, null);
+    protected final ColumnInfo _columnId = cci("ID", "ID", null, "ID", true, "id", Long.class, true, true, "BIGINT", 19, 0, false, null, null, null, "ysRoleGroupUserList", null);
+    protected final ColumnInfo _columnName = cci("NAME", "NAME", null, "ロール名", true, "name", String.class, false, false, "VARCHAR", 200, 0, false, null, null, null, null, null);
+    protected final ColumnInfo _columnDisplayName = cci("DISPLAY_NAME", "DISPLAY_NAME", null, "表示名", true, "displayName", String.class, false, false, "VARCHAR", 200, 0, false, null, null, null, null, null);
+    protected final ColumnInfo _columnCreatedDate = cci("CREATED_DATE", "CREATED_DATE", null, "作成日時", true, "createdDate", java.sql.Timestamp.class, false, false, "TIMESTAMP", 23, 10, false, null, null, null, null, null);
+    protected final ColumnInfo _columnModifiedDate = cci("MODIFIED_DATE", "MODIFIED_DATE", null, "更新日時", true, "modifiedDate", java.sql.Timestamp.class, false, false, "TIMESTAMP", 23, 10, false, null, null, null, null, null);
+    protected final ColumnInfo _columnVersionNo = cci("VERSION_NO", "VERSION_NO", null, "バージョン番号", true, "versionNo", Long.class, false, false, "BIGINT", 19, 0, false, OptimisticLockType.VERSION_NO, null, null, null, null);
 
     public ColumnInfo columnId() { return _columnId; }
     public ColumnInfo columnName() { return _columnName; }
@@ -75,7 +81,7 @@ public class YsRoleDbm extends AbstractDBMeta {
     //                                       ---------------
     public UniqueInfo getPrimaryUniqueInfo() { return cpui(columnId()); }
     public boolean hasPrimaryKey() { return true; }
-    public boolean hasTwoOrMorePrimaryKeys() { return false; }
+    public boolean hasCompoundPrimaryKey() { return false; }
 
     // ===================================================================================
     //                                                                       Relation Info
@@ -121,35 +127,10 @@ public class YsRoleDbm extends AbstractDBMeta {
     // ===================================================================================
     //                                                                     Entity Handling
     //                                                                     ===============  
-    // -----------------------------------------------------
-    //                                                Accept
-    //                                                ------
-    public void acceptPrimaryKeyMap(Entity entity, Map<String, ? extends Object> primaryKeyMap)
-    { doAcceptPrimaryKeyMap((YsRole)entity, primaryKeyMap, _epsMap); }
-    public void acceptPrimaryKeyMapString(Entity entity, String primaryKeyMapString)
-    { MapStringUtil.acceptPrimaryKeyMapString(primaryKeyMapString, entity); }
-    public void acceptColumnValueMap(Entity entity, Map<String, ? extends Object> columnValueMap)
-    { doAcceptColumnValueMap((YsRole)entity, columnValueMap, _epsMap); }
-    public void acceptColumnValueMapString(Entity entity, String columnValueMapString)
-    { MapStringUtil.acceptColumnValueMapString(columnValueMapString, entity); }
-
-    // -----------------------------------------------------
-    //                                               Extract
-    //                                               -------
-    public String extractPrimaryKeyMapString(Entity entity) { return MapStringUtil.extractPrimaryKeyMapString(entity); }
-    public String extractPrimaryKeyMapString(Entity entity, String startBrace, String endBrace, String delimiter, String equal)
-    { return doExtractPrimaryKeyMapString(entity, startBrace, endBrace, delimiter, equal); }
-    public String extractColumnValueMapString(Entity entity) { return MapStringUtil.extractColumnValueMapString(entity); }
-    public String extractColumnValueMapString(Entity entity, String startBrace, String endBrace, String delimiter, String equal)
-    { return doExtractColumnValueMapString(entity, startBrace, endBrace, delimiter, equal); }
-
-    // -----------------------------------------------------
-    //                                               Convert
-    //                                               -------
-    public List<Object> convertToColumnValueList(Entity entity) { return newArrayList(convertToColumnValueMap(entity).values()); }
-    public Map<String, Object> convertToColumnValueMap(Entity entity) { return doConvertToColumnValueMap(entity); }
-    public List<String> convertToColumnStringValueList(Entity entity) { return newArrayList(convertToColumnStringValueMap(entity).values()); }
-    public Map<String, String> convertToColumnStringValueMap(Entity entity) { return doConvertToColumnStringValueMap(entity); }
+    public void acceptPrimaryKeyMap(Entity e, Map<String, ? extends Object> m)
+    { doAcceptPrimaryKeyMap((YsRole)e, m, _epsMap); }
+    public Map<String, Object> extractPrimaryKeyMap(Entity e) { return doExtractPrimaryKeyMap(e); }
+    public Map<String, Object> extractAllColumnMap(Entity e) { return doExtractAllColumnMap(e); }
 
     // ===================================================================================
     //                                                               Entity Property Setup
@@ -169,8 +150,8 @@ public class YsRoleDbm extends AbstractDBMeta {
     public void setupEntityProperty(String propertyName, Object entity, Object value)
     { findEps(_epsMap, propertyName).setup((YsRole)entity, value); }
 
-    public static class EpsId implements Eps<YsRole>
-    { public void setup(YsRole e, Object v) { e.setId((Long)v); } }
+    public class EpsId implements Eps<YsRole>
+    { public void setup(YsRole e, Object v) { e.setId(ctl(v)); } }
     public static class EpsName implements Eps<YsRole>
     { public void setup(YsRole e, Object v) { e.setName((String)v); } }
     public static class EpsDisplayName implements Eps<YsRole>
@@ -179,6 +160,6 @@ public class YsRoleDbm extends AbstractDBMeta {
     { public void setup(YsRole e, Object v) { e.setCreatedDate((java.sql.Timestamp)v); } }
     public static class EpsModifiedDate implements Eps<YsRole>
     { public void setup(YsRole e, Object v) { e.setModifiedDate((java.sql.Timestamp)v); } }
-    public static class EpsVersionNo implements Eps<YsRole>
-    { public void setup(YsRole e, Object v) { e.setVersionNo((Long)v); } }
+    public class EpsVersionNo implements Eps<YsRole>
+    { public void setup(YsRole e, Object v) { e.setVersionNo(ctl(v)); } }
 }

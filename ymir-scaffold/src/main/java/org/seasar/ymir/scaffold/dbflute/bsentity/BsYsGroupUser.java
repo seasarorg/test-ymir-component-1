@@ -9,7 +9,7 @@ import org.seasar.ymir.scaffold.dbflute.allcommon.DBMetaInstanceHandler;
 import org.seasar.ymir.scaffold.dbflute.exentity.*;
 
 /**
- * The entity of YS_GROUP_USER that is TABLE. <br />
+ * The entity of YS_GROUP_USER as TABLE. <br />
  * <pre>
  * [primary-key]
  *     ID
@@ -54,46 +54,66 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
     // -----------------------------------------------------
     //                                                Column
     //                                                ------
-    /** ID: {PK : ID : NotNull : BIGINT(19)} */
+    /** ID: {PK, ID, NotNull, BIGINT(19)} */
     protected Long _id;
 
-    /** GROUP_ID: {UQ : NotNull : BIGINT(19) : FK to YS_GROUP} */
+    /** GROUP_ID: {UQ, NotNull, BIGINT(19), FK to YS_GROUP} */
     protected Long _groupId;
 
-    /** USER_ID: {UQ : NotNull : BIGINT(19) : FK to YS_USER} */
+    /** USER_ID: {UQ+, IX, NotNull, BIGINT(19), FK to YS_USER} */
     protected Long _userId;
 
-    /** CREATED_DATE: {NotNull : TIMESTAMP(23, 10)} */
+    /** CREATED_DATE: {NotNull, TIMESTAMP(23, 10)} */
     protected java.sql.Timestamp _createdDate;
 
-    /** MODIFIED_DATE: {NotNull : TIMESTAMP(23, 10)} */
+    /** MODIFIED_DATE: {NotNull, TIMESTAMP(23, 10)} */
     protected java.sql.Timestamp _modifiedDate;
 
-    /** VERSION_NO: {NotNull : BIGINT(19) : default=[1]} */
+    /** VERSION_NO: {NotNull, BIGINT(19), default=[1]} */
     protected Long _versionNo;
 
     // -----------------------------------------------------
     //                                              Internal
     //                                              --------
     /** The modified properties for this entity. */
-    protected EntityModifiedProperties _modifiedProperties = newEntityModifiedProperties();
+    protected EntityModifiedProperties __modifiedProperties = newEntityModifiedProperties();
 
     // ===================================================================================
     //                                                                          Table Name
     //                                                                          ==========
+    /**
+     * {@inheritDoc}
+     */
     public String getTableDbName() {
         return "YS_GROUP_USER";
     }
 
-    public String getTablePropertyName() { // as JavaBeansRule
+    /**
+     * {@inheritDoc}
+     */
+    public String getTablePropertyName() { // according to Java Beans rule
         return "ysGroupUser";
     }
 
     // ===================================================================================
     //                                                                              DBMeta
     //                                                                              ======
+    /**
+     * {@inheritDoc}
+     */
     public DBMeta getDBMeta() {
         return DBMetaInstanceHandler.findDBMeta(getTableDbName());
+    }
+
+    // ===================================================================================
+    //                                                                         Primary Key
+    //                                                                         ===========
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasPrimaryKeyValue() {
+        if (getId() == null) { return false; }
+        return true;
     }
 
     // ===================================================================================
@@ -103,7 +123,7 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
     protected YsGroup _ysGroup;
 
     /**
-     * (グループ)YS_GROUP as 'ysGroup'. {without lazy-load}
+     * (グループ)YS_GROUP as 'ysGroup'.
      * @return The entity of foreign property 'ysGroup'. (Nullable: If the foreign key does not have 'NotNull' constraint, please check null.)
      */
     public YsGroup getYsGroup() {
@@ -122,7 +142,7 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
     protected YsUser _ysUser;
 
     /**
-     * (ユーザ)YS_USER as 'ysUser'. {without lazy-load}
+     * (ユーザ)YS_USER as 'ysUser'.
      * @return The entity of foreign property 'ysUser'. (Nullable: If the foreign key does not have 'NotNull' constraint, please check null.)
      */
     public YsUser getYsUser() {
@@ -141,30 +161,31 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
     //                                                                   Referrer Property
     //                                                                   =================
     // ===================================================================================
-    //                                                                       Determination
-    //                                                                       =============
-    public boolean hasPrimaryKeyValue() {
-        if (_id == null) { return false; }
-        return true;
-    }
-
-    // ===================================================================================
     //                                                                 Modified Properties
     //                                                                 ===================
+    /**
+     * {@inheritDoc}
+     */
     public Set<String> getModifiedPropertyNames() {
-        return _modifiedProperties.getPropertyNames();
+        return __modifiedProperties.getPropertyNames();
     }
 
     protected EntityModifiedProperties newEntityModifiedProperties() {
         return new EntityModifiedProperties();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void clearModifiedPropertyNames() {
-        _modifiedProperties.clear();
+        __modifiedProperties.clear();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasModification() {
-        return !_modifiedProperties.isEmpty();
+        return !__modifiedProperties.isEmpty();
     }
 
     // ===================================================================================
@@ -181,7 +202,7 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
         if (!xSV(getId(), otherEntity.getId())) { return false; }
         return true;
     }
-    private boolean xSV(Object value1, Object value2) { // isSameValue()
+    protected boolean xSV(Object value1, Object value2) { // isSameValue()
         return InternalUtil.isSameValue(value1, value2);
     }
 
@@ -194,7 +215,7 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
         result = xCH(result, getId());
         return result;
     }
-    private int xCH(int result, Object value) { // calculateHashcode()
+    protected int xCH(int result, Object value) { // calculateHashcode()
         return InternalUtil.calculateHashcode(result, value);
     }
 
@@ -202,7 +223,7 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
      * @return The display string of all columns and relation existences. (NotNull)
      */
     public String toString() {
-        return buildDisplayString(getClass().getSimpleName(), true, true);
+        return buildDisplayString(InternalUtil.toClassTitle(this), true, true);
     }
 
     /**
@@ -218,7 +239,7 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
         { sb.append(l).append(xbRDS(_ysUser, "ysUser")); }
         return sb.toString();
     }
-    private String xbRDS(Entity e, String name) { // buildRelationDisplayString()
+    protected String xbRDS(Entity e, String name) { // buildRelationDisplayString()
         return e.buildDisplayString(name, true, true);
     }
 
@@ -231,12 +252,12 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
     public String buildDisplayString(String name, boolean column, boolean relation) {
         StringBuilder sb = new StringBuilder();
         if (name != null) { sb.append(name).append(column || relation ? ":" : ""); }
-        if (column) { sb.append(xbuildColumnString()); }
-        if (relation) { sb.append(xbuildRelationString()); }
+        if (column) { sb.append(buildColumnString()); }
+        if (relation) { sb.append(buildRelationString()); }
         sb.append("@").append(Integer.toHexString(hashCode()));
         return sb.toString();
     }
-    private String xbuildColumnString() {
+    protected String buildColumnString() {
         String c = ", ";
         StringBuilder sb = new StringBuilder();
         sb.append(c).append(getId());
@@ -249,7 +270,7 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
         sb.insert(0, "{").append("}");
         return sb.toString();
     }
-    private String xbuildRelationString() {
+    protected String buildRelationString() {
         StringBuilder sb = new StringBuilder();
         String c = ",";
         if (_ysGroup != null) { sb.append(c).append("ysGroup"); }
@@ -262,7 +283,7 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
     //                                                                            Accessor
     //                                                                            ========
     /**
-     * [get] ID: {PK : ID : NotNull : BIGINT(19)} <br />
+     * [get] ID: {PK, ID, NotNull, BIGINT(19)} <br />
      * @return The value of the column 'ID'. (Nullable)
      */
     public Long getId() {
@@ -270,16 +291,16 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
     }
 
     /**
-     * [set] ID: {PK : ID : NotNull : BIGINT(19)} <br />
+     * [set] ID: {PK, ID, NotNull, BIGINT(19)} <br />
      * @param id The value of the column 'ID'. (Nullable)
      */
     public void setId(Long id) {
-        _modifiedProperties.addPropertyName("id");
+        __modifiedProperties.addPropertyName("id");
         this._id = id;
     }
 
     /**
-     * [get] GROUP_ID: {UQ : NotNull : BIGINT(19) : FK to YS_GROUP} <br />
+     * [get] GROUP_ID: {UQ, NotNull, BIGINT(19), FK to YS_GROUP} <br />
      * @return The value of the column 'GROUP_ID'. (Nullable)
      */
     public Long getGroupId() {
@@ -287,16 +308,16 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
     }
 
     /**
-     * [set] GROUP_ID: {UQ : NotNull : BIGINT(19) : FK to YS_GROUP} <br />
+     * [set] GROUP_ID: {UQ, NotNull, BIGINT(19), FK to YS_GROUP} <br />
      * @param groupId The value of the column 'GROUP_ID'. (Nullable)
      */
     public void setGroupId(Long groupId) {
-        _modifiedProperties.addPropertyName("groupId");
+        __modifiedProperties.addPropertyName("groupId");
         this._groupId = groupId;
     }
 
     /**
-     * [get] USER_ID: {UQ : NotNull : BIGINT(19) : FK to YS_USER} <br />
+     * [get] USER_ID: {UQ+, IX, NotNull, BIGINT(19), FK to YS_USER} <br />
      * @return The value of the column 'USER_ID'. (Nullable)
      */
     public Long getUserId() {
@@ -304,16 +325,16 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
     }
 
     /**
-     * [set] USER_ID: {UQ : NotNull : BIGINT(19) : FK to YS_USER} <br />
+     * [set] USER_ID: {UQ+, IX, NotNull, BIGINT(19), FK to YS_USER} <br />
      * @param userId The value of the column 'USER_ID'. (Nullable)
      */
     public void setUserId(Long userId) {
-        _modifiedProperties.addPropertyName("userId");
+        __modifiedProperties.addPropertyName("userId");
         this._userId = userId;
     }
 
     /**
-     * [get] CREATED_DATE: {NotNull : TIMESTAMP(23, 10)} <br />
+     * [get] CREATED_DATE: {NotNull, TIMESTAMP(23, 10)} <br />
      * @return The value of the column 'CREATED_DATE'. (Nullable)
      */
     public java.sql.Timestamp getCreatedDate() {
@@ -321,16 +342,16 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
     }
 
     /**
-     * [set] CREATED_DATE: {NotNull : TIMESTAMP(23, 10)} <br />
+     * [set] CREATED_DATE: {NotNull, TIMESTAMP(23, 10)} <br />
      * @param createdDate The value of the column 'CREATED_DATE'. (Nullable)
      */
     public void setCreatedDate(java.sql.Timestamp createdDate) {
-        _modifiedProperties.addPropertyName("createdDate");
+        __modifiedProperties.addPropertyName("createdDate");
         this._createdDate = createdDate;
     }
 
     /**
-     * [get] MODIFIED_DATE: {NotNull : TIMESTAMP(23, 10)} <br />
+     * [get] MODIFIED_DATE: {NotNull, TIMESTAMP(23, 10)} <br />
      * @return The value of the column 'MODIFIED_DATE'. (Nullable)
      */
     public java.sql.Timestamp getModifiedDate() {
@@ -338,16 +359,16 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
     }
 
     /**
-     * [set] MODIFIED_DATE: {NotNull : TIMESTAMP(23, 10)} <br />
+     * [set] MODIFIED_DATE: {NotNull, TIMESTAMP(23, 10)} <br />
      * @param modifiedDate The value of the column 'MODIFIED_DATE'. (Nullable)
      */
     public void setModifiedDate(java.sql.Timestamp modifiedDate) {
-        _modifiedProperties.addPropertyName("modifiedDate");
+        __modifiedProperties.addPropertyName("modifiedDate");
         this._modifiedDate = modifiedDate;
     }
 
     /**
-     * [get] VERSION_NO: {NotNull : BIGINT(19) : default=[1]} <br />
+     * [get] VERSION_NO: {NotNull, BIGINT(19), default=[1]} <br />
      * @return The value of the column 'VERSION_NO'. (Nullable)
      */
     public Long getVersionNo() {
@@ -355,11 +376,11 @@ public abstract class BsYsGroupUser implements Entity, Serializable {
     }
 
     /**
-     * [set] VERSION_NO: {NotNull : BIGINT(19) : default=[1]} <br />
+     * [set] VERSION_NO: {NotNull, BIGINT(19), default=[1]} <br />
      * @param versionNo The value of the column 'VERSION_NO'. (Nullable)
      */
     public void setVersionNo(Long versionNo) {
-        _modifiedProperties.addPropertyName("versionNo");
+        __modifiedProperties.addPropertyName("versionNo");
         this._versionNo = versionNo;
     }
 }

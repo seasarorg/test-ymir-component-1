@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+
+<div metal:define-macro="index" tal:define="view self/view; entity self/entity" tal:omit-tag="">
+  <table class="tablesorter">
+    <thead>
+      <tr>
+        <th tal:repeat="column view/columns" tal:content="column/label"></th>
+        <th>アクション</th>
+     </tr>
+    </thead>
+    <tbody>
+      <tr tal:repeat="entity self/view/entities">
+        <td tal:repeat="column view/columns" tal:content="eval:${column/path}"></td>
+        <td tal:define="map java:view.getPrimaryKeyMap(entity)">
+          <a class="button" tal:attributes="href page:view.html?view&$map" tal:content="messages/%label.maintenance.view"></a>
+          <a class="button" tal:attributes="href page:edit.html?edit&$map" tal:content="messages/%label.maintenance.edit"></a>
+          <a class="button delete" tal:attributes="href page:delete.html?do_delete&$map" tal:content="messages/%label.maintenance.delete"></a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <script type="text/javascript">
+    $(function(){
+      $("a.delete").click(function(event) {
+        jConfirm('削除してよろしいですか？', '削除の確認', (function(href) { 
+          return function(r) {
+            if (r == true) {
+              location.href = href;
+            }
+          };
+        })($(this).attr('href')));
+        event.preventDefault();
+      });
+    });
+  </script>
+</div>
+
+</body>
+</html>

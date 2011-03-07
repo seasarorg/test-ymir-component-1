@@ -9,7 +9,6 @@ import org.seasar.framework.container.annotation.tiger.Binding;
 import org.seasar.framework.container.annotation.tiger.BindingType;
 import org.seasar.ymir.ApplicationManager;
 import org.seasar.ymir.convention.YmirNamingConvention;
-import org.seasar.ymir.scaffold.maintenance.enm.Action;
 import org.seasar.ymir.scaffold.maintenance.web.EntityBean;
 import org.seasar.ymir.scaffold.maintenance.web.YsMaintenancePage;
 import org.seasar.ymir.scaffold.util.ScaffoldUtils;
@@ -60,7 +59,7 @@ public class MaintenanceInterceptor implements TagRenderingInterceptor {
         element.setColumnNumber(context.getElement().getColumnNumber());
         element.setLineNumber(context.getElement().getLineNumber());
 
-        // ys:maintanence-属性がレンダリングされないように除去しておく。
+        // ys:maintanence:属性がレンダリングされないように除去しておく。
         try {
             element.removeAttributes(SPECIALATTRIBUTEPATTERNSTRINGS, YS_EXPAND);
         } catch (IllegalSyntaxException ex) {
@@ -77,8 +76,7 @@ public class MaintenanceInterceptor implements TagRenderingInterceptor {
             }
             YsMaintenancePage self = (YsMaintenancePage) context
                     .getVariableResolver().getVariable(context, "self");
-            buildInputElement(element, self.getEntityBean(), self.getAction(),
-                    columnName);
+            buildInputElement(element, self.getEntityBean(), columnName);
         }
 
         return chain.render(context, element.getName(),
@@ -87,7 +85,7 @@ public class MaintenanceInterceptor implements TagRenderingInterceptor {
     }
 
     protected void buildInputElement(MutableTagElement element,
-            EntityBean entityBean, Action action, String columnName) {
+            EntityBean entityBean, String columnName) {
         ColumnInfo columnInfo = entityBean.getColumnInfo(columnName);
         if (columnInfo == null) {
             return;
@@ -110,7 +108,7 @@ public class MaintenanceInterceptor implements TagRenderingInterceptor {
             element.setName("input");
             element.addAttribute("type", passwordColumn ? "password" : "text");
 
-            if (passwordColumn && action == Action.EDIT) {
+            if (passwordColumn) {
                 element.removeAttribute("value");
             }
 

@@ -7,18 +7,14 @@ import org.seasar.dbflute.bhv.*;
 import org.seasar.dbflute.cbean.ConditionBean;
 import org.seasar.dbflute.cbean.EntityRowHandler;
 import org.seasar.dbflute.cbean.ListResultBean;
-import org.seasar.dbflute.cbean.PagingBean;
-import org.seasar.dbflute.cbean.PagingHandler;
-import org.seasar.dbflute.cbean.PagingInvoker;
 import org.seasar.dbflute.cbean.PagingResultBean;
-import org.seasar.dbflute.cbean.ResultBeanBuilder;
 import org.seasar.dbflute.dbmeta.DBMeta;
 import org.seasar.ymir.scaffold.dbflute.exentity.*;
 import org.seasar.ymir.scaffold.dbflute.bsentity.dbmeta.*;
 import org.seasar.ymir.scaffold.dbflute.cbean.*;
 
 /**
- * The behavior of YS_GROUP_USER that is TABLE. <br />
+ * The behavior of YS_GROUP_USER as TABLE. <br />
  * <pre>
  * [primary-key]
  *     ID
@@ -92,10 +88,19 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                        ============
     /**
      * Select the count by the condition-bean. {IgnorePagingCondition}
+     * <pre>
+     * YsGroupUserCB cb = new YsGroupUserCB();
+     * cb.query().setFoo...(value);
+     * int count = ysGroupUserBhv.<span style="color: #FD4747">selectCount</span>(cb);
+     * </pre>
      * @param cb The condition-bean of YsGroupUser. (NotNull)
      * @return The selected count.
      */
     public int selectCount(YsGroupUserCB cb) {
+        return doSelectCount(cb);
+    }
+
+    protected int doSelectCount(YsGroupUserCB cb) {
         assertCBNotNull(cb);
         return delegateSelectCount(cb);
     }
@@ -109,14 +114,27 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                       Cursor Select
     //                                                                       =============
     /**
-     * Select the cursor by the condition-bean. <br />
-     * Attention: It has a mapping cost from result set to entity.
+     * Select the cursor by the condition-bean.
+     * <pre>
+     * YsGroupUserCB cb = new YsGroupUserCB();
+     * cb.query().setFoo...(value);
+     * ysGroupUserBhv.<span style="color: #FD4747">selectCursor</span>(cb, new EntityRowHandler&lt;YsGroupUser&gt;() {
+     *     public void handle(YsGroupUser entity) {
+     *         ... = entity.getFoo...();
+     *     }
+     * });
+     * </pre>
      * @param cb The condition-bean of YsGroupUser. (NotNull)
      * @param entityRowHandler The handler of entity row of YsGroupUser. (NotNull)
      */
     public void selectCursor(YsGroupUserCB cb, EntityRowHandler<YsGroupUser> entityRowHandler) {
-        assertCBNotNull(cb); assertObjectNotNull("entityRowHandler<YsGroupUser>", entityRowHandler);
-        delegateSelectCursor(cb, entityRowHandler);
+        doSelectCursor(cb, entityRowHandler, YsGroupUser.class);
+    }
+
+    protected <ENTITY extends YsGroupUser> void doSelectCursor(YsGroupUserCB cb, EntityRowHandler<ENTITY> entityRowHandler, Class<ENTITY> entityType) {
+        assertCBNotNull(cb); assertObjectNotNull("entityRowHandler<YsGroupUser>", entityRowHandler); assertObjectNotNull("entityType", entityType);
+        assertSpecifyDerivedReferrerEntityProperty(cb, entityType);
+        delegateSelectCursor(cb, entityRowHandler, entityType);
     }
 
     // ===================================================================================
@@ -124,13 +142,28 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                       =============
     /**
      * Select the entity by the condition-bean.
+     * <pre>
+     * YsGroupUserCB cb = new YsGroupUserCB();
+     * cb.query().setFoo...(value);
+     * YsGroupUser ysGroupUser = ysGroupUserBhv.<span style="color: #FD4747">selectEntity</span>(cb);
+     * if (ysGroupUser != null) {
+     *     ... = ysGroupUser.get...();
+     * } else {
+     *     ...
+     * }
+     * </pre>
      * @param cb The condition-bean of YsGroupUser. (NotNull)
      * @return The selected entity. (Nullable: If the condition has no data, it returns null)
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
+     * @exception org.seasar.dbflute.exception.SelectEntityConditionNotFoundException When the condition for selecting an entity is not found.
      */
-    public YsGroupUser selectEntity(final YsGroupUserCB cb) {
-        return helpSelectEntityInternally(cb, new InternalSelectEntityCallback<YsGroupUser, YsGroupUserCB>() {
-            public List<YsGroupUser> callbackSelectList(YsGroupUserCB cb) { return selectList(cb); } });
+    public YsGroupUser selectEntity(YsGroupUserCB cb) {
+        return doSelectEntity(cb, YsGroupUser.class);
+    }
+
+    protected <ENTITY extends YsGroupUser> ENTITY doSelectEntity(final YsGroupUserCB cb, final Class<ENTITY> entityType) {
+        return helpSelectEntityInternally(cb, new InternalSelectEntityCallback<ENTITY, YsGroupUserCB>() {
+            public List<ENTITY> callbackSelectList(YsGroupUserCB cb) { return doSelectList(cb, entityType); } });
     }
 
     @Override
@@ -140,14 +173,25 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
 
     /**
      * Select the entity by the condition-bean with deleted check.
+     * <pre>
+     * YsGroupUserCB cb = new YsGroupUserCB();
+     * cb.query().setFoo...(value);
+     * YsGroupUser ysGroupUser = ysGroupUserBhv.<span style="color: #FD4747">selectEntityWithDeletedCheck</span>(cb);
+     * ... = ysGroupUser.get...(); <span style="color: #3F7E5E">// the entity always be not null</span>
+     * </pre>
      * @param cb The condition-bean of YsGroupUser. (NotNull)
      * @return The selected entity. (NotNull)
      * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
+     * @exception org.seasar.dbflute.exception.SelectEntityConditionNotFoundException When the condition for selecting an entity is not found.
      */
-    public YsGroupUser selectEntityWithDeletedCheck(final YsGroupUserCB cb) {
-        return helpSelectEntityWithDeletedCheckInternally(cb, new InternalSelectEntityWithDeletedCheckCallback<YsGroupUser, YsGroupUserCB>() {
-            public List<YsGroupUser> callbackSelectList(YsGroupUserCB cb) { return selectList(cb); } });
+    public YsGroupUser selectEntityWithDeletedCheck(YsGroupUserCB cb) {
+        return doSelectEntityWithDeletedCheck(cb, YsGroupUser.class);
+    }
+
+    protected <ENTITY extends YsGroupUser> ENTITY doSelectEntityWithDeletedCheck(final YsGroupUserCB cb, final Class<ENTITY> entityType) {
+        return helpSelectEntityWithDeletedCheckInternally(cb, new InternalSelectEntityWithDeletedCheckCallback<ENTITY, YsGroupUserCB>() {
+            public List<ENTITY> callbackSelectList(YsGroupUserCB cb) { return doSelectList(cb, entityType); } });
     }
 
     @Override
@@ -160,9 +204,14 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
      * @param id The one of primary key. (NotNull)
      * @return The selected entity. (Nullable: If the primary-key value has no data, it returns null)
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
+     * @exception org.seasar.dbflute.exception.SelectEntityConditionNotFoundException When the condition for selecting an entity is not found.
      */
     public YsGroupUser selectByPKValue(Long id) {
-        return selectEntity(buildPKCB(id));
+        return doSelectByPKValue(id, YsGroupUser.class);
+    }
+
+    protected <ENTITY extends YsGroupUser> ENTITY doSelectByPKValue(Long id, Class<ENTITY> entityType) {
+        return doSelectEntity(buildPKCB(id), entityType);
     }
 
     /**
@@ -171,9 +220,14 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
      * @return The selected entity. (NotNull)
      * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
+     * @exception org.seasar.dbflute.exception.SelectEntityConditionNotFoundException When the condition for selecting an entity is not found.
      */
     public YsGroupUser selectByPKValueWithDeletedCheck(Long id) {
-        return selectEntityWithDeletedCheck(buildPKCB(id));
+        return doSelectByPKValueWithDeletedCheck(id, YsGroupUser.class);
+    }
+
+    protected <ENTITY extends YsGroupUser> ENTITY doSelectByPKValueWithDeletedCheck(Long id, Class<ENTITY> entityType) {
+        return doSelectEntityWithDeletedCheck(buildPKCB(id), entityType);
     }
 
     private YsGroupUserCB buildPKCB(Long id) {
@@ -188,12 +242,28 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                         ===========
     /**
      * Select the list as result bean.
+     * <pre>
+     * YsGroupUserCB cb = new YsGroupUserCB();
+     * cb.query().setFoo...(value);
+     * cb.query().addOrderBy_Bar...();
+     * ListResultBean&lt;YsGroupUser&gt; ysGroupUserList = ysGroupUserBhv.<span style="color: #FD4747">selectList</span>(cb);
+     * for (YsGroupUser ysGroupUser : ysGroupUserList) {
+     *     ... = ysGroupUser.get...();
+     * }
+     * </pre>
      * @param cb The condition-bean of YsGroupUser. (NotNull)
      * @return The result bean of selected list. (NotNull)
+     * @exception org.seasar.dbflute.exception.DangerousResultSizeException When the result size is over the specified safety size.
      */
     public ListResultBean<YsGroupUser> selectList(YsGroupUserCB cb) {
-        assertCBNotNull(cb);
-        return new ResultBeanBuilder<YsGroupUser>(getTableDbName()).buildListResultBean(cb, delegateSelectList(cb));
+        return doSelectList(cb, YsGroupUser.class);
+    }
+
+    protected <ENTITY extends YsGroupUser> ListResultBean<ENTITY> doSelectList(YsGroupUserCB cb, Class<ENTITY> entityType) {
+        assertCBNotNull(cb); assertObjectNotNull("entityType", entityType);
+        assertSpecifyDerivedReferrerEntityProperty(cb, entityType);
+        return helpSelectListInternally(cb, entityType, new InternalSelectListCallback<ENTITY, YsGroupUserCB>() {
+            public List<ENTITY> callbackSelectList(YsGroupUserCB cb, Class<ENTITY> entityType) { return delegateSelectList(cb, entityType); } });
     }
 
     @Override
@@ -205,19 +275,37 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                         Page Select
     //                                                                         ===========
     /**
-     * Select the page as result bean.
+     * Select the page as result bean. <br />
+     * (both count-select and paging-select are executed)
+     * <pre>
+     * YsGroupUserCB cb = new YsGroupUserCB();
+     * cb.query().setFoo...(value);
+     * cb.query().addOrderBy_Bar...();
+     * cb.<span style="color: #FD4747">paging</span>(20, 3); <span style="color: #3F7E5E">// 20 records per a page and current page number is 3</span>
+     * PagingResultBean&lt;YsGroupUser&gt; page = ysGroupUserBhv.<span style="color: #FD4747">selectPage</span>(cb);
+     * int allRecordCount = page.getAllRecordCount();
+     * int allPageCount = page.getAllPageCount();
+     * boolean isExistPrePage = page.isExistPrePage();
+     * boolean isExistNextPage = page.isExistNextPage();
+     * ...
+     * for (YsGroupUser ysGroupUser : page) {
+     *     ... = ysGroupUser.get...();
+     * }
+     * </pre>
      * @param cb The condition-bean of YsGroupUser. (NotNull)
      * @return The result bean of selected page. (NotNull)
+     * @exception org.seasar.dbflute.exception.DangerousResultSizeException When the result size is over the specified safety size.
      */
-    public PagingResultBean<YsGroupUser> selectPage(final YsGroupUserCB cb) {
-        assertCBNotNull(cb);
-        final PagingInvoker<YsGroupUser> invoker = new PagingInvoker<YsGroupUser>(getTableDbName());
-        final PagingHandler<YsGroupUser> handler = new PagingHandler<YsGroupUser>() {
-            public PagingBean getPagingBean() { return cb; }
-            public int count() { return selectCount(cb); }
-            public List<YsGroupUser> paging() { return selectList(cb); }
-        };
-        return invoker.invokePaging(handler);
+    public PagingResultBean<YsGroupUser> selectPage(YsGroupUserCB cb) {
+        return doSelectPage(cb, YsGroupUser.class);
+    }
+
+    protected <ENTITY extends YsGroupUser> PagingResultBean<ENTITY> doSelectPage(YsGroupUserCB cb, Class<ENTITY> entityType) {
+        assertCBNotNull(cb); assertObjectNotNull("entityType", entityType);
+        return helpSelectPageInternally(cb, entityType, new InternalSelectPageCallback<ENTITY, YsGroupUserCB>() {
+            public int callbackSelectCount(YsGroupUserCB cb) { return doSelectCount(cb); }
+            public List<ENTITY> callbackSelectList(YsGroupUserCB cb, Class<ENTITY> entityType) { return doSelectList(cb, entityType); }
+        });
     }
 
     @Override
@@ -230,11 +318,13 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                       =============
     /**
      * Select the scalar value derived by a function. <br />
-     * Call a function method after this method called like as follows:
+     * You should call a function method after this method called like as follows:
      * <pre>
-     * ysGroupUserBhv.scalarSelect(Date.class).max(new ScalarQuery(YsGroupUserCB cb) {
-     *     cb.specify().columnXxxDatetime(); // the required specification of target column
-     *     cb.query().setXxxName_PrefixSearch("S"); // query as you like it
+     * ysGroupUserBhv.<span style="color: #FD4747">scalarSelect</span>(Date.class).max(new ScalarQuery() {
+     *     public void query(YsGroupUserCB cb) {
+     *         cb.specify().<span style="color: #FD4747">columnFooDatetime()</span>; <span style="color: #3F7E5E">// required for a function</span>
+     *         cb.query().setBarName_PrefixSearch("S");
+     *     }
      * });
      * </pre>
      * @param <RESULT> The type of result.
@@ -242,11 +332,24 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
      * @return The scalar value derived by a function. (Nullable)
      */
     public <RESULT> SLFunction<YsGroupUserCB, RESULT> scalarSelect(Class<RESULT> resultType) {
-        YsGroupUserCB cb = newMyConditionBean();
-        cb.xsetupForScalarSelect();
-        cb.getSqlClause().disableSelectIndex(); // for when you use union
-        return new SLFunction<YsGroupUserCB, RESULT>(cb, resultType);
+        return doScalarSelect(resultType, newMyConditionBean());
     }
+
+    protected <RESULT, CB extends YsGroupUserCB> SLFunction<CB, RESULT> doScalarSelect(Class<RESULT> resultType, CB cb) {
+        assertObjectNotNull("resultType", resultType); assertCBNotNull(cb);
+        cb.xsetupForScalarSelect(); cb.getSqlClause().disableSelectIndex(); // for when you use union
+        return new SLFunction<CB, RESULT>(cb, resultType);
+    }
+
+    // ===================================================================================
+    //                                                                            Sequence
+    //                                                                            ========
+    @Override
+    protected Number doReadNextVal() {
+        String msg = "This table is NOT related to sequence: " + getTableDbName();
+        throw new UnsupportedOperationException(msg);
+    }
+
     // ===================================================================================
     //                                                                    Pull out Foreign
     //                                                                    ================
@@ -282,6 +385,14 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                       =============
     /**
      * Insert the entity.
+     * <pre>
+     * YsGroupUser ysGroupUser = new YsGroupUser();
+     * <span style="color: #3F7E5E">// if auto-increment, you don't need to set the PK value</span>
+     * ysGroupUser.setFoo...(value);
+     * ysGroupUser.setBar...(value);
+     * ysGroupUserBhv.<span style="color: #FD4747">insert</span>(ysGroupUser);
+     * ... = ysGroupUser.getPK...(); <span style="color: #3F7E5E">// if auto-increment, you can get the value after</span>
+     * </pre>
      * @param ysGroupUser The entity of insert target. (NotNull)
      * @exception org.seasar.dbflute.exception.EntityAlreadyExistsException When the entity already exists. (Unique Constraint Violation)
      */
@@ -296,7 +407,19 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Update the entity modified-only. {UpdateCountZeroException, ConcurrencyControl}
+     * Update the entity modified-only. {UpdateCountZeroException, ExclusiveControl}
+     * <pre>
+     * YsGroupUser ysGroupUser = new YsGroupUser();
+     * ysGroupUser.setPK...(value); <span style="color: #3F7E5E">// required</span>
+     * ysGroupUser.setFoo...(value); <span style="color: #3F7E5E">// you should set only modified columns</span>
+     * <span style="color: #3F7E5E">// if exclusive control, the value of exclusive control column is required</span>
+     * ysGroupUser.<span style="color: #FD4747">setVersionNo</span>(value);
+     * try {
+     *     ysGroupUserBhv.<span style="color: #FD4747">update</span>(ysGroupUser);
+     * } catch (EntityAlreadyUpdatedException e) { <span style="color: #3F7E5E">// if concurrent update</span>
+     *     ...
+     * } 
+     * </pre>
      * @param ysGroupUser The entity of update target. (NotNull) {PrimaryKeyRequired, ConcurrencyColumnRequired}
      * @exception org.seasar.dbflute.exception.EntityAlreadyUpdatedException When the entity has already been updated.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
@@ -311,9 +434,18 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     protected void doModify(Entity entity) {
         update(downcast(entity));
     }
-    
+
     /**
-     * Update the entity non-strictly modified-only. {UpdateCountZeroException, NonConcurrencyControl}
+     * Update the entity non-strictly modified-only. {UpdateCountZeroException, NonExclusiveControl}
+     * <pre>
+     * YsGroupUser ysGroupUser = new YsGroupUser();
+     * ysGroupUser.setPK...(value); <span style="color: #3F7E5E">// required</span>
+     * ysGroupUser.setFoo...(value); <span style="color: #3F7E5E">// you should set only modified columns</span>
+     * <span style="color: #3F7E5E">// you don't need to set the value of exclusive control column</span>
+     * <span style="color: #3F7E5E">// (auto-increment for version number is valid though non-exclusive control)</span>
+     * <span style="color: #3F7E5E">//ysGroupUser.setVersionNo(value);</span>
+     * ysGroupUserBhv.<span style="color: #FD4747">updateNonstrict</span>(ysGroupUser);
+     * </pre>
      * @param ysGroupUser The entity of update target. (NotNull) {PrimaryKeyRequired}
      * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
@@ -330,7 +462,7 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Insert or update the entity modified-only. {ConcurrencyControl(when update)}
+     * Insert or update the entity modified-only. {ExclusiveControl(when update)}
      * @param ysGroupUser The entity of insert or update target. (NotNull)
      * @exception org.seasar.dbflute.exception.EntityAlreadyUpdatedException When the entity has already been updated.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
@@ -351,7 +483,7 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Insert or update the entity non-strictly modified-only. {NonConcurrencyControl(when update)}
+     * Insert or update the entity non-strictly modified-only. {NonExclusiveControl(when update)}
      * @param ysGroupUser The entity of insert or update target. (NotNull)
      * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
@@ -370,7 +502,18 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Delete the entity. {UpdateCountZeroException, ConcurrencyControl}
+     * Delete the entity. {UpdateCountZeroException, ExclusiveControl}
+     * <pre>
+     * YsGroupUser ysGroupUser = new YsGroupUser();
+     * ysGroupUser.setPK...(value); <span style="color: #3F7E5E">// required</span>
+     * <span style="color: #3F7E5E">// if exclusive control, the value of exclusive control column is required</span>
+     * ysGroupUser.<span style="color: #FD4747">setVersionNo</span>(value);
+     * try {
+     *     ysGroupUserBhv.<span style="color: #FD4747">delete</span>(ysGroupUser);
+     * } catch (EntityAlreadyUpdatedException e) { <span style="color: #3F7E5E">// if concurrent update</span>
+     *     ...
+     * } 
+     * </pre>
      * @param ysGroupUser The entity of delete target. (NotNull) {PrimaryKeyRequired, ConcurrencyColumnRequired}
      * @exception org.seasar.dbflute.exception.EntityAlreadyUpdatedException When the entity has already been updated.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
@@ -386,7 +529,15 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Delete the entity non-strictly. {UpdateCountZeroException, NonConcurrencyControl}
+     * Delete the entity non-strictly. {UpdateCountZeroException, NonExclusiveControl}
+     * <pre>
+     * YsGroupUser ysGroupUser = new YsGroupUser();
+     * ysGroupUser.setPK...(value); <span style="color: #3F7E5E">// required</span>
+     * <span style="color: #3F7E5E">// you don't need to set the value of exclusive control column</span>
+     * <span style="color: #3F7E5E">// (auto-increment for version number is valid though non-exclusive control)</span>
+     * <span style="color: #3F7E5E">//ysGroupUser.setVersionNo(value);</span>
+     * ysGroupUserBhv.<span style="color: #FD4747">deleteNonstrict</span>(ysGroupUser);
+     * </pre>
      * @param ysGroupUser Entity. (NotNull) {PrimaryKeyRequired}
      * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
@@ -397,7 +548,16 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Delete the entity non-strictly ignoring deleted. {UpdateCountZeroException, NonConcurrencyControl}
+     * Delete the entity non-strictly ignoring deleted. {UpdateCountZeroException, NonExclusiveControl}
+     * <pre>
+     * YsGroupUser ysGroupUser = new YsGroupUser();
+     * ysGroupUser.setPK...(value); <span style="color: #3F7E5E">// required</span>
+     * <span style="color: #3F7E5E">// you don't need to set the value of exclusive control column</span>
+     * <span style="color: #3F7E5E">// (auto-increment for version number is valid though non-exclusive control)</span>
+     * <span style="color: #3F7E5E">//ysGroupUser.setVersionNo(value);</span>
+     * ysGroupUserBhv.<span style="color: #FD4747">deleteNonstrictIgnoreDeleted</span>(ysGroupUser);
+     * <span style="color: #3F7E5E">// if the target entity doesn't exist, no exception</span>
+     * </pre>
      * @param ysGroupUser Entity. (NotNull) {PrimaryKeyRequired}
      * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
      */
@@ -410,7 +570,7 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                        Batch Update
     //                                                                        ============
     /**
-     * Batch insert the list. This method use 'Batch Update' of java.sql.PreparedStatement.
+     * Batch-insert the list. This method uses 'Batch Update' of java.sql.PreparedStatement.
      * @param ysGroupUserList The list of the entity. (NotNull)
      * @return The array of inserted count.
      */
@@ -420,8 +580,9 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Batch update the list. All columns are update target. {NOT modified only} <br />
-     * This method use 'Batch Update' of java.sql.PreparedStatement.
+     * Batch-update the list. <br />
+     * All columns are update target. {NOT modified only} <br />
+     * This method uses 'Batch Update' of java.sql.PreparedStatement.
      * @param ysGroupUserList The list of the entity. (NotNull)
      * @return The array of updated count.
      * @exception org.seasar.dbflute.exception.BatchEntityAlreadyUpdatedException When the entity has already been updated. This exception extends EntityAlreadyUpdatedException.
@@ -432,8 +593,9 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Batch update the list non-strictly. All columns are update target. {NOT modified only} <br />
-     * This method use 'Batch Update' of java.sql.PreparedStatement.
+     * Batch-update the list non-strictly. <br />
+     * All columns are update target. {NOT modified only} <br />
+     * This method uses 'Batch Update' of java.sql.PreparedStatement.
      * @param ysGroupUserList The list of the entity. (NotNull)
      * @return The array of updated count.
      * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
@@ -444,8 +606,8 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Batch delete the list. <br />
-     * This method use 'Batch Update' of java.sql.PreparedStatement.
+     * Batch-delete the list. <br />
+     * This method uses 'Batch Update' of java.sql.PreparedStatement.
      * @param ysGroupUserList The list of the entity. (NotNull)
      * @return The array of deleted count.
      * @exception org.seasar.dbflute.exception.BatchEntityAlreadyUpdatedException When the entity has already been updated. This exception extends EntityAlreadyUpdatedException.
@@ -456,8 +618,8 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     }
 
     /**
-     * Batch delete the list non-strictly. <br />
-     * This method use 'Batch Update' of java.sql.PreparedStatement.
+     * Batch-delete the list non-strictly. <br />
+     * This method uses 'Batch Update' of java.sql.PreparedStatement.
      * @param ysGroupUserList The list of the entity. (NotNull)
      * @return The array of deleted count.
      * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
@@ -471,26 +633,137 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     //                                                                        Query Update
     //                                                                        ============
     /**
-     * Query update the several entities. {NoConcurrencyControl}
+     * Query-update the several entities non-strictly modified-only. {NonExclusiveControl}
+     * <pre>
+     * YsGroupUser ysGroupUser = new YsGroupUser();
+     * <span style="color: #3F7E5E">// you don't need to set PK value</span>
+     * <span style="color: #3F7E5E">//ysGroupUser.setPK...(value);</span>
+     * ysGroupUser.setFoo...(value); <span style="color: #3F7E5E">// you should set only modified columns</span>
+     * <span style="color: #3F7E5E">// you don't need to set the value of exclusive control column</span>
+     * <span style="color: #3F7E5E">// (auto-increment for version number is valid though non-exclusive control)</span>
+     * <span style="color: #3F7E5E">//ysGroupUser.setVersionNo(value);</span>
+     * YsGroupUserCB cb = new YsGroupUserCB();
+     * cb.query().setFoo...(value);
+     * ysGroupUserBhv.<span style="color: #FD4747">queryUpdate</span>(ysGroupUser, cb);
+     * </pre>
      * @param ysGroupUser The entity that contains update values. (NotNull) {PrimaryKeyNotRequired}
      * @param cb The condition-bean of YsGroupUser. (NotNull)
      * @return The updated count.
      */
     public int queryUpdate(YsGroupUser ysGroupUser, YsGroupUserCB cb) {
-        assertObjectNotNull("ysGroupUser", ysGroupUser); assertCBNotNull(cb);
-        setupCommonColumnOfUpdateIfNeeds(ysGroupUser);
-        filterEntityOfUpdate(ysGroupUser); assertEntityOfUpdate(ysGroupUser);
-        return invoke(createQueryUpdateEntityCBCommand(ysGroupUser, cb));
+        return delegateQueryUpdate(ysGroupUser, cb);
     }
 
     /**
-     * Query delete the several entities. {NoConcurrencyControl}
+     * Query-delete the several entities. {NonExclusiveControl}
+     * <pre>
+     * YsGroupUserCB cb = new YsGroupUserCB();
+     * cb.query().setFoo...(value);
+     * ysGroupUserBhv.<span style="color: #FD4747">queryDelete</span>(ysGroupUser, cb);
+     * </pre>
      * @param cb The condition-bean of YsGroupUser. (NotNull)
      * @return The deleted count.
      */
     public int queryDelete(YsGroupUserCB cb) {
-        assertCBNotNull(cb);
-        return invoke(createQueryDeleteCBCommand(cb));
+        return delegateQueryDelete(cb);
+    }
+
+    /**
+     * Varying-update the entity modified-only. {UpdateCountZeroException, ExclusiveControl}
+     * <pre>
+     * YsGroupUser ysGroupUser = new YsGroupUser();
+     * ysGroupUser.setPK...(value); <span style="color: #3F7E5E">// required</span>
+     * ysGroupUser.setOther...(value); <span style="color: #3F7E5E">// you should set only modified columns</span>
+     * <span style="color: #3F7E5E">// if exclusive control, the value of exclusive control column is required</span>
+     * ysGroupUser.<span style="color: #FD4747">setVersionNo</span>(value);
+     * try {
+     *     UpdateOption&lt;YsGroupUserCB&gt; option = new UpdateOption&lt;YsGroupUserCB&gt;();
+     *     option.self(new SpecifyQuery&lt;YsGroupUserCB&gt;() {
+     *         public void specify(YsGroupUserCB cb) {
+     *             cb.specify().<span style="color: #FD4747">columnXxxCount()</span>;
+     *         }
+     *     }).plus(1); <span style="color: #3F7E5E">// XXX_COUNT = XXX_COUNT + 1</span>
+     *     ysGroupUserBhv.<span style="color: #FD4747">varyingUpdate</span>(ysGroupUser, option);
+     * } catch (EntityAlreadyUpdatedException e) { <span style="color: #3F7E5E">// if concurrent update</span>
+     *     ...
+     * }
+     * </pre>
+     * @param ysGroupUser The entity of update target. (NotNull) {PrimaryKeyRequired, ConcurrencyColumnRequired}
+     * @param option The option of update for varying values. (NotNull)
+     * @exception org.seasar.dbflute.exception.EntityAlreadyUpdatedException When the entity has already been updated.
+     * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
+     * @exception org.seasar.dbflute.exception.EntityAlreadyExistsException When the entity already exists. (Unique Constraint Violation)
+     */
+    public void varyingUpdate(YsGroupUser ysGroupUser, final UpdateOption<YsGroupUserCB> option) {
+        processVaryingUpdate(option);
+        helpUpdateInternally(ysGroupUser, new InternalUpdateCallback<YsGroupUser>() {
+            public int callbackDelegateUpdate(YsGroupUser entity) { return delegateVaryingUpdate(entity, option); } });
+    }
+
+    /**
+     * Varying-update the entity non-strictly modified-only. {UpdateCountZeroException, NonExclusiveControl}
+     * <pre>
+     * YsGroupUser ysGroupUser = new YsGroupUser();
+     * ysGroupUser.setPK...(value); <span style="color: #3F7E5E">// required</span>
+     * ysGroupUser.setOther...(value); <span style="color: #3F7E5E">// you should set only modified columns</span>
+     * <span style="color: #3F7E5E">// you don't need to set the value of exclusive control column</span>
+     * <span style="color: #3F7E5E">// (auto-increment for version number is valid though non-exclusive control)</span>
+     * <span style="color: #3F7E5E">//ysGroupUser.setVersionNo(value);</span>
+     * UpdateOption&lt;YsGroupUserCB&gt; option = new UpdateOption&lt;YsGroupUserCB&gt;();
+     * option.self(new SpecifyQuery&lt;YsGroupUserCB&gt;() {
+     *     public void specify(YsGroupUserCB cb) {
+     *         cb.specify().<span style="color: #FD4747">columnFooCount()</span>;
+     *     }
+     * }).plus(1); <span style="color: #3F7E5E">// FOO_COUNT = FOO_COUNT + 1</span>
+     * ysGroupUserBhv.<span style="color: #FD4747">varyingUpdateNonstrict</span>(ysGroupUser, option);
+     * </pre>
+     * @param ysGroupUser The entity of update target. (NotNull) {PrimaryKeyRequired}
+     * @param option The option of update for varying values. (NotNull)
+     * @exception org.seasar.dbflute.exception.EntityAlreadyDeletedException When the entity has already been deleted.
+     * @exception org.seasar.dbflute.exception.EntityDuplicatedException When the entity has been duplicated.
+     * @exception org.seasar.dbflute.exception.EntityAlreadyExistsException When the entity already exists. (Unique Constraint Violation)
+     */
+    public void varyingUpdateNonstrict(YsGroupUser ysGroupUser, final UpdateOption<YsGroupUserCB> option) {
+        processVaryingUpdate(option);
+        helpUpdateNonstrictInternally(ysGroupUser, new InternalUpdateNonstrictCallback<YsGroupUser>() {
+            public int callbackDelegateUpdateNonstrict(YsGroupUser entity) { return delegateVaryingUpdateNonstrict(entity, option); } });
+    }
+
+    /**
+     * Varying-query-update the several entities non-strictly modified-only. {NonExclusiveControl}
+     * <pre>
+     * YsGroupUser ysGroupUser = new YsGroupUser();
+     * <span style="color: #3F7E5E">// you don't need to set PK value</span>
+     * <span style="color: #3F7E5E">//ysGroupUser.setPK...(value);</span>
+     * ysGroupUser.setOther...(value); <span style="color: #3F7E5E">// you should set only modified columns</span>
+     * <span style="color: #3F7E5E">// you don't need to set the value of exclusive control column</span>
+     * <span style="color: #3F7E5E">// (auto-increment for version number is valid though non-exclusive control)</span>
+     * <span style="color: #3F7E5E">//ysGroupUser.setVersionNo(value);</span>
+     * YsGroupUserCB cb = new YsGroupUserCB();
+     * cb.query().setFoo...(value);
+     * UpdateOption&lt;YsGroupUserCB&gt; option = new UpdateOption&lt;YsGroupUserCB&gt;();
+     * option.self(new SpecifyQuery&lt;YsGroupUserCB&gt;() {
+     *     public void specify(YsGroupUserCB cb) {
+     *         cb.specify().<span style="color: #FD4747">columnFooCount()</span>;
+     *     }
+     * }).plus(1); <span style="color: #3F7E5E">// FOO_COUNT = FOO_COUNT + 1</span>
+     * ysGroupUserBhv.<span style="color: #FD4747">varyingQueryUpdate</span>(ysGroupUser, cb, option);
+     * </pre>
+     * @param ysGroupUser The entity that contains update values. (NotNull) {PrimaryKeyNotRequired}
+     * @param cb The condition-bean of YsGroupUser. (NotNull)
+     * @param option The option of update for varying values. (NotNull)
+     * @return The updated count.
+     */
+    public int varyingQueryUpdate(YsGroupUser ysGroupUser, YsGroupUserCB cb, final UpdateOption<YsGroupUserCB> option) {
+        processVaryingUpdate(option);
+        return delegateVaryingQueryUpdate(ysGroupUser, cb, option);
+    }
+
+    protected void processVaryingUpdate(UpdateOption<YsGroupUserCB> option) {
+        assertUpdateOptionNotNull(option);
+        YsGroupUserCB cb = newMyConditionBean();
+        cb.xsetupForVaryingUpdate();
+        option.resolveSpecification(cb);
     }
     
     // ===================================================================================
@@ -501,10 +774,10 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     //                                                Select
     //                                                ------
     protected int delegateSelectCount(YsGroupUserCB cb) { return invoke(createSelectCountCBCommand(cb)); }
-    protected void delegateSelectCursor(YsGroupUserCB cb, EntityRowHandler<YsGroupUser> entityRowHandler)
-    { invoke(createSelectCursorCBCommand(cb, entityRowHandler, YsGroupUser.class)); }
-    protected List<YsGroupUser> delegateSelectList(YsGroupUserCB cb)
-    { return invoke(createSelectListCBCommand(cb, YsGroupUser.class)); }
+    protected <ENTITY extends YsGroupUser> void delegateSelectCursor(YsGroupUserCB cb, EntityRowHandler<ENTITY> entityRowHandler, Class<ENTITY> entityType)
+    { invoke(createSelectCursorCBCommand(cb, entityRowHandler, entityType)); }
+    protected <ENTITY extends YsGroupUser> List<ENTITY> delegateSelectList(YsGroupUserCB cb, Class<ENTITY> entityType)
+    { return invoke(createSelectListCBCommand(cb, entityType)); }
 
     // -----------------------------------------------------
     //                                                Update
@@ -536,6 +809,18 @@ public abstract class BsYsGroupUserBhv extends AbstractBehaviorWritable {
     protected int[] doRemoveList(List<Entity> ls) { return delegateDeleteList((List)ls); }
     protected int[] delegateDeleteListNonstrict(List<YsGroupUser> ls)
     { if (ls.isEmpty()) { return new int[]{}; } return invoke(createBatchDeleteNonstrictEntityCommand(helpFilterBeforeDeleteInternally(ls))); }
+
+    protected int delegateQueryUpdate(YsGroupUser e, YsGroupUserCB cb)
+    { if (!processBeforeQueryUpdate(e, cb)) { return 0; } return invoke(createQueryUpdateEntityCBCommand(e, cb));  }
+    protected int delegateQueryDelete(YsGroupUserCB cb)
+    { if (!processBeforeQueryDelete(cb)) { return 0; } return invoke(createQueryDeleteCBCommand(cb));  }
+
+    protected int delegateVaryingUpdate(YsGroupUser e, UpdateOption<YsGroupUserCB> op)
+    { if (!processBeforeUpdate(e)) { return 1; } return invoke(createVaryingUpdateEntityCommand(e, op)); }
+    protected int delegateVaryingUpdateNonstrict(YsGroupUser e, UpdateOption<YsGroupUserCB> op)
+    { if (!processBeforeUpdate(e)) { return 1; } return invoke(createVaryingUpdateNonstrictEntityCommand(e, op)); }
+    protected int delegateVaryingQueryUpdate(YsGroupUser e, YsGroupUserCB cb, UpdateOption<YsGroupUserCB> op)
+    { if (!processBeforeQueryUpdate(e, cb)) { return 0; } return invoke(createVaryingQueryUpdateEntityCBCommand(e, cb, op));  }
 
     // ===================================================================================
     //                                                                Optimistic Lock Info

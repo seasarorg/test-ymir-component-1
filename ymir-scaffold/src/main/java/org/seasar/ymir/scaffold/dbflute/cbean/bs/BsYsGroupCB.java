@@ -1,8 +1,7 @@
 package org.seasar.ymir.scaffold.dbflute.cbean.bs;
 
-import java.util.Map;
-
 import org.seasar.dbflute.cbean.AbstractConditionBean;
+import org.seasar.dbflute.cbean.AndQuery;
 import org.seasar.dbflute.cbean.ConditionBean;
 import org.seasar.dbflute.cbean.ConditionQuery;
 import org.seasar.dbflute.cbean.OrQuery;
@@ -10,7 +9,9 @@ import org.seasar.dbflute.cbean.SpecifyQuery;
 import org.seasar.dbflute.cbean.SubQuery;
 import org.seasar.dbflute.cbean.UnionQuery;
 import org.seasar.dbflute.cbean.chelper.*;
+import org.seasar.dbflute.cbean.coption.*;
 import org.seasar.dbflute.cbean.sqlclause.SqlClause;
+import org.seasar.dbflute.cbean.sqlclause.SqlClauseCreator;
 import org.seasar.dbflute.dbmeta.DBMetaProvider;
 import org.seasar.dbflute.twowaysql.factory.SqlAnalyzerFactory;
 import org.seasar.ymir.scaffold.dbflute.allcommon.DBFluteConfig;
@@ -29,7 +30,6 @@ public class BsYsGroupCB extends AbstractConditionBean {
     // ===================================================================================
     //                                                                           Attribute
     //                                                                           =========
-    private final DBMetaProvider _dbmetaProvider = new DBMetaInstanceHandler();
     protected YsGroupCQ _conditionQuery;
 
     // ===================================================================================
@@ -37,7 +37,11 @@ public class BsYsGroupCB extends AbstractConditionBean {
     //                                                                           =========
     @Override
     protected SqlClause createSqlClause() {
-        return new ImplementedSqlClauseCreator().createSqlClause(this);
+        SqlClauseCreator creator = DBFluteConfig.getInstance().getSqlClauseCreator();
+        if (creator != null) {
+            return creator.createSqlClause(this);
+        }
+        return new ImplementedSqlClauseCreator().createSqlClause(this); // as default
     }
 
     // ===================================================================================
@@ -45,7 +49,7 @@ public class BsYsGroupCB extends AbstractConditionBean {
     //                                                                     ===============
     @Override
     protected DBMetaProvider getDBMetaProvider() {
-        return _dbmetaProvider;
+        return DBMetaInstanceHandler.getProvider(); // as default
     }
 
     // ===================================================================================
@@ -56,24 +60,14 @@ public class BsYsGroupCB extends AbstractConditionBean {
     }
 
     // ===================================================================================
-    //                                                                      PrimaryKey Map
-    //                                                                      ==============
-    public void acceptPrimaryKeyMap(Map<String, ? extends Object> primaryKeyMap) {
-        assertPrimaryKeyMap(primaryKeyMap);
-        {
-            Object obj = primaryKeyMap.get("ID");
-            if (obj instanceof Long) {
-                query().setId_Equal((Long)obj);
-            } else {
-                query().setId_Equal(new Long((String)obj));
-            }
-        }
-
+    //                                                                 PrimaryKey Handling
+    //                                                                 ===================
+    public void acceptPrimaryKey(Long id) {
+        assertObjectNotNull("id", id);
+        BsYsGroupCB cb = this;
+        cb.query().setId_Equal(id);
     }
 
-    // ===================================================================================
-    //                                                                     OrderBy Setting
-    //                                                                     ===============
     public ConditionBean addOrderBy_PK_Asc() {
         query().addOrderBy_Id_Asc();
         return this;
@@ -87,11 +81,86 @@ public class BsYsGroupCB extends AbstractConditionBean {
     // ===================================================================================
     //                                                                               Query
     //                                                                               =====
+    /**
+     * Prepare for various queries. <br />
+     * Examples of main functions are following:
+     * <pre>
+     * <span style="color: #3F7E5E">// Basic Queries</span>
+     * cb.query().setMemberId_Equal(value);        <span style="color: #3F7E5E">// =</span>
+     * cb.query().setMemberId_NotEqual(value);     <span style="color: #3F7E5E">// !=</span>
+     * cb.query().setMemberId_GreaterThan(value);  <span style="color: #3F7E5E">// &gt;</span>
+     * cb.query().setMemberId_LessThan(value);     <span style="color: #3F7E5E">// &lt;</span>
+     * cb.query().setMemberId_GreaterEqual(value); <span style="color: #3F7E5E">// &gt;=</span>
+     * cb.query().setMemberId_LessEqual(value);    <span style="color: #3F7E5E">// &lt;=</span>
+     * cb.query().setMemberName_InScope(valueList);    <span style="color: #3F7E5E">// in ('a', 'b')</span>
+     * cb.query().setMemberName_NotInScope(valueList); <span style="color: #3F7E5E">// not in ('a', 'b')</span>
+     * cb.query().setMemberName_PrefixSearch(value);   <span style="color: #3F7E5E">// like 'a%' escape '|'</span>
+     * <span style="color: #3F7E5E">// LikeSearch with various options: (versatile)</span>
+     * <span style="color: #3F7E5E">// {like ... [options]}</span>
+     * cb.query().setMemberName_LikeSearch(value, option);
+     * cb.query().setMemberName_NotLikeSearch(value, option); <span style="color: #3F7E5E">// not like ...</span>
+     * <span style="color: #3F7E5E">// FromTo with various options: (versatile)</span>
+     * <span style="color: #3F7E5E">// {(default) fromDatetime &lt;= BIRTHDATE &lt;= toDatetime}</span>
+     * cb.query().setBirthdate_FromTo(fromDatetime, toDatetime, option);
+     * <span style="color: #3F7E5E">// DateFromTo: (Date means yyyy/MM/dd)</span>
+     * <span style="color: #3F7E5E">// {fromDate &lt;= BIRTHDATE &lt; toDate + 1 day}</span>
+     * cb.query().setBirthdate_DateFromTo(fromDate, toDate);
+     * cb.query().setBirthdate_IsNull();    <span style="color: #3F7E5E">// is null</span>
+     * cb.query().setBirthdate_IsNotNull(); <span style="color: #3F7E5E">// is not null</span>
+     * 
+     * <span style="color: #3F7E5E">// ExistsReferrer: (co-related sub-query)</span>
+     * <span style="color: #3F7E5E">// {where exists (select PURCHASE_ID from PURCHASE where ...)}</span>
+     * cb.query().existsPurchaseList(new SubQuery&lt;PurchaseCB&gt;() {
+     *     public void query(PurchaseCB subCB) {
+     *         subCB.query().setXxx... <span style="color: #3F7E5E">// referrer sub-query condition</span>
+     *     }
+     * });
+     * cb.query().notExistsPurchaseList...
+     * 
+     * <span style="color: #3F7E5E">// InScopeRelation: (sub-query)</span>
+     * <span style="color: #3F7E5E">// {where MEMBER_STATUS_CODE in (select MEMBER_STATUS_CODE from MEMBER_STATUS where ...)}</span>
+     * cb.query().inScopeMemberStatus(new SubQuery&lt;MemberStatusCB&gt;() {
+     *     public void query(MemberStatusCB subCB) {
+     *         subCB.query().setXxx... <span style="color: #3F7E5E">// relation sub-query condition</span>
+     *     }
+     * });
+     * cb.query().notInScopeMemberStatus...
+     * 
+     * <span style="color: #3F7E5E">// (Query)DerivedReferrer: (co-related sub-query)</span>
+     * cb.query().derivedPurchaseList().max(new SubQuery&lt;PurchaseCB&gt;() {
+     *     public void query(PurchaseCB subCB) {
+     *         subCB.specify().columnPurchasePrice(); <span style="color: #3F7E5E">// derived column for function</span>
+     *         subCB.query().setXxx... <span style="color: #3F7E5E">// referrer sub-query condition</span>
+     *     }
+     * }).greaterEqual(value);
+     * 
+     * <span style="color: #3F7E5E">// ScalarCondition: (self-table sub-query)</span>
+     * cb.query().scalar_Equal().max(new SubQuery&lt;MemberCB&gt;() {
+     *     public void query(MemberCB subCB) {
+     *         subCB.specify().columnBirthdate(); <span style="color: #3F7E5E">// derived column for function</span>
+     *         subCB.query().setXxx... <span style="color: #3F7E5E">// scalar sub-query condition</span>
+     *     }
+     * });
+     * 
+     * <span style="color: #3F7E5E">// OrderBy</span>
+     * cb.query().addOrderBy_MemberName_Asc();
+     * cb.query().addOrderBy_MemberName_Desc().withManualOrder(valueList);
+     * cb.query().addOrderBy_MemberName_Desc().withNullsFirst();
+     * cb.query().addOrderBy_MemberName_Desc().withNullsLast();
+     * cb.query().addSpecifiedDerivedOrderBy_Desc(aliasName);
+     * 
+     * <span style="color: #3F7E5E">// Query(Relation)</span>
+     * cb.query().queryMemberStatus()...;
+     * cb.query().queryMemberAddressAsValid(targetDate)...;
+     * </pre>
+     * @return The instance of condition-query for base-point table to set up query. (NotNull)
+     */
     public YsGroupCQ query() {
+        assertQueryPurpose(); // assert only when user-public query 
         return getConditionQuery();
     }
 
-    public YsGroupCQ getConditionQuery() { // public for parameter comment
+    public YsGroupCQ getConditionQuery() { // public for parameter comment and internal
         if (_conditionQuery == null) {
             _conditionQuery = createLocalCQ();
         }
@@ -99,16 +168,13 @@ public class BsYsGroupCB extends AbstractConditionBean {
     }
 
     protected YsGroupCQ createLocalCQ() {
-        return xcreateCQ(null, getSqlClause(), getSqlClause().getLocalTableAliasName(), 0);
+        return xcreateCQ(null, getSqlClause(), getSqlClause().getBasePointAliasName(), 0);
     }
 
     protected YsGroupCQ xcreateCQ(ConditionQuery childQuery, SqlClause sqlClause, String aliasName, int nestLevel) {
         return new YsGroupCQ(childQuery, sqlClause, aliasName, nestLevel);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public ConditionQuery localCQ() {
         return getConditionQuery();
     }
@@ -117,9 +183,11 @@ public class BsYsGroupCB extends AbstractConditionBean {
     //                                                                               Union
     //                                                                               =====
     /**
-     * Set up 'union'.
+     * Set up 'union' for base-point table. <br />
+     * You don't need to call SetupSelect in union-query,
+     * because it inherits calls before. (Don't call SetupSelect after here)
      * <pre>
-     * cb.query().union(new UnionQuery&lt;YsGroupCB&gt;() {
+     * cb.query().<span style="color: #FD4747">union</span>(new UnionQuery&lt;YsGroupCB&gt;() {
      *     public void query(YsGroupCB unionCB) {
      *         unionCB.query().setXxx...
      *     }
@@ -129,24 +197,26 @@ public class BsYsGroupCB extends AbstractConditionBean {
      */
     public void union(UnionQuery<YsGroupCB> unionQuery) {
         final YsGroupCB cb = new YsGroupCB();
-        cb.xsetupForUnion(); xsyncUQ(cb); unionQuery.query(cb);
+        cb.xsetupForUnion(this); xsyncUQ(cb); unionQuery.query(cb);
         final YsGroupCQ cq = cb.query(); query().xsetUnionQuery(cq);
     }
 
     /**
-     * Set up 'union all'.
+     * Set up 'union all' for base-point table. <br />
+     * You don't need to call SetupSelect in union-query,
+     * because it inherits calls before. (Don't call SetupSelect after here)
      * <pre>
-     * cb.query().unionAll(new UnionQuery&lt;YsGroupCB&gt;() {
+     * cb.query().<span style="color: #FD4747">unionAll</span>(new UnionQuery&lt;YsGroupCB&gt;() {
      *     public void query(YsGroupCB unionCB) {
      *         unionCB.query().setXxx...
      *     }
      * });
      * </pre>
-     * @param unionQuery The query of 'union'. (NotNull)
+     * @param unionQuery The query of 'union all'. (NotNull)
      */
     public void unionAll(UnionQuery<YsGroupCB> unionQuery) {
         final YsGroupCB cb = new YsGroupCB();
-        cb.xsetupForUnion(); xsyncUQ(cb); unionQuery.query(cb);
+        cb.xsetupForUnion(this); xsyncUQ(cb); unionQuery.query(cb);
         final YsGroupCQ cq = cb.query(); query().xsetUnionAllQuery(cq);
     }
 
@@ -159,62 +229,101 @@ public class BsYsGroupCB extends AbstractConditionBean {
     //                                                                             Specify
     //                                                                             =======
     protected HpSpecification _specification;
+
+    /**
+     * Prepare for SpecifyColumn, (Specify)DerivedReferrer. <br />
+     * This method should be called after SetupSelect.
+     * <pre>
+     * cb.setupSelect_MemberStatus(); <span style="color: #3F7E5E">// should be called before specify()</span>
+     * cb.specify().columnMemberName();
+     * cb.specify().specifyMemberStatus().columnMemberStatusName();
+     * cb.specify().derivedPurchaseList().max(new SubQuery&lt;PurchaseCB&gt;() {
+     *     public void query(PurchaseCB subCB) {
+     *         subCB.specify().columnPurchaseDatetime();
+     *         subCB.query().set...
+     *     }
+     * }, aliasName);
+     * </pre>
+     * @return The instance of specification. (NotNull)
+     */
     public HpSpecification specify() {
+        assertSpecifyPurpose();
         if (_specification == null) { _specification = new HpSpecification(this
             , new HpSpQyCall<YsGroupCQ>() {
                 public boolean has() { return true; }
-                public YsGroupCQ qy() { return query(); }
+                public YsGroupCQ qy() { return getConditionQuery(); }
             }
-            , _forDerivedReferrer, _forScalarSelect, _forScalarSubQuery, getDBMetaProvider()); }
+            , _purpose, getDBMetaProvider()); }
         return _specification;
     }
+
+    protected boolean hasSpecifiedColumn() {
+        return _specification != null && _specification.isAlreadySpecifiedRequiredColumn();
+    }
+
     protected HpAbstractSpecification<? extends ConditionQuery> localSp() {
         return specify();
     }
 
     public static class HpSpecification extends HpAbstractSpecification<YsGroupCQ> {
-        protected HpSpQyCall<YsGroupCQ> _myQyCall;
         public HpSpecification(ConditionBean baseCB, HpSpQyCall<YsGroupCQ> qyCall
-                             , boolean forDeriveReferrer, boolean forScalarSelect, boolean forScalarSubQuery
-                             , DBMetaProvider dbmetaProvider)
-        { super(baseCB, qyCall, forDeriveReferrer, forScalarSelect, forScalarSubQuery, dbmetaProvider); _myQyCall = qyCall; }
-        /** (ID)ID: {PK : ID : NotNull : BIGINT(19)} */
+                             , HpCBPurpose purpose, DBMetaProvider dbmetaProvider)
+        { super(baseCB, qyCall, purpose, dbmetaProvider); }
+        /** (ID)ID: {PK, ID, NotNull, BIGINT(19)} */
         public void columnId() { doColumn("ID"); }
-        /** (グループ名)NAME: {UQ : NotNull : VARCHAR(200)} */
+        /** (グループ名)NAME: {UQ, NotNull, VARCHAR(200)} */
         public void columnName() { doColumn("NAME"); }
-        /** (表示名)DISPLAY_NAME: {NotNull : VARCHAR(200)} */
+        /** (表示名)DISPLAY_NAME: {NotNull, VARCHAR(200)} */
         public void columnDisplayName() { doColumn("DISPLAY_NAME"); }
-        /** (作成日時)CREATED_DATE: {NotNull : TIMESTAMP(23, 10)} */
+        /** (作成日時)CREATED_DATE: {NotNull, TIMESTAMP(23, 10)} */
         public void columnCreatedDate() { doColumn("CREATED_DATE"); }
-        /** (更新日時)MODIFIED_DATE: {NotNull : TIMESTAMP(23, 10)} */
+        /** (更新日時)MODIFIED_DATE: {NotNull, TIMESTAMP(23, 10)} */
         public void columnModifiedDate() { doColumn("MODIFIED_DATE"); }
-        /** (バージョン番号)VERSION_NO: {NotNull : BIGINT(19) : default=[1]} */
+        /** (バージョン番号)VERSION_NO: {NotNull, BIGINT(19), default=[1]} */
         public void columnVersionNo() { doColumn("VERSION_NO"); }
+        @Override
         protected void doSpecifyRequiredColumn() {
             columnId(); // PK
         }
+        @Override
         protected String getTableDbName() { return "YS_GROUP"; }
         /**
+         * Prepare for '(Specify)DerivedReferrer'. <br />
          * YS_GROUP_USER as 'ysGroupUserList'.
-         * @return Function. (NotNull)
+         * <pre>
+         * cb.specify().<span style="color: #FD4747">derivedYsGroupUserList()</span>.max(new SubQuery&lt;YsGroupUserCB&gt;() {
+         *     public void query(YsGroupUserCB subCB) {
+         *         subCB.specify().<span style="color: #FD4747">columnFoo...</span> <span style="color: #3F7E5E">// derived column for function</span>
+         *         subCB.query().setBar... <span style="color: #3F7E5E">// referrer condition</span>
+         *     }
+         * }, aliasName);
+         * </pre>
+         * @return The object to set up a function for referrer table. (NotNull)
          */
         public HpSDRFunction<YsGroupUserCB, YsGroupCQ> derivedYsGroupUserList() {
-            return new HpSDRFunction<YsGroupUserCB, YsGroupCQ>(_baseCB, _myQyCall.qy(), new HpSDRSetupper<YsGroupUserCB, YsGroupCQ>() {
-                public void setup(String function, SubQuery<YsGroupUserCB> subQuery, YsGroupCQ cq, String aliasName) {
-                    cq.xsderiveYsGroupUserList(function, subQuery, aliasName); } }, _dbmetaProvider);
+            assertDerived("ysGroupUserList"); if (xhasSyncQyCall()) { xsyncQyCall().qy(); } // for sync (for example, this in ColumnQuery)
+            return new HpSDRFunction<YsGroupUserCB, YsGroupCQ>(_baseCB, _qyCall.qy(), new HpSDRSetupper<YsGroupUserCB, YsGroupCQ>() {
+                public void setup(String function, SubQuery<YsGroupUserCB> subQuery, YsGroupCQ cq, String aliasName, DerivedReferrerOption option) {
+                    cq.xsderiveYsGroupUserList(function, subQuery, aliasName, option); } }, _dbmetaProvider);
         }
         /**
+         * Prepare for '(Specify)DerivedReferrer'. <br />
          * YS_ROLE_GROUP_USER as 'ysRoleGroupUserList'.
-         * @return Function. (NotNull)
+         * <pre>
+         * cb.specify().<span style="color: #FD4747">derivedYsRoleGroupUserList()</span>.max(new SubQuery&lt;YsRoleGroupUserCB&gt;() {
+         *     public void query(YsRoleGroupUserCB subCB) {
+         *         subCB.specify().<span style="color: #FD4747">columnFoo...</span> <span style="color: #3F7E5E">// derived column for function</span>
+         *         subCB.query().setBar... <span style="color: #3F7E5E">// referrer condition</span>
+         *     }
+         * }, aliasName);
+         * </pre>
+         * @return The object to set up a function for referrer table. (NotNull)
          */
         public HpSDRFunction<YsRoleGroupUserCB, YsGroupCQ> derivedYsRoleGroupUserList() {
-            return new HpSDRFunction<YsRoleGroupUserCB, YsGroupCQ>(_baseCB, _myQyCall.qy(), new HpSDRSetupper<YsRoleGroupUserCB, YsGroupCQ>() {
-                public void setup(String function, SubQuery<YsRoleGroupUserCB> subQuery, YsGroupCQ cq, String aliasName) {
-                    cq.xsderiveYsRoleGroupUserList(function, subQuery, aliasName); } }, _dbmetaProvider);
-        }
-
-        public void xsetupForGeneralOneSpecification(HpSpQyCall<YsGroupCQ> qyCall) {
-            if (qyCall != null) { _myQyCall = qyCall; _qyCall = qyCall; } _forGeneralOneSpecificaion = true;
+            assertDerived("ysRoleGroupUserList"); if (xhasSyncQyCall()) { xsyncQyCall().qy(); } // for sync (for example, this in ColumnQuery)
+            return new HpSDRFunction<YsRoleGroupUserCB, YsGroupCQ>(_baseCB, _qyCall.qy(), new HpSDRSetupper<YsRoleGroupUserCB, YsGroupCQ>() {
+                public void setup(String function, SubQuery<YsRoleGroupUserCB> subQuery, YsGroupCQ cq, String aliasName, DerivedReferrerOption option) {
+                    cq.xsderiveYsRoleGroupUserList(function, subQuery, aliasName, option); } }, _dbmetaProvider);
         }
     }
 
@@ -223,28 +332,79 @@ public class BsYsGroupCB extends AbstractConditionBean {
     //                                                                         ColumnQuery
     //                                                                         ===========
     /**
+     * Set up column-query. {column1 = column2}
+     * <pre>
+     * <span style="color: #3F7E5E">// where FOO &lt; BAR</span>
+     * cb.<span style="color: #FD4747">columnQuery</span>(new SpecifyQuery&lt;YsGroupCB&gt;() {
+     *     public void query(YsGroupCB cb) {
+     *         cb.specify().<span style="color: #FD4747">columnFoo()</span>; <span style="color: #3F7E5E">// left column</span>
+     *     }
+     * }).lessThan(new SpecifyQuery&lt;YsGroupCB&gt;() {
+     *     public void query(YsGroupCB cb) {
+     *         cb.specify().<span style="color: #FD4747">columnBar()</span>; <span style="color: #3F7E5E">// right column</span>
+     *     }
+     * }); <span style="color: #3F7E5E">// you can calculate for right column like '}).plus(3);'</span>
+     * </pre>
      * @param leftSpecifyQuery The specify-query for left column. (NotNull)
      * @return The object for setting up operand and right column. (NotNull)
      */
     public HpColQyOperand<YsGroupCB> columnQuery(final SpecifyQuery<YsGroupCB> leftSpecifyQuery) {
         return new HpColQyOperand<YsGroupCB>(new HpColQyHandler<YsGroupCB>() {
-            public void handle(SpecifyQuery<YsGroupCB> rightSp, String operand) {
-                YsGroupCB cb = new YsGroupCB();
-                cb.specify().xsetupForGeneralOneSpecification(new HpSpQyCall<YsGroupCQ>() {
-                    public boolean has() { return true; }
-                    public YsGroupCQ qy() { return query(); }
-                });
-                xcolqy(cb, leftSpecifyQuery, rightSp, operand);
+            public HpCalculator handle(SpecifyQuery<YsGroupCB> rightSp, String operand) {
+                return xcolqy(xcreateColumnQueryCB(), xcreateColumnQueryCB(), leftSpecifyQuery, rightSp, operand);
             }
         });
+    }
+
+    protected YsGroupCB xcreateColumnQueryCB() {
+        YsGroupCB cb = new YsGroupCB();
+        cb.xsetupForColumnQuery((YsGroupCB)this);
+        return cb;
     }
 
     // [DBFlute-0.9.6.3]
     // ===================================================================================
     //                                                                        OrScopeQuery
     //                                                                        ============
+    /**
+     * Set up the query for or-scope. <br />
+     * (Same-column-and-same-condition-key conditions are allowed in or-scope)
+     * <pre>
+     * <span style="color: #3F7E5E">// where (FOO = '...' or BAR = '...')</span>
+     * cb.<span style="color: #FD4747">orScopeQuery</span>(new OrQuery&lt;YsGroupCB&gt;() {
+     *     public void query(YsGroupCB orCB) {
+     *         orCB.query().setFOO_Equal...
+     *         orCB.query().setBAR_Equal...
+     *     }
+     * });
+     * </pre>
+     * @param orQuery The query for or-condition. (NotNull)
+     */
     public void orScopeQuery(OrQuery<YsGroupCB> orQuery) {
         xorSQ((YsGroupCB)this, orQuery);
+    }
+
+    /**
+     * Set up the and-part of or-scope. <br />
+     * (However nested or-scope query and as-or-split of like-search in and-part are unsupported)
+     * <pre>
+     * <span style="color: #3F7E5E">// where (FOO = '...' or (BAR = '...' and QUX = '...'))</span>
+     * cb.<span style="color: #FD4747">orScopeQuery</span>(new OrQuery&lt;YsGroupCB&gt;() {
+     *     public void query(YsGroupCB orCB) {
+     *         orCB.query().setFOO_Equal...
+     *         orCB.<span style="color: #FD4747">orScopeQueryAndPart</span>(new AndQuery&lt;YsGroupCB&gt;() {
+     *             public void query(YsGroupCB andCB) {
+     *                 andCB.query().setBar_...
+     *                 andCB.query().setQux_...
+     *             }
+     *         });
+     *     }
+     * });
+     * </pre>
+     * @param andQuery The query for and-condition. (NotNull)
+     */
+    public void orScopeQueryAndPart(AndQuery<YsGroupCB> andQuery) {
+        xorSQAP((YsGroupCB)this, andQuery);
     }
 
     // ===================================================================================
@@ -265,11 +425,39 @@ public class BsYsGroupCB extends AbstractConditionBean {
         return query().hasUnionQueryOrUnionAllQuery();
     }
 
+    // [DBFlute-0.7.4]
+    // ===================================================================================
+    //                                                                        Purpose Type
+    //                                                                        ============
+    public void xsetupForColumnQuery(final YsGroupCB mainCB) {
+        xinheritSubQueryInfo(mainCB.localCQ());
+        xchangePurposeSqlClause(HpCBPurpose.COLUMN_QUERY);
+
+        // inherits a parent query to synchronize real name
+        // (and also for suppressing query check) 
+        specify().xsetSyncQyCall(new HpSpQyCall<YsGroupCQ>() {
+            public boolean has() { return true; }
+            public YsGroupCQ qy() { return mainCB.query(); }
+        });
+    }
+
+    public void xsetupForVaryingUpdate() {
+        xchangePurposeSqlClause(HpCBPurpose.VARYING_UPDATE);
+
+        // for suppressing query check
+        final YsGroupCB nonCheckCB = new YsGroupCB();
+        specify().xsetSyncQyCall(new HpSpQyCall<YsGroupCQ>() {
+            public boolean has() { return true; }
+            public YsGroupCQ qy() { return nonCheckCB.query(); }
+        });
+    }
+
     // ===================================================================================
     //                                                                            Internal
     //                                                                            ========
-    // Very Internal (for Suppressing Warn about 'Not Use Import')
+    // very internal (for suppressing warn about 'Not Use Import')
     protected String getConditionBeanClassNameInternally() { return YsGroupCB.class.getName(); }
     protected String getConditionQueryClassNameInternally() { return YsGroupCQ.class.getName(); }
     protected String getSubQueryClassNameInternally() { return SubQuery.class.getName(); }
+    protected String getConditionOptionClassNameInternally() { return ConditionOption.class.getName(); }
 }

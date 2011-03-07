@@ -8,15 +8,15 @@ import org.seasar.ymir.scaffold.dbflute.cbean.cq.YsRoleCQ;
  */
 public class YsRoleNss {
 
+    // ===================================================================================
+    //                                                                           Attribute
+    //                                                                           =========
     protected YsRoleCQ _query;
     public YsRoleNss(YsRoleCQ query) { _query = query; }
     public boolean hasConditionQuery() { return _query != null; }
 
     // ===================================================================================
-    //                                                           With Nested Foreign Table
-    //                                                           =========================
+    //                                                                     Nested Relation
+    //                                                                     ===============
 
-    // ===================================================================================
-    //                                                          With Nested Referrer Table
-    //                                                          ==========================
 }

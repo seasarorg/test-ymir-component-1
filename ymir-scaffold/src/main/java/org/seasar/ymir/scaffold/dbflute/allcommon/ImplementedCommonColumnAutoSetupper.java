@@ -38,7 +38,7 @@ public class ImplementedCommonColumnAutoSetupper implements CommonColumnAutoSetu
     //                                                                               =======
     protected void log(EntityDefinedCommonColumn entity, String keyword) {
         if (_log.isDebugEnabled()) {
-            _log.debug("...Setting up column columns of " + entity.getTableDbName() + " before " + keyword + "!");
+            _log.debug("...Setting up column columns of " + entity.getTableDbName() + " before " + keyword);
         }
     }
 }

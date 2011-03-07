@@ -9,20 +9,12 @@ import org.seasar.ymir.scaffold.util.PageBase;
 import org.seasar.ymir.scaffold.util.Redirect;
 
 abstract public class ScaffoldPageBase extends PageBase {
-    private SiteManager siteManager;
-
     @Binding(bindingType = BindingType.MUST)
-    public final void setSiteManager(SiteManager siteManager) {
-        this.siteManager = siteManager;
-    }
-
-    protected final SiteManager getSiteManager() {
-        return siteManager;
-    }
+    protected SiteManager siteManager;
 
     @PermissionDenied
     public Response permissionDenied() {
-        String loginPagePath = getSiteManager().getLoginPagePath();
+        String loginPagePath = siteManager.getLoginPagePath();
         if (loginPagePath != null) {
             addNote(true, "error.auth.permissionDenied");
             return Redirect.to(loginPagePath);

@@ -81,6 +81,32 @@ public class DBMetaInstanceHandler implements DBMetaProvider {
     }
 
     // ===================================================================================
+    //                                                                  Provider Singleton
+    //                                                                  ==================
+    protected static final DBMetaProvider _provider = new DBMetaInstanceHandler();
+
+    public static DBMetaProvider getProvider() {
+        return _provider;
+    }
+
+    /**
+     * @param tableFlexibleName The flexible name of table. (NotNull)
+     * @return The instance of DB meta. (Nullable: If the DB meta is not found, it returns null)
+     */
+    public DBMeta provideDBMeta(String tableFlexibleName) {
+        return byTableFlexibleName(tableFlexibleName);
+    }
+
+    /**
+     * @param tableFlexibleName The flexible name of table. (NotNull)
+     * @return The instance of DB meta. (NotNull)
+     * @exception org.seasar.dbflute.exception.DBMetaNotFoundException When the DB meta is not found.
+     */
+    public DBMeta provideDBMetaChecked(String tableFlexibleName) {
+        return findDBMeta(tableFlexibleName);
+    }
+
+    // ===================================================================================
     //                                                                         Find DBMeta
     //                                                                         ===========
     /**
@@ -173,26 +199,6 @@ public class DBMetaInstanceHandler implements DBMetaProvider {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    // ===================================================================================
-    //                                                             Provider Implementation
-    //                                                             =======================
-    /**
-     * @param tableFlexibleName The flexible name of table. (NotNull)
-     * @return The instance of DB meta. (Nullable: If the DB meta is not found, it returns null)
-     */
-    public DBMeta provideDBMeta(String tableFlexibleName) {
-        return byTableFlexibleName(tableFlexibleName);
-    }
-
-    /**
-     * @param tableFlexibleName The flexible name of table. (NotNull)
-     * @return The instance of DB meta. (NotNull)
-     * @exception org.seasar.dbflute.exception.DBMetaNotFoundException When the DB meta is not found.
-     */
-    public DBMeta provideDBMetaChecked(String tableFlexibleName) {
-        return findDBMeta(tableFlexibleName);
     }
 
     // ===================================================================================

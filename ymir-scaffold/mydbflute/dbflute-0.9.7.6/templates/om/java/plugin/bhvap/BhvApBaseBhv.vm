@@ -1,0 +1,22 @@
+${database.allClassCopyright}package ${glPackageBaseBhvAp};
+#set ($myClassName = "${myBaseBhvApClassName}")
+
+import ${glPackageExtendedBhvLib}.${myExtendedBhvLibClassName};
+
+/**
+ * The base behavior of ${table.name} as implementation of an application.
+ * <p>
+ * You can NOT implement your original methods here.
+ * This class is overridden when re-generating.
+ * (basically for definitions of Behavior Query Path)
+ * </p>
+ * @author ${database.classAuthor}
+ */
+public class ${myClassName} extends ${myExtendedBhvLibClassName} {
+
+    // ===================================================================================
+    //                                                                          Definition
+    //                                                                          ==========
+    ${database.behaviorQueryPathBeginMark}
+    ${database.behaviorQueryPathEndMark}
+}

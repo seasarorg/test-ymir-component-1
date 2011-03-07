@@ -2,22 +2,28 @@ package org.seasar.ymir.scaffold.auth;
 
 import java.io.Serializable;
 
-import org.seasar.ymir.scaffold.dbflute.exentity.YsUser;
-
 public class LoginUser implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private YsUser user;
+    private User user;
 
-    public LoginUser(YsUser user) {
+    public LoginUser(User user) {
         this.user = user;
     }
 
-    public YsUser getUser() {
+    public User getUser() {
         return user;
+    }
+
+    public boolean isInRole(Role... roles) {
+        return user.isInRole(roles);
     }
 
     public boolean isInRole(String... roleNames) {
         return user.isInRole(roleNames);
+    }
+
+    public boolean isInRole(Long... roleIds) {
+        return user.isInRole(roleIds);
     }
 }

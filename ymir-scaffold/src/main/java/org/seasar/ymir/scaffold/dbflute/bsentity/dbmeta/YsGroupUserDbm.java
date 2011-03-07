@@ -7,9 +7,10 @@ import org.seasar.dbflute.DBDef;
 import org.seasar.dbflute.Entity;
 import org.seasar.dbflute.dbmeta.AbstractDBMeta;
 import org.seasar.dbflute.dbmeta.info.*;
+import org.seasar.dbflute.dbmeta.name.*;
 import org.seasar.dbflute.helper.StringKeyMap;
-import org.seasar.ymir.scaffold.dbflute.allcommon.DBCurrent;
-import org.seasar.ymir.scaffold.dbflute.exentity.YsGroupUser;
+import org.seasar.ymir.scaffold.dbflute.allcommon.*;
+import org.seasar.ymir.scaffold.dbflute.exentity.*;
 
 /**
  * The DB meta of YS_GROUP_USER. (Singleton)
@@ -32,19 +33,23 @@ public class YsGroupUserDbm extends AbstractDBMeta {
     // ===================================================================================
     //                                                                          Table Info
     //                                                                          ==========
-    public String getTableDbName() { return "YS_GROUP_USER"; }
-    public String getTablePropertyName() { return "ysGroupUser"; }
-    public String getTableSqlName() { return "YS_GROUP_USER"; }
+    protected final String _tableDbName = "YS_GROUP_USER";
+    protected final String _tablePropertyName = "ysGroupUser";
+    protected final TableSqlName _tableSqlName = new TableSqlName("YS_GROUP_USER", _tableDbName);
+    { _tableSqlName.xacceptFilter(DBFluteConfig.getInstance().getTableSqlNameFilter()); }
+    public String getTableDbName() { return _tableDbName; }
+    public String getTablePropertyName() { return _tablePropertyName; }
+    public TableSqlName getTableSqlName() { return _tableSqlName; }
 
     // ===================================================================================
     //                                                                         Column Info
     //                                                                         ===========
-    protected ColumnInfo _columnId = cci("ID", null, true, "id", Long.class, true, true, "BIGINT", 19, 0, false, null, null, null, null);
-    protected ColumnInfo _columnGroupId = cci("GROUP_ID", null, true, "groupId", Long.class, false, false, "BIGINT", 19, 0, false, null, null, "ysGroup", null);
-    protected ColumnInfo _columnUserId = cci("USER_ID", null, true, "userId", Long.class, false, false, "BIGINT", 19, 0, false, null, null, "ysUser", null);
-    protected ColumnInfo _columnCreatedDate = cci("CREATED_DATE", null, true, "createdDate", java.sql.Timestamp.class, false, false, "TIMESTAMP", 23, 10, false, null, null, null, null);
-    protected ColumnInfo _columnModifiedDate = cci("MODIFIED_DATE", null, true, "modifiedDate", java.sql.Timestamp.class, false, false, "TIMESTAMP", 23, 10, false, null, null, null, null);
-    protected ColumnInfo _columnVersionNo = cci("VERSION_NO", null, true, "versionNo", Long.class, false, false, "BIGINT", 19, 0, false, OptimisticLockType.VERSION_NO, null, null, null);
+    protected final ColumnInfo _columnId = cci("ID", "ID", null, null, true, "id", Long.class, true, true, "BIGINT", 19, 0, false, null, null, null, null, null);
+    protected final ColumnInfo _columnGroupId = cci("GROUP_ID", "GROUP_ID", null, null, true, "groupId", Long.class, false, false, "BIGINT", 19, 0, false, null, null, "ysGroup", null, null);
+    protected final ColumnInfo _columnUserId = cci("USER_ID", "USER_ID", null, null, true, "userId", Long.class, false, false, "BIGINT", 19, 0, false, null, null, "ysUser", null, null);
+    protected final ColumnInfo _columnCreatedDate = cci("CREATED_DATE", "CREATED_DATE", null, null, true, "createdDate", java.sql.Timestamp.class, false, false, "TIMESTAMP", 23, 10, false, null, null, null, null, null);
+    protected final ColumnInfo _columnModifiedDate = cci("MODIFIED_DATE", "MODIFIED_DATE", null, null, true, "modifiedDate", java.sql.Timestamp.class, false, false, "TIMESTAMP", 23, 10, false, null, null, null, null, null);
+    protected final ColumnInfo _columnVersionNo = cci("VERSION_NO", "VERSION_NO", null, null, true, "versionNo", Long.class, false, false, "BIGINT", 19, 0, false, OptimisticLockType.VERSION_NO, null, null, null, null);
 
     public ColumnInfo columnId() { return _columnId; }
     public ColumnInfo columnGroupId() { return _columnGroupId; }
@@ -74,7 +79,7 @@ public class YsGroupUserDbm extends AbstractDBMeta {
     //                                       ---------------
     public UniqueInfo getPrimaryUniqueInfo() { return cpui(columnId()); }
     public boolean hasPrimaryKey() { return true; }
-    public boolean hasTwoOrMorePrimaryKeys() { return false; }
+    public boolean hasCompoundPrimaryKey() { return false; }
 
     // ===================================================================================
     //                                                                       Relation Info
@@ -84,11 +89,11 @@ public class YsGroupUserDbm extends AbstractDBMeta {
     //                                      ----------------
     public ForeignInfo foreignYsGroup() {
         Map<ColumnInfo, ColumnInfo> map = newLinkedHashMap(columnGroupId(), YsGroupDbm.getInstance().columnId());
-        return cfi("ysGroup", this, YsGroupDbm.getInstance(), map, 0, false);
+        return cfi("ysGroup", this, YsGroupDbm.getInstance(), map, 0, false, false);
     }
     public ForeignInfo foreignYsUser() {
         Map<ColumnInfo, ColumnInfo> map = newLinkedHashMap(columnUserId(), YsUserDbm.getInstance().columnId());
-        return cfi("ysUser", this, YsUserDbm.getInstance(), map, 1, false);
+        return cfi("ysUser", this, YsUserDbm.getInstance(), map, 1, false, false);
     }
 
     // -----------------------------------------------------
@@ -124,35 +129,10 @@ public class YsGroupUserDbm extends AbstractDBMeta {
     // ===================================================================================
     //                                                                     Entity Handling
     //                                                                     ===============  
-    // -----------------------------------------------------
-    //                                                Accept
-    //                                                ------
-    public void acceptPrimaryKeyMap(Entity entity, Map<String, ? extends Object> primaryKeyMap)
-    { doAcceptPrimaryKeyMap((YsGroupUser)entity, primaryKeyMap, _epsMap); }
-    public void acceptPrimaryKeyMapString(Entity entity, String primaryKeyMapString)
-    { MapStringUtil.acceptPrimaryKeyMapString(primaryKeyMapString, entity); }
-    public void acceptColumnValueMap(Entity entity, Map<String, ? extends Object> columnValueMap)
-    { doAcceptColumnValueMap((YsGroupUser)entity, columnValueMap, _epsMap); }
-    public void acceptColumnValueMapString(Entity entity, String columnValueMapString)
-    { MapStringUtil.acceptColumnValueMapString(columnValueMapString, entity); }
-
-    // -----------------------------------------------------
-    //                                               Extract
-    //                                               -------
-    public String extractPrimaryKeyMapString(Entity entity) { return MapStringUtil.extractPrimaryKeyMapString(entity); }
-    public String extractPrimaryKeyMapString(Entity entity, String startBrace, String endBrace, String delimiter, String equal)
-    { return doExtractPrimaryKeyMapString(entity, startBrace, endBrace, delimiter, equal); }
-    public String extractColumnValueMapString(Entity entity) { return MapStringUtil.extractColumnValueMapString(entity); }
-    public String extractColumnValueMapString(Entity entity, String startBrace, String endBrace, String delimiter, String equal)
-    { return doExtractColumnValueMapString(entity, startBrace, endBrace, delimiter, equal); }
-
-    // -----------------------------------------------------
-    //                                               Convert
-    //                                               -------
-    public List<Object> convertToColumnValueList(Entity entity) { return newArrayList(convertToColumnValueMap(entity).values()); }
-    public Map<String, Object> convertToColumnValueMap(Entity entity) { return doConvertToColumnValueMap(entity); }
-    public List<String> convertToColumnStringValueList(Entity entity) { return newArrayList(convertToColumnStringValueMap(entity).values()); }
-    public Map<String, String> convertToColumnStringValueMap(Entity entity) { return doConvertToColumnStringValueMap(entity); }
+    public void acceptPrimaryKeyMap(Entity e, Map<String, ? extends Object> m)
+    { doAcceptPrimaryKeyMap((YsGroupUser)e, m, _epsMap); }
+    public Map<String, Object> extractPrimaryKeyMap(Entity e) { return doExtractPrimaryKeyMap(e); }
+    public Map<String, Object> extractAllColumnMap(Entity e) { return doExtractAllColumnMap(e); }
 
     // ===================================================================================
     //                                                               Entity Property Setup
@@ -172,16 +152,16 @@ public class YsGroupUserDbm extends AbstractDBMeta {
     public void setupEntityProperty(String propertyName, Object entity, Object value)
     { findEps(_epsMap, propertyName).setup((YsGroupUser)entity, value); }
 
-    public static class EpsId implements Eps<YsGroupUser>
-    { public void setup(YsGroupUser e, Object v) { e.setId((Long)v); } }
-    public static class EpsGroupId implements Eps<YsGroupUser>
-    { public void setup(YsGroupUser e, Object v) { e.setGroupId((Long)v); } }
-    public static class EpsUserId implements Eps<YsGroupUser>
-    { public void setup(YsGroupUser e, Object v) { e.setUserId((Long)v); } }
+    public class EpsId implements Eps<YsGroupUser>
+    { public void setup(YsGroupUser e, Object v) { e.setId(ctl(v)); } }
+    public class EpsGroupId implements Eps<YsGroupUser>
+    { public void setup(YsGroupUser e, Object v) { e.setGroupId(ctl(v)); } }
+    public class EpsUserId implements Eps<YsGroupUser>
+    { public void setup(YsGroupUser e, Object v) { e.setUserId(ctl(v)); } }
     public static class EpsCreatedDate implements Eps<YsGroupUser>
     { public void setup(YsGroupUser e, Object v) { e.setCreatedDate((java.sql.Timestamp)v); } }
     public static class EpsModifiedDate implements Eps<YsGroupUser>
     { public void setup(YsGroupUser e, Object v) { e.setModifiedDate((java.sql.Timestamp)v); } }
-    public static class EpsVersionNo implements Eps<YsGroupUser>
-    { public void setup(YsGroupUser e, Object v) { e.setVersionNo((Long)v); } }
+    public class EpsVersionNo implements Eps<YsGroupUser>
+    { public void setup(YsGroupUser e, Object v) { e.setVersionNo(ctl(v)); } }
 }

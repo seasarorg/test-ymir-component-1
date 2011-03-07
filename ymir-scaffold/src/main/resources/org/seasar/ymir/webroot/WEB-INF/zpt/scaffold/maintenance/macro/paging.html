@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+
+<div metal:define-macro="paging" tal:define="paging self/view/paging">
+  <a tal:omit-tag="not:paging/existPrePage" tal:attributes="href page:index.html?p=1" href="#">最初</a>&nbsp; 
+  <a tal:omit-tag="not:paging/existPrePage" tal:attributes="href page:index.html?p=${paging/prePageNumber}" href="#">前</a>&nbsp;
+  <span tal:repeat="pageNumber paging/pageNumbers"><a tal:omit-tag="pageNumber/current" tal:attributes="href page:index.html?p=${pageNumber}">ページ番号</a>&nbsp;</span>
+  <a tal:omit-tag="not:paging/existNextPage" tal:attributes="href page:index.html?p=${paging/nextPageNumber}" href="#">次</a>&nbsp; 
+  <a tal:omit-tag="not:paging/existNextPage" tal:attributes="href page:index.html?p=${paging/allPageCount}" href="#">最後</a> 
+</div>
+
+</body>
+</html>

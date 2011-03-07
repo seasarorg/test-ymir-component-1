@@ -1,0 +1,141 @@
+${database.allClassCopyright}package ${glPackageBaseCommon};
+
+import org.seasar.dbflute.DBDef;
+import org.seasar.dbflute.cbean.ConditionBean;
+import org.seasar.dbflute.cbean.sqlclause.*;
+import org.seasar.dbflute.dbmeta.DBMetaProvider;
+
+/**
+ * The creator of SQL clause.
+ * @author ${database.classAuthor}
+ */
+public class ${glImplementedSqlClauseCreator} implements SqlClauseCreator {
+
+    // ===================================================================================
+    //                                                                      Implementation
+    //                                                                      ==============
+	/**
+	 * Create SQL clause. {for condition-bean}
+	 * @param cb Condition-bean. (NotNull) 
+	 * @return SQL clause. (NotNull)
+	 */
+    public SqlClause createSqlClause(ConditionBean cb) {
+        String tableDbName = cb.getTableDbName();
+		SqlClause sqlClause = createSqlClause(tableDbName);
+        return sqlClause;
+    }
+
+	/**
+	 * Create SQL clause.
+	 * @param tableDbName The DB name of table. (NotNull) 
+	 * @return SQL clause. (NotNull)
+	 */
+    public SqlClause createSqlClause(String tableDbName) {
+        DBMetaProvider dbmetaProvider = ${glDBMetaInstanceHandler}.getProvider();
+        SqlClause sqlClause = doCreateSqlClause(tableDbName, dbmetaProvider);
+        setupSqlClauseOption(sqlClause);
+        return sqlClause;
+    }
+
+    // ===================================================================================
+    //                                                                            Creation
+    //                                                                            ========
+    protected SqlClause doCreateSqlClause(String tableDbName, DBMetaProvider dbmetaProvider) {
+        SqlClause sqlClause; // dynamic resolution but no perfect (almost static)
+        if (isCurrentDBDef(DBDef.MySQL)) {
+            sqlClause = createSqlClauseMySql(tableDbName, dbmetaProvider);
+        } else if (isCurrentDBDef(DBDef.PostgreSQL)) {
+            sqlClause = createSqlClausePostgreSql(tableDbName, dbmetaProvider);
+        } else if (isCurrentDBDef(DBDef.Oracle)) {
+            sqlClause = createSqlClauseOracle(tableDbName, dbmetaProvider);
+        } else if (isCurrentDBDef(DBDef.DB2)) {
+            sqlClause = createSqlClauseDb2(tableDbName, dbmetaProvider);
+        } else if (isCurrentDBDef(DBDef.SQLServer)) {
+            sqlClause = createSqlClauseSqlServer(tableDbName, dbmetaProvider);
+        } else if (isCurrentDBDef(DBDef.H2)) {
+            sqlClause = createSqlClauseH2(tableDbName, dbmetaProvider);
+        } else if (isCurrentDBDef(DBDef.Derby)) {
+            sqlClause = createSqlClauseDerby(tableDbName, dbmetaProvider);
+        } else if (isCurrentDBDef(DBDef.SQLite)) {
+            sqlClause = createSqlClauseSqlite(tableDbName, dbmetaProvider);
+        } else if (isCurrentDBDef(DBDef.MSAccess)) {
+            sqlClause = createSqlClauseMsAccess(tableDbName, dbmetaProvider);
+        } else if (isCurrentDBDef(DBDef.FireBird)) {
+            sqlClause = createSqlClauseFirebird(tableDbName, dbmetaProvider);
+        } else if (isCurrentDBDef(DBDef.Sybase)) {
+            sqlClause = createSqlClauseSybase(tableDbName, dbmetaProvider);
+        } else {
+            // as the database when generating
+            sqlClause = createSqlClause${database.generateDbName}(tableDbName, dbmetaProvider);
+        }
+        return sqlClause;
+    }
+
+    protected SqlClause createSqlClauseMySql(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseMySql(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClausePostgreSql(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClausePostgreSql(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseOracle(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseOracle(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseDb2(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseDb2(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseSqlServer(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseSqlServer(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseH2(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseH2(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseDerby(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseDerby(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseSqlite(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseSqlite(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseMsAccess(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseMsAccess(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseFirebird(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseFirebird(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseSybase(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseSybase(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseDefault(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseDefault(tableDbName).provider(dbmetaProvider);
+    }
+
+    // ===================================================================================
+    //                                                                              Option
+    //                                                                              ======
+    protected void setupSqlClauseOption(SqlClause sqlClause) {
+        if (isDisableSelectIndex()) {
+            sqlClause.disableSelectIndex();
+        }
+    }
+
+    // ===================================================================================
+    //                                                                       Determination
+    //                                                                       =============
+    protected boolean isCurrentDBDef(DBDef currentDBDef) {
+	    return ${glDBCurrent}.getInstance().isCurrentDBDef(currentDBDef);
+    }
+
+    protected boolean isDisableSelectIndex() {
+	    return ${glDBFluteConfig}.getInstance().isDisableSelectIndex();
+    }
+}

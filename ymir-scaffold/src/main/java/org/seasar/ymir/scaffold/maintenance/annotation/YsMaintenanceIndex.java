@@ -8,9 +8,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface YsMaintenanceIndex {
-    String[] columnsOrder() default {};
-
-    String[] excludeColumns() default {};
-
-    int recordsByPage() default 20;
+    String[] columns() default {};
 }

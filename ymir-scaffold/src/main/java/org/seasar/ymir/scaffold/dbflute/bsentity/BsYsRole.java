@@ -9,7 +9,7 @@ import org.seasar.ymir.scaffold.dbflute.allcommon.DBMetaInstanceHandler;
 import org.seasar.ymir.scaffold.dbflute.exentity.*;
 
 /**
- * The entity of (ロール)YS_ROLE that is TABLE. <br />
+ * The entity of (ロール)YS_ROLE as TABLE. <br />
  * <pre>
  * [primary-key]
  *     ID
@@ -54,46 +54,66 @@ public abstract class BsYsRole implements Entity, Serializable {
     // -----------------------------------------------------
     //                                                Column
     //                                                ------
-    /** (ID)ID: {PK : ID : NotNull : BIGINT(19)} */
+    /** (ID)ID: {PK, ID, NotNull, BIGINT(19)} */
     protected Long _id;
 
-    /** (ロール名)NAME: {UQ : NotNull : VARCHAR(200)} */
+    /** (ロール名)NAME: {UQ, NotNull, VARCHAR(200)} */
     protected String _name;
 
-    /** (表示名)DISPLAY_NAME: {NotNull : VARCHAR(200)} */
+    /** (表示名)DISPLAY_NAME: {NotNull, VARCHAR(200)} */
     protected String _displayName;
 
-    /** (作成日時)CREATED_DATE: {NotNull : TIMESTAMP(23, 10)} */
+    /** (作成日時)CREATED_DATE: {NotNull, TIMESTAMP(23, 10)} */
     protected java.sql.Timestamp _createdDate;
 
-    /** (更新日時)MODIFIED_DATE: {NotNull : TIMESTAMP(23, 10)} */
+    /** (更新日時)MODIFIED_DATE: {NotNull, TIMESTAMP(23, 10)} */
     protected java.sql.Timestamp _modifiedDate;
 
-    /** (バージョン番号)VERSION_NO: {NotNull : BIGINT(19) : default=[1]} */
+    /** (バージョン番号)VERSION_NO: {NotNull, BIGINT(19), default=[1]} */
     protected Long _versionNo;
 
     // -----------------------------------------------------
     //                                              Internal
     //                                              --------
     /** The modified properties for this entity. */
-    protected EntityModifiedProperties _modifiedProperties = newEntityModifiedProperties();
+    protected EntityModifiedProperties __modifiedProperties = newEntityModifiedProperties();
 
     // ===================================================================================
     //                                                                          Table Name
     //                                                                          ==========
+    /**
+     * {@inheritDoc}
+     */
     public String getTableDbName() {
         return "YS_ROLE";
     }
 
-    public String getTablePropertyName() { // as JavaBeansRule
+    /**
+     * {@inheritDoc}
+     */
+    public String getTablePropertyName() { // according to Java Beans rule
         return "ysRole";
     }
 
     // ===================================================================================
     //                                                                              DBMeta
     //                                                                              ======
+    /**
+     * {@inheritDoc}
+     */
     public DBMeta getDBMeta() {
         return DBMetaInstanceHandler.findDBMeta(getTableDbName());
+    }
+
+    // ===================================================================================
+    //                                                                         Primary Key
+    //                                                                         ===========
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasPrimaryKeyValue() {
+        if (getId() == null) { return false; }
+        return true;
     }
 
     // ===================================================================================
@@ -106,7 +126,7 @@ public abstract class BsYsRole implements Entity, Serializable {
     protected List<YsRoleGroupUser> _ysRoleGroupUserList;
 
     /**
-     * YS_ROLE_GROUP_USER as 'ysRoleGroupUserList'. {without lazy-load} <br />
+     * YS_ROLE_GROUP_USER as 'ysRoleGroupUserList'.
      * @return The entity list of referrer property 'ysRoleGroupUserList'. (NotNull: If it's not loaded yet, initializes the list instance of referrer as empty and returns it.)
      */
     public List<YsRoleGroupUser> getYsRoleGroupUserList() {
@@ -123,30 +143,31 @@ public abstract class BsYsRole implements Entity, Serializable {
     }
 
     // ===================================================================================
-    //                                                                       Determination
-    //                                                                       =============
-    public boolean hasPrimaryKeyValue() {
-        if (_id == null) { return false; }
-        return true;
-    }
-
-    // ===================================================================================
     //                                                                 Modified Properties
     //                                                                 ===================
+    /**
+     * {@inheritDoc}
+     */
     public Set<String> getModifiedPropertyNames() {
-        return _modifiedProperties.getPropertyNames();
+        return __modifiedProperties.getPropertyNames();
     }
 
     protected EntityModifiedProperties newEntityModifiedProperties() {
         return new EntityModifiedProperties();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void clearModifiedPropertyNames() {
-        _modifiedProperties.clear();
+        __modifiedProperties.clear();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasModification() {
-        return !_modifiedProperties.isEmpty();
+        return !__modifiedProperties.isEmpty();
     }
 
     // ===================================================================================
@@ -163,7 +184,7 @@ public abstract class BsYsRole implements Entity, Serializable {
         if (!xSV(getId(), otherEntity.getId())) { return false; }
         return true;
     }
-    private boolean xSV(Object value1, Object value2) { // isSameValue()
+    protected boolean xSV(Object value1, Object value2) { // isSameValue()
         return InternalUtil.isSameValue(value1, value2);
     }
 
@@ -176,7 +197,7 @@ public abstract class BsYsRole implements Entity, Serializable {
         result = xCH(result, getId());
         return result;
     }
-    private int xCH(int result, Object value) { // calculateHashcode()
+    protected int xCH(int result, Object value) { // calculateHashcode()
         return InternalUtil.calculateHashcode(result, value);
     }
 
@@ -184,7 +205,7 @@ public abstract class BsYsRole implements Entity, Serializable {
      * @return The display string of all columns and relation existences. (NotNull)
      */
     public String toString() {
-        return buildDisplayString(getClass().getSimpleName(), true, true);
+        return buildDisplayString(InternalUtil.toClassTitle(this), true, true);
     }
 
     /**
@@ -198,7 +219,7 @@ public abstract class BsYsRole implements Entity, Serializable {
         { if (e != null) { sb.append(l).append(xbRDS(e, "ysRoleGroupUserList")); } } }
         return sb.toString();
     }
-    private String xbRDS(Entity e, String name) { // buildRelationDisplayString()
+    protected String xbRDS(Entity e, String name) { // buildRelationDisplayString()
         return e.buildDisplayString(name, true, true);
     }
 
@@ -211,12 +232,12 @@ public abstract class BsYsRole implements Entity, Serializable {
     public String buildDisplayString(String name, boolean column, boolean relation) {
         StringBuilder sb = new StringBuilder();
         if (name != null) { sb.append(name).append(column || relation ? ":" : ""); }
-        if (column) { sb.append(xbuildColumnString()); }
-        if (relation) { sb.append(xbuildRelationString()); }
+        if (column) { sb.append(buildColumnString()); }
+        if (relation) { sb.append(buildRelationString()); }
         sb.append("@").append(Integer.toHexString(hashCode()));
         return sb.toString();
     }
-    private String xbuildColumnString() {
+    protected String buildColumnString() {
         String c = ", ";
         StringBuilder sb = new StringBuilder();
         sb.append(c).append(getId());
@@ -229,7 +250,7 @@ public abstract class BsYsRole implements Entity, Serializable {
         sb.insert(0, "{").append("}");
         return sb.toString();
     }
-    private String xbuildRelationString() {
+    protected String buildRelationString() {
         StringBuilder sb = new StringBuilder();
         String c = ",";
         if (_ysRoleGroupUserList != null && !_ysRoleGroupUserList.isEmpty())
@@ -242,7 +263,7 @@ public abstract class BsYsRole implements Entity, Serializable {
     //                                                                            Accessor
     //                                                                            ========
     /**
-     * [get] (ID)ID: {PK : ID : NotNull : BIGINT(19)} <br />
+     * [get] (ID)ID: {PK, ID, NotNull, BIGINT(19)} <br />
      * @return The value of the column 'ID'. (Nullable)
      */
     public Long getId() {
@@ -250,16 +271,16 @@ public abstract class BsYsRole implements Entity, Serializable {
     }
 
     /**
-     * [set] (ID)ID: {PK : ID : NotNull : BIGINT(19)} <br />
+     * [set] (ID)ID: {PK, ID, NotNull, BIGINT(19)} <br />
      * @param id The value of the column 'ID'. (Nullable)
      */
     public void setId(Long id) {
-        _modifiedProperties.addPropertyName("id");
+        __modifiedProperties.addPropertyName("id");
         this._id = id;
     }
 
     /**
-     * [get] (ロール名)NAME: {UQ : NotNull : VARCHAR(200)} <br />
+     * [get] (ロール名)NAME: {UQ, NotNull, VARCHAR(200)} <br />
      * @return The value of the column 'NAME'. (Nullable)
      */
     public String getName() {
@@ -267,16 +288,16 @@ public abstract class BsYsRole implements Entity, Serializable {
     }
 
     /**
-     * [set] (ロール名)NAME: {UQ : NotNull : VARCHAR(200)} <br />
+     * [set] (ロール名)NAME: {UQ, NotNull, VARCHAR(200)} <br />
      * @param name The value of the column 'NAME'. (Nullable)
      */
     public void setName(String name) {
-        _modifiedProperties.addPropertyName("name");
+        __modifiedProperties.addPropertyName("name");
         this._name = name;
     }
 
     /**
-     * [get] (表示名)DISPLAY_NAME: {NotNull : VARCHAR(200)} <br />
+     * [get] (表示名)DISPLAY_NAME: {NotNull, VARCHAR(200)} <br />
      * @return The value of the column 'DISPLAY_NAME'. (Nullable)
      */
     public String getDisplayName() {
@@ -284,16 +305,16 @@ public abstract class BsYsRole implements Entity, Serializable {
     }
 
     /**
-     * [set] (表示名)DISPLAY_NAME: {NotNull : VARCHAR(200)} <br />
+     * [set] (表示名)DISPLAY_NAME: {NotNull, VARCHAR(200)} <br />
      * @param displayName The value of the column 'DISPLAY_NAME'. (Nullable)
      */
     public void setDisplayName(String displayName) {
-        _modifiedProperties.addPropertyName("displayName");
+        __modifiedProperties.addPropertyName("displayName");
         this._displayName = displayName;
     }
 
     /**
-     * [get] (作成日時)CREATED_DATE: {NotNull : TIMESTAMP(23, 10)} <br />
+     * [get] (作成日時)CREATED_DATE: {NotNull, TIMESTAMP(23, 10)} <br />
      * @return The value of the column 'CREATED_DATE'. (Nullable)
      */
     public java.sql.Timestamp getCreatedDate() {
@@ -301,16 +322,16 @@ public abstract class BsYsRole implements Entity, Serializable {
     }
 
     /**
-     * [set] (作成日時)CREATED_DATE: {NotNull : TIMESTAMP(23, 10)} <br />
+     * [set] (作成日時)CREATED_DATE: {NotNull, TIMESTAMP(23, 10)} <br />
      * @param createdDate The value of the column 'CREATED_DATE'. (Nullable)
      */
     public void setCreatedDate(java.sql.Timestamp createdDate) {
-        _modifiedProperties.addPropertyName("createdDate");
+        __modifiedProperties.addPropertyName("createdDate");
         this._createdDate = createdDate;
     }
 
     /**
-     * [get] (更新日時)MODIFIED_DATE: {NotNull : TIMESTAMP(23, 10)} <br />
+     * [get] (更新日時)MODIFIED_DATE: {NotNull, TIMESTAMP(23, 10)} <br />
      * @return The value of the column 'MODIFIED_DATE'. (Nullable)
      */
     public java.sql.Timestamp getModifiedDate() {
@@ -318,16 +339,16 @@ public abstract class BsYsRole implements Entity, Serializable {
     }
 
     /**
-     * [set] (更新日時)MODIFIED_DATE: {NotNull : TIMESTAMP(23, 10)} <br />
+     * [set] (更新日時)MODIFIED_DATE: {NotNull, TIMESTAMP(23, 10)} <br />
      * @param modifiedDate The value of the column 'MODIFIED_DATE'. (Nullable)
      */
     public void setModifiedDate(java.sql.Timestamp modifiedDate) {
-        _modifiedProperties.addPropertyName("modifiedDate");
+        __modifiedProperties.addPropertyName("modifiedDate");
         this._modifiedDate = modifiedDate;
     }
 
     /**
-     * [get] (バージョン番号)VERSION_NO: {NotNull : BIGINT(19) : default=[1]} <br />
+     * [get] (バージョン番号)VERSION_NO: {NotNull, BIGINT(19), default=[1]} <br />
      * @return The value of the column 'VERSION_NO'. (Nullable)
      */
     public Long getVersionNo() {
@@ -335,11 +356,11 @@ public abstract class BsYsRole implements Entity, Serializable {
     }
 
     /**
-     * [set] (バージョン番号)VERSION_NO: {NotNull : BIGINT(19) : default=[1]} <br />
+     * [set] (バージョン番号)VERSION_NO: {NotNull, BIGINT(19), default=[1]} <br />
      * @param versionNo The value of the column 'VERSION_NO'. (Nullable)
      */
     public void setVersionNo(Long versionNo) {
-        _modifiedProperties.addPropertyName("versionNo");
+        __modifiedProperties.addPropertyName("versionNo");
         this._versionNo = versionNo;
     }
 }

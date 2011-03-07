@@ -20,11 +20,6 @@ import org.seasar.ymir.scaffold.dbflute.cbean.cq.*;
 public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery {
 
     // ===================================================================================
-    //                                                                           Attribute
-    //                                                                           =========
-    protected final DBMetaProvider _dbmetaProvider = new DBMetaInstanceHandler();
-
-    // ===================================================================================
     //                                                                         Constructor
     //                                                                         ===========
     public AbstractBsYsRoleGroupUserCQ(ConditionQuery childQuery, SqlClause sqlClause, String aliasName, int nestLevel) {
@@ -35,8 +30,8 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
     //                                                                     DBMeta Provider
     //                                                                     ===============
     @Override
-    protected DBMetaProvider getDBMetaProvider() {
-        return _dbmetaProvider;
+    protected DBMetaProvider xgetDBMetaProvider() {
+        return DBMetaInstanceHandler.getProvider();
     }
 
     // ===================================================================================
@@ -51,19 +46,28 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
     //                                                                               =====
     
     /**
-     * Equal(=). And NullIgnored, OnlyOnceRegistered. {PK : ID : NotNull : BIGINT(19)}
+     * Equal(=). And NullIgnored, OnlyOnceRegistered. <br />
+     * ID: {PK, ID, NotNull, BIGINT(19)}
      * @param id The value of id as equal.
      */
     public void setId_Equal(Long id) {
+        doSetId_Equal(id);
+    }
+
+    protected void doSetId_Equal(Long id) {
         regId(CK_EQ, id);
     }
 
     /**
-     * NotEqual(!=). And NullIgnored, OnlyOnceRegistered.
+     * NotEqual(&lt;&gt;). And NullIgnored, OnlyOnceRegistered.
      * @param id The value of id as notEqual.
      */
     public void setId_NotEqual(Long id) {
-        regId(CK_NE, id);
+        doSetId_NotEqual(id);
+    }
+
+    protected void doSetId_NotEqual(Long id) {
+        regId(CK_NES, id);
     }
 
     /**
@@ -103,6 +107,10 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
      * @param idList The collection of id as inScope.
      */
     public void setId_InScope(Collection<Long> idList) {
+        doSetId_InScope(idList);
+    }
+
+    protected void doSetId_InScope(Collection<Long> idList) {
         regINS(CK_INS, cTL(idList), getCValueId(), "ID");
     }
 
@@ -111,6 +119,10 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
      * @param idList The collection of id as notInScope.
      */
     public void setId_NotInScope(Collection<Long> idList) {
+        doSetId_NotInScope(idList);
+    }
+
+    protected void doSetId_NotInScope(Collection<Long> idList) {
         regINS(CK_NINS, cTL(idList), getCValueId(), "ID");
     }
 
@@ -128,19 +140,28 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
     abstract protected ConditionValue getCValueId();
     
     /**
-     * Equal(=). And NullIgnored, OnlyOnceRegistered. {UQ : NotNull : BIGINT(19) : FK to YS_ROLE}
+     * Equal(=). And NullIgnored, OnlyOnceRegistered. <br />
+     * ROLE_ID: {UQ, NotNull, BIGINT(19), FK to YS_ROLE}
      * @param roleId The value of roleId as equal.
      */
     public void setRoleId_Equal(Long roleId) {
+        doSetRoleId_Equal(roleId);
+    }
+
+    protected void doSetRoleId_Equal(Long roleId) {
         regRoleId(CK_EQ, roleId);
     }
 
     /**
-     * NotEqual(!=). And NullIgnored, OnlyOnceRegistered.
+     * NotEqual(&lt;&gt;). And NullIgnored, OnlyOnceRegistered.
      * @param roleId The value of roleId as notEqual.
      */
     public void setRoleId_NotEqual(Long roleId) {
-        regRoleId(CK_NE, roleId);
+        doSetRoleId_NotEqual(roleId);
+    }
+
+    protected void doSetRoleId_NotEqual(Long roleId) {
+        regRoleId(CK_NES, roleId);
     }
 
     /**
@@ -180,6 +201,10 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
      * @param roleIdList The collection of roleId as inScope.
      */
     public void setRoleId_InScope(Collection<Long> roleIdList) {
+        doSetRoleId_InScope(roleIdList);
+    }
+
+    protected void doSetRoleId_InScope(Collection<Long> roleIdList) {
         regINS(CK_INS, cTL(roleIdList), getCValueRoleId(), "ROLE_ID");
     }
 
@@ -188,34 +213,67 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
      * @param roleIdList The collection of roleId as notInScope.
      */
     public void setRoleId_NotInScope(Collection<Long> roleIdList) {
+        doSetRoleId_NotInScope(roleIdList);
+    }
+
+    protected void doSetRoleId_NotInScope(Collection<Long> roleIdList) {
         regINS(CK_NINS, cTL(roleIdList), getCValueRoleId(), "ROLE_ID");
     }
 
+    /**
+     * Set up InScopeRelation (sub-query). <br />
+     * {in (select ROLE_ID from YS_ROLE where ...)} <br />
+     * (ロール)YS_ROLE as 'ysRole'.
+     * @param subQuery The sub-query of YsRole for 'in-scope'. (NotNull)
+     */
     public void inScopeYsRole(SubQuery<YsRoleCB> subQuery) {
         assertObjectNotNull("subQuery<YsRoleCB>", subQuery);
-        YsRoleCB cb = new YsRoleCB(); cb.xsetupForInScopeSubQuery(); subQuery.query(cb);
-        String subQueryPropertyName = keepRoleId_InScopeSubQuery_YsRole(cb.query()); // for saving query-value.
-        registerInScopeSubQuery(cb.query(), "ROLE_ID", "ID", subQueryPropertyName);
+        YsRoleCB cb = new YsRoleCB(); cb.xsetupForInScopeRelation(this); subQuery.query(cb);
+        String subQueryPropertyName = keepRoleId_InScopeRelation_YsRole(cb.query()); // for saving query-value.
+        registerInScopeRelation(cb.query(), "ROLE_ID", "ID", subQueryPropertyName);
     }
-    public abstract String keepRoleId_InScopeSubQuery_YsRole(YsRoleCQ subQuery);
+    public abstract String keepRoleId_InScopeRelation_YsRole(YsRoleCQ subQuery);
+
+    /**
+     * Set up NotInScopeRelation (sub-query). <br />
+     * {not in (select ROLE_ID from YS_ROLE where ...)} <br />
+     * (ロール)YS_ROLE as 'ysRole'.
+     * @param subQuery The sub-query of YsRole for 'not in-scope'. (NotNull)
+     */
+    public void notInScopeYsRole(SubQuery<YsRoleCB> subQuery) {
+        assertObjectNotNull("subQuery<YsRoleCB>", subQuery);
+        YsRoleCB cb = new YsRoleCB(); cb.xsetupForInScopeRelation(this); subQuery.query(cb);
+        String subQueryPropertyName = keepRoleId_NotInScopeRelation_YsRole(cb.query()); // for saving query-value.
+        registerNotInScopeRelation(cb.query(), "ROLE_ID", "ID", subQueryPropertyName);
+    }
+    public abstract String keepRoleId_NotInScopeRelation_YsRole(YsRoleCQ subQuery);
 
     protected void regRoleId(ConditionKey k, Object v) { regQ(k, v, getCValueRoleId(), "ROLE_ID"); }
     abstract protected ConditionValue getCValueRoleId();
     
     /**
-     * Equal(=). And NullIgnored, OnlyOnceRegistered. {UQ : BIGINT(19) : FK to YS_GROUP}
+     * Equal(=). And NullIgnored, OnlyOnceRegistered. <br />
+     * GROUP_ID: {UQ+, IX, BIGINT(19), FK to YS_GROUP}
      * @param groupId The value of groupId as equal.
      */
     public void setGroupId_Equal(Long groupId) {
+        doSetGroupId_Equal(groupId);
+    }
+
+    protected void doSetGroupId_Equal(Long groupId) {
         regGroupId(CK_EQ, groupId);
     }
 
     /**
-     * NotEqual(!=). And NullIgnored, OnlyOnceRegistered.
+     * NotEqual(&lt;&gt;). And NullIgnored, OnlyOnceRegistered.
      * @param groupId The value of groupId as notEqual.
      */
     public void setGroupId_NotEqual(Long groupId) {
-        regGroupId(CK_NE, groupId);
+        doSetGroupId_NotEqual(groupId);
+    }
+
+    protected void doSetGroupId_NotEqual(Long groupId) {
+        regGroupId(CK_NES, groupId);
     }
 
     /**
@@ -255,6 +313,10 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
      * @param groupIdList The collection of groupId as inScope.
      */
     public void setGroupId_InScope(Collection<Long> groupIdList) {
+        doSetGroupId_InScope(groupIdList);
+    }
+
+    protected void doSetGroupId_InScope(Collection<Long> groupIdList) {
         regINS(CK_INS, cTL(groupIdList), getCValueGroupId(), "GROUP_ID");
     }
 
@@ -263,16 +325,40 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
      * @param groupIdList The collection of groupId as notInScope.
      */
     public void setGroupId_NotInScope(Collection<Long> groupIdList) {
+        doSetGroupId_NotInScope(groupIdList);
+    }
+
+    protected void doSetGroupId_NotInScope(Collection<Long> groupIdList) {
         regINS(CK_NINS, cTL(groupIdList), getCValueGroupId(), "GROUP_ID");
     }
 
+    /**
+     * Set up InScopeRelation (sub-query). <br />
+     * {in (select GROUP_ID from YS_GROUP where ...)} <br />
+     * (グループ)YS_GROUP as 'ysGroup'.
+     * @param subQuery The sub-query of YsGroup for 'in-scope'. (NotNull)
+     */
     public void inScopeYsGroup(SubQuery<YsGroupCB> subQuery) {
         assertObjectNotNull("subQuery<YsGroupCB>", subQuery);
-        YsGroupCB cb = new YsGroupCB(); cb.xsetupForInScopeSubQuery(); subQuery.query(cb);
-        String subQueryPropertyName = keepGroupId_InScopeSubQuery_YsGroup(cb.query()); // for saving query-value.
-        registerInScopeSubQuery(cb.query(), "GROUP_ID", "ID", subQueryPropertyName);
+        YsGroupCB cb = new YsGroupCB(); cb.xsetupForInScopeRelation(this); subQuery.query(cb);
+        String subQueryPropertyName = keepGroupId_InScopeRelation_YsGroup(cb.query()); // for saving query-value.
+        registerInScopeRelation(cb.query(), "GROUP_ID", "ID", subQueryPropertyName);
     }
-    public abstract String keepGroupId_InScopeSubQuery_YsGroup(YsGroupCQ subQuery);
+    public abstract String keepGroupId_InScopeRelation_YsGroup(YsGroupCQ subQuery);
+
+    /**
+     * Set up NotInScopeRelation (sub-query). <br />
+     * {not in (select GROUP_ID from YS_GROUP where ...)} <br />
+     * (グループ)YS_GROUP as 'ysGroup'.
+     * @param subQuery The sub-query of YsGroup for 'not in-scope'. (NotNull)
+     */
+    public void notInScopeYsGroup(SubQuery<YsGroupCB> subQuery) {
+        assertObjectNotNull("subQuery<YsGroupCB>", subQuery);
+        YsGroupCB cb = new YsGroupCB(); cb.xsetupForInScopeRelation(this); subQuery.query(cb);
+        String subQueryPropertyName = keepGroupId_NotInScopeRelation_YsGroup(cb.query()); // for saving query-value.
+        registerNotInScopeRelation(cb.query(), "GROUP_ID", "ID", subQueryPropertyName);
+    }
+    public abstract String keepGroupId_NotInScopeRelation_YsGroup(YsGroupCQ subQuery);
 
     /**
      * IsNull(is null). And OnlyOnceRegistered.
@@ -288,19 +374,28 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
     abstract protected ConditionValue getCValueGroupId();
     
     /**
-     * Equal(=). And NullIgnored, OnlyOnceRegistered. {UQ : BIGINT(19) : FK to YS_USER}
+     * Equal(=). And NullIgnored, OnlyOnceRegistered. <br />
+     * USER_ID: {UQ+, IX, BIGINT(19), FK to YS_USER}
      * @param userId The value of userId as equal.
      */
     public void setUserId_Equal(Long userId) {
+        doSetUserId_Equal(userId);
+    }
+
+    protected void doSetUserId_Equal(Long userId) {
         regUserId(CK_EQ, userId);
     }
 
     /**
-     * NotEqual(!=). And NullIgnored, OnlyOnceRegistered.
+     * NotEqual(&lt;&gt;). And NullIgnored, OnlyOnceRegistered.
      * @param userId The value of userId as notEqual.
      */
     public void setUserId_NotEqual(Long userId) {
-        regUserId(CK_NE, userId);
+        doSetUserId_NotEqual(userId);
+    }
+
+    protected void doSetUserId_NotEqual(Long userId) {
+        regUserId(CK_NES, userId);
     }
 
     /**
@@ -340,6 +435,10 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
      * @param userIdList The collection of userId as inScope.
      */
     public void setUserId_InScope(Collection<Long> userIdList) {
+        doSetUserId_InScope(userIdList);
+    }
+
+    protected void doSetUserId_InScope(Collection<Long> userIdList) {
         regINS(CK_INS, cTL(userIdList), getCValueUserId(), "USER_ID");
     }
 
@@ -348,16 +447,40 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
      * @param userIdList The collection of userId as notInScope.
      */
     public void setUserId_NotInScope(Collection<Long> userIdList) {
+        doSetUserId_NotInScope(userIdList);
+    }
+
+    protected void doSetUserId_NotInScope(Collection<Long> userIdList) {
         regINS(CK_NINS, cTL(userIdList), getCValueUserId(), "USER_ID");
     }
 
+    /**
+     * Set up InScopeRelation (sub-query). <br />
+     * {in (select USER_ID from YS_USER where ...)} <br />
+     * (ユーザ)YS_USER as 'ysUser'.
+     * @param subQuery The sub-query of YsUser for 'in-scope'. (NotNull)
+     */
     public void inScopeYsUser(SubQuery<YsUserCB> subQuery) {
         assertObjectNotNull("subQuery<YsUserCB>", subQuery);
-        YsUserCB cb = new YsUserCB(); cb.xsetupForInScopeSubQuery(); subQuery.query(cb);
-        String subQueryPropertyName = keepUserId_InScopeSubQuery_YsUser(cb.query()); // for saving query-value.
-        registerInScopeSubQuery(cb.query(), "USER_ID", "ID", subQueryPropertyName);
+        YsUserCB cb = new YsUserCB(); cb.xsetupForInScopeRelation(this); subQuery.query(cb);
+        String subQueryPropertyName = keepUserId_InScopeRelation_YsUser(cb.query()); // for saving query-value.
+        registerInScopeRelation(cb.query(), "USER_ID", "ID", subQueryPropertyName);
     }
-    public abstract String keepUserId_InScopeSubQuery_YsUser(YsUserCQ subQuery);
+    public abstract String keepUserId_InScopeRelation_YsUser(YsUserCQ subQuery);
+
+    /**
+     * Set up NotInScopeRelation (sub-query). <br />
+     * {not in (select USER_ID from YS_USER where ...)} <br />
+     * (ユーザ)YS_USER as 'ysUser'.
+     * @param subQuery The sub-query of YsUser for 'not in-scope'. (NotNull)
+     */
+    public void notInScopeYsUser(SubQuery<YsUserCB> subQuery) {
+        assertObjectNotNull("subQuery<YsUserCB>", subQuery);
+        YsUserCB cb = new YsUserCB(); cb.xsetupForInScopeRelation(this); subQuery.query(cb);
+        String subQueryPropertyName = keepUserId_NotInScopeRelation_YsUser(cb.query()); // for saving query-value.
+        registerNotInScopeRelation(cb.query(), "USER_ID", "ID", subQueryPropertyName);
+    }
+    public abstract String keepUserId_NotInScopeRelation_YsUser(YsUserCQ subQuery);
 
     /**
      * IsNull(is null). And OnlyOnceRegistered.
@@ -373,7 +496,8 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
     abstract protected ConditionValue getCValueUserId();
     
     /**
-     * Equal(=). And NullIgnored, OnlyOnceRegistered. {NotNull : TIMESTAMP(23, 10)}
+     * Equal(=). And NullIgnored, OnlyOnceRegistered. <br />
+     * CREATED_DATE: {NotNull, TIMESTAMP(23, 10)}
      * @param createdDate The value of createdDate as equal.
      */
     public void setCreatedDate_Equal(java.sql.Timestamp createdDate) {
@@ -389,7 +513,7 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
     }
 
     /**
-     * LessThan(&gt;). And NullIgnored, OnlyOnceRegistered.
+     * LessThan(&lt;). And NullIgnored, OnlyOnceRegistered.
      * @param createdDate The value of createdDate as lessThan.
      */
     public void setCreatedDate_LessThan(java.sql.Timestamp createdDate) {
@@ -397,7 +521,7 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
     }
 
     /**
-     * GreaterEqual(&gt;). And NullIgnored, OnlyOnceRegistered.
+     * GreaterEqual(&gt;=). And NullIgnored, OnlyOnceRegistered.
      * @param createdDate The value of createdDate as greaterEqual.
      */
     public void setCreatedDate_GreaterEqual(java.sql.Timestamp createdDate) {
@@ -405,7 +529,7 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
     }
 
     /**
-     * LessEqual(&gt;). And NullIgnored, OnlyOnceRegistered.
+     * LessEqual(&lt;=). And NullIgnored, OnlyOnceRegistered.
      * @param createdDate The value of createdDate as lessEqual.
      */
     public void setCreatedDate_LessEqual(java.sql.Timestamp createdDate) {
@@ -413,29 +537,63 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
     }
 
     /**
-     * FromTo(fromDate &lt;= COLUMN_NAME &lt;= toDate). And NullIgnored, OnlyOnceRegistered. {NotNull : TIMESTAMP(23, 10)}
-     * @param fromDate The from-date of createdDate. (Nullable)
-     * @param toDate The to-date of createdDate. (Nullable)
+     * FromTo with various options. (versatile) <br />
+     * {(default) fromDatetime &lt;= column &lt;= toDatetime} <br />
+     * And NullIgnored, OnlyOnceRegistered.
+     * @param fromDatetime The from-datetime(yyyy/MM/dd HH:mm:ss.SSS) of createdDate. (Nullable)
+     * @param toDatetime The to-datetime(yyyy/MM/dd HH:mm:ss.SSS) of createdDate. (Nullable)
      * @param fromToOption The option of from-to. (NotNull)
      */
-    public void setCreatedDate_FromTo(java.util.Date fromDate, java.util.Date toDate, FromToOption fromToOption) {
-        regFTQ((fromDate != null ? new java.sql.Timestamp(fromDate.getTime()) : null), (toDate != null ? new java.sql.Timestamp(toDate.getTime()) : null), getCValueCreatedDate(), "CREATED_DATE", fromToOption);
+    public void setCreatedDate_FromTo(java.util.Date fromDatetime, java.util.Date toDatetime, FromToOption fromToOption) {
+        regFTQ((fromDatetime != null ? new java.sql.Timestamp(fromDatetime.getTime()) : null), (toDatetime != null ? new java.sql.Timestamp(toDatetime.getTime()) : null), getCValueCreatedDate(), "CREATED_DATE", fromToOption);
     }
 
     /**
-     * FromTo(fromDate &lt;= COLUMN_NAME &lt; toDate + 1). And NullIgnored, OnlyOnceRegistered. {NotNull : TIMESTAMP(23, 10)}
-     * @param fromDate The from-date of createdDate. (Nullable)
-     * @param toDate The to-date of createdDate. (Nullable)
+     * DateFromTo. (Date means yyyy/MM/dd) <br />
+     * {fromDate &lt;= column &lt; toDate + 1 day} <br />
+     * And NullIgnored, OnlyOnceRegistered.
+     * <pre>
+     * ex) from:{2007/04/10 08:24:53} to:{2007/04/16 14:36:29}
+     *     --&gt; column &gt;= '2007/04/10 00:00:00'
+     *     and column <span style="color: #FD4747">&lt; '2007/04/17 00:00:00'</span>
+     * </pre>
+     * @param fromDate The from-date(yyyy/MM/dd) of createdDate. (Nullable)
+     * @param toDate The to-date(yyyy/MM/dd) of createdDate. (Nullable)
      */
     public void setCreatedDate_DateFromTo(java.util.Date fromDate, java.util.Date toDate) {
         setCreatedDate_FromTo(fromDate, toDate, new DateFromToOption());
+    }
+
+    /**
+     * InScope(in ('1965-03-03', '1966-09-15')). And NullIgnored, NullElementIgnored, SeveralRegistered.
+     * @param createdDateList The collection of createdDate as inScope.
+     */
+    public void setCreatedDate_InScope(Collection<java.sql.Timestamp> createdDateList) {
+        doSetCreatedDate_InScope(createdDateList);
+    }
+
+    protected void doSetCreatedDate_InScope(Collection<java.sql.Timestamp> createdDateList) {
+        regINS(CK_INS, cTL(createdDateList), getCValueCreatedDate(), "CREATED_DATE");
+    }
+
+    /**
+     * NotInScope(not in ('1965-03-03', '1966-09-15')). And NullIgnored, NullElementIgnored, SeveralRegistered.
+     * @param createdDateList The collection of createdDate as notInScope.
+     */
+    public void setCreatedDate_NotInScope(Collection<java.sql.Timestamp> createdDateList) {
+        doSetCreatedDate_NotInScope(createdDateList);
+    }
+
+    protected void doSetCreatedDate_NotInScope(Collection<java.sql.Timestamp> createdDateList) {
+        regINS(CK_NINS, cTL(createdDateList), getCValueCreatedDate(), "CREATED_DATE");
     }
 
     protected void regCreatedDate(ConditionKey k, Object v) { regQ(k, v, getCValueCreatedDate(), "CREATED_DATE"); }
     abstract protected ConditionValue getCValueCreatedDate();
     
     /**
-     * Equal(=). And NullIgnored, OnlyOnceRegistered. {NotNull : TIMESTAMP(23, 10)}
+     * Equal(=). And NullIgnored, OnlyOnceRegistered. <br />
+     * MODIFIED_DATE: {NotNull, TIMESTAMP(23, 10)}
      * @param modifiedDate The value of modifiedDate as equal.
      */
     public void setModifiedDate_Equal(java.sql.Timestamp modifiedDate) {
@@ -451,7 +609,7 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
     }
 
     /**
-     * LessThan(&gt;). And NullIgnored, OnlyOnceRegistered.
+     * LessThan(&lt;). And NullIgnored, OnlyOnceRegistered.
      * @param modifiedDate The value of modifiedDate as lessThan.
      */
     public void setModifiedDate_LessThan(java.sql.Timestamp modifiedDate) {
@@ -459,7 +617,7 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
     }
 
     /**
-     * GreaterEqual(&gt;). And NullIgnored, OnlyOnceRegistered.
+     * GreaterEqual(&gt;=). And NullIgnored, OnlyOnceRegistered.
      * @param modifiedDate The value of modifiedDate as greaterEqual.
      */
     public void setModifiedDate_GreaterEqual(java.sql.Timestamp modifiedDate) {
@@ -467,7 +625,7 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
     }
 
     /**
-     * LessEqual(&gt;). And NullIgnored, OnlyOnceRegistered.
+     * LessEqual(&lt;=). And NullIgnored, OnlyOnceRegistered.
      * @param modifiedDate The value of modifiedDate as lessEqual.
      */
     public void setModifiedDate_LessEqual(java.sql.Timestamp modifiedDate) {
@@ -475,41 +633,83 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
     }
 
     /**
-     * FromTo(fromDate &lt;= COLUMN_NAME &lt;= toDate). And NullIgnored, OnlyOnceRegistered. {NotNull : TIMESTAMP(23, 10)}
-     * @param fromDate The from-date of modifiedDate. (Nullable)
-     * @param toDate The to-date of modifiedDate. (Nullable)
+     * FromTo with various options. (versatile) <br />
+     * {(default) fromDatetime &lt;= column &lt;= toDatetime} <br />
+     * And NullIgnored, OnlyOnceRegistered.
+     * @param fromDatetime The from-datetime(yyyy/MM/dd HH:mm:ss.SSS) of modifiedDate. (Nullable)
+     * @param toDatetime The to-datetime(yyyy/MM/dd HH:mm:ss.SSS) of modifiedDate. (Nullable)
      * @param fromToOption The option of from-to. (NotNull)
      */
-    public void setModifiedDate_FromTo(java.util.Date fromDate, java.util.Date toDate, FromToOption fromToOption) {
-        regFTQ((fromDate != null ? new java.sql.Timestamp(fromDate.getTime()) : null), (toDate != null ? new java.sql.Timestamp(toDate.getTime()) : null), getCValueModifiedDate(), "MODIFIED_DATE", fromToOption);
+    public void setModifiedDate_FromTo(java.util.Date fromDatetime, java.util.Date toDatetime, FromToOption fromToOption) {
+        regFTQ((fromDatetime != null ? new java.sql.Timestamp(fromDatetime.getTime()) : null), (toDatetime != null ? new java.sql.Timestamp(toDatetime.getTime()) : null), getCValueModifiedDate(), "MODIFIED_DATE", fromToOption);
     }
 
     /**
-     * FromTo(fromDate &lt;= COLUMN_NAME &lt; toDate + 1). And NullIgnored, OnlyOnceRegistered. {NotNull : TIMESTAMP(23, 10)}
-     * @param fromDate The from-date of modifiedDate. (Nullable)
-     * @param toDate The to-date of modifiedDate. (Nullable)
+     * DateFromTo. (Date means yyyy/MM/dd) <br />
+     * {fromDate &lt;= column &lt; toDate + 1 day} <br />
+     * And NullIgnored, OnlyOnceRegistered.
+     * <pre>
+     * ex) from:{2007/04/10 08:24:53} to:{2007/04/16 14:36:29}
+     *     --&gt; column &gt;= '2007/04/10 00:00:00'
+     *     and column <span style="color: #FD4747">&lt; '2007/04/17 00:00:00'</span>
+     * </pre>
+     * @param fromDate The from-date(yyyy/MM/dd) of modifiedDate. (Nullable)
+     * @param toDate The to-date(yyyy/MM/dd) of modifiedDate. (Nullable)
      */
     public void setModifiedDate_DateFromTo(java.util.Date fromDate, java.util.Date toDate) {
         setModifiedDate_FromTo(fromDate, toDate, new DateFromToOption());
+    }
+
+    /**
+     * InScope(in ('1965-03-03', '1966-09-15')). And NullIgnored, NullElementIgnored, SeveralRegistered.
+     * @param modifiedDateList The collection of modifiedDate as inScope.
+     */
+    public void setModifiedDate_InScope(Collection<java.sql.Timestamp> modifiedDateList) {
+        doSetModifiedDate_InScope(modifiedDateList);
+    }
+
+    protected void doSetModifiedDate_InScope(Collection<java.sql.Timestamp> modifiedDateList) {
+        regINS(CK_INS, cTL(modifiedDateList), getCValueModifiedDate(), "MODIFIED_DATE");
+    }
+
+    /**
+     * NotInScope(not in ('1965-03-03', '1966-09-15')). And NullIgnored, NullElementIgnored, SeveralRegistered.
+     * @param modifiedDateList The collection of modifiedDate as notInScope.
+     */
+    public void setModifiedDate_NotInScope(Collection<java.sql.Timestamp> modifiedDateList) {
+        doSetModifiedDate_NotInScope(modifiedDateList);
+    }
+
+    protected void doSetModifiedDate_NotInScope(Collection<java.sql.Timestamp> modifiedDateList) {
+        regINS(CK_NINS, cTL(modifiedDateList), getCValueModifiedDate(), "MODIFIED_DATE");
     }
 
     protected void regModifiedDate(ConditionKey k, Object v) { regQ(k, v, getCValueModifiedDate(), "MODIFIED_DATE"); }
     abstract protected ConditionValue getCValueModifiedDate();
     
     /**
-     * Equal(=). And NullIgnored, OnlyOnceRegistered. {NotNull : BIGINT(19) : default=[1]}
+     * Equal(=). And NullIgnored, OnlyOnceRegistered. <br />
+     * VERSION_NO: {NotNull, BIGINT(19), default=[1]}
      * @param versionNo The value of versionNo as equal.
      */
     public void setVersionNo_Equal(Long versionNo) {
+        doSetVersionNo_Equal(versionNo);
+    }
+
+    protected void doSetVersionNo_Equal(Long versionNo) {
         regVersionNo(CK_EQ, versionNo);
     }
 
     /**
-     * NotEqual(!=). And NullIgnored, OnlyOnceRegistered.
+     * NotEqual(&lt;&gt;). And NullIgnored, OnlyOnceRegistered.
      * @param versionNo The value of versionNo as notEqual.
      */
     public void setVersionNo_NotEqual(Long versionNo) {
-        regVersionNo(CK_NE, versionNo);
+        doSetVersionNo_NotEqual(versionNo);
+    }
+
+    protected void doSetVersionNo_NotEqual(Long versionNo) {
+        regVersionNo(CK_NES, versionNo);
     }
 
     /**
@@ -549,6 +749,10 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
      * @param versionNoList The collection of versionNo as inScope.
      */
     public void setVersionNo_InScope(Collection<Long> versionNoList) {
+        doSetVersionNo_InScope(versionNoList);
+    }
+
+    protected void doSetVersionNo_InScope(Collection<Long> versionNoList) {
         regINS(CK_INS, cTL(versionNoList), getCValueVersionNo(), "VERSION_NO");
     }
 
@@ -557,6 +761,10 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
      * @param versionNoList The collection of versionNo as notInScope.
      */
     public void setVersionNo_NotInScope(Collection<Long> versionNoList) {
+        doSetVersionNo_NotInScope(versionNoList);
+    }
+
+    protected void doSetVersionNo_NotInScope(Collection<Long> versionNoList) {
         regINS(CK_NINS, cTL(versionNoList), getCValueVersionNo(), "VERSION_NO");
     }
 
@@ -564,65 +772,147 @@ public abstract class AbstractBsYsRoleGroupUserCQ extends AbstractConditionQuery
     abstract protected ConditionValue getCValueVersionNo();
 
     // ===================================================================================
-    //                                                                     Scalar SubQuery
-    //                                                                     ===============
+    //                                                                    Scalar Condition
+    //                                                                    ================
+    /**
+     * Prepare ScalarCondition as equal. <br />
+     * {where FOO = (select max(BAR) from ...)
+     * <pre>
+     * cb.query().<span style="color: #FD4747">scalar_Equal()</span>.max(new SubQuery&lt;YsRoleGroupUserCB&gt;() {
+     *     public void query(YsRoleGroupUserCB subCB) {
+     *         subCB.specify().setXxx... <span style="color: #3F7E5E">// derived column for function</span>
+     *         subCB.query().setYyy...
+     *     }
+     * });
+     * </pre>
+     * @return The object to set up a function. (NotNull)
+     */
     public HpSSQFunction<YsRoleGroupUserCB> scalar_Equal() {
-        return xcreateSSQFunction("=");
+        return xcreateSSQFunction(CK_EQ.getOperand());
     }
 
-    public HpSSQFunction<YsRoleGroupUserCB> scalar_GreaterEqual() {
-        return xcreateSSQFunction(">=");
+    /**
+     * Prepare ScalarCondition as equal. <br />
+     * {where FOO &lt;&gt; (select max(BAR) from ...)
+     * <pre>
+     * cb.query().<span style="color: #FD4747">scalar_NotEqual()</span>.max(new SubQuery&lt;YsRoleGroupUserCB&gt;() {
+     *     public void query(YsRoleGroupUserCB subCB) {
+     *         subCB.specify().setXxx... <span style="color: #3F7E5E">// derived column for function</span>
+     *         subCB.query().setYyy...
+     *     }
+     * });
+     * </pre>
+     * @return The object to set up a function. (NotNull)
+     */
+    public HpSSQFunction<YsRoleGroupUserCB> scalar_NotEqual() {
+        return xcreateSSQFunction(CK_NES.getOperand());
     }
 
+    /**
+     * Prepare ScalarCondition as greaterThan. <br />
+     * {where FOO &gt; (select max(BAR) from ...)
+     * <pre>
+     * cb.query().<span style="color: #FD4747">scalar_GreaterThan()</span>.max(new SubQuery&lt;YsRoleGroupUserCB&gt;() {
+     *     public void query(YsRoleGroupUserCB subCB) {
+     *         subCB.specify().setFoo... <span style="color: #3F7E5E">// derived column for function</span>
+     *         subCB.query().setBar...
+     *     }
+     * });
+     * </pre>
+     * @return The object to set up a function. (NotNull)
+     */
     public HpSSQFunction<YsRoleGroupUserCB> scalar_GreaterThan() {
-        return xcreateSSQFunction(">");
+        return xcreateSSQFunction(CK_GT.getOperand());
     }
 
-    public HpSSQFunction<YsRoleGroupUserCB> scalar_LessEqual() {
-        return xcreateSSQFunction("<=");
-    }
-    
+    /**
+     * Prepare ScalarCondition as lessThan. <br />
+     * {where FOO &lt; (select max(BAR) from ...)
+     * <pre>
+     * cb.query().<span style="color: #FD4747">scalar_LessThan()</span>.max(new SubQuery&lt;YsRoleGroupUserCB&gt;() {
+     *     public void query(YsRoleGroupUserCB subCB) {
+     *         subCB.specify().setFoo... <span style="color: #3F7E5E">// derived column for function</span>
+     *         subCB.query().setBar...
+     *     }
+     * });
+     * </pre>
+     * @return The object to set up a function. (NotNull)
+     */
     public HpSSQFunction<YsRoleGroupUserCB> scalar_LessThan() {
-        return xcreateSSQFunction("<");
+        return xcreateSSQFunction(CK_LT.getOperand());
     }
-    
+
+    /**
+     * Prepare ScalarCondition as greaterEqual. <br />
+     * {where FOO &gt;= (select max(BAR) from ...)
+     * <pre>
+     * cb.query().<span style="color: #FD4747">scalar_GreaterEqual()</span>.max(new SubQuery&lt;YsRoleGroupUserCB&gt;() {
+     *     public void query(YsRoleGroupUserCB subCB) {
+     *         subCB.specify().setFoo... <span style="color: #3F7E5E">// derived column for function</span>
+     *         subCB.query().setBar...
+     *     }
+     * });
+     * </pre>
+     * @return The object to set up a function. (NotNull)
+     */
+    public HpSSQFunction<YsRoleGroupUserCB> scalar_GreaterEqual() {
+        return xcreateSSQFunction(CK_GE.getOperand());
+    }
+
+    /**
+     * Prepare ScalarCondition as lessEqual. <br />
+     * {where FOO &lt;= (select max(BAR) from ...)
+     * <pre>
+     * cb.query().<span style="color: #FD4747">scalar_LessEqual()</span>.max(new SubQuery&lt;YsRoleGroupUserCB&gt;() {
+     *     public void query(YsRoleGroupUserCB subCB) {
+     *         subCB.specify().setFoo... <span style="color: #3F7E5E">// derived column for function</span>
+     *         subCB.query().setBar...
+     *     }
+     * });
+     * </pre>
+     * @return The object to set up a function. (NotNull)
+     */
+    public HpSSQFunction<YsRoleGroupUserCB> scalar_LessEqual() {
+        return xcreateSSQFunction(CK_LE.getOperand());
+    }
+
     protected HpSSQFunction<YsRoleGroupUserCB> xcreateSSQFunction(final String operand) {
         return new HpSSQFunction<YsRoleGroupUserCB>(new HpSSQSetupper<YsRoleGroupUserCB>() {
             public void setup(String function, SubQuery<YsRoleGroupUserCB> subQuery) {
-                xscalarSubQuery(function, subQuery, operand);
+                xscalarCondition(function, subQuery, operand);
             }
         });
     }
 
-    protected void xscalarSubQuery(String function, SubQuery<YsRoleGroupUserCB> subQuery, String operand) {
+    protected void xscalarCondition(String function, SubQuery<YsRoleGroupUserCB> subQuery, String operand) {
         assertObjectNotNull("subQuery<YsRoleGroupUserCB>", subQuery);
-        YsRoleGroupUserCB cb = new YsRoleGroupUserCB(); cb.xsetupForScalarSubQuery(); subQuery.query(cb);
-        String subQueryPropertyName = keepScalarSubQuery(cb.query()); // for saving query-value.
-        registerScalarSubQuery(function, cb.query(), subQueryPropertyName, operand);
+        YsRoleGroupUserCB cb = new YsRoleGroupUserCB(); cb.xsetupForScalarCondition(this); subQuery.query(cb);
+        String subQueryPropertyName = keepScalarCondition(cb.query()); // for saving query-value.
+        registerScalarCondition(function, cb.query(), subQueryPropertyName, operand);
     }
-    public abstract String keepScalarSubQuery(YsRoleGroupUserCQ subQuery);
+    public abstract String keepScalarCondition(YsRoleGroupUserCQ subQuery);
 
     // ===================================================================================
-    //                                                             MySelf InScope SubQuery
-    //                                                             =======================
+    //                                                                      Myself InScope
+    //                                                                      ==============
     /**
-     * Myself InScope SubQuery. {mainly for CLOB and Union}
+     * Myself InScope (SubQuery). {mainly for CLOB and Union}
      * @param subQuery The implementation of sub query. (NotNull)
      */
     public void myselfInScope(SubQuery<YsRoleGroupUserCB> subQuery) {
         assertObjectNotNull("subQuery<YsRoleGroupUserCB>", subQuery);
-        YsRoleGroupUserCB cb = new YsRoleGroupUserCB(); cb.xsetupForInScopeSubQuery(); subQuery.query(cb);
-        String subQueryPropertyName = keepMyselfInScopeSubQuery(cb.query()); // for saving query-value.
-        registerInScopeSubQuery(cb.query(), "ID", "ID", subQueryPropertyName);
+        YsRoleGroupUserCB cb = new YsRoleGroupUserCB(); cb.xsetupForInScopeRelation(this); subQuery.query(cb);
+        String subQueryPropertyName = keepMyselfInScopeRelation(cb.query()); // for saving query-value.
+        registerInScopeRelation(cb.query(), "ID", "ID", subQueryPropertyName);
     }
-    public abstract String keepMyselfInScopeSubQuery(YsRoleGroupUserCQ subQuery);
+    public abstract String keepMyselfInScopeRelation(YsRoleGroupUserCQ subQuery);
 
     // ===================================================================================
     //                                                                       Very Internal
     //                                                                       =============
-    // Very Internal (for Suppressing Warn about 'Not Use Import')
-    String xCB() { return YsRoleGroupUserCB.class.getName(); }
-    String xCQ() { return YsRoleGroupUserCQ.class.getName(); }
-    String xLSO() { return LikeSearchOption.class.getName(); }
-    String xSSQS() { return HpSSQSetupper.class.getName(); }
+    // very internal (for suppressing warn about 'Not Use Import')
+    protected String xabCB() { return YsRoleGroupUserCB.class.getName(); }
+    protected String xabCQ() { return YsRoleGroupUserCQ.class.getName(); }
+    protected String xabLSO() { return LikeSearchOption.class.getName(); }
+    protected String xabSSQS() { return HpSSQSetupper.class.getName(); }
 }

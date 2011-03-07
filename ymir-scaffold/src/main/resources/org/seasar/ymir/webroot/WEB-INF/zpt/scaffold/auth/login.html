@@ -6,16 +6,20 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <title metal:fill-slot="title">ログイン</title>
   <div metal:fill-slot="head" tal:omit-tag="">
-    <div metal:use-macro="/WEB-INF/zpt/scaffold/macro/jquery.html#head"></div>
-    <link rel="stylesheet" type="text/css" media="all" tal:attributes="href page:/ys/style.css" />
+    <div metal:use-macro="/WEB-INF/zpt/scaffold/macro/head.html"></div>
   </div> 
 </head>
 <body>
+
+<div metal:fill-slot="body-header">
+  <div metal:use-macro="/WEB-INF/zpt/scaffold/macro/body-header.html"></div>
+</div>
+
 <div metal:fill-slot="body">
 
 <h1>ログイン</h1>
 
-<div metal:use-macro="/WEB-INF/zpt/scaffold/macro/generic.html#notes"></div>
+<div metal:use-macro="/WEB-INF/zpt/scaffold/macro/notes.html"></div>
 <form method="post" ys:form="">
   <table>
     <tbody>
@@ -37,4 +41,9 @@
 
 </div>
 </body>
+
+<div metal:fill-slot="body-footer">
+  <div metal:use-macro="/WEB-INF/zpt/scaffold/macro/body-footer.html"></div>
+</div>
+
 </html>

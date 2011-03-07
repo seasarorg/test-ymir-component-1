@@ -11,6 +11,9 @@ import org.seasar.dbflute.dbmeta.DBMetaProvider;
  */
 public class ImplementedSqlClauseCreator implements SqlClauseCreator {
 
+    // ===================================================================================
+    //                                                                      Implementation
+    //                                                                      ==============
 	/**
 	 * Create SQL clause. {for condition-bean}
 	 * @param cb Condition-bean. (NotNull) 
@@ -28,33 +31,106 @@ public class ImplementedSqlClauseCreator implements SqlClauseCreator {
 	 * @return SQL clause. (NotNull)
 	 */
     public SqlClause createSqlClause(String tableDbName) {
-        DBMetaProvider dbmetaProvider = new DBMetaInstanceHandler();
-        SqlClause sqlClause;
+        DBMetaProvider dbmetaProvider = DBMetaInstanceHandler.getProvider();
+        SqlClause sqlClause = doCreateSqlClause(tableDbName, dbmetaProvider);
+        setupSqlClauseOption(sqlClause);
+        return sqlClause;
+    }
+
+    // ===================================================================================
+    //                                                                            Creation
+    //                                                                            ========
+    protected SqlClause doCreateSqlClause(String tableDbName, DBMetaProvider dbmetaProvider) {
+        SqlClause sqlClause; // dynamic resolution but no perfect (almost static)
         if (isCurrentDBDef(DBDef.MySQL)) {
-            sqlClause = new SqlClauseMySql(tableDbName).provider(dbmetaProvider);
+            sqlClause = createSqlClauseMySql(tableDbName, dbmetaProvider);
         } else if (isCurrentDBDef(DBDef.PostgreSQL)) {
-            sqlClause = new SqlClausePostgreSql(tableDbName).provider(dbmetaProvider);
+            sqlClause = createSqlClausePostgreSql(tableDbName, dbmetaProvider);
         } else if (isCurrentDBDef(DBDef.Oracle)) {
-            sqlClause = new SqlClauseOracle(tableDbName).provider(dbmetaProvider);
+            sqlClause = createSqlClauseOracle(tableDbName, dbmetaProvider);
         } else if (isCurrentDBDef(DBDef.DB2)) {
-            sqlClause = new SqlClauseDb2(tableDbName).provider(dbmetaProvider);
+            sqlClause = createSqlClauseDb2(tableDbName, dbmetaProvider);
         } else if (isCurrentDBDef(DBDef.SQLServer)) {
-            sqlClause = new SqlClauseSqlServer(tableDbName).provider(dbmetaProvider);
-        } else if (isCurrentDBDef(DBDef.FireBird)) {
-            sqlClause = new SqlClauseFirebird(tableDbName).provider(dbmetaProvider);
+            sqlClause = createSqlClauseSqlServer(tableDbName, dbmetaProvider);
         } else if (isCurrentDBDef(DBDef.H2)) {
-            sqlClause = new SqlClauseH2(tableDbName).provider(dbmetaProvider);
+            sqlClause = createSqlClauseH2(tableDbName, dbmetaProvider);
         } else if (isCurrentDBDef(DBDef.Derby)) {
-            sqlClause = new SqlClauseDerby(tableDbName).provider(dbmetaProvider);
+            sqlClause = createSqlClauseDerby(tableDbName, dbmetaProvider);
+        } else if (isCurrentDBDef(DBDef.SQLite)) {
+            sqlClause = createSqlClauseSqlite(tableDbName, dbmetaProvider);
+        } else if (isCurrentDBDef(DBDef.MSAccess)) {
+            sqlClause = createSqlClauseMsAccess(tableDbName, dbmetaProvider);
+        } else if (isCurrentDBDef(DBDef.FireBird)) {
+            sqlClause = createSqlClauseFirebird(tableDbName, dbmetaProvider);
+        } else if (isCurrentDBDef(DBDef.Sybase)) {
+            sqlClause = createSqlClauseSybase(tableDbName, dbmetaProvider);
         } else {
-            sqlClause = new SqlClauseH2(tableDbName).provider(dbmetaProvider);
-        }
-        if (isDisableSelectIndex()) {
-            sqlClause.disableSelectIndex();
+            // as the database when generating
+            sqlClause = createSqlClauseH2(tableDbName, dbmetaProvider);
         }
         return sqlClause;
     }
 
+    protected SqlClause createSqlClauseMySql(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseMySql(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClausePostgreSql(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClausePostgreSql(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseOracle(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseOracle(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseDb2(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseDb2(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseSqlServer(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseSqlServer(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseH2(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseH2(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseDerby(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseDerby(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseSqlite(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseSqlite(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseMsAccess(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseMsAccess(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseFirebird(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseFirebird(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseSybase(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseSybase(tableDbName).provider(dbmetaProvider);
+    }
+
+    protected SqlClause createSqlClauseDefault(String tableDbName, DBMetaProvider dbmetaProvider) {
+        return new SqlClauseDefault(tableDbName).provider(dbmetaProvider);
+    }
+
+    // ===================================================================================
+    //                                                                              Option
+    //                                                                              ======
+    protected void setupSqlClauseOption(SqlClause sqlClause) {
+        if (isDisableSelectIndex()) {
+            sqlClause.disableSelectIndex();
+        }
+    }
+
+    // ===================================================================================
+    //                                                                       Determination
+    //                                                                       =============
     protected boolean isCurrentDBDef(DBDef currentDBDef) {
 	    return DBCurrent.getInstance().isCurrentDBDef(currentDBDef);
     }

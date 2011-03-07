@@ -5,13 +5,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.seasar.ymir.constraint.ConstraintType;
-import org.seasar.ymir.constraint.annotation.ConstraintAnnotation;
-import org.seasar.ymir.scaffold.auth.impl.LoginedConstraint;
+import org.seasar.ymir.scaffold.auth.LoginCheckConstraint;
 
+/**
+ * ログインチェックのためのアノテーションです。
+ * 
+ * @author skirnir
+ * @see SuppressLoginCheck
+ * @see LoginCheckConstraint
+ */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( { ElementType.TYPE, ElementType.METHOD })
-@ConstraintAnnotation(type = ConstraintType.PERMISSION, component = LoginedConstraint.class)
+@Target( { ElementType.TYPE })
 public @interface Logined {
     /**
      * ログインユーザが持っているべきロールです。

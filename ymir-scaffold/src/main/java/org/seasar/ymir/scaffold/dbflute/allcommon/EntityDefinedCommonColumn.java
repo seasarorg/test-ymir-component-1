@@ -9,18 +9,19 @@ import org.seasar.dbflute.Entity;
 public interface EntityDefinedCommonColumn extends Entity {
 
     /**
-	 * Enable common column auto set up. {for after disable because the default is enabled}
+	 * Enable common column auto set up. <br />
+	 * It's only for after disable because the default is enabled.
 	 */
-    public void enableCommonColumnAutoSetup();
+    void enableCommonColumnAutoSetup();
 
     /**
 	 * Disable common column auto set up.
 	 */
-    public void disableCommonColumnAutoSetup();
-	
+    void disableCommonColumnAutoSetup();
+
     /**
-	 * Can the entity set up common column by auto?
+	 * Can the entity set up common column by auto? (basically for Framework)
 	 * @return Determination.
 	 */
-	public boolean canCommonColumnAutoSetup();
+	boolean canCommonColumnAutoSetup();
 }

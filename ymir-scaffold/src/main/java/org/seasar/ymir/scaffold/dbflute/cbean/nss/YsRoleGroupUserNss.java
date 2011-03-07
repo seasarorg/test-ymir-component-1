@@ -9,13 +9,16 @@ import org.seasar.ymir.scaffold.dbflute.cbean.cq.YsRoleGroupUserCQ;
  */
 public class YsRoleGroupUserNss {
 
+    // ===================================================================================
+    //                                                                           Attribute
+    //                                                                           =========
     protected YsRoleGroupUserCQ _query;
     public YsRoleGroupUserNss(YsRoleGroupUserCQ query) { _query = query; }
     public boolean hasConditionQuery() { return _query != null; }
 
     // ===================================================================================
-    //                                                           With Nested Foreign Table
-    //                                                           =========================
+    //                                                                     Nested Relation
+    //                                                                     ===============
     public YsGroupNss withYsGroup() {
         _query.doNss(new YsRoleGroupUserCQ.NssCall() { public ConditionQuery qf() { return _query.queryYsGroup(); }});
 		return new YsGroupNss(_query.queryYsGroup());
@@ -29,7 +32,4 @@ public class YsRoleGroupUserNss {
 		return new YsUserNss(_query.queryYsUser());
     }
 
-    // ===================================================================================
-    //                                                          With Nested Referrer Table
-    //                                                          ==========================
 }

@@ -8,15 +8,15 @@ import org.seasar.ymir.scaffold.dbflute.cbean.cq.YsGroupCQ;
  */
 public class YsGroupNss {
 
+    // ===================================================================================
+    //                                                                           Attribute
+    //                                                                           =========
     protected YsGroupCQ _query;
     public YsGroupNss(YsGroupCQ query) { _query = query; }
     public boolean hasConditionQuery() { return _query != null; }
 
     // ===================================================================================
-    //                                                           With Nested Foreign Table
-    //                                                           =========================
+    //                                                                     Nested Relation
+    //                                                                     ===============
 
-    // ===================================================================================
-    //                                                          With Nested Referrer Table
-    //                                                          ==========================
 }

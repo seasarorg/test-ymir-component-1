@@ -1,0 +1,51 @@
+map:{
+    ; 2011/02/08 12:02:08 = map:{
+        ; diffDate = 2011/02/08 12:02:08
+        ; tableCount = map:{
+            ; next = 5
+            ; previous = 5
+        }
+        ; tableDiff = map:{
+            ; YS_GROUP = map:{
+                ; tableName = YS_GROUP
+                ; diffType = CHANGE
+                ; unifiedSchemaDiff = map:{
+                    ; next = H2.PUBLIC
+                    ; previous = PUBLIC
+                }
+            }
+            ; YS_GROUP_USER = map:{
+                ; tableName = YS_GROUP_USER
+                ; diffType = CHANGE
+                ; unifiedSchemaDiff = map:{
+                    ; next = H2.PUBLIC
+                    ; previous = PUBLIC
+                }
+            }
+            ; YS_ROLE = map:{
+                ; tableName = YS_ROLE
+                ; diffType = CHANGE
+                ; unifiedSchemaDiff = map:{
+                    ; next = H2.PUBLIC
+                    ; previous = PUBLIC
+                }
+            }
+            ; YS_ROLE_GROUP_USER = map:{
+                ; tableName = YS_ROLE_GROUP_USER
+                ; diffType = CHANGE
+                ; unifiedSchemaDiff = map:{
+                    ; next = H2.PUBLIC
+                    ; previous = PUBLIC
+                }
+            }
+            ; YS_USER = map:{
+                ; tableName = YS_USER
+                ; diffType = CHANGE
+                ; unifiedSchemaDiff = map:{
+                    ; next = H2.PUBLIC
+                    ; previous = PUBLIC
+                }
+            }
+        }
+    }
+}

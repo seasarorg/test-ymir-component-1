@@ -1,40 +1,56 @@
 package org.seasar.ymir.scaffold.maintenance.dto;
 
-import java.util.List;
+import java.util.Date;
 
 import org.seasar.dbflute.dbmeta.info.ColumnInfo;
-import org.seasar.dbflute.dbmeta.info.ForeignInfo;
 import org.seasar.ymir.YmirContext;
+import org.seasar.ymir.dbflute.EntityManager;
 import org.seasar.ymir.message.Messages;
-import org.seasar.ymir.scaffold.maintenance.annotation.YsMaintenanceFK;
+import org.seasar.ymir.scaffold.maintenance.annotation.YsMaintenanceFk;
+import org.seasar.ymir.scaffold.maintenance.enm.RelationType;
+import org.seasar.ymir.scaffold.maintenance.web.EntityBean;
 
 public class ColumnDto {
     private Messages messages;
+
+    private EntityManager entityManager;
+
+    private EntityBean entityBean;
 
     private ColumnInfo columnInfo;
 
     private String name;
 
-    private YsMaintenanceFK fk;
+    private YsMaintenanceFk fk;
+
+    private RelationType relationType;
 
     private boolean readOnly;
 
-    public ColumnDto(ColumnInfo columnInfo) {
-        this(columnInfo, false);
+    public ColumnDto(EntityManager entityManager, EntityBean entityBean,
+            ColumnInfo columnInfo) {
+        this(entityManager, entityBean, columnInfo, false);
     }
 
-    public ColumnDto(ColumnInfo columnInfo, boolean readOnly) {
-        this(columnInfo, null, readOnly);
+    public ColumnDto(EntityManager entityManager, EntityBean entityBean,
+            ColumnInfo columnInfo, boolean readOnly) {
+        this(entityManager, entityBean, columnInfo, null, null, readOnly);
     }
 
-    public ColumnDto(ColumnInfo columnInfo, YsMaintenanceFK fk) {
-        this(columnInfo, fk, false);
+    public ColumnDto(EntityManager entityManager, EntityBean entityBean,
+            ColumnInfo columnInfo, YsMaintenanceFk fk, RelationType relationType) {
+        this(entityManager, entityBean, columnInfo, fk, relationType, false);
     }
 
-    public ColumnDto(ColumnInfo columnInfo, YsMaintenanceFK fk, boolean readOnly) {
+    public ColumnDto(EntityManager entityManager, EntityBean entityBean,
+            ColumnInfo columnInfo, YsMaintenanceFk fk,
+            RelationType relationType, boolean readOnly) {
+        this.entityManager = entityManager;
+        this.entityBean = entityBean;
         this.columnInfo = columnInfo;
         name = columnInfo.getPropertyName();
         this.fk = fk;
+        this.relationType = relationType;
         this.readOnly = readOnly;
     }
 
@@ -42,24 +58,13 @@ public class ColumnDto {
         return name;
     }
 
-    public String getPath() {
-        if (fk != null) {
-            List<ForeignInfo> foreignInfos = columnInfo.getForeignInfoList();
-            if (!foreignInfos.isEmpty()) {
-                return "entity/" + foreignInfos.get(0).getForeignPropertyName()
-                        + "/" + fk.foreignDisplayColumn();
-            }
-        }
-
-        return "entity/" + name;
+    public RelationType getRelationType() {
+        return relationType;
     }
 
     public String getLabel() {
-        if (fk != null) {
-            return fk.foreignDisplayColumnLabel();
-        } else {
-            return getMessages().getMessage("label." + name);
-        }
+        return getMessages().getMessage(
+                "label." + entityBean.getEntityName() + "." + name);
     }
 
     protected Messages getMessages() {
@@ -72,5 +77,9 @@ public class ColumnDto {
 
     public boolean isReadOnly() {
         return readOnly;
+    }
+
+    public boolean isDateType() {
+        return Date.class.isAssignableFrom(columnInfo.getPropertyType());
     }
 }
