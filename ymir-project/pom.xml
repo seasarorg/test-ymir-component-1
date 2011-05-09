@@ -247,5 +247,6 @@
     <!--
     <module>../ymir-scaffold</module>
     -->
+    <module>../ymir-gson</module>
   </modules>
 </project>
